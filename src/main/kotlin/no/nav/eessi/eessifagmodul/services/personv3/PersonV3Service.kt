@@ -3,10 +3,9 @@ package no.nav.eessi.eessifagmodul.services.personv3
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.Metrics
 import no.nav.eessi.eessifagmodul.config.TimingService
-import no.nav.eessi.eessifagmodul.services.sts.configureRequestSamlTokenOnBehalfOfOidc
 import no.nav.eessi.eessifagmodul.models.PersonV3IkkeFunnetException
 import no.nav.eessi.eessifagmodul.models.PersonV3SikkerhetsbegrensningException
-import no.nav.eessi.eessifagmodul.services.sts.SecurityTokenExchangeService
+import no.nav.eessi.eessifagmodul.services.sts.configureRequestSamlToken
 import no.nav.tjeneste.virksomhet.person.v3.binding.HentPersonPersonIkkeFunnet
 import no.nav.tjeneste.virksomhet.person.v3.binding.HentPersonSikkerhetsbegrensning
 import no.nav.tjeneste.virksomhet.person.v3.binding.PersonV3
@@ -23,7 +22,6 @@ import org.springframework.stereotype.Component
 
 @Component
 class PersonV3Service(val service: PersonV3,
-                      val securityTokenExchangeService: SecurityTokenExchangeService,
                       val timingService: TimingService) {
 
     private val logger: Logger by lazy { LoggerFactory.getLogger(PersonV3Service::class.java) }
@@ -38,9 +36,7 @@ class PersonV3Service(val service: PersonV3,
 
     fun hentPerson(fnr: String): HentPersonResponse {
         logger.info("Henter person fra PersonV3Service")
-        val token = securityTokenExchangeService.getSystemOidcToken()
-
-        configureRequestSamlTokenOnBehalfOfOidc(service, token)
+        configureRequestSamlToken(service)
 
         val request = HentPersonRequest().apply {
             withAktoer(PersonIdent().withIdent(
@@ -74,8 +70,7 @@ class PersonV3Service(val service: PersonV3,
     //Experimental only
     fun hentGeografi(fnr: String): HentGeografiskTilknytningResponse {
 
-        val token = securityTokenExchangeService.getSystemOidcToken()
-        configureRequestSamlTokenOnBehalfOfOidc(service, token)
+        configureRequestSamlToken(service)
 
         val request = HentGeografiskTilknytningRequest().apply {
             withAktoer(PersonIdent().withIdent(

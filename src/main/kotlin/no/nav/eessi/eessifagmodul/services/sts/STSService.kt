@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
 
-private val logger = LoggerFactory.getLogger(SecurityTokenExchangeService::class.java)
+private val logger = LoggerFactory.getLogger(STSService::class.java)
 
 data class SecurityTokenResponse(
         @JsonProperty("access_token")
@@ -25,7 +25,7 @@ data class SecurityTokenResponse(
  * Denne STS tjenesten benyttes ved kall mot nye REST tjenester sånn som Aktørregisteret
  */
 @Service
-class SecurityTokenExchangeService(val securityTokenExchangeBasicAuthRestTemplate: RestTemplate) {
+class STSService(val securityTokenExchangeBasicAuthRestTemplate: RestTemplate) {
 
     fun getSystemOidcToken(): String {
         try {

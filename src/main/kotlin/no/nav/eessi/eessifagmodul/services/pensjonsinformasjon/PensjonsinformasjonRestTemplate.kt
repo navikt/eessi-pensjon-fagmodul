@@ -2,7 +2,7 @@ package no.nav.eessi.eessifagmodul.services.pensjonsinformasjon
 
 import io.micrometer.core.instrument.MeterRegistry
 import no.nav.eessi.eessifagmodul.config.RequestResponseLoggerInterceptor
-import no.nav.eessi.eessifagmodul.services.sts.SecurityTokenExchangeService
+import no.nav.eessi.eessifagmodul.services.sts.STSService
 import no.nav.eessi.eessifagmodul.services.sts.UsernameToOidcInterceptor
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.actuate.metrics.web.client.DefaultRestTemplateExchangeTagsProvider
@@ -21,7 +21,7 @@ import org.springframework.web.client.RestTemplate
  * @property registry
  */
 @Component
-class PensjonsinformasjonRestTemplate(val securityTokenExchangeService: SecurityTokenExchangeService,
+class PensjonsinformasjonRestTemplate(val stsService: STSService,
                                       private val registry: MeterRegistry) {
 
     @Value("\${pensjonsinformasjon.url}")
@@ -31,7 +31,7 @@ class PensjonsinformasjonRestTemplate(val securityTokenExchangeService: Security
     fun pensjonsinformasjonOidcRestTemplate(templateBuilder: RestTemplateBuilder): RestTemplate {
         return templateBuilder
                 .rootUri(url)
-                .additionalInterceptors(RequestResponseLoggerInterceptor(), UsernameToOidcInterceptor(securityTokenExchangeService))
+                .additionalInterceptors(RequestResponseLoggerInterceptor(), UsernameToOidcInterceptor(stsService))
                 .customizers(MetricsRestTemplateCustomizer(registry, DefaultRestTemplateExchangeTagsProvider(), "eessipensjon_fagmodul_pensjonsinformasjon"))
                 .build().apply {
                     requestFactory = BufferingClientHttpRequestFactory(SimpleClientHttpRequestFactory())

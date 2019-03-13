@@ -1,7 +1,7 @@
 package no.nav.eessi.eessifagmodul.services.aktoerregister
 
 import io.micrometer.core.instrument.MeterRegistry
-import no.nav.eessi.eessifagmodul.services.sts.SecurityTokenExchangeService
+import no.nav.eessi.eessifagmodul.services.sts.STSService
 import no.nav.eessi.eessifagmodul.services.sts.UsernameToOidcInterceptor
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.actuate.metrics.web.client.DefaultRestTemplateExchangeTagsProvider
@@ -15,7 +15,7 @@ import org.springframework.web.client.DefaultResponseErrorHandler
 import org.springframework.web.client.RestTemplate
 
 @Component
-class AktoerregisterRestTemplate(val securityTokenExchangeService: SecurityTokenExchangeService,
+class AktoerregisterRestTemplate(val stsService: STSService,
                                  val registry: MeterRegistry) {
 
     @Value("\${aktoerregister.api.v1.url}")
@@ -26,7 +26,7 @@ class AktoerregisterRestTemplate(val securityTokenExchangeService: SecurityToken
         return templateBuilder
                 .rootUri(url)
                 .errorHandler(DefaultResponseErrorHandler())
-                .additionalInterceptors(UsernameToOidcInterceptor(securityTokenExchangeService))
+                .additionalInterceptors(UsernameToOidcInterceptor(stsService))
                 .customizers(MetricsRestTemplateCustomizer(registry, DefaultRestTemplateExchangeTagsProvider(), "eessipensjon_fagmodul_aktoer"))
                 .build().apply {
                     requestFactory = BufferingClientHttpRequestFactory(SimpleClientHttpRequestFactory())
