@@ -21,19 +21,18 @@ class PensjonController(private val pensjonsinformasjonService: Pensjonsinformas
     @ApiOperation("Henter ut saktype knyttet til den valgte sakId og aktoerId")
     @GetMapping("/saktype/{sakId}/{aktoerId}")
     fun hentPensjonSakType(@PathVariable("sakId", required = true) sakId: String, @PathVariable("aktoerId", required = true) aktoerId: String): Pensjontype {
-        val pinid = hentAktoerIdPin(aktoerId)
-        return pensjonsinformasjonService.hentKunSakType(sakId, pinid)
+        // FIXME This is a hack because Pesys uses the wrong identifier in some cases
+        val fnr = if (isProbablyAnFnrSentAsAktoerId(aktoerId)) aktoerId else hentAktoerIdPin(aktoerId)
+        return pensjonsinformasjonService.hentKunSakType(sakId, fnr)
     }
 
     @Throws(AktoerregisterException::class)
     fun hentAktoerIdPin(aktorid: String): String {
         if (aktorid.isBlank()) throw IkkeGyldigKallException("Mangler AktorId")
-        if (aktorid.length == 11) {
-            return aktorid
-        }
         return aktoerregisterService.hentGjeldendeNorskIdentForAktorId(aktorid)
     }
 
+    private fun isProbablyAnFnrSentAsAktoerId(aktorid: String) = aktorid.length == 11
 
 }
 

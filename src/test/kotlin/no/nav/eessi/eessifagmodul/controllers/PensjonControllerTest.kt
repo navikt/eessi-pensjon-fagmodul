@@ -8,41 +8,37 @@ import no.nav.eessi.eessifagmodul.services.aktoerregister.AktoerregisterService
 import no.nav.eessi.eessifagmodul.services.pensjonsinformasjon.PensjonsinformasjonService
 import org.junit.Test
 import org.mockito.Mockito.`when`
+import org.mockito.Mockito.never
 
 
 class PensjonControllerTest {
 
+    private val pensjonsinformasjonService: PensjonsinformasjonService = mock()
+    private val aktoerregisterService: AktoerregisterService = mock()
+    private val controller = PensjonController(pensjonsinformasjonService, aktoerregisterService)
+    private val sakId = "Some sakId"
+
     @Test
-    fun `hentPensjonSakType | gitt En AktoerId I AktoerId Feltet Saa Oversett Til Fnr Og Kall Fnr Metoden`() {
-
-        val aktoerId = "1234567890123"
-        val fnrForAktoerID = "Fnr"
+    fun `hentPensjonSakType | gitt en aktoerId saa slaa opp fnr og hent deretter sakstype`() {
+        val aktoerId = "1234567890123" // 13 sifre
+        val fnrForAktoerID = "23037328392" // 11 sifre
         val sakId = "Some sakId"
-
-        val pensjonsinformasjonService: PensjonsinformasjonService = mock()
-        val aktoerregisterService: AktoerregisterService = mock()
-        val controller = PensjonController(pensjonsinformasjonService, aktoerregisterService)
 
         `when`(aktoerregisterService.hentGjeldendeNorskIdentForAktorId(aktoerId)).thenReturn(fnrForAktoerID)
 
         controller.hentPensjonSakType(sakId, aktoerId)
 
-        verify(pensjonsinformasjonService, times(1)).hentKunSakType(sakId, fnrForAktoerID)
+        verify(pensjonsinformasjonService).hentKunSakType(sakId, fnrForAktoerID)
     }
 
     @Test
-    fun `hentPensjonSakType | gitt ett FNR i AktoerId-feltet Saa Kall Fnr Metoden`() {
-
-        val aktoerIdSomFaktiskErEtFnr = "23037328392"
-        val sakId = "Some sakId"
-
-        val pensjonsinformasjonService: PensjonsinformasjonService = mock()
-        val aktoerregisterService: AktoerregisterService = mock()
-        val controller = PensjonController(pensjonsinformasjonService, aktoerregisterService)
+    fun `hentPensjonSakType | gitt et FNR I aktoerId-feltet saa hent sakstype direkte`() {
+        val aktoerIdSomFaktiskErEtFnr = "23037328392" // 11 sifre! - Dette skyldes en feil hos klienten som kaller oss
 
         controller.hentPensjonSakType(sakId, aktoerIdSomFaktiskErEtFnr)
 
-        verify(aktoerregisterService, times(0)).hentGjeldendeNorskIdentForAktorId(any())
-        verify(pensjonsinformasjonService, times(1)).hentKunSakType(sakId, aktoerIdSomFaktiskErEtFnr)
+        verify(pensjonsinformasjonService).hentKunSakType(sakId, aktoerIdSomFaktiskErEtFnr)
+
+        verify(aktoerregisterService, never()).hentGjeldendeNorskIdentForAktorId(any())
     }
 }
