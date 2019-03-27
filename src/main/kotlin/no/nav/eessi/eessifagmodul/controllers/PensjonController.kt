@@ -28,6 +28,9 @@ class PensjonController(private val pensjonsinformasjonService: Pensjonsinformas
     @Throws(AktoerregisterException::class)
     fun hentAktoerIdPin(aktorid: String): String {
         if (aktorid.isBlank()) throw IkkeGyldigKallException("Mangler AktorId")
+        if (aktorid.length == 11) {
+            return aktorid
+        }
         return aktoerregisterService.hentGjeldendeNorskIdentForAktorId(aktorid)
     }
 
