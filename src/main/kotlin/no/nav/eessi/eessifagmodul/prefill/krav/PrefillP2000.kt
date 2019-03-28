@@ -37,8 +37,8 @@ class PrefillP2000(private val prefillNav: PrefillNav, private val preutfyllingP
         if (prefillData.kanFeltSkippes("NAVSED")) {
             sed.nav = Nav()
 
-            //henter opp persondata
         } else {
+            //henter opp persondata
             sed.nav = createNav(prefillData)
         }
 
@@ -46,7 +46,7 @@ class PrefillP2000(private val prefillNav: PrefillNav, private val preutfyllingP
         if (prefillData.kanFeltSkippes("PENSED")) {
             val pensjon = createPensjon(prefillData)
 
-            if (sed.nav == null && sed.nav?.krav == null) {
+            if (prefillData.kanFeltSkippes("NAVSED")) {
                 sed.nav = Nav()
                 sed.nav?.krav = sed.pensjon?.kravDato
             } else {
