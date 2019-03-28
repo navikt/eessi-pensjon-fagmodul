@@ -176,7 +176,7 @@ class EuxServiceTest {
     }
 
     //opprett sed på en valgt buc, feil med eux service
-    @Test(expected = EuxServerException::class)
+    @Test(expected = EuxGenericServerException::class)
     fun `Calling EuxService| feiler med kontakt fra eux med kall til opprettSedOnBuc`() {
         whenever(mockrestTemplate.exchange(anyString(), eq(HttpMethod.POST), any(), eq(String::class.java))).thenThrow(RuntimeException::class.java)
         service.opprettSedOnBuc(SED("P2000"), "213123")

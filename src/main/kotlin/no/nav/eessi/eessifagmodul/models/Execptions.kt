@@ -25,6 +25,10 @@ class SedIkkeSlettetException(message: String?) : Exception(message)
 class EuxServerException(message: String?) : Exception(message)
 
 @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
+class EuxGenericServerException(message: String?) : Exception(message)
+
+
+@ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
 class RinaCasenrIkkeMottattException(message: String?) : Exception(message)
 
 @ResponseStatus(value = HttpStatus.NOT_FOUND)
@@ -32,6 +36,9 @@ class BucIkkeMottattException(message: String?) : Exception(message)
 
 @ResponseStatus(value = HttpStatus.BAD_REQUEST)
 class IkkeGyldigKallException(message: String) : IllegalArgumentException(message)
+
+@ResponseStatus(value = HttpStatus.NOT_FOUND)
+class IkkeFunnet(message: String) : IllegalArgumentException(message)
 
 @ResponseStatus(value = HttpStatus.NOT_FOUND)
 class PersonV3IkkeFunnetException(message: String?): Exception(message)

@@ -40,7 +40,7 @@ class PrefillService(private val euxService: EuxService, private val prefillSED:
     /**
     service function to prefill sed and call eux to put sed on existing buc
      */
-    @Throws(EuxServerException::class, SedDokumentIkkeOpprettetException::class)
+    @Throws(EuxGenericServerException::class, SedDokumentIkkeOpprettetException::class)
     fun prefillAndAddSedOnExistingCase(dataModel: PrefillDataModel): BucSedResponse {
 
         val data = prefillSed(dataModel)

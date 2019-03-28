@@ -1,7 +1,7 @@
 package no.nav.eessi.eessifagmodul.services.pensjonsinformasjon
 
 
-import no.nav.eessi.eessifagmodul.models.IkkeGyldigKallException
+import no.nav.eessi.eessifagmodul.models.IkkeFunnet
 import no.nav.eessi.eessifagmodul.models.PensjoninformasjonException
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
 import no.nav.pensjon.v1.sak.V1Sak
@@ -42,11 +42,9 @@ class PensjonsinformasjonService(val pensjonsinformasjonOidcRestTemplate: RestTe
         return null
     }
 
-    @Throws(IkkeGyldigKallException::class)
+    @Throws(IkkeFunnet::class)
     fun hentKunSakType(sakId: String, fnr: String): Pensjontype {
-        val sak = hentAltPaaSak(sakId, hentAltPaaFnr(fnr)) ?: throw
-        IkkeGyldigKallException("Feiler ved henting av pensjoninformasjon, ingen data funnet på valgt sakid")
-
+        val sak = hentAltPaaSak(sakId, hentAltPaaFnr(fnr)) ?: throw IkkeFunnet("Saktype ikke funnet")
         return Pensjontype(
                 sakId,
                 sak.sakType)
@@ -151,7 +149,6 @@ class PensjonsinformasjonService(val pensjonsinformasjonOidcRestTemplate: RestTe
                     throw ise
                 }
             }
-
 
             if (responseEntity.statusCode.isError) {
                 logger.error("Received ${responseEntity.statusCode} from pensjonsinformasjon")

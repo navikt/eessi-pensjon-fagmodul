@@ -8,10 +8,7 @@ import no.nav.eessi.eessifagmodul.utils.typeRef
 import no.nav.eessi.eessifagmodul.utils.typeRefs
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Description
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
-import org.springframework.http.MediaType
+import org.springframework.http.*
 import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
@@ -71,7 +68,7 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
 
 
     //ny SED på ekisterende buc
-    @Throws(EuxServerException::class, SedDokumentIkkeOpprettetException::class)
+    @Throws(EuxGenericServerException::class, SedDokumentIkkeOpprettetException::class)
     fun opprettSedOnBuc(navSED: SED, euxCaseId: String): BucSedResponse {
         val path = "/buc/{RinaSakId}/sed"
 
@@ -84,29 +81,29 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
         headers.contentType = MediaType.APPLICATION_JSON
         val httpEntity = HttpEntity(navSED.toJson(), headers)
 
+        val response: ResponseEntity<String>
         try {
             logger.info("Prøver å kontakte EUX /${builder.toUriString()}")
-
-            val response = euxOidcRestTemplate.exchange(builder.toUriString(),
+            response = euxOidcRestTemplate.exchange(builder.toUriString(),
                     HttpMethod.POST,
                     httpEntity,
                     String::class.java)
-
-            return if (response.statusCode.is2xxSuccessful) {
-                getCounter("OPPRETTBUCOGSEDOK").increment()
-                BucSedResponse(euxCaseId, response.body!!)
-            } else {
-                throw SedDokumentIkkeOpprettetException("Nav Sed ikke opprettet")
-            }
-        } catch (sx: SedDokumentIkkeOpprettetException) {
-            logger.error(sx.message)
+        } catch (ax: HttpServerErrorException) {
+            logger.error(ax.message, ax)
             getCounter("OPPRETTBUCOGSEDFEIL").increment()
-            throw SedDokumentIkkeOpprettetException(sx.message!!)
+            throw ax
         } catch (ex: Exception) {
-            logger.error(ex.message)
+            logger.error(ex.message, ex)
             getCounter("OPPRETTBUCOGSEDFEIL").increment()
-            throw EuxServerException("Feiler ved kontakt mot EUX")
+            throw EuxGenericServerException("Feiler ved kontakt mot EUX")
         }
+        if (!response.statusCode.is2xxSuccessful) {
+            logger.error("${response.statusCode} Feiler med å legge til SED på en ekisterende BUC")
+            getCounter("OPPRETTBUCOGSEDFEIL").increment()
+            throw SedDokumentIkkeOpprettetException("Feiler med å legge til SED på en ekisterende BUC")
+        }
+        getCounter("OPPRETTBUCOGSEDOK").increment()
+        return BucSedResponse(euxCaseId, response.body!!)
     }
 
 

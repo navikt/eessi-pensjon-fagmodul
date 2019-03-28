@@ -65,15 +65,15 @@ class PrefillServiceTest {
         prefillService.prefillAndAddSedOnExistingCase(dataModel)
     }
 
-    @Test(expected = EuxServerException::class)
+    @Test(expected = EuxGenericServerException::class)
     fun `forventer en Exception eller feil tilbake på prefillAndAddSedOnExistingCase når eux er nede`() {
         val dataModel = generatePrefillModel()
-
         val resultData = generatePrefillModel()
         resultData.sed = generateMockP2000(dataModel)
+
         resultData.euxCaseID = "12131234"
         whenever(mockPrefillSED.prefill(any())).thenReturn(resultData)
-        whenever(mockEuxService.opprettSedOnBuc(any(), any())).thenThrow(EuxServerException::class.java)
+        whenever(mockEuxService.opprettSedOnBuc(any(), any())).thenThrow(EuxGenericServerException::class.java)
 
         prefillService.prefillAndAddSedOnExistingCase(dataModel)
     }

@@ -2,8 +2,10 @@ package no.nav.eessi.eessifagmodul.services.pensjonsinformasjon
 
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.doReturn
+import com.nhaarman.mockito_kotlin.doThrow
 import com.nhaarman.mockito_kotlin.whenever
-import no.nav.eessi.eessifagmodul.models.IkkeGyldigKallException
+import no.nav.eessi.eessifagmodul.models.IkkeFunnet
+import no.nav.eessi.eessifagmodul.models.PensjoninformasjonException
 import no.nav.eessi.eessifagmodul.utils.simpleFormat
 import org.junit.Before
 import org.junit.Test
@@ -111,7 +113,7 @@ class PensjonsinformasjonServiceTest {
 
     }
 
-    @Test(expected = IkkeGyldigKallException::class)
+    @Test(expected = IkkeFunnet::class)
     fun `hentPensjonSakType | mock response ingen sak eller data`() {
         val mockResponseEntity = createResponseEntityFromJsonFile("classpath:pensjonsinformasjon/empty-pensjon-response.xml")
 
@@ -125,5 +127,15 @@ class PensjonsinformasjonServiceTest {
 
     }
 
+    @Test(expected = PensjoninformasjonException::class)
+    fun `hentPensjonSakType | mock response feil fra pesys execption kastet`() {
+        doThrow(HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Error")).whenever(mockrestTemplate).exchange(
+                ArgumentMatchers.any(String::class.java),
+                ArgumentMatchers.any(HttpMethod::class.java),
+                ArgumentMatchers.any(HttpEntity::class.java),
+                ArgumentMatchers.eq(String::class.java))
+
+        pensjonsinformasjonService.hentKunSakType("22580170", "12345678901")
+    }
 
 }

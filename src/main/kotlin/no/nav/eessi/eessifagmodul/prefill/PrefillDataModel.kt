@@ -87,9 +87,9 @@ class PrefillDataModel {
 
     fun kanFeltSkippes(key: String): Boolean {
         return try {
-            skipSedkey.contains(key).not()
+            skipSedkey.contains(key)
         } catch (ex: Exception) {
-            true
+            false
         }
     }
 

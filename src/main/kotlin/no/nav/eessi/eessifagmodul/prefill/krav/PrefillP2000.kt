@@ -33,16 +33,29 @@ class PrefillP2000(private val prefillNav: PrefillNav, private val preutfyllingP
 
         val sed = prefillData.sed
 
-        //henter opp persondata
+        //skipper å hente persondata dersom NAVSED finnes
         if (prefillData.kanFeltSkippes("NAVSED")) {
-            sed.nav = createNav(prefillData)
-        } else {
             sed.nav = Nav()
+
+            //henter opp persondata
+        } else {
+            sed.nav = createNav(prefillData)
         }
 
-        //henter opp pensjondat
+        //skipper å henter opp pensjondata hvis PENSED finnes
         if (prefillData.kanFeltSkippes("PENSED")) {
+            val pensjon = createPensjon(prefillData)
 
+            if (sed.nav == null && sed.nav?.krav == null) {
+                sed.nav = Nav()
+                sed.nav?.krav = sed.pensjon?.kravDato
+            } else {
+                sed.nav?.krav = sed.pensjon?.kravDato
+            }
+            sed.pensjon = Pensjon()
+
+            //henter opp pensjondata
+        } else {
             val pensjon = createPensjon(prefillData)
 
             //gjenlevende hvis det finnes..
@@ -50,16 +63,15 @@ class PrefillP2000(private val prefillNav: PrefillNav, private val preutfyllingP
 
             //legger pensjon på sed (få med oss gjenlevende/avdød)
             sed.pensjon = pensjon
-
-        } else {
-            sed.pensjon = Pensjon()
         }
 
         //sette korrekt kravdato på sed (denne kommer fra PESYS men opprettes i nav?!)
         //9.1.
         if (prefillData.kanFeltSkippes("NAVSED")) {
-            sed.nav?.krav = sed.pensjon?.kravDato
+            //sed.nav?.krav = Krav("")
             //pensjon.kravDato = null
+        } else {
+            sed.nav?.krav = sed.pensjon?.kravDato
         }
 
         logger.debug("-------------------| Preutfylling [$sedId] END |------------------- ")
