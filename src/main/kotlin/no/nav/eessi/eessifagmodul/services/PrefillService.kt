@@ -22,7 +22,7 @@ class PrefillService(private val euxService: EuxService, private val prefillSED:
 
         val data = prefillSED.prefill(dataModel)
 
-        validator.valudateP2000(data.sed)
+        validator.validateP2000(data.sed)
 
         return data
     }

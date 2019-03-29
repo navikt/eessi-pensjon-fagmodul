@@ -5,7 +5,7 @@ import no.nav.eessi.eessifagmodul.models.SedValidatorException
 
 class SedValidator {
 
-    fun valudateP2000(sed: SED) {
+    fun validateP2000(sed: SED) {
         when {
             sed.nav?.bruker?.person?.etternavn == null -> throw SedValidatorException("Etternavn mangler")
             sed.nav?.bruker?.person?.fornavn == null -> throw SedValidatorException("Fornavn mangler")
