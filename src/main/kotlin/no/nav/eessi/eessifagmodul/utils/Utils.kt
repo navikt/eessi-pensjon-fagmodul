@@ -125,4 +125,10 @@ fun getFileAsResource(bytearr: ByteArray, filename: String): ByteArrayResource {
     return FileAsResource()
 }
 
+fun errorBody(error: String, uuid: String = "no-uuid"): String {
+    return "{\"success\": false, \n \"error\": \"$error\", \"uuid\": \"$uuid\"}"
+}
 
+fun successBody(): String {
+    return "{\"success\": true}"
+}

@@ -7,6 +7,7 @@ import no.nav.eessi.eessifagmodul.models.IkkeGyldigKallException
 import no.nav.eessi.eessifagmodul.services.aktoerregister.AktoerregisterService
 import no.nav.eessi.eessifagmodul.services.pensjonsinformasjon.PensjonsinformasjonService
 import no.nav.eessi.eessifagmodul.services.pensjonsinformasjon.Pensjontype
+import no.nav.eessi.eessifagmodul.utils.errorBody
 import no.nav.eessi.eessifagmodul.utils.mapAnyToJson
 import no.nav.security.oidc.api.Protected
 import org.springframework.http.HttpStatus
@@ -31,9 +32,9 @@ class PensjonController(private val pensjonsinformasjonService: Pensjonsinformas
         try {
             val hentKunSakType = pensjonsinformasjonService.hentKunSakType(sakId, fnr)
         } catch (ife: IkkeFunnetException) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"success\": false, \n \"error\": \"${ife.message}\"}")
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorBody(ife.message!!))
         } catch (e: Exception) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"success\": false, \n \"error\": \"${e.message}\"}")
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorBody(e.message!!))
         }
         return ResponseEntity.ok().body(mapAnyToJson(hentKunSakType))
     }
