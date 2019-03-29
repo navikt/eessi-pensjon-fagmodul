@@ -1,7 +1,7 @@
 package no.nav.eessi.eessifagmodul.services.pensjonsinformasjon
 
 
-import no.nav.eessi.eessifagmodul.models.IkkeFunnet
+import no.nav.eessi.eessifagmodul.models.IkkeFunnetException
 import no.nav.eessi.eessifagmodul.models.PensjoninformasjonException
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
 import no.nav.pensjon.v1.sak.V1Sak
@@ -42,9 +42,9 @@ class PensjonsinformasjonService(val pensjonsinformasjonOidcRestTemplate: RestTe
         return null
     }
 
-    @Throws(IkkeFunnet::class)
+    @Throws(IkkeFunnetException::class)
     fun hentKunSakType(sakId: String, fnr: String): Pensjontype {
-        val sak = hentAltPaaSak(sakId, hentAltPaaFnr(fnr)) ?: throw IkkeFunnet("Saktype ikke funnet")
+        val sak = hentAltPaaSak(sakId, hentAltPaaFnr(fnr)) ?: throw IkkeFunnetException("Saktype ikke funnet")
         return Pensjontype(
                 sakId,
                 sak.sakType)

@@ -38,7 +38,7 @@ class BucIkkeMottattException(message: String?) : Exception(message)
 class IkkeGyldigKallException(message: String) : IllegalArgumentException(message)
 
 @ResponseStatus(value = HttpStatus.NOT_FOUND)
-class IkkeFunnet(message: String) : IllegalArgumentException(message)
+class IkkeFunnetException(message: String) : IllegalArgumentException(message)
 
 @ResponseStatus(value = HttpStatus.NOT_FOUND)
 class PersonV3IkkeFunnetException(message: String?): Exception(message)

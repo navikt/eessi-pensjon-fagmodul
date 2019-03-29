@@ -4,7 +4,7 @@ import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.doThrow
 import com.nhaarman.mockito_kotlin.whenever
-import no.nav.eessi.eessifagmodul.models.IkkeFunnet
+import no.nav.eessi.eessifagmodul.models.IkkeFunnetException
 import no.nav.eessi.eessifagmodul.models.PensjoninformasjonException
 import no.nav.eessi.eessifagmodul.utils.simpleFormat
 import org.junit.Before
@@ -113,7 +113,7 @@ class PensjonsinformasjonServiceTest {
 
     }
 
-    @Test(expected = IkkeFunnet::class)
+    @Test(expected = IkkeFunnetException::class)
     fun `hentPensjonSakType | mock response ingen sak eller data`() {
         val mockResponseEntity = createResponseEntityFromJsonFile("classpath:pensjonsinformasjon/empty-pensjon-response.xml")
 
