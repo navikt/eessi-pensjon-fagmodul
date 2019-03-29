@@ -127,30 +127,26 @@ class PrefillServiceTest {
     @Test(expected = SedValidatorException::class)
     fun `call prefillAndPreview| Exception ved validating SED`() {
         val dataModel = generatePrefillModel()
-        val bucResponse = BucSedResponse("1234567890", "1231231-123123-123123")
 
         val resultData = generatePrefillModel()
         resultData.sed = generateMockP2000ForValidatorError(dataModel)
 
         whenever(mockPrefillSED.prefill(any())).thenReturn(resultData)
-//        whenever(mockEuxService.opprettBucSed(any(), any(), any(), any())).thenReturn(bucResponse)
 
-        prefillService.prefillAndCreateSedOnNewCase(resultData)
+        prefillService.prefillSed(resultData)
     }
 
     @Test
     fun `call prefillAndPreview| Exception ved validating SED etternavn`() {
         val dataModel = generatePrefillModel()
-        val bucResponse = BucSedResponse("1234567890", "1231231-123123-123123")
 
         val resultData = generatePrefillModel()
         resultData.sed = generateMockP2000ForValidatorError(dataModel)
 
         whenever(mockPrefillSED.prefill(any())).thenReturn(resultData)
-//        whenever(mockEuxService.opprettBucSed(any(), any(), any(), any())).thenReturn(bucResponse)
 
         try {
-            prefillService.prefillAndCreateSedOnNewCase(resultData)
+            prefillService.prefillSed(resultData)
             fail("skal ikke komme hit!")
         } catch (sedv: SedValidatorException) {
             assertEquals("Etternavn mangler", sedv.message)
@@ -160,17 +156,15 @@ class PrefillServiceTest {
     @Test
     fun `call prefillAndPreview| Exception ved validating SED fornavn`() {
         val dataModel = generatePrefillModel()
-        val bucResponse = BucSedResponse("1234567890", "1231231-123123-123123")
 
         val resultData = generatePrefillModel()
         resultData.sed = generateMockP2000ForValidatorError(dataModel)
         resultData.sed.nav?.bruker = Bruker(person = Person(etternavn = "BAMSELUR"))
 
         whenever(mockPrefillSED.prefill(any())).thenReturn(resultData)
-//        whenever(mockEuxService.opprettBucSed(any(), any(), any(), any())).thenReturn(bucResponse)
 
         try {
-            prefillService.prefillAndCreateSedOnNewCase(resultData)
+            prefillService.prefillSed(resultData)
             fail("skal ikke komme hit!")
         } catch (sedv: SedValidatorException) {
             assertEquals("Fornavn mangler", sedv.message)
@@ -180,17 +174,15 @@ class PrefillServiceTest {
     @Test
     fun `call prefillAndPreview| Exception ved validating SED fdato`() {
         val dataModel = generatePrefillModel()
-        val bucResponse = BucSedResponse("1234567890", "1231231-123123-123123")
 
         val resultData = generatePrefillModel()
         resultData.sed = generateMockP2000ForValidatorError(dataModel)
         resultData.sed.nav?.bruker = Bruker(person = Person(etternavn = "BAMSELUR", fornavn = "DUMMY"))
 
         whenever(mockPrefillSED.prefill(any())).thenReturn(resultData)
-//        whenever(mockEuxService.opprettBucSed(any(), any(), any(), any())).thenReturn(bucResponse)
 
         try {
-            prefillService.prefillAndCreateSedOnNewCase(resultData)
+            prefillService.prefillSed(resultData)
             fail("skal ikke komme hit!")
         } catch (sedv: SedValidatorException) {
             assertEquals("Fødseldsdato mangler", sedv.message)
@@ -200,17 +192,15 @@ class PrefillServiceTest {
     @Test
     fun `call prefillAndPreview| Exception ved validating SED kjonn`() {
         val dataModel = generatePrefillModel()
-        val bucResponse = BucSedResponse("1234567890", "1231231-123123-123123")
 
         val resultData = generatePrefillModel()
         resultData.sed = generateMockP2000ForValidatorError(dataModel)
         resultData.sed.nav?.bruker = Bruker(person = Person(etternavn = "BAMSELUR", fornavn = "DUMMY", kjoenn = "M"))
 
         whenever(mockPrefillSED.prefill(any())).thenReturn(resultData)
-//        whenever(mockEuxService.opprettBucSed(any(), any(), any(), any())).thenReturn(bucResponse)
 
         try {
-            prefillService.prefillAndCreateSedOnNewCase(resultData)
+            prefillService.prefillSed(resultData)
             fail("skal ikke komme hit!")
         } catch (sedv: SedValidatorException) {
             assertEquals("Fødseldsdato mangler", sedv.message)
@@ -220,18 +210,15 @@ class PrefillServiceTest {
     @Test
     fun `call prefillAndPreview| Exception ved validating SED kravDato`() {
         val dataModel = generatePrefillModel()
-        val bucResponse = BucSedResponse("1234567890", "1231231-123123-123123")
 
         val resultData = generatePrefillModel()
         resultData.sed = generateMockP2000ForValidatorError(dataModel)
         resultData.sed.nav?.bruker = Bruker(person = Person(etternavn = "BAMSELUR", fornavn = "DUMMY", kjoenn = "M", foedselsdato = "1955-05-05"))
-        //resultData.sed.nav?.krav = Krav(dato = "1960-06-12")
 
         whenever(mockPrefillSED.prefill(any())).thenReturn(resultData)
-//        whenever(mockEuxService.opprettBucSed(any(), any(), any(), any())).thenReturn(bucResponse)
 
         try {
-            prefillService.prefillAndCreateSedOnNewCase(resultData)
+            prefillService.prefillSed(resultData)
             fail("skal ikke komme hit!")
         } catch (sedv: SedValidatorException) {
             assertEquals("Kravdato mangler", sedv.message)
@@ -250,13 +237,10 @@ class PrefillServiceTest {
 
     fun generateMockP2000ForValidatorError(prefillModel: PrefillDataModel): SED {
         val mocksed = prefillModel.sed
-        val mockp2000 = SedMock().genererP2000Mock()
         mocksed.nav = Nav()
         mocksed.pensjon = Pensjon()
         return mocksed
     }
-
-
 
     fun generatePrefillModel(): PrefillDataModel {
         return PrefillDataModel().apply {
@@ -274,9 +258,5 @@ class PrefillServiceTest {
         }
 
     }
-
-//    fun createSEDmedMinimalData(): Nav {
-//
-//    }
 
 }

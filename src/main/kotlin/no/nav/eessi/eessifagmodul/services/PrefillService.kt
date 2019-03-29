@@ -15,14 +15,15 @@ class PrefillService(private val euxService: EuxService, private val prefillSED:
 
     private val validator = SedValidator()
 
-
     //preutfylling av sed fra TPS, PESYS, AAREG o.l skjer her..
     @Throws(SedValidatorException::class)
     fun prefillSed(dataModel: PrefillDataModel): PrefillDataModel {
 
         val data = prefillSED.prefill(dataModel)
 
-        validator.validateP2000(data.sed)
+        if (SEDType.P2000.name == data.getSEDid()) {
+            validator.validateP2000(data.sed)
+        }
 
         return data
     }
