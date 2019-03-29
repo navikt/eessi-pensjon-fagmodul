@@ -13,26 +13,16 @@ class PrefillService(private val euxService: EuxService, private val prefillSED:
 
     private val logger = LoggerFactory.getLogger(PrefillService::class.java)
 
+    private val validator = SedValidator()
+
+
     //preutfylling av sed fra TPS, PESYS, AAREG o.l skjer her..
+    @Throws(SedValidatorException::class)
     fun prefillSed(dataModel: PrefillDataModel): PrefillDataModel {
 
         val data = prefillSED.prefill(dataModel)
 
-//        val sed = data.sed
-//        sed.nav?.eessisak = null
-//        sed.nav?.bruker?.person?.pin
-//        sed.nav?.bruker?.adresse = null
-//        sed.nav?.barn = null
-//        sed.nav?.bruker?.far = null
-//        sed.nav?.bruker?.mor = null
-//        sed.nav?.ektefelle = null
-//        sed.pensjon = Pensjon()
-//        val sed = SED.create(data.getSEDid())
-//        //sed.nav = Nav()
-//        sed.nav = data.sed.nav
-//       sed.pensjon = Pensjon()
-//       data.sed = sed
-//         data.sed.pensjon = Pensjon()
+        validator.valudateP2000(data.sed)
 
         return data
     }
