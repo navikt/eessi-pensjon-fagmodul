@@ -58,7 +58,7 @@ class SedControllerTest {
     }
 
     @Test
-    fun `calling SedController| createDocument forventer BucSedResponse (euxCaseid, documentid) ved mockedResponse`() {
+    fun `calling createDocument | forventer BucSedResponse (euxCaseid, documentid) ved mockedResponse`() {
         val items = listOf(InstitusjonItem(country = "NO", institution = "DUMMY"))
         val mockResponse = BucSedResponse("1234567890", "123123123-123123123-123131")
 
@@ -83,6 +83,7 @@ class SedControllerTest {
         assertEquals("12345", utfyllMock.personNr)
 
         //mock prefillSED
+        utfyllMock.sed.nav = Nav(bruker = Bruker(person = Person(fornavn = "Dummy", etternavn = "Dummy", foedselsdato = "1900-10-11", kjoenn = "K")), krav = Krav("1937-12-11"))
         doReturn(utfyllMock).whenever(mockPrefillSED).prefill(any())
 
         //mock opprett buc og sed til RINA
@@ -122,6 +123,7 @@ class SedControllerTest {
         assertNotNull(utfyllMock.personNr)
         assertEquals("12345", utfyllMock.personNr)
 
+        utfyllMock.sed.nav = Nav(bruker = Bruker(person = Person(fornavn = "Dummy", etternavn = "Dummy", foedselsdato = "1900-10-11", kjoenn = "K")), krav = Krav("1937-12-11"))
         whenever(mockPrefillSED.prefill(any())).thenReturn(utfyllMock)
         whenever(mockEuxService.opprettSedOnBuc(any(), any())).thenReturn(bucresponse)
 
@@ -146,7 +148,7 @@ class SedControllerTest {
 
         val utfyllMock = sedController.buildPrefillDataModelConfirm(mockData)
 
-        utfyllMock.sed.nav = Nav(bruker = Bruker(person = Person(fornavn = "Dummy", etternavn = "Dummy")))
+        utfyllMock.sed.nav = Nav(bruker = Bruker(person = Person(fornavn = "Dummy", etternavn = "Dummy", foedselsdato = "1900-10-11", kjoenn = "K")), krav = Krav("1937-12-11"))
         whenever(mockPrefillSED.prefill(any())).thenReturn(utfyllMock)
 
         val response = sedController.confirmDocument(mockData)
