@@ -1,6 +1,7 @@
 package no.nav.eessi.eessifagmodul.prefill
 
 import no.nav.eessi.eessifagmodul.models.IkkeGyldigKallException
+import no.nav.eessi.eessifagmodul.models.PensjoninformasjonException
 import no.nav.eessi.eessifagmodul.services.pensjonsinformasjon.PensjonsinformasjonService
 import no.nav.pensjon.v1.brukersbarn.V1BrukersBarn
 import no.nav.pensjon.v1.ektefellepartnersamboer.V1EktefellePartnerSamboer
@@ -44,6 +45,9 @@ class PensjonsinformasjonHjelper(private val pensjonsinformasjonService: Pensjon
     fun hentMedFnr(prefillData: PrefillDataModel): Pensjonsinformasjon {
         val fnr = if (prefillData.personNr.isNotBlank()) prefillData.personNr else throw IkkeGyldigKallException("Mangler Fnr")
         val pendata: Pensjonsinformasjon = pensjonsinformasjonService.hentAltPaaFnr(fnr)
+        if (pendata.brukersSakerListe == null) {
+            throw PensjoninformasjonException("Ingen gyldig brukerSakerListe")
+        }
         createRelasjonerBarnOgAvdod(prefillData, pendata)
         return pendata
     }

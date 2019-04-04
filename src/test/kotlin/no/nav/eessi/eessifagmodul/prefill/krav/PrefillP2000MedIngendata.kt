@@ -3,6 +3,7 @@ package no.nav.eessi.eessifagmodul.prefill.krav
 import no.nav.eessi.eessifagmodul.controllers.SedController
 import no.nav.eessi.eessifagmodul.models.InstitusjonItem
 import no.nav.eessi.eessifagmodul.models.Nav
+import no.nav.eessi.eessifagmodul.models.PensjoninformasjonException
 import no.nav.eessi.eessifagmodul.models.SED
 import no.nav.eessi.eessifagmodul.prefill.PensjonsinformasjonHjelper
 import no.nav.eessi.eessifagmodul.prefill.Prefill
@@ -15,16 +16,13 @@ import no.nav.eessi.eessifagmodul.utils.mapAnyToJson
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 //@RunWith(MockitoJUnitRunner::class)
-class PrefillP2000APUtlandInnvTest : AbstractMockKravPensionHelper() {
-
+class PrefillP2000MedIngendata : AbstractMockKravPensionHelper() {
 
     override fun mockPesysTestfilepath(): Pair<String, String> {
-        //return Pair("P2000", "P2000-AP-UTL-INNV-24015012345.xml")
-        return Pair("P2000", "P2000-AP-UTL-INNV-24015012345_PlanB.xml")
-        //return Pair("P2000", "AP-LOP-21644722.xml")
-        //return Pair("P2000", "P2000-AP-UP-21337890.xml")
+        return Pair("P2000", "P2000-TOMT-SVAR-PESYS.xml")
     }
 
     override fun createTestClass(prefillNav: PrefillNav, personTPS: PrefillPersonDataFromTPS, pensionDataFromPEN: PensjonsinformasjonHjelper): Prefill<SED> {
@@ -32,7 +30,7 @@ class PrefillP2000APUtlandInnvTest : AbstractMockKravPensionHelper() {
     }
 
     override fun createPayload(prefillData: PrefillDataModel) {
-        prefillData.penSaksnummer = "14398627"
+        prefillData.penSaksnummer = "21644722"
         prefillData.personNr = getFakePersonFnr()
         prefillData.partSedAsJson["PersonInfo"] = createPersonInfoPayLoad()
         prefillData.partSedAsJson["P4000"] = createPersonTrygdetidHistorikk()
@@ -60,18 +58,15 @@ class PrefillP2000APUtlandInnvTest : AbstractMockKravPensionHelper() {
         )
     }
 
-    @Test
+    @Test(expected = PensjoninformasjonException::class)
     fun `sjekk av kravsøknad alderpensjon P2000`() {
-        pendata = kravdata.getPensjoninformasjonFraSak(prefillData)
-
-        assertNotNull(pendata)
-
-        val list = kravdata.getPensjonSakTypeList(pendata)
-
-        assertEquals(1, list.size)
+        kravdata.getPensjoninformasjonFraSak(prefillData)
+//        assertNotNull(pendata)
+//        val list = kravdata.getPensjonSakTypeList(pendata)
+//        assertEquals(1, list.size)
     }
 
-    @Test //(expected = IkkeGyldigKallException::class)
+    @Test
     fun `forventet korrekt utfylt P2000 alderpensjon med kap4 og 9`() {
         prefillData.penSaksnummer = "21644722"
         val P2000 = prefill.prefill(prefillData)
@@ -84,8 +79,11 @@ class PrefillP2000APUtlandInnvTest : AbstractMockKravPensionHelper() {
         P2000pensjon.print()
 
         val sed = P2000pensjon
-        assertNotNull(sed.nav?.krav)
-        assertEquals("2015-11-25", sed.nav?.krav?.dato)
+        assertNotNull(sed.pensjon)
+        assertNull(sed.nav?.krav)
+        //assertNotNull(sed.nav?.krav)
+        //assertEquals("2018-06-05", sed.nav?.krav?.dato)
+
 
     }
 

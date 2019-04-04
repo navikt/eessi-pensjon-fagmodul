@@ -17,14 +17,10 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 //@RunWith(MockitoJUnitRunner::class)
-class PrefillP2000APUtlandInnvTest : AbstractMockKravPensionHelper() {
-
+class `PrefillP2000-AP-LOP-REVU` : AbstractMockKravPensionHelper() {
 
     override fun mockPesysTestfilepath(): Pair<String, String> {
-        //return Pair("P2000", "P2000-AP-UTL-INNV-24015012345.xml")
-        return Pair("P2000", "P2000-AP-UTL-INNV-24015012345_PlanB.xml")
-        //return Pair("P2000", "AP-LOP-21644722.xml")
-        //return Pair("P2000", "P2000-AP-UP-21337890.xml")
+        return Pair("P2000", "P2000-AP-LP-RVUR-20541862.xml")
     }
 
     override fun createTestClass(prefillNav: PrefillNav, personTPS: PrefillPersonDataFromTPS, pensionDataFromPEN: PensjonsinformasjonHjelper): Prefill<SED> {
@@ -32,7 +28,7 @@ class PrefillP2000APUtlandInnvTest : AbstractMockKravPensionHelper() {
     }
 
     override fun createPayload(prefillData: PrefillDataModel) {
-        prefillData.penSaksnummer = "14398627"
+        prefillData.penSaksnummer = "20541862"
         prefillData.personNr = getFakePersonFnr()
         prefillData.partSedAsJson["PersonInfo"] = createPersonInfoPayLoad()
         prefillData.partSedAsJson["P4000"] = createPersonTrygdetidHistorikk()
@@ -71,9 +67,9 @@ class PrefillP2000APUtlandInnvTest : AbstractMockKravPensionHelper() {
         assertEquals(1, list.size)
     }
 
-    @Test //(expected = IkkeGyldigKallException::class)
+    @Test
     fun `forventet korrekt utfylt P2000 alderpensjon med kap4 og 9`() {
-        prefillData.penSaksnummer = "21644722"
+        prefillData.penSaksnummer = "20541862"
         val P2000 = prefill.prefill(prefillData)
 
         val P2000pensjon = SED.create("P2000")
@@ -85,7 +81,8 @@ class PrefillP2000APUtlandInnvTest : AbstractMockKravPensionHelper() {
 
         val sed = P2000pensjon
         assertNotNull(sed.nav?.krav)
-        assertEquals("2015-11-25", sed.nav?.krav?.dato)
+        assertEquals("2018-06-05", sed.nav?.krav?.dato)
+
 
     }
 
