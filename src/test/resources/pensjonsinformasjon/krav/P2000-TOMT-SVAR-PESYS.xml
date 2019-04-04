@@ -1,0 +1,3 @@
+<ns30:pensjonsinformasjon xmlns:ns30="http://nav.no/eessi/sed/v1/PX000">
+    <ns30:brukersSakerListe xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true"></ns30:brukersSakerListe>
+</ns30:pensjonsinformasjon>

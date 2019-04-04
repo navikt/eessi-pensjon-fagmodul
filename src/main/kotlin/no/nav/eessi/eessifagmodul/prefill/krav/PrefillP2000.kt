@@ -1,9 +1,6 @@
 package no.nav.eessi.eessifagmodul.prefill.krav
 
-import no.nav.eessi.eessifagmodul.models.Bruker
-import no.nav.eessi.eessifagmodul.models.Nav
-import no.nav.eessi.eessifagmodul.models.Pensjon
-import no.nav.eessi.eessifagmodul.models.SED
+import no.nav.eessi.eessifagmodul.models.*
 import no.nav.eessi.eessifagmodul.prefill.PensjonsinformasjonHjelper
 import no.nav.eessi.eessifagmodul.prefill.Prefill
 import no.nav.eessi.eessifagmodul.prefill.PrefillDataModel
@@ -42,20 +39,27 @@ class PrefillP2000(private val prefillNav: PrefillNav, private val preutfyllingP
         }
 
         //skipper å henter opp pensjondata hvis PENSED finnes
-        if (prefillData.kanFeltSkippes("PENSED")) {
-            val pensjon = createPensjon(prefillData)
-            //vi skal ha blank pensjon ved denne toggle
-            //vi må ha med kravdato
-            sed.pensjon = Pensjon(kravDato = pensjon.kravDato)
+        try {
+            if (prefillData.kanFeltSkippes("PENSED")) {
+                val pensjon = createPensjon(prefillData)
+                //vi skal ha blank pensjon ved denne toggle
+                //vi må ha med kravdato
+                sed.pensjon = Pensjon(kravDato = pensjon.kravDato)
 
-            //henter opp pensjondata
-        } else {
-            val pensjon = createPensjon(prefillData)
+                //henter opp pensjondata
+            } else {
+                val pensjon = createPensjon(prefillData)
 
-            //gjenlevende hvis det finnes..
-            pensjon.gjenlevende = createGjenlevende(prefillData)
-            //legger pensjon på sed (få med oss gjenlevende/avdød)
-            sed.pensjon = pensjon
+                //gjenlevende hvis det finnes..
+                pensjon.gjenlevende = createGjenlevende(prefillData)
+                //legger pensjon på sed (få med oss gjenlevende/avdød)
+                sed.pensjon = pensjon
+            }
+        } catch (pen: PensjoninformasjonException) {
+            logger.warn(pen.message)
+            sed.pensjon = Pensjon()
+        } catch (ex: Exception) {
+            logger.error(ex.message, ex)
         }
 
         //sette korrekt kravdato på sed (denne kommer fra PESYS men opprettes i nav?!)
