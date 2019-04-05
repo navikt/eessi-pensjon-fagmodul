@@ -3,6 +3,7 @@ package no.nav.eessi.eessifagmodul.prefill.nav
 import no.nav.eessi.eessifagmodul.models.*
 import no.nav.eessi.eessifagmodul.models.Bruker
 import no.nav.eessi.eessifagmodul.models.Person
+import no.nav.eessi.eessifagmodul.prefill.EessiInformasjon
 import no.nav.eessi.eessifagmodul.prefill.PrefillDataModel
 import no.nav.eessi.eessifagmodul.services.LandkodeService
 import no.nav.eessi.eessifagmodul.services.PostnummerService
@@ -17,7 +18,8 @@ import org.springframework.stereotype.Component
 @Component
 class PrefillPersonDataFromTPS(private val personV3Service: PersonV3Service,
                                private val postnummerService: PostnummerService,
-                               private val landkodeService: LandkodeService) {
+                               private val landkodeService: LandkodeService,
+                               private val eessiInfo: EessiInformasjon) {
 
     private val logger: Logger by lazy { LoggerFactory.getLogger(PrefillPersonDataFromTPS::class.java) }
     private val dod = "DØD"
@@ -43,9 +45,12 @@ class PrefillPersonDataFromTPS(private val personV3Service: PersonV3Service,
             return Bruker(
                     person = personData(brukerTPS),
 
-                    far = Foreldre(person = hentRelasjon(RelasjonEnum.FAR, brukerTPS)),
+                    far = hentRelasjon(RelasjonEnum.FAR, brukerTPS),
 
-                    mor = Foreldre(person = hentRelasjon(RelasjonEnum.MOR, brukerTPS)),
+                    mor = hentRelasjon(RelasjonEnum.MOR, brukerTPS),
+
+//                    far = Foreldre(person = hentRelasjon(RelasjonEnum.FAR, brukerTPS)),
+//                    mor = Foreldre(person = hentRelasjon(RelasjonEnum.MOR, brukerTPS)),
 
                     adresse = hentPersonAdresse(brukerTPS)
             )
@@ -191,9 +196,8 @@ class PrefillPersonDataFromTPS(private val personV3Service: PersonV3Service,
     }
 
     //mor / far
-    private fun hentRelasjon(relasjon: RelasjonEnum, person: no.nav.tjeneste.virksomhet.person.v3.informasjon.Person): Person? {
+    private fun hentRelasjon(relasjon: RelasjonEnum, person: no.nav.tjeneste.virksomhet.person.v3.informasjon.Person): Foreldre? {
         person.harFraRolleI.forEach {
-
             val tpsvalue = it.tilRolle.value
 
             if (relasjon.erSamme(tpsvalue)) {
@@ -204,19 +208,24 @@ class PrefillPersonDataFromTPS(private val personV3Service: PersonV3Service,
                 val relasjonperson = Person(
                         pin = listOf(
                                 PinItem(
-                                        sektor = "alle",
+                                        institusjonsnavn = eessiInfo.institutionnavn,
+                                        institusjonsid = eessiInfo.institutionid,
+                                        //land = eessiInfo.institutionLand,
+
+                                        sektor = "pensjon",
                                         identifikator = hentNorIdent(persontps),
                                         land = hentLandkodeRelasjoner(persontps)
                                 )
                         ),
                         fornavn = navntps.fornavn,
-                        etternavnvedfoedsel = navntps.etternavn,
-                        doedsdato = dodDatoFormat(persontps)
+                        etternavnvedfoedsel = navntps.etternavn
+                        //doedsdato = dodDatoFormat(persontps)
                 )
                 if (RelasjonEnum.MOR.erSamme(tpsvalue)) {
                     relasjonperson.etternavnvedfoedsel = null
                 }
-                return relasjonperson
+                return Foreldre(person = relasjonperson)
+                //return relasjonperson
             }
         }
         return null
@@ -265,14 +274,22 @@ class PrefillPersonDataFromTPS(private val personV3Service: PersonV3Service,
         logger.debug("2.1.7         Fodselsnummer/Personnummer")
         return listOf(
                 PinItem(
-                        //all sector
-                        sektor = "03",
+                        //hentet lokal NAV insitusjondata fra applikasjon properties.
+                        institusjonsnavn = eessiInfo.institutionnavn,
+
+                        institusjonsid = eessiInfo.institutionid,
+
+                        //land = eessiInfo.institutionLand,
+
+                        //harkode sektor penjson? er dette korrekt?
+                        sektor = "pensjon",
 
                         //personnr
                         identifikator = hentNorIdent(brukerTps),
 
                         // norsk personnr alltid NO
-                        land = "NO"
+                        //land = "NO"
+                        land = hentLandkodeRelasjoner(brukerTps)
                 )
         )
     }

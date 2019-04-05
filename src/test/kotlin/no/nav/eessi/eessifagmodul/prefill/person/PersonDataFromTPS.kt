@@ -5,6 +5,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.nhaarman.mockito_kotlin.whenever
 import no.nav.eessi.eessifagmodul.models.InstitusjonItem
 import no.nav.eessi.eessifagmodul.models.SED
+import no.nav.eessi.eessifagmodul.prefill.EessiInformasjon
 import no.nav.eessi.eessifagmodul.prefill.PrefillDataModel
 import no.nav.eessi.eessifagmodul.prefill.nav.PrefillNav
 import no.nav.eessi.eessifagmodul.prefill.nav.PrefillPersonDataFromTPS
@@ -21,7 +22,7 @@ import org.mockito.Mock
 import org.springframework.util.ResourceUtils
 import java.time.LocalDate
 
-abstract class PersonDataFromTPS(private val mocktps: Set<MockTPS>) {
+abstract class PersonDataFromTPS(private val mocktps: Set<MockTPS>, private val eessiInformasjon: EessiInformasjon) {
 
     @Mock
     lateinit var mockPersonV3Service: PersonV3Service
@@ -157,7 +158,8 @@ abstract class PersonDataFromTPS(private val mocktps: Set<MockTPS>) {
             val result = initMockHentPersonResponse(it, mocktps)
             whenever(mockPersonV3Service.hentPerson(it.replaceMockfnr)).thenReturn(result)
         }
-        return PrefillPersonDataFromTPS(mockPersonV3Service, PostnummerService(), LandkodeService())
+        //EessiInformasjon() EessiInformasjon()
+        return PrefillPersonDataFromTPS(mockPersonV3Service, PostnummerService(), LandkodeService(), eessiInformasjon)
     }
 
     fun getRandomNavFodselsnummer(value: MockTPS.TPSType): String? {

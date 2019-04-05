@@ -1,0 +1,372 @@
+{
+  "sed": "P2000",
+  "sedGVer": "4",
+  "sedVer": "1",
+  "nav": {
+    "eessisak": [
+      {
+        "institusjonsid": "NO:noinst002",
+        "institusjonsnavn": "NOINST002, NO INST002, NO",
+        "saksnummer": "21975717",
+        "land": "NO"
+      }
+    ],
+    "bruker": {
+      "mor": {
+        "person": {
+          "pin": [
+            {
+              "institusjonsnavn": null,
+              "institusjonsid": null,
+              "sektor": "alle",
+              "identifikator": "20080745894",
+              "land": null,
+              "institusjon": null
+            }
+          ],
+          "pinannen": null,
+          "statsborgerskap": null,
+          "etternavn": null,
+          "fornavn": "HANNAMARI-MASK",
+          "kjoenn": null,
+          "foedested": null,
+          "tidligerefornavn": null,
+          "tidligereetternavn": null,
+          "fornavnvedfoedsel": null,
+          "etternavnvedfoedsel": null,
+          "foedselsdato": null,
+          "doedsdato": "1989-01-28",
+          "dodsDetalj": null,
+          "kontakt": null,
+          "sivilstand": null,
+          "relasjontilavdod": null,
+          "nyttEkteskapPartnerskapEtterForsikredeDod": null
+        }
+      },
+      "far": {
+        "person": {
+          "pin": [
+            {
+              "institusjonsnavn": null,
+              "institusjonsid": null,
+              "sektor": "alle",
+              "identifikator": "14030746512",
+              "land": null,
+              "institusjon": null
+            }
+          ],
+          "pinannen": null,
+          "statsborgerskap": null,
+          "etternavn": null,
+          "fornavn": "CHRISSI-MASK",
+          "kjoenn": null,
+          "foedested": null,
+          "tidligerefornavn": null,
+          "tidligereetternavn": null,
+          "fornavnvedfoedsel": null,
+          "etternavnvedfoedsel": "GRANGUIST",
+          "foedselsdato": null,
+          "doedsdato": "1978-04-16",
+          "dodsDetalj": null,
+          "kontakt": null,
+          "sivilstand": null,
+          "relasjontilavdod": null,
+          "nyttEkteskapPartnerskapEtterForsikredeDod": null
+        }
+      },
+      "person": {
+        "pin": [
+          {
+            "institusjonsnavn": null,
+            "institusjonsid": null,
+            "sektor": "03",
+            "identifikator": "28064843062",
+            "land": "NO",
+            "institusjon": null
+          }
+        ],
+        "pinannen": null,
+        "statsborgerskap": [
+          {
+            "land": "NO"
+          }
+        ],
+        "etternavn": "STRIELA",
+        "fornavn": "VAIKUNTHARAJAN-MASK",
+        "kjoenn": "K",
+        "foedested": null,
+        "tidligerefornavn": null,
+        "tidligereetternavn": null,
+        "fornavnvedfoedsel": "VAIKUNTHARAJAN-MASK",
+        "etternavnvedfoedsel": null,
+        "foedselsdato": "1948-06-28",
+        "doedsdato": null,
+        "dodsDetalj": null,
+        "kontakt": null,
+        "sivilstand": [
+          {
+            "fradato": "2008-09-30",
+            "status": "05"
+          }
+        ],
+        "relasjontilavdod": null,
+        "nyttEkteskapPartnerskapEtterForsikredeDod": null
+      },
+      "adresse": {
+        "gate": "SOLEIDE 2225",
+        "bygning": null,
+        "by": "ØRJE",
+        "postnummer": "1870",
+        "region": null,
+        "land": "NO"
+      },
+      "arbeidsforhold": null,
+      "bank": null
+    },
+    "ektefelle": null,
+    "barn": [
+      {
+        "mor": {
+          "person": {
+            "pin": [
+              {
+                "institusjonsnavn": null,
+                "institusjonsid": null,
+                "sektor": "alle",
+                "identifikator": "28064843062",
+                "land": null,
+                "institusjon": null
+              }
+            ],
+            "pinannen": null,
+            "statsborgerskap": null,
+            "etternavn": null,
+            "fornavn": "VAIKUNTHARAJAN-MASK",
+            "kjoenn": null,
+            "foedested": null,
+            "tidligerefornavn": null,
+            "tidligereetternavn": null,
+            "fornavnvedfoedsel": null,
+            "etternavnvedfoedsel": null,
+            "foedselsdato": null,
+            "doedsdato": null,
+            "dodsDetalj": null,
+            "kontakt": null,
+            "sivilstand": null,
+            "relasjontilavdod": null,
+            "nyttEkteskapPartnerskapEtterForsikredeDod": null
+          }
+        },
+        "person": {
+          "pin": [
+            {
+              "institusjonsnavn": null,
+              "institusjonsid": null,
+              "sektor": "03",
+              "identifikator": "27017541094",
+              "land": "NO",
+              "institusjon": null
+            }
+          ],
+          "pinannen": null,
+          "statsborgerskap": [
+            {
+              "land": "NO"
+            }
+          ],
+          "etternavn": "ROLASOARES",
+          "fornavn": "RUOXIN-MASK",
+          "kjoenn": "K",
+          "foedested": null,
+          "tidligerefornavn": null,
+          "tidligereetternavn": null,
+          "fornavnvedfoedsel": "RUOXIN-MASK",
+          "etternavnvedfoedsel": null,
+          "foedselsdato": "1975-01-27",
+          "doedsdato": null,
+          "dodsDetalj": null,
+          "kontakt": null,
+          "sivilstand": [
+            {
+              "fradato": "2008-09-17",
+              "status": "05"
+            }
+          ],
+          "relasjontilavdod": null,
+          "nyttEkteskapPartnerskapEtterForsikredeDod": null
+        },
+        "far": {
+          "person": {
+            "pin": [
+              {
+                "institusjonsnavn": null,
+                "institusjonsid": null,
+                "sektor": "alle",
+                "identifikator": "16014642157",
+                "land": null,
+                "institusjon": null
+              }
+            ],
+            "pinannen": null,
+            "statsborgerskap": null,
+            "etternavn": null,
+            "fornavn": "YUGON-MASK",
+            "kjoenn": null,
+            "foedested": null,
+            "tidligerefornavn": null,
+            "tidligereetternavn": null,
+            "fornavnvedfoedsel": null,
+            "etternavnvedfoedsel": "RYEL",
+            "foedselsdato": null,
+            "doedsdato": null,
+            "dodsDetalj": null,
+            "kontakt": null,
+            "sivilstand": null,
+            "relasjontilavdod": null,
+            "nyttEkteskapPartnerskapEtterForsikredeDod": null
+          }
+        },
+        "opplysningeromannetbarn": null,
+        "relasjontilbruker": "BARN"
+      },
+      {
+        "mor": {
+          "person": {
+            "pin": [
+              {
+                "institusjonsnavn": null,
+                "institusjonsid": null,
+                "sektor": "alle",
+                "identifikator": "28064843062",
+                "land": null,
+                "institusjon": null
+              }
+            ],
+            "pinannen": null,
+            "statsborgerskap": null,
+            "etternavn": null,
+            "fornavn": "VAIKUNTHARAJAN-MASK",
+            "kjoenn": null,
+            "foedested": null,
+            "tidligerefornavn": null,
+            "tidligereetternavn": null,
+            "fornavnvedfoedsel": null,
+            "etternavnvedfoedsel": null,
+            "foedselsdato": null,
+            "doedsdato": null,
+            "dodsDetalj": null,
+            "kontakt": null,
+            "sivilstand": null,
+            "relasjontilavdod": null,
+            "nyttEkteskapPartnerskapEtterForsikredeDod": null
+          }
+        },
+        "person": {
+          "pin": [
+            {
+              "institusjonsnavn": null,
+              "institusjonsid": null,
+              "sektor": "03",
+              "identifikator": "25087338978",
+              "land": "NO",
+              "institusjon": null
+            }
+          ],
+          "pinannen": null,
+          "statsborgerskap": [
+            {
+              "land": "NO"
+            }
+          ],
+          "etternavn": "ALABIRTI",
+          "fornavn": "JETHIKA-MASK",
+          "kjoenn": "M",
+          "foedested": null,
+          "tidligerefornavn": null,
+          "tidligereetternavn": null,
+          "fornavnvedfoedsel": "JETHIKA-MASK",
+          "etternavnvedfoedsel": null,
+          "foedselsdato": "1973-08-25",
+          "doedsdato": null,
+          "dodsDetalj": null,
+          "kontakt": null,
+          "sivilstand": [
+            {
+              "fradato": "2014-04-11",
+              "status": "05"
+            }
+          ],
+          "relasjontilavdod": null,
+          "nyttEkteskapPartnerskapEtterForsikredeDod": null
+        },
+        "far": {
+          "person": {
+            "pin": [
+              {
+                "institusjonsnavn": null,
+                "institusjonsid": null,
+                "sektor": "alle",
+                "identifikator": "16014642157",
+                "land": null,
+                "institusjon": null
+              }
+            ],
+            "pinannen": null,
+            "statsborgerskap": null,
+            "etternavn": null,
+            "fornavn": "YUGON-MASK",
+            "kjoenn": null,
+            "foedested": null,
+            "tidligerefornavn": null,
+            "tidligereetternavn": null,
+            "fornavnvedfoedsel": null,
+            "etternavnvedfoedsel": "RYEL",
+            "foedselsdato": null,
+            "doedsdato": null,
+            "dodsDetalj": null,
+            "kontakt": null,
+            "sivilstand": null,
+            "relasjontilavdod": null,
+            "nyttEkteskapPartnerskapEtterForsikredeDod": null
+          }
+        },
+        "opplysningeromannetbarn": null,
+        "relasjontilbruker": "BARN"
+      }
+    ],
+    "verge": null,
+    "krav": {
+      "dato": "2015-06-16"
+    }
+  },
+  "pensjon": {
+    "reduksjon": null,
+    "vedtak": null,
+    "sak": null,
+    "gjenlevende": null,
+    "bruker": null,
+    "tilleggsinformasjon": null,
+    "ytterligeinformasjon": null,
+    "etterspurtedokumenter": null,
+    "ytelser": null,
+    "forespurtstartdato": null,
+    "landspesifikk": null,
+    "medlemskapAnnen": null,
+    "medlemskapTotal": null,
+    "medlemskap": null,
+    "trygdetid": null,
+    "institusjonennaaikkesoektompensjon": null,
+    "utsettelse": null,
+    "vedlegg": null,
+    "vedleggandre": null,
+    "angitidligstdato": null,
+    "kravDato": {
+      "dato": "2015-06-16"
+    },
+    "antallSokereKjent": null,
+    "anmodning": null,
+    "samletVedtak": null
+  },
+  "trygdetid": null,
+  "ignore": null
+}

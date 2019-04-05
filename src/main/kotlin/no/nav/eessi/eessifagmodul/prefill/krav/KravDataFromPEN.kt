@@ -45,12 +45,12 @@ open class KravDataFromPEN(private val dataFromPEN: PensjonsinformasjonHjelper) 
 
     override fun prefill(prefillData: PrefillDataModel): Pensjon {
         val pendata: Pensjonsinformasjon = getPensjoninformasjonFraSak(prefillData)
-
+        val pensak: V1Sak = getPensjonSak(prefillData, pendata)
         //val pensak = getPensjonSak(prefillData, pendata)
         //nyere metdoe mye å omgjøre på for å ta denne i bruk!
 
         //4.0
-        return createInformasjonOmYtelserList(prefillData, pendata)
+        return createInformasjonOmYtelserList(prefillData, pendata, pensak)
 
     }
 
@@ -110,6 +110,93 @@ open class KravDataFromPEN(private val dataFromPEN: PensjonsinformasjonHjelper) 
     For å finne om han har søkt om en norsk ytelse, skal man se om det finnes krav av typen «Førstegangsbehandling», «Førstegangsbehandling Norge/utland», «Førstegangsbehandling bosatt utland» eller «Mellombehandling».
     Obs, krav av typen «Førstegangsbehandling kun utland» eller Sluttbehandling kun utland» gjelder ikke norsk ytelse.
     * */
+    private fun createInformasjonOmYtelserList(prefillData: PrefillDataModel, pendata: Pensjonsinformasjon, pensak: V1Sak): Pensjon {
+        //: List<YtelserItem>
+        logger.debug("4.1           Informasjon om ytelser")
+
+        val spesialStatusList = listOf("TIL_BEHANDLING")
+        //INNV
+        var krav: Krav? = null
+
+        val ytelselist = mutableListOf<YtelserItem>()
+
+        //val valgtSak = getPensjonValgAvSak(pendata, it)
+        val valgtSak = pensak
+
+        logger.debug("--------------------------------------------------------------------------------------------------------")
+        logger.debug("SakId:  ${valgtSak.sakId}")
+        logger.debug("SakType:  ${valgtSak.sakType}")
+        logger.debug("Status:  ${valgtSak.status}")
+        logger.debug("forsteVirkningstidspunkt:  ${valgtSak.forsteVirkningstidspunkt}")
+        logger.debug("--------------------------------------------------------------")
+        logger.debug("KravHistorikk\n")
+
+        sortertKravHistorikk(valgtSak).forEach {
+            logger.debug("KravType: ${it.kravType}")
+            logger.debug("mottatDato: ${it.mottattDato}")
+            logger.debug("Virkningstidspunkt: ${it.virkningstidspunkt}")
+            logger.debug("Status: ${it.status}")
+        }
+
+        logger.debug("--------------------------------------------------------------")
+        logger.debug("YtelsePerMaaned\n")
+
+        hentYtelsePerMaanedSortert(valgtSak).forEach {
+            logger.debug("Fom:    ${it.fom} ")
+            logger.debug("Fom:    ${it.belop} ")
+            logger.debug("VinnendenMetode:   ${it.vinnendeBeregningsmetode}")
+        }
+        logger.debug("--------------------------------------------------------------------------------------------------------")
+
+        if (spesialStatusList.contains(valgtSak.status)) {
+            logger.debug("Valgtstatus")
+            //kjøre ytelselist forkortet
+            ytelselist.add(createYtelseMedManglendeYtelse(prefillData, valgtSak))
+
+            if (krav == null) {
+                val kravHistorikkMedUtland = hentKravHistorikkMedKravStatusTilBehandling(valgtSak)
+                krav = createKravDato(prefillData, valgtSak, kravHistorikkMedUtland)
+                logger.warn("9.1        Opprettett P2000 med mulighet for at denne mangler KravDato!")
+            }
+
+        } else {
+            if (valgtSak.sakType == KSAK.ALDER.toString()) {
+                try {
+                    val kravHistorikkMedUtland = hentKravHistorikkForsteGangsBehandlingUtlandEllerForsteGang(valgtSak)
+                    val ytelseprmnd = hentYtelsePerMaanedDenSisteFraKrav(kravHistorikkMedUtland, valgtSak)
+
+                    //kjøre ytelselist på normal
+                    if (krav == null) {
+                        krav = createKravDato(prefillData, valgtSak, kravHistorikkMedUtland)
+                    }
+
+                    ytelselist.add(createYtelserItem(prefillData, ytelseprmnd, valgtSak))
+                } catch (ex: Exception) {
+                    logger.error(ex.message, ex)
+                    ytelselist.add(createYtelseMedManglendeYtelse(prefillData, valgtSak))
+                }
+            }
+
+            if (valgtSak.sakType == "UFOREP") {
+                try {
+                    val kravHistorikk = hentKravHistorikkSisteRevurdering(valgtSak)
+                    val ytelseprmnd = hentYtelsePerMaanedDenSisteFraKrav(kravHistorikk, valgtSak)
+
+                    ytelselist.add(createYtelserItem(prefillData, ytelseprmnd, valgtSak))
+                } catch (ex: Exception) {
+                    logger.error(ex.message, ex)
+                    ytelselist.add(createYtelseMedManglendeYtelse(prefillData, valgtSak))
+                }
+            }
+        }
+
+        return Pensjon(
+                ytelser = ytelselist,
+
+                kravDato = krav
+        )
+    }
+
     private fun createInformasjonOmYtelserList(prefillData: PrefillDataModel, pendata: Pensjonsinformasjon): Pensjon {
         //: List<YtelserItem>
         logger.debug("4.1           Informasjon om ytelser")
@@ -224,13 +311,15 @@ open class KravDataFromPEN(private val dataFromPEN: PensjonsinformasjonHjelper) 
 
     //4.1..
     private fun createYtelserItem(prefillData: PrefillDataModel, ytelsePrmnd: V1YtelsePerMaaned, pensak: V1Sak): YtelserItem {
-
+        logger.debug("4.1           YtelserItem ")
         return YtelserItem(
 
                 //4.1.1
                 ytelse = creatYtelser(prefillData, pensak),
+
                 //4.1.2.1 - nei
                 annenytelse = null, //ytelsePrmnd.vinnendeBeregningsmetode,
+
                 //4.1.3 (dekkes av pkt.4.1.1)
                 status = createPensionStatus(prefillData, pensak),
                 //4.1.4
@@ -464,6 +553,7 @@ open class KravDataFromPEN(private val dataFromPEN: PensjonsinformasjonHjelper) 
     //henter ut liste av gyldige sakkType fra brukerSakListe
     fun getPensjonSakTypeList(pendata: Pensjonsinformasjon): List<KSAK> {
         val ksaklist = mutableListOf<KSAK>()
+
         pendata.brukersSakerListe.brukersSakerListe.forEach {
             if (KSAK.isValid(it.sakType)) {
                 val ksakType = KSAK.valueOf(it.sakType)

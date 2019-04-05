@@ -18,7 +18,7 @@ class PrefillP2200UforpensjonTest : AbstractMockKravPensionHelper() {
         return Pair("P2200", "P2000-AP-14069110.xml")
     }
 
-    override fun creareMockPersonDataTPS(): Set<PersonDataFromTPS.MockTPS>? {
+    override fun opprettMockPersonDataTPS(): Set<PersonDataFromTPS.MockTPS>? {
         return setOf(
                 PersonDataFromTPS.MockTPS("Person-20000.json", getFakePersonFnr(), PersonDataFromTPS.MockTPS.TPSType.PERSON),
                 PersonDataFromTPS.MockTPS("Person-21000.json", PersonDataFromTPS.generateRandomFnr(43), PersonDataFromTPS.MockTPS.TPSType.BARN),

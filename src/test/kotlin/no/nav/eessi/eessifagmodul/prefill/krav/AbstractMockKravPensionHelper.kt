@@ -117,10 +117,10 @@ abstract class AbstractMockKravPensionHelper {
     abstract fun createPersonTrygdetidHistorikk(): String
 
     //mock datafromtps..
-    open class DataFromTPS(mocktps: Set<MockTPS>) : PersonDataFromTPS(mocktps)
+    open class DataFromTPS(mocktps: Set<MockTPS>, eessiInformasjon: EessiInformasjon) : PersonDataFromTPS(mocktps, eessiInformasjon)
 
     //metod person tps to override default..
-    abstract fun creareMockPersonDataTPS(): Set<PersonDataFromTPS.MockTPS>?
+    abstract fun opprettMockPersonDataTPS(): Set<PersonDataFromTPS.MockTPS>?
 
     //mock person tps default.. enke with 1chold u 18y
     private fun initMockPersonDataTPS(): Set<PersonDataFromTPS.MockTPS> {
@@ -134,9 +134,9 @@ abstract class AbstractMockKravPensionHelper {
     //alle tester med aamme personlist for tiden. MOCK TPS
     private fun initMockPrefillPersonDataFromTPS(): PrefillPersonDataFromTPS {
         //løsning for å laste in abstract mockTPStestklasse
-        val mockDataSet = creareMockPersonDataTPS() ?: initMockPersonDataTPS()
+        val mockDataSet = opprettMockPersonDataTPS() ?: initMockPersonDataTPS()
 
-        val datatps = DataFromTPS(mockDataSet)
+        val datatps = DataFromTPS(mockDataSet, eessiInformasjon)
         datatps.mockPersonV3Service = mockPersonV3Service
         return datatps.mockPrefillPersonDataFromTPS()
     }

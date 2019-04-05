@@ -1,5 +1,6 @@
 package no.nav.eessi.eessifagmodul.prefill.person
 
+import no.nav.eessi.eessifagmodul.prefill.EessiInformasjon
 import no.nav.eessi.eessifagmodul.utils.NavFodselsnummer
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.*
 import org.junit.Test
@@ -16,7 +17,14 @@ class PrefillPersonEnkeTest : PersonDataFromTPS(
                 MockTPS("Person-20000.json", generateRandomFnr(67), MockTPS.TPSType.PERSON),
                 MockTPS("Person-21000.json", generateRandomFnr(37), MockTPS.TPSType.BARN),
                 MockTPS("Person-22000.json", generateRandomFnr(17), MockTPS.TPSType.BARN)
-        )) {
+        ), EessiInformasjon().apply
+{
+    institutionBy = "Oslo"
+    institutionLand = "NO"
+    institutionid = "NO:NAV"
+    institutionnavn = "NAV"
+}
+) {
 
     @Test
     fun `create birthplace as unknown`() {
@@ -77,8 +85,8 @@ class PrefillPersonEnkeTest : PersonDataFromTPS(
 
     @Test
     fun `forvent utfylling av person data av ENKE fra TPS P2000`() {
-        MockTPS.TPSType.PERSON
-        val fnr = getRandomNavFodselsnummer(MockTPS.TPSType.PERSON) ?: "02345678901"
+        PersonDataFromTPS.MockTPS.TPSType.PERSON
+        val fnr = getRandomNavFodselsnummer(PersonDataFromTPS.MockTPS.TPSType.PERSON) ?: "02345678901"
         val prefillData = generatePrefillData("P2000", fnr)
 
         val response = prefillNav.prefill(prefillData)
@@ -95,7 +103,7 @@ class PrefillPersonEnkeTest : PersonDataFromTPS(
 
     @Test
     fun `forvent utfylling av person data av ENKE fra TPS P2100`() {
-        val fnr = getRandomNavFodselsnummer(MockTPS.TPSType.PERSON) ?: "02345678901"
+        val fnr = getRandomNavFodselsnummer(PersonDataFromTPS.MockTPS.TPSType.PERSON) ?: "02345678901"
         val prefillData = generatePrefillData("P2100", fnr)
         val response = prefillNav.prefill(prefillData)
 

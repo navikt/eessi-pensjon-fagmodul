@@ -18,7 +18,7 @@ import kotlin.test.assertNull
 //@RunWith(MockitoJUnitRunner::class)
 class PrefillP2000UtenKravhistorieTest : AbstractMockKravPensionHelper() {
 
-    override fun creareMockPersonDataTPS(): Set<PersonDataFromTPS.MockTPS>? {
+    override fun opprettMockPersonDataTPS(): Set<PersonDataFromTPS.MockTPS>? {
         return setOf(
                 PersonDataFromTPS.MockTPS("Person-20000.json", getFakePersonFnr(), PersonDataFromTPS.MockTPS.TPSType.PERSON),
                 PersonDataFromTPS.MockTPS("Person-21000.json", PersonDataFromTPS.generateRandomFnr(43), PersonDataFromTPS.MockTPS.TPSType.BARN),
@@ -87,6 +87,14 @@ class PrefillP2000UtenKravhistorieTest : AbstractMockKravPensionHelper() {
 
         val navfnr2 = NavFodselsnummer(P2000.nav?.barn?.get(1)?.person?.pin?.get(0)?.identifikator!!)
         assertEquals(17, navfnr2.getAge())
+
+        assertNotNull(P2000.nav?.bruker?.person?.pin)
+        val pinlist = P2000.nav?.bruker?.person?.pin
+        val pinitem = pinlist?.get(0)
+        assertEquals("pensjon", pinitem?.sektor)
+        assertEquals("NOINST002, NO INST002, NO", pinitem?.institusjonsnavn)
+        assertEquals("NO:noinst002", pinitem?.institusjonsid)
+        assertEquals(createFakePersonFnr(), pinitem?.identifikator)
 
         assertEquals("01", P2000.nav?.barn?.get(1)?.person?.sivilstand?.get(0)?.status)
 

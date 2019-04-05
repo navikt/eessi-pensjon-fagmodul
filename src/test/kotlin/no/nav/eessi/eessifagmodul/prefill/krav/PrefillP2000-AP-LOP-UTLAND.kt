@@ -50,7 +50,7 @@ class `PrefillP2000-AP-LOP-UTLAND` : AbstractMockKravPensionHelper() {
         return readJsonResponse("p4000_trygdetid_part.json")
     }
 
-    override fun creareMockPersonDataTPS(): Set<PersonDataFromTPS.MockTPS>? {
+    override fun opprettMockPersonDataTPS(): Set<PersonDataFromTPS.MockTPS>? {
         return setOf(
                 PersonDataFromTPS.MockTPS("Person-11000-GIFT.json", getFakePersonFnr(), PersonDataFromTPS.MockTPS.TPSType.PERSON),
                 PersonDataFromTPS.MockTPS("Person-12000-EKTE.json", PersonDataFromTPS.generateRandomFnr(70), PersonDataFromTPS.MockTPS.TPSType.EKTE)
@@ -109,11 +109,37 @@ class `PrefillP2000-AP-LOP-UTLAND` : AbstractMockKravPensionHelper() {
         val navfnr1 = NavFodselsnummer(P2000.nav?.bruker?.person?.pin?.get(0)?.identifikator!!)
         assertEquals(68, navfnr1.getAge())
 
+        assertNotNull(P2000.nav?.bruker?.person?.pin)
+        val pinlist = P2000.nav?.bruker?.person?.pin
+        val pinitem = pinlist?.get(0)
+        assertEquals("pensjon", pinitem?.sektor)
+        assertEquals("NOINST002, NO INST002, NO", pinitem?.institusjonsnavn)
+        assertEquals("NO:noinst002", pinitem?.institusjonsid)
+        assertEquals(createFakePersonFnr(), pinitem?.identifikator)
+
         assertEquals("RANNAR-MASK", P2000.nav?.ektefelle?.person?.fornavn)
         assertEquals("MIZINTSEV", P2000.nav?.ektefelle?.person?.etternavn)
 
         val navfnr = NavFodselsnummer(P2000.nav?.ektefelle?.person?.pin?.get(0)?.identifikator!!)
         assertEquals(70, navfnr.getAge())
+
+        assertEquals(1, P2000.pensjon?.ytelser?.size)
+
+        assertEquals("13049", P2000.pensjon?.ytelser?.get(0)?.totalbruttobeloeparbeidsbasert)
+        assertEquals(null, P2000.pensjon?.ytelser?.get(0)?.annenytelse)
+
+//        assertEquals("7839", P2000.pensjon?.ytelser?.get(1)?.totalbruttobeloeparbeidsbasert)
+//        assertEquals("FOLKETRYGD", P2000.pensjon?.ytelser?.get(1)?.annenytelse)
+
+//        assertEquals("8075", P2000.pensjon?.ytelser?.get(2)?.totalbruttobeloeparbeidsbasert)
+//        assertEquals("FOLKETRYGD", P2000.pensjon?.ytelser?.get(2)?.annenytelse)
+//
+//        assertEquals("8309", P2000.pensjon?.ytelser?.get(3)?.totalbruttobeloeparbeidsbasert)
+//        assertEquals("FOLKETRYGD", P2000.pensjon?.ytelser?.get(3)?.annenytelse)
+//
+//        assertEquals("8406", P2000.pensjon?.ytelser?.get(4)?.totalbruttobeloeparbeidsbasert)
+//        assertEquals("FOLKETRYGD", P2000.pensjon?.ytelser?.get(4)?.annenytelse)
+
 
     }
 
