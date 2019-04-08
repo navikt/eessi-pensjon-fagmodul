@@ -171,22 +171,14 @@ class NavFodselsnummerTest {
     fun `Dette er ikke et gyldig fodselsnummer`() {
         val fnrfeil = "08045500000"
         val navfnr = NavFodselsnummer(fnrfeil)
-        val check = navfnr.validate()
-        assertEquals(false, check)
-        assertEquals(63, navfnr.getAge())
-        assertEquals("1955", navfnr.get4DigitBirthYear())
-        assertEquals(false, navfnr.isUnder18Year())
+        assertEquals(false, navfnr.validate())
     }
 
     @Test
     fun `Dette er heller ikke et gyldig fodselsnummer`() {
         val fnrfeil = "20124200000"
         val navfnr = NavFodselsnummer(fnrfeil)
-        val check = navfnr.validate()
-        assertEquals(false, check)
-        assertEquals(false, navfnr.isUnder18Year())
-        val yearnow = LocalDate.now().year
-        val bdate = yearnow - navfnr.getAge()
+        assertEquals(false, navfnr.validate())
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -262,5 +254,23 @@ class NavFodselsnummerTest {
             else -> strFnr
         }
     }
+
+//    private fun generateRandomFnr(yearsToSubtract: Int): String {
+//        val fnrdate = LocalDate.now().minusYears(yearsToSubtract.toLong())
+//        val y = fnrdate.year.toString()
+//        val day = fixDigits(fnrdate.dayOfMonth.toString())
+//        val month = fixDigits(fnrdate.month.value.toString())
+//        val fixedyear = y.substring(2, y.length)
+//        val fnr = day + month + fixedyear + 43352
+//        return fnr
+//    }
+//
+//    private fun fixDigits(str: String): String {
+//        if (str.length == 1) {
+//            return "0$str"
+//        }
+//        return str
+//    }
+
 
 }

@@ -12,6 +12,7 @@ import no.nav.eessi.eessifagmodul.prefill.PrefillDataModel
 import no.nav.eessi.eessifagmodul.prefill.nav.PrefillNav
 import no.nav.eessi.eessifagmodul.prefill.nav.PrefillPersonDataFromTPS
 import no.nav.eessi.eessifagmodul.prefill.person.PersonDataFromTPS
+import no.nav.eessi.eessifagmodul.prefill.person.PersonDataFromTPS.Companion.generateRandomFnr
 import no.nav.eessi.eessifagmodul.services.pensjonsinformasjon.PensjonsinformasjonService
 import no.nav.eessi.eessifagmodul.services.pensjonsinformasjon.RequestBuilder
 import no.nav.eessi.eessifagmodul.services.personv3.PersonV3Service
@@ -29,7 +30,6 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.util.ResourceUtils
 import org.springframework.web.client.RestTemplate
-import java.time.LocalDate
 
 @RunWith(SpringRunner::class)
 @ActiveProfiles("test")
@@ -188,22 +188,22 @@ abstract class AbstractMockKravPensionHelper {
         }
     }
 
-    private fun generateRandomFnr(yearsToSubtract: Int): String {
-        val fnrdate = LocalDate.now().minusYears(yearsToSubtract.toLong())
-        val y = fnrdate.year.toString()
-        val day = fixDigits(fnrdate.dayOfMonth.toString())
-        val month = fixDigits(fnrdate.month.value.toString())
-        val fixedyear = y.substring(2, y.length)
-        val fnr = day + month + fixedyear + 43352
-        return fnr
-    }
-
-    private fun fixDigits(str: String): String {
-        if (str.length == 1) {
-            return "0$str"
-        }
-        return str
-    }
+//    private fun generateRandomFnr(yearsToSubtract: Int): String {
+//        val fnrdate = LocalDate.now().minusYears(yearsToSubtract.toLong())
+//        val y = fnrdate.year.toString()
+//        val day = fixDigits(fnrdate.dayOfMonth.toString())
+//        val month = fixDigits(fnrdate.month.value.toString())
+//        val fixedyear = y.substring(2, y.length)
+//        val fnr = day + month + fixedyear + 43352
+//        return fnr
+//    }
+//
+//    private fun fixDigits(str: String): String {
+//        if (str.length == 1) {
+//            return "0$str"
+//        }
+//        return str
+//    }
 
 
 }

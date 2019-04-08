@@ -22,6 +22,14 @@ open class KravDataFromPEN(private val dataFromPEN: PensjonsinformasjonHjelper) 
     //: VedtakPensjonData(),
     private val logger: Logger by lazy { LoggerFactory.getLogger(KravDataFromPEN::class.java) }
 
+    //gyldige kravhistorikk status og typer.
+    val TIL_BEHANDLING = "TIL_BEHANDLING"
+    val F_BH_MED_UTL = "F_BH_MED_UTL"
+    val FORSTEG_BH = "FORSTEG_BH"
+
+    val REVURD = "REVURD"
+
+
     //K_SAK_T Kodeverk fra PESYS
     enum class KSAK {
         ALDER,
@@ -60,22 +68,6 @@ open class KravDataFromPEN(private val dataFromPEN: PensjonsinformasjonHjelper) 
     Fra PSELV eller manuell kravblankett:
     Her skal fylles ut fra hvilket tidspunkt bruker ønsker å motta pensjon fra Norge. Det er et spørsmål i søknadsdialogen og på manuell kravblankett. Det er ikke nødvendigvis lik virkningstidspunktet på pensjonen.
     * */
-    private fun createKravData(prefillData: PrefillDataModel, valgtSak: V1Sak): Krav? {
-        logger.debug("9.1        Dato Krav")
-
-        logger.debug("--------------------------------------------------------------------------------------------------------")
-        logger.debug("SakId:  ${valgtSak.sakId}")
-        logger.debug("SakType:  ${valgtSak.sakType}")
-        logger.debug("Status:  ${valgtSak.status}")
-        logger.debug("forsteVirkningstidspunkt:  ${valgtSak.forsteVirkningstidspunkt}")
-        logger.debug("--------------------------------------------------------------")
-
-        logger.debug("Prøver å sette kravDato til førsteVirkningstidpunkt: ${valgtSak.sakType} og dato: ${valgtSak.forsteVirkningstidspunkt}")
-        return Krav(
-                dato = valgtSak?.forsteVirkningstidspunkt?.simpleFormat()
-        )
-    }
-
     private fun createKravDato(prefillData: PrefillDataModel, valgtSak: V1Sak, valgtKrav: V1KravHistorikk): Krav? {
         logger.debug("9.1        Dato Krav (med korrekt data fra PESYS krav.virkningstidspunkt)")
 
@@ -86,8 +78,8 @@ open class KravDataFromPEN(private val dataFromPEN: PensjonsinformasjonHjelper) 
         logger.debug("KravType   : ${valgtKrav.kravType}")
         logger.debug("mottattDato:  ${valgtKrav.mottattDato}")
         logger.debug("--------------------------------------------------------------")
-        logger.debug("Prøver å sette kravDato til Virkningstidpunkt: ${valgtKrav.kravType} og dato: ${valgtKrav.mottattDato}")
 
+        logger.debug("Prøver å sette kravDato til Virkningstidpunkt: ${valgtKrav.kravType} og dato: ${valgtKrav.mottattDato}")
         return Krav(
                 dato = valgtKrav?.mottattDato?.simpleFormat()
 
@@ -177,7 +169,7 @@ open class KravDataFromPEN(private val dataFromPEN: PensjonsinformasjonHjelper) 
                 }
             }
 
-            if (valgtSak.sakType == "UFOREP") {
+            if (valgtSak.sakType == KSAK.UFOREP.toString()) {
                 try {
                     val kravHistorikk = hentKravHistorikkSisteRevurdering(valgtSak)
                     val ytelseprmnd = hentYtelsePerMaanedDenSisteFraKrav(kravHistorikk, valgtSak)
@@ -195,103 +187,6 @@ open class KravDataFromPEN(private val dataFromPEN: PensjonsinformasjonHjelper) 
 
                 kravDato = krav
         )
-    }
-
-    private fun createInformasjonOmYtelserList(prefillData: PrefillDataModel, pendata: Pensjonsinformasjon): Pensjon {
-        //: List<YtelserItem>
-        logger.debug("4.1           Informasjon om ytelser")
-
-        val spesialStatusList = listOf("TIL_BEHANDLING")
-        // HVIS sak status er denne..:  kan vi avbryte P2000?
-        //TIL_BEHANDLING
-
-        //INNV
-        //kravDato = createKravData(prefillData, pensak)
-
-        val listKsak = getPensjonSakTypeList(pendata)
-        var krav: Krav? = null
-
-        val ytelselist = mutableListOf<YtelserItem>()
-
-        listKsak.forEach {
-
-            val valgtSak = getPensjonValgAvSak(pendata, it)
-
-            logger.debug("--------------------------------------------------------------------------------------------------------")
-            logger.debug("SakId:  ${valgtSak.sakId}")
-            logger.debug("SakType:  ${valgtSak.sakType}")
-            logger.debug("Status:  ${valgtSak.status}")
-            logger.debug("forsteVirkningstidspunkt:  ${valgtSak.forsteVirkningstidspunkt}")
-            logger.debug("--------------------------------------------------------------")
-            logger.debug("KravHistorikk\n")
-
-            sortertKravHistorikk(valgtSak).forEach {
-                logger.debug("KravType: ${it.kravType}")
-                logger.debug("mottatDato: ${it.mottattDato}")
-                logger.debug("Virkningstidspunkt: ${it.virkningstidspunkt}")
-                logger.debug("Status: ${it.status}")
-            }
-
-            logger.debug("--------------------------------------------------------------")
-            logger.debug("YtelsePerMaaned\n")
-
-            hentYtelsePerMaanedSortert(valgtSak).forEach {
-                logger.debug("Fom:    ${it.fom} ")
-                logger.debug("Fom:    ${it.belop} ")
-                logger.debug("VinnendenMetode:   ${it.vinnendeBeregningsmetode}")
-            }
-            logger.debug("--------------------------------------------------------------------------------------------------------")
-
-            if (spesialStatusList.contains(valgtSak.status)) {
-                logger.debug("Valgtstatus")
-                //kjøre ytelselist forkortet
-                ytelselist.add(createYtelseMedManglendeYtelse(prefillData, valgtSak))
-
-                if (krav == null) {
-                    val kravHistorikkMedUtland = hentKravHistorikkMedKravStatusTilBehandling(valgtSak)
-                    krav = createKravDato(prefillData, valgtSak, kravHistorikkMedUtland)
-                    logger.warn("9.1        Opprettett P2000 med mulighet for at denne mangler KravDato!")
-                }
-
-            } else {
-                if (valgtSak.sakType == "ALDER") {
-                    try {
-                        val kravHistorikkMedUtland = hentKravHistorikkForsteGangsBehandlingUtlandEllerForsteGang(valgtSak)
-                        val ytelseprmnd = hentYtelsePerMaanedDenSisteFraKrav(kravHistorikkMedUtland, valgtSak)
-
-                        //kjøre ytelselist på normal
-                        if (krav == null) {
-                            krav = createKravDato(prefillData, valgtSak, kravHistorikkMedUtland)
-                        }
-
-                        ytelselist.add(createYtelserItem(prefillData, ytelseprmnd, valgtSak))
-                    } catch (ex: Exception) {
-                        logger.error(ex.message, ex)
-                        ytelselist.add(createYtelseMedManglendeYtelse(prefillData, valgtSak))
-                    }
-                }
-
-                if (valgtSak.sakType == "UFOREP") {
-                    try {
-                        val kravHistorikk = hentKravHistorikkSisteRevurdering(valgtSak)
-                        val ytelseprmnd = hentYtelsePerMaanedDenSisteFraKrav(kravHistorikk, valgtSak)
-
-                        ytelselist.add(createYtelserItem(prefillData, ytelseprmnd, valgtSak))
-                    } catch (ex: Exception) {
-                        logger.error(ex.message, ex)
-                        ytelselist.add(createYtelseMedManglendeYtelse(prefillData, valgtSak))
-                    }
-                }
-            }
-
-        }
-        return Pensjon(
-                ytelser = ytelselist,
-
-                kravDato = krav
-        )
-
-
     }
 
     //4.1.. (for kun_uland,mangler inngangsvilkår)
@@ -615,7 +510,7 @@ open class KravDataFromPEN(private val dataFromPEN: PensjonsinformasjonHjelper) 
         val sortList = sortertKravHistorikk(pensak)
 
         for (i in sortList) {
-            logger.debug("leter etter REVURD i  ${i.kravType} med dato ${i.virkningstidspunkt}")
+            logger.debug("leter etter $REVURD i  ${i.kravType} med dato ${i.virkningstidspunkt}")
             if (i.kravType == "REVURD") {
                 logger.debug("Fant Kravhistorikk med $i.kravType")
                 return i
@@ -625,7 +520,7 @@ open class KravDataFromPEN(private val dataFromPEN: PensjonsinformasjonHjelper) 
     }
 
     private fun hentKravHistorikkForsteGangsBehandlingUtlandEllerForsteGang(pensak: V1Sak): V1KravHistorikk {
-        return hentKravHistorikkMedKravType(listOf("F_BH_MED_UTL", "FORSTEG_BH"), pensak)
+        return hentKravHistorikkMedKravType(listOf(F_BH_MED_UTL, FORSTEG_BH), pensak)
     }
 
     private fun hentKravHistorikkMedKravType(kravType: List<String>, pensak: V1Sak): V1KravHistorikk {
@@ -645,12 +540,12 @@ open class KravDataFromPEN(private val dataFromPEN: PensjonsinformasjonHjelper) 
         val sortList = sortertKravHistorikk(pensak)
         sortList.forEach {
             logger.debug("leter etter Krav status med TIL_BEHANDLING, fant ${it.kravType} med virkningstidspunkt dato : ${it.virkningstidspunkt}")
-            if ("TIL_BEHANDLING".contains(it.status)) {
+            if (TIL_BEHANDLING == it.status) {
                 logger.debug("Fant Kravhistorikk med ${it.status}")
                 return it
             }
         }
-        logger.error("Fant ikke noe Kravhistorikk..TIL_BEHANDLING HVA GJØR VI NÅ?")
+        logger.error("Fant ikke noe Kravhistorikk..$TIL_BEHANDLING HVA GJØR VI NÅ?")
         return V1KravHistorikk()
     }
 
