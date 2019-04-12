@@ -1,5 +1,7 @@
 package no.nav.eessi.eessifagmodul.prefill.nav
 
+import no.nav.eessi.eessifagmodul.models.Pensjon
+import no.nav.eessi.eessifagmodul.models.PensjoninformasjonException
 import no.nav.eessi.eessifagmodul.models.SED
 import no.nav.eessi.eessifagmodul.prefill.Prefill
 import no.nav.eessi.eessifagmodul.prefill.PrefillDataModel
@@ -27,13 +29,31 @@ class PrefillPerson(private val prefillNav: PrefillNav, private val prefilliPens
 
         val sed = prefillData.sed
 
-        sed.nav = prefillNav.prefill(prefillData)
-
+        if (prefillData.kanFeltSkippes("NAVSED")) {
+            //skipper å hente persondata dersom NAVSED finnes
+            sed.nav = null
+        } else {
+            //henter opp persondata
+            sed.nav = prefillNav.prefill(prefillData)
+        }
         logger.debug("[${prefillData.getSEDid()}] Preutfylling Utfylling NAV")
 
-        sed.pensjon = prefilliPensjon.prefill(prefillData)
+        try {
+            if (prefillData.kanFeltSkippes("PENSED")) {
+                //vi skal ha blank pensjon ved denne toggle
+                sed.pensjon = null
 
-        logger.debug("[${prefillData.getSEDid()}] Preutfylling Utfylling Pensjon")
+                //henter opp pensjondata
+            } else {
+                sed.pensjon = prefilliPensjon.prefill(prefillData)
+            }
+            logger.debug("[${prefillData.getSEDid()}] Preutfylling Utfylling Pensjon")
+        } catch (pen: PensjoninformasjonException) {
+            logger.error(pen.message)
+            sed.pensjon = Pensjon()
+        } catch (ex: Exception) {
+            logger.error(ex.message, ex)
+        }
 
         logger.debug("-------------------| Preutfylling END |------------------- ")
         return prefillData.sed

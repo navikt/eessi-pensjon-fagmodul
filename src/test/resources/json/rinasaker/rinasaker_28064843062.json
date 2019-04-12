@@ -1,0 +1,2928 @@
+[
+  {
+    "id": "83637",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "83637",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "CP",
+    "status": "open"
+  },
+  {
+    "id": "83673",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "83673",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "CP",
+    "status": "open"
+  },
+  {
+    "id": "85151",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "85151",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "CP",
+    "status": "open"
+  },
+  {
+    "id": "85183",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "85183",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "CP",
+    "status": "open"
+  },
+  {
+    "id": "85425",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "85425",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "CP",
+    "status": "open"
+  },
+  {
+    "id": "90102",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "90102",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "CP",
+    "status": "open"
+  },
+  {
+    "id": "90424",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "90424",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "CP",
+    "status": "open"
+  },
+  {
+    "id": "93376",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "93376",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "93603",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "93603",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "93608",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "93608",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "93614",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "93614",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "93619",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "93619",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "95172",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "95172",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "95239",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "95239",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "95288",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "95288",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "95294",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "95294",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "95590",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "95590",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "95717",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "95717",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "96060",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "96060",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "96304",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "96304",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "96345",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "96345",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "96387",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "96387",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "96429",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "96429",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "97249",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "97249",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "97401",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "97401",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "97447",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "97447",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "97547",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "97547",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "97605",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "97605",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "97649",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "97649",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "97696",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "97696",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "97770",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "97770",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "97855",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "97855",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "97910",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "97910",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "97954",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "97954",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "98045",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "98045",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "98114",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "98114",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "98157",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "98157",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "98215",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "98215",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "98255",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "98255",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "98310",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "98310",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "98350",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "98350",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "98407",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "98407",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "98484",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "98484",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "98547",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "98547",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "98609",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "98609",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "98649",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "98649",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "98653",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "98653",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "98655",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "98655",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "98664",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "98664",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "98966",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "98966",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "99208",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "99208",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "99213",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "99213",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "99315",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "99315",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "99370",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "99370",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "99424",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "99424",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "99467",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "99467",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "99519",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "99519",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "99559",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "99559",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "99568",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "99568",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "99652",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "99652",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "99692",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "99692",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "99749",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "99749",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "99803",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "99803",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "99857",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "99857",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "99913",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "99913",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "99953",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "99953",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "100008",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "100008",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "100062",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "100062",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "100069",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "100069",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "100146",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "100146",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "100204",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "100204",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "100257",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "100257",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "100315",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "100315",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "100371",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "100371",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "100425",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "100425",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "100769",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "100769",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "100774",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "100774",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "100779",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "100779",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "100801",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "100801",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "100970",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "100970",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "100975",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "100975",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "101077",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "101077",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "101120",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "101120",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "101559",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "101559",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "101671",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "101671",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "101733",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "101733",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "101792",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "101792",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "101846",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "101846",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "101997",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "101997",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "102128",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "102128",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "102412",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "102412",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "102488",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "102488",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "102565",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "102565",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "102642",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "102642",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "102911",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "102911",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "102988",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "102988",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "103065",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "103065",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "103142",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "103142",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "103838",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "103838",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "103900",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "103900",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "104092",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "104092",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "104150",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "104150",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "104204",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "104204",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "104274",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "104274",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "104338",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "104338",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "104552",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "104552",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "105389",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "105389",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "105508",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "105508",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "105646",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "105646",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "105793",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "105793",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "106620",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "106620",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "107132",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "107132",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "107596",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "107596",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "107650",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "107650",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "107832",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "107832",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "107873",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "107873",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "107952",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "107952",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "108175",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "108175",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "108216",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "108216",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "108281",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "108281",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "108467",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "108467",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "108474",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "108474",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "108562",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "108562",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "108745",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "108745",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "108892",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "108892",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "108948",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "108948",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "109402",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "109402",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "110896",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "110896",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "111251",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "111251",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "111304",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "111304",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "111752",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "111752",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "111931",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "111931",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "113067",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "113067",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "113259",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "113259",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "113702",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "113702",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "114447",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "114447",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "114502",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "114502",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "114625",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "114625",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "114956",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "114956",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "115068",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "115068",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "116358",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "116358",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "116437",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "116437",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "116481",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "116481",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "116531",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "116531",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "116591",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "116591",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "116596",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "116596",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "116685",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "116685",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "116690",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "116690",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "116793",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "116793",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "116798",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "116798",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "117275",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "117275",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "117557",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "117557",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "97820",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "97820",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_06",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_06",
+    "applicationRoleId": "PO",
+    "status": "open"
+  },
+  {
+    "id": "97842",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "28064843062",
+      "surname": "STRIELA",
+      "caseId": "97842",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_06",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_06",
+    "applicationRoleId": "PO",
+    "status": "open"
+  }
+]

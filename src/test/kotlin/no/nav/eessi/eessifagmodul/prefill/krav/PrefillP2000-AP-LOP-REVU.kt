@@ -88,6 +88,7 @@ class `PrefillP2000-AP-LOP-REVU` : AbstractMockKravPensionHelper() {
 
     @Test
     fun `forventet korrekt utfylt P2000 alderpersjon med mockdata fra testfiler`() {
+
         val P2000 = prefill.prefill(prefillData)
 
         P2000.print()

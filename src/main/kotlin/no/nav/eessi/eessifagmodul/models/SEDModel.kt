@@ -16,7 +16,7 @@ data class SED(
         var ignore: Ignore? = null
 ) {
     fun toJson(): String {
-        return mapAnyToJson(this, true)
+        return mapAnyToJson(this, false)
     }
 
     companion object {

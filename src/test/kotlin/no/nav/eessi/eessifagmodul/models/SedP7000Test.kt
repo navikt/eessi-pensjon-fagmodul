@@ -25,4 +25,19 @@ class SedP7000Test : AbstractSedTest() {
         assertEquals("1942-12-19", p7000sed.pensjon?.ytelser?.get(0)?.startdatoutbetaling)
         assertEquals("4163", p7000sed.pensjon?.vedtak?.get(0)?.beregning?.get(0)?.beloepBrutto?.beloep)
     }
+
+    @Test
+    fun `create SED P7000_2 from json datafile`() {
+
+        val p7000json = getTestJsonFile("P7000_2-NAV_v4_1.json")
+        val p7000sed = getSEDfromTestfile(p7000json)
+
+        println(p7000json)
+        p7000sed.print()
+
+        val json = p7000sed.toJson()
+
+        JSONAssert.assertEquals(p7000json, json, false)
+
+    }
 }

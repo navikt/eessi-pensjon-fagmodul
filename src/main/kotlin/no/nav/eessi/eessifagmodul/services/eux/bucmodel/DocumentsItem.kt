@@ -57,7 +57,8 @@ data class DocumentsItem(
 data class ShortDocumentItem(
         val id: String? = null,
         val type: String? = null,
-        val status: String? = null
-
+        val status: String? = null,
+        val creationDate: Any? = null,
+        val lastUpdate: Any? = null
 
 )

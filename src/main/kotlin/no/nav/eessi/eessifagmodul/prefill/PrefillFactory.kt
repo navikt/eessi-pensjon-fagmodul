@@ -49,6 +49,12 @@ class PrefillFactory(private val prefillNav: PrefillNav, private val dataFromTPS
             SEDType.P4000 -> {
                 PrefillP4000(prefillPerson)
             }
+            SEDType.P7000 -> {
+                PrefillP7000(prefillPerson)
+            }
+            SEDType.P8000 -> {
+                PrefillP8000(prefillPerson)
+            }
             else -> {
                 //P5000, P8000, P7000, P8000  - P9000 og P10000
                 PrefillDefaultSED(prefillPerson)

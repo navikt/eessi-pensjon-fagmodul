@@ -18,6 +18,7 @@ import javax.xml.datatype.XMLGregorianCalendar
 
 inline fun <reified T : Any> typeRef(): ParameterizedTypeReference<T> = object : ParameterizedTypeReference<T>() {}
 inline fun <reified T : Any> typeRefs(): TypeReference<T> = object : TypeReference<T>() {}
+
 inline fun <reified T : Any> mapJsonToAny(json: String, objec: TypeReference<T>, failonunknown: Boolean = false): T {
     if (validateJson(json)) {
         return jacksonObjectMapper()
@@ -103,8 +104,8 @@ fun getCounter(key: String): Counter {
             "OPPRETTBUCOGSEDFEIL" to counter("eessipensjon_fagmodul.opprettbucogsed", "feilede"),
             "HENTBUCOK" to counter("eessipensjon_fagmodul.hentbuc", "vellykkede"),
             "HENTBUCFEIL" to counter("eessipensjon_fagmodul.hentbuc", "feilede"),
-            "PERSONINFORMASJONOK" to counter("eessipensjon_fagmodul.hentperson", "vellykkede"),
-            "PERSONINFORMASJONFEIL" to counter("eessipensjon_fagmodul.hentperson", "feilede"),
+            "PERSONINFORMASJONOK" to counter("eessipensjon_fagmodul.personinfo", "vellykkede"),
+            "PERSONINFORMASJONFEIL" to counter("eessipensjon_fagmodul.personinfo", "feilede"),
             "HENTKRAVUTLANDOK" to counter("eessipensjon_fagmodul.hentKravUtland", "vellykkede"),
             "HENTKRAVUTLANDFEIL" to counter("eessipensjon_fagmodul.hentKravUtland", "feilede")
 

@@ -56,7 +56,7 @@ class PrefillP2000(private val prefillNav: PrefillNav, private val preutfyllingP
                 sed.pensjon = pensjon
             }
         } catch (pen: PensjoninformasjonException) {
-            logger.warn(pen.message)
+            logger.error(pen.message)
             sed.pensjon = Pensjon()
         } catch (ex: Exception) {
             logger.error(ex.message, ex)

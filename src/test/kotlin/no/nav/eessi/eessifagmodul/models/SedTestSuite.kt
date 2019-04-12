@@ -5,6 +5,7 @@ import org.junit.runners.Suite
 
 @RunWith(Suite::class)
 @Suite.SuiteClasses(
+        SedTest::class,
         SedP2000Test::class,
         SedP2100Test::class,
         SedP2200Test::class,

@@ -89,26 +89,28 @@ class BucUtils {
         val documents = getDocuments()
         documents.forEach {
             if (sedType.name == it.type) {
-                val shortdoc = ShortDocumentItem(
-                        id = it.id,
-                        type = it.type,
-                        status = it.status
-                )
+                val shortdoc = createShortDocument(it)
                 return shortdoc
             }
         }
         return null
     }
 
+    private fun createShortDocument(docuemntItem: DocumentsItem): ShortDocumentItem {
+        return ShortDocumentItem(
+                id = docuemntItem.id,
+                type = docuemntItem.type,
+                status = docuemntItem.status,
+                creationDate = docuemntItem.creationDate,
+                lastUpdate = docuemntItem.lastUpdate
+        )
+    }
+
     fun getAllDocuments(): List<ShortDocumentItem> {
         val documents = getDocuments()
         val lists = mutableListOf<ShortDocumentItem>()
         documents.forEach {
-            lists.add(ShortDocumentItem(
-                    id = it.id,
-                    type = it.type,
-                    status = it.status
-            ))
+            lists.add(createShortDocument(it))
         }
         return lists
     }
@@ -118,12 +120,7 @@ class BucUtils {
         val lists = mutableListOf<ShortDocumentItem>()
         documents.forEach {
             if (sedType.name == it.type) {
-                val shortdoc = ShortDocumentItem(
-                        id = it.id,
-                        type = it.type,
-                        status = it.status
-                )
-                lists.add(shortdoc)
+                lists.add(createShortDocument(it))
             }
         }
         return lists

@@ -32,13 +32,14 @@ class PensjonsinformasjonService(val pensjonsinformasjonOidcRestTemplate: RestTe
     val pesysq5url = "https://wasapp-q5.adeo.no/pensjon-ws/api/pensjonsinformasjon/v1"
 
     fun hentAltPaaSak(sakId: String = "", pendata: Pensjonsinformasjon): V1Sak? {
-        logger.info("Pendata: $pendata")
         if (sakId.isNotBlank()) {
             pendata.brukersSakerListe.brukersSakerListe.forEach {
                 if (sakId == it.sakId.toString())
+                    logger.debug("Fant sakid på brukersakliste, returnerer kun V1Sak")
                     return it
             }
         }
+        logger.warn("Fant ingen sakid på brukersakliste, returnerer null")
         return null
     }
 
