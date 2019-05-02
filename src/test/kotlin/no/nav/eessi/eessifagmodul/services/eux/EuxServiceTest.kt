@@ -19,8 +19,10 @@ import org.mockito.junit.MockitoJUnitRunner
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.*
-import org.springframework.web.client.RestTemplate
+import org.springframework.web.client.*
 import org.springframework.web.util.UriComponentsBuilder
+import java.io.IOException
+import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
 import kotlin.String
@@ -41,6 +43,7 @@ class EuxServiceTest {
     @Before
     fun setup() {
         logger.debug("Starting tests.... ...")
+        mockrestTemplate.errorHandler = DefaultResponseErrorHandler()
         service = EuxService(mockrestTemplate)
     }
 
@@ -133,7 +136,7 @@ class EuxServiceTest {
     fun `Calling EuxService| forventer korrekt svar tilbake fra et kall til hentbuc`() {
         val filepath = "src/test/resources/json/buc/buc-22909_v4.1.json"
         val json = String(Files.readAllBytes(Paths.get(filepath)))
-        kotlin.test.assertTrue(validateJson(json))
+        assertTrue(validateJson(json))
         val response: ResponseEntity<String> = ResponseEntity(json, HttpStatus.OK)
 
         whenever(mockrestTemplate.exchange(anyString(), eq(HttpMethod.GET), eq(null), eq(String::class.java))).thenReturn(response)
@@ -267,6 +270,51 @@ class EuxServiceTest {
                 ArgumentMatchers.eq(String::class.java)
         )
         service.sendDocumentById("123456", "213213-123123-123123")
+    }
+
+
+    @Test
+//    fun `Calling EuxService| rinasaker paa valgt fnr faar ut en liste`() {
+    fun getRinasakerOktest() {
+        val filepath = "src/test/resources/json/rinasaker/rinasaker_28064843062.json"
+        val json = String(Files.readAllBytes(Paths.get(filepath)))
+        assertTrue(validateJson(json))
+
+        val response: ResponseEntity<String> = ResponseEntity(json, HttpStatus.OK)
+
+        val orgRinasaker = mapJsonToAny(json, typeRefs<List<Rinasak>>())
+        whenever(mockrestTemplate.exchange(anyString(), eq(HttpMethod.GET), eq(null), eq(String::class.java))).thenReturn(response)
+        val result = service.getRinasaker("12345678900")
+
+        assertEquals(orgRinasaker, result)
+        assertEquals(orgRinasaker.size, result.size)
+
+    }
+
+    @Test(expected = IOException::class)
+    fun getRinasakerIOerror() {
+
+        whenever(mockrestTemplate.exchange(anyString(), eq(HttpMethod.GET), eq(null), eq(String::class.java))).thenThrow(ResourceAccessException("I/O error"))
+        service.getRinasaker("12345678900")
+
+    }
+
+    @Test(expected = HttpClientErrorException::class)
+    fun getRinasakerClientError() {
+
+        val clientError = HttpClientErrorException.create(HttpStatus.UNAUTHORIZED, "Error in Token", HttpHeaders(), "Error in Token".toByteArray(), Charset.defaultCharset())
+        whenever(mockrestTemplate.exchange(anyString(), eq(HttpMethod.GET), eq(null), eq(String::class.java))).thenThrow(clientError)
+        service.getRinasaker("12345678900")
+
+    }
+
+    @Test(expected = HttpServerErrorException::class)
+    fun getRinasakerServerError() {
+
+        val serverError = HttpServerErrorException.create(HttpStatus.BAD_GATEWAY, "Error in Gate", HttpHeaders(), "Error in Gate".toByteArray(), Charset.defaultCharset())
+        whenever(mockrestTemplate.exchange(anyString(), eq(HttpMethod.GET), eq(null), eq(String::class.java))).thenThrow(serverError)
+        service.getRinasaker("12345678900")
+
     }
 
 
