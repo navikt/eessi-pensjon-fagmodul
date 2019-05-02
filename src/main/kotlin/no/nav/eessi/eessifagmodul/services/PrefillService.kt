@@ -19,7 +19,10 @@ class PrefillService(private val euxService: EuxService, private val prefillSED:
     @Throws(SedValidatorException::class)
     fun prefillSed(dataModel: PrefillDataModel): PrefillDataModel {
 
+        val startTime = System.currentTimeMillis()
         val data = prefillSED.prefill(dataModel)
+        val endTime = System.currentTimeMillis()
+        logger.debug("PrefillSED tok ${endTime - startTime} ms.")
 
         if (SEDType.P2000.name == data.getSEDid()) {
             validator.validateP2000(data.sed)

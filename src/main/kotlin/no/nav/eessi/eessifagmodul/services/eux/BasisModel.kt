@@ -16,3 +16,27 @@ data class BucSedResponse(
         val caseId: String,
         val documentId: String
 )
+
+data class Rinasak(
+        val id: String? = null,
+        val processDefinitionId: String? = null,
+        val traits: Traits? = null,
+        val applicationRoleId: String? = null,
+        val properties: Properties? = null,
+        val status: String? = null
+)
+
+data class Properties(
+        val importance: String? = null,
+        val criticality: String? = null
+)
+
+data class Traits(
+        val birthday: String? = null,
+        val localPin: String? = null,
+        val surname: String? = null,
+        val caseId: String? = null,
+        val name: String? = null,
+        val flowType: String? = null,
+        val status: String? = null
+)

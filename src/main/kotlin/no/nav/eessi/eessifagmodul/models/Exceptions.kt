@@ -58,6 +58,8 @@ class AktoerregisterException(message: String) : Exception(message)
 @ResponseStatus(value = HttpStatus.SERVICE_UNAVAILABLE)
 class SystembrukerTokenException(message: String) : Exception(message)
 
-@ResponseStatus(value = HttpStatus.UNPROCESSABLE_ENTITY)
-class SedValidatorException(message: String) : IllegalArgumentException(message)
+//@ResponseStatus(value = HttpStatus.UNPROCESSABLE_ENTITY)
+class SedValidatorException(message: String) : GenericUnprocessableEntity(message)
 
+@ResponseStatus(value = HttpStatus.UNPROCESSABLE_ENTITY)
+open class GenericUnprocessableEntity(message: String) : IllegalArgumentException(message)

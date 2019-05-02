@@ -2,6 +2,8 @@ package no.nav.eessi.eessifagmodul.services.eux
 
 import no.nav.eessi.eessifagmodul.models.*
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.Buc
+import no.nav.eessi.eessifagmodul.services.eux.bucmodel.BucAndSedView
+import no.nav.eessi.eessifagmodul.services.eux.bucmodel.ParticipantsItem
 import no.nav.eessi.eessifagmodul.utils.getCounter
 import no.nav.eessi.eessifagmodul.utils.mapJsonToAny
 import no.nav.eessi.eessifagmodul.utils.typeRef
@@ -10,9 +12,12 @@ import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Description
 import org.springframework.http.*
 import org.springframework.stereotype.Service
+import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
+import org.springframework.web.client.ResourceAccessException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
+import java.io.IOException
 import java.util.*
 
 
@@ -22,7 +27,7 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
     private val logger = LoggerFactory.getLogger(EuxService::class.java)
 
     // Nye API kall er er fra 23.01.19
-    // https://eux-app.nais.preprod.local/swagger-ui.html#/eux-cpi-service-controller/getDocumentUsingGET
+    // https://eux-app.nais.preprod.local/swagger-ui.html#/eux-cpi-service-controller/
 
 
     //Oppretter ny RINA sak(buc) og en ny Sed
@@ -155,6 +160,12 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
 
     }
 
+    //val benytt denne for å hente ut PESYS sakid (P2000,P2100,P2200,P6000)
+    fun hentPESYSsakIdFraRinaSED(euxCaseId: String, documentId: String): String {
+        val navsed = getSedOnBucByDocumentId(euxCaseId, documentId)
+        navsed.nav?.eessisak?.first()?.saksnummer?.let { return it }
+        return "N/A"
+    }
 
     //henter ut bucdata fra valgt buc/euxCaseId
     @Throws(BucIkkeMottattException::class, EuxServerException::class)
@@ -168,7 +179,8 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
         return try {
             logger.info("Prøver å kontakte EUX /${builder.toUriString()}")
 
-            val response = euxOidcRestTemplate.exchange(builder.toUriString(),
+            val response = euxOidcRestTemplate.exchange(
+                    builder.toUriString(),
                     HttpMethod.GET,
                     null,
                     String::class.java)
@@ -287,6 +299,113 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
                 httpEntity,
                 typeRef<List<String>>())
         return response.body ?: listOf()
+    }
+
+    /**
+     * Lister alle rinasaker på valgt fnr eller euxcaseid, eller bucType...
+     * fnr er påkrved resten er fritt
+     */
+    fun getRinasaker(fnr: String): List<Rinasak> {
+        return getRinasaker(fnr, null, null, null)
+    }
+
+    fun getRinasaker(fnr: String, euxCaseId: String?, bucType: String?, status: String?): List<Rinasak> {
+        //https://eux-rina-api.nais.preprod.local/cpi/rinasaker?F%C3%B8dselsnummer=28064843062&Fornavn=a&Etternavn=b&F%C3%B8dsels%C3%A5r=2&RINASaksnummer=as&BuCType=p&Status=o
+
+        val builder = UriComponentsBuilder.fromPath("/rinasaker")
+                .queryParam("Fødselsnummer", fnr)
+                .queryParam("RINASaksnummer", euxCaseId ?: "")
+                .queryParam("BuCType", bucType ?: "")
+                .queryParam("Status", status ?: "")
+                .build()
+
+
+        try {
+            val response = euxOidcRestTemplate.exchange(
+                    builder.toUriString(),
+                    HttpMethod.GET,
+                    null,
+                    String::class.java)
+
+            response.body?.let {
+                return mapJsonToAny(it, typeRefs())
+            } ?: return listOf()
+        } catch (ia: IllegalArgumentException) {
+            logger.error("mapJsonToAny exception ${ia.message}", ia)
+            throw GenericUnprocessableEntity(ia.message!!)
+        } catch (hx: HttpClientErrorException) {
+            logger.warn("Rinasaker ClientException ${hx.message}", hx)
+            throw hx
+        } catch (sx: HttpServerErrorException) {
+            logger.error("Rinasaker ClientException ${sx.message}", sx)
+            throw sx
+        } catch (io: ResourceAccessException) {
+            logger.error("IO error fagmodul  ${io.message}", io)
+            throw IOException(io.message, io)
+        } catch (ex: Exception) {
+            logger.error("Annen uspesefikk feil oppstod mellom fagmodul og eux ${ex.message}", ex)
+            throw ex
+        }
+
+    }
+
+    fun getBucAndSedView(fnr: String, aktoerid: String, sakId: String?, euxCaseId: String?, euxService: EuxService): List<BucAndSedView> {
+
+        val startTime = System.currentTimeMillis()
+        logger.debug("2 fant fnr.")
+
+        logger.debug("3 henter rinasaker på valgt aktoerid: $aktoerid")
+
+        val rinasaker = euxService.getRinasaker(fnr)
+
+        logger.debug("4 hentet ut rinasaker på valgt borger, antall: ${rinasaker.size}")
+
+        logger.debug("5 starter med å hente ut data for hver BUC i rinasaker")
+        val bucAndsedlist = mutableListOf<BucAndSedView>()
+        rinasaker.forEach {
+            val bucUtil = euxService.getBucUtils(it.id!!)
+
+            val institusjonlist = mutableListOf<InstitusjonItem>()
+            var parts: List<ParticipantsItem>? = null
+            try {
+                parts = bucUtil.getParticipants()
+                logger.debug("6 henter ut liste over deltagere på buc")
+
+                parts?.forEach {
+                    institusjonlist.add(
+                            InstitusjonItem(
+                                    country = it.organisation?.countryCode,
+                                    institution = it.organisation?.id
+                            )
+                    )
+                }
+            } catch (ex: Exception) {
+                logger.debug("Ingen meldlemmer i BUC")
+            }
+            logger.debug("7 oppretter bucogsedview")
+            val bucAndSedView = BucAndSedView(
+                    buc = bucUtil.getProcessDefinitionName()!!,
+                    creator = InstitusjonItem(
+                            country = bucUtil.getCreator()?.countryCode,
+                            institution = bucUtil.getCreator()?.name
+                    ),
+                    caseId = it.id,
+                    sakType = "",
+                    aktoerId = aktoerid,
+                    status = it.status,
+                    institusjon = institusjonlist.toList(),
+                    seds = bucUtil.getAllDocuments()
+            )
+            logger.debug("8 legger bucogsedview til liste")
+            bucAndsedlist.add(bucAndSedView)
+        }
+
+        logger.debug("9 ferdig returnerer list av BucAndSedView. Antall BUC: ${bucAndsedlist.size}")
+        val endTime = System.currentTimeMillis()
+        logger.debug("10 tiden tok ${endTime - startTime} ms.")
+
+        return bucAndsedlist.toList()
+
     }
 
 

@@ -2,6 +2,7 @@ package no.nav.eessi.eessifagmodul.services.eux
 
 import com.nhaarman.mockito_kotlin.*
 import no.nav.eessi.eessifagmodul.models.*
+import no.nav.eessi.eessifagmodul.services.eux.bucmodel.Buc
 import no.nav.eessi.eessifagmodul.utils.mapAnyToJson
 import no.nav.eessi.eessifagmodul.utils.mapJsonToAny
 import no.nav.eessi.eessifagmodul.utils.typeRefs
@@ -19,11 +20,14 @@ import org.mockito.junit.MockitoJUnitRunner
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.*
-import org.springframework.web.client.RestTemplate
+import org.springframework.web.client.*
 import org.springframework.web.util.UriComponentsBuilder
+import java.io.IOException
+import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
 import kotlin.String
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 
@@ -41,12 +45,12 @@ class EuxServiceTest {
     @Before
     fun setup() {
         logger.debug("Starting tests.... ...")
+        mockrestTemplate.errorHandler = DefaultResponseErrorHandler()
         service = EuxService(mockrestTemplate)
     }
 
     @After
     fun takedown() {
-        //Mockito.reset(service)
         Mockito.reset(mockrestTemplate)
     }
 
@@ -133,7 +137,7 @@ class EuxServiceTest {
     fun `Calling EuxService| forventer korrekt svar tilbake fra et kall til hentbuc`() {
         val filepath = "src/test/resources/json/buc/buc-22909_v4.1.json"
         val json = String(Files.readAllBytes(Paths.get(filepath)))
-        kotlin.test.assertTrue(validateJson(json))
+        assertTrue(validateJson(json))
         val response: ResponseEntity<String> = ResponseEntity(json, HttpStatus.OK)
 
         whenever(mockrestTemplate.exchange(anyString(), eq(HttpMethod.GET), eq(null), eq(String::class.java))).thenReturn(response)
@@ -267,6 +271,82 @@ class EuxServiceTest {
                 ArgumentMatchers.eq(String::class.java)
         )
         service.sendDocumentById("123456", "213213-123123-123123")
+    }
+
+
+    @Test
+    fun callingEuxServiceListOfRinasaker_Ok() {
+        val filepath = "src/test/resources/json/rinasaker/rinasaker_12345678901.json"
+        val json = String(Files.readAllBytes(Paths.get(filepath)))
+        assertTrue(validateJson(json))
+
+        val response: ResponseEntity<String> = ResponseEntity(json, HttpStatus.OK)
+
+        val orgRinasaker = mapJsonToAny(json, typeRefs<List<Rinasak>>())
+        whenever(mockrestTemplate.exchange(
+                anyString(),
+                eq(HttpMethod.GET),
+                eq(null),
+                eq(String::class.java))
+        ).thenReturn(response)
+
+
+        val result = service.getRinasaker("12345678900")
+
+        assertEquals(orgRinasaker, result)
+        assertEquals(orgRinasaker.size, result.size)
+
+    }
+
+    @Test(expected = IOException::class)
+    fun callingEuxServiceListOfRinasaker_IOError() {
+
+        whenever(mockrestTemplate.exchange(anyString(), eq(HttpMethod.GET), eq(null), eq(String::class.java))).thenThrow(ResourceAccessException("I/O error"))
+        service.getRinasaker("12345678900")
+
+    }
+
+    @Test(expected = HttpClientErrorException::class)
+    fun callingEuxServiceListOfRinasaker_ClientError() {
+
+        val clientError = HttpClientErrorException.create(HttpStatus.UNAUTHORIZED, "Error in Token", HttpHeaders(), "Error in Token".toByteArray(), Charset.defaultCharset())
+        whenever(mockrestTemplate.exchange(anyString(), eq(HttpMethod.GET), eq(null), eq(String::class.java))).thenThrow(clientError)
+        service.getRinasaker("12345678900")
+
+    }
+
+    @Test(expected = HttpServerErrorException::class)
+    fun callingEuxServiceListOfRinasaker_ServerError() {
+
+        val serverError = HttpServerErrorException.create(HttpStatus.BAD_GATEWAY, "Error in Gate", HttpHeaders(), "Error in Gate".toByteArray(), Charset.defaultCharset())
+        whenever(mockrestTemplate.exchange(anyString(), eq(HttpMethod.GET), eq(null), eq(String::class.java))).thenThrow(serverError)
+        service.getRinasaker("12345678900")
+
+    }
+
+    @Test
+    fun callingEuxServiceFormenuUI_AllOK() {
+
+        val rinasakerjson = "src/test/resources/json/rinasaker/rinasaker_34567890111.json"
+        val rinasakStr = String(Files.readAllBytes(Paths.get(rinasakerjson)))
+        assertTrue(validateJson(rinasakStr))
+
+        val bucjson = "src/test/resources/json/buc/buc-22909_v4.1.json"
+        val bucStr = String(Files.readAllBytes(Paths.get(bucjson)))
+        assertTrue(validateJson(bucStr))
+
+        val orgRinasaker = mapJsonToAny(rinasakStr, typeRefs<List<Rinasak>>())
+        val orgBuc = mapJsonToAny(bucStr, typeRefs<Buc>())
+
+        val mockService: EuxService = Mockito.mock(EuxService::class.java)
+
+        whenever(mockService.getRinasaker("12345678900")).thenReturn(orgRinasaker)
+        whenever(mockService.getBucUtils("8877665511")).thenReturn(BucUtils(orgBuc))
+
+        val result = service.getBucAndSedView("12345678900", "001122334455", null, null, mockService)
+        assertNotNull(result)
+        assertEquals(orgRinasaker.size, result.size)
+
     }
 
 
