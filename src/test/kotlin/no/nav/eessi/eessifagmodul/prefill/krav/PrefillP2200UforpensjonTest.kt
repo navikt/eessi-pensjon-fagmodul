@@ -30,13 +30,15 @@ class PrefillP2200UforpensjonTest : AbstractMockKravPensionHelper() {
         return PersonDataFromTPS.generateRandomFnr(67)
     }
 
+    override fun createSaksnummer(): String {
+        return "14069110"
+    }
 
     override fun createTestClass(prefillNav: PrefillNav, personTPS: PrefillPersonDataFromTPS, pensionDataFromPEN: PensjonsinformasjonHjelper): Prefill<SED> {
         return PrefillP2200(prefillNav, personTPS, pensionDataFromPEN)
     }
 
     override fun createPayload(prefillData: PrefillDataModel) {
-        prefillData.penSaksnummer = "14069110"
         prefillData.personNr = getFakePersonFnr()
         prefillData.partSedAsJson["PersonInfo"] = createPersonInfoPayLoad()
     }

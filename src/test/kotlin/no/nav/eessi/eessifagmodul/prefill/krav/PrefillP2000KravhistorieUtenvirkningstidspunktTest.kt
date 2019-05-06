@@ -32,6 +32,10 @@ class PrefillP2000KravhistorieUtenvirkningstidspunktTest : AbstractMockKravPensi
         //return PersonDataFromTPS.generateRandomFnr(67)
     }
 
+    override fun createSaksnummer(): String {
+        return "21920707"
+    }
+
     override fun mockPesysTestfilepath(): Pair<String, String> {
         return Pair("P2000", "P2000-AP-KUNUTL-IKKEVIRKNINGTID.xml")
     }
@@ -41,7 +45,6 @@ class PrefillP2000KravhistorieUtenvirkningstidspunktTest : AbstractMockKravPensi
     }
 
     override fun createPayload(prefillData: PrefillDataModel) {
-        prefillData.penSaksnummer = "21920707"
         prefillData.personNr = getFakePersonFnr()
         prefillData.partSedAsJson["PersonInfo"] = createPersonInfoPayLoad()
         prefillData.partSedAsJson["P4000"] = createPersonTrygdetidHistorikk()

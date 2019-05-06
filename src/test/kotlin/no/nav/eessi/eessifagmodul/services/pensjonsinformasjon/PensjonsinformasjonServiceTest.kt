@@ -19,7 +19,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.util.ResourceUtils
-import org.springframework.web.client.HttpServerErrorException
+import org.springframework.web.client.ResourceAccessException
 import org.springframework.web.client.RestTemplate
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -49,24 +49,18 @@ class PensjonsinformasjonServiceTest {
         assertEquals("2016-09-11", data.vedtak.virkningstidspunkt.simpleFormat())
     }
 
-    @Test
-    fun hentAltFeilersaaProverViIgjen() {
+    @Test(expected = PensjoninformasjonException::class)
+    fun `PensjonsinformasjonService| hentAlt paa vedtak feiler`() {
         val mockResponseEntity = createResponseEntityFromJsonFile("classpath:pensjonsinformasjon/full-generated-response.xml")
-        pensjonsinformasjonService.fasitenv = "q1"
 
         whenever(mockrestTemplate.exchange(
                 any<String>(),
                 any(),
                 any<HttpEntity<Unit>>(),
                 ArgumentMatchers.eq(String::class.java))
-        ).thenThrow(HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "dummy error"))
-                .thenReturn(mockResponseEntity)
+        ).thenThrow(ResourceAccessException("IOException"))
 
-        val data = pensjonsinformasjonService.hentAltPaaVedtak("1243")
-        // TODO: add asserts
-
-        assertNotNull(data.vedtak, "Vedtak er null")
-        assertEquals("2016-09-11", data.vedtak.virkningstidspunkt.simpleFormat())
+        pensjonsinformasjonService.hentAltPaaVedtak("1243")
     }
 
 
@@ -95,6 +89,22 @@ class PensjonsinformasjonServiceTest {
         assertEquals(null, result.tom?.let { it.simpleFormat() })
 
     }
+
+    @Test
+    fun `hentAltpåSak| mock data med to saktyper en skal komme ut`() {
+        val mockResponseEntity = createResponseEntityFromJsonFile("classpath:pensjonsinformasjon/krav/P2000_21975717_AP_UTLAND.xml")
+        whenever(mockrestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), ArgumentMatchers.eq(String::class.java))).thenReturn(mockResponseEntity)
+        val data = pensjonsinformasjonService.hentAltPaaFnr("1231233")
+
+        val sak = pensjonsinformasjonService.hentAltPaaSak("21975717", data)
+
+        sak?.let {
+            assertEquals("21975717", it.sakId.toString())
+            assertEquals("ALDER", it.sakType)
+        }
+
+    }
+
 
     @Test
     fun `hentPensjonSakType | mock response ok`() {
@@ -129,7 +139,7 @@ class PensjonsinformasjonServiceTest {
 
     @Test(expected = PensjoninformasjonException::class)
     fun `hentPensjonSakType | mock response feil fra pesys execption kastet`() {
-        doThrow(HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Error")).whenever(mockrestTemplate).exchange(
+        doThrow(ResourceAccessException("INTERNAL_SERVER_ERROR")).whenever(mockrestTemplate).exchange(
                 ArgumentMatchers.any(String::class.java),
                 ArgumentMatchers.any(HttpMethod::class.java),
                 ArgumentMatchers.any(HttpEntity::class.java),

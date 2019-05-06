@@ -53,7 +53,10 @@ open class KravDataFromPEN(private val dataFromPEN: PensjonsinformasjonHjelper) 
 
     override fun prefill(prefillData: PrefillDataModel): Pensjon {
         val pendata: Pensjonsinformasjon = getPensjoninformasjonFraSak(prefillData)
+
+        //hent korrekt sak fra context
         val pensak: V1Sak = getPensjonSak(prefillData, pendata)
+
         //val pensak = getPensjonSak(prefillData, pendata)
         //nyere metdoe mye å omgjøre på for å ta denne i bruk!
 
@@ -75,7 +78,7 @@ open class KravDataFromPEN(private val dataFromPEN: PensjonsinformasjonHjelper) 
         logger.debug("SakId      :  ${valgtSak.sakId}")
         logger.debug("SakType    :  ${valgtSak.sakType}")
         logger.debug("Status     :  ${valgtSak.status}")
-        logger.debug("KravType   : ${valgtKrav.kravType}")
+        logger.debug("KravType   :  ${valgtKrav.kravType}")
         logger.debug("mottattDato:  ${valgtKrav.mottattDato}")
         logger.debug("--------------------------------------------------------------")
 

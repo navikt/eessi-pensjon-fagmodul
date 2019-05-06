@@ -19,10 +19,11 @@ import kotlin.test.assertNotNull
 import kotlin.test.fail
 
 //@RunWith(MockitoJUnitRunner::class)
-class `PrefillP2000-AP-LOP-REVU` : AbstractMockKravPensionHelper() {
+class `PrefillP2000-AP-LOP-UTLANDTest` : AbstractMockKravPensionHelper() {
+
 
     override fun mockPesysTestfilepath(): Pair<String, String> {
-        return Pair("P2000", "P2000-AP-LP-RVUR-20541862.xml")
+        return Pair("P2000", "AP-LOP-21644722.xml")
     }
 
     override fun createTestClass(prefillNav: PrefillNav, personTPS: PrefillPersonDataFromTPS, pensionDataFromPEN: PensjonsinformasjonHjelper): Prefill<SED> {
@@ -30,10 +31,13 @@ class `PrefillP2000-AP-LOP-REVU` : AbstractMockKravPensionHelper() {
     }
 
     override fun createPayload(prefillData: PrefillDataModel) {
-        prefillData.penSaksnummer = "20541862"
         prefillData.personNr = getFakePersonFnr()
         prefillData.partSedAsJson["PersonInfo"] = createPersonInfoPayLoad()
         prefillData.partSedAsJson["P4000"] = createPersonTrygdetidHistorikk()
+    }
+
+    override fun createSaksnummer(): String {
+        return "21644722"
     }
 
     override fun createFakePersonFnr(): String {
@@ -71,7 +75,7 @@ class `PrefillP2000-AP-LOP-REVU` : AbstractMockKravPensionHelper() {
 
     @Test
     fun `forventet korrekt utfylt P2000 alderpensjon med kap4 og 9`() {
-        prefillData.penSaksnummer = "20541862"
+        prefillData.penSaksnummer = "21644722"
         val P2000 = prefill.prefill(prefillData)
 
         val P2000pensjon = SED.create("P2000")
@@ -83,14 +87,13 @@ class `PrefillP2000-AP-LOP-REVU` : AbstractMockKravPensionHelper() {
 
         val sed = P2000pensjon
         assertNotNull(sed.nav?.krav)
-        assertEquals("2018-06-05", sed.nav?.krav?.dato)
+        assertEquals("2014-01-13", sed.nav?.krav?.dato)
 
 
     }
 
     @Test
     fun `forventet korrekt utfylt P2000 alderpersjon med mockdata fra testfiler`() {
-
         val p2000 = prefill.prefill(prefillData)
 
         p2000.print()
@@ -132,6 +135,24 @@ class `PrefillP2000-AP-LOP-REVU` : AbstractMockKravPensionHelper() {
 
         val navfnr = NavFodselsnummer(p2000.nav?.ektefelle?.person?.pin?.get(0)?.identifikator!!)
         assertEquals(70, navfnr.getAge())
+
+        assertEquals(1, p2000.pensjon?.ytelser?.size)
+
+        assertEquals("13049", p2000.pensjon?.ytelser?.get(0)?.totalbruttobeloeparbeidsbasert)
+        assertEquals(null, p2000.pensjon?.ytelser?.get(0)?.annenytelse)
+
+//        assertEquals("7839", P2000.pensjon?.ytelser?.get(1)?.totalbruttobeloeparbeidsbasert)
+//        assertEquals("FOLKETRYGD", P2000.pensjon?.ytelser?.get(1)?.annenytelse)
+
+//        assertEquals("8075", P2000.pensjon?.ytelser?.get(2)?.totalbruttobeloeparbeidsbasert)
+//        assertEquals("FOLKETRYGD", P2000.pensjon?.ytelser?.get(2)?.annenytelse)
+//
+//        assertEquals("8309", P2000.pensjon?.ytelser?.get(3)?.totalbruttobeloeparbeidsbasert)
+//        assertEquals("FOLKETRYGD", P2000.pensjon?.ytelser?.get(3)?.annenytelse)
+//
+//        assertEquals("8406", P2000.pensjon?.ytelser?.get(4)?.totalbruttobeloeparbeidsbasert)
+//        assertEquals("FOLKETRYGD", P2000.pensjon?.ytelser?.get(4)?.annenytelse)
+
 
     }
 

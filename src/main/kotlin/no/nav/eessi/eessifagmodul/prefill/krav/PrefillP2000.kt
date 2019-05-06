@@ -22,7 +22,10 @@ class PrefillP2000(private val prefillNav: PrefillNav, private val preutfyllingP
     override fun prefill(prefillData: PrefillDataModel): SED {
         val sedId = prefillData.getSEDid()
 
+        prefillData.saktype = KravDataFromPEN.KSAK.ALDER.name
         logger.debug("----------------------------------------------------------"
+                + "\nSaktype              : ${prefillData.saktype} "
+                + "\nSøker etter SaktId   : ${prefillData.penSaksnummer} "
                 + "\nPreutfylling NAV     : ${prefillNav::class.java} "
                 + "\nPreutfylling TPS     : ${preutfyllingPersonFraTPS::class.java} "
                 + "\nPreutfylling Pensjon : ${sakPensiondata::class.java} "

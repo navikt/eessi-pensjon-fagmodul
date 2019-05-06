@@ -6,14 +6,14 @@ import no.nav.eessi.eessifagmodul.models.PensjoninformasjonException
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
 import no.nav.pensjon.v1.sak.V1Sak
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
-import org.springframework.http.*
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
+import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
-import org.springframework.web.util.DefaultUriBuilderFactory
 import org.springframework.web.util.UriComponentsBuilder
-import java.io.IOException
 import java.io.StringReader
 import javax.xml.bind.JAXBContext
 import javax.xml.transform.stream.StreamSource
@@ -24,18 +24,15 @@ class PensjonsinformasjonService(val pensjonsinformasjonOidcRestTemplate: RestTe
 
     private val logger = LoggerFactory.getLogger(PensjonsinformasjonService::class.java)
 
-    @Value("\${FASIT_ENVIRONMENT_NAME}")
-    lateinit var fasitenv: String
+    fun hentAltPaaSak(sakId: String, pendata: Pensjonsinformasjon): V1Sak? {
+        logger.debug("Søker brukersSakerListe etter sakId: $sakId")
 
-    lateinit var responseEntity: ResponseEntity<String?>
+        val v1saklist = pendata.brukersSakerListe.brukersSakerListe
 
-    val pesysq5url = "https://wasapp-q5.adeo.no/pensjon-ws/api/pensjonsinformasjon/v1"
-
-    fun hentAltPaaSak(sakId: String = "", pendata: Pensjonsinformasjon): V1Sak? {
-        if (sakId.isNotBlank()) {
-            pendata.brukersSakerListe.brukersSakerListe.forEach {
-                if (sakId == it.sakId.toString())
-                    logger.debug("Fant sakid på brukersakliste, returnerer kun V1Sak")
+        v1saklist.forEach {
+            logger.debug("Itererer brukersakliste sakType: ${it.sakType} sakid: ${it.sakId}")
+            if (sakId.equals(it.sakId.toString())) {
+                logger.debug("Fant sakid på brukersakliste, returnerer kun V1Sak på sakid: ${it.sakId}\"")
                     return it
             }
         }
@@ -115,41 +112,12 @@ class PensjonsinformasjonService(val pensjonsinformasjonOidcRestTemplate: RestTe
         val uriBuilder = UriComponentsBuilder.fromPath(path).pathSegment(id)
 
         try {
-            try {
                 //val responseEntity = pensjonsinformasjonOidcRestTemplate.exchange(
-                responseEntity = pensjonsinformasjonOidcRestTemplate.exchange(
+            val responseEntity = pensjonsinformasjonOidcRestTemplate.exchange(
                         uriBuilder.toUriString(),
                         HttpMethod.POST,
                         requestEntity,
                         String::class.java)
-
-            } catch (iox: IOException) {
-                if (fasitenv == "q1") {
-                    try {
-                        logger.debug("Feiler mot PESYS, prøver å kontakte PESYS på : $pesysq5url")
-                        responseEntity = pensjonInformasjonExtraQRestTemplateCall(uriBuilder, requestEntity, pesysq5url)
-                    } catch (ex: Exception) {
-                        logger.error("Feiler å kontakte PESYS backup", ex)
-                        throw ex
-                    }
-                } else {
-                    logger.error("Feiler ved IOfeil mot PESYS", iox)
-                    throw iox
-                }
-            } catch (ise: HttpServerErrorException) {
-                if (fasitenv == "q1") {
-                    try {
-                        logger.debug("Feiler mot PESYS, prøver å kontakte PESYS på : $pesysq5url")
-                        responseEntity = pensjonInformasjonExtraQRestTemplateCall(uriBuilder, requestEntity, pesysq5url)
-                    } catch (ex: Exception) {
-                        logger.error("Feiler å kontakte PESYS backup", ex)
-                        throw ex
-                    }
-                } else {
-                    logger.error("Feiler ved Serverfeil mot PESYS", ise)
-                    throw ise
-                }
-            }
 
             if (responseEntity.statusCode.isError) {
                 logger.error("Received ${responseEntity.statusCode} from pensjonsinformasjon")
@@ -167,23 +135,17 @@ class PensjonsinformasjonService(val pensjonsinformasjonOidcRestTemplate: RestTe
 
             return res.value as Pensjonsinformasjon
 
+        } catch (se: HttpServerErrorException) {
+            logger.error("Feiler ved Serverfeil mot PESYS", se)
+            throw se
+        } catch (ce: HttpServerErrorException) {
+            logger.error("Feiler ved Clientfeil mot PESYS", ce)
+            throw ce
         } catch (ex: Exception) {
             logger.error("Feil med kontakt til PESYS pensjoninformajson, ${ex.message}")
             throw PensjoninformasjonException("Feil med kontakt til PESYS pensjoninformajson. melding; ${ex.message}")
         }
-
-    }
-
-    fun pensjonInformasjonExtraQRestTemplateCall(uriBuilder: UriComponentsBuilder, requestEntity: HttpEntity<String>, pesysurl: String): ResponseEntity<String?> {
-        pensjonsinformasjonOidcRestTemplate.uriTemplateHandler = PensjoninformasjonUriHandler(pesysurl)
-        return pensjonsinformasjonOidcRestTemplate.exchange(
-                uriBuilder.toUriString(),
-                HttpMethod.POST,
-                requestEntity,
-                String::class.java)
     }
 
 }
-
-class PensjoninformasjonUriHandler(baseUriTemplate: String) : DefaultUriBuilderFactory(baseUriTemplate)
 

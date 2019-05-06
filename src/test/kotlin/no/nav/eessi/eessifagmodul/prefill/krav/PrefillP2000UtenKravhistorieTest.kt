@@ -11,7 +11,10 @@ import no.nav.eessi.eessifagmodul.services.SedValidator
 import no.nav.eessi.eessifagmodul.utils.NavFodselsnummer
 import no.nav.eessi.eessifagmodul.utils.mapAnyToJson
 import org.junit.Test
-import kotlin.test.*
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 
 //@RunWith(MockitoJUnitRunner::class)
@@ -29,6 +32,10 @@ class PrefillP2000UtenKravhistorieTest : AbstractMockKravPensionHelper() {
         return PersonDataFromTPS.generateRandomFnr(67)
     }
 
+    override fun createSaksnummer(): String {
+        return "14069110"
+    }
+
     override fun mockPesysTestfilepath(): Pair<String, String> {
         return Pair("P2000", "P2000-AP-14069110.xml")
     }
@@ -38,7 +45,6 @@ class PrefillP2000UtenKravhistorieTest : AbstractMockKravPensionHelper() {
     }
 
     override fun createPayload(prefillData: PrefillDataModel) {
-        prefillData.penSaksnummer = "14069110"
         prefillData.personNr = getFakePersonFnr()
         prefillData.partSedAsJson["PersonInfo"] = createPersonInfoPayLoad()
         prefillData.partSedAsJson["P4000"] = createPersonTrygdetidHistorikk()

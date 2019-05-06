@@ -71,7 +71,8 @@ abstract class AbstractMockKravPensionHelper {
         SEDType.valueOf(sedId)
         val mockKravXMLfil = mockPair.second
 
-        prefillData = generatePrefillData(sedId, "02345678901")
+        prefillData = generatePrefillData(sedId, "02345678901", sakId = createSaksnummer())
+
         createPayload(prefillData)
 
         //mock TPS data
@@ -93,6 +94,7 @@ abstract class AbstractMockKravPensionHelper {
 
     abstract fun createFakePersonFnr(): String
 
+
     private fun setFakePersonFnr(fnr: String) {
         personFnr = fnr
     }
@@ -100,6 +102,9 @@ abstract class AbstractMockKravPensionHelper {
     fun getFakePersonFnr(): String {
         return personFnr
     }
+
+    //pesys saksnymmber
+    abstract fun createSaksnummer(): String
 
     //mock pesys info
     abstract fun mockPesysTestfilepath(): Pair<String, String>
@@ -172,14 +177,15 @@ abstract class AbstractMockKravPensionHelper {
     }
 
 
-    private fun generatePrefillData(sedId: String, fnr: String? = null, subtractYear: Int? = null): PrefillDataModel {
+    private fun generatePrefillData(sedId: String, fnr: String? = null, subtractYear: Int? = null, sakId: String? = null): PrefillDataModel {
         val items = listOf(InstitusjonItem(country = "NO", institution = "DUMMY"))
 
         val year = subtractYear ?: 68
+
         return PrefillDataModel().apply {
             rinaSubject = "Pensjon"
             sed = SED.create(sedId)
-            penSaksnummer = "12345"
+            penSaksnummer = sakId ?: "12345678"
             vedtakId = "12312312"
             buc = "P_BUC_99"
             aktoerID = "123456789"

@@ -19,19 +19,21 @@ import kotlin.test.assertNotNull
 import kotlin.test.fail
 
 //@RunWith(MockitoJUnitRunner::class)
-class `PrefillP2000-AP-LOP-UTLAND` : AbstractMockKravPensionHelper() {
-
+class `PrefillP2000-AP-21975717Test` : AbstractMockKravPensionHelper() {
 
     override fun mockPesysTestfilepath(): Pair<String, String> {
-        return Pair("P2000", "AP-LOP-21644722.xml")
+        return Pair("P2000", "P2000_21975717_AP_UTLAND.xml")
     }
 
     override fun createTestClass(prefillNav: PrefillNav, personTPS: PrefillPersonDataFromTPS, pensionDataFromPEN: PensjonsinformasjonHjelper): Prefill<SED> {
         return PrefillP2000(prefillNav, personTPS, pensionDataFromPEN)
     }
 
+    override fun createSaksnummer(): String {
+        return "21975717"
+    }
+
     override fun createPayload(prefillData: PrefillDataModel) {
-        prefillData.penSaksnummer = "21644722"
         prefillData.personNr = getFakePersonFnr()
         prefillData.partSedAsJson["PersonInfo"] = createPersonInfoPayLoad()
         prefillData.partSedAsJson["P4000"] = createPersonTrygdetidHistorikk()
@@ -66,13 +68,14 @@ class `PrefillP2000-AP-LOP-UTLAND` : AbstractMockKravPensionHelper() {
         assertNotNull(pendata)
 
         val list = kravdata.getPensjonSakTypeList(pendata)
-
-        assertEquals(1, list.size)
+        list.forEach {
+            println(it.name)
+        }
+        assertEquals(2, list.size)
     }
 
     @Test
     fun `forventet korrekt utfylt P2000 alderpensjon med kap4 og 9`() {
-        prefillData.penSaksnummer = "21644722"
         val P2000 = prefill.prefill(prefillData)
 
         val P2000pensjon = SED.create("P2000")
@@ -84,7 +87,7 @@ class `PrefillP2000-AP-LOP-UTLAND` : AbstractMockKravPensionHelper() {
 
         val sed = P2000pensjon
         assertNotNull(sed.nav?.krav)
-        assertEquals("2014-01-13", sed.nav?.krav?.dato)
+        assertEquals("2015-06-16", sed.nav?.krav?.dato)
 
 
     }
@@ -96,9 +99,9 @@ class `PrefillP2000-AP-LOP-UTLAND` : AbstractMockKravPensionHelper() {
         p2000.print()
 
         val validator = SedValidator()
-        try{
+        try {
             validator.validateP2000(p2000)
-        }catch (ex: Exception){
+        } catch (ex: Exception) {
             println("Feilen er ${ex.message}")
             fail("Validatoren skal ikke komme hit!")
         }
@@ -133,23 +136,8 @@ class `PrefillP2000-AP-LOP-UTLAND` : AbstractMockKravPensionHelper() {
         val navfnr = NavFodselsnummer(p2000.nav?.ektefelle?.person?.pin?.get(0)?.identifikator!!)
         assertEquals(70, navfnr.getAge())
 
-        assertEquals(1, p2000.pensjon?.ytelser?.size)
-
-        assertEquals("13049", p2000.pensjon?.ytelser?.get(0)?.totalbruttobeloeparbeidsbasert)
-        assertEquals(null, p2000.pensjon?.ytelser?.get(0)?.annenytelse)
-
-//        assertEquals("7839", P2000.pensjon?.ytelser?.get(1)?.totalbruttobeloeparbeidsbasert)
-//        assertEquals("FOLKETRYGD", P2000.pensjon?.ytelser?.get(1)?.annenytelse)
-
-//        assertEquals("8075", P2000.pensjon?.ytelser?.get(2)?.totalbruttobeloeparbeidsbasert)
-//        assertEquals("FOLKETRYGD", P2000.pensjon?.ytelser?.get(2)?.annenytelse)
-//
-//        assertEquals("8309", P2000.pensjon?.ytelser?.get(3)?.totalbruttobeloeparbeidsbasert)
-//        assertEquals("FOLKETRYGD", P2000.pensjon?.ytelser?.get(3)?.annenytelse)
-//
-//        assertEquals("8406", P2000.pensjon?.ytelser?.get(4)?.totalbruttobeloeparbeidsbasert)
-//        assertEquals("FOLKETRYGD", P2000.pensjon?.ytelser?.get(4)?.annenytelse)
-
+        assertNotNull(p2000.nav?.krav)
+        assertEquals("2015-06-16", p2000.nav?.krav?.dato)
 
     }
 
@@ -168,8 +156,8 @@ class `PrefillP2000-AP-LOP-UTLAND` : AbstractMockKravPensionHelper() {
         return SedController.ApiRequest(
                 institutions = items,
                 sed = sedName,
-                sakId = "01234567890",
-                euxCaseId = "99191999911",
+                sakId = "21975717",
+                euxCaseId = null,
                 aktoerId = "1000060964183",
                 buc = buc,
                 subjectArea = "Pensjon",

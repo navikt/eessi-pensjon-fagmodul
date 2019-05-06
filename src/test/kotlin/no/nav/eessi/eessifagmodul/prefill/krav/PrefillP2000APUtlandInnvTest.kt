@@ -34,7 +34,6 @@ class PrefillP2000APUtlandInnvTest : AbstractMockKravPensionHelper() {
     }
 
     override fun createPayload(prefillData: PrefillDataModel) {
-        prefillData.penSaksnummer = "14398627"
         prefillData.personNr = getFakePersonFnr()
         prefillData.partSedAsJson["PersonInfo"] = createPersonInfoPayLoad()
         prefillData.partSedAsJson["P4000"] = createPersonTrygdetidHistorikk()
@@ -45,6 +44,10 @@ class PrefillP2000APUtlandInnvTest : AbstractMockKravPensionHelper() {
             personFnr = PersonDataFromTPS.generateRandomFnr(68)
         }
         return personFnr
+    }
+
+    override fun createSaksnummer(): String {
+        return "14398627"
     }
 
     override fun createPersonInfoPayLoad(): String {

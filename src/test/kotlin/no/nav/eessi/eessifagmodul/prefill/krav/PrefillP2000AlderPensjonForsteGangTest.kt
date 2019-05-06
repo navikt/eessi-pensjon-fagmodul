@@ -33,7 +33,10 @@ class PrefillP2000AlderPensjonUtlandForsteGangTest : AbstractMockKravPensionHelp
             personFnr = PersonDataFromTPS.generateRandomFnr(67)
         }
         return personFnr
-        //return PersonDataFromTPS.generateRandomFnr(67)
+    }
+
+    override fun createSaksnummer(): String {
+        return "22580170"
     }
 
     //Pesys Persjoninformasjon data
@@ -47,7 +50,6 @@ class PrefillP2000AlderPensjonUtlandForsteGangTest : AbstractMockKravPensionHelp
 
     //Mock persondata (P4000, persondata fra EP11)
     override fun createPayload(prefillData: PrefillDataModel) {
-        prefillData.penSaksnummer = "22580170"
         prefillData.personNr = getFakePersonFnr()
         prefillData.partSedAsJson["PersonInfo"] = createPersonInfoPayLoad()
         prefillData.partSedAsJson["P4000"] = createPersonTrygdetidHistorikk()
