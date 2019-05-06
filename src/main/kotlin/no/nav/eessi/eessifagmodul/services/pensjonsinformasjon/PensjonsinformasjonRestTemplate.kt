@@ -5,8 +5,6 @@ import no.nav.eessi.eessifagmodul.config.RequestResponseLoggerInterceptor
 import no.nav.eessi.eessifagmodul.services.sts.STSService
 import no.nav.eessi.eessifagmodul.services.sts.UsernameToOidcInterceptor
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.actuate.metrics.web.client.DefaultRestTemplateExchangeTagsProvider
-import org.springframework.boot.actuate.metrics.web.client.MetricsRestTemplateCustomizer
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.http.client.BufferingClientHttpRequestFactory
@@ -16,13 +14,9 @@ import org.springframework.web.client.RestTemplate
 
 /**
  * Rest template for PESYS pensjonsinformasjon
- *
- * @property securityTokenExchangeService
- * @property registry
  */
 @Component
-class PensjonsinformasjonRestTemplate(val stsService: STSService,
-                                      private val registry: MeterRegistry) {
+class PensjonsinformasjonRestTemplate(val stsService: STSService, private val registry: MeterRegistry) {
 
     @Value("\${pensjonsinformasjon.url}")
     lateinit var url: String
@@ -32,7 +26,7 @@ class PensjonsinformasjonRestTemplate(val stsService: STSService,
         return templateBuilder
                 .rootUri(url)
                 .additionalInterceptors(RequestResponseLoggerInterceptor(), UsernameToOidcInterceptor(stsService))
-                .customizers(MetricsRestTemplateCustomizer(registry, DefaultRestTemplateExchangeTagsProvider(), "eessipensjon_fagmodul_pensjonsinformasjon"))
+                //.customizers(MetricsRestTemplateCustomizer(registry, DefaultRestTemplateExchangeTagsProvider(), "eessipensjon_fagmodul_pensjonsinformasjon"))
                 .build().apply {
                     requestFactory = BufferingClientHttpRequestFactory(SimpleClientHttpRequestFactory())
                 }

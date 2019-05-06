@@ -84,7 +84,7 @@ open class KravDataFromPEN(private val dataFromPEN: PensjonsinformasjonHjelper) 
 
         logger.debug("Prøver å sette kravDato til Virkningstidpunkt: ${valgtKrav.kravType} og dato: ${valgtKrav.mottattDato}")
         return Krav(
-                dato = valgtKrav?.mottattDato?.simpleFormat()
+                dato = valgtKrav.mottattDato?.simpleFormat() ?: ""
 
         )
     }
@@ -226,7 +226,7 @@ open class KravDataFromPEN(private val dataFromPEN: PensjonsinformasjonHjelper) 
                 institusjon = createInstitusjon(prefillData),
 
                 //4.1.5
-                startdatoutbetaling = ytelsePrmnd?.fom?.let { it.simpleFormat() },
+                startdatoutbetaling = ytelsePrmnd.fom?.let { it.simpleFormat() },
                 //4.1.6
                 sluttdatoutbetaling = null,
                 //4.1.7 (sak - forstevirkningstidspunkt)

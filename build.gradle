@@ -153,6 +153,7 @@ clean.doFirst {
 
 sourceSets["main"].java.srcDir("${buildDir}/generated-sources/xjc")
 
+/*
 sourceSets {
     integrationtest {
         java {
@@ -171,6 +172,7 @@ task integrationtest(type: Test) {
     classpath = sourceSets.integrationtest.runtimeClasspath
 }
 integrationtest.dependsOn assemble
+*/
 
 repositories {
     maven {
