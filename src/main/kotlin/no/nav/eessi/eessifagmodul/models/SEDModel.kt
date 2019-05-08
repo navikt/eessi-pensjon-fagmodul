@@ -19,6 +19,11 @@ data class SED(
         return mapAnyToJson(this, false)
     }
 
+    fun toJsonSkipEmpty(): String {
+        return mapAnyToJson(this, true)
+    }
+
+
     companion object {
         @JvmStatic
         fun create(name: String): SED {

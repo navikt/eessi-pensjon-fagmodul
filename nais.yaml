@@ -15,59 +15,54 @@ port: 8080
 
 healthcheck:
     liveness:
-      initialDelay: 60
+      initialDelay: 120
       failureThreshold: 10
-      path: /internal/isalive
+      path: /actuator/health
     readiness:
-      initialDelay: 60
+      initialDelay: 120
       failureThreshold: 10
-      path: /internal/isready
+      path: /actuator/health
 
 resources:
     limits:
-      cpu: 1000m
-      memory: 4096Mi
+      cpu: 1 #App trottled if exceeding this
+      memory: 4096Mi #App killed if use this much memory
     requests:
       cpu: 250m
       memory: 512Mi
 
 fasitResources:
   used:
+    #Essi-pen profile
   - alias: eessi-pensjon-active-profiles
     resourceType: ApplicationProperties
-
   #PESYS
   - alias: Pensjonsinformasjon
     resourceType: RestService
-
+    #Aktoer
   - alias: aktoerregister.api.v1
     resourceType: RestService
-
-    #BASUS RINA
+    #EUX RINA
   - alias: eessipen-eux-rina
     resourceType: RestService
-
+    #TPS
   - alias: virksomhet:Person_v3
     resourceType: WebserviceEndpoint
-
+    #SRV
   - alias: srveessipensjon
     resourceType: Credential
-
+    #Token
   - alias: OpenIdConnect
     resourceType: BaseUrl
-
   #Brukes av nye rest tjenester
   - alias: security-token-service-token
     resourceType: RestService
-
   #Brukes av gamle tjenester
   - alias: securityTokenService
     resourceType: BaseUrl
-
   #Brukes av Loginservice
   - alias: security-token-service-openid-configuration
     resourceType: RestService
-
   - alias: appdynamics
     resourceType: ApplicationProperties
 

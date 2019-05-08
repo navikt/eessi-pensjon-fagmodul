@@ -118,62 +118,15 @@ class SedController(private val euxService: EuxService,
     }
 
     //ny view call for bucogsed design pr 01.04-01.05)
-    @ApiOperation("Henter ut en liste over saker på valgt aktoerid. ny api kall til eux")
+    @ApiOperation("Henter ut en json struktur for buc og sed menyliste for ui. ny api kall til eux")
     @GetMapping("/{aktoerid}/bucdetaljer/", "/{aktoerid}/{sakid}/bucdetaljer/", "/{aktoerId}/{sakId}/{euxcaseid}/bucdetaljer/")
     fun getBucogSedView(@PathVariable("aktoerid", required = true) aktoerid: String,
                         @PathVariable("sakid", required = false) sakid: String? = "",
                         @PathVariable("euxcaseid", required = false) euxcaseid: String? = ""): List<BucAndSedView> {
 
-        val startTime = System.currentTimeMillis()
         logger.debug("1 prøver å dekode til fnr fra aktoerid: $aktoerid")
         val fnr = hentAktoerIdPin(aktoerid)
-        logger.debug("2 fant fnr.")
-
-        logger.debug("3 henter rinasaker på valgt aktoerid: $aktoerid")
-        val rinasaker = euxService.getRinasaker(fnr)
-
-        logger.debug("4 hentet ut rinasaker på valgt borger, antall: ${rinasaker.size}")
-
-        logger.debug("5 starter med å hente ut data for hver BUC i rinasaker")
-        val bucAndsedlist = mutableListOf<BucAndSedView>()
-        rinasaker.forEach {
-            val bucUtil = euxService.getBucUtils(it.id!!)
-
-            val institusjonlist = mutableListOf<InstitusjonItem>()
-            val parts = bucUtil.getParticipants()
-            logger.debug("6 henter ut liste over deltagere på buc")
-            parts?.forEach {
-                institusjonlist.add(
-                        InstitusjonItem(
-                                country = it.organisation?.countryCode,
-                                institution = it.organisation?.id
-                        )
-                )
-            }
-            logger.debug("7 oppretter bucogsedview")
-            val bucAndSedView = BucAndSedView(
-                    buc = bucUtil.getProcessDefinitionName()!!,
-                    creator = InstitusjonItem(
-                            country = bucUtil.getCreator()?.countryCode,
-                            institution = bucUtil.getCreator()?.name
-                    ),
-                    caseId = it.id,
-                    sakType = "",
-                    aktoerId = aktoerid,
-                    status = it.status,
-                    institusjon = institusjonlist.toList(),
-                    seds = bucUtil.getAllDocuments()
-            )
-            logger.debug("8 legger bucogsedview til liste")
-            bucAndsedlist.add(bucAndSedView)
-        }
-
-        logger.debug("9 ferdig returnerer list av BucAndSedView. Antall BUC: ${bucAndsedlist.size}")
-        val endTime = System.currentTimeMillis()
-        logger.debug("10 tiden tok ${endTime - startTime} ms.")
-
-        return bucAndsedlist.toList()
-
+        return euxService.getBucAndSedView(fnr, aktoerid, sakid, euxcaseid, euxService)
     }
 
     //validatate request and convert to PrefillDataModel

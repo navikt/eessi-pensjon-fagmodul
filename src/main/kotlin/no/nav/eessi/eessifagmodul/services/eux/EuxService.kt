@@ -2,6 +2,8 @@ package no.nav.eessi.eessifagmodul.services.eux
 
 import no.nav.eessi.eessifagmodul.models.*
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.Buc
+import no.nav.eessi.eessifagmodul.services.eux.bucmodel.BucAndSedView
+import no.nav.eessi.eessifagmodul.services.eux.bucmodel.ParticipantsItem
 import no.nav.eessi.eessifagmodul.utils.getCounter
 import no.nav.eessi.eessifagmodul.utils.mapJsonToAny
 import no.nav.eessi.eessifagmodul.utils.typeRef
@@ -177,7 +179,8 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
         return try {
             logger.info("Prøver å kontakte EUX /${builder.toUriString()}")
 
-            val response = euxOidcRestTemplate.exchange(builder.toUriString(),
+            val response = euxOidcRestTemplate.exchange(
+                    builder.toUriString(),
                     HttpMethod.GET,
                     null,
                     String::class.java)
@@ -316,6 +319,7 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
                 .queryParam("Status", status ?: "")
                 .build()
 
+
         try {
             val response = euxOidcRestTemplate.exchange(
                     builder.toUriString(),
@@ -342,6 +346,65 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
             logger.error("Annen uspesefikk feil oppstod mellom fagmodul og eux ${ex.message}", ex)
             throw ex
         }
+
+    }
+
+    fun getBucAndSedView(fnr: String, aktoerid: String, sakId: String?, euxCaseId: String?, euxService: EuxService): List<BucAndSedView> {
+
+        val startTime = System.currentTimeMillis()
+        logger.debug("2 fant fnr.")
+
+        logger.debug("3 henter rinasaker på valgt aktoerid: $aktoerid")
+
+        val rinasaker = euxService.getRinasaker(fnr)
+
+        logger.debug("4 hentet ut rinasaker på valgt borger, antall: ${rinasaker.size}")
+
+        logger.debug("5 starter med å hente ut data for hver BUC i rinasaker")
+        val bucAndsedlist = mutableListOf<BucAndSedView>()
+        rinasaker.forEach {
+            val bucUtil = euxService.getBucUtils(it.id!!)
+
+            val institusjonlist = mutableListOf<InstitusjonItem>()
+            var parts: List<ParticipantsItem>? = null
+            try {
+                parts = bucUtil.getParticipants()
+                logger.debug("6 henter ut liste over deltagere på buc")
+
+                parts?.forEach {
+                    institusjonlist.add(
+                            InstitusjonItem(
+                                    country = it.organisation?.countryCode,
+                                    institution = it.organisation?.id
+                            )
+                    )
+                }
+            } catch (ex: Exception) {
+                logger.debug("Ingen meldlemmer i BUC")
+            }
+            logger.debug("7 oppretter bucogsedview")
+            val bucAndSedView = BucAndSedView(
+                    buc = bucUtil.getProcessDefinitionName()!!,
+                    creator = InstitusjonItem(
+                            country = bucUtil.getCreator()?.countryCode,
+                            institution = bucUtil.getCreator()?.name
+                    ),
+                    caseId = it.id,
+                    sakType = "",
+                    aktoerId = aktoerid,
+                    status = it.status,
+                    institusjon = institusjonlist.toList(),
+                    seds = bucUtil.getAllDocuments()
+            )
+            logger.debug("8 legger bucogsedview til liste")
+            bucAndsedlist.add(bucAndSedView)
+        }
+
+        logger.debug("9 ferdig returnerer list av BucAndSedView. Antall BUC: ${bucAndsedlist.size}")
+        val endTime = System.currentTimeMillis()
+        logger.debug("10 tiden tok ${endTime - startTime} ms.")
+
+        return bucAndsedlist.toList()
 
     }
 

@@ -1,0 +1,116 @@
+[
+  {
+    "id": "8877665511",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "12345678901",
+      "surname": "STRIELA",
+      "caseId": "8877665511",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "CP",
+    "status": "open"
+  },
+  {
+    "id": "8877665511",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "12345678901",
+      "surname": "STRIELA",
+      "caseId": "8877665511",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "CP",
+    "status": "open"
+  },
+  {
+    "id": "8877665511",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "12345678901",
+      "surname": "STRIELA",
+      "caseId": "8877665511",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "CP",
+    "status": "open"
+  },
+  {
+    "id": "8877665511",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "12345678901",
+      "surname": "STRIELA",
+      "caseId": "8877665511",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "CP",
+    "status": "open"
+  },
+  {
+    "id": "8877665511",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "12345678901",
+      "surname": "STRIELA",
+      "caseId": "8877665511",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "CP",
+    "status": "open"
+  },
+  {
+    "id": "8877665511",
+    "traits": {
+      "birthday": "1948-06-28",
+      "localPin": "12345678901",
+      "surname": "STRIELA",
+      "caseId": "8877665511",
+      "name": "VAIKUNTHARAJAN-MASK",
+      "flowType": "P_BUC_01",
+      "status": "open"
+    },
+    "properties": {
+      "importance": "1",
+      "criticality": "1"
+    },
+    "processDefinitionId": "P_BUC_01",
+    "applicationRoleId": "CP",
+    "status": "open"
+  }
+]
