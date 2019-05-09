@@ -52,11 +52,18 @@ server:
 no.nav.security.oidc:
   issuer.oidc:
     discoveryurl: 'https://isso-t.adeo.no:443/isso/oauth2/.well-known/openid-configuration'
-    accepted_audience: 'localhost,eessi-fagmodul-localhost,eessi-fagmodul-t8,freg-token-provider-t0,eessi-pensjon-frontend-api-t8,eessi-pensjon-frontend-api-fss-t8,eux-app-t8,ida-t'
+    accepted_audience: 'aud-localhost,localhost,eessi-fagmodul-localhost,eessi-fagmodul-t8,freg-token-provider-t0,eessi-pensjon-frontend-api-t8,eessi-pensjon-frontend-api-fss-t8,eux-app-t8,ida-t'
+  issuer.isso:
+    discoveryurl: 'https://isso-t.adeo.no:443/isso/oauth2/.well-known/openid-configuration'
+    acceptedaudience: "aud-localhost"
+    cookiename: "localhost-idtoken"
   issuer.pesys:
     discoveryurl: 'https://security-token-service-t10.nais.preprod.local/rest/v1/sts/.well-known/openid-configuration'
     accepted_audience: 'preprod.local,srveessipensjon,srvpensjon'
 
+APP_NAME: 'eessi-pensjon-fagmodul'
+isso.agentname: '${APP_NAME}-${FASIT_ENVIRONMENT_NAME}'
+isso.agent.password: 'somepass'
 http.proxy.parametername:
 
 management:
