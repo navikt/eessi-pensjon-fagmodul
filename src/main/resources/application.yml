@@ -2,6 +2,7 @@ no.nav.security.oidc:
   issuer.oidc:
     discoveryurl: '${OPENIDCONNECT_URL}/oauth2/.well-known/openid-configuration'
     accepted_audience: 'security-token-service,freg-token-provider-p,freg-token-provider-t0,freg-token-provider-q4,eessi-fagmodul-${FASIT_ENVIRONMENT_NAME},eessi-pensjon-frontend-api-fss-${FASIT_ENVIRONMENT_NAME},ida-t,ida-q'
+    cookiename: 'eessipensjon-idtoken'
   issuer.pesys:
     discoveryurl: '${security-token-service-openid-configuration_url}'
     accepted_audience: 'srvpensjon,srveessipensjon'

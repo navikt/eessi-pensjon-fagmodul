@@ -3,7 +3,8 @@
 ## - SRVPENSJON_PASSWORD
 ## - OPENAM_SECRET
 
-FASIT_ENVIRONMENT_NAME: 'local'
+FASIT_ENVIRONMENT_NAME: 'localhost'
+NAV_DOMAIN_URL: ''
 
 eessi-pensjon-active-profiles: ${spring.profiles.active}
 
@@ -50,20 +51,21 @@ server:
   port:         '8081'
 
 no.nav.security.oidc:
+  ## Use this for localhost login service. Saksbehandling-api must be running.
+  ## (might not work with call to pesys, tps and eux)
   issuer.oidc:
-    discoveryurl: 'https://isso-t.adeo.no:443/isso/oauth2/.well-known/openid-configuration'
-    accepted_audience: 'aud-localhost,localhost,eessi-fagmodul-localhost,eessi-fagmodul-t8,freg-token-provider-t0,eessi-pensjon-frontend-api-t8,eessi-pensjon-frontend-api-fss-t8,eux-app-t8,ida-t'
-  issuer.isso:
-    discoveryurl: 'https://isso-t.adeo.no:443/isso/oauth2/.well-known/openid-configuration'
-    acceptedaudience: "aud-localhost"
+    discoveryurl: 'http://localhost:8080/local/metadata'
+    acceptedaudience: "aud-localhost,eessi-pensjon-frontend-api-fss-localhost"
     cookiename: "localhost-idtoken"
+  ## Use this for T8 like token support. need a valid T8 eessipen token cookie for this to work!!
+  #  issuer.oidc:
+  #    discoveryurl: 'https://isso-t.adeo.no:443/isso/oauth2/.well-known/openid-configuration'
+  #    accepted_audience: 'aud-localhost,localhost,eessi-fagmodul-localhost,eessi-fagmodul-t8,freg-token-provider-t0,eessi-pensjon-frontend-api-t8,eessi-pensjon-frontend-api-fss-t8,eux-app-t8,ida-t'
+  #    cookiename: 'eessipensjon-idtoken'
   issuer.pesys:
     discoveryurl: 'https://security-token-service-t10.nais.preprod.local/rest/v1/sts/.well-known/openid-configuration'
     accepted_audience: 'preprod.local,srveessipensjon,srvpensjon'
 
-APP_NAME: 'eessi-pensjon-fagmodul'
-isso.agentname: '${APP_NAME}-${FASIT_ENVIRONMENT_NAME}'
-isso.agent.password: 'somepass'
 http.proxy.parametername:
 
 management:
