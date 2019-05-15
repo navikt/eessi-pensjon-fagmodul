@@ -1,0 +1,782 @@
+[
+  {
+    "id": "SE:TS2001S01",
+    "navn": "The Swedish Pensions Agency",
+    "akronym": "PM Sverige-S01",
+    "landkode": "SE",
+    "tilegnetBucs": [
+      {
+        "bucType": "R_BUC_01",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "H_BUC_07",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_04",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "H_BUC_06",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_09",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "R_BUC_02",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_01",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "H_BUC_10",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "M_BUC_01",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_01",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "R_BUC_02",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_10",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_06",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "H_BUC_07",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "M_BUC_02",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_06",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_02",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_07",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_08",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_10",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "H_BUC_06",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_05",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "M_BUC_03a",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_09",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "H_BUC_05",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_08",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "FB_BUC_03",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "M_BUC_03b",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "M_BUC_03b",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "H_BUC_01",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "M_BUC_03a",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_02",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "H_BUC_01",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "H_BUC_10",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "R_BUC_01",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_07",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "FB_BUC_03",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_05",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_04",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "M_BUC_01",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "H_BUC_05",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "M_BUC_02",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      }
+    ]
+  },
+  {
+    "id": "SE:TS2001S03",
+    "navn": "The Swedish Pensions Agency",
+    "akronym": "PM Sverige-S03",
+    "landkode": "SE",
+    "tilegnetBucs": [
+      {
+        "bucType": "P_BUC_05",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_10",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "H_BUC_06",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "M_BUC_03a",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "M_BUC_03b",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "H_BUC_05",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "M_BUC_01",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "H_BUC_10",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "H_BUC_10",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_02",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "M_BUC_01",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "H_BUC_07",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "R_BUC_02",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "H_BUC_01",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_06",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "H_BUC_06",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_09",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "R_BUC_01",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "H_BUC_05",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_08",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "H_BUC_01",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_01",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "M_BUC_02",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_02",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_07",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "R_BUC_01",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "R_BUC_02",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_04",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_10",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "FB_BUC_03",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_04",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_05",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "FB_BUC_03",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_06",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_08",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "M_BUC_03b",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "M_BUC_02",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "M_BUC_03a",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_01",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_07",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_09",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "H_BUC_07",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      }
+    ]
+  },
+  {
+    "id": "SE:TS2001S02",
+    "navn": "The Swedish Pensions Agency",
+    "akronym": "PM Sverige-S02",
+    "landkode": "SE",
+    "tilegnetBucs": [
+      {
+        "bucType": "H_BUC_10",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "M_BUC_02",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "FB_BUC_03",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "M_BUC_03a",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_05",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "H_BUC_10",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_06",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_08",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "H_BUC_01",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "M_BUC_02",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "FB_BUC_03",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_10",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_07",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "H_BUC_01",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_02",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "R_BUC_01",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "R_BUC_01",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "M_BUC_01",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "H_BUC_06",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_01",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "M_BUC_01",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "M_BUC_03a",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "H_BUC_06",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_08",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_02",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_09",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_04",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "H_BUC_07",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_05",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_01",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "M_BUC_03b",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_06",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "H_BUC_07",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "H_BUC_05",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "H_BUC_05",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_04",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_10",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_07",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "R_BUC_02",
+        "institusjonsrolle": "CaseOwner",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "P_BUC_09",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "R_BUC_02",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      },
+      {
+        "bucType": "M_BUC_03b",
+        "institusjonsrolle": "CounterParty",
+        "gyldigStartDato": "2018-02-28T23:00:00.000+0000",
+        "eessiklar": true
+      }
+    ]
+  }
+]

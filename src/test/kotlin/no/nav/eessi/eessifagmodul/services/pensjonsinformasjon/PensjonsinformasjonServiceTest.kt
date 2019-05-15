@@ -137,7 +137,7 @@ class PensjonsinformasjonServiceTest {
 
     }
 
-    @Test(expected = PensjoninformasjonException::class)
+    @Test(expected = IkkeFunnetException::class)
     fun `hentPensjonSakType | mock response feil fra pesys execption kastet`() {
         doThrow(ResourceAccessException("INTERNAL_SERVER_ERROR")).whenever(mockrestTemplate).exchange(
                 ArgumentMatchers.any(String::class.java),

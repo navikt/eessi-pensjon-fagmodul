@@ -23,8 +23,8 @@ aktoerregister.api.v1:
   url: 'https://app-t8.adeo.no/aktoerregister/api/v1'
 
 pensjonsinformasjon:
-  #  url: 'https://wasapp-t8.adeo.no/pensjon-ws/api/pensjonsinformasjon/v1'
-  url: 'https://wasapp-t5.adeo.no/pensjon-ws/api/pensjonsinformasjon/v1'
+  url: 'https://wasapp-t8.adeo.no/pensjon-ws/api/pensjonsinformasjon/v1'
+#  url: 'https://wasapp-t5.adeo.no/pensjon-ws/api/pensjonsinformasjon/v1'
 
 #security-token-service-issuer:
 # url: 'https://security-token-service-t10.nais.preprod.local'

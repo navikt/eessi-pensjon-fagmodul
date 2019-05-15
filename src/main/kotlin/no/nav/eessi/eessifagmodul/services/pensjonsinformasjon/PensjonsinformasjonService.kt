@@ -11,6 +11,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
+import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
@@ -42,12 +43,22 @@ class PensjonsinformasjonService(val pensjonsinformasjonOidcRestTemplate: RestTe
 
     @Throws(IkkeFunnetException::class)
     fun hentKunSakType(sakId: String, fnr: String): Pensjontype {
-        val sak = hentAltPaaSak(sakId, hentAltPaaFnr(fnr)) ?: throw IkkeFunnetException("Saktype ikke funnet")
-        return Pensjontype(
-                sakId,
-                sak.sakType)
+
+        try {
+            val sak = hentAltPaaSak(sakId, hentAltPaaFnr(fnr)) ?: throw IkkeFunnetException("Saktype ikke funnet")
+
+            return Pensjontype(
+                    sakId,
+                    sak.sakType)
+
+        } catch (ex: Exception) {
+            logger.warn("Saktype ikke funnet, mangler kravhode, ${ex.message}", ex)
+            throw IkkeFunnetException("Saktype ikke funnet")
+        }
+
     }
 
+    @Throws(PensjoninformasjonException::class, HttpServerErrorException::class, HttpClientErrorException::class)
     fun hentAltPaaFnr(fnr: String): Pensjonsinformasjon {
         //APIet skal ha urlen {host}:{port}/pensjon-ws/api/pensjonsinformasjon/v1/{ressurs}?sakId=123+fom=2018-01-01+tom=2018-28-02.
 
@@ -69,6 +80,7 @@ class PensjonsinformasjonService(val pensjonsinformasjonOidcRestTemplate: RestTe
     }
 
 
+    @Throws(PensjoninformasjonException::class, HttpServerErrorException::class, HttpClientErrorException::class)
     fun hentAltPaaVedtak(vedtaksId: String): Pensjonsinformasjon {
 
         val informationBlocks = listOf(
@@ -103,8 +115,9 @@ class PensjonsinformasjonService(val pensjonsinformasjonOidcRestTemplate: RestTe
         // TODO: Hva skal vi egentlig validere? Skal vi validere noe mer enn at vi fikk en gyldig xml-response, som skjer ved JAXB-marshalling?
     }
 
-    @Throws(PensjoninformasjonException::class)
+    @Throws(PensjoninformasjonException::class, HttpServerErrorException::class, HttpClientErrorException::class)
     private fun doRequest(path: String, id: String, requestBody: String): Pensjonsinformasjon {
+
         val headers = HttpHeaders()
         headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE)
         val requestEntity = HttpEntity(requestBody, headers)
@@ -138,7 +151,7 @@ class PensjonsinformasjonService(val pensjonsinformasjonOidcRestTemplate: RestTe
         } catch (se: HttpServerErrorException) {
             logger.error("Feiler ved Serverfeil mot PESYS", se)
             throw se
-        } catch (ce: HttpServerErrorException) {
+        } catch (ce: HttpClientErrorException) {
             logger.error("Feiler ved Clientfeil mot PESYS", ce)
             throw ce
         } catch (ex: Exception) {

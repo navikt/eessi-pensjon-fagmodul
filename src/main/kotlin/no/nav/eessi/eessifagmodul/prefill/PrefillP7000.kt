@@ -22,6 +22,8 @@ class PrefillP7000(private val prefillPerson: PrefillPerson) : Prefill<SED> {
 
         p7000.nav = Nav(
                 eessisak = listOf(EessisakItem(
+                        institusjonsid = eessielm?.institusjonsid,
+                        institusjonsnavn = eessielm?.institusjonsnavn,
                         land = eessielm?.land,
                         saksnummer = eessielm?.saksnummer
                 )),
@@ -47,29 +49,7 @@ class PrefillP7000(private val prefillPerson: PrefillPerson) : Prefill<SED> {
 
                 )
         )
-
-//        p7000.pensjon = Pensjon(
-//                sak = Sak(
-//                        kravtype = listOf(
-//                                KravtypeItem(
-//                                        datoFrist = "12 månder innen frist for klage"
-//                                )
-//                        )
-//                ),
-//                samletVedtak = SamletMeldingVedtak(
-//                        vedtaksammendrag = "",
-//                        tildeltepensjoner = TildeltePensjoner(
-//                                pensjonType = "",
-//                                vedtakPensjonType = "",
-//                                addressatForRevurdering = "Nav\nPostboks 6600 Etterstad\n0607 Oslo, Norge",
-//                                institusjon = Institusjon(
-//                                        personNr = perspin?.identifikator,
-//                                        land = perspin?.land
-//                                )
-//                        )
-//                )
-//        )
-        p7000.pensjon = null
+        p7000.pensjon = Pensjon(bruker = Bruker(person = Person(kjoenn = p7000.nav?.bruker?.person?.kjoenn)))
 
         logger.debug("Tilpasser P7000 forenklet preutfylling, Ferdig.")
 

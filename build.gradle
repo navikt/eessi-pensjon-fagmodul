@@ -1,9 +1,7 @@
 buildscript {
     ext {
-//      kotlinVersion = '1.3.21'
         kotlinVersion = '1.3.31'
         springBootVersion = '2.1.2.RELEASE'
-//        2.1.4.RELEASE"
         springSecurityVersion = '5.0.5.RELEASE'
         prometheusVersion = '0.5.0'
         springfoxVersion = '2.9.2'
@@ -26,8 +24,6 @@ buildscript {
 }
 
 plugins {
-    id 'checkstyle'
-    id 'pmd'
     id 'org.springframework.boot' version '2.1.4.RELEASE'
     id "io.spring.dependency-management" version "1.0.7.RELEASE"
     id "org.openrepose.gradle.plugins.jaxb" version "2.5.0"
@@ -152,27 +148,6 @@ clean.doFirst {
 }
 
 sourceSets["main"].java.srcDir("${buildDir}/generated-sources/xjc")
-
-/*
-sourceSets {
-    integrationtest {
-        java {
-            compileClasspath += main.output
-            compileClasspath += main.compileClasspath
-            compileClasspath += test.output
-            compileClasspath += test.compileClasspath
-            runtimeClasspath += test.runtimeClasspath
-        }
-    }
-}
-
-task integrationtest(type: Test) {
-    group = LifecycleBasePlugin.VERIFICATION_GROUP
-    testClassesDirs = sourceSets.integrationtest.output.classesDirs
-    classpath = sourceSets.integrationtest.runtimeClasspath
-}
-integrationtest.dependsOn assemble
-*/
 
 repositories {
     maven {

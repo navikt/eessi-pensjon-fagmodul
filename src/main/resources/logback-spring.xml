@@ -29,7 +29,7 @@
         <logger name="org" level="ERROR"/>
         <logger name="com" level="ERROR"/>
         <logger name="no.nav" level="DEBUG"/>
-        <logger name="no.nav.security" level="WARN"/>
+        <logger name="no.nav.security" level="DEBUG"/>
         <logger name="no.nav.eessi" level="DEBUG"/>
 
         <include resource="org/springframework/boot/logging/logback/base.xml"/>
