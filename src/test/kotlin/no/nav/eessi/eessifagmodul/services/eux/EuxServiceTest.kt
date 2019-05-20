@@ -350,5 +350,68 @@ class EuxServiceTest {
     }
 
 
+    @Test
+    fun callingEuxServiceCreateBuc_Ok() {
+
+        val mockBuc = "12345678909999"
+        val response: ResponseEntity<String> = ResponseEntity("12345678909999", HttpStatus.OK)
+
+        whenever(mockrestTemplate.exchange(
+                anyString(),
+                eq(HttpMethod.POST),
+                eq(null),
+                eq(String::class.java))
+        ).thenReturn(response)
+
+        val result = service.createBuc("P_BUC_01")
+
+        assertEquals(mockBuc, result)
+    }
+
+    @Test(expected = IOException::class)
+    fun callingEuxServiceCreateBuc_IOError() {
+
+        whenever(mockrestTemplate.exchange(
+                anyString(),
+                eq(HttpMethod.POST),
+                eq(null),
+                eq(String::class.java))
+        ).thenThrow(ResourceAccessException("I/O error"))
+
+        service.createBuc("P_BUC_01")
+
+    }
+
+    @Test(expected = HttpClientErrorException::class)
+    fun callingEuxServiceCreateBuc_ClientError() {
+
+        val clientError = HttpClientErrorException.create(HttpStatus.UNAUTHORIZED, "Error in Token", HttpHeaders(), "Error in Token".toByteArray(), Charset.defaultCharset())
+        whenever(mockrestTemplate.exchange(
+                anyString(),
+                eq(HttpMethod.POST),
+                eq(null),
+                eq(String::class.java))
+        ).thenThrow(clientError)
+
+        service.createBuc("P_BUC_01")
+
+    }
+
+    @Test(expected = HttpServerErrorException::class)
+    fun callingEuxServiceCreateBuc_ServerError() {
+
+        val serverError = HttpServerErrorException.create(HttpStatus.BAD_GATEWAY, "Error in Gate", HttpHeaders(), "Error in Gate".toByteArray(), Charset.defaultCharset())
+        whenever(mockrestTemplate.exchange(
+                anyString(),
+                eq(HttpMethod.POST),
+                eq(null),
+                eq(String::class.java))
+        ).thenThrow(serverError)
+
+        service.createBuc("P_BUC_01")
+
+    }
+
+
 }
 

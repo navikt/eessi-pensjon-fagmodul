@@ -408,6 +408,88 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
 
     }
 
+    fun createBuc(bucType: String): String {
+        //curl -X POST "https://eux-rina-api.nais.preprod.local/cpi/buc?BuCType=P_BUC_03&KorrelasjonsId=12333-33234234-2342342-234234" -H "accept: */*"
+
+        val correlationId = UUID.randomUUID().toString()
+
+        val builder = UriComponentsBuilder.fromPath("/buc")
+                .queryParam("BuCType", bucType)
+                .queryParam("KorrelasjonsId", correlationId)
+                .build()
+
+
+        logger.debug("Kontakter EUX for å prøve på opprette ny BUC med korrelasjonId: $correlationId")
+        try {
+            val response = euxOidcRestTemplate.exchange(
+                    builder.toUriString(),
+                    HttpMethod.POST,
+                    null,
+                    String::class.java)
+
+            response.body?.let {
+                return it
+            } ?: throw IkkeFunnetException("Fant ikke noen caseid")
+        } catch (ia: IllegalArgumentException) {
+            logger.error("noe feil? exception ${ia.message}", ia)
+            throw GenericUnprocessableEntity(ia.message!!)
+        } catch (hx: HttpClientErrorException) {
+            logger.warn("Buc ClientException ${hx.message}", hx)
+            throw hx
+        } catch (sx: HttpServerErrorException) {
+            logger.error("Buc ClientException ${sx.message}", sx)
+            throw sx
+        } catch (io: ResourceAccessException) {
+            logger.error("IO error fagmodul  ${io.message}", io)
+            throw IOException(io.message, io)
+        } catch (ex: Exception) {
+            logger.error("Annen uspesefikk feil oppstod mellom fagmodul og eux ${ex.message}", ex)
+            throw ex
+        }
+    }
+
+    fun putBucDeltager(euxCaseId: String, deltaker: String): String {
+        //curl -X PUT "https://eux-rina-api.nais.preprod.local/cpi/buc/167536/bucdeltakere?MottakerId=NO%3ANAVT002&KorrelasjonsId=122-1231-1231231-123123-123" -H "accept: */*"
+
+        val correlationId = UUID.randomUUID().toString()
+
+        val builder = UriComponentsBuilder.fromPath("/buc/$euxCaseId/bucdeltakere")
+                .queryParam("MottakerId", deltaker)
+                .queryParam("KorrelasjonsId", correlationId)
+                .build()
+
+
+        logger.debug("Kontakter EUX for å legge til deltager: $deltaker med korrelasjonId: $correlationId på buc: $euxCaseId")
+        try {
+            val response = euxOidcRestTemplate.exchange(
+                    builder.toUriString(),
+                    HttpMethod.PUT,
+                    null,
+                    String::class.java)
+
+            response.body?.let {
+                return it
+            } ?: throw IkkeFunnetException("Fant ikke noen caseid")
+        } catch (ia: IllegalArgumentException) {
+            logger.error("noe feil? exception ${ia.message}", ia)
+            throw GenericUnprocessableEntity(ia.message!!)
+        } catch (hx: HttpClientErrorException) {
+            logger.warn("Buc ClientException ${hx.message}", hx)
+            throw hx
+        } catch (sx: HttpServerErrorException) {
+            logger.error("Buc ClientException ${sx.message}", sx)
+            throw sx
+        } catch (io: ResourceAccessException) {
+            logger.error("IO error fagmodul  ${io.message}", io)
+            throw IOException(io.message, io)
+        } catch (ex: Exception) {
+            logger.error("Annen uspesefikk feil oppstod mellom fagmodul og eux ${ex.message}", ex)
+            throw ex
+        }
+    }
+
+
+
 
     //Eldre API kall er under denne disse vil ikke virke
 

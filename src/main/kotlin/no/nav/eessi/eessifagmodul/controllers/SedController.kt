@@ -109,6 +109,7 @@ class SedController(private val euxService: EuxService,
     }
 
 
+    //Sakl denne også flyttes over til BucController? eller vært i en egen eux-rina-controller?
     @ApiOperation("Henter ut en liste over saker på valgt aktoerid. ny api kall til eux")
     @GetMapping("/rinasaker/{aktoerId}")
     fun getRinasaker(@PathVariable("aktoerId", required = true) aktoerId: String): List<Rinasak> {
@@ -118,6 +119,7 @@ class SedController(private val euxService: EuxService,
     }
 
     //ny view call for bucogsed design pr 01.04-01.05)
+    //flytte denne over til BucController? eller hva?
     @ApiOperation("Henter ut en json struktur for buc og sed menyliste for ui. ny api kall til eux")
     @GetMapping("/{aktoerid}/bucdetaljer/", "/{aktoerid}/{sakid}/bucdetaljer/", "/{aktoerId}/{sakId}/{euxcaseid}/bucdetaljer/")
     fun getBucogSedView(@PathVariable("aktoerid", required = true) aktoerid: String,
@@ -128,6 +130,24 @@ class SedController(private val euxService: EuxService,
         val fnr = hentAktoerIdPin(aktoerid)
         return euxService.getBucAndSedView(fnr, aktoerid, sakid, euxcaseid, euxService)
     }
+
+    @ApiOperation("Oppretter ny tom BUC i RINA via eux-api. ny api kall til eux")
+    @PostMapping("/buc/{buctype}")
+    fun createBuc(@PathVariable("buctype", required = true) buctype: String): String {
+        logger.debug("Prøver å opprette en ny BUC i RINA av type: $buctype")
+        return euxService.createBuc(buctype)
+    }
+
+    @ApiOperation("Oppretter ny tom BUC i RINA via eux-api. ny api kall til eux")
+    @PutMapping("/buc/{euxcaseid}/{deltaker}")
+    fun putBucDeltager(@PathVariable("euxcaseid", required = true) euxCaseId: String, @PathVariable("deltaker", required = true) deltaker: String): String {
+        return euxService.putBucDeltager(euxCaseId, deltaker)
+    }
+
+
+
+
+
 
     //validatate request and convert to PrefillDataModel
     fun buildPrefillDataModelOnExisting(request: ApiRequest): PrefillDataModel {
