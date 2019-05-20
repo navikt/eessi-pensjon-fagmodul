@@ -17,11 +17,11 @@ healthcheck:
     liveness:
       initialDelay: 120
       failureThreshold: 10
-      path: /actuator/health
+      path: /internal/isalive
     readiness:
       initialDelay: 120
       failureThreshold: 10
-      path: /actuator/health
+      path: /internal/isready
 
 resources:
     limits:
