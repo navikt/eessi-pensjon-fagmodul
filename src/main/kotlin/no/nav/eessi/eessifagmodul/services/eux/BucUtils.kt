@@ -13,7 +13,7 @@ import java.time.ZoneId
 
 class BucUtils {
 
-    private lateinit var buc: Buc
+    private var buc: Buc
     private lateinit var bucjson: String
 
     constructor(buc: Buc) {
@@ -78,11 +78,9 @@ class BucUtils {
 
     fun getLocalDate(date: Any?): LocalDate {
         return if (date is Long) {
-            //println(date)
             Instant.ofEpochMilli(date).atZone(ZoneId.systemDefault()).toLocalDate()
         } else if (date is String) {
             val datestr = date.substring(0, date.indexOf('T'))
-            //println(datestr)
             LocalDate.parse(datestr)
         } else {
             LocalDate.now().minusYears(1000)
