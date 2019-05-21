@@ -50,9 +50,13 @@ class BucUtils {
         return buc
     }
 
-    fun getCreator(): Organisation? {
-        val participantsItem = getParticipants()?.filter { participantsItem -> participantsItem.role == "CaseOwner" }?.first()
-        return participantsItem?.organisation
+    fun getCreator(): Creator? {
+        return getBuc().creator
+    }
+
+    fun getCreatorContryCode(): Map<String, String> {
+        val countryCode = getCreator()?.organisation?.countryCode ?: "N/A"
+        return mapOf(Pair("countrycode", countryCode))
     }
 
     fun getSubject(): Subject {
@@ -63,18 +67,26 @@ class BucUtils {
         return getBuc().documents ?: throw NoSuchFieldException("Fant ikke DocumentsItem")
     }
 
+    fun getBucAttachments(): List<Attachment>? {
+        return getBuc().attachments
+    }
+
     fun getLastDate(): LocalDate {
         val date = getBuc().lastUpdate
+        return getLocalDate(date)
+    }
 
-        if (date is Long) {
-            println(date)
-            return Instant.ofEpochMilli(date).atZone(ZoneId.systemDefault()).toLocalDate()
+    fun getLocalDate(date: Any?): LocalDate {
+        return if (date is Long) {
+            //println(date)
+            Instant.ofEpochMilli(date).atZone(ZoneId.systemDefault()).toLocalDate()
         } else if (date is String) {
             val datestr = date.substring(0, date.indexOf('T'))
-            println(datestr)
-            return LocalDate.parse(datestr)
+            //println(datestr)
+            LocalDate.parse(datestr)
+        } else {
+            LocalDate.now().minusYears(1000)
         }
-        return LocalDate.now().minusYears(1000)
     }
 
     fun getProcessDefinitionName(): String? {
@@ -102,8 +114,28 @@ class BucUtils {
                 type = docuemntItem.type,
                 status = docuemntItem.status,
                 creationDate = docuemntItem.creationDate,
-                lastUpdate = docuemntItem.lastUpdate
+                lastUpdate = getLocalDate(docuemntItem.lastUpdate),
+                attachments = createShortAttachemnt(docuemntItem.attachments)
         )
+    }
+
+    private fun createShortAttachemnt(attachments: List<Attachment>?): List<ShortAttachment> {
+
+        val list = mutableListOf<ShortAttachment>()
+        attachments?.forEach {
+            list.add(
+                    ShortAttachment(
+                            id = it.id,
+                            name = it.name,
+                            mimeType = it.mimeType,
+                            fileName = it.fileName,
+                            documentId = it.documentId,
+                            lastUpdate = getLocalDate(it.lastUpdate),
+                            medical = it.medical
+                    )
+            )
+        }
+        return list
     }
 
     fun getAllDocuments(): List<ShortDocumentItem> {
@@ -154,10 +186,6 @@ class BucUtils {
 
     fun getParticipants(): List<ParticipantsItem>? {
         return getBuc().participants
-    }
-
-    fun getCaseOwnerCountryCode(): String {
-        return getCreator()?.countryCode ?: "N/A"
     }
 
     fun getBucAction(): List<ActionsItem>? {

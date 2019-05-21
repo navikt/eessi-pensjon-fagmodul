@@ -1,10 +1,11 @@
 package no.nav.eessi.eessifagmodul.services.eux.bucmodel
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import java.time.LocalDate
 
 data class DocumentsItem(
         val parendDocumentId: Any? = null,
-        val attachments: Any? = null,
+        val attachments: List<Attachment>? = null,
         val sendExecuted: Boolean? = null,
         val displayName: String? = null,
         val admin: Boolean? = null,
@@ -59,6 +60,6 @@ data class ShortDocumentItem(
         val type: String? = null,
         val status: String? = null,
         val creationDate: Any? = null,
-        val lastUpdate: Any? = null
-
+        val lastUpdate: LocalDate? = null,
+        val attachments: List<ShortAttachment>? = null
 )

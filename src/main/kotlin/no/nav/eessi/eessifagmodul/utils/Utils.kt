@@ -3,6 +3,7 @@ package no.nav.eessi.eessifagmodul.utils
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.Metrics
@@ -18,6 +19,11 @@ import javax.xml.datatype.XMLGregorianCalendar
 
 inline fun <reified T : Any> typeRef(): ParameterizedTypeReference<T> = object : ParameterizedTypeReference<T>() {}
 inline fun <reified T : Any> typeRefs(): TypeReference<T> = object : TypeReference<T>() {}
+
+
+fun datatClazzToMap(clazz: Any): Map<String, String> {
+    return ObjectMapper().convertValue(clazz, object : TypeReference<Map<String, Any>>() {})
+}
 
 inline fun <reified T : Any> mapJsonToAny(json: String, objec: TypeReference<T>, failonunknown: Boolean = false): T {
     if (validateJson(json)) {

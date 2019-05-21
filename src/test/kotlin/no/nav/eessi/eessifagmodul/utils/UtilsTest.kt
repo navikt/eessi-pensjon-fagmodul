@@ -1,6 +1,7 @@
 package no.nav.eessi.eessifagmodul.utils
 
 import io.micrometer.core.instrument.Metrics
+import no.nav.eessi.eessifagmodul.models.InstitusjonItem
 import no.nav.eessi.eessifagmodul.models.SEDType
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.ShortDocumentItem
 import org.junit.Test
@@ -196,6 +197,21 @@ class UtilsTest {
             varsellist.add(varsel)
         }
         return varsellist.asSequence().sortedBy { (_, _, _, sorting) -> sorting }.toList().last().sakId
+    }
+
+    @Test
+    fun testMapDatatoMap() {
+
+        val testData = InstitusjonItem(
+                institution = "Nav",
+                country = "No"
+        )
+
+        val result = datatClazzToMap(testData)
+
+        assertEquals(2, result.size)
+        assertEquals("No", result["country"])
+
     }
 
 }

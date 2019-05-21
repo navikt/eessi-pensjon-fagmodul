@@ -386,7 +386,7 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
             val bucAndSedView = BucAndSedView(
                     buc = bucUtil.getProcessDefinitionName()!!,
                     creator = InstitusjonItem(
-                            country = bucUtil.getCreator()?.countryCode,
+                            country = bucUtil.getCreator()?.organisation?.countryCode,
                             institution = bucUtil.getCreator()?.name
                     ),
                     caseId = it.id,

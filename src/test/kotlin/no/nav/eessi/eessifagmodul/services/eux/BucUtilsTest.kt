@@ -1,5 +1,6 @@
 package no.nav.eessi.eessifagmodul.services.eux
 
+import com.google.common.collect.Lists
 import no.nav.eessi.eessifagmodul.models.SEDType
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.Buc
 import no.nav.eessi.eessifagmodul.utils.mapAnyToJson
@@ -63,11 +64,17 @@ class BucUtilsTest {
     @Test
     fun getCreator() {
         val result = bucUtils.getCreator()
-//        assertEquals("NAVT003", result.organisation?.name)
-//        assertEquals("NO:NAVT003", result.organisation?.id)
-//        assertEquals("NO", result.organisation?.countryCode)
-
+        assertEquals("NAVT003", result?.organisation?.name)
+        assertEquals("NO:NAVT003", result?.organisation?.id)
+        assertEquals("NO", result?.organisation?.countryCode)
     }
+
+    @Test
+    fun getCreatorCountryCode() {
+        val result = bucUtils.getCreatorContryCode()
+        assertEquals("NO", Lists.newArrayList(result.values).get(0))
+    }
+
 
     @Test
     fun findFirstDocumentItemByType() {
@@ -97,8 +104,8 @@ class BucUtilsTest {
 
     @Test
     fun getBucCaseOwnerAndCreatorCountry() {
-        val result = bucUtils.getCaseOwnerCountryCode()
-        assertEquals("NO", result)
+        val result = bucUtils.getCreatorContryCode()
+        assertEquals("NO", result["countrycode"])
     }
 
     @Test
@@ -173,6 +180,56 @@ class BucUtilsTest {
         assertEquals("P_BUC_01", rinaaksjon2.id)
         assertEquals("Create", rinaaksjon2.navn)
 
+    }
+
+    @Test
+    fun getBucAndDocumentsWithAttachment() {
+        bucjson = getTestJsonFile("buc-158123_2_v4.1.json")
+        buc = mapJsonToAny(bucjson, typeRefs<Buc>())
+        bucUtils = BucUtils(buc)
+
+        assertEquals(2, bucUtils.getBucAttachments()?.size)
+
+        assertEquals(18, bucUtils.getAllDocuments().size)
+
+        var counter = 1
+        bucUtils.getAllDocuments().forEach {
+
+            print("Nr:\t${counter++}\ttype:\t${it.type}\t")
+
+            if (it.type == "P8000") {
+                println("\tattachments:\t${it.attachments?.size}")
+                assertEquals("2019-05-20", it.lastUpdate.toString())
+                assertEquals(2, it.attachments?.size)
+
+            } else {
+                println("\tattachments:\t0")
+            }
+        }
+
+        assertEquals("2019-05-20", bucUtils.getLastDate().toString())
+
+    }
+
+    @Test
+    fun getParticipantsTestOnMock_2() {
+        bucjson = getTestJsonFile("buc-158123_2_v4.1.json")
+        buc = mapJsonToAny(bucjson, typeRefs<Buc>())
+        bucUtils = BucUtils(buc)
+
+        assertEquals(2, bucUtils.getBucAttachments()?.size)
+
+        assertEquals(18, bucUtils.getAllDocuments().size)
+
+        val parts = bucUtils.getParticipants()
+
+        assertEquals(2, parts?.size)
+    }
+
+    @Test
+    fun getParticipantsTestOnMock() {
+        val parts = bucUtils.getParticipants()
+        assertEquals(2, parts?.size)
     }
 
 }

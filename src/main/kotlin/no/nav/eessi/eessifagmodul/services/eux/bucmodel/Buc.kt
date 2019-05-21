@@ -2,7 +2,7 @@ package no.nav.eessi.eessifagmodul.services.eux.bucmodel
 
 data class Buc(
         var creator: Creator? = null,
-        val attachments: List<Any>? = null,
+        val attachments: List<Attachment>? = null,
         val comments: List<Any>? = null,
         var subject: Subject? = null,
         val businessId: String? = null,
@@ -24,14 +24,14 @@ data class Buc(
         var documents: List<DocumentsItem>? = null
 )
 
-data class ShortBuc(
-        val id: String? = null,
-        val sensitive: Boolean? = null,
-        var creator: Creator? = null,
-        val actions: List<ActionsItem?>? = null,
-        val documents: List<DocumentsItem>? = null,
-        val participants: List<ParticipantsItem?>? = null,
-        val subject: Subject? = null,
-        val businessId: String? = null,
-        val processDefinitionVersion: String? = null
-)
+//data class ShortBuc(
+//        val id: String? = null,
+//        val sensitive: Boolean? = null,
+//        var creator: Creator? = null,
+//        val actions: List<ActionsItem?>? = null,
+//        val documents: List<DocumentsItem>? = null,
+//        val participants: List<ParticipantsItem?>? = null,
+//        val subject: Subject? = null,
+//        val businessId: String? = null,
+//        val processDefinitionVersion: String? = null
+//)
