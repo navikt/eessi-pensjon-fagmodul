@@ -1,0 +1,34 @@
+{
+  "sed": "P7000",
+  "sedGVer": "4",
+  "sedVer": "1",
+  "nav": {
+    "bruker": {
+      "person": {
+        "pin": [
+          {
+            "identifikator": "01051843352",
+            "land": "NO",
+            "institusjon": {}
+          }
+        ],
+        "etternavn": "OKOULOV",
+        "fornavn": "HASNAWI-MASK",
+        "kjoenn": "M",
+        "foedselsdato": "1951-11-08"
+      }
+    },
+    "ektefelle": {
+      "person": {
+        "etternavn": "OKOULOV"
+      }
+    }
+  },
+  "pensjon": {
+    "bruker": {
+      "person": {
+        "kjoenn": "M"
+      }
+    }
+  }
+}

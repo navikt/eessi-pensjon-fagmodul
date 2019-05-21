@@ -21,7 +21,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 //@RunWith(MockitoJUnitRunner::class)
-class PrefillP2000MedIngendata : AbstractMockKravPensionHelper() {
+class PrefillP2000MedIngendata : AbstractMockPrefillHelper() {
 
     override fun mockPesysTestfilepath(): Pair<String, String> {
         return Pair("P2000", "P2000-TOMT-SVAR-PESYS.xml")

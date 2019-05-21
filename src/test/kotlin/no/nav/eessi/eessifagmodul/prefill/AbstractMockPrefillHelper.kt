@@ -34,7 +34,7 @@ import org.springframework.web.client.RestTemplate
 @RunWith(SpringRunner::class)
 @ActiveProfiles("test")
 @SpringBootTest
-abstract class AbstractMockKravPensionHelper {
+abstract class AbstractMockPrefillHelper {
 
     var personFnr: String = ""
 

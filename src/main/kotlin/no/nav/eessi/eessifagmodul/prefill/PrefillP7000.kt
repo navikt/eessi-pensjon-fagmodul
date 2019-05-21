@@ -1,11 +1,11 @@
 package no.nav.eessi.eessifagmodul.prefill
 
 import no.nav.eessi.eessifagmodul.models.*
-import no.nav.eessi.eessifagmodul.prefill.nav.PrefillPerson
+import no.nav.eessi.eessifagmodul.prefill.nav.PrefillNav
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class PrefillP7000(private val prefillPerson: PrefillPerson) : Prefill<SED> {
+class PrefillP7000(private val prefillNav: PrefillNav) : Prefill<SED> {
 
     private val logger: Logger by lazy { LoggerFactory.getLogger(PrefillP7000::class.java) }
 
@@ -13,21 +13,13 @@ class PrefillP7000(private val prefillPerson: PrefillPerson) : Prefill<SED> {
 
         val p7000 = SED.create("P7000")
 
-        val navsed = prefillPerson.prefill(prefillData)
+        val navsed = prefillNav.prefill(prefillData)
 
         logger.debug("Tilpasser P7000 forenklet preutfylling")
-        val person = navsed.nav?.bruker?.person
-        val eessielm = navsed.nav?.eessisak?.get(0)
-        val perspin = navsed.nav?.bruker?.person?.pin?.get(0)
+        val person = navsed.bruker?.person
+        val perspin = navsed.bruker?.person?.pin?.get(0)
 
         p7000.nav = Nav(
-                eessisak = listOf(EessisakItem(
-                        institusjonsid = eessielm?.institusjonsid,
-                        institusjonsnavn = eessielm?.institusjonsnavn,
-                        land = eessielm?.land,
-                        saksnummer = eessielm?.saksnummer
-                )),
-
                 //bruker = Bruker(person = navsed.nav?.bruker?.person)
                 bruker = Bruker(
                         person = Person(
@@ -46,10 +38,13 @@ class PrefillP7000(private val prefillPerson: PrefillPerson) : Prefill<SED> {
                                 institusjonsid = perspin?.institusjon?.institusjonsid,
                                 institusjonsnavn = perspin?.institusjon?.institusjonsnavn
                         )
-
                 )
         )
-        p7000.pensjon = Pensjon(bruker = Bruker(person = Person(kjoenn = p7000.nav?.bruker?.person?.kjoenn)))
+        //mappe om etternavn til mappingfeil
+        p7000.nav?.ektefelle = Ektefelle(person = Person(etternavn = navsed.bruker?.person?.etternavn))
+
+        //mappe om kjoenn for mappingfeil
+        p7000.pensjon = Pensjon(bruker = Bruker(person = Person(kjoenn = navsed.bruker?.person?.kjoenn)))
 
         logger.debug("Tilpasser P7000 forenklet preutfylling, Ferdig.")
 

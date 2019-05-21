@@ -18,7 +18,7 @@ import kotlin.test.assertTrue
 
 
 //@RunWith(MockitoJUnitRunner::class)
-class PrefillP2000UtenKravhistorieTest : AbstractMockKravPensionHelper() {
+class PrefillP2000UtenKravhistorieTest : AbstractMockPrefillHelper() {
 
     override fun opprettMockPersonDataTPS(): Set<PersonDataFromTPS.MockTPS>? {
         return setOf(

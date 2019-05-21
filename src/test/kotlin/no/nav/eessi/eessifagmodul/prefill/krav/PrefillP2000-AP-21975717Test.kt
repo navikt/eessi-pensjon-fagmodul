@@ -19,7 +19,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.fail
 
 //@RunWith(MockitoJUnitRunner::class)
-class `PrefillP2000-AP-21975717Test` : AbstractMockKravPensionHelper() {
+class `PrefillP2000-AP-21975717Test` : AbstractMockPrefillHelper() {
 
     override fun mockPesysTestfilepath(): Pair<String, String> {
         return Pair("P2000", "P2000_21975717_AP_UTLAND.xml")

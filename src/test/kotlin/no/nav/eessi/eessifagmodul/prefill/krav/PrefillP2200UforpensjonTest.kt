@@ -11,7 +11,7 @@ import org.junit.Test
 import kotlin.test.assertNotNull
 
 //@RunWith(MockitoJUnitRunner::class)
-class PrefillP2200UforpensjonTest : AbstractMockKravPensionHelper() {
+class PrefillP2200UforpensjonTest : AbstractMockPrefillHelper() {
 
 
     override fun mockPesysTestfilepath(): Pair<String, String> {
