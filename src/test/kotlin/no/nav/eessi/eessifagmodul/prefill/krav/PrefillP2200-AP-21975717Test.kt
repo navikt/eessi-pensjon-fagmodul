@@ -3,6 +3,7 @@ package no.nav.eessi.eessifagmodul.prefill.krav
 import no.nav.eessi.eessifagmodul.controllers.SedController
 import no.nav.eessi.eessifagmodul.models.InstitusjonItem
 import no.nav.eessi.eessifagmodul.models.SED
+import no.nav.eessi.eessifagmodul.prefill.AbstractPrefillIntegrationTestHelper
 import no.nav.eessi.eessifagmodul.prefill.PensjonsinformasjonHjelper
 import no.nav.eessi.eessifagmodul.prefill.Prefill
 import no.nav.eessi.eessifagmodul.prefill.PrefillDataModel
@@ -15,8 +16,7 @@ import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
-//@RunWith(MockitoJUnitRunner::class)
-class `PrefillP2200-AP-21975717Test` : AbstractMockPrefillHelper() {
+class `PrefillP2200-AP-21975717Test` : AbstractPrefillIntegrationTestHelper() {
 
     override fun mockPesysTestfilepath(): Pair<String, String> {
         return Pair("P2200", "P2000_21975717_AP_UTLAND.xml")
@@ -70,22 +70,6 @@ class `PrefillP2200-AP-21975717Test` : AbstractMockPrefillHelper() {
         }
         assertEquals(2, list.size)
     }
-
-//    @Test
-//    fun `forventet korrekt utfylt P2200 alderpensjon med kap4 og 9`() {
-//        val P2200 = prefill.prefill(prefillData)
-//
-//        val P2200pensjon = SED.create("P2200")
-//        P2200pensjon.pensjon = P2200.pensjon
-//        P2200pensjon.nav = Nav(
-//                krav = P2200.nav?.krav
-//        )
-//        P2200pensjon.print()
-//
-//        val sed = P2200pensjon
-//        assertNotNull(sed.nav?.krav)
-//        assertEquals("2015-06-16", sed.nav?.krav?.dato)
-//    }
 
     @Test
     fun `forventet korrekt utfylt P2200 uforerpensjon med mockdata fra testfiler`() {

@@ -1,14 +1,11 @@
-package no.nav.eessi.eessifagmodul.prefill.krav
+package no.nav.eessi.eessifagmodul.prefill
 
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.whenever
 import no.nav.eessi.eessifagmodul.models.InstitusjonItem
 import no.nav.eessi.eessifagmodul.models.SED
 import no.nav.eessi.eessifagmodul.models.SEDType
-import no.nav.eessi.eessifagmodul.prefill.EessiInformasjon
-import no.nav.eessi.eessifagmodul.prefill.PensjonsinformasjonHjelper
-import no.nav.eessi.eessifagmodul.prefill.Prefill
-import no.nav.eessi.eessifagmodul.prefill.PrefillDataModel
+import no.nav.eessi.eessifagmodul.prefill.krav.KravDataFromPEN
 import no.nav.eessi.eessifagmodul.prefill.nav.PrefillNav
 import no.nav.eessi.eessifagmodul.prefill.nav.PrefillPersonDataFromTPS
 import no.nav.eessi.eessifagmodul.prefill.person.PersonDataFromTPS
@@ -34,7 +31,7 @@ import org.springframework.web.client.RestTemplate
 @RunWith(SpringRunner::class)
 @ActiveProfiles("test")
 @SpringBootTest
-abstract class AbstractMockPrefillHelper {
+abstract class AbstractPrefillIntegrationTestHelper {
 
     var personFnr: String = ""
 
@@ -92,21 +89,22 @@ abstract class AbstractMockPrefillHelper {
         prefill = createTestClass(prefillNav, personTPS, pensionDataFromPEN)
     }
 
+    //genererer et tilfeldig falsk personnr for person under kjøring av test
     abstract fun createFakePersonFnr(): String
-
 
     private fun setFakePersonFnr(fnr: String) {
         personFnr = fnr
     }
 
+    //henter et tilfeldig generert personnr.
     fun getFakePersonFnr(): String {
         return personFnr
     }
 
-    //pesys saksnymmber
+    //pesys saksnummer
     abstract fun createSaksnummer(): String
 
-    //mock pesys info
+    //mock pesys pensjoninformasjon datafil i xml format
     abstract fun mockPesysTestfilepath(): Pair<String, String>
 
     //mock prefill SED class
@@ -128,6 +126,7 @@ abstract class AbstractMockPrefillHelper {
     abstract fun opprettMockPersonDataTPS(): Set<PersonDataFromTPS.MockTPS>?
 
     //mock person tps default.. enke with 1chold u 18y
+    //alle person mock er lik siiden de hentes fra disse 3 datafilene.
     private fun initMockPersonDataTPS(): Set<PersonDataFromTPS.MockTPS> {
         return setOf(
                 PersonDataFromTPS.MockTPS("Person-20000.json", generateRandomFnr(67), PersonDataFromTPS.MockTPS.TPSType.PERSON),
@@ -160,14 +159,6 @@ abstract class AbstractMockPrefillHelper {
         whenever(pensjonsinformasjonRestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), ArgumentMatchers.eq(String::class.java))).thenReturn(readXMLresponse(responseXMLfilename))
 
         val pensjonsinformasjonService1 = PensjonsinformasjonService(pensjonsinformasjonRestTemplate, RequestBuilder())
-//
-//        val eessiInfo = EessiInformasjon()
-//        eessiInfo.institutionid = "NO"
-//        eessiInfo.institutionnavn = "[NO] NAV NORGE"
-//        eessiInfo.institutionBy = "OSLO"
-//        eessiInfo.institutionGate = "Postboks 6600 Etterstad"
-//        eessiInfo.institutionPostnr = "0607"
-//        eessiInfo.institutionLand = "NO"
 
         return PensjonsinformasjonHjelper(pensjonsinformasjonService1, eessiInformasjon)
     }
@@ -193,23 +184,6 @@ abstract class AbstractMockPrefillHelper {
             institution = items
         }
     }
-
-//    private fun generateRandomFnr(yearsToSubtract: Int): String {
-//        val fnrdate = LocalDate.now().minusYears(yearsToSubtract.toLong())
-//        val y = fnrdate.year.toString()
-//        val day = fixDigits(fnrdate.dayOfMonth.toString())
-//        val month = fixDigits(fnrdate.month.value.toString())
-//        val fixedyear = y.substring(2, y.length)
-//        val fnr = day + month + fixedyear + 43352
-//        return fnr
-//    }
-//
-//    private fun fixDigits(str: String): String {
-//        if (str.length == 1) {
-//            return "0$str"
-//        }
-//        return str
-//    }
 
 
 }

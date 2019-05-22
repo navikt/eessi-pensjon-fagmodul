@@ -1,6 +1,7 @@
 package no.nav.eessi.eessifagmodul.prefill.krav
 
 import no.nav.eessi.eessifagmodul.models.SED
+import no.nav.eessi.eessifagmodul.prefill.AbstractPrefillIntegrationTestHelper
 import no.nav.eessi.eessifagmodul.prefill.PensjonsinformasjonHjelper
 import no.nav.eessi.eessifagmodul.prefill.Prefill
 import no.nav.eessi.eessifagmodul.prefill.PrefillDataModel
@@ -18,7 +19,7 @@ import kotlin.test.assertTrue
 
 
 //@RunWith(MockitoJUnitRunner::class)
-class PrefillP2000UtenKravhistorieTest : AbstractMockPrefillHelper() {
+class PrefillP2000UtenKravhistorieTest : AbstractPrefillIntegrationTestHelper() {
 
     override fun opprettMockPersonDataTPS(): Set<PersonDataFromTPS.MockTPS>? {
         return setOf(

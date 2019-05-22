@@ -5,6 +5,7 @@ import no.nav.eessi.eessifagmodul.models.InstitusjonItem
 import no.nav.eessi.eessifagmodul.models.Nav
 import no.nav.eessi.eessifagmodul.models.PensjoninformasjonException
 import no.nav.eessi.eessifagmodul.models.SED
+import no.nav.eessi.eessifagmodul.prefill.AbstractPrefillIntegrationTestHelper
 import no.nav.eessi.eessifagmodul.prefill.PensjonsinformasjonHjelper
 import no.nav.eessi.eessifagmodul.prefill.Prefill
 import no.nav.eessi.eessifagmodul.prefill.PrefillDataModel
@@ -21,7 +22,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 //@RunWith(MockitoJUnitRunner::class)
-class PrefillP2000MedIngendata : AbstractMockPrefillHelper() {
+class PrefillP2000MedIngendata : AbstractPrefillIntegrationTestHelper() {
 
     override fun mockPesysTestfilepath(): Pair<String, String> {
         return Pair("P2000", "P2000-TOMT-SVAR-PESYS.xml")

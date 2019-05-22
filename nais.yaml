@@ -43,7 +43,7 @@ fasitResources:
   - alias: aktoerregister.api.v1
     resourceType: RestService
     #EUX RINA
-  - alias: eessipen-eux-rina
+  - alias: eux-rina-api_v1
     resourceType: RestService
     #TPS
   - alias: virksomhet:Person_v3

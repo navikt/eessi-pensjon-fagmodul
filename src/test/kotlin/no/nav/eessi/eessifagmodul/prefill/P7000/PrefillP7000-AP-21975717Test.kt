@@ -1,12 +1,9 @@
-package no.nav.eessi.eessifagmodul.prefill.krav
+package no.nav.eessi.eessifagmodul.prefill.P7000
 
 import no.nav.eessi.eessifagmodul.controllers.SedController
 import no.nav.eessi.eessifagmodul.models.InstitusjonItem
 import no.nav.eessi.eessifagmodul.models.SED
-import no.nav.eessi.eessifagmodul.prefill.PensjonsinformasjonHjelper
-import no.nav.eessi.eessifagmodul.prefill.Prefill
-import no.nav.eessi.eessifagmodul.prefill.PrefillDataModel
-import no.nav.eessi.eessifagmodul.prefill.PrefillP7000
+import no.nav.eessi.eessifagmodul.prefill.*
 import no.nav.eessi.eessifagmodul.prefill.nav.PrefillNav
 import no.nav.eessi.eessifagmodul.prefill.nav.PrefillPersonDataFromTPS
 import no.nav.eessi.eessifagmodul.prefill.person.PersonDataFromTPS
@@ -20,7 +17,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-class `PrefillP7000-AP-21975717Test` : AbstractMockPrefillHelper() {
+class `PrefillP7000-AP-21975717Test` : AbstractPrefillIntegrationTestHelper() {
 
     override fun mockPesysTestfilepath(): Pair<String, String> {
         return Pair("P7000", "P2000_21975717_AP_UTLAND.xml")

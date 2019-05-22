@@ -18,7 +18,7 @@ import org.springframework.web.client.RestTemplate
 @Component
 class EuxRestTemplate(private val oidcRequestContextHolder: OIDCRequestContextHolder, private val registry: MeterRegistry) {
 
-    @Value("\${eessipen-eux-rina.url}")
+    @Value("\${eux-rina-api_v1.url}")
     lateinit var url: String
 
     @Bean
