@@ -105,7 +105,6 @@ class ExperimentController {
 
     @GetMapping("/testAktoerTilIdent/{ident}")
     fun testAktoerTilIdent(@PathVariable("ident") ident: String): String {
-        //return aktoerIdClient.hentIdentForAktoerId(ident)?.ident
         return aktoerregisterService.hentGjeldendeNorskIdentForAktorId(ident)
     }
 
@@ -113,11 +112,6 @@ class ExperimentController {
     fun testPerson(@PathVariable("ident") ident: String): HentPersonResponse {
         return personV3Service.hentPerson(ident)
     }
-
-//    @GetMapping("/possibleactions/{rinanr}", produces = [MediaType.APPLICATION_JSON_VALUE])
-//    fun getMuligeAksjoner(@PathVariable(value = "rinanr", required = true) rinanr: String): List<RINAaksjoner> {
-//        return euxService.getPossibleActions(rinanr)
-//    }
 
     @GetMapping("/institusjoner/{buctype}", "/institusjoner/{buctype}/{land}")
     fun getEuxInstitusjoner(@PathVariable("buctype", required = true) buctype: String, @PathVariable("land", required = false) landkode: String? = ""): List<String> {

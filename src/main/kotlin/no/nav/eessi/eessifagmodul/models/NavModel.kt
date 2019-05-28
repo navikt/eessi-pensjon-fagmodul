@@ -6,7 +6,10 @@ data class Nav(
         var ektefelle: Ektefelle? = null,
         var barn: List<BarnItem>? = null, //pkt 6 og 8
         var verge: Verge? = null,
-        var krav: Krav? = null
+        var krav: Krav? = null,
+        //P10000
+        var annenperson: Bruker? = null
+
 )
 
 data class Krav(
@@ -71,7 +74,8 @@ data class Ektefelle(
 data class Verge(
         var person: Person? = null,
         var adresse: Adresse? = null,
-        var vergemaal: Vergemaal? = null
+        var vergemaal: Vergemaal? = null,
+        var vergenavn: String? = null
 )
 
 data class Vergemaal(
@@ -80,7 +84,11 @@ data class Vergemaal(
 
 data class Kontakt(
         var telefon: List<TelefonItem>? = null,
-        var email: List<EmailItem>? = null
+        var email: List<EmailItem>? = null,
+
+        //direkte uten bruk av list?
+        var telefonnr: String? = null,
+        var emailadr: String? = null
 )
 
 data class TelefonItem(
@@ -106,13 +114,16 @@ data class Person(
         var fornavnvedfoedsel: String? = null,
         var etternavnvedfoedsel: String? = null,
         var foedselsdato: String? = null,
-        var doedsdato: String? = null,
 
+        var doedsdato: String? = null,
         var dodsDetalj: DodsDetalj? = null, //4 P2100
+
         var kontakt: Kontakt? = null,
         var sivilstand: List<SivilstandItem>? = null,   //familiestatus
         var relasjontilavdod: RelasjonAvdodItem? = null, //5.2.5 P2100
-        var nyttEkteskapPartnerskapEtterForsikredeDod: NyttEkteskapPartnerskap? = null //5.3.4 P2100
+        var nyttEkteskapPartnerskapEtterForsikredeDod: NyttEkteskapPartnerskap? = null, //5.3.4 P2100
+        var rolle: String? = null  //3.1 i P10000
+
 )
 
 data class DodsDetalj(
@@ -197,7 +208,11 @@ data class Adresse(
         var by: String? = null,
         var postnummer: String? = null,
         var region: String? = null,
-        var land: String? = null
+        var land: String? = null,
+
+        var kontaktpersonadresse: String? = null,
+        var datoforadresseendring: String? = null,
+        var postadresse: String? = null
 )
 
 data class Foedested(

@@ -2,7 +2,6 @@ package no.nav.eessi.eessifagmodul.models
 
 import java.time.LocalDate
 
-
 data class PersonDetail(
         var sakType: String? = null,
         var buc: String? = null,
@@ -19,44 +18,206 @@ data class PersonDetail(
 )
 
 data class Pensjon(
-        var reduksjon: List<ReduksjonItem>? = null,
-        var vedtak: List<VedtakItem>? = null,
-        var sak: Sak? = null,
-        var gjenlevende: Bruker? = null,
-        var bruker: Bruker? = null,
-        var tilleggsinformasjon: Tilleggsinformasjon? = null,
+		var reduksjon: List<ReduksjonItem>? = null,
+		var vedtak: List<VedtakItem>? = null,
+		var sak: Sak? = null,
+		var gjenlevende: Bruker? = null,
+		var bruker: Bruker? = null,
+		var tilleggsinformasjon: Tilleggsinformasjon? = null,
 
         //p2000 - p2200
-        var ytterligeinformasjon: String? = null,
-        var etterspurtedokumenter: String? = null,
-        var ytelser: List<YtelserItem>? = null,
-        var forespurtstartdato: String? = null,
+		var ytterligeinformasjon: String? = null,
+		var etterspurtedokumenter: String? = null,
+		var ytelser: List<YtelserItem>? = null,
+		var forespurtstartdato: String? = null,
 
         //P3000
-        var landspesifikk: Landspesifikk? = null,
+		var landspesifikk: Landspesifikk? = null,
 
         //P5000
-        var medlemskapAnnen: List<MedlemskapItem>? = null,
-        var medlemskapTotal: List<MedlemskapItem>? = null,
-        var medlemskap: List<MedlemskapItem>? = null,
-        var trygdetid: List<MedlemskapItem>? = null,
-        var institusjonennaaikkesoektompensjon: List<String>? = null,
-        var utsettelse: List<Utsettelse>? = null,
+		var medlemskapAnnen: List<MedlemskapItem>? = null,
+		var medlemskapTotal: List<MedlemskapItem>? = null,
+		var medlemskap: List<MedlemskapItem>? = null,
+		var trygdetid: List<MedlemskapItem>? = null,
+		var institusjonennaaikkesoektompensjon: List<String>? = null,
+		var utsettelse: List<Utsettelse>? = null,
 
         //P2000, P2100, P2200, P8000
-        var vedlegg: List<String>? = null,
+		var vedlegg: List<String>? = null,
 
-        var vedleggandre: String? = null,
-        var angitidligstdato: String? = null,
+		var vedleggandre: String? = null,
+		var angitidligstdato: String? = null,
 
-        var kravDato: Krav? = null, //kravDato pkt. 9.1 P2000
-        var antallSokereKjent: String? = null, //P2100 11.7
+		var kravDato: Krav? = null, //kravDato pkt. 9.1 P2000
+		var antallSokereKjent: String? = null, //P2100 11.7
 
         //P8000
-        var anmodning: AnmodningOmTilleggsInfo? = null,
+		var anmodning: AnmodningOmTilleggsInfo? = null,
 
         //P7000
-        var samletVedtak: SamletMeldingVedtak? = null
+		var samletVedtak: SamletMeldingVedtak? = null,
+
+		//P10000
+		val merinformasjon: Merinformasjon? = null
+        )
+
+//P10000 -- innholder ytteligere informasjon om person (se kp. 5.1) som skal oversendes tilbake
+data class Merinformasjon(
+		val referansetilperson: String? = null, // kp.5.1 visr til om følgende informasjon gjelder hovedperson eller annenperson. - 01 - hoved -02 er annen
+
+		val infoskolegang: List<InfoskolegangItem?>? = null,
+		val overfoertedok: Overfoertedok? = null,
+		val tilbaketrekkingpensjonskrav: List<TilbaketrekkingpensjonskravItem?>? = null,
+
+		val yrkesaktiv: List<YrkesaktivItem?>? = null,
+
+		val egenerklaering: Egenerklaering? = null,
+
+		val infoarbeidsledig: List<InfoarbeidsledigItem?>? = null,
+
+		val person: Person? = null, //fjenws...
+
+		val bruker: Bruker? = null, //la stå?
+
+
+		val livdoedinfo: Livdoedinfo? = null,
+
+		val aktivitetsinfo: List<AktivitetsinfoItem?>? = null,
+		val aktivitetsinfotilleggsopplysning: String? = null,
+
+		val infoinntekt: List<InfoinntektItem>? = null,
+
+		val relasjonforsoerget: Relasjonforsorget? = null, // endres i eux.
+		val kravomgjennomgang: Kravomgjennomgang? = null,
+
+		//merinfo, tillegginformajon for P10000
+		val tilleggsinformasjon: String? = null,
+
+		var ytelser: List<YtelserItem>? = null
+
+)
+
+data class Egenerklaering (
+		val egenerklaering: String? = null,
+		val dato: String? = null
+)
+
+//P10000
+data class YrkesaktivItem(
+		val startdato: String? = null,
+		val yrkesstatus: String? = null,
+		val sluttdato: String? = null
+)
+
+//P10000
+data class Ytelsesdatoer(
+		val annenytelse: String? = null,
+		val datotyper: Datotyper? = null,
+		val personkravstatus: String? = null,
+		val beloep: List<BeloepItem>? = null
+)
+
+//P10000
+data class Datotyper (
+		val startdatoutbetaling: String? = null,
+		val sluttdatoutbetaling: String? = null,
+
+		val startdatoforstansytelse: String? = null,
+		val sluttdatorettytelse: String? = null,
+
+		val startdatoretttilytelser: String? = null,
+		val sluttdatoredusertytelse: String? = null,
+
+		val startdatoredusertytelse: String? = null,
+		val sluttdatoforstansiytelser: String? = null,
+
+		val datoavslagpaaytelse: String? = null,
+		val datokravytelse: String? = null
+)
+
+//P10000
+data class InfoskolegangItem(
+		val typeskolegang: String? = null,
+		val startdatoskolegang: String? = null,
+		val sluttdatoskolegang: String? = null,
+		val skolenavn: String? = null,
+		val merinfoomskolegang: String? = null
+)
+
+//P10000
+data class Overfoertedok(
+		val vedlagtedok: List<String?>? = null,
+		val informasjonomdok: String? = null
+)
+
+//P10000
+data class TilbaketrekkingpensjonskravItem(
+		val landkode: String? = null,
+		val datofortilbakekalling: String? = null,
+		val kommentar: String? = null
+)
+
+//P10000
+data class Kravomgjennomgang(
+	//Art482RegECNo9872009
+	val vedlagtkravomgjennomgangfremsatt: String? = null,
+    val framsettelsesdatokrav: String? = null,
+    val p7000datert: String? = null
+)
+
+//P10000
+data class InfoinntektItem(
+
+	val inntektellerikke: String? = null, //16.1.1
+	val inntektskilde: String? = null, //16.1.2
+
+	val startdatomottakinntekt: String? = null, //16.1.3
+	val sluttdatomottakinntekt: String? = null, //16.1.4
+
+	val inntektbelop: List<InntektBelopItem>? = null,
+
+	val ytterligereinfoinntekt: String? = null, //16.1.6
+	val tilleggsytelserutbetalingeritilleggtilinntekt: String? = null //16.1.7
+)
+
+//P10000
+data class InntektBelopItem (
+		val beloepgjeldendesiden: String? = null,
+		val betalingshyppighet: String? = null,
+		val annenbetalingshyppighet: List<String?>? = null,
+		val valuta: String? = null,
+		val beloep: String? = null
+)
+
+//P10000
+data class Relasjonforsorget(
+        val relasjonforsikretperson: String? = null,
+        val beskrivelseannenslektning: String? = null
+)
+
+//P10000
+data class Livdoedinfo(
+   val dodsdato: String? = null,
+   val by: String? = null,
+   val land: String? = null,
+   val lever: String? = null,
+   val region: String? = null
+)
+
+//P10000
+data class AktivitetsinfoItem(
+    val antalltimer: String? = null,
+    val startdato: String? = null,
+    val sted: String? = null,
+    val ansattype: String? = null,
+    val sluttdato: String? = null
+)
+
+//P10000
+data class InfoarbeidsledigItem(
+    val startdato: String? = null,
+    val arbeidsledig: String? = null,
+    val sluttdato: String? = null
 )
 
 //P7000
@@ -203,7 +364,7 @@ data class TotalSum(
         var maaneder: String? = null
 )
 
-//P2000 - P2200
+//P2000 - P2200 - //P10000
 data class YtelserItem(
         var annenytelse: String? = null,
         var totalbruttobeloeparbeidsbasert: String? = null,
@@ -218,8 +379,18 @@ data class YtelserItem(
         var sluttdatoretttilytelse: String? = null,
         var sluttdatoutbetaling: String? = null,
         var status: String? = null,
-        var ytelseVedSykdom: String? = null //7.2 //P2100
+        var ytelseVedSykdom: String? = null, //7.2 //P2100
+
+        //P10000
+        val annenbetalingshyppighet: String? = null,
+        val datotyper: Datotyper? = null,
+        val anneninfoomytelsertekst: String? = null,
+        val tilleggsytelserutbetalingitilleggtilpensjon: String? = null,
+		val ytelsesdatoer: Ytelsesdatoer? = null,
+		val ytelsestype: String? = null
+
 )
+
 
 data class BeloepItem(
         var annenbetalingshyppighetytelse: String? = null,
@@ -268,7 +439,8 @@ data class Tilleggsinformasjon(
         var andreinstitusjoner: List<AndreinstitusjonerItem>? = null,
         var saksnummerAnnen: String? = null,
         var artikkel48: String? = null,
-        var opphoer: Opphoer? = null
+        var opphoer: Opphoer? = null,
+        val tilleggsopplysning: String? = null
 )
 
 data class AndreinstitusjonerItem(
