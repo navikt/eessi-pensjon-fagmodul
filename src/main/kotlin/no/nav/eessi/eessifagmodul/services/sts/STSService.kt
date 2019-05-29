@@ -35,7 +35,8 @@ class STSService(val securityTokenExchangeBasicAuthRestTemplate: RestTemplate) {
                     .build().toUriString()
 
             logger.info("Kaller STS for å bytte username/password til OIDC token")
-            val responseEntity = securityTokenExchangeBasicAuthRestTemplate.exchange(uri,
+            val responseEntity = securityTokenExchangeBasicAuthRestTemplate.exchange(
+                    uri,
                     HttpMethod.GET,
                     null,
                     typeRef<SecurityTokenResponse>())

@@ -140,7 +140,8 @@ class SedController(private val euxService: EuxService,
 
     @ApiOperation("Oppretter ny tom BUC i RINA via eux-api. ny api kall til eux")
     @PutMapping("/buc/{euxcaseid}/{deltaker}")
-    fun putBucDeltager(@PathVariable("euxcaseid", required = true) euxCaseId: String, @PathVariable("deltaker", required = true) deltaker: String): String {
+    fun putBucDeltager(@PathVariable("euxcaseid", required = true) euxCaseId: String, @PathVariable("deltaker", required = true) deltaker: String): Boolean {
+        //InstitusjonItem  /blafoobar/[{instusjoener}]
         return euxService.putBucDeltager(euxCaseId, deltaker)
     }
 

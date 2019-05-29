@@ -1,5 +1,6 @@
 package no.nav.eessi.eessifagmodul.services.eux
 
+import com.google.common.base.Preconditions
 import no.nav.eessi.eessifagmodul.models.*
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.Buc
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.BucAndSedView
@@ -448,7 +449,8 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
         }
     }
 
-    fun putBucDeltager(euxCaseId: String, deltaker: String): String {
+    fun putBucDeltager(euxCaseId: String, deltaker: String): Boolean {
+        Preconditions.checkArgument(deltaker.contains(":"), "ikke korrekt formater deltager/Institusjooonner... ")
         //curl -X PUT "https://eux-rina-api.nais.preprod.local/cpi/buc/167536/bucdeltakere?MottakerId=NO%3ANAVT002&KorrelasjonsId=122-1231-1231231-123123-123" -H "accept: */*"
 
         val correlationId = UUID.randomUUID().toString()
@@ -460,27 +462,25 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
 
 
         logger.debug("Kontakter EUX for å legge til deltager: $deltaker med korrelasjonId: $correlationId på buc: $euxCaseId")
-        try {
+         try {
             val response = euxOidcRestTemplate.exchange(
                     builder.toUriString(),
                     HttpMethod.PUT,
                     null,
                     String::class.java)
 
-            response.body?.let {
-                return it
-            } ?: throw IkkeFunnetException("Fant ikke noen caseid")
+           return response.statusCode == HttpStatus.OK
         } catch (ia: IllegalArgumentException) {
             logger.error("noe feil? exception ${ia.message}", ia)
             throw GenericUnprocessableEntity(ia.message!!)
         } catch (hx: HttpClientErrorException) {
-            logger.warn("Buc ClientException ${hx.message}", hx)
+            logger.warn("Deltager ClientException ${hx.message}", hx)
             throw hx
         } catch (sx: HttpServerErrorException) {
-            logger.error("Buc ClientException ${sx.message}", sx)
+            logger.error("Deltager ServerException ${sx.message}", sx)
             throw sx
         } catch (io: ResourceAccessException) {
-            logger.error("IO error fagmodul  ${io.message}", io)
+            logger.error("IO Error fagmodul  ${io.message}", io)
             throw IOException(io.message, io)
         } catch (ex: Exception) {
             logger.error("Annen uspesefikk feil oppstod mellom fagmodul og eux ${ex.message}", ex)

@@ -1,12 +1,11 @@
 package no.nav.eessi.eessifagmodul.services.eux
 
 import com.nhaarman.mockito_kotlin.*
+import com.sun.net.httpserver.Authenticator
 import no.nav.eessi.eessifagmodul.models.*
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.Buc
-import no.nav.eessi.eessifagmodul.utils.mapAnyToJson
-import no.nav.eessi.eessifagmodul.utils.mapJsonToAny
-import no.nav.eessi.eessifagmodul.utils.typeRefs
-import no.nav.eessi.eessifagmodul.utils.validateJson
+import no.nav.eessi.eessifagmodul.utils.*
+import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -23,10 +22,12 @@ import org.springframework.http.*
 import org.springframework.web.client.*
 import org.springframework.web.util.UriComponentsBuilder
 import java.io.IOException
+import java.lang.IllegalArgumentException
 import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
 import kotlin.String
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -412,6 +413,67 @@ class EuxServiceTest {
 
     }
 
+    @Test(expected = IllegalArgumentException::class)
+    fun callingEuxServicePutBucDeltager_WrongParticipantInput() {
+        service.putBucDeltager("126552","NO")
+    }
 
+    @Test(expected = HttpClientErrorException::class)
+    fun callingEuxServicePutBucDeltager_ClientError() {
+
+        val clientError = HttpClientErrorException.create(HttpStatus.UNAUTHORIZED, "Token authorization error", HttpHeaders(),"Token authorization error".toByteArray(),Charset.defaultCharset())
+        whenever(mockrestTemplate.exchange(
+                anyString(),
+                eq(HttpMethod.PUT),
+                eq(null),
+                eq(String::class.java))
+        ).thenThrow(clientError)
+
+        service.putBucDeltager("126552","NO:NAVT007")
+    }
+
+    @Test(expected = HttpServerErrorException::class)
+    fun putBucDeltager_ServerError(){
+
+        val serverError = HttpServerErrorException.create(HttpStatus.BAD_GATEWAY,"Server error",HttpHeaders(),"Server error".toByteArray(),Charset.defaultCharset())
+        whenever(mockrestTemplate.exchange(
+                anyString(),
+                eq(HttpMethod.PUT),
+                eq(null),
+                eq(String::class.java))
+        ).thenThrow(serverError)
+
+        service.putBucDeltager("122732","NO:NAVT02")
+    }
+
+    @Test(expected = IOException::class)
+    fun putBucDeltager_ResourceAccessError() {
+        whenever(mockrestTemplate.exchange(
+                anyString(),
+                eq(HttpMethod.PUT),
+                eq(null),
+                eq(String::class.java))
+        ).thenThrow(ResourceAccessException("I/O Error"))
+
+        service.putBucDeltager("122732","NO:NAVT02")
+    }
+
+
+    @Test
+    fun callingPutBucDeltager_OK() {
+
+        val theResponse = ResponseEntity.ok().body("")
+
+        whenever(mockrestTemplate.exchange(
+                anyString(),
+                eq(HttpMethod.PUT),
+                eq(null),
+                eq(String::class.java))
+        ).thenReturn(theResponse)
+
+        val result = service.putBucDeltager("122732","NO:NAVT005")
+        assertEquals(true,result)
+
+    }
 }
 
