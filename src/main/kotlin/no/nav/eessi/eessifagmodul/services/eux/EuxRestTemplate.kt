@@ -33,4 +33,5 @@ class EuxRestTemplate(private val oidcRequestContextHolder: OIDCRequestContextHo
                     requestFactory = BufferingClientHttpRequestFactory(SimpleClientHttpRequestFactory())
                 }
     }
+
 }

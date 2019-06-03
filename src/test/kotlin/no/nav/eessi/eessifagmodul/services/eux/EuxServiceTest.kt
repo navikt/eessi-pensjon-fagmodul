@@ -78,7 +78,7 @@ class EuxServiceTest {
         val httpEntity = HttpEntity(SED("P2000").toJson(), headers)
 
         whenever(mockrestTemplate.exchange(anyString(), eq(HttpMethod.POST), any(), eq(String::class.java))).thenReturn(response)
-        val result = service.opprettBucSed(SED("P2000"), "P_BUC_99", "NAVT003", "1234567")
+        val result = service.opprettBucSed(SED("P2000"), "P_BUC_99", "NO:NAVT003", "1234567")
 
         assertEquals("123456", result.caseId)
         assertEquals("2a427c10325c4b5eaf3c27ba5e8f1877", result.documentId)
@@ -90,14 +90,14 @@ class EuxServiceTest {
     fun `Calling EuxService| feiler med svar tilbake fra et kall til opprettBucSed`() {
         val errorresponse = ResponseEntity<String?>(HttpStatus.BAD_REQUEST)
         whenever(mockrestTemplate.exchange(anyString(), eq(HttpMethod.POST), any(), eq(String::class.java))).thenReturn(errorresponse)
-        service.opprettBucSed(SED("P2200"), "P_BUC_99", "NAVT003", "1231233")
+        service.opprettBucSed(SED("P2200"), "P_BUC_99", "NO:NAVT003", "1231233")
     }
 
     //opprett buc og sed feil med eux service
     @Test(expected = EuxServerException::class)
     fun `Calling EuxService| feiler med kontakt fra eux med kall til opprettBucSed`() {
         whenever(mockrestTemplate.exchange(anyString(), eq(HttpMethod.POST), any(), eq(String::class.java))).thenThrow(RuntimeException::class.java)
-        service.opprettBucSed(SED("P2000"), "P_BUC_99", "NAVT003", "213123")
+        service.opprettBucSed(SED("P2000"), "P_BUC_99", "NO:NAVT003", "213123")
     }
 
     @Test
@@ -331,6 +331,7 @@ class EuxServiceTest {
         val rinasakStr = String(Files.readAllBytes(Paths.get(rinasakerjson)))
         assertTrue(validateJson(rinasakStr))
 
+        //val bucjson = "src/test/resources/json/buc/buc-22909_v4.1.json"
         val bucjson = "src/test/resources/json/buc/buc-22909_v4.1.json"
         val bucStr = String(Files.readAllBytes(Paths.get(bucjson)))
         assertTrue(validateJson(bucStr))
@@ -341,11 +342,15 @@ class EuxServiceTest {
         val mockService: EuxService = Mockito.mock(EuxService::class.java)
 
         whenever(mockService.getRinasaker("12345678900")).thenReturn(orgRinasaker)
+
         whenever(mockService.getBucUtils("8877665511")).thenReturn(BucUtils(orgBuc))
 
         val result = service.getBucAndSedView("12345678900", "001122334455", null, null, mockService)
+
         assertNotNull(result)
+
         assertEquals(orgRinasaker.size, result.size)
+
 
     }
 

@@ -48,21 +48,17 @@ class PrefillService(private val euxService: EuxService, private val prefillSED:
      */
     @Throws(EuxServerException::class, RinaCasenrIkkeMottattException::class)
     fun prefillAndCreateSedOnNewCase(dataModel: PrefillDataModel): BucSedResponse {
-
         val data = prefillSed(dataModel)
-        val mottakerId = getFirstInstitution(data.institution)
-
-        return euxService.opprettBucSed(data.sed, data.buc, mottakerId, data.penSaksnummer)
+        val mottaker = getFirstInstitution(data.institution)
+        return euxService.opprettBucSed(data.sed, data.buc, "${mottaker.country}:${mottaker.institution}", data.penSaksnummer)
     }
 
     //muligens midlertidig metode for å sende kun en mottaker til EUX.
     //TODO: funksjon for å legge til flere mottaker (InstitusjonItem) til Rina/SED etter oppretting.
-    private fun getFirstInstitution(institutions: List<InstitusjonItem>): String {
-        institutions.forEach {
-            return it.institution ?: throw IkkeGyldigKallException("institujson kan ikke være tom")
-        }
-        throw IkkeGyldigKallException("Mangler mottaker register (InstitusjonItem)")
+    private fun getFirstInstitution(institutions: List<InstitusjonItem>): InstitusjonItem {
+        return institutions.first() ?: throw IkkeGyldigKallException("institujson kan ikke være tom")
     }
+
 
 
 }

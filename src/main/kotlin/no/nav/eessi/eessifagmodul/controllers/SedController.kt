@@ -2,14 +2,15 @@ package no.nav.eessi.eessifagmodul.controllers
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.swagger.annotations.ApiOperation
-import no.nav.eessi.eessifagmodul.models.*
+import no.nav.eessi.eessifagmodul.models.IkkeGyldigKallException
+import no.nav.eessi.eessifagmodul.models.InstitusjonItem
+import no.nav.eessi.eessifagmodul.models.SED
+import no.nav.eessi.eessifagmodul.models.SEDType
 import no.nav.eessi.eessifagmodul.prefill.PrefillDataModel
 import no.nav.eessi.eessifagmodul.services.PrefillService
 import no.nav.eessi.eessifagmodul.services.aktoerregister.AktoerregisterService
 import no.nav.eessi.eessifagmodul.services.eux.BucSedResponse
 import no.nav.eessi.eessifagmodul.services.eux.EuxService
-import no.nav.eessi.eessifagmodul.services.eux.Rinasak
-import no.nav.eessi.eessifagmodul.services.eux.bucmodel.BucAndSedView
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.ShortDocumentItem
 import no.nav.security.oidc.api.Protected
 import org.slf4j.LoggerFactory
@@ -22,7 +23,7 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/sed")
 class SedController(private val euxService: EuxService,
                     private val prefillService: PrefillService,
-                    private val aktoerregisterService: AktoerregisterService) {
+                    aktoerregisterService: AktoerregisterService) : AktoerIdHelper(aktoerregisterService) {
 
     private val logger = LoggerFactory.getLogger(SedController::class.java)
 
@@ -108,27 +109,6 @@ class SedController(private val euxService: EuxService,
         return euxService.getInstitutions(buctype, landkode).sorted()
     }
 
-
-    @ApiOperation("Henter ut en liste over saker på valgt aktoerid. ny api kall til eux")
-    @GetMapping("/rinasaker/{aktoerId}")
-    fun getRinasaker(@PathVariable("aktoerId", required = true) aktoerId: String): List<Rinasak> {
-        logger.debug("henter rinasaker på valgt aktoerid: $aktoerId")
-        val fnr = hentAktoerIdPin(aktoerId)
-        return euxService.getRinasaker(fnr)
-    }
-
-    //ny view call for bucogsed design pr 01.04-01.05)
-    @ApiOperation("Henter ut en json struktur for buc og sed menyliste for ui. ny api kall til eux")
-    @GetMapping("/{aktoerid}/bucdetaljer/", "/{aktoerid}/{sakid}/bucdetaljer/", "/{aktoerId}/{sakId}/{euxcaseid}/bucdetaljer/")
-    fun getBucogSedView(@PathVariable("aktoerid", required = true) aktoerid: String,
-                        @PathVariable("sakid", required = false) sakid: String? = "",
-                        @PathVariable("euxcaseid", required = false) euxcaseid: String? = ""): List<BucAndSedView> {
-
-        logger.debug("1 prøver å dekode til fnr fra aktoerid: $aktoerid")
-        val fnr = hentAktoerIdPin(aktoerid)
-        return euxService.getBucAndSedView(fnr, aktoerid, sakid, euxcaseid, euxService)
-    }
-
     //validatate request and convert to PrefillDataModel
     fun buildPrefillDataModelOnExisting(request: ApiRequest): PrefillDataModel {
         return when {
@@ -208,12 +188,6 @@ class SedController(private val euxService: EuxService,
             }
             else -> throw IkkeGyldigKallException("Mangler SED, eller ugyldig type SED")
         }
-    }
-
-    @Throws(AktoerregisterException::class)
-    fun hentAktoerIdPin(aktorid: String): String {
-        if (aktorid.isBlank()) throw IkkeGyldigKallException("Mangler AktorId")
-        return aktoerregisterService.hentGjeldendeNorskIdentForAktorId(aktorid)
     }
 
     //Samme som SedRequest i frontend-api
