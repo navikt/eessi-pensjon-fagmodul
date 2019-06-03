@@ -1,0 +1,73 @@
+## Følgende variabler må eksistere for å bruke denne propertyfilen:
+## - SRVPENSJON_USERNAME
+## - SRVPENSJON_PASSWORD
+## - OPENAM_SECRET
+
+FASIT_ENVIRONMENT_NAME: 'q2'
+
+eessi-pensjon-active-profiles: ${spring.profiles.active}
+
+#eux-rina-api_v1:
+eux-rina-api_v1:
+  url: 'https://eux-rina-api-q2.nais.preprod.local/cpi'
+#  url: 'https://eux-rina-api.nais.preprod.local/cpi'
+#  url: 'http://10.33.44.43:9090/cpi'
+#  url: 'https://eux-app.nais.preprod.local/cpi'
+
+virksomhet.person.v3:
+  endpointurl: 'https://wasapp-q2.adeo.no/tpsws/ws/Person/v3'
+  #  endpointurl: 'https://wasapp-t7.adeo.no/tpsws/ws/Person/v3'  # maskert-data
+  #  endpointurl: 'https://wasapp-t8.adeo.no/tpsws/ws/Person/v3' # prod-data
+
+aktoerregister.api.v1:
+  url: 'https://app-q2.adeo.no/aktoerregister/api/v1'
+  #  url: 'https://app-t8.adeo.no/aktoerregister/api/v1'
+
+pensjonsinformasjon:
+  url: 'https://wasapp-q2.adeo.no/pensjon-ws/api/pensjonsinformasjon/v1'
+  #  url: 'https://wasapp-t5.adeo.no/pensjon-ws/api/pensjonsinformasjon/v1'
+  #  url: 'https://wasapp-q1.adeo.no/pensjon-ws/api/pensjonsinformasjon/v1'
+
+requestsamlpolicy:
+  path: 'classpath:policy/requestSamlPolicyNoTransportBinding.xml'
+
+srveessipensjon:
+  username: '${SRVEESSIPENSJON_USERNAME}'
+  password: '${SRVEESSIPENSJON_PASSWORD_Q}'
+
+app:
+  name: 'DEVELOP'
+  version: '0.1'
+
+security-token-service-token:
+  url: 'https://security-token-service.nais.preprod.local/rest/v1/sts/token'
+  #  url: 'https://security-token-service-t10.nais.preprod.local/rest/v1/sts/token'
+
+securityTokenService:
+  url: 'https://sts-q2.preprod.local/SecurityTokenServiceProvider/'
+  #  url: 'https://sts-t4.test.local/SecurityTokenServiceProvider/'
+  #  url: 'https://sts-q1.preprod.local/SecurityTokenServiceProvider/'
+
+server:
+  servlet:
+    session:
+      timeout:  '2m'
+  port:         '8081'
+
+no.nav.security.oidc:
+  issuer.oidc:
+    discoveryurl: 'https://isso-q.adeo.no:443/isso/oauth2/.well-known/openid-configuration'
+    accepted_audience: 'security-token-service,freg-token-provider-p,freg-token-provider-t0,freg-token-provider-q4,eessi-fagmodul-q2,eessi-pensjon-frontend-api-fss-q2,ida-t,ida-q'
+  issuer.pesys:
+    discoveryurl: 'https://security-token-service.nais.preprod.local/rest/v1/sts/.well-known/openid-configuration'
+    accepted_audience: 'preprod.local,srveessipensjon,srvpensjon'
+
+http.proxy.parametername:
+
+management:
+  endpoints:
+    enabled-by-default: 'true'
+    jmx:
+      exposure.include: '*'
+    web:
+      exposure.include: '*'

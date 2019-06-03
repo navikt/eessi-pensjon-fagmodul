@@ -71,6 +71,11 @@ class BucUtils {
         return getBuc().attachments
     }
 
+    fun getStartDate(): LocalDate {
+        val date = getBuc().startDate
+        return getLocalDate(date)
+    }
+
     fun getLastDate(): LocalDate {
         val date = getBuc().lastUpdate
         return getLocalDate(date)
@@ -113,9 +118,20 @@ class BucUtils {
                 status = docuemntItem.status,
                 creationDate = docuemntItem.creationDate,
                 lastUpdate = getLocalDate(docuemntItem.lastUpdate),
+                participants = createParticipants(docuemntItem.conversations),
                 attachments = createShortAttachemnt(docuemntItem.attachments)
         )
     }
+
+    private fun createParticipants(conventions: List<ConversationsItem>?): List<ParticipantsItem?>? {
+
+        conventions?.forEach {
+            return it.participants
+        }
+
+        return null
+    }
+
 
     private fun createShortAttachemnt(attachments: List<Attachment>?): List<ShortAttachment> {
 

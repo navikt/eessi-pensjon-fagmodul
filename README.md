@@ -1,20 +1,33 @@
 EESSI Pensjon Fagmodul
 ======================
 
- -=<>=- Electronic Exchange of Social Security Information  -=<>=-
-
+#### -=<>=- Electronic Exchange of Social Security Information  -=<>=- ####
 
 # Utvikling
 
 ## Komme i gang
 
+git clone [url:denne repo]
+
+
 ```
 ./gradlew assemble
 ```
 
+##Systembruker
 legge systembruker 'srveessipensjon' og passord inn som systemverdier:
-SRVEESSI_PENSJON_USERNAME
-SRVEESSI_PENSJON_PASSWORD_T
+```
+SRVEESSIPENSJON_USERNAME
+```
+
+Benyttes under kjøring debug T8 miljø
+```
+SRVEESSIPENSJON_PASSWORD_T  
+```
+benyttes under kjøring debug Q2 miljø
+```
+SRVEESSIPENSJON_PASSWORD_Q  
+```
 
 
 ## Oppdatere avhengigheter
@@ -41,10 +54,22 @@ Dersom du er supertrygg på testene kan du forsøke en oppdatering av alle avhen
 
 ---
 
+
+Så er du klar til å starte EessiFagmodulApplication med VM option:
+
+```
+-Dspring.profiles.active=local
+```
+
+da benyttes application-local.yml ønskes det å debugge i Q2 må 
+application-local_Q2.yml enres til application-local.yml. 
+
+---
+
 # Henvendelser
 
 Spørsmål knyttet til koden eller prosjektet kan stilles som issues her på GitHub.
 
 ## For NAV-ansatte
 
-Interne henvendelser kan sendes via Slack i kanalen #eessi-pensjonpub.
+Interne henvendelser kan sendes via Slack i kanalen #eessi-pensj-utviklere.

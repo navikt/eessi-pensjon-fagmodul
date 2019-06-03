@@ -2,6 +2,7 @@ package no.nav.eessi.eessifagmodul.controllers
 
 import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.whenever
+import no.nav.eessi.eessifagmodul.services.aktoerregister.AktoerregisterService
 import no.nav.eessi.eessifagmodul.services.eux.BucUtils
 import no.nav.eessi.eessifagmodul.services.eux.EuxService
 import no.nav.eessi.eessifagmodul.services.eux.RinaAksjon
@@ -28,14 +29,16 @@ class BucControllerTest {
     @Mock
     lateinit var mockBucUtils: BucUtils
 
+    @Mock
+    lateinit var mockAktoerregisterService: AktoerregisterService
 
     private lateinit var bucController: BucController
 
     @Before
     fun GetItOn() {
-        this.bucController = BucController(mockEuxService)
+        this.bucController = BucController(mockEuxService, mockAktoerregisterService)
+        doReturn("12105033302").whenever(mockAktoerregisterService).hentGjeldendeNorskIdentForAktorId(ArgumentMatchers.anyString())
     }
-
 
     @Test
     fun getMuligeAksjonerUtenFilter() {
