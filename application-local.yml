@@ -32,8 +32,6 @@ pensjonsinformasjon:
 srveessipensjon:
   username: '${SRVEESSIPENSJON_USERNAME}'
   password: '${SRVEESSIPENSJON_PASSWORD_T}'
-#  username: 'srveessi-pensjon-j'
-#  password: 'hOOwhL1DiK8haER'
 
 app:
   name: 'DEVELOP'
