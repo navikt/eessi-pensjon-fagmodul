@@ -11,8 +11,13 @@ import org.junit.runners.Suite
         SedP2200Test::class,
         SedP3000noTest::class,
         SedP4000Test::class,
+        SedP4000fileTest::class,
         SedP5000Test::class,
         SedP6000Test::class,
         SedP7000Test::class,
-        SedP8000Test::class)
+        SedP8000Test::class,
+        SedP9000Test::class,
+        SedP10000Test::class,
+        SedP15000Test::class
+        )
 class SedTestSuite

@@ -42,7 +42,7 @@ data class Pensjon(
 		var institusjonennaaikkesoektompensjon: List<String>? = null,
 		var utsettelse: List<Utsettelse>? = null,
 
-        //P2000, P2100, P2200, P8000
+        //P2000, P2100, P2200, P8000?? Noen men ikke alle
 		var vedlegg: List<String>? = null,
 
 		var vedleggandre: String? = null,
@@ -57,7 +57,7 @@ data class Pensjon(
         //P7000
 		var samletVedtak: SamletMeldingVedtak? = null,
 
-		//P10000
+		//P10000 //P9000
 		val merinformasjon: Merinformasjon? = null
         )
 
@@ -102,11 +102,15 @@ data class Egenerklaering (
 		val dato: String? = null
 )
 
-//P10000
+//P10000 //P9000
 data class YrkesaktivItem(
 		val startdato: String? = null,
 		val yrkesstatus: String? = null,
-		val sluttdato: String? = null
+		val sluttdato: String? = null,
+
+		val yrke: String? = null,
+		val ansettelseforhold: String? = null,
+		val timerpruke: String? = null
 )
 
 //P10000
@@ -135,7 +139,7 @@ data class Datotyper (
 		val datokravytelse: String? = null
 )
 
-//P10000
+//P10000 //P9000
 data class InfoskolegangItem(
 		val typeskolegang: String? = null,
 		val startdatoskolegang: String? = null,
@@ -440,7 +444,55 @@ data class Tilleggsinformasjon(
         var saksnummerAnnen: String? = null,
         var artikkel48: String? = null,
         var opphoer: Opphoer? = null,
-        val tilleggsopplysning: String? = null
+        val tilleggsopplysning: String? = null,
+
+		//P9000
+		val p8000: RefP8000? = null,
+		val bekreftelseSed: List<BekreftelseSedItem>? = null,
+
+		val ikkeyrkesaktiv: String? = null,
+		val arbeidsledig: String? = null,
+		val negativtsvar: Negativtsvar? = null,
+
+		val vedlegginfo: String? = null,
+		val vedlegg: List<VedleggItem>? = null,
+
+		val yrkesaktivitet: Yrkesaktivitet? = null
+)
+
+data class VedleggItem(
+		val dokument: String? = null
+)
+
+data class BekreftelseSedItem(
+		val aarsak: String? = null,
+		val p8000ref: String? = null,
+		val grunn: String? = null,
+		//verder? 01,02 ??
+		val info: String? = null
+)
+
+//P9000
+data class RefP8000(
+		//verdier? 01, 02, 03???
+		val henvisningperson: String? = null,
+		val dato: String? = null
+)
+
+//P9000
+data class Negativtsvar(
+		val aarsakgrunn: String? = null,
+		val aarsakannen: String? = null,
+		val aarsakikkesendsed: String? = null,
+		val dokument: String? = null,
+		val informasjon: String? = null,
+		val bekreftelseinformasjon: String? = null,
+		val sed: String? = null
+)
+
+data class Yrkesaktivitet(
+		val ingenaktivtetinformasjon: String? = null,
+		val tilleggsopplysning: String? = null
 )
 
 data class AndreinstitusjonerItem(

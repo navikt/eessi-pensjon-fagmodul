@@ -13,7 +13,9 @@ data class Nav(
 )
 
 data class Krav(
-        var dato: String? = null
+        var dato: String? = null,
+        //P15000
+        var type: String? = null
 )
 
 data class Bruker(

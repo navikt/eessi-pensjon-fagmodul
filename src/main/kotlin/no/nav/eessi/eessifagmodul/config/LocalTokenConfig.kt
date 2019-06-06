@@ -7,5 +7,5 @@ import org.springframework.context.annotation.Profile
 
 @Import(TokenGeneratorConfiguration::class)
 @Configuration
-@Profile("local-fakeid")
+@Profile("local-test")
 class LocalTokenConfig

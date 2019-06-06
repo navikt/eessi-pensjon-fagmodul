@@ -1,0 +1,255 @@
+{
+  "nav" : {
+    "bruker" : {
+      "mor" : {
+        "person" : {
+          "etternavnvedfoedsel" : "yyy 2184",
+          "fornavn" : "yyy 2185"
+        }
+      },
+      "person" : {
+        "fornavn" : "Raus 212",
+        "sivilstand" : [ {
+          "status" : "separert",
+          "fradato" : "2019-05-15"
+        } ],
+        "kjoenn" : "M",
+        "etternavn" : "Hest 211",
+        "kontakt" : {
+          "email" : [ {
+            "adresse" : "notathome@home.online"
+          } ],
+          "telefon" : [ {
+            "nummer" : "0123456789 223112",
+            "type" : "mobil"
+          } ]
+        },
+        "foedselsdato" : "1919-04-19",
+        "tidligereetternavn" : "Tidligere etternavn fortsatt ukjent 2212",
+        "statsborgerskap" : [ {
+          "land" : "NO"
+        } ],
+        "pin" : [ {
+          "sektor" : "pensjoner",
+          "institusjonsnavn" : "12348, NAVT003, NO",
+          "identifikator" : "09041984799 - 21712",
+          "land" : "NO",
+          "institusjonsid" : "NO:NAVT003"
+        } ],
+        "foedested" : {
+          "region" : "trøndelag 21812",
+          "land" : "NO",
+          "by" : "levanger 21811"
+        },
+        "fornavnvedfoedsel" : "Raus 216",
+        "tidligerefornavn" : "Tidligere fornavn fortsatt ukjent 2213",
+        "etternavnvedfoedsel" : "Hest 215"
+      },
+      "adresse" : {
+        "region" : "Østlandet 2225",
+        "land" : "NO",
+        "gate" : "WT98 2221",
+        "bygning" : "Two Towers 2222",
+        "postnummer" : "0142 2224",
+        "by" : "Christiania 2223"
+      },
+      "bank" : {
+        "konto" : {
+          "innehaver" : {
+            "navn" : "kontohavers navn 1221",
+            "rolle" : "forsikret_person"
+          },
+          "sepa" : {
+            "iban" : "NO2082760100435"
+          }
+        }
+      },
+      "far" : {
+        "person" : {
+          "fornavn" : "xxx 2183",
+          "etternavnvedfoedsel" : "xxx 2182"
+        }
+      }
+    },
+    "annenperson" : {
+      "person" : {
+        "pinannen" : {
+          "identifikator" : "09041984799 91"
+        },
+        "kjoenn" : "K",
+        "tidligerefornavn" : "ukjent 3313",
+        "foedested" : {
+          "region" : "Trøndelag 32812",
+          "by" : "Trondheim 32811",
+          "land" : "NO"
+        },
+        "etternavn" : "Hesta 321",
+        "kontakt" : {
+          "email" : [ {
+            "adresse" : "ingen@online.no"
+          } ],
+          "telefon" : [ {
+            "nummer" : "465506 3321112",
+            "type" : "mobil"
+          } ]
+        },
+        "pin" : [ {
+          "sektor" : "pensjoner",
+          "institusjonsid" : "NO:NAVT003",
+          "identifikator" : "0101010202022 327112",
+          "institusjonsnavn" : "12348, NAVT003, NO",
+          "land" : "NO"
+        } ],
+        "fornavnvedfoedsel" : "Rausa 326",
+        "tidligereetternavn" : "ukjent 3312",
+        "rolle" : "02",
+        "etternavnvedfoedsel" : "Hesta 325",
+        "foedselsdato" : "1919-09-04",
+        "statsborgerskap" : [ {
+          "land" : "NO"
+        } ],
+        "fornavn" : "Rausa 322"
+      },
+      "adresse" : {
+        "postnummer" : "0512 814",
+        "bygning" : "bygget 812",
+        "land" : "NO",
+        "by" : "oslo 813",
+        "gate" : "gate 811"
+      },
+      "mor" : {
+        "person" : {
+          "etternavnvedfoedsel" : "yyy 3284",
+          "fornavnvedfoedsel" : "yyy 3285"
+        }
+      },
+      "far" : {
+        "person" : {
+          "fornavnvedfoedsel" : "xxx 3283",
+          "etternavnvedfoedsel" : "xxx 3282"
+        }
+      }
+    },
+    "verge" : {
+      "vergemaal" : {
+        "mandat" : "fritekst 112"
+      },
+      "adresse" : {
+        "by" : "by 1133",
+        "postnummer" : "Postnr 1134",
+        "gate" : "gate 1131",
+        "land" : "NO",
+        "region" : "reg 1135",
+        "bygning" : "Bygget 1132"
+      },
+      "vergenavn" : "ingen 111"
+    },
+    "eessisak" : [ {
+      "institusjonsid" : "NO:NAVT003",
+      "institusjonsnavn" : "12348, NAVT003, NO",
+      "saksnummer" : "22871555",
+      "land" : "NO"
+    } ]
+  },
+  "pensjon" : {
+    "merinformasjon" : {
+      "ytelser" : [ {
+        "tilleggsytelserutbetalingitilleggtilpensjon" : "fritekst 141114",
+        "ytelsesdatoer" : {
+          "datotyper" : {
+            "datokravytelse" : "1986-05-01",
+            "startdatoutbetaling" : "1986-06-20",
+            "startdatoretttilytelser" : "1986-06-01"
+          },
+          "annenytelse" : "ingen 141131"
+        },
+        "anneninfoomytelsertekst" : "fritekst 141116",
+        "beloep" : [ {
+          "beloep" : "14111311",
+          "gjeldendesiden" : "1986-01-01",
+          "betalingshyppighetytelse" : "03",
+          "annenbetalingshyppighetytelse" : "fritekst 141113151",
+          "valuta" : "NOK"
+        } ],
+        "ytelsestype" : "10",
+        "status" : "04"
+      } ],
+      "bruker" : {
+        "person" : {
+          "kontakt" : {
+            "telefon" : [ {
+              "nummer" : "001111 131112",
+              "type" : "mobil"
+            } ],
+            "email" : [ {
+              "adresse" : "one132111@online.com"
+            } ]
+          }
+        }
+      },
+      "yrkesaktiv" : [ {
+        "yrke" : "yrke 15115",
+        "timerpruke" : "15",
+        "ansettelseforhold" : "04",
+        "startdato" : "2018-06-03"
+      } ],
+      "infoskolegang" : [ {
+        "sluttdatoskolegang" : "1905-12-31",
+        "startdatoskolegang" : "1901-01-01",
+        "skolenavn" : "fritekst 7114",
+        "merinfoomskolegang" : "fritekst 7115"
+      } ],
+      "infoinntekt" : [ {
+        "tilleggsytelserutbetalingeritilleggtilinntekt" : "fritekst 16116",
+        "inntektellerikke" : "02",
+        "inntektskilde" : "fritekst 16112",
+        "ytterligereinfoinntekt" : "fritekst 16117"
+      } ],
+      "livdoedinfo" : {
+        "land" : "NO",
+        "by" : "ingen 631",
+        "lever" : "01",
+        "region" : "ingen 632"
+      },
+      "egenerklaering" : {
+        "dato" : "2019-05-14",
+        "egenerklaering" : "frihetserklæring 191"
+      }
+    },
+    "tilleggsinformasjon" : {
+      "negativtsvar" : {
+        "sed" : "PEN5000",
+        "aarsakgrunn" : "03",
+        "dokument" : "Gjeldsbrev",
+        "informasjon" : "følgende info 2011",
+        "aarsakikkesendsed" : "grunner 20.4.",
+        "bekreftelseinformasjon" : "skostørrelse 20.1.4.",
+        "aarsakannen" : "andre grunner 20.3.1."
+      },
+      "bekreftelseSed" : [ {
+        "grunn" : "fritekst 18114",
+        "aarsak" : "fritekst 18113",
+        "p8000ref" : "P8000 18111",
+        "info" : "01"
+      } ],
+      "p8000" : {
+        "henvisningperson" : "01",
+        "dato" : "2019-05-15"
+      },
+      "yrkesaktivitet" : {
+        "tilleggsopplysning" : "ytterligere info 21.1.",
+        "ingenaktivtetinformasjon" : "fritekst 154"
+      },
+      "vedlegginfo" : "Fritekst 52",
+      "ikkeyrkesaktiv" : "1",
+      "anneninformation" : "annen info 171",
+      "arbeidsledig" : "1",
+      "vedlegg" : [ {
+        "dokument" : "03"
+      } ]
+    }
+  },
+  "sedVer" : "1",
+  "sedGVer" : "4",
+  "sed" : "P9000"
+}
