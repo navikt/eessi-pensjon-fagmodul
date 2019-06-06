@@ -1,6 +1,7 @@
 package no.nav.eessi.eessifagmodul.controllers
 
 import io.swagger.annotations.ApiOperation
+import no.nav.eessi.eessifagmodul.models.Krav
 import no.nav.eessi.eessifagmodul.services.aktoerregister.AktoerregisterService
 import no.nav.eessi.eessifagmodul.services.eux.BucUtils
 import no.nav.eessi.eessifagmodul.services.eux.EuxService
@@ -115,6 +116,17 @@ class BucController(private val euxService: EuxService,
         return euxService.getBucAndSedView(fnr, aktoerid, sakid, euxcaseid, euxService)
 
     }
+
+    //ny knall for journalforing app henter ytelsetype ut ifra P15000
+    @ApiOperation("Henter ytelsetype fra P15000 på valt buc og documentid")
+    @GetMapping("/ytelseKravtype/{rinanr}/{documentid}")
+    fun getYtelseKravtype(@PathVariable("rinanr", required = true) rinanr: String,
+                          @PathVariable("documentid", required = false) documentid: String): Krav {
+
+        return euxService.hentYtelseKravtype(rinanr, documentid)
+
+    }
+
 
 
 

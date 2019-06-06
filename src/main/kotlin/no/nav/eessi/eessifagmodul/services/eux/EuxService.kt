@@ -522,6 +522,16 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
     }
 
 
+    //Henter ut Kravtype fra
+    fun hentYtelseKravtype(euxCaseId: String, documentId: String): Krav {
+        val sed = getSedOnBucByDocumentId(euxCaseId, documentId)
+        //validere om SED er vireklig en P15000
+        if (SEDType.P15000.name ==  sed.sed) {
+            return sed.nav?.krav ?: Krav()
+        }
+        throw SedDokumentIkkeGyldigException("SED ikke en P15000")
+    }
+
 
 
     //Eldre API kall er under denne disse vil ikke virke

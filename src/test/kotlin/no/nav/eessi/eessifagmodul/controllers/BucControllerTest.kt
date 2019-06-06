@@ -2,6 +2,7 @@ package no.nav.eessi.eessifagmodul.controllers
 
 import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.whenever
+import no.nav.eessi.eessifagmodul.models.*
 import no.nav.eessi.eessifagmodul.services.aktoerregister.AktoerregisterService
 import no.nav.eessi.eessifagmodul.services.eux.BucUtils
 import no.nav.eessi.eessifagmodul.services.eux.EuxService
@@ -71,8 +72,24 @@ class BucControllerTest {
         )
         val result = bucController.getMuligeAksjoner("12345666777", "P")
         assertEquals(3, result.size)
+    }
 
 
+    @Test
+    fun getYtelseKravtypeOk() {
+        //val mockSedKrav = SED(sed = "P15000", sedGVer = "4", sedVer = "1", nav = Nav(krav = Krav(dato = "2019-02-01", type = "01")))
+        val mockKrav = Krav(dato = "2019-02-01", type = "01")
+
+        doReturn(mockKrav).whenever(mockEuxService).
+                hentYtelseKravtype(
+                        ArgumentMatchers.anyString(),
+                        ArgumentMatchers.anyString()
+                )
+
+        val mockResult = bucController.getYtelseKravtype("12123", "3123123")
+
+        assertEquals("01", mockResult.type)
+        assertEquals("2019-02-01", mockResult.dato)
     }
 
 
