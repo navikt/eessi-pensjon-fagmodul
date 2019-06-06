@@ -118,7 +118,7 @@ class BucController(private val euxService: EuxService,
     }
 
     //ny knall for journalforing app henter ytelsetype ut ifra P15000
-    @ApiOperation("Henter ytelsetype fra P15000 på valt buc og documentid")
+    @ApiOperation("Henter ytelsetype fra P15000 på valgt Buc og Documentid")
     @GetMapping("/ytelseKravtype/{rinanr}/{documentid}")
     fun getYtelseKravtype(@PathVariable("rinanr", required = true) rinanr: String,
                           @PathVariable("documentid", required = false) documentid: String): Krav {
@@ -126,8 +126,6 @@ class BucController(private val euxService: EuxService,
         return euxService.hentYtelseKravtype(rinanr, documentid)
 
     }
-
-
 
 
     private fun getMuligeAksjonerFilter(list: List<RinaAksjon>, filter: String = ""): List<RinaAksjon> {
