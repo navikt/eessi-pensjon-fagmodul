@@ -50,11 +50,11 @@ class PrefillP2000MedIngendata : AbstractPrefillIntegrationTestHelper() {
     }
 
     override fun createPersonInfoPayLoad(): String {
-        return readJsonResponse("person_informasjon_selvb.json")
+        return readJsonResponse("other/person_informasjon_selvb.json")
     }
 
     override fun createPersonTrygdetidHistorikk(): String {
-        return readJsonResponse("p4000_trygdetid_part.json")
+        return readJsonResponse("other/p4000_trygdetid_part.json")
     }
 
     override fun opprettMockPersonDataTPS(): Set<PersonDataFromTPS.MockTPS>? {

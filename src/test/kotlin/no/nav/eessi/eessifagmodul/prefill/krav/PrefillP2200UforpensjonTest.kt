@@ -45,7 +45,7 @@ class PrefillP2200UforpensjonTest : AbstractPrefillIntegrationTestHelper() {
     }
 
     override fun createPersonInfoPayLoad(): String {
-        return readJsonResponse("person_informasjon_selvb.json")
+        return readJsonResponse("other/person_informasjon_selvb.json")
     }
 
     override fun createPersonTrygdetidHistorikk(): String {
