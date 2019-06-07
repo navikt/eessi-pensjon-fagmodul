@@ -143,7 +143,7 @@ class ExperimentController {
         val penSaksnr = request.sakId
         val sedObj = mockSED(request)
 
-        //sjekk opprett sed på ekisternede buc
+        //sjekk opprett sed på ekisternede type
         return if (request.euxCaseId != null) {
             val data = PrefillDataModel().apply {
                 penSaksnummer = penSaksnr
@@ -153,7 +153,7 @@ class ExperimentController {
             euxService.opprettSedOnBuc(data.sed, data.euxCaseID)
             data.euxCaseID
 
-            //sjekk opprett buc og sed
+            //sjekk opprett type og sed
         } else {
             val bucId = request.buc ?: throw IkkeGyldigKallException("Mangler BUC")
             val institutin = request.institutions ?: throw IkkeGyldigKallException("Mangler pensjonSaksnr")

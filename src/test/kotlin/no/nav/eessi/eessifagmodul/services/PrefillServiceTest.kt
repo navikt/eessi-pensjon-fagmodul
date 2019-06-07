@@ -6,11 +6,14 @@ import no.nav.eessi.eessifagmodul.models.*
 import no.nav.eessi.eessifagmodul.prefill.PrefillDataModel
 import no.nav.eessi.eessifagmodul.prefill.PrefillSED
 import no.nav.eessi.eessifagmodul.services.eux.BucSedResponse
+import no.nav.eessi.eessifagmodul.services.eux.BucUtils
 import no.nav.eessi.eessifagmodul.services.eux.EuxService
+import no.nav.eessi.eessifagmodul.services.eux.bucmodel.ShortDocumentItem
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
+import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnitRunner
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -35,21 +38,46 @@ class PrefillServiceTest {
 
     @Test
     fun `call prefillAndAddSedOnExistingCase| forventer euxCaseId og documentID, tilbake vellykket`() {
-        val mockBucResponse = BucSedResponse("1234567", "2a427c10325c4b5eaf3c27ba5e8f1877")
+
+        val euxCaseId = "12131234"
+        val docId = "2a427c10325c4b5eaf3c27ba5e8f1877"
 
         val dataModel = generatePrefillModel()
         val resultData = generatePrefillModel()
+
         resultData.sed = generateMockP2000(dataModel)
-        resultData.euxCaseID = "12131234"
+        resultData.euxCaseID = euxCaseId
 
+        //mock bucResponse
+        val mockBucResponse = BucSedResponse(euxCaseId, docId)
+
+        //mock prefill utfylling av sed
         whenever(mockPrefillSED.prefill(any())).thenReturn(resultData)
-        whenever(mockEuxService.opprettSedOnBuc(any(), any())).thenReturn(mockBucResponse)
 
+        //mock leggetil detalger
+        whenever(mockEuxService.addDeltagerInstitutions(any(), any())).thenReturn(true)
+
+        //mock shortdoc svar
+        val mockShortDoc = ShortDocumentItem(id = docId, type = "P2000", status = "Nadada")
+
+        //mock bucUtils
+        val mockbuc = Mockito.mock(BucUtils::class.java)
+
+        //mock find shortdoc from id
+        whenever(mockbuc.findDocument(docId)).thenReturn(mockShortDoc)
+
+        //mock bucutls return mocked bucdata
+        whenever(mockEuxService.getBucUtils(euxCaseId)).thenReturn(mockbuc)
+
+        //mock opprett SED on buc return mockBuc response
+        whenever(mockEuxService.opprettSedOnBuc(resultData.sed, euxCaseId)).thenReturn(mockBucResponse)
+
+        //run impl.
         val result = prefillService.prefillAndAddSedOnExistingCase(dataModel)
 
+        //assert result
         assertNotNull(result)
-        assertEquals("1234567", result.caseId)
-        assertEquals("2a427c10325c4b5eaf3c27ba5e8f1877", result.documentId)
+        assertEquals(docId, result.id)
 
     }
 
@@ -61,6 +89,9 @@ class PrefillServiceTest {
         resultData.sed = generateMockP2000(dataModel)
         resultData.euxCaseID = "12131234"
         whenever(mockPrefillSED.prefill(any())).thenReturn(resultData)
+
+        whenever(mockEuxService.addDeltagerInstitutions(any(), any())).thenReturn(true)
+
         whenever(mockEuxService.opprettSedOnBuc(any(), any())).thenThrow(SedDokumentIkkeOpprettetException::class.java)
 
         prefillService.prefillAndAddSedOnExistingCase(dataModel)
@@ -74,6 +105,9 @@ class PrefillServiceTest {
 
         resultData.euxCaseID = "12131234"
         whenever(mockPrefillSED.prefill(any())).thenReturn(resultData)
+
+        whenever(mockEuxService.addDeltagerInstitutions(any(), any())).thenReturn(true)
+
         whenever(mockEuxService.opprettSedOnBuc(any(), any())).thenThrow(EuxGenericServerException::class.java)
 
         prefillService.prefillAndAddSedOnExistingCase(dataModel)

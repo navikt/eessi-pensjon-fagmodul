@@ -58,17 +58,17 @@ class EuxServiceTest {
 
     @Test
     fun opprettUriComponentPath() {
-        val path = "/buc/{RinaSakId}/sed"
+        val path = "/type/{RinaSakId}/sed"
         val uriParams = mapOf("RinaSakId" to "12345")
         val builder = UriComponentsBuilder.fromUriString(path)
                 .queryParam("KorrelasjonsId", "c0b0c068-4f79-48fe-a640-b9a23bf7c920")
                 .buildAndExpand(uriParams)
         val str = builder.toUriString()
-        assertEquals("/buc/12345/sed?KorrelasjonsId=c0b0c068-4f79-48fe-a640-b9a23bf7c920", str)
+        assertEquals("/type/12345/sed?KorrelasjonsId=c0b0c068-4f79-48fe-a640-b9a23bf7c920", str)
     }
 
 
-    //opprett buc og sed ok
+    //opprett type og sed ok
     @Test
     fun `Calling EuxService| forventer korrekt svar tilbake fra et kall til opprettBucSed`() {
         val bucresp = BucSedResponse("123456", "2a427c10325c4b5eaf3c27ba5e8f1877")
@@ -86,7 +86,7 @@ class EuxServiceTest {
 
     }
 
-    //opprett buc og sed feiler ved oppreting
+    //opprett type og sed feiler ved oppreting
     @Test(expected = RinaCasenrIkkeMottattException::class)
     fun `Calling EuxService| feiler med svar tilbake fra et kall til opprettBucSed`() {
         val errorresponse = ResponseEntity<String?>(HttpStatus.BAD_REQUEST)
@@ -94,7 +94,7 @@ class EuxServiceTest {
         service.opprettBucSed(SED("P2200"), "P_BUC_99", "NO:NAVT003", "1231233")
     }
 
-    //opprett buc og sed feil med eux service
+    //opprett type og sed feil med eux service
     @Test(expected = EuxServerException::class)
     fun `Calling EuxService| feiler med kontakt fra eux med kall til opprettBucSed`() {
         whenever(mockrestTemplate.exchange(anyString(), eq(HttpMethod.POST), any(), eq(String::class.java))).thenThrow(RuntimeException::class.java)
@@ -160,7 +160,7 @@ class EuxServiceTest {
     }
 
 
-    //opprett sed på en valgt buc ok
+    //opprett sed på en valgt type ok
     @Test
     fun `Calling EuxService| forventer korrekt svar tilbake fra et kall til opprettSedOnBuc`() {
         val response: ResponseEntity<String> = ResponseEntity("323413415dfvsdfgq343145sdfsdfg34135", HttpStatus.OK)
@@ -172,7 +172,7 @@ class EuxServiceTest {
         assertEquals("323413415dfvsdfgq343145sdfsdfg34135", result.documentId)
     }
 
-    //opprett sed på en valgt buc, feiler ved oppreting
+    //opprett sed på en valgt type, feiler ved oppreting
     @Test(expected = SedDokumentIkkeOpprettetException::class)
     fun `Calling EuxService| feiler med svar tilbake fra et kall til opprettSedOnBuc`() {
         val errorresponse = ResponseEntity<String?>(HttpStatus.BAD_REQUEST)
@@ -180,7 +180,7 @@ class EuxServiceTest {
         service.opprettSedOnBuc(SED("P2200"), "1231233")
     }
 
-    //opprett sed på en valgt buc, feil med eux service
+    //opprett sed på en valgt type, feil med eux service
     @Test(expected = EuxGenericServerException::class)
     fun `Calling EuxService| feiler med kontakt fra eux med kall til opprettSedOnBuc`() {
         whenever(mockrestTemplate.exchange(anyString(), eq(HttpMethod.POST), any(), eq(String::class.java))).thenThrow(RuntimeException::class.java)
@@ -221,7 +221,7 @@ class EuxServiceTest {
         val documentId = "213213-123123-123123"
 
         doThrow(RuntimeException("error")).whenever(mockrestTemplate).exchange(
-                ArgumentMatchers.eq("/buc/${euxCaseId}/sed/${documentId}/send"),
+                ArgumentMatchers.eq("/type/${euxCaseId}/sed/${documentId}/send"),
                 ArgumentMatchers.any(HttpMethod::class.java),
                 ArgumentMatchers.eq(null),
                 ArgumentMatchers.eq(String::class.java)
@@ -262,11 +262,11 @@ class EuxServiceTest {
         service.sendDocumentById(euxCaseId, documentId)
     }
 
-    //opprett sed på en valgt buc, feil med eux service
+    //opprett sed på en valgt type, feil med eux service
     @Test(expected = EuxServerException::class)
     fun `Calling EuxService| feiler med kontakt fra eux med kall til sendDocumentById`() {
         doThrow(RuntimeException("error")).whenever(mockrestTemplate).exchange(
-                ArgumentMatchers.eq("/buc/1234567/sed/3123sfdf23-4324svfsdf324/send"),
+                ArgumentMatchers.eq("/type/1234567/sed/3123sfdf23-4324svfsdf324/send"),
                 ArgumentMatchers.any(HttpMethod::class.java),
                 ArgumentMatchers.eq(null),
                 ArgumentMatchers.eq(String::class.java)
@@ -332,7 +332,6 @@ class EuxServiceTest {
         val rinasakStr = String(Files.readAllBytes(Paths.get(rinasakerjson)))
         assertTrue(validateJson(rinasakStr))
 
-        //val bucjson = "src/test/resources/json/buc/buc-22909_v4.1.json"
         val bucjson = "src/test/resources/json/buc/buc-22909_v4.1.json"
         val bucStr = String(Files.readAllBytes(Paths.get(bucjson)))
         assertTrue(validateJson(bucStr))
@@ -522,8 +521,6 @@ class EuxServiceTest {
                 eq(null),
                 eq(String::class.java))
         ).thenReturn(response)
-
-        //val sed = getSedOnBucByDocumentId(euxCaseId, documentId)
 
         service.hentYtelseKravtype("1234567890","100001000010000")
     }

@@ -209,7 +209,7 @@ class UtilsTest {
 
         val result = datatClazzToMap(testData)
 
-        assertEquals(2, result.size)
+        assertEquals(3, result.size)
         assertEquals("No", result["country"])
 
     }

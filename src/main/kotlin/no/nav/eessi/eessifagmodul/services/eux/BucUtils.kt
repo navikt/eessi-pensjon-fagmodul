@@ -67,6 +67,15 @@ class BucUtils {
         return getBuc().documents ?: throw NoSuchFieldException("Fant ikke DocumentsItem")
     }
 
+    fun findDocument(documentId: String): ShortDocumentItem {
+        getAllDocuments().forEach {
+            if (documentId == it.id) {
+                return it
+            }
+        }
+        return ShortDocumentItem(id = documentId)
+    }
+
     fun getBucAttachments(): List<Attachment>? {
         return getBuc().attachments
     }
@@ -172,7 +181,7 @@ class BucUtils {
         return lists
     }
 
-    //hjelpefunkson for å hente ut list over alle documentid til valgt SEDType (kan ha flere docid i buc)
+    //hjelpefunkson for å hente ut list over alle documentid til valgt SEDType (kan ha flere docid i type)
     fun findDocmentIdBySedType(sedType: SEDType): List<String?> {
         val doclist = findAndFilterDocumentItemByType(sedType)
         return doclist.map { it.id }.toList()

@@ -1,6 +1,7 @@
 package no.nav.eessi.eessifagmodul.controllers
 
 import io.swagger.annotations.ApiOperation
+import no.nav.eessi.eessifagmodul.models.InstitusjonItem
 import no.nav.eessi.eessifagmodul.models.Krav
 import no.nav.eessi.eessifagmodul.services.aktoerregister.AktoerregisterService
 import no.nav.eessi.eessifagmodul.services.eux.BucUtils
@@ -14,10 +15,7 @@ import no.nav.eessi.eessifagmodul.services.eux.bucmodel.ShortDocumentItem
 import no.nav.eessi.eessifagmodul.utils.mapAnyToJson
 import no.nav.security.oidc.api.Protected
 import org.slf4j.LoggerFactory
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 
 @Protected
@@ -32,6 +30,7 @@ class BucController(private val euxService: EuxService,
     @ApiOperation("Henter opp hele BUC på valgt caseid")
     @GetMapping("/{rinanr}")
     fun getBuc(@PathVariable(value = "rinanr", required = true) rinanr: String): Buc {
+        logger.debug("Henter ut hele Buc data fra rina via eux-rina-api")
         return euxService.getBuc(rinanr)
     }
 
@@ -39,54 +38,48 @@ class BucController(private val euxService: EuxService,
     @GetMapping("/{rinanr}/name")
     fun getProcessDefinitionName(@PathVariable(value = "rinanr", required = true) rinanr: String): String? {
 
-        logger.debug("Henter ut definisjonsnavn (buc type) på valgt Buc")
-
+        logger.debug("Henter ut definisjonsnavn (type type) på valgt Buc")
         return getBucUtils(rinanr).getProcessDefinitionName()
     }
 
-    @ApiOperation("Henter opp den opprinelige inststusjon på valgt caseid (buc)")
+    @ApiOperation("Henter opp den opprinelige inststusjon på valgt caseid (type)")
     @GetMapping("/{rinanr}/creator")
     fun getCreator(@PathVariable(value = "rinanr", required = true) rinanr: String): Creator? {
 
         logger.debug("Henter ut Creator på valgt Buc")
-
         return getBucUtils(rinanr).getCreator()
     }
 
-    @ApiOperation("Henter opp den opprinelige inststusjon landkode på valgt caseid (buc)")
+    @ApiOperation("Henter opp den opprinelige inststusjon landkode på valgt caseid (type)")
     @GetMapping("/{rinanr}/creator/countryCode")
     fun getCreatorCountryCode(@PathVariable(value = "rinanr", required = true) rinanr: String): String? {
 
         logger.debug("Henter ut CountryCode på Creator på valgt Buc")
-
         return mapAnyToJson(getBucUtils(rinanr).getCreatorContryCode())
     }
 
-    @ApiOperation("Henter opp internationalid på caseid (buc)")
+    @ApiOperation("Henter opp internationalid på caseid (type)")
     @GetMapping("/{rinanr}/internationalId")
     fun getInternationalId(@PathVariable(value = "rinanr", required = true) rinanr: String): String? {
 
         logger.debug("Henter ut InternationalId på valgt Buc")
-
         return getBucUtils(rinanr).getInternatinalId()
     }
 
-    @ApiOperation("Henter opp den opprinelige inststusjon på valgt caseid (buc)")
+    @ApiOperation("Henter opp den opprinelige inststusjon på valgt caseid (type)")
     @GetMapping("/{rinanr}/allDocuments")
     fun getAllDocuments(@PathVariable(value = "rinanr", required = true) rinanr: String): List<ShortDocumentItem> {
 
-        logger.debug("Henter ut documentId på alle dokumenter som finnes på valgt buc")
-
+        logger.debug("Henter ut documentId på alle dokumenter som finnes på valgt type")
         return getBucUtils(rinanr).getAllDocuments()
     }
 
-    @ApiOperation("Henter opp mulige aksjon som kan utføres på valgt buc, filtert på sed starter med 'P'")
+    @ApiOperation("Henter opp mulige aksjon som kan utføres på valgt type, filtert på sed starter med 'P'")
     @GetMapping("/{rinanr}/aksjoner", "/{rinanr}/aksjoner/{filter}")
     fun getMuligeAksjoner(@PathVariable(value = "rinanr", required = true) rinanr: String,
                           @PathVariable(value = "filter", required = false) filter: String? = null): List<RinaAksjon> {
 
-        logger.debug("Henter ut muligeaksjoner på valgt buc")
-
+        logger.debug("Henter ut muligeaksjoner på valgt type")
         val list = getBucUtils(rinanr).getRinaAksjon()
         if (filter == null) {
             return list
@@ -104,14 +97,14 @@ class BucController(private val euxService: EuxService,
     }
 
     //ny view call for bucogsed design pr 01.04-01.05)
-    @ApiOperation("Henter ut en json struktur for buc og sed menyliste for ui. ny api kall til eux")
+    @ApiOperation("Henter ut en json struktur for type og sed menyliste for ui. ny api kall til eux")
     @GetMapping("/detaljer/{aktoerid}", "/detaljer/{aktoerid}/{sakid}", "/detaljer/{aktoerId}/{sakId}/{euxcaseid}")
     fun getBucogSedView(@PathVariable("aktoerid", required = true) aktoerid: String,
                         @PathVariable("sakid", required = false) sakid: String? = "",
                         @PathVariable("euxcaseid", required = false) euxcaseid: String? = ""): List<BucAndSedView> {
 
-        logger.debug("1 prøver å dekode til fnr fra aktoerid: $aktoerid")
 
+        logger.debug("1 prøver å dekode til fnr fra aktoerid: $aktoerid")
         val fnr = hentAktoerIdPin(aktoerid)
         return euxService.getBucAndSedView(fnr, aktoerid, sakid, euxcaseid, euxService)
 
@@ -123,8 +116,32 @@ class BucController(private val euxService: EuxService,
     fun getYtelseKravtype(@PathVariable("rinanr", required = true) rinanr: String,
                           @PathVariable("documentid", required = false) documentid: String): Krav {
 
+        logger.debug("Henter opp ytelseKravType fra P15000, feiler hvis ikke P15000")
         return euxService.hentYtelseKravtype(rinanr, documentid)
 
+    }
+
+    //flyttes to BucController
+    @ApiOperation("Oppretter ny tom BUC i RINA via eux-api. ny api kall til eux")
+    @PostMapping("/{buctype}")
+    fun createBuc(@PathVariable("buctype", required = true) buctype: String): BucAndSedView {
+        logger.debug("Prøver å opprette en ny BUC i RINA av type: $buctype")
+
+        //rinaid
+        val euxCaseId = euxService.createBuc(buctype)
+        logger.info("Mottatt følgende euxCaseId(RinaID): $euxCaseId")
+
+        //create bucDetail back from newly created buc call eux-rina-api to get data.
+        return euxService.createBucDetails(euxCaseId, "", euxService)
+
+    }
+
+    @ApiOperation("Oppretter nye deltaker(e) på valgt buc. ny api kall til eux")
+    @PutMapping("/deltaker/{euxcaseid}/{deltaker}")
+    fun putBucDeltager(@PathVariable("euxcaseid", required = true) euxCaseId: String, @PathVariable("deltaker", required = true) deltaker: List<InstitusjonItem>): Boolean {
+
+        logger.debug("Prøver å legger til deltaker på valgt buc")
+        return euxService.addDeltagerInstitutions(euxCaseId, deltaker)
     }
 
 

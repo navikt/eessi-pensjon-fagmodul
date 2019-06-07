@@ -91,29 +91,29 @@ class PensjonsinformasjonUtlandController(private val timingService: TimingServi
 
         val pesystime = timingService.timedStart("pesys_hentKravUtland")
         return if (bucId < 1000) {
-            logger.debug("henter ut buc fra mockMap<buc, KravUtland> som legges inn i mockPutKravFraUtland(key, KravUtland alt under 1000)")
+            logger.debug("henter ut type fra mockMap<type, KravUtland> som legges inn i mockPutKravFraUtland(key, KravUtland alt under 1000)")
             timingService.timesStop(pesystime)
             hentKravUtlandFraMap(bucId)
         } else {
-            logger.debug("henter ut buc fra mock SED, p2000, p3000, p4000 og p5000 (alle kall fra buc 1000..n.. er lik")
+            logger.debug("henter ut type fra mock SED, p2000, p3000, p4000 og p5000 (alle kall fra type 1000..n.. er lik")
 
             val seds = mapSeds(bucId)
             //finner rette hjelep metode for utfylling av KravUtland
             //ut ifra hvilke SED/saktype det gjelder.
             if (erAlderpensjon(seds)) {
-                logger.debug("buc er alderpensjon")
+                logger.debug("type er alderpensjon")
                 timingService.timesStop(pesystime)
                 getCounter("HENTKRAVUTLANDOK").increment()
                 kravAlderpensjonUtland(seds)
 
             } else if (erUforpensjon(seds)) {
-                logger.debug("buc er utføre")
+                logger.debug("type er utføre")
                 timingService.timesStop(pesystime)
                 getCounter("HENTKRAVUTLANDOK").increment()
                 kravUforepensjonUtland(seds)
 
             } else {
-                logger.debug("buc er gjenlevende")
+                logger.debug("type er gjenlevende")
                 timingService.timesStop(pesystime)
                 getCounter("HENTKRAVUTLANDOK").increment()
                 kravGjenlevendeUtland(seds)
@@ -288,7 +288,7 @@ class PensjonsinformasjonUtlandController(private val timingService: TimingServi
                             arbeidet = true,
                             bodd = false,
                             utlandPin = hentPinIdFraBoArbeidLand(p4000, landAlpha2),
-                            //kommer ut ifa avsenderLand (hvor orginal buc kommer ifra)
+                            //kommer ut ifa avsenderLand (hvor orginal type kommer ifra)
                             pensjonsordning = hentPensjonsOrdning(p4000, landAlpha2)
                     )
             )
@@ -417,12 +417,12 @@ class PensjonsinformasjonUtlandController(private val timingService: TimingServi
         return maps.get(sedType)
     }
 
-    //finne ut som buc er for P2000
+    //finne ut som type er for P2000
     private fun erAlderpensjon(maps: Map<SEDType, SED>): Boolean {
         return getSED(SEDType.P2000, maps) != null
     }
 
-    //finne ut som buc er for P2200
+    //finne ut som type er for P2200
     private fun erUforpensjon(maps: Map<SEDType, SED>): Boolean {
         return getSED(SEDType.P2200, maps) != null
     }
@@ -444,7 +444,7 @@ class PensjonsinformasjonUtlandController(private val timingService: TimingServi
 
         when (buc) {
             1050 -> {
-                logger.debug("henter ut SED data for buc: $buc og sedType: $sedType")
+                logger.debug("henter ut SED data for type: $buc og sedType: $sedType")
                 return when (sedType) {
                     SEDType.P2000 -> mockSed.mockP2000()
                     SEDType.P3000 -> {
@@ -457,7 +457,7 @@ class PensjonsinformasjonUtlandController(private val timingService: TimingServi
                 }
             }
             else -> {
-                logger.debug("henter ut SED data for buc: $buc og sedType: $sedType")
+                logger.debug("henter ut SED data for type: $buc og sedType: $sedType")
                 return when (sedType) {
                     SEDType.P2000 -> mockSed.mockP2000()
                     SEDType.P3000 -> mockSed.mockP3000NO()
