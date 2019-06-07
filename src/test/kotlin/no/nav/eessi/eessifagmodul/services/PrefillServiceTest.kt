@@ -43,6 +43,9 @@ class PrefillServiceTest {
         resultData.euxCaseID = "12131234"
 
         whenever(mockPrefillSED.prefill(any())).thenReturn(resultData)
+
+        whenever(mockEuxService.addDeltagerInstitutions(any(), any())).thenReturn(true)
+
         whenever(mockEuxService.opprettSedOnBuc(any(), any())).thenReturn(mockBucResponse)
 
         val result = prefillService.prefillAndAddSedOnExistingCase(dataModel)
@@ -61,6 +64,9 @@ class PrefillServiceTest {
         resultData.sed = generateMockP2000(dataModel)
         resultData.euxCaseID = "12131234"
         whenever(mockPrefillSED.prefill(any())).thenReturn(resultData)
+
+        whenever(mockEuxService.addDeltagerInstitutions(any(), any())).thenReturn(true)
+
         whenever(mockEuxService.opprettSedOnBuc(any(), any())).thenThrow(SedDokumentIkkeOpprettetException::class.java)
 
         prefillService.prefillAndAddSedOnExistingCase(dataModel)
@@ -74,6 +80,9 @@ class PrefillServiceTest {
 
         resultData.euxCaseID = "12131234"
         whenever(mockPrefillSED.prefill(any())).thenReturn(resultData)
+
+        whenever(mockEuxService.addDeltagerInstitutions(any(), any())).thenReturn(true)
+
         whenever(mockEuxService.opprettSedOnBuc(any(), any())).thenThrow(EuxGenericServerException::class.java)
 
         prefillService.prefillAndAddSedOnExistingCase(dataModel)

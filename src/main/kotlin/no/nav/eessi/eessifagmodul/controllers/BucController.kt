@@ -39,12 +39,12 @@ class BucController(private val euxService: EuxService,
     @GetMapping("/{rinanr}/name")
     fun getProcessDefinitionName(@PathVariable(value = "rinanr", required = true) rinanr: String): String? {
 
-        logger.debug("Henter ut definisjonsnavn (buc type) på valgt Buc")
+        logger.debug("Henter ut definisjonsnavn (type type) på valgt Buc")
 
         return getBucUtils(rinanr).getProcessDefinitionName()
     }
 
-    @ApiOperation("Henter opp den opprinelige inststusjon på valgt caseid (buc)")
+    @ApiOperation("Henter opp den opprinelige inststusjon på valgt caseid (type)")
     @GetMapping("/{rinanr}/creator")
     fun getCreator(@PathVariable(value = "rinanr", required = true) rinanr: String): Creator? {
 
@@ -53,7 +53,7 @@ class BucController(private val euxService: EuxService,
         return getBucUtils(rinanr).getCreator()
     }
 
-    @ApiOperation("Henter opp den opprinelige inststusjon landkode på valgt caseid (buc)")
+    @ApiOperation("Henter opp den opprinelige inststusjon landkode på valgt caseid (type)")
     @GetMapping("/{rinanr}/creator/countryCode")
     fun getCreatorCountryCode(@PathVariable(value = "rinanr", required = true) rinanr: String): String? {
 
@@ -62,7 +62,7 @@ class BucController(private val euxService: EuxService,
         return mapAnyToJson(getBucUtils(rinanr).getCreatorContryCode())
     }
 
-    @ApiOperation("Henter opp internationalid på caseid (buc)")
+    @ApiOperation("Henter opp internationalid på caseid (type)")
     @GetMapping("/{rinanr}/internationalId")
     fun getInternationalId(@PathVariable(value = "rinanr", required = true) rinanr: String): String? {
 
@@ -71,21 +71,21 @@ class BucController(private val euxService: EuxService,
         return getBucUtils(rinanr).getInternatinalId()
     }
 
-    @ApiOperation("Henter opp den opprinelige inststusjon på valgt caseid (buc)")
+    @ApiOperation("Henter opp den opprinelige inststusjon på valgt caseid (type)")
     @GetMapping("/{rinanr}/allDocuments")
     fun getAllDocuments(@PathVariable(value = "rinanr", required = true) rinanr: String): List<ShortDocumentItem> {
 
-        logger.debug("Henter ut documentId på alle dokumenter som finnes på valgt buc")
+        logger.debug("Henter ut documentId på alle dokumenter som finnes på valgt type")
 
         return getBucUtils(rinanr).getAllDocuments()
     }
 
-    @ApiOperation("Henter opp mulige aksjon som kan utføres på valgt buc, filtert på sed starter med 'P'")
+    @ApiOperation("Henter opp mulige aksjon som kan utføres på valgt type, filtert på sed starter med 'P'")
     @GetMapping("/{rinanr}/aksjoner", "/{rinanr}/aksjoner/{filter}")
     fun getMuligeAksjoner(@PathVariable(value = "rinanr", required = true) rinanr: String,
                           @PathVariable(value = "filter", required = false) filter: String? = null): List<RinaAksjon> {
 
-        logger.debug("Henter ut muligeaksjoner på valgt buc")
+        logger.debug("Henter ut muligeaksjoner på valgt type")
 
         val list = getBucUtils(rinanr).getRinaAksjon()
         if (filter == null) {
@@ -104,7 +104,7 @@ class BucController(private val euxService: EuxService,
     }
 
     //ny view call for bucogsed design pr 01.04-01.05)
-    @ApiOperation("Henter ut en json struktur for buc og sed menyliste for ui. ny api kall til eux")
+    @ApiOperation("Henter ut en json struktur for type og sed menyliste for ui. ny api kall til eux")
     @GetMapping("/detaljer/{aktoerid}", "/detaljer/{aktoerid}/{sakid}", "/detaljer/{aktoerId}/{sakId}/{euxcaseid}")
     fun getBucogSedView(@PathVariable("aktoerid", required = true) aktoerid: String,
                         @PathVariable("sakid", required = false) sakid: String? = "",

@@ -32,7 +32,7 @@ class PrefillService(private val euxService: EuxService, private val prefillSED:
     }
 
     /**
-    service function to prefill sed and call eux to put sed on existing buc
+    service function to prefill sed and call eux to put sed on existing type
      */
     @Throws(EuxGenericServerException::class, SedDokumentIkkeOpprettetException::class)
     fun prefillAndAddSedOnExistingCase(dataModel: PrefillDataModel): BucSedResponse {
@@ -40,7 +40,14 @@ class PrefillService(private val euxService: EuxService, private val prefillSED:
         val data = prefillSed(dataModel)
         val navSed = data.sed
 
-        return euxService.opprettSedOnBuc(navSed, data.euxCaseID)
+        val result = euxService.addDeltagerInstitutions(data.euxCaseID, data.institution)
+
+        if (result) {
+
+            return euxService.opprettSedOnBuc(navSed, data.euxCaseID)
+
+        }
+        throw SedDokumentIkkeOpprettetException("Feilet ved opprettelse av SED med deltagere")
     }
 
     /**

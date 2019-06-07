@@ -4,7 +4,7 @@ import no.nav.eessi.eessifagmodul.models.InstitusjonItem
 import java.time.LocalDate
 
 data class BucAndSedView(
-        val buc: String,
+        val type: String,
         val creator: InstitusjonItem,
         val caseId: String,
         val sakType: String? = null,

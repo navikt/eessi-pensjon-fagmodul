@@ -47,7 +47,8 @@ data class SED(
 //Data struktur for bruk av apirequest(frontend) og utfyllingdata (backend)
 data class InstitusjonItem(
         var country: String? = null,
-        var institution: String? = null
+        var institution: String? = null,
+        var name: String? = null
 )
 
 enum class SEDType {

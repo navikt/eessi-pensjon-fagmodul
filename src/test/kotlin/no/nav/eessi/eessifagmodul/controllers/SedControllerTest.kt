@@ -11,6 +11,9 @@ import no.nav.eessi.eessifagmodul.services.PrefillService
 import no.nav.eessi.eessifagmodul.services.aktoerregister.AktoerregisterService
 import no.nav.eessi.eessifagmodul.services.eux.BucSedResponse
 import no.nav.eessi.eessifagmodul.services.eux.EuxService
+import no.nav.eessi.eessifagmodul.utils.mapJsonToAny
+import no.nav.eessi.eessifagmodul.utils.typeRefs
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -49,9 +52,12 @@ class SedControllerTest {
     @Test
     fun `create frontend request`() {
         val json = "{\"institutions\":[{\"country\":\"NO\",\"institution\":\"DUMMY\"}],\"buc\":\"P_BUC_06\",\"sed\":\"P6000\",\"sakId\":\"123456\",\"aktoerId\":\"0105094340092\"}"
+
         //map json request back to FrontendRequest obj
         val map = jacksonObjectMapper()
         val req = map.readValue(json, SedController.ApiRequest::class.java)
+
+
         assertEquals("P_BUC_06", req.buc)
         assertEquals("DUMMY", req.institutions!![0].institution)
         assertEquals("123456", req?.sakId)
@@ -86,7 +92,7 @@ class SedControllerTest {
         utfyllMock.sed.nav = Nav(bruker = Bruker(person = Person(fornavn = "Dummy", etternavn = "Dummy", foedselsdato = "1900-10-11", kjoenn = "K")), krav = Krav("1937-12-11"))
         doReturn(utfyllMock).whenever(mockPrefillSED).prefill(any())
 
-        //mock opprett buc og sed til RINA
+        //mock opprett type og sed til RINA
         doReturn(mockResponse).whenever(mockEuxService).opprettBucSed(
                 any(),
                 any(),
@@ -105,7 +111,6 @@ class SedControllerTest {
         val bucresponse = BucSedResponse("123444455", "2a427c10325c4b5eaf3c27ba5e8f1877")
 
         val items = listOf(InstitusjonItem(country = "NO", institution = "DUMMY"))
-
         val requestMock = SedController.ApiRequest(
                 subjectArea = "Pensjon",
                 sakId = "EESSI-PEN-123",
@@ -124,6 +129,8 @@ class SedControllerTest {
         assertEquals("12345", utfyllMock.personNr)
 
         utfyllMock.sed.nav = Nav(bruker = Bruker(person = Person(fornavn = "Dummy", etternavn = "Dummy", foedselsdato = "1900-10-11", kjoenn = "K")), krav = Krav("1937-12-11"))
+
+        whenever(mockEuxService.addDeltagerInstitutions(any(), any())).thenReturn(true)
         whenever(mockPrefillSED.prefill(any())).thenReturn(utfyllMock)
         whenever(mockEuxService.opprettSedOnBuc(any(), any())).thenReturn(bucresponse)
 

@@ -32,7 +32,7 @@ data class KravUtland(
         //P2000
         var sivilstand: SkjemaFamilieforhold? = null,
 
-        //caseowner fra buc
+        //caseowner fra type
         var soknadFraLand: String? = null,
 
         //p2000

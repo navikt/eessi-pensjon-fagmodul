@@ -33,7 +33,7 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
     // https://eux-app.nais.preprod.local/swagger-ui.html#/eux-cpi-service-controller/
 
 
-    //Oppretter ny RINA sak(buc) og en ny Sed
+    //Oppretter ny RINA sak(type) og en ny Sed
     @Throws(EuxServerException::class, RinaCasenrIkkeMottattException::class)
     fun opprettBucSed(navSED: SED, bucType: String, mottakerid: String, fagSaknr: String): BucSedResponse {
         Preconditions.checkArgument(mottakerid.contains(":"), "format for mottaker er NN:ID")
@@ -77,7 +77,7 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
     }
 
 
-    //ny SED på ekisterende buc
+    //ny SED på ekisterende type
     @Throws(EuxGenericServerException::class, SedDokumentIkkeOpprettetException::class)
     fun opprettSedOnBuc(navSED: SED, euxCaseId: String): BucSedResponse {
         val path = "/buc/{RinaSakId}/sed"
@@ -185,7 +185,7 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
         return na
     }
 
-    //henter ut bucdata fra valgt buc/euxCaseId
+    //henter ut bucdata fra valgt type/euxCaseId
     @Throws(BucIkkeMottattException::class, EuxServerException::class)
     fun getBuc(euxCaseId: String): Buc {
         logger.info("har euxCaseId verdi: $euxCaseId")
@@ -223,7 +223,7 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
 
     //henter ut BucUtils med valgt Buc for diverse uthentinger..
     fun getBucUtils(euxCaseId: String): BucUtils {
-        logger.info("Prøver å hente ut en BucUtils for buc $euxCaseId")
+        logger.info("Prøver å hente ut en BucUtils for type $euxCaseId")
         return BucUtils(getBuc(euxCaseId))
     }
 
@@ -400,15 +400,17 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
 
     }
 
-
+    //make single bucDetails form rina/list or return when create buc
     fun createBucDetails(rinasak: Rinasak, aktoerid: String, euxService: EuxService): BucAndSedView {
-        val bucUtil = euxService.getBucUtils(rinasak.id!!)
+
+        val euxCaseId = rinasak.id!!
+        val bucUtil = euxService.getBucUtils(euxCaseId)
 
         val institusjonlist = mutableListOf<InstitusjonItem>()
         var parts: List<ParticipantsItem>? = null
         try {
             parts = bucUtil.getParticipants()
-            logger.debug("6 henter ut liste over deltagere på buc")
+            logger.debug("6 henter ut liste over deltagere på type")
 
             parts?.forEach {
                 institusjonlist.add(
@@ -423,17 +425,18 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
         }
         logger.debug("7 oppretter bucogsedview")
         val bucAndSedView = BucAndSedView(
-                buc = bucUtil.getProcessDefinitionName()!!,
+                type = bucUtil.getProcessDefinitionName()!!,
                 creator = InstitusjonItem(
                         country = bucUtil.getCreator()?.organisation?.countryCode,
-                        institution = bucUtil.getCreator()?.name
+                        institution = bucUtil.getCreator()?.organisation?.id,
+                        name = bucUtil.getCreator()?.name
                 ),
-                caseId = rinasak.id ?: "N/A",
+                caseId = euxCaseId,
                 sakType = "",
                 startDate = bucUtil.getStartDate(),
                 lastUpdate = bucUtil.getLastDate(),
                 aktoerId = aktoerid,
-                status = rinasak.status,
+                status = bucUtil.getBuc().status,
                 institusjon = institusjonlist.toList(),
                 seds = bucUtil.getAllDocuments()
         )
@@ -442,11 +445,17 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
         return bucAndSedView
     }
 
+    fun createRinasak(euxCaseId: String) : Rinasak {
+        return Rinasak(
+                id = euxCaseId,
+                status = "open" //new allwaus open,
+        )
+    }
+
     fun createBuc(bucType: String): String {
         //curl -X POST "https://eux-rina-api.nais.preprod.local/cpi/buc?BuCType=P_BUC_03&KorrelasjonsId=12333-33234234-2342342-234234" -H "accept: */*"
 
         val correlationId = UUID.randomUUID().toString()
-
         val builder = UriComponentsBuilder.fromPath("/buc")
                 .queryParam("BuCType", bucType)
                 .queryParam("KorrelasjonsId", correlationId)
@@ -484,7 +493,6 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
 
     fun putBucDeltager(euxCaseId: String, deltaker: String): Boolean {
         Preconditions.checkArgument(deltaker.contains(":"), "ikke korrekt formater deltager/Institusjooonner... ")
-        //curl -X PUT "https://eux-rina-api.nais.preprod.local/cpi/buc/167536/bucdeltakere?MottakerId=NO%3ANAVT002&KorrelasjonsId=122-1231-1231231-123123-123" -H "accept: */*"
 
         val correlationId = UUID.randomUUID().toString()
 
@@ -494,7 +502,7 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
                 .build()
 
 
-        logger.debug("Kontakter EUX for å legge til deltager: $deltaker med korrelasjonId: $correlationId på buc: $euxCaseId")
+        logger.debug("Kontakter EUX for å legge til deltager: $deltaker med korrelasjonId: $correlationId på type: $euxCaseId")
          try {
             val response = euxOidcRestTemplate.exchange(
                     builder.toUriString(),
@@ -521,8 +529,20 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
         }
     }
 
+    fun addDeltagerInstitutions(euxCaseId: String, mottaker: List<InstitusjonItem>) : Boolean {
+        try {
+            mottaker.forEach {
+                putBucDeltager(euxCaseId, "${it.country}:${it.institution}")
+            }
+            return true
+        } catch (ex: Exception) {
+            logger.error("Error legge til deltager/instutsjoner ved sed/Buc $euxCaseId", ex)
+        }
+        return false
+    }
 
-    //Henter ut Kravtype fra
+
+    //Henter ut Kravtype fra P15000
     fun hentYtelseKravtype(euxCaseId: String, documentId: String): Krav {
         val sed = getSedOnBucByDocumentId(euxCaseId, documentId)
         //validere om SED er vireklig en P15000

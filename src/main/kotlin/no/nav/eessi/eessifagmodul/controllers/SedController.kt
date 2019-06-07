@@ -11,6 +11,7 @@ import no.nav.eessi.eessifagmodul.services.PrefillService
 import no.nav.eessi.eessifagmodul.services.aktoerregister.AktoerregisterService
 import no.nav.eessi.eessifagmodul.services.eux.BucSedResponse
 import no.nav.eessi.eessifagmodul.services.eux.EuxService
+import no.nav.eessi.eessifagmodul.services.eux.bucmodel.BucAndSedView
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.ShortDocumentItem
 import no.nav.security.oidc.api.Protected
 import org.slf4j.LoggerFactory
@@ -43,7 +44,7 @@ class SedController(private val euxService: EuxService,
     fun sendSed(@PathVariable("euxcaseid", required = true) euxCaseId: String,
                 @PathVariable("documentid", required = true) documentid: String): Boolean {
 
-        logger.info("kaller /buc/${euxCaseId}/sed/${documentid}/send med request: $euxCaseId / $documentid")
+        logger.info("kaller /type/${euxCaseId}/sed/${documentid}/send med request: $euxCaseId / $documentid")
         return euxService.sendDocumentById(euxCaseId, documentid)
 
     }
@@ -82,20 +83,20 @@ class SedController(private val euxService: EuxService,
     @ApiOperation("Kjører prosess OpprettBuCogSED på EUX for å få opprette et RINA dokument med en SED, ny api kall til eux")
     @PostMapping("/buc/create")
     fun createDocument(@RequestBody request: ApiRequest): BucSedResponse {
-        logger.info("kaller buc/create med request: $request")
+        logger.info("kaller type/create med request: $request")
         return prefillService.prefillAndCreateSedOnNewCase(buildPrefillDataModelOnNew(request))
 
     }
 
     //** oppdatert i api 18.02.2019 -- går ut da den nå likker i BuController
-    @ApiOperation("Henter ut en liste av documents på valgt buc. ny api kall til eux")
+    @ApiOperation("Henter ut en liste av documents på valgt type. ny api kall til eux")
     @GetMapping("/buc/{euxcaseid}/shortdocumentslist")
     fun getShortDocumentList(@PathVariable("euxcaseid", required = true) euxcaseid: String): List<ShortDocumentItem> {
-        logger.info("kaller /buc/${euxcaseid}/documents ")
+        logger.info("kaller /type/${euxcaseid}/documents ")
         return euxService.getBucUtils(euxcaseid).getAllDocuments()
     }
 
-    @ApiOperation("henter ut en liste av SED fra en valgt buc, men bruk av sedType. ny api kall til eux")
+    @ApiOperation("henter ut en liste av SED fra en valgt type, men bruk av sedType. ny api kall til eux")
     @GetMapping("/{euxcaseid}/{sedtype}/list")
     fun getDocumentlist(@PathVariable("euxcaseid", required = true) euxcaseid: String,
                         @PathVariable("sedtype", required = false) sedType: String?): List<SED> {
@@ -112,9 +113,15 @@ class SedController(private val euxService: EuxService,
   
     @ApiOperation("Oppretter ny tom BUC i RINA via eux-api. ny api kall til eux")
     @PostMapping("/buc/{buctype}")
-    fun createBuc(@PathVariable("buctype", required = true) buctype: String): String {
+    fun createBuc(@PathVariable("buctype", required = true) buctype: String): BucAndSedView {
         logger.debug("Prøver å opprette en ny BUC i RINA av type: $buctype")
-        return euxService.createBuc(buctype)
+
+        //rinaid
+        val euxCaseId = euxService.createBuc(buctype)
+
+        //aktoerid is allways blank?
+        return euxService.createBucDetails(euxService.createRinasak(euxCaseId), "",  euxService)
+
     }
 
     @ApiOperation("Oppretter ny tom BUC i RINA via eux-api. ny api kall til eux")
@@ -133,6 +140,7 @@ class SedController(private val euxService: EuxService,
             request.sed == null -> throw IkkeGyldigKallException("Mangler SED")
             request.aktoerId == null -> throw IkkeGyldigKallException("Mangler AktoerID")
             request.euxCaseId == null -> throw IkkeGyldigKallException("Mangler euxCaseId (RINANR)")
+            request.institutions == null -> throw IkkeGyldigKallException("Mangler Institusjoner")
 
             SEDType.isValidSEDType(request.sed) -> {
                 println("ALL SED on existin Rina -> SED: ${request.sed} -> euxCaseId: ${request.sakId}")
@@ -143,7 +151,7 @@ class SedController(private val euxService: EuxService,
                     aktoerID = request.aktoerId
                     personNr = pinid
                     euxCaseID = request.euxCaseId
-
+                    institution = request.institutions
                     vedtakId = request.vedtakId ?: ""
                     partSedAsJson[request.sed] = request.payload ?: ""
                     skipSedkey = request.skipSEDkey ?: listOf()
