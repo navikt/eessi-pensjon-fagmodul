@@ -5,6 +5,7 @@ import no.nav.eessi.eessifagmodul.prefill.PrefillDataModel
 import no.nav.eessi.eessifagmodul.prefill.PrefillSED
 import no.nav.eessi.eessifagmodul.services.eux.BucSedResponse
 import no.nav.eessi.eessifagmodul.services.eux.EuxService
+import no.nav.eessi.eessifagmodul.services.eux.bucmodel.ShortDocumentItem
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
@@ -35,7 +36,7 @@ class PrefillService(private val euxService: EuxService, private val prefillSED:
     service function to prefill sed and call eux to put sed on existing type
      */
     @Throws(EuxGenericServerException::class, SedDokumentIkkeOpprettetException::class)
-    fun prefillAndAddSedOnExistingCase(dataModel: PrefillDataModel): BucSedResponse {
+    fun prefillAndAddSedOnExistingCase(dataModel: PrefillDataModel): ShortDocumentItem {
 
         val data = prefillSed(dataModel)
         val navSed = data.sed
@@ -43,8 +44,9 @@ class PrefillService(private val euxService: EuxService, private val prefillSED:
         val result = euxService.addDeltagerInstitutions(data.euxCaseID, data.institution)
 
         if (result) {
+            val docresult = euxService.opprettSedOnBuc(navSed, data.euxCaseID)
 
-            return euxService.opprettSedOnBuc(navSed, data.euxCaseID)
+            return euxService.getBucUtils(docresult.caseId).findDocument(docresult.documentId)
 
         }
         throw SedDokumentIkkeOpprettetException("Feilet ved opprettelse av SED med deltagere")

@@ -73,8 +73,9 @@ class SedController(private val euxService: EuxService,
     //** oppdatert i api 18.02.2019
     @ApiOperation("legge til SED på et eksisterende Rina document. kjører preutfylling, ny api kall til eux")
     @PostMapping("/add")
-    fun addDocument(@RequestBody request: ApiRequest): BucSedResponse {
+    fun addDocument(@RequestBody request: ApiRequest): ShortDocumentItem {
         logger.info("kaller add med request: $request")
+
         return prefillService.prefillAndAddSedOnExistingCase(buildPrefillDataModelOnExisting(request))
 
     }
@@ -110,7 +111,8 @@ class SedController(private val euxService: EuxService,
         return euxService.getInstitutions(buctype, landkode).sorted()
     }
 
-  
+
+    //flyttes to BucController
     @ApiOperation("Oppretter ny tom BUC i RINA via eux-api. ny api kall til eux")
     @PostMapping("/buc/{buctype}")
     fun createBuc(@PathVariable("buctype", required = true) buctype: String): BucAndSedView {

@@ -67,6 +67,15 @@ class BucUtils {
         return getBuc().documents ?: throw NoSuchFieldException("Fant ikke DocumentsItem")
     }
 
+    fun findDocument(documentId: String): ShortDocumentItem {
+        getAllDocuments().forEach {
+            if (documentId == it.id) {
+                return it
+            }
+        }
+        return ShortDocumentItem(id = documentId)
+    }
+
     fun getBucAttachments(): List<Attachment>? {
         return getBuc().attachments
     }

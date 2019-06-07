@@ -10,7 +10,7 @@
 
     Pensjoninformasjon              : ${pensjonsinformasjon.url}
     Aktoerregister                  : ${aktoerregister.api.v1.url}
-    EUXBasis                        : ${eessipen-eux-rina.url}
+    EUXBasis                        : ${eux-rina-api_v1.url}
     Person_v3                       : ${virksomhet.person.v3.endpointurl}
 
     ISSO Tokensupport OIDC          : ${no.nav.security.oidc.issuer.oidc.discoveryurl}

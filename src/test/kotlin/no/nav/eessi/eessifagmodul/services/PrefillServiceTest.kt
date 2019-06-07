@@ -6,11 +6,14 @@ import no.nav.eessi.eessifagmodul.models.*
 import no.nav.eessi.eessifagmodul.prefill.PrefillDataModel
 import no.nav.eessi.eessifagmodul.prefill.PrefillSED
 import no.nav.eessi.eessifagmodul.services.eux.BucSedResponse
+import no.nav.eessi.eessifagmodul.services.eux.BucUtils
 import no.nav.eessi.eessifagmodul.services.eux.EuxService
+import no.nav.eessi.eessifagmodul.services.eux.bucmodel.ShortDocumentItem
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
+import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnitRunner
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -46,13 +49,19 @@ class PrefillServiceTest {
 
         whenever(mockEuxService.addDeltagerInstitutions(any(), any())).thenReturn(true)
 
+
+        val mockShortDoc = ShortDocumentItem(id = "2a427c10325c4b5eaf3c27ba5e8f1877", type = "P6000", status = "Nadada")
+        val mockbuc = Mockito.mock(BucUtils::class.java)
+        whenever(mockbuc.findDocument(any())).thenReturn(mockShortDoc)
+        whenever(mockEuxService.getBucUtils(any())).thenReturn(mockbuc)
+
         whenever(mockEuxService.opprettSedOnBuc(any(), any())).thenReturn(mockBucResponse)
 
         val result = prefillService.prefillAndAddSedOnExistingCase(dataModel)
 
         assertNotNull(result)
-        assertEquals("1234567", result.caseId)
-        assertEquals("2a427c10325c4b5eaf3c27ba5e8f1877", result.documentId)
+        assertEquals("2a427c10325c4b5eaf3c27ba5e8f1877", result.id)
+        //assertEquals("1234567", result.)
 
     }
 

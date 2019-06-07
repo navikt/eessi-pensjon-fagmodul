@@ -10,7 +10,11 @@ import no.nav.eessi.eessifagmodul.prefill.PrefillSED
 import no.nav.eessi.eessifagmodul.services.PrefillService
 import no.nav.eessi.eessifagmodul.services.aktoerregister.AktoerregisterService
 import no.nav.eessi.eessifagmodul.services.eux.BucSedResponse
+import no.nav.eessi.eessifagmodul.services.eux.BucUtils
 import no.nav.eessi.eessifagmodul.services.eux.EuxService
+import no.nav.eessi.eessifagmodul.services.eux.bucmodel.Buc
+import no.nav.eessi.eessifagmodul.services.eux.bucmodel.DocumentsItem
+import no.nav.eessi.eessifagmodul.services.eux.bucmodel.ShortDocumentItem
 import no.nav.eessi.eessifagmodul.utils.mapJsonToAny
 import no.nav.eessi.eessifagmodul.utils.typeRefs
 import org.junit.After
@@ -19,6 +23,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers
 import org.mockito.Mock
+import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnitRunner
 import org.springframework.web.util.UriComponentsBuilder
 import kotlin.test.assertEquals
@@ -130,13 +135,22 @@ class SedControllerTest {
 
         utfyllMock.sed.nav = Nav(bruker = Bruker(person = Person(fornavn = "Dummy", etternavn = "Dummy", foedselsdato = "1900-10-11", kjoenn = "K")), krav = Krav("1937-12-11"))
 
+        val mockShortDoc = ShortDocumentItem(id = "2a427c10325c4b5eaf3c27ba5e8f1877", type = "P6000", status = "Nadada")
+        //val buc = Buc(id = "123123", documents = listOf(DocumentsItem(id = "2a427c10325c4b5eaf3c27ba5e8f1877", type = "P6000", status = "Nada")))
+
         whenever(mockEuxService.addDeltagerInstitutions(any(), any())).thenReturn(true)
         whenever(mockPrefillSED.prefill(any())).thenReturn(utfyllMock)
         whenever(mockEuxService.opprettSedOnBuc(any(), any())).thenReturn(bucresponse)
 
+        val mockbuc = Mockito.mock(BucUtils::class.java)
+
+        whenever(mockbuc.findDocument(any())).thenReturn(mockShortDoc)
+        whenever(mockEuxService.getBucUtils(any())).thenReturn(mockbuc)
+
+
         val response = sedController.addDocument(requestMock)
-        assertEquals("123444455", response.caseId)
-        assertEquals("2a427c10325c4b5eaf3c27ba5e8f1877", response.documentId)
+        //assertEquals("123444455", response.caseId)
+        assertEquals("2a427c10325c4b5eaf3c27ba5e8f1877", response.id)
     }
 
     @Test
