@@ -1,5 +1,6 @@
 FASIT_ENVIRONMENT_NAME: 'test'
 
+
 eessi-pensjon-active-profiles: ${spring.profiles.active}
 
 #eux-rina-api_v1:
@@ -36,3 +37,7 @@ eessi:
   pensjon_adresse_by:   'Oslo'
   pensjon_adresse_postnummer: '0607'
   pensjon_adresse_land: 'NO'
+
+spring:
+  profiles:
+    active: 'local-test'

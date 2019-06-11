@@ -38,30 +38,46 @@ class PrefillServiceTest {
 
     @Test
     fun `call prefillAndAddSedOnExistingCase| forventer euxCaseId og documentID, tilbake vellykket`() {
-        val mockBucResponse = BucSedResponse("1234567", "2a427c10325c4b5eaf3c27ba5e8f1877")
+
+        val euxCaseId = "12131234"
+        val docId = "2a427c10325c4b5eaf3c27ba5e8f1877"
 
         val dataModel = generatePrefillModel()
         val resultData = generatePrefillModel()
-        resultData.sed = generateMockP2000(dataModel)
-        resultData.euxCaseID = "12131234"
 
+        resultData.sed = generateMockP2000(dataModel)
+        resultData.euxCaseID = euxCaseId
+
+        //mock bucResponse
+        val mockBucResponse = BucSedResponse(euxCaseId, docId)
+
+        //mock prefill utfylling av sed
         whenever(mockPrefillSED.prefill(any())).thenReturn(resultData)
 
+        //mock leggetil detalger
         whenever(mockEuxService.addDeltagerInstitutions(any(), any())).thenReturn(true)
 
+        //mock shortdoc svar
+        val mockShortDoc = ShortDocumentItem(id = docId, type = "P2000", status = "Nadada")
 
-        val mockShortDoc = ShortDocumentItem(id = "2a427c10325c4b5eaf3c27ba5e8f1877", type = "P6000", status = "Nadada")
+        //mock bucUtils
         val mockbuc = Mockito.mock(BucUtils::class.java)
-        whenever(mockbuc.findDocument(any())).thenReturn(mockShortDoc)
-        whenever(mockEuxService.getBucUtils(any())).thenReturn(mockbuc)
 
-        whenever(mockEuxService.opprettSedOnBuc(any(), any())).thenReturn(mockBucResponse)
+        //mock find shortdoc from id
+        whenever(mockbuc.findDocument(docId)).thenReturn(mockShortDoc)
 
+        //mock bucutls return mocked bucdata
+        whenever(mockEuxService.getBucUtils(euxCaseId)).thenReturn(mockbuc)
+
+        //mock opprett SED on buc return mockBuc response
+        whenever(mockEuxService.opprettSedOnBuc(resultData.sed, euxCaseId)).thenReturn(mockBucResponse)
+
+        //run impl.
         val result = prefillService.prefillAndAddSedOnExistingCase(dataModel)
 
+        //assert result
         assertNotNull(result)
-        assertEquals("2a427c10325c4b5eaf3c27ba5e8f1877", result.id)
-        //assertEquals("1234567", result.)
+        assertEquals(docId, result.id)
 
     }
 

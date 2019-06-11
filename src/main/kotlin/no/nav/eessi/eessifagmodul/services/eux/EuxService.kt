@@ -382,9 +382,8 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
         val list = mutableListOf<BucAndSedView>()
 
         rinasaker.forEach {
-
-            list.add(createBucDetails(it, aktoerid, euxService))
-
+            val caseId = it.id ?: throw IkkeGyldigKallException("Feil er ikke gyldig caseId fra Rina(Rinasak)")
+            list.add(createBucDetails(caseId, aktoerid, euxService))
         }
         logger.debug("9 ferdig returnerer list av BucAndSedView. Antall BUC: ${list.size}")
 
@@ -401,16 +400,15 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
     }
 
     //make single bucDetails form rina/list or return when create buc
-    fun createBucDetails(rinasak: Rinasak, aktoerid: String, euxService: EuxService): BucAndSedView {
+    fun createBucDetails(euxCaseId: String, aktoerid: String, euxService: EuxService): BucAndSedView {
 
-        val euxCaseId = rinasak.id!!
         val bucUtil = euxService.getBucUtils(euxCaseId)
 
         val institusjonlist = mutableListOf<InstitusjonItem>()
         var parts: List<ParticipantsItem>? = null
         try {
             parts = bucUtil.getParticipants()
-            logger.debug("6 henter ut liste over deltagere på type")
+            logger.debug(" Henter ut liste over deltagere på type")
 
             parts?.forEach {
                 institusjonlist.add(
@@ -423,7 +421,7 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
         } catch (ex: Exception) {
             logger.debug("Ingen meldlemmer i BUC")
         }
-        logger.debug("7 oppretter bucogsedview")
+        logger.debug(" oppretter bucogsedview")
         val bucAndSedView = BucAndSedView(
                 type = bucUtil.getProcessDefinitionName()!!,
                 creator = InstitusjonItem(
@@ -445,15 +443,7 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
         return bucAndSedView
     }
 
-    fun createRinasak(euxCaseId: String) : Rinasak {
-        return Rinasak(
-                id = euxCaseId,
-                status = "open" //new allwaus open,
-        )
-    }
-
     fun createBuc(bucType: String): String {
-        //curl -X POST "https://eux-rina-api.nais.preprod.local/cpi/buc?BuCType=P_BUC_03&KorrelasjonsId=12333-33234234-2342342-234234" -H "accept: */*"
 
         val correlationId = UUID.randomUUID().toString()
         val builder = UriComponentsBuilder.fromPath("/buc")
@@ -537,8 +527,8 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
             return true
         } catch (ex: Exception) {
             logger.error("Error legge til deltager/instutsjoner ved sed/Buc $euxCaseId", ex)
+            throw ex
         }
-        return false
     }
 
 
