@@ -8,7 +8,6 @@ import no.nav.eessi.eessifagmodul.prefill.PrefillSED
 import no.nav.eessi.eessifagmodul.services.eux.BucSedResponse
 import no.nav.eessi.eessifagmodul.services.eux.BucUtils
 import no.nav.eessi.eessifagmodul.services.eux.EuxService
-import no.nav.eessi.eessifagmodul.services.eux.bucmodel.ParticipantsItem
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.Buc
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.ParticipantsItem
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.ShortDocumentItem
@@ -172,8 +171,6 @@ class PrefillServiceTest {
     }
 
 
-
-
     @Test
     fun `call addX005| mock adding two institusjon X005sed to buc result true`() {
         val euxCaseId = "12131234"
@@ -278,33 +275,6 @@ class PrefillServiceTest {
         prefillService.prefillAndAddInstitusionAndSedOnExistingCase(dataModel)
     }
 
-    @Test
-    fun `call checkAndConvertInstituion med spesialtegn som input`() {
-
-        val institusjonItem = InstitusjonItem(country = "NO", institution = "NO:NAVT002", name = null)
-        val actual = prefillService.checkAndConvertInstituion(institusjonItem)
-
-                assertEquals(institusjonItem.institution, actual)
-
-    }
-    @Test
-    fun `call checkAndConvertInstituion uten spesialtegn som input`() {
-
-        val institusjonItem = InstitusjonItem(country = "NO", institution = "NAVT002", name = null)
-        val actual = prefillService.checkAndConvertInstituion(institusjonItem)
-
-        assertEquals("NO:NAVT002", actual)
-    }
-
-    @Test
-    fun `call checkAndConvertInstituion that is null as input`() {
-
-        val institusjonItem = InstitusjonItem(country = "", institution = null, name = null)
-        val actual = prefillService.checkAndConvertInstituion(institusjonItem)
-
-        assertEquals(":", actual)
-    }
-
 
     @Test
     fun `call prefillAndAddSedOnExistingCase| forventer euxCaseId og documentID, tilbake vellykket`() {
@@ -353,6 +323,34 @@ class PrefillServiceTest {
         assertEquals(docId, result.id)
     }
 
+    @Test
+    fun `call checkAndConvertInstituion med spesialtegn som input`() {
+
+        val institusjonItem = InstitusjonItem(country = "NO", institution = "NO:NAVT002", name = null)
+        val actual = prefillService.checkAndConvertInstituion(institusjonItem)
+
+                assertEquals(institusjonItem.institution, actual)
+
+    }
+    @Test
+    fun `call checkAndConvertInstituion uten spesialtegn som input`() {
+
+        val institusjonItem = InstitusjonItem(country = "NO", institution = "NAVT002", name = null)
+        val actual = prefillService.checkAndConvertInstituion(institusjonItem)
+
+        assertEquals("NO:NAVT002", actual)
+    }
+
+    @Test
+    fun `call checkAndConvertInstituion that is null as input`() {
+
+        val institusjonItem = InstitusjonItem(country = "", institution = null, name = null)
+        val actual = prefillService.checkAndConvertInstituion(institusjonItem)
+
+        assertEquals(":", actual)
+    }
+
+
     @Test(expected = SedDokumentIkkeOpprettetException::class)
     fun `call prefillAndAddSedOnExistingCase| Exception eller feil`() {
         val dataModel = generatePrefillModel()
@@ -361,6 +359,7 @@ class PrefillServiceTest {
         resultData.sed = generateMockP2000(dataModel)
         resultData.euxCaseID = "12131234"
         whenever(mockPrefillSED.prefill(any())).thenReturn(resultData)
+
         whenever(mockEuxService.opprettSedOnBuc(any(), any())).thenThrow(SedDokumentIkkeOpprettetException::class.java)
 
         prefillService.prefillAndAddSedOnExistingCase(dataModel)
@@ -374,77 +373,11 @@ class PrefillServiceTest {
 
         resultData.euxCaseID = "12131234"
         whenever(mockPrefillSED.prefill(any())).thenReturn(resultData)
+
         whenever(mockEuxService.opprettSedOnBuc(any(), any())).thenThrow(EuxGenericServerException::class.java)
 
         prefillService.prefillAndAddSedOnExistingCase(dataModel)
     }
-
-    @Test
-    fun `addDeltakerInstitutions | mocking add Deltaker to buc returns true`() {
-        val euxCaseId = "12131234"
-
-        val dataModel = generatePrefillModel()
-        dataModel.euxCaseID = euxCaseId
-
-        //mock bucUtils
-        val mockbuc = Mockito.mock(BucUtils::class.java)
-
-        //mock antal participant
-        whenever(mockbuc.getParticipants()).thenReturn(listOf(ParticipantsItem()))
-
-        //mock bucutls return mocked bucdata
-        whenever(mockEuxService.getBucUtils(euxCaseId)).thenReturn(mockbuc)
-
-        //mock leggetil detalger
-        whenever(mockEuxService.addDeltagerInstitutions(any(), any())).thenReturn(true)
-
-        val lagtTilDeltaker = prefillService.addDeltakerInstitutions(dataModel)
-
-        assertEquals( true, lagtTilDeltaker)
-    }
-
-    @Test
-    fun `addDeltakerInstitutions | mocking not adding Deltaker to buc returns false`() {
-        val euxCaseId = "12131234"
-
-        val dataModel = generatePrefillModel()
-        dataModel.euxCaseID = euxCaseId
-
-        //mock bucUtils
-        val mockbuc = Mockito.mock(BucUtils::class.java)
-
-        //mock antal participant
-        whenever(mockbuc.getParticipants()).thenReturn(listOf(ParticipantsItem(), ParticipantsItem(), ParticipantsItem()))
-
-        //mock bucutls return mocked bucdata
-        whenever(mockEuxService.getBucUtils(euxCaseId)).thenReturn(mockbuc)
-
-        val lagtTilDeltaker = prefillService.addDeltakerInstitutions(dataModel)
-
-        assertEquals( false, lagtTilDeltaker)
-    }
-
-    @Test
-    fun `addDeltakerInstitutions | Exception thrown return false`() {
-        val euxCaseId = "12131234"
-
-        val dataModel = generatePrefillModel()
-        dataModel.euxCaseID = euxCaseId
-
-        //mock bucUtils
-        val mockbuc = Mockito.mock(BucUtils::class.java)
-
-        //mock antal participant
-        whenever(mockbuc.getParticipants()).thenReturn(listOf(ParticipantsItem()))
-        //mock bucutls return mocked bucdata
-        whenever(mockEuxService.getBucUtils(euxCaseId)).thenReturn(mockbuc)
-        //mock leggetil deltaker
-        whenever(mockEuxService.addDeltagerInstitutions(any(), any())).thenThrow(RuntimeException("Feiler ved å legge til, GatewayTimeout"))
-
-        val lagtTilDeltaker = prefillService.addDeltakerInstitutions(dataModel)
-        assertEquals( false, lagtTilDeltaker)
-    }
-
 
 
     @Test

@@ -1,5 +1,9 @@
 package no.nav.eessi.eessifagmodul.services
 
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import no.nav.eessi.eessifagmodul.models.*
 import no.nav.eessi.eessifagmodul.prefill.PrefillDataModel
 import no.nav.eessi.eessifagmodul.prefill.PrefillSED
@@ -149,19 +153,6 @@ class PrefillService(private val euxService: EuxService, private val prefillSED:
 
         val docresult = euxService.opprettSedOnBuc(navSed, data.euxCaseID)
         return euxService.getBucUtils(docresult.caseId).findDocument(docresult.documentId)
-}
-
-    fun addDeltakerInstitutions(data: PrefillDataModel): Boolean {
-        try {
-            val participantList = euxService.getBucUtils(data.euxCaseID).getParticipants().orEmpty()
-            if (participantList.size <= 1) {
-                logger.debug("legger til deltaker på buc: ${data.euxCaseID}")
-                return euxService.addDeltagerInstitutions(data.euxCaseID, data.institution)
-            }
-        } catch (ex: Exception) {
-            logger.warn("Error ved oppretting av deltaker på BUC ${data.euxCaseID}")
-        }
-        return false
     }
 
     /**
