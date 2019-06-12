@@ -1,7 +1,5 @@
 package no.nav.eessi.eessifagmodul.services.eux
 
-import no.nav.eessi.eessifagmodul.models.IkkeGyldigKallException
-import no.nav.eessi.eessifagmodul.models.InstitusjonItem
 import no.nav.eessi.eessifagmodul.models.SEDType
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.*
 import java.time.Instant
@@ -88,8 +86,6 @@ class BucUtils(private val buc: Buc ) {
         }
         return null
     }
-
-
 
     private fun createShortDocument(docuemntItem: DocumentsItem): ShortDocumentItem {
         return ShortDocumentItem(
