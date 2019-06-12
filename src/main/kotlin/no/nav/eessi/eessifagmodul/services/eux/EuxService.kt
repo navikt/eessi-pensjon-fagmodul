@@ -2,6 +2,7 @@ package no.nav.eessi.eessifagmodul.services.eux
 
 import com.google.common.base.Preconditions
 import no.nav.eessi.eessifagmodul.models.*
+import no.nav.eessi.eessifagmodul.prefill.PrefillDataModel
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.Buc
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.BucAndSedView
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.ParticipantsItem
@@ -12,7 +13,6 @@ import no.nav.eessi.eessifagmodul.utils.typeRefs
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Description
 import org.springframework.http.*
-import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
@@ -24,7 +24,6 @@ import java.util.*
 
 
 @Service
-@Async("asyncExecutor")
 @Description("Service class for EuxBasis - EuxCpiServiceController.java")
 class EuxService(private val euxOidcRestTemplate: RestTemplate) {
     private val logger = LoggerFactory.getLogger(EuxService::class.java)
@@ -48,7 +47,7 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
         headers.contentType = MediaType.APPLICATION_JSON
         val httpEntity = HttpEntity(navSED.toJson(), headers)
 
-        return try {
+        try {
             logger.info("Prøver å kontakte EUX /${builder.toUriString()}")
             val response = euxOidcRestTemplate.exchange(builder.toUriString(),
                     HttpMethod.POST,
@@ -57,7 +56,7 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
 
             if (response.statusCode.is2xxSuccessful) {
                 getCounter("OPPRETTBUCOGSEDOK").increment()
-                mapJsonToAny(response.body!!, typeRefs())
+                return mapJsonToAny(response.body!!, typeRefs())
             } else {
                 throw RinaCasenrIkkeMottattException("Ikke mottatt RINA casenr, feiler ved opprettelse av BUC og SED")
             }
@@ -194,7 +193,7 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
         val uriParams = mapOf("RinaSakId" to euxCaseId)
         val builder = UriComponentsBuilder.fromUriString(path).buildAndExpand(uriParams)
 
-        return try {
+        try {
             logger.info("Prøver å kontakte EUX /${builder.toUriString()}")
 
             val response = euxOidcRestTemplate.exchange(
@@ -205,7 +204,7 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
             if (response.statusCode.is2xxSuccessful) {
                 val jsonbuc = response.body!!
                 getCounter("HENTBUCOK").increment()
-                mapJsonToAny(jsonbuc, typeRefs())
+                return mapJsonToAny(jsonbuc, typeRefs())
             } else {
                 throw BucIkkeMottattException("Ikke mottatt Buc, feiler ved uthenting av Buc")
             }
@@ -519,10 +518,14 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
         }
     }
 
+    //Legger en eller flere deltakere/institusjonItem inn i Rina. (Itererer for hver en)
     fun addDeltagerInstitutions(euxCaseId: String, mottaker: List<InstitusjonItem>) : Boolean {
+        logger.debug("Prøver å legge til liste over nye InstitusjonItem til Rina ")
         try {
             mottaker.forEach {
-                putBucDeltager(euxCaseId, "${it.country}:${it.institution}")
+                val mottakerItem = "${it.country}:${it.institution}"
+                logger.debug("putter $mottaker på Rina buc $euxCaseId")
+                putBucDeltager(euxCaseId, mottakerItem)
             }
             return true
         } catch (ex: Exception) {
@@ -530,7 +533,6 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
             throw ex
         }
     }
-
 
     //Henter ut Kravtype fra P15000
     fun hentYtelseKravtype(euxCaseId: String, documentId: String): Krav {
@@ -543,9 +545,7 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
     }
 
 
-
     //Eldre API kall er under denne disse vil ikke virke
-
 
     //Henter en liste over tilgjengelige aksjoner for den aktuelle RINA saken PK-51365"
 //    fun getPossibleActions(euSaksnr: String): List<RINAaksjoner> {

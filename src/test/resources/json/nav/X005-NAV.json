@@ -1,0 +1,27 @@
+{
+  "sed": "X005",
+  "sedGVer": "4",
+  "nav": {
+    "sak": {
+      "kontekst": {
+        "bruker": {
+          "person": {
+            "fornavn": "",
+            "etternavn": "",
+            "foedselsdato": ""
+          }
+        }
+      },
+      "leggtilinstitusjon": {
+        "institusjon": {
+          "navn": "",
+          "id": ""
+        },
+        "grunn": {
+          "annet": ""
+        }
+      }
+    }
+  },
+  "sedVer": "1"
+}

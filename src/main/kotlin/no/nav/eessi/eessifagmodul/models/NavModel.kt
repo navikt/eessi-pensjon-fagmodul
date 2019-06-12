@@ -7,10 +7,37 @@ data class Nav(
         var barn: List<BarnItem>? = null, //pkt 6 og 8
         var verge: Verge? = null,
         var krav: Krav? = null,
+        //X005
+        var sak: Navsak? = null,
         //P10000
         var annenperson: Bruker? = null
 
 )
+
+//X005
+data class Navsak (
+        var kontekst: Kontekst? = null,
+        var leggtilinstitusjon: Leggtilinstitusjon? = null
+)
+
+//X005
+data class Kontekst(
+        var bruker: Bruker? = null
+)
+
+//X005
+data class Leggtilinstitusjon(
+        var institusjon: InstitusjonX005? = null,
+        var grunn: String? = null
+
+)
+
+//X005
+data class InstitusjonX005(
+        val id: String,
+        val navn: String
+)
+
 
 data class Krav(
         var dato: String? = null,

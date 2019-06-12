@@ -63,7 +63,8 @@ enum class SEDType {
     P8000,
     P9000,
     P10000,
-    P15000;
+    P15000,
+    X005;
 
     companion object {
         @JvmStatic
