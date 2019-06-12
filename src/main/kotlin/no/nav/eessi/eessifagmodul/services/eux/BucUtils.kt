@@ -1,5 +1,7 @@
 package no.nav.eessi.eessifagmodul.services.eux
 
+import no.nav.eessi.eessifagmodul.models.IkkeGyldigKallException
+import no.nav.eessi.eessifagmodul.models.InstitusjonItem
 import no.nav.eessi.eessifagmodul.models.SEDType
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.*
 import java.time.Instant
@@ -73,15 +75,21 @@ class BucUtils(private val buc: Buc ) {
     }
 
     fun findFirstDocumentItemByType(sedType: SEDType): ShortDocumentItem? {
+        return findFirstDocumentItemByType(sedType.name)
+    }
+
+    fun findFirstDocumentItemByType(sedType: String): ShortDocumentItem? {
         val documents = getDocuments()
         documents.forEach {
-            if (sedType.name == it.type) {
+            if (sedType == it.type) {
                 val shortdoc = createShortDocument(it)
                 return shortdoc
             }
         }
         return null
     }
+
+
 
     private fun createShortDocument(docuemntItem: DocumentsItem): ShortDocumentItem {
         return ShortDocumentItem(
@@ -134,10 +142,14 @@ class BucUtils(private val buc: Buc ) {
     }
 
     fun findAndFilterDocumentItemByType(sedType: SEDType): List<ShortDocumentItem> {
+        return findAndFilterDocumentItemByType(sedType.name)
+    }
+
+    fun findAndFilterDocumentItemByType(sedType: String): List<ShortDocumentItem> {
         val documents = getDocuments()
         val lists = mutableListOf<ShortDocumentItem>()
         documents.forEach {
-            if (sedType.name == it.type) {
+            if (sedType == it.type) {
                 lists.add(createShortDocument(it))
             }
         }
@@ -172,6 +184,67 @@ class BucUtils(private val buc: Buc ) {
 
     fun getParticipants(): List<ParticipantsItem>? {
         return getBuc().participants
+    }
+
+    fun getParticipantsExclusiveCaseowner(): List<ParticipantsItem> {
+        val parts = getParticipants()
+        val caseOwner = "CaseOwner"
+        val bucdeltakere = mutableListOf<ParticipantsItem>()
+        parts?.forEach {
+            if (it.role != caseOwner) {
+                bucdeltakere.add(it)
+            }
+        }
+        return bucdeltakere
+    }
+
+    fun getParticipantsExclusiveCaseownerAsInstitusjonItem(): List<InstitusjonItem> {
+        val list = getParticipantsExclusiveCaseowner()
+        logger.debug("ParticipantsExclusive size: ${list.size}")
+
+        val result = mutableListOf<InstitusjonItem>()
+        list.forEach{
+            val institusjonItem = InstitusjonItem(
+                    country = it.organisation?.countryCode,
+                    institution = it.organisation?.name,  //kan hende må være id?!
+                    name = "" //
+            )
+            logger.debug("Legger til BucParticipants som InstitusjonItem i liste")
+            result.add(institusjonItem)
+        }
+        return result
+    }
+
+    fun matchParticipantsToInstitusjonItem(bucParticipants: List<InstitusjonItem>, list: List<InstitusjonItem>): List<InstitusjonItem> {
+        logger.debug("Sjekker på bucDeltakere mot Nye")
+        if (bucParticipants.isEmpty() && list.isEmpty()) {
+            logger.debug("BucDeltakere og Nye er Begge tomme (bør ikke skje)")
+            throw IkkeGyldigKallException("Ingen deltakere/Institusjon er tom")
+        }
+        if (bucParticipants.isEmpty() && list.isNotEmpty()) {
+            logger.debug("BucDeltaker (filtrert) er tom (helt ny Buc) returnerer Ny")
+            return list
+        }
+        if (bucParticipants.isNotEmpty() && list.isEmpty()) {
+            logger.debug("BucDeltaker er ikke tom, Ny er tom returner Ny")
+            return list
+        }
+
+        logger.debug("BucDeltaker er ikke tom, Ny er ikke tom, finne unike som ikke finnes i Buc")
+        val deltakere = mutableListOf<InstitusjonItem>()
+        deltakere.addAll(list)
+        val found = mutableListOf<InstitusjonItem>()
+        bucParticipants.forEach { bucpart ->
+           for (apidel in list) {
+                if (apidel.country == bucpart.country && apidel.institution == bucpart.institution) {
+                    found.add(apidel)
+                }
+            }
+        }
+        logger.debug("Fjerner funnet Deltakere i Buc fra nye Deltakere $found")
+        deltakere.removeAll(found)
+        logger.debug("Returnerer filtrert liste over Deltakere $deltakere")
+        return deltakere
     }
 
     fun getBucAction(): List<ActionsItem>? {

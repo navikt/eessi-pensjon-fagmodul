@@ -1,0 +1,56 @@
+{
+  "sed" : "X005",
+  "sedGVer" : "4",
+  "sedVer" : "1",
+  "nav" : {
+    "eessisak" : null,
+    "bruker" : null,
+    "ektefelle" : null,
+    "barn" : null,
+    "verge" : null,
+    "krav" : null,
+    "sak" : {
+      "kontekst" : {
+        "bruker" : {
+          "mor" : null,
+          "far" : null,
+          "person" : {
+            "pin" : null,
+            "pinannen" : null,
+            "statsborgerskap" : null,
+            "etternavn" : "POTET",
+            "fornavn" : "KRIMINELL",
+            "kjoenn" : "M",
+            "foedested" : null,
+            "tidligerefornavn" : null,
+            "tidligereetternavn" : null,
+            "fornavnvedfoedsel" : null,
+            "etternavnvedfoedsel" : null,
+            "foedselsdato" : "1944-12-25",
+            "doedsdato" : null,
+            "dodsDetalj" : null,
+            "kontakt" : null,
+            "sivilstand" : null,
+            "relasjontilavdod" : null,
+            "nyttEkteskapPartnerskapEtterForsikredeDod" : null,
+            "rolle" : null
+          },
+          "adresse" : null,
+          "arbeidsforhold" : null,
+          "bank" : null
+        }
+      },
+      "leggtilinstitusjon" : {
+        "institusjon" : {
+          "id" : "NO:NAVT007",
+          "navn" : "NAVT007"
+        },
+        "grunn" : ""
+      }
+    },
+    "annenperson" : null
+  },
+  "pensjon" : null,
+  "trygdetid" : null,
+  "ignore" : null
+}

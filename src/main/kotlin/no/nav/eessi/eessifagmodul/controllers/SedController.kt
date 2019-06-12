@@ -72,12 +72,24 @@ class SedController(private val euxService: EuxService,
     //** oppdatert i api 18.02.2019
     @ApiOperation("legge til SED på et eksisterende Rina document. kjører preutfylling, ny api kall til eux")
     @PostMapping("/add")
+    fun addInstutionAndDocument(@RequestBody request: ApiRequest): ShortDocumentItem {
+
+        logger.info("kaller add (institutions and sed)")
+
+        return prefillService.prefillAndAddInstitusionAndSedOnExistingCase(buildPrefillDataModelOnExisting(request))
+
+    }
+
+    //** oppdatert i api 18.02.2019
+    @ApiOperation("legge til SED på et eksisterende Rina document. kjører preutfylling, ny api kall til eux")
+    @PostMapping("/addSed")
     fun addDocument(@RequestBody request: ApiRequest): ShortDocumentItem {
 
         logger.info("kaller add med request: $request")
         return prefillService.prefillAndAddSedOnExistingCase(buildPrefillDataModelOnExisting(request))
 
     }
+
 
     //** oppdatert i api 18.02.2019
     @ApiOperation("Kjører prosess OpprettBuCogSED på EUX for å få opprette et RINA dokument med en SED, ny api kall til eux")

@@ -1,6 +1,8 @@
 package no.nav.eessi.eessifagmodul.services.eux
 
 import com.google.common.collect.Lists
+import no.nav.eessi.eessifagmodul.models.IkkeGyldigKallException
+import no.nav.eessi.eessifagmodul.models.InstitusjonItem
 import no.nav.eessi.eessifagmodul.models.SEDType
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.Buc
 import no.nav.eessi.eessifagmodul.utils.mapAnyToJson
@@ -90,7 +92,6 @@ class BucUtilsTest {
     fun getListShortDocOnBuc() {
         val result = bucUtils.findAndFilterDocumentItemByType(SEDType.P2000)
         val json = mapAnyToJson(result)
-        print(json)
         assertEquals(1, result.size)
 
         assertEquals(SEDType.P2000.name, result.first().type)
@@ -146,6 +147,7 @@ class BucUtilsTest {
     fun getActions() {
         val result = bucUtils.getBucAction()
         assertEquals(18, result?.size)
+        println(mapAnyToJson(result!!))
     }
 
     @Test
@@ -278,6 +280,52 @@ class BucUtilsTest {
         assertEquals("P6000", actualOutput[9])
 
     }
+
+
+    @Test(expected = IkkeGyldigKallException::class)
+    fun `matchParticipantsToInstitusjonItem | listene er tom forventer exception`(){
+        val buclist = listOf<InstitusjonItem>()
+        val list = listOf<InstitusjonItem>()
+        bucUtils.matchParticipantsToInstitusjonItem(buclist, list)
+    }
+
+    @Test
+    fun `matchParticipantsToInstitusjonItem | bucDeltaker tom og list har data forventer 2 size`(){
+        val buclist = listOf<InstitusjonItem>()
+        val list = listOf( InstitusjonItem(country = "DK", institution = "DK006"), InstitusjonItem(country = "PL", institution = "PolishAcc"))
+
+        val result = bucUtils.matchParticipantsToInstitusjonItem(buclist, list)
+
+        assertEquals(2, result.size)
+    }
+
+    @Test
+    fun `matchParticipantsToInstitusjonItem | list er lik forventer 0 size`(){
+        val buclist = listOf( InstitusjonItem(country = "DK", institution = "DK006"), InstitusjonItem(country = "PL", institution = "PolishAcc"))
+        val list = listOf(InstitusjonItem(country = "PL", institution = "PolishAcc"), InstitusjonItem(country = "DK", institution = "DK006"))
+
+        val result = bucUtils.matchParticipantsToInstitusjonItem(buclist, list)
+        assertEquals(0, result.size)
+    }
+
+    @Test
+    fun `matchParticipantsToInstitusjonItem | buclist er 2 mens list er 3 forventer 1 size`(){
+        val buclist = listOf( InstitusjonItem(country = "DK", institution = "DK006"), InstitusjonItem(country = "PL", institution = "PolishAcc"))
+        val list = listOf(InstitusjonItem(country = "PL", institution = "PolishAcc"), InstitusjonItem(country = "DK", institution = "DK006"), InstitusjonItem(country = "FI", institution = "FINLAND"))
+
+        val result = bucUtils.matchParticipantsToInstitusjonItem(buclist, list)
+        assertEquals(1, result.size)
+    }
+
+    @Test
+    fun `matchParticipantsToInstitusjonItem | buclist er 5 og list er 0 forventer 0 size`(){
+        val buclist = listOf<InstitusjonItem>( InstitusjonItem(country = "DK", institution = "DK006"), InstitusjonItem(country = "PL", institution = "PolishAcc"),InstitusjonItem(country = "PL", institution = "PolishAcc"), InstitusjonItem(country = "DK", institution = "DK006"), InstitusjonItem(country = "FI", institution = "FINLAND"))
+        val list = listOf<InstitusjonItem>()
+
+        val result = bucUtils.matchParticipantsToInstitusjonItem(buclist, list)
+        assertEquals(0, result.size)
+    }
+
 
 
 }
