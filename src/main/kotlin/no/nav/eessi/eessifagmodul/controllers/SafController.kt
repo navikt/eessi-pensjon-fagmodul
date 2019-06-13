@@ -16,7 +16,7 @@ class SafController(val safService: SafService) {
     private val logger = LoggerFactory.getLogger(SafController::class.java)
 
     @ApiOperation("Henter metadata for alle dokumenter i alle journalposter for en gitt aktørid")
-    @GetMapping("/metadata/{aktoerId}", consumes = ["application/json"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @GetMapping("/metadata/{aktoerId}", produces = [MediaType.APPLICATION_JSON_VALUE])
     @JsonInclude(JsonInclude.Include.NON_NULL)
     fun getMetadata(@PathVariable("aktoerId", required = true) aktoerId: String): String {
         logger.info("Henter metadata for dokumenter i SAF for aktørid: $aktoerId")
