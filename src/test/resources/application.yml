@@ -41,3 +41,6 @@ eessi:
 spring:
   profiles:
     active: 'local-test'
+
+saf.graphql:
+  url: 'http://localhost'
