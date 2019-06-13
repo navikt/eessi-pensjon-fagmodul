@@ -45,6 +45,9 @@ fasitResources:
     #EUX RINA
   - alias: eux-rina-api_v1
     resourceType: RestService
+    #Sikker arkiv fasade
+  - alias: saf.graphql
+    resourceType: RestService
     #TPS
   - alias: virksomhet:Person_v3
     resourceType: WebserviceEndpoint
