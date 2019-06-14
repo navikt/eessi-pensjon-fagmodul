@@ -28,7 +28,7 @@ class EuxRestTemplate(private val oidcRequestContextHolder: OIDCRequestContextHo
                 .rootUri(url)
                 .errorHandler(DefaultResponseErrorHandler())
                 .additionalInterceptors(RequestResponseLoggerInterceptor(),
-                        OidcAuthorizationHeaderInterceptorSetIssuer(oidcRequestContextHolder, setOf("oidc","psys")))
+                        OidcAuthorizationHeaderInterceptorSetIssuer(oidcRequestContextHolder, setOf("oidc","pesys")))
                 .customizers(MetricsRestTemplateCustomizer(registry, DefaultRestTemplateExchangeTagsProvider(), "eessipensjon_fagmodul_eux"))
                 .build().apply {
                     requestFactory = BufferingClientHttpRequestFactory(SimpleClientHttpRequestFactory())
