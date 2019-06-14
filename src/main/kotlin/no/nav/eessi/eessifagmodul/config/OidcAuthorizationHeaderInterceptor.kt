@@ -66,6 +66,39 @@ class OidcAuthorizationHeaderInterceptorSelectIssuer(private val oidcRequestCont
     }
 }
 
+class OidcAuthorizationHeaderInterceptorSetIssuer(private val oidcRequestContextHolder: OIDCRequestContextHolder, private val issuer: Set<String>) : ClientHttpRequestInterceptor {
+
+    override fun intercept(request: HttpRequest, body: ByteArray, execution: ClientHttpRequestExecution): ClientHttpResponse {
+        logger.info("sjekker reqiest header for AUTH")
+        if (request.headers[HttpHeaders.AUTHORIZATION] == null) {
+            val oidcToken = getIdTokenFromSelectedIssuer(oidcRequestContextHolder, issuer)
+            logger.info("Adding Bearer-token to request: $oidcToken")
+            request.headers[HttpHeaders.AUTHORIZATION] = "Bearer $oidcToken"
+        }
+        return execution.execute(request, body)
+    }
+
+    fun getIdTokenFromSelectedIssuer(oidcRequestContextHolder: OIDCRequestContextHolder, issuer: Set<String>): String {
+        return getTokenContextFromSelectedIssuer(oidcRequestContextHolder, issuer).idToken
+    }
+
+    fun getTokenContextFromSelectedIssuer(oidcRequestContextHolder: OIDCRequestContextHolder, issuer: Set<String>): TokenContext {
+        val context = oidcRequestContextHolder.oidcValidationContext
+        if (context.issuers.isEmpty()) throw RuntimeException("No issuer found in context")
+        // At this point more than one, select one to use.
+        var token: TokenContext ?= null
+        issuer.forEach {
+            token = context.getToken(it)
+            if (token != null) {
+                logger.debug("Returning token on issuer: $issuer with token: ${token}")
+                return token!!
+            }
+        }
+        logger.debug("Returning blank token on issuer: $issuer with token: null")
+        return token!!
+   }
+}
+
 
 
 
