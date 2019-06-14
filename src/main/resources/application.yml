@@ -4,7 +4,7 @@ no.nav.security.oidc:
     accepted_audience: 'security-token-service,freg-token-provider-p,freg-token-provider-t0,freg-token-provider-q4,eessi-fagmodul-${FASIT_ENVIRONMENT_NAME},eessi-pensjon-frontend-api-fss-${FASIT_ENVIRONMENT_NAME},ida-t,ida-q'
   issuer.pesys:
     discoveryurl: '${security-token-service-openid-configuration_url}'
-    accepted_audience: 'srvpensjon,srveessipensjon'
+    accepted_audience: 'srvpensjon,srveessipensjon,srveessi-pensjon-j'
 
 # preprod.local,security-token-service-t10,  https://security-token-service-t10.nais.preprod.local/rest/v1/sts/.well-known/openid-configuration
 # Empty on purpose so that oidc-spring-support doesn't use http.proxy
