@@ -4,7 +4,7 @@ FASIT_ENVIRONMENT_NAME: 'test'
 eessi-pensjon-active-profiles: ${spring.profiles.active}
 
 #eux-rina-api_v1:
-eux-rina-api_v1:
+eessipen-eux-rina:
   url: 'http://example.com:8089'
 
 pensjonsinformasjon:
