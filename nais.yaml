@@ -43,7 +43,7 @@ fasitResources:
   - alias: aktoerregister.api.v1
     resourceType: RestService
     #EUX RINA
-  - alias: eux-rina-api_v1
+  - alias: eessipen-eux-rina
     resourceType: RestService
     #Sikker arkiv fasade
   - alias: saf.graphql
