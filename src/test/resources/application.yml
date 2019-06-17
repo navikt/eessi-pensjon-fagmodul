@@ -44,3 +44,6 @@ spring:
 
 saf.graphql:
   url: 'http://localhost'
+
+saf.hentdokument:
+  url: 'http://localhost'
