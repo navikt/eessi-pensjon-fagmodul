@@ -12,7 +12,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
-private val logger = LoggerFactory.getLogger(NavRegistreOppslagController::class.java)
+private val logger = LoggerFactory.getLogger(PersonController::class.java)
 
 /**
  * Controller for å kalle NAV interne registre
@@ -22,7 +22,7 @@ private val logger = LoggerFactory.getLogger(NavRegistreOppslagController::class
  */
 @Protected
 @RestController
-class NavRegistreOppslagController(private val aktoerregisterService: AktoerregisterService,
+class PersonController(private val aktoerregisterService: AktoerregisterService,
                                 private val personService: PersonV3Service) {
 
     /**
@@ -32,8 +32,8 @@ class NavRegistreOppslagController(private val aktoerregisterService: Aktoerregi
      * @param aktoerid
      */
     @ApiOperation("henter ut personinformasjon for en aktørId")
-    @GetMapping("/personinfo/{aktoerid}")
-    fun getDocument(@PathVariable("aktoerid", required = true) aktoerid: String): ResponseEntity<Personinformasjon> {
+    @GetMapping("/person/{aktoerid}")
+    fun getDocument(@PathVariable("aktoerid", required = true) aktoerid: String): ResponseEntity<HentPersonResponse> {
         logger.info("Henter personinformasjon for aktørId")
 
         val norskIdent: String
@@ -62,10 +62,6 @@ class NavRegistreOppslagController(private val aktoerregisterService: Aktoerregi
         }
 
         getCounter("PERSONINFORMASJONOK").increment()
-        return ResponseEntity.ok(Personinformasjon(personresp.person.personnavn.sammensattNavn,
-                personresp.person.personnavn.fornavn,
-                personresp.person.personnavn.mellomnavn,
-                personresp.person.personnavn.etternavn))
+        return ResponseEntity.ok(personresp)
     }
 }
-
