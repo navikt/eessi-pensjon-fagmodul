@@ -48,6 +48,9 @@ fasitResources:
     #Sikker arkiv fasade
   - alias: saf.graphql
     resourceType: RestService
+
+  - alias: saf.hentdokument
+    resourceType: RestService
     #TPS
   - alias: virksomhet:Person_v3
     resourceType: WebserviceEndpoint

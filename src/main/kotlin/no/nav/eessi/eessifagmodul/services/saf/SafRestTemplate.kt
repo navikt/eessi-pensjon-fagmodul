@@ -20,16 +20,33 @@ class SafRestTemplate(private val oidcRequestContextHolder: OIDCRequestContextHo
                       private val registry: MeterRegistry) {
 
     @Value("\${saf.graphql.url}")
-    lateinit var url: String
+    lateinit var graphQlUrl: String
+
+    @Value("\${saf.hentdokument.url}")
+    lateinit var restUrl: String
 
     @Bean
-    fun safOidcRestTemplate(templateBuilder: RestTemplateBuilder): RestTemplate {
+    fun safGraphQlOidcRestTemplate(templateBuilder: RestTemplateBuilder): RestTemplate {
         return templateBuilder
-                .rootUri(url)
+                .rootUri(graphQlUrl)
                 .errorHandler(DefaultResponseErrorHandler())
                 .additionalInterceptors(RequestResponseLoggerInterceptor(),
                         OidcAuthorizationHeaderInterceptorSelectIssuer(oidcRequestContextHolder, "oidc"))
-                .customizers(MetricsRestTemplateCustomizer(registry, DefaultRestTemplateExchangeTagsProvider(), "eessipensjon_fagmodul_eux"))
+                .customizers(MetricsRestTemplateCustomizer(registry, DefaultRestTemplateExchangeTagsProvider(), "eessipensjon_fagmodul_safGraphQL"))
+                .build().apply {
+                    requestFactory = BufferingClientHttpRequestFactory(SimpleClientHttpRequestFactory())
+                }
+    }
+
+
+    @Bean
+    fun safRestOidcRestTemplate(templateBuilder: RestTemplateBuilder): RestTemplate {
+        return templateBuilder
+                .rootUri(restUrl)
+                .errorHandler(DefaultResponseErrorHandler())
+                .additionalInterceptors(RequestResponseLoggerInterceptor(),
+                        OidcAuthorizationHeaderInterceptorSelectIssuer(oidcRequestContextHolder, "oidc"))
+                .customizers(MetricsRestTemplateCustomizer(registry, DefaultRestTemplateExchangeTagsProvider(), "eessipensjon_fagmodul_safRest"))
                 .build().apply {
                     requestFactory = BufferingClientHttpRequestFactory(SimpleClientHttpRequestFactory())
                 }

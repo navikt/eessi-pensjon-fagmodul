@@ -15,7 +15,7 @@ import java.util.*
 private val logger = LoggerFactory.getLogger(SafService::class.java)
 
 @Service
-class SafService(val safOidcRestTemplate: RestTemplate) {
+class SafService(val safGraphQlOidcRestTemplate: RestTemplate, val safRestOidcRestTemplate: RestTemplate) {
 
     private val saf_teller_navn = "eessipensjon_fagmodul.saf"
     private val saf_teller_type_vellykkede = counter(saf_teller_navn, "vellykkede")
@@ -27,13 +27,11 @@ class SafService(val safOidcRestTemplate: RestTemplate) {
 
     fun hentDokumentMetadata(aktoerId: String) : String {
          try {
-             logger.info("Henter dokument metadata fra SAF for aktørid: $aktoerId")
-
              val headers = HttpHeaders()
              headers.contentType = MediaType.APPLICATION_JSON
              val httpEntity = HttpEntity(genererQuery(aktoerId), headers)
 
-             val response = safOidcRestTemplate.exchange("",
+             val response = safGraphQlOidcRestTemplate.exchange("",
                      HttpMethod.POST,
                      httpEntity,
                      String::class.java)
@@ -49,6 +47,26 @@ class SafService(val safOidcRestTemplate: RestTemplate) {
              logger.error("En feil oppstod under henting av dokument metadata fra SAF: $ex")
              return errorBody(ex.message!!, UUID.randomUUID().toString())
          }
+    }
+
+    fun hentDokumentInnhold(journalpostId: String, dokumentInfoId: String, variantFormat: String ) : String {
+        try {
+            val path = "/rest/hentdokument/$journalpostId/$dokumentInfoId/$variantFormat"
+            val response = safRestOidcRestTemplate.exchange(path,
+                    HttpMethod.GET,
+                    HttpEntity(""),
+                    String::class.java)
+            if (response.statusCode.is2xxSuccessful) {
+                saf_teller_type_vellykkede.increment()
+                return response.body!!
+            } else {
+                saf_teller_type_feilede.increment()
+                throw RuntimeException("En feil oppstod under henting av dokumentinnhold fra SAF: ${response.statusCode}")
+            }
+        } catch(ex: Exception) {
+            logger.error("En feil oppstod under henting av dokumentInnhold fra SAF: $ex")
+            return errorBody(ex.message!!, UUID.randomUUID().toString())
+        }
     }
 
     private fun genererQuery(aktoerId: String): String {
