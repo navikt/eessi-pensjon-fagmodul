@@ -1,6 +1,7 @@
 package no.nav.eessi.eessifagmodul.services.saf
 
 import io.micrometer.core.instrument.MeterRegistry
+import no.nav.eessi.eessifagmodul.config.OidcAuthorizationHeaderInterceptorMagic
 import no.nav.eessi.eessifagmodul.config.OidcAuthorizationHeaderInterceptorSelectIssuer
 import no.nav.eessi.eessifagmodul.config.RequestResponseLoggerInterceptor
 import no.nav.security.oidc.context.OIDCRequestContextHolder
@@ -31,7 +32,7 @@ class SafRestTemplate(private val oidcRequestContextHolder: OIDCRequestContextHo
                 .rootUri(graphQlUrl)
                 .errorHandler(DefaultResponseErrorHandler())
                 .additionalInterceptors(RequestResponseLoggerInterceptor(),
-                        OidcAuthorizationHeaderInterceptorSelectIssuer(oidcRequestContextHolder, "oidc"))
+                        OidcAuthorizationHeaderInterceptorMagic(oidcRequestContextHolder))
                 .customizers(MetricsRestTemplateCustomizer(registry, DefaultRestTemplateExchangeTagsProvider(), "eessipensjon_fagmodul_safGraphQL"))
                 .build().apply {
                     requestFactory = BufferingClientHttpRequestFactory(SimpleClientHttpRequestFactory())
@@ -45,7 +46,7 @@ class SafRestTemplate(private val oidcRequestContextHolder: OIDCRequestContextHo
                 .rootUri(restUrl)
                 .errorHandler(DefaultResponseErrorHandler())
                 .additionalInterceptors(RequestResponseLoggerInterceptor(),
-                        OidcAuthorizationHeaderInterceptorSelectIssuer(oidcRequestContextHolder, "oidc"))
+                        OidcAuthorizationHeaderInterceptorMagic(oidcRequestContextHolder))
                 .customizers(MetricsRestTemplateCustomizer(registry, DefaultRestTemplateExchangeTagsProvider(), "eessipensjon_fagmodul_safRest"))
                 .build().apply {
                     requestFactory = BufferingClientHttpRequestFactory(SimpleClientHttpRequestFactory())
