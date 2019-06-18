@@ -232,4 +232,56 @@ class BucUtilsTest {
         assertEquals(2, parts?.size)
     }
 
+    @Test
+    fun `getAksjonListAsString | returns sorted list ok`(){
+        val actualOutput = bucUtils.getAksjonListAsString()
+
+        assertEquals(14, actualOutput.size)
+        assertEquals("P5000", actualOutput[6])
+
+    }
+
+    @Test
+    fun `getAksjonListAsString | returns sorted of one element ok`(){
+        //mocking data
+        val actionitems = buc.actions
+        actionitems?.forEach {
+            it.name = "Update"
+        }
+        actionitems?.get(0)?.name = "Create"
+
+        //run impl. for test
+        val actualOutput = bucUtils.getAksjonListAsString()
+        assertEquals(1, actualOutput.size)
+    }
+
+    @Test
+    fun `getAksjonListAsString | returns no element`(){
+        //mocking data
+        val actionitems = buc.actions
+        actionitems?.forEach {
+            it.name = "Update"
+        }
+
+        //run impl. for test
+        val actualOutput = bucUtils.getAksjonListAsString()
+        assertEquals(0, actualOutput.size)
+    }
+
+    @Test
+    fun `getAksjonListAsString | returns 16 sorted elements`(){
+        //mocking data
+        val actionitems = buc.actions
+        actionitems?.forEach {
+            it.name = "Create"
+        }
+
+        //run impl. for test
+        val actualOutput = bucUtils.getAksjonListAsString()
+        assertEquals(16, actualOutput.size)
+        assertEquals("P6000", actualOutput[9])
+
+    }
+
+
 }
