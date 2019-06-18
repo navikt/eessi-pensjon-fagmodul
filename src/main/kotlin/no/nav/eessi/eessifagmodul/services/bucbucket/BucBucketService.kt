@@ -15,7 +15,7 @@ import org.springframework.web.util.UriComponentsBuilder
 private val logger = LoggerFactory.getLogger(BucBucketService::class.java)
 
 // TODO: Work-in-progress. Venter på at grensesnittet dokumenteres og implementeres i eux-bucbucket
-@Service
+//@Service
 @Deprecated(replaceWith = ReplaceWith("Nothing"), level = DeprecationLevel.WARNING, message = "Utgår")
 class BucBucketService(val bucBucketOidcRestTemplate: RestTemplate) {
 
