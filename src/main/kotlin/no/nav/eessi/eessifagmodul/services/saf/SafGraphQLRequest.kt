@@ -8,7 +8,24 @@ import no.nav.eessi.eessifagmodul.utils.mapAnyToJson
  */
 
 data class SafRequest(
-        val query: String = "query dokumentoversiktBruker(\$brukerId: BrukerIdInput!, \$foerste: Int!) {dokumentoversiktBruker(brukerId: \$brukerId, foerste:\$foerste) {journalposter {journalpostId tittel journalposttype journalstatus tema dokumenter {dokumentInfoId tittel}}}}",
+        val query: String = "query dokumentoversiktBruker(\$brukerId: BrukerIdInput!, \$foerste: Int!) {dokumentoversiktBruker(brukerId: \$brukerId, foerste:\$foerste) {" +
+                "journalposter {" +
+                    "tilleggsopplysninger {" +
+                        "nokkel " +
+                        "verdi " +
+                    "}" +
+                    "journalpostId " +
+                    "tittel " +
+                    "tema " +
+                    "dokumenter {" +
+                        "dokumentInfoId " +
+                        "tittel " +
+                    "} " +
+                    "relevanteDatoer {" +
+                        "dato " +
+                        "datotype " +
+                    "}" +
+                "}}}",
         val variables: Variables
 ) {
     fun toJson(): String {
