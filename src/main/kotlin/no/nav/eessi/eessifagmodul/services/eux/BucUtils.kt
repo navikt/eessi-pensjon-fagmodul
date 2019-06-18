@@ -295,6 +295,21 @@ class BucUtils {
         return getBuc().actions
     }
 
+    fun getAksjonListAsString() : List<String> {
+        val keywordCreate = "Create"
+        val actions = getBuc().actions ?: listOf()
+        val createAkjsonsliste = mutableListOf<String>()
+        for(item in actions) {
+            println(item)
+            if (item.documentType != null && item.name == keywordCreate) {
+                createAkjsonsliste.add(item.documentType)
+            }
+        }
+        return createAkjsonsliste
+                .sortedBy { it }
+                .toList()
+    }
+
     fun getRinaAksjon(): List<RinaAksjon> {
         val aksjoner = mutableListOf<RinaAksjon>()
         val actionitems = getBuc().actions

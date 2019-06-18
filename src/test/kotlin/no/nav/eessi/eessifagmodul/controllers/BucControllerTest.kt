@@ -41,38 +41,38 @@ class BucControllerTest {
         doReturn("12105033302").whenever(mockAktoerregisterService).hentGjeldendeNorskIdentForAktorId(ArgumentMatchers.anyString())
     }
 
-    @Test
-    fun getMuligeAksjonerUtenFilter() {
-        val filepath = "src/test/resources/json/aksjoner/noen_aksjoner.json"
-        val json = String(Files.readAllBytes(Paths.get(filepath)))
-        assertTrue(validateJson(json))
-        val mockaksjoner = mapJsonToAny(json, typeRefs<List<RinaAksjon>>())
-
-        doReturn(mockaksjoner).whenever(mockBucUtils).getRinaAksjon()
-        doReturn(mockBucUtils).whenever(mockEuxService).getBucUtils(
-                ArgumentMatchers.anyString()
-        )
-
-        val result = bucController.getMuligeAksjoner("12345666777")
-        assertEquals(4, result.size)
-
-
-    }
-
-    @Test
-    fun getMuligeAksjonerMedFilter() {
-        val filepath = "src/test/resources/json/aksjoner/noen_aksjoner.json"
-        val json = String(Files.readAllBytes(Paths.get(filepath)))
-        assertTrue(validateJson(json))
-        val mockaksjoner = mapJsonToAny(json, typeRefs<List<RinaAksjon>>())
-
-        doReturn(mockaksjoner).whenever(mockBucUtils).getRinaAksjon()
-        doReturn(mockBucUtils).whenever(mockEuxService).getBucUtils(
-                ArgumentMatchers.anyString()
-        )
-        val result = bucController.getMuligeAksjoner("12345666777", "P")
-        assertEquals(3, result.size)
-    }
+//    @Test
+//    fun getMuligeAksjonerUtenFilter() {
+//        val filepath = "src/test/resources/json/aksjoner/noen_aksjoner.json"
+//        val json = String(Files.readAllBytes(Paths.get(filepath)))
+//        assertTrue(validateJson(json))
+//        val mockaksjoner = mapJsonToAny(json, typeRefs<List<RinaAksjon>>())
+//
+//        doReturn(mockaksjoner).whenever(mockBucUtils).getRinaAksjon()
+//        doReturn(mockBucUtils).whenever(mockEuxService).getBucUtils(
+//                ArgumentMatchers.anyString()
+//        )
+//
+//        val result = bucController.getMuligeAksjoner("12345666777")
+//        assertEquals(4, result.size)
+//
+//
+//    }
+//
+//    @Test
+//    fun getMuligeAksjonerMedFilter() {
+//        val filepath = "src/test/resources/json/aksjoner/noen_aksjoner.json"
+//        val json = String(Files.readAllBytes(Paths.get(filepath)))
+//        assertTrue(validateJson(json))
+//        val mockaksjoner = mapJsonToAny(json, typeRefs<List<RinaAksjon>>())
+//
+//        doReturn(mockaksjoner).whenever(mockBucUtils).getRinaAksjon()
+//        doReturn(mockBucUtils).whenever(mockEuxService).getBucUtils(
+//                ArgumentMatchers.anyString()
+//        )
+//        val result = bucController.getMuligeAksjoner("12345666777", "P")
+//        assertEquals(3, result.size)
+//    }
 
 
     @Test

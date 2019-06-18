@@ -22,7 +22,7 @@ data class ActionsItem(
         val tags: Tags? = null,
         val actor: String? = null,
         val typeVersion: String? = null,
-        val name: String? = null,
+        var name: String? = null,
         val documentId: String? = null,
         val actionGroup: ActionGroup? = null,
         val bulk: Boolean? = null,

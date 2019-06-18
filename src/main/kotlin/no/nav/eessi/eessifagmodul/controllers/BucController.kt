@@ -74,18 +74,25 @@ class BucController(private val euxService: EuxService,
         return getBucUtils(rinanr).getAllDocuments()
     }
 
-    @ApiOperation("Henter opp mulige aksjon som kan utføres på valgt type, filtert på sed starter med 'P'")
-    @GetMapping("/{rinanr}/aksjoner", "/{rinanr}/aksjoner/{filter}")
-    fun getMuligeAksjoner(@PathVariable(value = "rinanr", required = true) rinanr: String,
-                          @PathVariable(value = "filter", required = false) filter: String? = null): List<RinaAksjon> {
-
-        logger.debug("Henter ut muligeaksjoner på valgt type")
-        val list = getBucUtils(rinanr).getRinaAksjon()
-        if (filter == null) {
-            return list
-        }
-        return getMuligeAksjonerFilter(list, filter)
+    @ApiOperation("Henter opp mulige aksjon(er) som kan utføres på valgt buc")
+    @GetMapping("/{rinanr}/aksjoner")
+    fun getMuligeAksjoner(@PathVariable(value = "rinanr", required = true) rinanr: String): List<String> {
+        logger.debug("Henter ut muligeaksjoner på valgt buc ${rinanr}")
+        return getBucUtils(rinanr).getAksjonListAsString()
     }
+
+//    @ApiOperation("Henter opp mulige aksjon som kan utføres på valgt type, filtert på sed starter med 'P'")
+//    @GetMapping("/{rinanr}/aksjoner", "/{rinanr}/aksjoner/{filter}")
+//    fun getMuligeAksjoner(@PathVariable(value = "rinanr", required = true) rinanr: String,
+//                          @PathVariable(value = "filter", required = false) filter: String? = null): List<RinaAksjon> {
+//
+//        logger.debug("Henter ut muligeaksjoner på valgt type")
+//        val list = getBucUtils(rinanr).getRinaAksjon()
+//        if (filter == null) {
+//            return list
+//        }
+//        return getMuligeAksjonerFilter(list, filter)
+//    }
 
     @ApiOperation("Henter ut en liste over saker på valgt aktoerid. ny api kall til eux")
     @GetMapping("/rinasaker/{aktoerId}")
