@@ -4,12 +4,15 @@ import no.nav.eessi.eessifagmodul.models.IkkeGyldigKallException
 import no.nav.eessi.eessifagmodul.models.InstitusjonItem
 import no.nav.eessi.eessifagmodul.models.SEDType
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.*
+import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 
 
 class BucUtils(private val buc: Buc ) {
+
+    private val logger = LoggerFactory.getLogger(no.nav.eessi.eessifagmodul.services.eux.BucUtils::class.java)
 
     fun getBuc(): Buc {
         return buc
