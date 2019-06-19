@@ -8,6 +8,7 @@ import no.nav.eessi.eessifagmodul.prefill.PrefillSED
 import no.nav.eessi.eessifagmodul.services.eux.BucSedResponse
 import no.nav.eessi.eessifagmodul.services.eux.BucUtils
 import no.nav.eessi.eessifagmodul.services.eux.EuxService
+import no.nav.eessi.eessifagmodul.services.eux.bucmodel.ParticipantsItem
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.Buc
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.ParticipantsItem
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.ShortDocumentItem
@@ -332,11 +333,17 @@ class PrefillServiceTest {
         //mock find shortdoc from id
         whenever(mockbuc.findDocument(docId)).thenReturn(mockShortDoc)
 
+        //mock antal participant
+        whenever(mockbuc.getParticipants()).thenReturn(listOf(ParticipantsItem()))
+
         //mock bucutls return mocked bucdata
         whenever(mockEuxService.getBucUtils(euxCaseId)).thenReturn(mockbuc)
 
         //mock opprett SED on buc return mockBuc response
         whenever(mockEuxService.opprettSedOnBuc(resultData.sed, euxCaseId)).thenReturn(mockBucResponse)
+
+        //mock leggetil detalger
+        whenever(mockEuxService.addDeltagerInstitutions(any(), any())).thenReturn(true)
 
         //run impl.
         val result = prefillService.prefillAndAddSedOnExistingCase(dataModel)
@@ -354,7 +361,6 @@ class PrefillServiceTest {
         resultData.sed = generateMockP2000(dataModel)
         resultData.euxCaseID = "12131234"
         whenever(mockPrefillSED.prefill(any())).thenReturn(resultData)
-
         whenever(mockEuxService.opprettSedOnBuc(any(), any())).thenThrow(SedDokumentIkkeOpprettetException::class.java)
 
         prefillService.prefillAndAddSedOnExistingCase(dataModel)
@@ -368,7 +374,6 @@ class PrefillServiceTest {
 
         resultData.euxCaseID = "12131234"
         whenever(mockPrefillSED.prefill(any())).thenReturn(resultData)
-
         whenever(mockEuxService.opprettSedOnBuc(any(), any())).thenThrow(EuxGenericServerException::class.java)
 
         prefillService.prefillAndAddSedOnExistingCase(dataModel)
