@@ -8,6 +8,7 @@ import no.nav.eessi.eessifagmodul.prefill.PrefillSED
 import no.nav.eessi.eessifagmodul.services.eux.BucSedResponse
 import no.nav.eessi.eessifagmodul.services.eux.BucUtils
 import no.nav.eessi.eessifagmodul.services.eux.EuxService
+import no.nav.eessi.eessifagmodul.services.eux.bucmodel.ParticipantsItem
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.ShortDocumentItem
 import org.junit.Before
 import org.junit.Test
@@ -54,9 +55,6 @@ class PrefillServiceTest {
         //mock prefill utfylling av sed
         whenever(mockPrefillSED.prefill(any())).thenReturn(resultData)
 
-        //mock leggetil detalger
-        whenever(mockEuxService.addDeltagerInstitutions(any(), any())).thenReturn(true)
-
         //mock shortdoc svar
         val mockShortDoc = ShortDocumentItem(id = docId, type = "P2000", status = "Nadada")
 
@@ -66,11 +64,17 @@ class PrefillServiceTest {
         //mock find shortdoc from id
         whenever(mockbuc.findDocument(docId)).thenReturn(mockShortDoc)
 
+        //mock antal participant
+        whenever(mockbuc.getParticipants()).thenReturn(listOf(ParticipantsItem()))
+
         //mock bucutls return mocked bucdata
         whenever(mockEuxService.getBucUtils(euxCaseId)).thenReturn(mockbuc)
 
         //mock opprett SED on buc return mockBuc response
         whenever(mockEuxService.opprettSedOnBuc(resultData.sed, euxCaseId)).thenReturn(mockBucResponse)
+
+        //mock leggetil detalger
+        whenever(mockEuxService.addDeltagerInstitutions(any(), any())).thenReturn(true)
 
         //run impl.
         val result = prefillService.prefillAndAddSedOnExistingCase(dataModel)
@@ -78,7 +82,6 @@ class PrefillServiceTest {
         //assert result
         assertNotNull(result)
         assertEquals(docId, result.id)
-
     }
 
     @Test(expected = SedDokumentIkkeOpprettetException::class)
@@ -89,9 +92,6 @@ class PrefillServiceTest {
         resultData.sed = generateMockP2000(dataModel)
         resultData.euxCaseID = "12131234"
         whenever(mockPrefillSED.prefill(any())).thenReturn(resultData)
-
-        whenever(mockEuxService.addDeltagerInstitutions(any(), any())).thenReturn(true)
-
         whenever(mockEuxService.opprettSedOnBuc(any(), any())).thenThrow(SedDokumentIkkeOpprettetException::class.java)
 
         prefillService.prefillAndAddSedOnExistingCase(dataModel)
@@ -105,13 +105,77 @@ class PrefillServiceTest {
 
         resultData.euxCaseID = "12131234"
         whenever(mockPrefillSED.prefill(any())).thenReturn(resultData)
-
-        whenever(mockEuxService.addDeltagerInstitutions(any(), any())).thenReturn(true)
-
         whenever(mockEuxService.opprettSedOnBuc(any(), any())).thenThrow(EuxGenericServerException::class.java)
 
         prefillService.prefillAndAddSedOnExistingCase(dataModel)
     }
+
+    @Test
+    fun `addDeltakerInstitutions | mocking add Deltaker to buc returns true`() {
+        val euxCaseId = "12131234"
+
+        val dataModel = generatePrefillModel()
+        dataModel.euxCaseID = euxCaseId
+
+        //mock bucUtils
+        val mockbuc = Mockito.mock(BucUtils::class.java)
+
+        //mock antal participant
+        whenever(mockbuc.getParticipants()).thenReturn(listOf(ParticipantsItem()))
+
+        //mock bucutls return mocked bucdata
+        whenever(mockEuxService.getBucUtils(euxCaseId)).thenReturn(mockbuc)
+
+        //mock leggetil detalger
+        whenever(mockEuxService.addDeltagerInstitutions(any(), any())).thenReturn(true)
+
+        val lagtTilDeltaker = prefillService.addDeltakerInstitutions(dataModel)
+
+        assertEquals( true, lagtTilDeltaker)
+    }
+
+    @Test
+    fun `addDeltakerInstitutions | mocking not adding Deltaker to buc returns false`() {
+        val euxCaseId = "12131234"
+
+        val dataModel = generatePrefillModel()
+        dataModel.euxCaseID = euxCaseId
+
+        //mock bucUtils
+        val mockbuc = Mockito.mock(BucUtils::class.java)
+
+        //mock antal participant
+        whenever(mockbuc.getParticipants()).thenReturn(listOf(ParticipantsItem(), ParticipantsItem(), ParticipantsItem()))
+
+        //mock bucutls return mocked bucdata
+        whenever(mockEuxService.getBucUtils(euxCaseId)).thenReturn(mockbuc)
+
+        val lagtTilDeltaker = prefillService.addDeltakerInstitutions(dataModel)
+
+        assertEquals( false, lagtTilDeltaker)
+    }
+
+    @Test
+    fun `addDeltakerInstitutions | Exception thrown return false`() {
+        val euxCaseId = "12131234"
+
+        val dataModel = generatePrefillModel()
+        dataModel.euxCaseID = euxCaseId
+
+        //mock bucUtils
+        val mockbuc = Mockito.mock(BucUtils::class.java)
+
+        //mock antal participant
+        whenever(mockbuc.getParticipants()).thenReturn(listOf(ParticipantsItem()))
+        //mock bucutls return mocked bucdata
+        whenever(mockEuxService.getBucUtils(euxCaseId)).thenReturn(mockbuc)
+        //mock leggetil deltaker
+        whenever(mockEuxService.addDeltagerInstitutions(any(), any())).thenThrow(RuntimeException("Feiler ved å legge til, GatewayTimeout"))
+
+        val lagtTilDeltaker = prefillService.addDeltakerInstitutions(dataModel)
+        assertEquals( false, lagtTilDeltaker)
+    }
+
 
 
     @Test

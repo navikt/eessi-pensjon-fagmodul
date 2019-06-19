@@ -8,6 +8,7 @@ import no.nav.eessi.eessifagmodul.services.eux.EuxService
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.ShortDocumentItem
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import java.lang.Exception
 
 @Service
 class PrefillService(private val euxService: EuxService, private val prefillSED: PrefillSED) {
@@ -41,15 +42,23 @@ class PrefillService(private val euxService: EuxService, private val prefillSED:
         val data = prefillSed(dataModel)
         val navSed = data.sed
 
-        val result = euxService.addDeltagerInstitutions(data.euxCaseID, data.institution)
+        val leggTilDeltaker = addDeltakerInstitutions(data)
 
-        if (result) {
-            val docresult = euxService.opprettSedOnBuc(navSed, data.euxCaseID)
+        val docresult = euxService.opprettSedOnBuc(navSed, data.euxCaseID)
+        return euxService.getBucUtils(docresult.caseId).findDocument(docresult.documentId)
+}
 
-            return euxService.getBucUtils(docresult.caseId).findDocument(docresult.documentId)
-
+    fun addDeltakerInstitutions(data: PrefillDataModel): Boolean {
+        try {
+            val participantList = euxService.getBucUtils(data.euxCaseID).getParticipants().orEmpty()
+            if (participantList.size <= 1) {
+                logger.debug("legger til deltaker på buc: ${data.euxCaseID}")
+                return euxService.addDeltagerInstitutions(data.euxCaseID, data.institution)
+            }
+        } catch (ex: Exception) {
+            logger.warn("Error ved oppretting av deltaker på BUC ${data.euxCaseID}")
         }
-        throw SedDokumentIkkeOpprettetException("Feilet ved opprettelse av SED med deltagere")
+        return false
     }
 
     /**
@@ -65,7 +74,7 @@ class PrefillService(private val euxService: EuxService, private val prefillSED:
     //muligens midlertidig metode for å sende kun en mottaker til EUX.
     //TODO: funksjon for å legge til flere mottaker (InstitusjonItem) til Rina/SED etter oppretting.
     private fun getFirstInstitution(institutions: List<InstitusjonItem>): InstitusjonItem {
-        return institutions.first() ?: throw IkkeGyldigKallException("institujson kan ikke være tom")
+        return institutions.first() //?: throw IkkeGyldigKallException("institujson kan ikke være tom")
     }
 
 

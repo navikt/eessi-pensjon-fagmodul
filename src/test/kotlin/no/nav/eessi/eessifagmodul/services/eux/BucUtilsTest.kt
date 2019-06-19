@@ -39,14 +39,6 @@ class BucUtilsTest {
     }
 
     @Test
-    fun generteShortBuc() {
-        val bucutil = BucUtils(bucjson)
-        val result = bucutil.getSubject()
-        assertEquals("øjøløjøjø", result.name)
-        assertEquals("06018120915", result.pid)
-    }
-
-    @Test
     fun getListofSbdh() {
         val result = bucUtils.getSbdh()
         val resjson = mapAnyToJson(result)
