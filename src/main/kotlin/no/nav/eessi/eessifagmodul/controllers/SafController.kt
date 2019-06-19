@@ -24,8 +24,7 @@ class SafController(val safService: SafService) {
     @ApiOperation("Henter dokumentInnhold for et JOARK dokument")
     @GetMapping("/hentdokument/{journalpostId}/{dokumentInfoId}")
     fun getMetadata(@PathVariable("journalpostId", required = true) journalpostId: String,
-                    @PathVariable("dokumentInfoId", required = true) dokumentInfoId: String,
-                    @PathVariable("variantFormat", required = true) variantFormat: String): ResponseEntity<String> {
+                    @PathVariable("dokumentInfoId", required = true) dokumentInfoId: String): ResponseEntity<String> {
         logger.info("Henter dokumentinnhold fra SAF for journalpostId: $journalpostId, dokumentInfoId: $dokumentInfoId")
         return safService.hentDokumentInnhold(journalpostId, dokumentInfoId)
     }
