@@ -15,11 +15,11 @@ port: 8080
 
 healthcheck:
     liveness:
-      initialDelay: 120
+      initialDelay: 60
       failureThreshold: 10
       path: /internal/isalive
     readiness:
-      initialDelay: 120
+      initialDelay: 60
       failureThreshold: 10
       path: /internal/isready
 
