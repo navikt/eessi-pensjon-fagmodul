@@ -50,7 +50,7 @@ class SafService(val safGraphQlOidcRestTemplate: RestTemplate, val safRestOidcRe
 
     fun hentDokumentInnhold(journalpostId: String, dokumentInfoId: String) : ResponseEntity<String> {
         try {
-            val path = "/rest/hentdokument/$journalpostId/$dokumentInfoId/ARKIV"
+            val path = "/$journalpostId/$dokumentInfoId/ARKIV"
             val response = safRestOidcRestTemplate.exchange(path,
                     HttpMethod.GET,
                     HttpEntity("/"),
