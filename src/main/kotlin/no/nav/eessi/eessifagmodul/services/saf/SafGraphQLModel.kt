@@ -31,10 +31,6 @@ data class SafRequest(
     fun toJson(): String {
         return mapAnyToJson(this, false)
     }
-
-    fun toJsonSkipEmpty(): String {
-        return mapAnyToJson(this, true)
-    }
 }
 
 data class Variables(
@@ -53,38 +49,35 @@ enum class BrukerIdType {
     AKTOERID
 }
 
+data class HentMetadataResponse (val data: Data) {
+    fun toJson(): String {
+        return mapAnyToJson(this, false)
+    }
+}
 
+data class Data(val dokumentoversiktBruker: DokumentoversiktBruker)
 
+data class DokumentoversiktBruker(val journalposter: List<Journalpost>)
 
+data class Journalpost(
+        val tilleggsopplysninger: List<Map<String, String>>,
+        val journalpostId: String,
+        val tittel: String,
+        val tema: String,
+        val dokumenter: List<Dokument>,
+        val relevanteDatoer: List<DatoHolder>
+)
 
-//
-//data class SafGraphQLRequest(
-//        val dokumentoversiktBrukerId: DokumentoversiktBrukerId,
-//        val journalposter: Journalposter
-//)
-//
-//data class DokumentoversiktBrukerId(
-//        val brukerId: BrukerId,
-//        val foerste: String = "1000"
-//)
-//
-//data class BrukerId(
-//        val id: String,
-//        val type: BrukerIdType
-//)
-//
-//enum class BrukerIdType {
-//    FNR,
-//    AKTOERID
-//}
-//
-//data class Journalposter(
-//        val journalpostId: Dokumenter
-//)
-//
-//data class Dokumenter(
-//        val dokumentInfoId: String
-//)
+data class Dokument(
+        val dokumentInfoId: String,
+        val tittel: String
+)
+
+data class DatoHolder(
+        val dato: String,
+        val datotype: String
+)
+
 
 
 

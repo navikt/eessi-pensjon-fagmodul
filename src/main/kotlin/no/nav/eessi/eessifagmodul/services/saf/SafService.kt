@@ -1,5 +1,6 @@
 package no.nav.eessi.eessifagmodul.services.saf
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.Metrics
 import no.nav.eessi.eessifagmodul.utils.errorBody
@@ -12,39 +13,39 @@ import java.util.*
 private val logger = LoggerFactory.getLogger(SafService::class.java)
 
 @Service
-class SafService(val safGraphQlOidcRestTemplate: RestTemplate, val safRestOidcRestTemplate: RestTemplate) {
+class SafService(val safGraphQlOidcRestTemplate: RestTemplate,
+                val safRestOidcRestTemplate: RestTemplate) {
 
     private val saf_teller_navn = "eessipensjon_fagmodul.saf"
     private val saf_teller_type_vellykkede = counter(saf_teller_navn, "vellykkede")
     private val saf_teller_type_feilede = counter(saf_teller_navn, "feilede")
+    private val mapper = jacksonObjectMapper()
+
 
     private final fun counter(name: String, type: String): Counter {
         return Metrics.counter(name, "type", type)
     }
 
-    fun hentDokumentMetadata(aktoerId: String) : ResponseEntity<String> {
+    fun hentDokumentMetadata(aktoerId: String) : HentMetadataResponse {
          try {
              val headers = HttpHeaders()
              headers.contentType = MediaType.APPLICATION_JSON
              val httpEntity = HttpEntity(genererQuery(aktoerId), headers)
-
              val response = safGraphQlOidcRestTemplate.exchange("/",
                      HttpMethod.POST,
                      httpEntity,
                      String::class.java)
-
              if (response.statusCode.is2xxSuccessful) {
+                 val mappedResponse = mapper.readValue(response.body!!, HentMetadataResponse::class.java)
                  saf_teller_type_vellykkede.increment()
-                 return ResponseEntity.ok().body(response.body!!)
+                 return mappedResponse
              } else {
                  saf_teller_type_feilede.increment()
                  throw RuntimeException("En feil oppstod under henting av dokument metadata fra SAF: ${response.statusCode}")
              }
          } catch(ex: Exception) {
              logger.error("En feil oppstod under henting av dokument metadata fra SAF: $ex")
-
-             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                     .body(errorBody(ex.message!!, UUID.randomUUID().toString()))
+             throw ex
          }
     }
 

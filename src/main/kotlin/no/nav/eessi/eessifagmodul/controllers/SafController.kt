@@ -2,10 +2,13 @@ package no.nav.eessi.eessifagmodul.controllers
 
 import io.swagger.annotations.ApiOperation
 import no.nav.eessi.eessifagmodul.services.saf.SafService
+import no.nav.eessi.eessifagmodul.utils.errorBody
 import no.nav.security.oidc.api.Protected
 import org.slf4j.LoggerFactory
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.util.*
 
 @Protected
 @RestController
@@ -18,12 +21,17 @@ class SafController(val safService: SafService) {
     @GetMapping("/metadata/{aktoerId}")
     fun getMetadata(@PathVariable("aktoerId", required = true) aktoerId: String): ResponseEntity<String> {
         logger.info("Henter metadata for dokumenter i SAF for aktørid: $aktoerId")
-        return safService.hentDokumentMetadata(aktoerId)
+        return try {
+            ResponseEntity.ok().body(safService.hentDokumentMetadata(aktoerId).toJson())
+        } catch(ex: Exception) {
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(errorBody(ex.message!!, UUID.randomUUID().toString()))
+        }
     }
 
     @ApiOperation("Henter dokumentInnhold for et JOARK dokument")
     @GetMapping("/hentdokument/{journalpostId}/{dokumentInfoId}")
-    fun getMetadata(@PathVariable("journalpostId", required = true) journalpostId: String,
+    fun getDokumentInnhold(@PathVariable("journalpostId", required = true) journalpostId: String,
                     @PathVariable("dokumentInfoId", required = true) dokumentInfoId: String): ResponseEntity<String> {
         logger.info("Henter dokumentinnhold fra SAF for journalpostId: $journalpostId, dokumentInfoId: $dokumentInfoId")
         return safService.hentDokumentInnhold(journalpostId, dokumentInfoId)
