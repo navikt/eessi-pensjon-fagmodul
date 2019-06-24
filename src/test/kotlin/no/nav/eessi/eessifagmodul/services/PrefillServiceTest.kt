@@ -331,7 +331,7 @@ class PrefillServiceTest {
         whenever(mockbuc.findDocument(docId)).thenReturn(mockShortDoc)
 
         //mock antal participant
-        whenever(mockbuc.getParticipants()).thenReturn(listOf(ParticipantsItem()))
+        //whenever(mockbuc.getParticipants()).thenReturn(listOf(ParticipantsItem()))
 
         //mock bucutls return mocked bucdata
         whenever(mockEuxService.getBucUtils(euxCaseId)).thenReturn(mockbuc)
@@ -340,7 +340,7 @@ class PrefillServiceTest {
         whenever(mockEuxService.opprettSedOnBuc(resultData.sed, euxCaseId)).thenReturn(mockBucResponse)
 
         //mock leggetil detalger
-        whenever(mockEuxService.addDeltagerInstitutions(any(), any())).thenReturn(true)
+        //whenever(mockEuxService.addDeltagerInstitutions(any(), any())).thenReturn(true)
 
         //run impl.
         val result = prefillService.prefillAndAddSedOnExistingCase(dataModel)
