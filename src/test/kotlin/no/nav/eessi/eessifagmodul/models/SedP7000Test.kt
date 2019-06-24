@@ -32,8 +32,8 @@ class SedP7000Test : AbstractSedTest() {
         val p7000json = getTestJsonFile("P7000_2-NAV_v4_1.json")
         val p7000sed = getSEDfromTestfile(p7000json)
 
-        println(p7000json)
-        p7000sed.print()
+        logger.info(p7000json)
+        logger.info(p7000sed.toString())
 
         val json = p7000sed.toJson()
 

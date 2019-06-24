@@ -15,21 +15,12 @@ class SedP4000fileTest : AbstractSedTest() {
 
     @Test
     fun `validate P4000 to json and back`() {
-//        val p4000path = Paths.get("src/test/resources/json/P4000-NAV.json")
-//        val p4000file = String(Files.readAllBytes(p4000path))
-//        assertTrue(validateJson(p4000file))
-//        val p4000sed = SED.fromJson(p4000file)
-
         val p4000json = getTestJsonFile("P4000-NAV.json")
         val p4000sed = getSEDfromTestfile(p4000json)
 
         val json = mapAnyToJson(p4000sed, true)
         val pensjondata = mapJsonToAny(json, typeRefs<SED>())
         assertNotNull(pensjondata)
-
-        //println(p4000file)
-        //println(pensjondata)
-
         JSONAssert.assertEquals(p4000json, json, false)
     }
 }

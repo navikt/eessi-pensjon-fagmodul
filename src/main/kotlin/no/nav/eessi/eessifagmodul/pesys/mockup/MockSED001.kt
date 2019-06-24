@@ -1,9 +1,11 @@
 package no.nav.eessi.eessifagmodul.pesys.mockup
 
 import no.nav.eessi.eessifagmodul.models.*
+import org.slf4j.LoggerFactory
 
 class MockSED001 {
 
+    private val logger = LoggerFactory.getLogger(MockSED001::class.java)
 
     fun mockP2000(): SED {
         val p2000 = SED("P2000")
@@ -45,20 +47,15 @@ class MockSED001 {
     fun mockP4000(): SED {
         try {
             val p4000file = this.javaClass.getResource("/mockPesys/P4000-NAV.json").readText()
-            //val p4000file = String(Files.readAllBytes(Paths.get(resource.path)))
-//            println("------------------------------------------------------------------------------")
-//            println(p4000file)
-//            println("------------------------------------------------------------------------------")
 
             //val json = mapAnyToJson(p4000sed, true)
             val p4000 = SED.fromJson(p4000file)
 
-            //println(p4000)
-            println("p4000 mocket og legges til")
+            logger.info("p4000 mocket og legges til")
 
             return p4000
         } catch (ex: Exception) {
-            println(ex.message)
+            logger.error(ex.message)
             return SED.create("P4000")
         }
 

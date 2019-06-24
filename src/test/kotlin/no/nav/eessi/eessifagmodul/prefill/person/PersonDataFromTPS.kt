@@ -19,8 +19,12 @@ import no.nav.tjeneste.virksomhet.person.v3.informasjon.*
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonResponse
 import org.junit.Before
 import org.mockito.Mock
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.util.ResourceUtils
 import java.time.LocalDate
+
+private val logger: Logger by lazy { LoggerFactory.getLogger(PersonDataFromTPS::class.java) }
 
 abstract class PersonDataFromTPS(private val mocktps: Set<MockTPS>, private val eessiInformasjon: EessiInformasjon) {
 
@@ -31,8 +35,6 @@ abstract class PersonDataFromTPS(private val mocktps: Set<MockTPS>, private val 
 
     @Mock
     protected lateinit var prefillNav: PrefillNav
-
-    //lateinit var prefilData: PrefillDataModel
 
     @Before
     fun setup() {
@@ -47,7 +49,7 @@ abstract class PersonDataFromTPS(private val mocktps: Set<MockTPS>, private val 
     private fun initMockHentPersonResponse(mockTPS: MockTPS, mockTPSset: Set<MockTPS>): HentPersonResponse {
         val resource = ResourceUtils.getFile("classpath:personv3/${mockTPS.mockFile}").readText()
 
-        println("Parsing TPS mockfile: ${mockTPS.mockFile}   Generated fnr:  ${mockTPS.replaceMockfnr}   type:  ${mockTPS.mockType} ")
+        logger.info("Parsing TPS mockfile: ${mockTPS.mockFile}   Generated fnr:  ${mockTPS.replaceMockfnr}   type:  ${mockTPS.mockType} ")
 
         val mockBarnList = mutableListOf<MockTPS>()
         val mockEkteItem = mutableListOf<MockTPS>()
@@ -59,7 +61,7 @@ abstract class PersonDataFromTPS(private val mocktps: Set<MockTPS>, private val 
                 mockEkteItem.add(it)
             }
         }
-        println("---------------------------------------------------------------------------------")
+        logger.info("---------------------------------------------------------------------------------")
 
         val mapper = jacksonObjectMapper()
         val rootNode = mapper.readValue(resource, JsonNode::class.java)
@@ -125,7 +127,6 @@ abstract class PersonDataFromTPS(private val mocktps: Set<MockTPS>, private val 
                 }
             }
             v3familieRelasjon.tilPerson.aktoer = familieIdent
-            //println("Aktoer : " + v3familieRelasjon.tilPerson.aktoer)
 
             v3familieRelasjon.tilPerson.personnavn = mapJsonToAny(personnavnitem.toString(), typeRefs<Personnavn>())
             v3person.harFraRolleI.add(v3familieRelasjon)
@@ -147,7 +148,7 @@ abstract class PersonDataFromTPS(private val mocktps: Set<MockTPS>, private val 
         ident.ident.ident = mockTPS.replaceMockfnr
 
         val navfnr = NavFodselsnummer(ident.ident.ident)
-        println("Person-Aldrer: ${navfnr.getAge()}")
+        logger.info("Person-Aldrer: ${navfnr.getAge()}")
 
         val v3PersonResponse = HentPersonResponse()
         v3PersonResponse.person = v3person
@@ -157,12 +158,9 @@ abstract class PersonDataFromTPS(private val mocktps: Set<MockTPS>, private val 
 
     fun mockPrefillPersonDataFromTPS(): PrefillPersonDataFromTPS {
         mocktps.forEach {
-            //whenever(mockPersonV3Service.hentPerson(it.mockPin)).thenReturn(initMockHentPersonResponse(it, mocktps))
-
             val result = initMockHentPersonResponse(it, mocktps)
             whenever(mockPersonV3Service.hentPerson(it.replaceMockfnr)).thenReturn(result)
         }
-        //EessiInformasjon() EessiInformasjon()
         return PrefillPersonDataFromTPS(mockPersonV3Service, PostnummerService(), LandkodeService(), eessiInformasjon)
     }
 
@@ -205,7 +203,7 @@ abstract class PersonDataFromTPS(private val mocktps: Set<MockTPS>, private val 
             val fnr = day + month + fixedyear + indivdnr + "52"
 
             val navfnr = NavFodselsnummer(fnr)
-            println("Generert fnr: ${navfnr.fnr()}  age: ${navfnr.getAge()}  birthday:  ${navfnr.get4DigitBirthYear()}  isunder18: ${navfnr.isUnder18Year()}")
+            logger.info("Generert fnr: ${navfnr.fnr()}  age: ${navfnr.getAge()}  birthday:  ${navfnr.get4DigitBirthYear()}  isunder18: ${navfnr.isUnder18Year()}")
             return fnr
         }
 
@@ -229,11 +227,6 @@ abstract class PersonDataFromTPS(private val mocktps: Set<MockTPS>, private val 
         }
 
         private fun generateIndvididnr(year: Int): String {
-//        1854-1899, brukes serien 749-500
-//        1900-1999, brukes serien 499-000
-//        1940-1999, brukes også serien 999-900
-//        2000-2039, brukes serien 999-500
-//        println("Year: $year")
             return when (year) {
                 in 1900..1999 -> "433"
                 in 1940..1999 -> "954"

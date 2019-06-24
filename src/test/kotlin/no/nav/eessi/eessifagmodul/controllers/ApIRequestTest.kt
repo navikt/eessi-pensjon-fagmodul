@@ -2,9 +2,12 @@ package no.nav.eessi.eessifagmodul.controllers
 
 import no.nav.eessi.eessifagmodul.models.InstitusjonItem
 import no.nav.eessi.eessifagmodul.models.SED
+import no.nav.eessi.eessifagmodul.services.LandkodeService
 import no.nav.eessi.eessifagmodul.utils.mapAnyToJson
 import no.nav.eessi.eessifagmodul.utils.validateJson
 import org.junit.Test
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.nio.file.Files
 import java.nio.file.Paths
 import kotlin.test.assertNotNull
@@ -14,6 +17,9 @@ class ApIRequestTest {
 
     private val printout = false
     private val printsed = false
+
+    private val logger: Logger by lazy { LoggerFactory.getLogger(LandkodeService::class.java) }
+
 
     private fun createMockApiRequest(sedName: String, buc: String, payload: String): SedController.ApiRequest {
         val items = listOf(InstitusjonItem(country = "NO", institution = "NAVT003"))
@@ -40,12 +46,12 @@ class ApIRequestTest {
     fun validateAndPrint(req: SedController.ApiRequest) {
         if (printsed) {
             val json = SED.fromJson(req.payload!!).toJson()
-            println(json)
+            logger.info(json)
         }
         if (printout) {
             val json = mapAnyToJson(req)
             assertNotNull(json)
-            println("\n\n\n $json \n\n\n")
+            logger.info("\n\n\n $json \n\n\n")
         }
     }
 

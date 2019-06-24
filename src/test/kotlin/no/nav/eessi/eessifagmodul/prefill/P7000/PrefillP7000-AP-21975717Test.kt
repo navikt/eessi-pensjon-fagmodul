@@ -10,6 +10,8 @@ import no.nav.eessi.eessifagmodul.prefill.person.PersonDataFromTPS
 import no.nav.eessi.eessifagmodul.utils.mapAnyToJson
 import no.nav.eessi.eessifagmodul.utils.validateJson
 import org.skyscreamer.jsonassert.JSONAssert
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.nio.file.Files
 import java.nio.file.Paths
 import kotlin.test.Test
@@ -18,6 +20,8 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class `PrefillP7000-AP-21975717Test` : AbstractPrefillIntegrationTestHelper() {
+
+    val logger: Logger by lazy { LoggerFactory.getLogger(`PrefillP7000-AP-21975717Test`::class.java) }
 
     override fun mockPesysTestfilepath(): Pair<String, String> {
         return Pair("P7000", "P2000_21975717_AP_UTLAND.xml")
@@ -63,7 +67,7 @@ class `PrefillP7000-AP-21975717Test` : AbstractPrefillIntegrationTestHelper() {
     fun `forventet korrekt utfylt P7000 Melding om vedtakssammendrag med MockData fra testfiler`() {
         val p7000 = prefill.prefill(prefillData)
 
-        println(p7000.toJsonSkipEmpty())
+        logger.info(p7000.toJsonSkipEmpty())
 
         assertEquals("OKOULOV", p7000.nav?.ektefelle?.person?.etternavn)
         assertEquals("M", p7000.pensjon?.bruker?.person?.kjoenn)
@@ -106,7 +110,7 @@ class `PrefillP7000-AP-21975717Test` : AbstractPrefillIntegrationTestHelper() {
         if (printout) {
             val json = mapAnyToJson(req)
             assertNotNull(json)
-            println("\n\n\n $json \n\n\n")
+            logger.info("\n\n\n $json \n\n\n")
         }
     }
 

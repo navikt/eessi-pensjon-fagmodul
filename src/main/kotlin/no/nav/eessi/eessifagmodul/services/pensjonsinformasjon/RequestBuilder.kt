@@ -53,8 +53,6 @@ class RequestBuilder {
         val elements = baseDocument.getElementsByTagNameNS(XS, "all").item(0)
         while (elements.hasChildNodes())
             elements.removeChild(elements.firstChild)
-
-        //println("baseDocument ${baseDocument.textContent}")
         return baseDocument
     }
 }

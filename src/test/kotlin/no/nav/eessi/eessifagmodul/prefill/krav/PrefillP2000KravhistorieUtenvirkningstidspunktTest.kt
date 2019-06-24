@@ -11,12 +11,15 @@ import no.nav.eessi.eessifagmodul.prefill.nav.PrefillPersonDataFromTPS
 import no.nav.eessi.eessifagmodul.prefill.person.PersonDataFromTPS
 import no.nav.eessi.eessifagmodul.utils.NavFodselsnummer
 import org.junit.Test
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 
-//@RunWith(MockitoJUnitRunner::class)
 class PrefillP2000KravhistorieUtenvirkningstidspunktTest : AbstractPrefillIntegrationTestHelper() {
+
+    val logger: Logger by lazy { LoggerFactory.getLogger(PrefillP2000KravhistorieUtenvirkningstidspunktTest::class.java) }
 
     override fun opprettMockPersonDataTPS(): Set<PersonDataFromTPS.MockTPS>? {
         return setOf(
@@ -80,7 +83,7 @@ class PrefillP2000KravhistorieUtenvirkningstidspunktTest : AbstractPrefillIntegr
         P2000pensjon.nav = Nav(
                 krav = P2000.nav?.krav
         )
-        P2000pensjon.print()
+        logger.info(P2000pensjon.toString())
 
         val sed = P2000pensjon
 

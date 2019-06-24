@@ -9,12 +9,16 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.util.ResourceUtils
 import java.time.LocalDate
 import kotlin.test.*
 
 @RunWith(MockitoJUnitRunner::class)
 class PensjonsinformasjonUtlandControllerTest {
+
+    val logger: Logger by lazy { LoggerFactory.getLogger(PensjonsinformasjonUtlandControllerTest::class.java) }
 
     @Mock
     lateinit var controller: PensjonsinformasjonUtlandController
@@ -70,7 +74,7 @@ class PensjonsinformasjonUtlandControllerTest {
     fun mockGetKravUtlandKeys() {
         val set = controller.mockGetKravUtlandKeys()
         set.forEach {
-            println(it)
+            logger.info("" + it)
         }
         assertEquals(0, set.size)
     }
@@ -145,7 +149,7 @@ class PensjonsinformasjonUtlandControllerTest {
         assertEquals("23456789001", utlandTre?.utlandPin)
 
         val json = mapAnyToJson(response)
-        println(json)
+        logger.info(json)
     }
 
     @Test
@@ -153,8 +157,6 @@ class PensjonsinformasjonUtlandControllerTest {
         val response = controller.hentKravUtland(1050)
         assertNotNull(response)
         assertNull(response.uttaksgrad)
-//        val json2 = mapAnyToJson(response)
-//        println(json2)
     }
 
 
@@ -174,7 +176,7 @@ class PensjonsinformasjonUtlandControllerTest {
                 )
         )
         val json = mapAnyToJson(test)
-        println(json)
+        logger.info(json)
 
 
     }

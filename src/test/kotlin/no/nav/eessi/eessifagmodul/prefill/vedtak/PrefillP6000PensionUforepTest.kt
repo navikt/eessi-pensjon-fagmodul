@@ -3,12 +3,14 @@ package no.nav.eessi.eessifagmodul.prefill.vedtak
 import no.nav.eessi.eessifagmodul.utils.mapAnyToJson
 import no.nav.eessi.eessifagmodul.utils.simpleFormat
 import org.junit.Test
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
-//@RunWith(MockitoJUnitRunner::class)
 class PrefillP6000PensionUforepTest : AbstractMockVedtakPensionHelper("P6000-UT-201.xml") {
 
+    private val logger: Logger by lazy { LoggerFactory.getLogger(PrefillP6000PensionUforepTest::class.java) }
 
     @Test
     fun `forventet korrekt utfylling av Pensjon objekt på Uførepensjon`() {
@@ -113,9 +115,9 @@ class PrefillP6000PensionUforepTest : AbstractMockVedtakPensionHelper("P6000-UT-
         val result = dataFromPESYS1.pensjonVedtak.createBeregningItemList(pendata)
 
         val json = mapAnyToJson(result, true)
-        println("----------------------------------------------------------------")
-        println(json)
-        println("----------------------------------------------------------------")
+        logger.info("----------------------------------------------------------------")
+        logger.info(json)
+        logger.info("----------------------------------------------------------------")
 
         assertEquals(6, result.size)
 

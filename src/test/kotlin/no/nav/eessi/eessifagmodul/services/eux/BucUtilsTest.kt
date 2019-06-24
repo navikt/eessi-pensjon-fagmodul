@@ -11,6 +11,8 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.nio.file.Files
 import java.nio.file.Paths
 import kotlin.test.assertEquals
@@ -18,6 +20,8 @@ import kotlin.test.assertTrue
 
 @RunWith(MockitoJUnitRunner::class)
 class BucUtilsTest {
+
+    private val logger: Logger by lazy { LoggerFactory.getLogger(BucUtilsTest::class.java) }
 
     lateinit var bucUtils: BucUtils
     lateinit var bucjson: String
@@ -42,7 +46,7 @@ class BucUtilsTest {
     fun getListofSbdh() {
         val result = bucUtils.getSbdh()
         val resjson = mapAnyToJson(result)
-        println(resjson)
+        logger.info(resjson)
         assertEquals(1, result.size)
         val sbdh = result.first()
 
@@ -190,12 +194,12 @@ class BucUtilsTest {
             print("Nr:\t${counter++}\ttype:\t${it.type}\t")
 
             if (it.type == "P8000") {
-                println("\tattachments:\t${it.attachments?.size}")
+                logger.info("\tattachments:\t${it.attachments?.size}")
                 assertEquals("2019-05-20", it.lastUpdate.toString())
                 assertEquals(2, it.attachments?.size)
 
             } else {
-                println("\tattachments:\t0")
+                logger.info("\tattachments:\t0")
             }
         }
 

@@ -25,6 +25,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers
 import org.mockito.Mock
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Bean
@@ -47,6 +49,8 @@ import kotlin.test.assertEquals
 @ActiveProfiles("test")
 @SpringBootTest
 abstract class AbstractMockVedtakPensionHelper(private val xmlFilename: String) {
+
+    private val logger: Logger by lazy { LoggerFactory.getLogger(AbstractMockVedtakPensionHelper::class.java) }
 
     @Mock
     private lateinit var mockRestTemplate: RestTemplate
@@ -80,13 +84,6 @@ abstract class AbstractMockVedtakPensionHelper(private val xmlFilename: String) 
     @Primary
     @Bean
     fun mockPrefillPensionDataFromPEN(pensjonsinformasjonService: PensjonsinformasjonService): PensjonsinformasjonHjelper {
-//        val eessiInfo = EessiInformasjon()
-//        eessiInfo.institutionid = "NO"
-//        eessiInfo.institutionnavn = "[NO] NAV NORGE"
-//        eessiInfo.institutionBy = "OSLO"
-//        eessiInfo.institutionGate = "Postboks 6600 Etterstad"
-//        eessiInfo.institutionPostnr = "0607"
-//        eessiInfo.institutionLand = "NO"
         return PensjonsinformasjonHjelper(pensjonsinformasjonService, eessiInformasjon)
     }
 
@@ -113,10 +110,10 @@ abstract class AbstractMockVedtakPensionHelper(private val xmlFilename: String) 
         val sed = prefill.sed
         sed.pensjon = result
         val json = sed.toJson()
-        println("vedtak")
-        println("----------------------------------------------------------------------\n")
-        println(json)
-        println("----------------------------------------------------------------------\n")
+        logger.info("vedtak")
+        logger.info("----------------------------------------------------------------------\n")
+        logger.info(json)
+        logger.info("----------------------------------------------------------------------\n")
     }
 
 
@@ -255,7 +252,7 @@ abstract class AbstractMockVedtakPensionHelper(private val xmlFilename: String) 
         trygdetidListe.trygdetidListe.add(ttid1)
 
         val result = dataFromPESYS.summerTrygdeTid(trygdetidListe)
-        println("resultat: $result")
+        logger.info("resultat: $result")
         assertEquals(10, result)
 
         val pendata = Pensjonsinformasjon()
@@ -290,7 +287,7 @@ abstract class AbstractMockVedtakPensionHelper(private val xmlFilename: String) 
         val trygdetidListe = createTrygdelisteTid()
 
         val result = dataFromPESYS.summerTrygdeTid(trygdetidListe)
-        println("resultat: $result")
+        logger.info("resultat: $result")
         assertEquals(15, result)
 
         val pendata = Pensjonsinformasjon()
@@ -311,7 +308,7 @@ abstract class AbstractMockVedtakPensionHelper(private val xmlFilename: String) 
         trygdetidListe.trygdetidListe.add(ttid1)
 
         val result = dataFromPESYS.summerTrygdeTid(trygdetidListe)
-        println("resultat: $result")
+        logger.info("resultat: $result")
         assertEquals(500, result)
 
         val pendata = Pensjonsinformasjon()

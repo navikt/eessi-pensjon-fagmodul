@@ -1,5 +1,6 @@
 package no.nav.eessi.eessifagmodul.utils
 
+import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
@@ -7,6 +8,8 @@ import java.time.temporal.ChronoUnit
  * fra stash...
  */
 class NavFodselsnummer(private val fodselsnummer: String) {
+
+    private val logger = LoggerFactory.getLogger(NavFodselsnummer::class.java)
 
     init {
         try {
@@ -50,15 +53,14 @@ class NavFodselsnummer(private val fodselsnummer: String) {
     private fun getCentury(): String {
         val individnummerInt = Integer.parseInt(getIndividnummer())
         val birthYear = Integer.parseInt(get2DigitBirthYear())
-        //println("Fnr: $fodselsnummer   BirthYear: $birthYear    IndividNr: $individnummerInt")
         return when {
             (individnummerInt <= 499) -> "19"
             (individnummerInt >= 900 && birthYear > 39) -> "19"
             (individnummerInt >= 500 && birthYear < 40) -> "20"
             (individnummerInt in 500..749 && birthYear > 54) -> "18"
             else -> {
-                println("individNr not found ")
-                println("Fnr: $fodselsnummer   BirthYear: $birthYear    IndividNr: $individnummerInt")
+                logger.info("individNr not found ")
+                logger.info("Fnr: $fodselsnummer   BirthYear: $birthYear    IndividNr: $individnummerInt")
                 throw IllegalArgumentException("Ingen gyldig årstall funnet")
             }
         }

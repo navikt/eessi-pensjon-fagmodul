@@ -11,7 +11,6 @@ import no.nav.eessi.eessifagmodul.services.PrefillService
 import no.nav.eessi.eessifagmodul.services.aktoerregister.AktoerregisterService
 import no.nav.eessi.eessifagmodul.services.eux.BucSedResponse
 import no.nav.eessi.eessifagmodul.services.eux.EuxService
-import no.nav.eessi.eessifagmodul.services.eux.bucmodel.BucAndSedView
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.ShortDocumentItem
 import no.nav.security.oidc.api.Protected
 import org.slf4j.LoggerFactory
@@ -124,7 +123,7 @@ class SedController(private val euxService: EuxService,
             request.institutions == null -> throw IkkeGyldigKallException("Mangler Institusjoner")
 
             SEDType.isValidSEDType(request.sed) -> {
-                println("ALL SED on existin Rina -> SED: ${request.sed} -> euxCaseId: ${request.sakId}")
+                logger.info("ALL SED on existing Rina -> SED: ${request.sed} -> euxCaseId: ${request.sakId}")
                 val pinid = hentAktoerIdPin(request.aktoerId)
                 PrefillDataModel().apply {
                     penSaksnummer = request.sakId
@@ -154,7 +153,7 @@ class SedController(private val euxService: EuxService,
 
             //Denne validering og utfylling kan benyttes på SED P2000,P2100,P2200
             SEDType.isValidSEDType(request.sed) -> {
-                println("ALL SED on new RinaCase -> SED: ${request.sed}")
+                logger.info("ALL SED on new RinaCase -> SED: ${request.sed}")
                 val pinid = hentAktoerIdPin(request.aktoerId)
                 PrefillDataModel().apply {
                     penSaksnummer = request.sakId

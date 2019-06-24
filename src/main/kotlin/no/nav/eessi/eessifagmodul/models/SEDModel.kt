@@ -36,11 +36,7 @@ data class SED(
         }
     }
 
-    fun print() {
-        println("----------------------------------------------------------------------")
-        println(this.toJson())
-        println("----------------------------------------------------------------------")
-    }
+    override fun toString() : String = this.toJson()
 
 }
 

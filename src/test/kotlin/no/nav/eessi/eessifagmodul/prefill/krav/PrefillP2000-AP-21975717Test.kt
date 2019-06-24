@@ -15,12 +15,16 @@ import no.nav.eessi.eessifagmodul.services.SedValidator
 import no.nav.eessi.eessifagmodul.utils.NavFodselsnummer
 import no.nav.eessi.eessifagmodul.utils.mapAnyToJson
 import org.junit.Test
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.fail
 
-//@RunWith(MockitoJUnitRunner::class)
 class `PrefillP2000-AP-21975717Test` : AbstractPrefillIntegrationTestHelper() {
+
+
+    val logger: Logger by lazy { LoggerFactory.getLogger(`PrefillP2000-AP-21975717Test`::class.java) }
 
     override fun mockPesysTestfilepath(): Pair<String, String> {
         return Pair("P2000", "P2000_21975717_AP_UTLAND.xml")
@@ -70,7 +74,7 @@ class `PrefillP2000-AP-21975717Test` : AbstractPrefillIntegrationTestHelper() {
 
         val list = kravdata.getPensjonSakTypeList(pendata)
         list.forEach {
-            println(it.name)
+            logger.info(it.name)
         }
         assertEquals(2, list.size)
     }
@@ -84,7 +88,7 @@ class `PrefillP2000-AP-21975717Test` : AbstractPrefillIntegrationTestHelper() {
         P2000pensjon.nav = Nav(
                 krav = P2000.nav?.krav
         )
-        P2000pensjon.print()
+        logger.info(P2000pensjon.toString())
 
         val sed = P2000pensjon
         assertNotNull(sed.nav?.krav)
@@ -97,13 +101,13 @@ class `PrefillP2000-AP-21975717Test` : AbstractPrefillIntegrationTestHelper() {
     fun `forventet korrekt utfylt P2000 alderpersjon med mockdata fra testfiler`() {
         val p2000 = prefill.prefill(prefillData)
 
-        p2000.print()
+        logger.info(p2000.toString())
 
         val validator = SedValidator()
         try {
             validator.validateP2000(p2000)
         } catch (ex: Exception) {
-            println("Feilen er ${ex.message}")
+            logger.error("Feilen er ${ex.message}")
             fail("Validatoren skal ikke komme hit!")
         }
 
@@ -146,7 +150,7 @@ class `PrefillP2000-AP-21975717Test` : AbstractPrefillIntegrationTestHelper() {
     fun `testing av komplett P2000 med utskrift og testing av innsending`() {
         val P2000 = prefill.prefill(prefillData)
 
-        P2000.print()
+        logger.info(P2000.toString())
 
         validateAndPrint(createMockApiRequest("P2000", "P_BUC_01", P2000.toJson()))
 
@@ -171,7 +175,7 @@ class `PrefillP2000-AP-21975717Test` : AbstractPrefillIntegrationTestHelper() {
         if (printout) {
             val json = mapAnyToJson(req)
             assertNotNull(json)
-            println("\n\n\n $json \n\n\n")
+            logger.info("\n\n\n $json \n\n\n")
         }
     }
 

@@ -12,14 +12,17 @@ import no.nav.eessi.eessifagmodul.services.SedValidator
 import no.nav.eessi.eessifagmodul.utils.NavFodselsnummer
 import no.nav.eessi.eessifagmodul.utils.mapAnyToJson
 import org.junit.Test
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 
-//@RunWith(MockitoJUnitRunner::class)
 class PrefillP2000UtenKravhistorieTest : AbstractPrefillIntegrationTestHelper() {
+
+    val logger: Logger by lazy { LoggerFactory.getLogger(PrefillP2000UtenKravhistorieTest::class.java) }
 
     override fun opprettMockPersonDataTPS(): Set<PersonDataFromTPS.MockTPS>? {
         return setOf(
@@ -76,14 +79,13 @@ class PrefillP2000UtenKravhistorieTest : AbstractPrefillIntegrationTestHelper() 
     fun `Testing av komplett utfylling kravsøknad alderpensjon ENKW med 2 barn P2000`() {
         val p2000 = prefill.prefill(prefillData)
 
-        p2000.print()
+        logger.info(p2000.toString())
 
         val validator = SedValidator()
         try{
             validator.validateP2000(p2000)
         }catch (ex: Exception){
-            println("Feilen er ${ex.message}")
-            println("Feilen er ${ex.message}")
+            logger.error("Feilen er ${ex.message}")
             assertEquals("Kravdato mangler", ex.message)
             assertTrue(true)
         }
@@ -124,23 +126,6 @@ class PrefillP2000UtenKravhistorieTest : AbstractPrefillIntegrationTestHelper() 
         assertEquals("baz", p2000.nav?.bruker?.bank?.konto?.sepa?.swift)
 
         assertEquals(1, p2000.pensjon?.ytelser?.size)
-
-//        assertEquals("7618", P2000.pensjon?.ytelser?.get(0)?.totalbruttobeloeparbeidsbasert)
-//        assertEquals("FOLKETRYGD", P2000.pensjon?.ytelser?.get(0)?.annenytelse)
-//
-//
-//        assertEquals("7839", P2000.pensjon?.ytelser?.get(1)?.totalbruttobeloeparbeidsbasert)
-//        assertEquals("FOLKETRYGD", P2000.pensjon?.ytelser?.get(1)?.annenytelse)
-//
-//        assertEquals("8075", P2000.pensjon?.ytelser?.get(2)?.totalbruttobeloeparbeidsbasert)
-//        assertEquals("FOLKETRYGD", P2000.pensjon?.ytelser?.get(2)?.annenytelse)
-//
-//        assertEquals("8309", P2000.pensjon?.ytelser?.get(3)?.totalbruttobeloeparbeidsbasert)
-//        assertEquals("FOLKETRYGD", P2000.pensjon?.ytelser?.get(3)?.annenytelse)
-//
-//        assertEquals("8406", P2000.pensjon?.ytelser?.get(4)?.totalbruttobeloeparbeidsbasert)
-//        assertEquals("FOLKETRYGD", P2000.pensjon?.ytelser?.get(4)?.annenytelse)
-
     }
 
     @Test
@@ -172,7 +157,7 @@ class PrefillP2000UtenKravhistorieTest : AbstractPrefillIntegrationTestHelper() 
 
         if (result != null) {
 
-            println(mapAnyToJson(result))
+            logger.info(mapAnyToJson(result))
 
         }
 
@@ -194,22 +179,6 @@ class PrefillP2000UtenKravhistorieTest : AbstractPrefillIntegrationTestHelper() 
         val navfnr = NavFodselsnummer(P2000.pensjon?.ytelser?.get(0)?.pin?.identifikator!!)
         assertEquals(67, navfnr.getAge())
 
-        P2000.print()
-
-        //assertEquals("10", P2000.pensjon?.ytelser?.get(0)?.ytelse)
-
-//        assertEquals("7839", P2000.pensjon?.ytelser?.get(1)?.totalbruttobeloeparbeidsbasert)
-//        assertEquals("FOLKETRYGD", P2000.pensjon?.ytelser?.get(1)?.annenytelse)
-//
-//        assertEquals("8075", P2000.pensjon?.ytelser?.get(2)?.totalbruttobeloeparbeidsbasert)
-//        assertEquals("FOLKETRYGD", P2000.pensjon?.ytelser?.get(2)?.annenytelse)
-//
-//        assertEquals("8309", P2000.pensjon?.ytelser?.get(3)?.totalbruttobeloeparbeidsbasert)
-//        assertEquals("FOLKETRYGD", P2000.pensjon?.ytelser?.get(3)?.annenytelse)
-//
-//        assertEquals("8406", P2000.pensjon?.ytelser?.get(4)?.totalbruttobeloeparbeidsbasert)
-//        assertEquals("FOLKETRYGD", P2000.pensjon?.ytelser?.get(4)?.annenytelse)
-
+        logger.info(P2000.toString())
     }
-
 }

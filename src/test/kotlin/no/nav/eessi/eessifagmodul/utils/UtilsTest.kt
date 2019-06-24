@@ -5,6 +5,8 @@ import no.nav.eessi.eessifagmodul.models.InstitusjonItem
 import no.nav.eessi.eessifagmodul.models.SEDType
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.ShortDocumentItem
 import org.junit.Test
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.web.util.UriComponentsBuilder
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -17,6 +19,9 @@ import kotlin.test.fail
 
 
 class UtilsTest {
+
+    private val logger: Logger by lazy { LoggerFactory.getLogger(UtilsTest::class.java) }
+
 
     @Test
     fun `check XML calendar to Rina Date`() {
@@ -41,7 +46,7 @@ class UtilsTest {
         xmlcal.second = 1
 
         val toRinaDate = xmlcal.simpleFormat()
-        println("XMLdata: $xmlcal   SimpleDate: $toRinaDate")
+        logger.info("XMLdata: $xmlcal   SimpleDate: $toRinaDate")
 
         assertNotNull(toRinaDate)
         assertEquals("2016-01-01", toRinaDate)
@@ -124,9 +129,9 @@ class UtilsTest {
             print(it)
         }
         val result = listdocs.map { it.id }.toList()
-        println("-------------------------------")
-        println(result)
-        println("-------------------------------")
+        logger.info("-------------------------------")
+        logger.info(result.toString())
+        logger.info("-------------------------------")
 
 
     }
@@ -139,7 +144,7 @@ class UtilsTest {
         keys1.forEach {
             print(" \"$it\" to \"${status.get(it)}\", ")
         }
-        println("---------------------------------------------------------------------------------------------")
+        logger.info("---------------------------------------------------------------------------------------------")
         val rev = status.reversed()
         val keys = rev.keys
         keys.forEach {

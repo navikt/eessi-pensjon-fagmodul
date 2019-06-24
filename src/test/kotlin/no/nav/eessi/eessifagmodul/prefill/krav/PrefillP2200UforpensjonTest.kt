@@ -9,11 +9,13 @@ import no.nav.eessi.eessifagmodul.prefill.nav.PrefillNav
 import no.nav.eessi.eessifagmodul.prefill.nav.PrefillPersonDataFromTPS
 import no.nav.eessi.eessifagmodul.prefill.person.PersonDataFromTPS
 import org.junit.Test
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import kotlin.test.assertNotNull
 
-//@RunWith(MockitoJUnitRunner::class)
 class PrefillP2200UforpensjonTest : AbstractPrefillIntegrationTestHelper() {
 
+    val logger: Logger by lazy { LoggerFactory.getLogger(PrefillP2200UforpensjonTest::class.java) }
 
     override fun mockPesysTestfilepath(): Pair<String, String> {
         return Pair("P2200", "P2000-AP-14069110.xml")
@@ -64,7 +66,7 @@ class PrefillP2200UforpensjonTest : AbstractPrefillIntegrationTestHelper() {
 
         val P2200 = prefill.prefill(prefillData)
 
-        P2200.print()
+        logger.info(P2200.toString())
     }
 
 }

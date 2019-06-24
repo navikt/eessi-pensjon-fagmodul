@@ -6,10 +6,13 @@ import no.nav.tjeneste.virksomhet.person.v3.informasjon.*
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
+private val logger: Logger by lazy { LoggerFactory.getLogger(PrefillPersonEnkeTest::class.java) }
 
 @RunWith(MockitoJUnitRunner::class)
 class PrefillPersonEnkeTest : PersonDataFromTPS(
@@ -65,8 +68,6 @@ class PrefillPersonEnkeTest : PersonDataFromTPS(
         gateadresse.landkode = landkode
         gateadresse.poststed = postnr
 
-        //val struktadr = StrukturertAdresse()
-        //struktadr.
         val bostedadr = Bostedsadresse()
         bostedadr.strukturertAdresse = gateadresse
 
@@ -75,7 +76,7 @@ class PrefillPersonEnkeTest : PersonDataFromTPS(
 
         val result = preutfyllingTPS.hentPersonAdresse(person)!!
 
-        println(result)
+        logger.info(result.toString())
         assertNotNull(result)
 
         assertEquals("NO", result.land)

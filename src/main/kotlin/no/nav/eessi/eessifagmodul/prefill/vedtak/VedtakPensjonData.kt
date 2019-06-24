@@ -53,11 +53,7 @@ abstract class VedtakPensjonData {
         Preconditions.checkArgument(pendata.trygdetidListe.trygdetidListe != null, "trygdetidListe er Null")
         val trygdeListe = pendata.trygdetidListe
         val days = summerTrygdeTid(trygdeListe)
-        //trygdetid viser trygdetid 30 > < 360 dager
-        //println("$storreEnn > $days && $days < $mindreEnn")
-        //days =  70 -> 30 > 70 && 70 < 360   - true
-        //days =  15 -> 30 > 15 && 15 < 360   - false
-        //days = 500 -> 30 > 500 && 500 < 360 - false
+
         return days in (storreEnn + 1)..(mindreEnn - 1)
     }
 

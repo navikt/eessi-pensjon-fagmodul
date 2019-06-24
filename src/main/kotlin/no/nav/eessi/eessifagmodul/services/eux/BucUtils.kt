@@ -183,7 +183,6 @@ class BucUtils(private val buc: Buc ) {
         val actions = getBuc().actions ?: listOf()
         val createAkjsonsliste = mutableListOf<String>()
         for(item in actions) {
-            println(item)
             if (item.documentType != null && item.name == keywordCreate) {
                 createAkjsonsliste.add(item.documentType)
             }
