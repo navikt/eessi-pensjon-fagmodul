@@ -36,7 +36,7 @@ class SafServiceTest {
     fun `gitt en gyldig hentMetadata reponse når metadata hentes så map til HentMetadataResponse`() {
         val responseJson = String(Files.readAllBytes(Paths.get("src/test/resources/json/saf/hentMetadataResponse.json")))
                 .trim()
-                .replace("\n", "")
+                .replace(System.lineSeparator(), "")
                 .replace(" ", "")
 
         whenever(safGraphQlOidcRestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), ArgumentMatchers.eq(String::class.java)))

@@ -275,6 +275,33 @@ class PrefillServiceTest {
         prefillService.prefillAndAddInstitusionAndSedOnExistingCase(dataModel)
     }
 
+    @Test
+    fun `call checkAndConvertInstituion med spesialtegn som input`() {
+
+        val institusjonItem = InstitusjonItem(country = "NO", institution = "NO:NAVT002", name = null)
+        val actual = prefillService.checkAndConvertInstituion(institusjonItem)
+
+                assertEquals(institusjonItem.institution, actual)
+
+    }
+    @Test
+    fun `call checkAndConvertInstituion uten spesialtegn som input`() {
+
+        val institusjonItem = InstitusjonItem(country = "NO", institution = "NAVT002", name = null)
+        val actual = prefillService.checkAndConvertInstituion(institusjonItem)
+
+        assertEquals("NO:NAVT002", actual)
+    }
+
+    @Test
+    fun `call checkAndConvertInstituion that is null as input`() {
+
+        val institusjonItem = InstitusjonItem(country = "", institution = null, name = null)
+        val actual = prefillService.checkAndConvertInstituion(institusjonItem)
+
+        assertEquals(":", actual)
+    }
+
 
     @Test
     fun `call prefillAndAddSedOnExistingCase| forventer euxCaseId og documentID, tilbake vellykket`() {
@@ -304,7 +331,7 @@ class PrefillServiceTest {
         whenever(mockbuc.findDocument(docId)).thenReturn(mockShortDoc)
 
         //mock antal participant
-        whenever(mockbuc.getParticipants()).thenReturn(listOf(ParticipantsItem()))
+        //whenever(mockbuc.getParticipants()).thenReturn(listOf(ParticipantsItem()))
 
         //mock bucutls return mocked bucdata
         whenever(mockEuxService.getBucUtils(euxCaseId)).thenReturn(mockbuc)
@@ -313,7 +340,7 @@ class PrefillServiceTest {
         whenever(mockEuxService.opprettSedOnBuc(resultData.sed, euxCaseId)).thenReturn(mockBucResponse)
 
         //mock leggetil detalger
-        whenever(mockEuxService.addDeltagerInstitutions(any(), any())).thenReturn(true)
+        //whenever(mockEuxService.addDeltagerInstitutions(any(), any())).thenReturn(true)
 
         //run impl.
         val result = prefillService.prefillAndAddSedOnExistingCase(dataModel)
@@ -322,34 +349,6 @@ class PrefillServiceTest {
         assertNotNull(result)
         assertEquals(docId, result.id)
     }
-
-    @Test
-    fun `call checkAndConvertInstituion med spesialtegn som input`() {
-
-        val institusjonItem = InstitusjonItem(country = "NO", institution = "NO:NAVT002", name = null)
-        val actual = prefillService.checkAndConvertInstituion(institusjonItem)
-
-                assertEquals(institusjonItem.institution, actual)
-
-    }
-    @Test
-    fun `call checkAndConvertInstituion uten spesialtegn som input`() {
-
-        val institusjonItem = InstitusjonItem(country = "NO", institution = "NAVT002", name = null)
-        val actual = prefillService.checkAndConvertInstituion(institusjonItem)
-
-        assertEquals("NO:NAVT002", actual)
-    }
-
-    @Test
-    fun `call checkAndConvertInstituion that is null as input`() {
-
-        val institusjonItem = InstitusjonItem(country = "", institution = null, name = null)
-        val actual = prefillService.checkAndConvertInstituion(institusjonItem)
-
-        assertEquals(":", actual)
-    }
-
 
     @Test(expected = SedDokumentIkkeOpprettetException::class)
     fun `call prefillAndAddSedOnExistingCase| Exception eller feil`() {
