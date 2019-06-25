@@ -42,9 +42,18 @@ class PensjonsinformasjonHjelper(private val pensjonsinformasjonService: Pensjon
     }
 
     //hjelpe metode for å hente ut date for SAK/krav P2x00 fnr benyttes
-    fun hentMedFnr(prefillData: PrefillDataModel): Pensjonsinformasjon {
+    fun hentPensjoninformasjonMedPinid(prefillData: PrefillDataModel): Pensjonsinformasjon {
         val fnr = if (prefillData.personNr.isNotBlank()) prefillData.personNr else throw IkkeGyldigKallException("Mangler Fnr")
-        val pendata: Pensjonsinformasjon = pensjonsinformasjonService.hentAltPaaFnr(fnr)
+        val aktoer = if (prefillData.aktoerID.isNotBlank()) prefillData.aktoerID else throw IkkeGyldigKallException("Mangler AktoerId")
+
+        //**********************************************
+        //skal det gjøre en sjekk med en gang på tilgang av data? sjekke person? sjekke pensjon?
+        //Nå er vi dypt inne i prefill SED også sjekker vi om vi får hentet ut noe Pensjonsinformasjon
+        //hvis det inne inneholder noe data så feiler vi!
+        //**********************************************
+
+        val pendata: Pensjonsinformasjon = pensjonsinformasjonService.hentAltPaaAktoerId(aktoer)
+        //val pendata: Pensjonsinformasjon = pensjonsinformasjonService.hentAltPaaFnr(fnr)
         if (pendata.brukersSakerListe == null) {
             throw PensjoninformasjonException("Ingen gyldig brukerSakerListe")
         }

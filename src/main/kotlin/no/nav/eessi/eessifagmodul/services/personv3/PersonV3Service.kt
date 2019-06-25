@@ -6,6 +6,7 @@ import no.nav.eessi.eessifagmodul.config.TimingService
 import no.nav.eessi.eessifagmodul.models.PersonV3IkkeFunnetException
 import no.nav.eessi.eessifagmodul.models.PersonV3SikkerhetsbegrensningException
 import no.nav.eessi.eessifagmodul.services.sts.configureRequestSamlToken
+import no.nav.tjeneste.virksomhet.person.v3.Ping
 import no.nav.tjeneste.virksomhet.person.v3.binding.HentPersonPersonIkkeFunnet
 import no.nav.tjeneste.virksomhet.person.v3.binding.HentPersonSikkerhetsbegrensning
 import no.nav.tjeneste.virksomhet.person.v3.binding.PersonV3
@@ -19,6 +20,7 @@ import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonResponse
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
+import java.lang.Exception
 
 @Component
 class PersonV3Service(val service: PersonV3,
@@ -32,6 +34,18 @@ class PersonV3Service(val service: PersonV3,
 
     final fun counter(name: String, type: String): Counter {
         return Metrics.counter(name, "type", type)
+    }
+
+    fun hentPersonPing(): Boolean {
+        logger.info("Henter person fra PersonV3Service")
+        configureRequestSamlToken(service)
+        return try {
+            service.ping()
+            true
+        } catch (ex: Exception) {
+            logger.warn("Får ikke kontakt med tjeneste PersonV3 ping")
+            throw ex
+        }
     }
 
     fun hentPerson(fnr: String): HentPersonResponse {

@@ -6,18 +6,12 @@ import no.nav.eessi.eessifagmodul.prefill.PrefillDataModel
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.Buc
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.BucAndSedView
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.ParticipantsItem
-import no.nav.eessi.eessifagmodul.utils.getCounter
-import no.nav.eessi.eessifagmodul.utils.mapJsonToAny
-import no.nav.eessi.eessifagmodul.utils.typeRef
-import no.nav.eessi.eessifagmodul.utils.typeRefs
+import no.nav.eessi.eessifagmodul.utils.*
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Description
 import org.springframework.http.*
 import org.springframework.stereotype.Service
-import org.springframework.web.client.HttpClientErrorException
-import org.springframework.web.client.HttpServerErrorException
-import org.springframework.web.client.ResourceAccessException
-import org.springframework.web.client.RestTemplate
+import org.springframework.web.client.*
 import org.springframework.web.util.UriComponentsBuilder
 import java.io.IOException
 import java.util.*
@@ -412,8 +406,9 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
             parts?.forEach {
                 institusjonlist.add(
                         InstitusjonItem(
-                                country = it.organisation?.countryCode,
-                                institution = it.organisation?.id
+                                country = it.organisation?.countryCode ?: "",
+                                institution = it.organisation?.id ?: "",
+                                name = it.organisation?.name
                         )
                 )
             }
@@ -424,8 +419,8 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
         val bucAndSedView = BucAndSedView(
                 type = bucUtil.getProcessDefinitionName()!!,
                 creator = InstitusjonItem(
-                        country = bucUtil.getCreator()?.organisation?.countryCode,
-                        institution = bucUtil.getCreator()?.organisation?.id,
+                        country = bucUtil.getCreator()?.organisation?.countryCode ?: "",
+                        institution = bucUtil.getCreator()?.organisation?.id ?: "",
                         name = bucUtil.getCreator()?.name
                 ),
                 caseId = euxCaseId,
@@ -523,9 +518,14 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
         logger.debug("Prøver å legge til liste over nye InstitusjonItem til Rina ")
         try {
             mottaker.forEach {
-                val mottakerItem = "${it.country}:${it.institution}"
+                val mottakerItem = checkAndConvertInstituion(it)
                 logger.debug("putter $mottaker på Rina buc $euxCaseId")
                 putBucDeltager(euxCaseId, mottakerItem)
+                //Kan fjernes: Sjekk opp med EUX når de legger in støtte for å legge til flere Deltakere.
+                if (mottaker.size > 1) {
+                    logger.debug("Prøver å sove litt etter å lagt til Deltaker til Rina: $mottakerItem")
+                    Thread.sleep(3000)
+                }
             }
             return true
         } catch (ex: Exception) {
@@ -544,6 +544,26 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
         throw SedDokumentIkkeGyldigException("SED ikke en P15000")
     }
 
+    @Throws(EuxServerException::class)
+    fun pingEux(): Boolean {
+
+        val builder = UriComponentsBuilder.fromPath("/kodeverk")
+            .queryParam("Kodeverk", "sedtyper")
+            .build()
+
+        return try {
+            logger.debug("Ping eux-rina-api")
+            euxOidcRestTemplate.exchange(
+                    builder.toUriString(),
+                    HttpMethod.GET,
+                    null,
+                    String::class.java)
+            true
+        } catch (ex: Exception) {
+            logger.debug("Feiler ved ping, eux-rina-api")
+            throw EuxServerException(ex.message)
+        }
+    }
 
     //Eldre API kall er under denne disse vil ikke virke
 

@@ -439,7 +439,7 @@ open class KravDataFromPEN(private val dataFromPEN: PensjonsinformasjonHjelper) 
 
     //i bruk av tester også -- henter ut pensjoninformasjon med brukersSakerListe
     fun getPensjoninformasjonFraSak(prefillData: PrefillDataModel): Pensjonsinformasjon {
-        return dataFromPEN.hentMedFnr(prefillData)
+        return dataFromPEN.hentPensjoninformasjonMedPinid(prefillData)
     }
 
     //i bruk av tester også -- henter ut v1Sak på brukersSakerListe ut ifra valgt sakid i prefilldatamodel

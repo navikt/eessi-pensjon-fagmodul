@@ -11,6 +11,7 @@ import no.nav.eessi.eessifagmodul.services.eux.BucSedResponse
 import no.nav.eessi.eessifagmodul.services.eux.BucUtils
 import no.nav.eessi.eessifagmodul.services.eux.EuxService
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.ShortDocumentItem
+import no.nav.eessi.eessifagmodul.utils.checkAndConvertInstituion
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
@@ -132,15 +133,6 @@ class PrefillService(private val euxService: EuxService, private val prefillSED:
         return deltakerListe.size == resultX005.size
     }
 
-    //sjekker på Instisjon legger ut ID til rina som <XX:ZZZZZ>
-    fun checkAndConvertInstituion(item: InstitusjonItem): String {
-        val institution = item.institution ?: ""
-        val country = item.country ?: ""
-        if (institution.contains(":")) {
-            return institution
-        }
-        return "$country:$institution"
-    }
 
     /**
     service function to prefill sed and call eux to put sed on existing type
@@ -162,7 +154,7 @@ class PrefillService(private val euxService: EuxService, private val prefillSED:
     fun prefillAndCreateSedOnNewCase(dataModel: PrefillDataModel): BucSedResponse {
         val data = prefillSed(dataModel)
         val mottaker = getFirstInstitution(data.institution)
-        return euxService.opprettBucSed(data.sed, data.buc, "${mottaker.country}:${mottaker.institution}", data.penSaksnummer)
+        return euxService.opprettBucSed(data.sed, data.buc, mottaker.institution ?: ":", data.penSaksnummer)
     }
 
     //muligens midlertidig metode for å sende kun en mottaker til EUX.

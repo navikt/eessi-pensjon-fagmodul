@@ -75,11 +75,17 @@ dependencies {
     // Allows for variable expiration-date of each cache-entry
     implementation("net.jodah:expiringmap:0.5.8")
 
+    // Apache httpcomponents
+    implementation("org.apache.httpcomponents:fluent-hc:4.5.6")
+
     // Apache CXF
     implementation("org.apache.cxf:cxf-spring-boot-starter-jaxws:${cxfVersion}")
     implementation("org.apache.cxf:cxf-rt-ws-security:${cxfVersion}")
     compile("commons-io:commons-io:2.6")
 
+    // Apache httpcomponents
+    implementation("org.apache.httpcomponents:fluent-hc:4.5.6")    
+    
     // Kotlin
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:${jacksonModuleKotlinVersion}")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}")

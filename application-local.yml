@@ -43,6 +43,12 @@ security-token-service-token:
 securityTokenService:
   url: 'https://sts-t8.test.local/SecurityTokenServiceProvider/'
 
+saf.graphql:
+  url: 'https://saf-t8.nais.preprod.local/graphql'
+
+saf.hentdokument:
+  url: 'https://saf-t8.nais.preprod.local/rest/hentdokument'
+
 server:
   servlet:
     session:
@@ -50,9 +56,12 @@ server:
   port:         '8081'
 
 no.nav.security.oidc:
+  issuer.isso:
+    discoveryurl: 'https://isso-t.adeo.no:443/isso/oauth2/.well-known/openid-configuration'
+    accepted_audience: 'localhost,eessi-pensjon-frontend-api-t8,eessi-pensjon-frontend-api-fss-t8,ida-t'
   issuer.oidc:
     discoveryurl: 'https://isso-t.adeo.no:443/isso/oauth2/.well-known/openid-configuration'
-    accepted_audience: 'localhost,eessi-fagmodul-localhost,eessi-fagmodul-t8,freg-token-provider-t0,eessi-pensjon-frontend-api-t8,eessi-pensjon-frontend-api-fss-t8,eux-app-t8,ida-t'
+    accepted_audience: 'localhost,eessi-pensjon-frontend-api-t8,eessi-pensjon-frontend-api-fss-t8,ida-t'
   issuer.pesys:
     discoveryurl: 'https://security-token-service-t4.nais.preprod.local/rest/v1/sts/.well-known/openid-configuration'
     accepted_audience: 'preprod.local,srveessipensjon,srvpensjon'

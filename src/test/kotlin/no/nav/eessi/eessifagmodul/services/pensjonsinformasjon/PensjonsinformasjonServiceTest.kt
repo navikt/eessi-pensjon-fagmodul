@@ -105,6 +105,35 @@ class PensjonsinformasjonServiceTest {
 
     }
 
+    @Test
+    fun `hentAltpåSak| mock data med aktoerid to saktyper en skal komme ut`() {
+        val mockResponseEntity = createResponseEntityFromJsonFile("classpath:pensjonsinformasjon/krav/P2000_21975717_AP_UTLAND.xml")
+        whenever(mockrestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), ArgumentMatchers.eq(String::class.java))).thenReturn(mockResponseEntity)
+
+        val data = pensjonsinformasjonService.hentAltPaaAktoerId("123456789011")
+
+        assertEquals(2, data.brukersSakerListe.brukersSakerListe.size)
+
+        val sak = pensjonsinformasjonService.hentAltPaaSak("21975717", data)
+
+        sak?.let {
+            assertEquals("21975717", it.sakId.toString())
+            assertEquals("ALDER", it.sakType)
+        }
+
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun `hentAltpåSak| mock data med tom aktoerid to saktyper en skal komme ut`() {
+        val mockResponseEntity = createResponseEntityFromJsonFile("classpath:pensjonsinformasjon/krav/P2000_21975717_AP_UTLAND.xml")
+        whenever(mockrestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), ArgumentMatchers.eq(String::class.java))).thenReturn(mockResponseEntity)
+        val strAktor = ""
+        pensjonsinformasjonService.hentAltPaaAktoerId(strAktor)
+
+    }
+
+
+
 
     @Test
     fun `hentPensjonSakType | mock response ok`() {

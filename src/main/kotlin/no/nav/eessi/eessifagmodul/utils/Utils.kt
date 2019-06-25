@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.Metrics
+import no.nav.eessi.eessifagmodul.models.InstitusjonItem
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.web.client.RestClientException
@@ -113,7 +114,13 @@ fun getCounter(key: String): Counter {
             "PERSONINFORMASJONOK" to counter("eessipensjon_fagmodul.personinfo", "vellykkede"),
             "PERSONINFORMASJONFEIL" to counter("eessipensjon_fagmodul.personinfo", "feilede"),
             "HENTKRAVUTLANDOK" to counter("eessipensjon_fagmodul.hentKravUtland", "vellykkede"),
-            "HENTKRAVUTLANDFEIL" to counter("eessipensjon_fagmodul.hentKravUtland", "feilede")
+            "HENTKRAVUTLANDFEIL" to counter("eessipensjon_fagmodul.hentKravUtland", "feilede"),
+            "SELFTESTEUXOK" to counter("eessipensjon_fagmodul.selftestEUX", "vellykkede"),
+            "SELFTESTTPSOK" to counter("eessipensjon_fagmodul.selftestTPS", "vellykkede"),
+            "SELFTESTPESYSOK" to counter("eessipensjon_fagmodul.selftestPESYS", "vellykkede"),
+            "SELFTESTEUXFEIL" to counter("eessipensjon_fagmodul.selftestEUX", "feilede"),
+            "SELFTESTTPSFEIL" to counter("eessipensjon_fagmodul.selftestTPS", "feilede"),
+            "SELFTESTPESYSFEIL" to counter("eessipensjon_fagmodul.selftestPESYS", "feilede")
 
     )
     return countermap.getValue(key)
@@ -139,3 +146,14 @@ fun errorBody(error: String, uuid: String = "no-uuid"): String {
 fun successBody(): String {
     return "{\"success\": true}"
 }
+
+//sjekker på Instisjon legger ut ID til rina som <XX:ZZZZZ>
+fun checkAndConvertInstituion(item: InstitusjonItem): String {
+    val institution = item.institution
+    val country = item.country
+    if (institution.contains(":")) {
+        return institution
+    }
+    return "$country:$institution"
+}
+

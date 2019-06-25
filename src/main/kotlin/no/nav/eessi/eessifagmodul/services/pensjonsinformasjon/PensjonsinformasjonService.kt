@@ -1,10 +1,12 @@
 package no.nav.eessi.eessifagmodul.services.pensjonsinformasjon
 
 
+import com.google.common.base.Preconditions
 import no.nav.eessi.eessifagmodul.models.IkkeFunnetException
 import no.nav.eessi.eessifagmodul.models.PensjoninformasjonException
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
 import no.nav.pensjon.v1.sak.V1Sak
+import org.aspectj.weaver.tools.cache.SimpleCacheFactory.path
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -18,6 +20,7 @@ import org.springframework.web.util.UriComponentsBuilder
 import java.io.StringReader
 import javax.xml.bind.JAXBContext
 import javax.xml.transform.stream.StreamSource
+import kotlin.reflect.jvm.internal.impl.types.checker.TypeCheckerContext
 
 
 @Service
@@ -78,6 +81,29 @@ class PensjonsinformasjonService(val pensjonsinformasjonOidcRestTemplate: RestTe
         logger.info("Response: $response")
         return response
     }
+
+    @Throws(PensjoninformasjonException::class, HttpServerErrorException::class, HttpClientErrorException::class)
+    fun hentAltPaaAktoerId(aktoerId: String): Pensjonsinformasjon {
+        Preconditions.checkArgument(aktoerId.isNotBlank(), "AktoerId kan ikke være blank/tom")
+        //APIet skal ha urlen {host}:{port}/pensjon-ws/api/pensjonsinformasjon/v1/{ressurs}?sakId=123+fom=2018-01-01+tom=2018-28-02.
+
+        val informationBlocks = listOf(
+                InformasjonsType.BRUKERS_SAKER_LISTE
+        )
+        val document = requestBuilder.getBaseRequestDocument()
+
+        informationBlocks.forEach {
+            requestBuilder.addPensjonsinformasjonElement(document, it)
+        }
+
+        logger.info("Requestbody:\n${document.documentToString()}")
+
+        val response = doRequest("/aktor/", aktoerId, document.documentToString())
+        validateResponse(informationBlocks, response)
+        logger.info("Response: $response")
+        return response
+    }
+
 
 
     @Throws(PensjoninformasjonException::class, HttpServerErrorException::class, HttpClientErrorException::class)
@@ -159,6 +185,37 @@ class PensjonsinformasjonService(val pensjonsinformasjonOidcRestTemplate: RestTe
             throw PensjoninformasjonException("Feil med kontakt til PESYS pensjoninformajson. melding; ${ex.message}")
         }
     }
+
+    @Throws(PensjoninformasjonException::class, HttpServerErrorException::class, HttpClientErrorException::class)
+    fun doPing(): Boolean {
+        val uriBuilder = UriComponentsBuilder.fromPath("/ping")
+        try {
+            val responseEntity = pensjonsinformasjonOidcRestTemplate.exchange(
+                    uriBuilder.toUriString(),
+                    HttpMethod.GET,
+                    null,
+                    String::class.java)
+
+            if (responseEntity.statusCode.is2xxSuccessful) {
+                val response = responseEntity.body
+                return response == "Service online!"
+            } else {
+                logger.error("Received ${responseEntity.statusCode} from pensjonsinformasjon")
+                throw PensjoninformasjonException("Received feil-ping from pensjonsinformasjon")
+            }
+        } catch (se: HttpServerErrorException) {
+            logger.error("Feiler ved Serverfeil mot PESYS", se)
+            throw se
+        } catch (ce: HttpClientErrorException) {
+            logger.error("Feiler ved Clientfeil mot PESYS", ce)
+            throw ce
+        } catch (ex: Exception) {
+            logger.error("Feil med kontakt til PESYS pensjoninformajson, ${ex.message}")
+            throw PensjoninformasjonException("Feil med kontakt til PESYS pensjoninformajson. melding; ${ex.message}")
+        }
+
+    }
+
 
 }
 

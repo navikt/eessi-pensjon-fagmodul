@@ -1,0 +1,1437 @@
+{
+  "tema": {
+    "family": [
+      {
+        "kode": "GEN",
+        "term": "Generell"
+      },
+      {
+        "kode": "BAR",
+        "term": "Barnetrygd"
+      },
+      {
+        "kode": "KON",
+        "term": "Kontantstøtte"
+      }
+    ],
+    "unemployment": [
+      {
+        "kode": "GEN",
+        "term": "Generell"
+      },
+      {
+        "kode": "DAG",
+        "term": "Dagpenger"
+      }
+    ]
+  },
+  "buctyper": {
+    "awod": [
+      {
+        "kode": "AW_BUC_01a",
+        "term": "Certification right benefit in Kind - Member of stay/residence request confirmation of rights"
+      },
+      {
+        "kode": "AW_BUC_01b",
+        "term": "Certification of the right for benefits in kind -  Competent Member State sends the certification"
+      },
+      {
+        "kode": "AW_BUC_02",
+        "term": "Cancellation Certification right benefit in Kind"
+      },
+      {
+        "kode": "AW_BUC_03",
+        "term": "Request for Reimbursement rates"
+      },
+      {
+        "kode": "AW_BUC_04a",
+        "term": "AWOD benefits in kind - Authorise Scheduled Treatment"
+      },
+      {
+        "kode": "AW_BUC_04b",
+        "term": "AWOD benefits in kind - Information about supplement scheduled treatment"
+      },
+      {
+        "kode": "AW_BUC_4c",
+        "term": "AWOD benefits in kind - Information about vitally necessary treatment"
+      },
+      {
+        "kode": "AW_BUC_05",
+        "term": "Claim for Reimbursement of Benefit in Kind"
+      },
+      {
+        "kode": "AW_BUC_06a",
+        "term": "Søknad om kontantytelser ved arbeidsulykke eller yrkessykdom"
+      },
+      {
+        "kode": "AW_BUC_06b",
+        "term": "Informasjon om utbetaling eller ikke av kontantytelser ved arbeidsulykke eller yrkessykdom"
+      },
+      {
+        "kode": "AW_BUC_06c",
+        "term": "Informasjon om opphør av arbeidsuførhet ved arbeidsulykke eller yrkessykdom"
+      },
+      {
+        "kode": "AW_BUC_07a",
+        "term": "Melding om legeattest for AWOD-ytelser"
+      },
+      {
+        "kode": "AW_BUC_07b",
+        "term": "Utnevnelse av en person for å gjennomføre undersøkelser - ulykke på vei til eller fra arbeid"
+      },
+      {
+        "kode": "AW_BUC_07c",
+        "term": "Utgifter til naturalytelser - detaljert rapport"
+      },
+      {
+        "kode": "AW_BUC_07d",
+        "term": "Fastsetting av dato for restitusjon eller stabilisering av personskade / angående innvilgelse av pensjon"
+      },
+      {
+        "kode": "AW_BUC_08",
+        "term": "Bestridelse av valg av lovgivning om arbeidsulykker eller yrkessykdom"
+      },
+      {
+        "kode": "AW_BUC_09a",
+        "term": "Videresending av erklæring eller melding om yrkessykdom"
+      },
+      {
+        "kode": "AW_BUC_09b",
+        "term": "Varsel om at vilkår ikke er oppfylt, samt videresending av erklæring eller melding om yrkessykdom"
+      },
+      {
+        "kode": "AW_BUC_10a",
+        "term": "Utveksling av informasjon mellom institusjoner og forhåndsbetalinger i tilfelle klage på avslag"
+      },
+      {
+        "kode": "AW_BUC_10b",
+        "term": "Informasjon om en forhåndsbetaling"
+      },
+      {
+        "kode": "AW_BUC_11",
+        "term": "Forverring av yrkessykdom"
+      },
+      {
+        "kode": "AW_BUC_12",
+        "term": "Informasjon om graden av arbeidsuførhet"
+      },
+      {
+        "kode": "AW_BUC_13",
+        "term": "Videresend et krav om pensjoner eller tilleggsytelser til kompetent medlemsstat"
+      },
+      {
+        "kode": "AW_BUC_14",
+        "term": "Cost of Transport"
+      },
+      {
+        "kode": "AW_BUC_15",
+        "term": "Claim Interest Reimbursement of Benefits in Kind"
+      },
+      {
+        "kode": "AW_BUC_23",
+        "term": "Refund of Overpayment"
+      }
+    ],
+    "administrative": [
+      {
+        "kode": "AD_BUC_01",
+        "term": "Close Case"
+      },
+      {
+        "kode": "AD_BUC_02",
+        "term": "Reopen Case"
+      },
+      {
+        "kode": "AD_BUC_03",
+        "term": "Add Participant"
+      },
+      {
+        "kode": "AD_BUC_04",
+        "term": "Remove Participant"
+      },
+      {
+        "kode": "AD_BUC_05",
+        "term": "Forward Case"
+      },
+      {
+        "kode": "AD_BUC_06",
+        "term": "Invalidate SED"
+      },
+      {
+        "kode": "AD_BUC_07",
+        "term": "Reminder"
+      },
+      {
+        "kode": "AD_BUC_08",
+        "term": "Clarify SED Content"
+      },
+      {
+        "kode": "AD_BUC_09",
+        "term": "Reject SED"
+      },
+      {
+        "kode": "AD_BUC_10",
+        "term": "Update SED"
+      },
+      {
+        "kode": "AD_BUC_11",
+        "term": "Business Exception"
+      },
+      {
+        "kode": "AD_BUC_12",
+        "term": "Change of Participant"
+      }
+    ],
+    "family": [
+      {
+        "kode": "FB_BUC_01",
+        "term": "Beslutte kompetent myndighet"
+      },
+      {
+        "kode": "FB_BUC_02",
+        "term": "Overføring av familieytelser"
+      },
+      {
+        "kode": "FB_BUC_03",
+        "term": "Tilleggsytelser for foreldreløse barn"
+      },
+      {
+        "kode": "FB_BUC_04",
+        "term": "Informasjon om utbetaling angående fortrinnsrett"
+      }
+    ],
+    "horizontal": [
+      {
+        "kode": "H_BUC_01",
+        "term": "Adhoc informasjonsutveksling"
+      },
+      {
+        "kode": "H_BUC_02a",
+        "term": "Fastslå bopel - anmodning om informasjon om bosted"
+      },
+      {
+        "kode": "H_BUC_02b",
+        "term": "Beslutte bosted - i motstrid med tidligere beslutning"
+      },
+      {
+        "kode": "H_BUC_02c",
+        "term": "Fastslå bosted - melding om bostedsland"
+      },
+      {
+        "kode": "H_BUC_03a",
+        "term": "Endring av valgt lovgivning - varsel"
+      },
+      {
+        "kode": "H_BUC_03b",
+        "term": "Endring av valgt lovgivning - forespørsel"
+      },
+      {
+        "kode": "H_BUC_04",
+        "term": "Refusjon av administrativ kontroll eller legeundersøkelse"
+      },
+      {
+        "kode": "H_BUC_05",
+        "term": "Utveksling av PIN-koder"
+      },
+      {
+        "kode": "H_BUC_06",
+        "term": "Overdragelse av krav"
+      },
+      {
+        "kode": "H_BUC_07",
+        "term": "Melding om dødsfall"
+      },
+      {
+        "kode": "H_BUC_08",
+        "term": "Anmodning om medisinsk rapport"
+      },
+      {
+        "kode": "H_BUC_09",
+        "term": "Notification of Medical Report"
+      },
+      {
+        "kode": "H_BUC_10",
+        "term": "Request for Administrative Check"
+      }
+    ],
+    "legislation": [
+      {
+        "kode": "LA_BUC_01",
+        "term": "Anmodning om unntak"
+      },
+      {
+        "kode": "LA_BUC_02",
+        "term": "Beslutning om lovvalg"
+      },
+      {
+        "kode": "LA_BUC_03",
+        "term": "Melding om relevant informasjon"
+      },
+      {
+        "kode": "LA_BUC_04",
+        "term": "Varsel om levering"
+      },
+      {
+        "kode": "LA_BUC_05",
+        "term": "Melding om gjeldende lovgivning"
+      },
+      {
+        "kode": "LA_BUC_06",
+        "term": "Anmodning om tilleggsinformasjon"
+      }
+    ],
+    "miscellaneous": [
+      {
+        "kode": "MI_BUC_01",
+        "term": "Krav om gravferdsstønad"
+      },
+      {
+        "kode": "MI_BUC_02",
+        "term": "Krav om førtidspensjon"
+      },
+      {
+        "kode": "MI_BUC_03a",
+        "term": "Utveksling av informasjon om inntekt for særskilte innskuddsfrie kontantytelser"
+      },
+      {
+        "kode": "MI_BUC_03b",
+        "term": "Utveksling av informasjon om perioder for ansettelsesforhold/selvstendig næringsvirksomhet/bosetningsperioder for særskilte avgiftsfrie kontantytelser"
+      }
+    ],
+    "pensions": [
+      {
+        "kode": "P_BUC_01",
+        "term": "Krav om alderspensjon"
+      },
+      {
+        "kode": "P_BUC_02",
+        "term": "Krav om etterlattepensjon"
+      },
+      {
+        "kode": "P_BUC_03",
+        "term": "Krav om uføretrygd"
+      },
+      {
+        "kode": "P_BUC_04",
+        "term": "Anmodning om opplysninger om perioder med omsorg for barn"
+      },
+      {
+        "kode": "P_BUC_05",
+        "term": "Adhoc anmodning om pensjonsopplysninger"
+      },
+      {
+        "kode": "P_BUC_06",
+        "term": "Notification of Pension Information"
+      },
+      {
+        "kode": "P_BUC_07",
+        "term": "Anmodning om pensjonsbeløp for å fastsette tillegg"
+      },
+      {
+        "kode": "P_BUC_08",
+        "term": "Informasjon om pensjonsbeløp for å gi pensjonstillegg"
+      },
+      {
+        "kode": "P_BUC_09",
+        "term": "Change of Circumstances"
+      },
+      {
+        "kode": "P_BUC_10",
+        "term": "Transitional cases"
+      }
+    ],
+    "recovery": [
+      {
+        "kode": "R_BUC_01",
+        "term": "Motregning av for mye utbetalte ytelser"
+      },
+      {
+        "kode": "R_BUC_02",
+        "term": "Motregning av for mye utbetalt ved restanser på utbetalingene"
+      },
+      {
+        "kode": "R_BUC_03",
+        "term": "Motregning av midlertidig utbetalte ytelser med betaling fra annen medlemsstat jamfør art. 73 (1) i forordning 987/2009"
+      },
+      {
+        "kode": "R_BUC_04",
+        "term": "Offsetting of provisionally paid contributions"
+      },
+      {
+        "kode": "R_BUC_05",
+        "term": "Anmodning om informasjon jamfør artikkel 76 i forordning (EF) nr. 987/2009"
+      },
+      {
+        "kode": "R_BUC_06",
+        "term": "Anmodning om varsel jamfør artikkel 77 i forordning (EF) nr. 987/2009"
+      },
+      {
+        "kode": "R_BUC_07",
+        "term": "Krav om inndrivelse"
+      }
+    ],
+    "sickness": [
+      {
+        "kode": "SI_BUC_01",
+        "term": "Entitlement - Residence outside Competent Member State without PD"
+      },
+      {
+        "kode": "SI_BUC_01a",
+        "term": "Entitlement - Residence outside Competent Member State withoud PD"
+      },
+      {
+        "kode": "SI_BUC_02",
+        "term": "Entitlement - Residence outside Competent Member State"
+      },
+      {
+        "kode": "SI_BUC_03",
+        "term": "Change or cancellation of entitlement document"
+      },
+      {
+        "kode": "SI_BUC_04",
+        "term": "Change or cancellation of registration"
+      },
+      {
+        "kode": "SI_BUC_05",
+        "term": "Necessary Treatment in Member State of Stay - Request for Entitlement Document"
+      },
+      {
+        "kode": "SI_BUC_06",
+        "term": "Necessary or Scheduled Treatment - Reimbursement Rates"
+      },
+      {
+        "kode": "SI_BUC_07",
+        "term": "Scheduled Treatment - Information on Coverage of Specific Benefit in Kind"
+      },
+      {
+        "kode": "SI_BUC_08",
+        "term": "Scheduled treatment - Request Entitlement Document in Member State of Stay"
+      },
+      {
+        "kode": "SI_BUC_09",
+        "term": "Scheduled treatment - Request extension of authorisation in Member State of Stay"
+      },
+      {
+        "kode": "SI_BUC_11",
+        "term": "Urgent vitally necessary treatment - Request for authorisation in Member State of residence (residence not in competent Member State)"
+      },
+      {
+        "kode": "SI_BUC_12",
+        "term": "Søknad om kontantytelser i forbindelse med arbeidsuførhet"
+      },
+      {
+        "kode": "SI_BUC_14",
+        "term": "Informasjon om hvorvidt det er utbetalt kontantytelser ved arbeidsuførhet"
+      },
+      {
+        "kode": "SI_BUC_14a",
+        "term": "Informasjon om kontantytelser som følge av arbeidsuførhet - gitt av kompetent institusjon"
+      },
+      {
+        "kode": "SI_BUC_14b",
+        "term": "Informasjon om kontantytelser som følge av arbeidsuførhet, gitt av institusjon ved bosted eller oppholdssted"
+      },
+      {
+        "kode": "SI_BUC_15",
+        "term": "Kontantytelser ved langtidsomsorg - søknad"
+      },
+      {
+        "kode": "SI_BUC_17",
+        "term": "Kontantytelser ved langtidsomsorg - informasjon om betaling"
+      },
+      {
+        "kode": "SI_BUC_17a",
+        "term": "Kontantytelser ved langtidsomsorg - endring eller opphør"
+      },
+      {
+        "kode": "SI_BUC_18",
+        "term": "Request for entitlement document for Former Frontier Workers"
+      },
+      {
+        "kode": "SI_BUC_18a",
+        "term": "Change or cancellation of entitlement document of a former frontier worker / family member of a former frontier worker"
+      },
+      {
+        "kode": "SI_BUC_19",
+        "term": "Actual Cost Claim - Benefits in Kind"
+      },
+      {
+        "kode": "SI_BUC_21",
+        "term": "Inventory of months - fixed amounts"
+      },
+      {
+        "kode": "SI_BUC_22",
+        "term": "Claim for Interest on late Payment"
+      },
+      {
+        "kode": "SI_BUC_23",
+        "term": "Refund of Overpayment"
+      },
+      {
+        "kode": "SI_BUC_24",
+        "term": "Sammenlegging av perioder - ved sykdom, svangerskap eller fødsel"
+      }
+    ],
+    "unemployment": [
+      {
+        "kode": "UB_BUC_01",
+        "term": "Utveksling av informasjon for å avgjøre et krav for UB"
+      },
+      {
+        "kode": "UB_BUC_02",
+        "term": "Eksport av dagpenger"
+      },
+      {
+        "kode": "UB_BUC_03",
+        "term": "Samtidig registrering"
+      },
+      {
+        "kode": "UB_BUC_04",
+        "term": "Refusjon av dagpenger"
+      }
+    ]
+  },
+  "familierelasjoner": [
+    {
+      "kode": "BARN",
+      "term": "Barn av"
+    },
+    {
+      "kode": "EKTE",
+      "term": "Ektefelle til"
+    },
+    {
+      "kode": "REPA",
+      "term": "Registrert partner med"
+    },
+    {
+      "kode": "SAMB",
+      "term": "Samboer med"
+    },
+    {
+      "kode": "ANNEN",
+      "term": "Annen person"
+    }
+  ],
+  "kjoenn": [
+    {
+      "kode": "M",
+      "term": "Mann"
+    },
+    {
+      "kode": "K",
+      "term": "Kvinne"
+    },
+    {
+      "kode": "U",
+      "term": "Ukjent"
+    }
+  ],
+  "institusjoner": [
+    {
+      "kode": "BE:NOEUX01",
+      "term": "BE:NOEUX01 (CT avsender)"
+    },
+    {
+      "kode": "BE:PCTNA01",
+      "term": "BE:PCTNA01 (CT)"
+    },
+    {
+      "kode": "BE:PCTNA02",
+      "term": "BE:PCTNA02 (CT)"
+    },
+    {
+      "kode": "BE:PCTNA03",
+      "term": "BE:PCTNA03 (CT)"
+    },
+    {
+      "kode": "NO:NAVAT05",
+      "term": "NAVAT05 (Q11)"
+    },
+    {
+      "kode": "NO:NAVAT06",
+      "term": "NAVAT06 (Q11)"
+    },
+    {
+      "kode": "NO:NAVAT07",
+      "term": "NAVAT07 (Q11)"
+    },
+    {
+      "kode": "NO:NAVAT08",
+      "term": "NAVAT08 (Q11)"
+    },
+    {
+      "kode": "NO:NAVT001",
+      "term": "NAVT001 (T8)"
+    },
+    {
+      "kode": "NO:NAVT002",
+      "term": "NAVT002 (T8)"
+    },
+    {
+      "kode": "NO:NAVT003",
+      "term": "NAVT003 (T8)"
+    },
+    {
+      "kode": "NO:NAVT007",
+      "term": "NAVT007 (T8)"
+    },
+    {
+      "kode": "NO:NAVT008",
+      "term": "NAVT008 (T8)"
+    },
+    {
+      "kode": "dummy",
+      "term": "dummy"
+    }
+  ],
+  "landkoder": [
+    {
+      "kode": "AT",
+      "term": "Østerrike"
+    },
+    {
+      "kode": "BE",
+      "term": "Belgium"
+    },
+    {
+      "kode": "BG",
+      "term": "Bulgaria"
+    },
+    {
+      "kode": "HR",
+      "term": "Kroatia"
+    },
+    {
+      "kode": "CY",
+      "term": "Kypros"
+    },
+    {
+      "kode": "CZ",
+      "term": "Tsjekkia"
+    },
+    {
+      "kode": "DK",
+      "term": "Danmark"
+    },
+    {
+      "kode": "EE",
+      "term": "Estland"
+    },
+    {
+      "kode": "FI",
+      "term": "Finland"
+    },
+    {
+      "kode": "FR",
+      "term": "Frankrike"
+    },
+    {
+      "kode": "GR",
+      "term": "Hellas"
+    },
+    {
+      "kode": "IE",
+      "term": "Irland"
+    },
+    {
+      "kode": "IS",
+      "term": "Island"
+    },
+    {
+      "kode": "IT",
+      "term": "Italia"
+    },
+    {
+      "kode": "LV",
+      "term": "Latvia"
+    },
+    {
+      "kode": "NO",
+      "term": "Norge"
+    },
+    {
+      "kode": "SE",
+      "term": "Sverige"
+    }
+  ],
+  "sektor": [
+    {
+      "kode": "AW",
+      "term": "Yrkesskade og yrkessykdom"
+    },
+    {
+      "kode": "AD",
+      "term": "Administrative"
+    },
+    {
+      "kode": "FB",
+      "term": "Familieytelser"
+    },
+    {
+      "kode": "HZ",
+      "term": "Horisontal"
+    },
+    {
+      "kode": "LA",
+      "term": "Lovvalg"
+    },
+    {
+      "kode": "MI",
+      "term": "Diverse"
+    },
+    {
+      "kode": "PE",
+      "term": "Pensjon"
+    },
+    {
+      "kode": "RE",
+      "term": "Feilutbetaling"
+    },
+    {
+      "kode": "SI",
+      "term": "Sykdom"
+    },
+    {
+      "kode": "UB",
+      "term": "Arbeidsledighet"
+    }
+  ],
+  "kodemaps": {
+    "SEKTOR2FAGSAK": {
+      "FB": "family",
+      "UB": "unemployment"
+    },
+    "SEKTOR2BUC": {
+      "AD": "administrative",
+      "AW": "awod",
+      "FB": "family",
+      "HZ": "horizontal",
+      "LA": "legislation",
+      "MI": "miscellaneous",
+      "PE": "pensions",
+      "RE": "recovery",
+      "SI": "sickness",
+      "UB": "unemployment"
+    },
+    "BUC2SEDS": {
+      "AD": {
+        "AD_BUC_01": [
+          "DUMMY"
+        ],
+        "AD_BUC_02": [
+          "DUMMY"
+        ],
+        "AD_BUC_03": [
+          "DUMMY"
+        ],
+        "AD_BUC_04": [
+          "DUMMY"
+        ],
+        "AD_BUC_05": [
+          "DUMMY"
+        ],
+        "AD_BUC_06": [
+          "DUMMY"
+        ],
+        "AD_BUC_07": [
+          "DUMMY"
+        ],
+        "AD_BUC_08": [
+          "DUMMY"
+        ],
+        "AD_BUC_09": [
+          "DUMMY"
+        ],
+        "AD_BUC_10": [
+          "DUMMY"
+        ],
+        "AD_BUC_11": [
+          "DUMMY"
+        ],
+        "AD_BUC_12": [
+          "DUMMY"
+        ]
+      },
+      "AW": {
+        "AW_BUC_01a": [
+          "DUMMY"
+        ],
+        "AW_BUC_01b": [
+          "DUMMY"
+        ],
+        "AW_BUC_02": [
+          "DUMMY"
+        ],
+        "AW_BUC_03": [
+          "DUMMY"
+        ],
+        "AW_BUC_04a": [
+          "DUMMY"
+        ],
+        "AW_BUC_04b": [
+          "DUMMY"
+        ],
+        "AW_BUC_4c": [
+          "DUMMY"
+        ],
+        "AW_BUC_05": [
+          "DUMMY"
+        ],
+        "AW_BUC_06a": [
+          "DA031"
+        ],
+        "AW_BUC_06b": [
+          "DA040"
+        ],
+        "AW_BUC_06c": [
+          "DA041"
+        ],
+        "AW_BUC_07a": [
+          "DA042"
+        ],
+        "AW_BUC_07b": [
+          "DA043"
+        ],
+        "AW_BUC_07c": [
+          "DA044"
+        ],
+        "AW_BUC_07d": [
+          "DA046"
+        ],
+        "AW_BUC_08": [
+          "DA048"
+        ],
+        "AW_BUC_09a": [
+          "DA050"
+        ],
+        "AW_BUC_09b": [
+          "DA051"
+        ],
+        "AW_BUC_10a": [
+          "DA052"
+        ],
+        "AW_BUC_10b": [
+          "DA053"
+        ],
+        "AW_BUC_11": [
+          "DA057"
+        ],
+        "AW_BUC_12": [
+          "DA059"
+        ],
+        "AW_BUC_13": [
+          "DA061"
+        ],
+        "AW_BUC_14": [
+          "DUMMY"
+        ],
+        "AW_BUC_15": [
+          "DUMMY"
+        ],
+        "AW_BUC_23": [
+          "DUMMY"
+        ]
+      },
+      "FB": {
+        "FB_BUC_01": [
+          "F001"
+        ],
+        "FB_BUC_02": [
+          "F016"
+        ],
+        "FB_BUC_03": [
+          "F021"
+        ],
+        "FB_BUC_04": [
+          "F003"
+        ]
+      },
+      "HZ": {
+        "H_BUC_01": [
+          "H001"
+        ],
+        "H_BUC_02a": [
+          "H005"
+        ],
+        "H_BUC_02b": [
+          "H004"
+        ],
+        "H_BUC_02c": [
+          "H003"
+        ],
+        "H_BUC_03a": [
+          "H010"
+        ],
+        "H_BUC_03b": [
+          "H011"
+        ],
+        "H_BUC_04": [
+          "H020"
+        ],
+        "H_BUC_05": [
+          "H061"
+        ],
+        "H_BUC_06": [
+          "H065"
+        ],
+        "H_BUC_07": [
+          "H070"
+        ],
+        "H_BUC_08": [
+          "H120"
+        ],
+        "H_BUC_09": [
+          "H121"
+        ],
+        "H_BUC_10": [
+          "H130"
+        ]
+      },
+      "LA": {
+        "LA_BUC_01": [
+          "A001"
+        ],
+        "LA_BUC_02": [
+          "A003"
+        ],
+        "LA_BUC_03": [
+          "A008"
+        ],
+        "LA_BUC_04": [
+          "A009"
+        ],
+        "LA_BUC_05": [
+          "A010"
+        ],
+        "LA_BUC_06": [
+          "A005"
+        ]
+      },
+      "MI": {
+        "MI_BUC_01": [
+          "M030"
+        ],
+        "MI_BUC_02": [
+          "M040"
+        ],
+        "MI_BUC_03a": [
+          "M050"
+        ],
+        "MI_BUC_03b": [
+          "M052"
+        ]
+      },
+      "PE": {
+        "P_BUC_01": [
+          "P2000"
+        ],
+        "P_BUC_02": [
+          "P2100"
+        ],
+        "P_BUC_03": [
+          "P2200"
+        ],
+        "P_BUC_04": [
+          "P1000"
+        ],
+        "P_BUC_05": [
+          "P8000"
+        ],
+        "P_BUC_06": [
+          "P10000",
+          "P5000",
+          "P6000",
+          "P7000"
+        ],
+        "P_BUC_07": [
+          "P11000"
+        ],
+        "P_BUC_08": [
+          "P12000"
+        ],
+        "P_BUC_09": [
+          "P14000"
+        ],
+        "P_BUC_10": [
+          "P15000"
+        ]
+      },
+      "RE": {
+        "R_BUC_01": [
+          "R001"
+        ],
+        "R_BUC_02": [
+          "R005"
+        ],
+        "R_BUC_03": [
+          "R008"
+        ],
+        "R_BUC_04": [
+          "DUMMY"
+        ],
+        "R_BUC_05": [
+          "R012"
+        ],
+        "R_BUC_06": [
+          "R015"
+        ],
+        "R_BUC_07": [
+          "R017"
+        ]
+      },
+      "SI": {
+        "SI_BUC_01": [
+          "DUMMY"
+        ],
+        "SI_BUC_01a": [
+          "DUMMY"
+        ],
+        "SI_BUC_02": [
+          "DUMMY"
+        ],
+        "SI_BUC_03": [
+          "DUMMY"
+        ],
+        "SI_BUC_04": [
+          "DUMMY"
+        ],
+        "SI_BUC_05": [
+          "DUMMY"
+        ],
+        "SI_BUC_06": [
+          "DUMMY"
+        ],
+        "SI_BUC_07": [
+          "DUMMY"
+        ],
+        "SI_BUC_08": [
+          "DUMMY"
+        ],
+        "SI_BUC_09": [
+          "DUMMY"
+        ],
+        "SI_BUC_11": [
+          "DUMMY"
+        ],
+        "SI_BUC_12": [
+          "S055"
+        ],
+        "SI_BUC_14": [
+          "S046"
+        ],
+        "SI_BUC_14a": [
+          "S047"
+        ],
+        "SI_BUC_14b": [
+          "S048"
+        ],
+        "SI_BUC_15": [
+          "S056"
+        ],
+        "SI_BUC_17": [
+          "S001"
+        ],
+        "SI_BUC_17a": [
+          "S005"
+        ],
+        "SI_BUC_18": [
+          "DUMMY"
+        ],
+        "SI_BUC_18a": [
+          "DUMMY"
+        ],
+        "SI_BUC_19": [
+          "DUMMY"
+        ],
+        "SI_BUC_21": [
+          "DUMMY"
+        ],
+        "SI_BUC_22": [
+          "DUMMY"
+        ],
+        "SI_BUC_23": [
+          "DUMMY"
+        ],
+        "SI_BUC_24": [
+          "S040"
+        ]
+      },
+      "UB": {
+        "UB_BUC_01": [
+          "U001",
+          "U001CB",
+          "U003",
+          "U005"
+        ],
+        "UB_BUC_02": [
+          "U007",
+          "U009"
+        ],
+        "UB_BUC_03": [
+          "U018"
+        ],
+        "UB_BUC_04": [
+          "U020_Master"
+        ],
+        "UB_BUC_05": [
+          "DUMMY"
+        ]
+      }
+    }
+  },
+  "sedtyper": [
+    {
+      "kode": "DUMMY",
+      "term": "Dummy data - ukjent første sed"
+    },
+    {
+      "kode": "F001",
+      "term": "Anmodning om avgjørelse av kompetanse"
+    },
+    {
+      "kode": "F002",
+      "term": "Svar om avgjørelse av kompetanse"
+    },
+    {
+      "kode": "F003",
+      "term": "Vedtak om utbetaling vedrørende fortrinnsrett"
+    },
+    {
+      "kode": "F004",
+      "term": "Forespørsel om utdypende forklaring"
+    },
+    {
+      "kode": "F005",
+      "term": "Svar på forespørsel om utdypende forklaring"
+    },
+    {
+      "kode": "F016",
+      "term": "Anmodning om overføring av ytelser"
+    },
+    {
+      "kode": "F017",
+      "term": "Svar på anmodning om overføring av ytelser"
+    },
+    {
+      "kode": "F018",
+      "term": "Anmodning om trygdeperiode for tilleggsytelser"
+    },
+    {
+      "kode": "F019",
+      "term": "Svar på anmodning om trygdeperioder for tilleggsytelser"
+    },
+    {
+      "kode": "F020",
+      "term": "Informasjon om prioritet for tilleggsytelser"
+    },
+    {
+      "kode": "F021",
+      "term": "Søknad om tilleggsytelser"
+    },
+    {
+      "kode": "F022",
+      "term": "Anmodning om informasjon om perioder"
+    },
+    {
+      "kode": "DA031",
+      "term": "Søknad om kontantytelser"
+    },
+    {
+      "kode": "DA040",
+      "term": "Informasjon om utbetaling eller ikke utbetaling av kontantytelser"
+    },
+    {
+      "kode": "DA041",
+      "term": "Informasjon om opphørt arbeidsuførhet"
+    },
+    {
+      "kode": "DA042",
+      "term": "Legeerklæring eller medisinsk rapport"
+    },
+    {
+      "kode": "DA043",
+      "term": "Informasjon om person som er oppnevnt til en undersøkelse av en ulykke på vei til eller fra jobb"
+    },
+    {
+      "kode": "DA044",
+      "term": "Anmodning om detaljert utredning sammen med legeerklæringer"
+    },
+    {
+      "kode": "DA046",
+      "term": "Anmodning om vedtak"
+    },
+    {
+      "kode": "DA048",
+      "term": "Melding om bestridelse av at ulykken eller sykdommen er yrkesrelatert"
+    },
+    {
+      "kode": "DA050",
+      "term": "Send erklæring eller melding om yrkessykdom"
+    },
+    {
+      "kode": "DA051",
+      "term": "Melding om at vilkår for yrkessykdom ikke er oppfylt samt videresending av erklæring eller melding"
+    },
+    {
+      "kode": "DA052",
+      "term": "Yrkessykdom - Varsel om klage"
+    },
+    {
+      "kode": "DA053",
+      "term": "Informasjon om en forhåndsbetaling"
+    },
+    {
+      "kode": "DA057",
+      "term": "Anmodning om informasjon om forverring av yrkessykdom"
+    },
+    {
+      "kode": "DA059",
+      "term": "Anmodning om informasjon gjeldene graden av tidligere eller etterfølgende arbeidsuførhet"
+    },
+    {
+      "kode": "DA061",
+      "term": "Videresend et krav om pensjon eller tilleggsytelser til kompetent institusjon"
+    },
+    {
+      "kode": "H004",
+      "term": "Svar på fremlegg om bostedsland / uenighet med vedtak om bostedsland"
+    },
+    {
+      "kode": "H003",
+      "term": "Fremlegg/melding om bostedsland"
+    },
+    {
+      "kode": "H010",
+      "term": "Melding om endring av lovvalg"
+    },
+    {
+      "kode": "H011",
+      "term": "Anmodning om dato for endring av lovvalg"
+    },
+    {
+      "kode": "H061",
+      "term": "Melding/anmodning om personnummer"
+    },
+    {
+      "kode": "H130",
+      "term": "Anmodning om kostnadsestimat / Anmodning om administrativ kontroll"
+    },
+    {
+      "kode": "M030",
+      "term": "Krav om begravelsesstønad"
+    },
+    {
+      "kode": "M040",
+      "term": "Krav om førtidspensjon"
+    },
+    {
+      "kode": "M050",
+      "term": "Anmodning om informasjon om inntekt - særskilte innskuddsfrie kontantytelser"
+    },
+    {
+      "kode": "M052",
+      "term": "Anmodning om informasjon om ansettelsesforhold/selvstendig næringsvirksomhet/bosetningsperioder - særskilte innskuddsfrie kontantytelser"
+    },
+    {
+      "kode": "S055",
+      "term": "Søknad om kontantytelser"
+    },
+    {
+      "kode": "S046",
+      "term": "Informasjon om utbetaling eller ikke utbetaling av kontantytelser"
+    },
+    {
+      "kode": "S047",
+      "term": "Informasjon om kontantytelser som følge av arbeidsuførhet eller annen vesentlig informasjon, gitt av kompetent institusjon"
+    },
+    {
+      "kode": "S048",
+      "term": "Informasjon om avsluttet arbeidsuførhet eller annen vesentlig informasjon, gitt av institusjon på bosted eller oppholdssted"
+    },
+    {
+      "kode": "S056",
+      "term": "Melding om søknad om kontantytelser - langtidspleie"
+    },
+    {
+      "kode": "S001",
+      "term": "Informasjon om utbetaling av kontantytelser - langtidspleie"
+    },
+    {
+      "kode": "S005",
+      "term": "Informasjon om endring i rett til kontantytelser - langtidspleie"
+    },
+    {
+      "kode": "S040",
+      "term": "Forespørsel om perioder - trygdeytelse: sykdom, svangerskap og fødsel"
+    },
+    {
+      "kode": "H001",
+      "term": "Melding / anmodning om informasjon"
+    },
+    {
+      "kode": "H002",
+      "term": "Svar på anmodning om informasjon"
+    },
+    {
+      "kode": "H003",
+      "term": "Fremlegg / melding om bostedsland"
+    },
+    {
+      "kode": "U001",
+      "term": "Anmodning om trygdehistorikk"
+    },
+    {
+      "kode": "U001CB",
+      "term": "Anmodning om trygdehistorikk - grensearbeider"
+    },
+    {
+      "kode": "U003",
+      "term": "Anmodning om lønnsopplysninger"
+    },
+    {
+      "kode": "U005",
+      "term": "Anmodning om familieopplysninger"
+    },
+    {
+      "kode": "U007",
+      "term": "Forespørsel om eksportdokument"
+    },
+    {
+      "kode": "U009",
+      "term": "Registrering av melding - eksport"
+    },
+    {
+      "kode": "U018",
+      "term": "Forespørsel om registreringsinformasjon - grensearbeider"
+    },
+    {
+      "kode": "U020_Master",
+      "term": "U020_Master"
+    },
+    {
+      "kode": "A001",
+      "term": "Søknad om unntak"
+    },
+    {
+      "kode": "A003",
+      "term": "Beslutning om lovvalg"
+    },
+    {
+      "kode": "A008",
+      "term": "Melding om relevant informasjon"
+    },
+    {
+      "kode": "A009",
+      "term": "Melding om utstasjonering"
+    },
+    {
+      "kode": "A010",
+      "term": "Melding om lovvalg"
+    },
+    {
+      "kode": "A005",
+      "term": "Anmodning om mer informasjon"
+    },
+    {
+      "kode": "R001",
+      "term": "Anmodning om motregning i etterbetaling/løpende utbetalinger"
+    },
+    {
+      "kode": "R005",
+      "term": "Anmodning om motregning i etterbetalinger"
+    },
+    {
+      "kode": "R008",
+      "term": "Refusjonskrav for foreløpig utbetalte ytelser"
+    },
+    {
+      "kode": "R012",
+      "term": "Anmodning om informasjon"
+    },
+    {
+      "kode": "R015",
+      "term": "Anmodning om varsel/forkynning"
+    },
+    {
+      "kode": "R017",
+      "term": "Anmodning om tilbakekreving/sikringstiltak"
+    },
+    {
+      "kode": "H005",
+      "term": "Anmodning om informasjon om bosted"
+    },
+    {
+      "kode": "H020",
+      "term": "Krav om - refusjon - administrativ kontroll / medisinsk informasjon"
+    },
+    {
+      "kode": "H065",
+      "term": "Overføring av krav/dokument/informasjon"
+    },
+    {
+      "kode": "H070",
+      "term": "Melding om dødsfall"
+    },
+    {
+      "kode": "H120",
+      "term": "Anmodning om medisinsk informasjon"
+    },
+    {
+      "kode": "H121",
+      "term": "Melding om medisinsk informasjon / Svar på forespørsel om medisinsk informasjon"
+    },
+    {
+      "kode": "P2000",
+      "term": "Krav om alderspensjon"
+    },
+    {
+      "kode": "P2100",
+      "term": "Krav om etterlattepensjon"
+    },
+    {
+      "kode": "P1000",
+      "term": "Anmodning for perioder med foreldreansvar"
+    },
+    {
+      "kode": "P2200",
+      "term": "Krav om uførepensjon"
+    },
+    {
+      "kode": "P8000",
+      "term": "Anmodning om tilleggsinformasjon"
+    },
+    {
+      "kode": "P10000",
+      "term": "Overføring av mer informasjon"
+    },
+    {
+      "kode": "P5000",
+      "term": "Forsikrings-/bosettingsperioder"
+    },
+    {
+      "kode": "P6000",
+      "term": "Vedtak om pensjon"
+    },
+    {
+      "kode": "P7000",
+      "term": "Melding om vedtakssammendrag"
+    },
+    {
+      "kode": "P11000",
+      "term": "Anmodning om pensjonsbeløp"
+    },
+    {
+      "kode": "P12000",
+      "term": "Informasjon om pensjonsbeløp"
+    },
+    {
+      "kode": "P14000",
+      "term": "Endring i personlige forhold"
+    },
+    {
+      "kode": "P15000",
+      "term": "Overføring av pensjonssaker til EESSI"
+    }
+  ]
+}

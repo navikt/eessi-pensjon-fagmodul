@@ -42,8 +42,8 @@ data class SED(
 
 //Data struktur for bruk av apirequest(frontend) og utfyllingdata (backend)
 data class InstitusjonItem(
-        var country: String? = null,
-        var institution: String? = null,
+        var country: String,
+        var institution: String,
         var name: String? = null
 )
 

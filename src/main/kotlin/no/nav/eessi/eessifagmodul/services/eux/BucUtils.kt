@@ -187,6 +187,7 @@ class BucUtils(private val buc: Buc ) {
         return getBuc().participants
     }
 
+    //trenger testing
     fun getParticipantsExclusiveCaseowner(): List<ParticipantsItem> {
         val parts = getParticipants()
         val caseOwner = "CaseOwner"
@@ -199,6 +200,7 @@ class BucUtils(private val buc: Buc ) {
         return bucdeltakere
     }
 
+    //trenger testing
     fun getParticipantsExclusiveCaseownerAsInstitusjonItem(): List<InstitusjonItem> {
         val list = getParticipantsExclusiveCaseowner()
         logger.debug("ParticipantsExclusive size: ${list.size}")
@@ -206,8 +208,8 @@ class BucUtils(private val buc: Buc ) {
         val result = mutableListOf<InstitusjonItem>()
         list.forEach{
             val institusjonItem = InstitusjonItem(
-                    country = it.organisation?.countryCode,
-                    institution = it.organisation?.name,  //kan hende må være id?!
+                    country = it.organisation?.countryCode ?: "",
+                    institution = it.organisation?.id ?: "",  //kan hende må være id?!
                     name = "" //
             )
             logger.debug("Legger til BucParticipants som InstitusjonItem i liste")
@@ -261,9 +263,12 @@ class BucUtils(private val buc: Buc ) {
                 createAkjsonsliste.add(item.documentType)
             }
         }
-        return createAkjsonsliste
+        val aksjonlist = createAkjsonsliste
                 .sortedBy { it }
                 .toList()
+
+        logger.debug("Seds AksjonList size: ${aksjonlist.size}")
+        return aksjonlist
     }
 
     fun getRinaAksjon(): List<RinaAksjon> {
