@@ -6,8 +6,8 @@ import no.nav.eessi.eessifagmodul.models.IkkeFunnetException
 import no.nav.eessi.eessifagmodul.models.IkkeGyldigKallException
 import no.nav.eessi.eessifagmodul.services.aktoerregister.AktoerregisterService
 import no.nav.eessi.eessifagmodul.services.pensjonsinformasjon.PensjonsinformasjonService
-import no.nav.eessi.eessifagmodul.json.errorBody
-import no.nav.eessi.eessifagmodul.json.mapAnyToJson
+import no.nav.eessi.eessifagmodul.utils.errorBody
+import no.nav.eessi.eessifagmodul.utils.mapAnyToJson
 import no.nav.security.oidc.api.Protected
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity

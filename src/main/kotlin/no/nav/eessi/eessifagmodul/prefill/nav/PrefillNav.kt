@@ -3,9 +3,9 @@ package no.nav.eessi.eessifagmodul.prefill.nav
 import no.nav.eessi.eessifagmodul.models.*
 import no.nav.eessi.eessifagmodul.prefill.Prefill
 import no.nav.eessi.eessifagmodul.prefill.PrefillDataModel
-import no.nav.eessi.eessifagmodul.json.mapJsonToAny
+import no.nav.eessi.eessifagmodul.utils.mapJsonToAny
 import no.nav.eessi.eessifagmodul.utils.simpleFormat
-import no.nav.eessi.eessifagmodul.json.typeRefs
+import no.nav.eessi.eessifagmodul.utils.typeRefs
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value

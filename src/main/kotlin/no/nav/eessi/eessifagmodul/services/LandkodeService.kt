@@ -1,6 +1,6 @@
 package no.nav.eessi.eessifagmodul.services
 
-import no.nav.eessi.eessifagmodul.json.mapAnyToJson
+import no.nav.eessi.eessifagmodul.utils.mapAnyToJson
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service

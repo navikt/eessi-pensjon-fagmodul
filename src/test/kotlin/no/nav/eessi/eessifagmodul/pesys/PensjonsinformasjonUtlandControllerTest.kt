@@ -1,9 +1,9 @@
 package no.nav.eessi.eessifagmodul.pesys
 
 import no.nav.eessi.eessifagmodul.metrics.TimingService
-import no.nav.eessi.eessifagmodul.json.mapAnyToJson
-import no.nav.eessi.eessifagmodul.json.mapJsonToAny
-import no.nav.eessi.eessifagmodul.json.typeRefs
+import no.nav.eessi.eessifagmodul.utils.mapAnyToJson
+import no.nav.eessi.eessifagmodul.utils.mapJsonToAny
+import no.nav.eessi.eessifagmodul.utils.typeRefs
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

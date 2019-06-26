@@ -6,8 +6,8 @@ import no.nav.eessi.eessifagmodul.services.pensjonsinformasjon.Pensjonsinformasj
 import no.nav.eessi.eessifagmodul.services.personv3.PersonV3Service
 import no.nav.eessi.eessifagmodul.services.sts.STSService
 import no.nav.eessi.eessifagmodul.metrics.getCounter
-import no.nav.eessi.eessifagmodul.json.mapJsonToAny
-import no.nav.eessi.eessifagmodul.json.typeRefs
+import no.nav.eessi.eessifagmodul.utils.mapJsonToAny
+import no.nav.eessi.eessifagmodul.utils.typeRefs
 import no.nav.security.oidc.api.Protected
 import no.nav.security.oidc.api.Unprotected
 import org.apache.http.HttpHeaders

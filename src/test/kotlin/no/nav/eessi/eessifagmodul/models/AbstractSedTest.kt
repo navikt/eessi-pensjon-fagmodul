@@ -1,6 +1,6 @@
 package no.nav.eessi.eessifagmodul.models
 
-import no.nav.eessi.eessifagmodul.json.validateJson
+import no.nav.eessi.eessifagmodul.utils.validateJson
 import java.nio.file.Files
 import java.nio.file.Paths
 import kotlin.test.assertTrue

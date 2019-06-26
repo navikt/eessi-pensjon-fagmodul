@@ -2,7 +2,7 @@ package no.nav.eessi.eessifagmodul.controllers
 
 import io.swagger.annotations.ApiOperation
 import no.nav.eessi.eessifagmodul.services.saf.SafService
-import no.nav.eessi.eessifagmodul.json.errorBody
+import no.nav.eessi.eessifagmodul.utils.errorBody
 import no.nav.security.oidc.api.Protected
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus

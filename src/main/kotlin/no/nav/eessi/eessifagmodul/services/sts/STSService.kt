@@ -2,8 +2,8 @@ package no.nav.eessi.eessifagmodul.services.sts
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import no.nav.eessi.eessifagmodul.models.SystembrukerTokenException
-import no.nav.eessi.eessifagmodul.json.mapAnyToJson
-import no.nav.eessi.eessifagmodul.json.typeRef
+import no.nav.eessi.eessifagmodul.utils.mapAnyToJson
+import no.nav.eessi.eessifagmodul.utils.typeRef
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity

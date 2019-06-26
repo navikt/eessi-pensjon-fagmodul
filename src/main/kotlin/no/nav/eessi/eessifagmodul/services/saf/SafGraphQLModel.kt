@@ -1,6 +1,6 @@
 package no.nav.eessi.eessifagmodul.services.saf
 
-import no.nav.eessi.eessifagmodul.json.mapAnyToJson
+import no.nav.eessi.eessifagmodul.utils.mapAnyToJson
 
 /**
  * Request og responsemodell for SAF GraphQL tjeneste

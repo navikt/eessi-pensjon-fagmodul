@@ -1,4 +1,4 @@
-package no.nav.eessi.eessifagmodul.json
+package no.nav.eessi.eessifagmodul.utils
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.core.type.TypeReference

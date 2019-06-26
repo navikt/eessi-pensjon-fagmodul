@@ -1,6 +1,6 @@
 package no.nav.eessi.eessifagmodul.prefill.vedtak
 
-import no.nav.eessi.eessifagmodul.json.mapAnyToJson
+import no.nav.eessi.eessifagmodul.utils.mapAnyToJson
 import no.nav.eessi.eessifagmodul.utils.simpleFormat
 import org.junit.Test
 import org.slf4j.Logger

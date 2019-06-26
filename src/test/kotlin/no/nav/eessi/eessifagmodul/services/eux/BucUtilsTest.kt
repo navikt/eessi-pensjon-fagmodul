@@ -5,10 +5,10 @@ import no.nav.eessi.eessifagmodul.models.IkkeGyldigKallException
 import no.nav.eessi.eessifagmodul.models.InstitusjonItem
 import no.nav.eessi.eessifagmodul.models.SEDType
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.Buc
-import no.nav.eessi.eessifagmodul.json.mapAnyToJson
-import no.nav.eessi.eessifagmodul.json.mapJsonToAny
-import no.nav.eessi.eessifagmodul.json.typeRefs
-import no.nav.eessi.eessifagmodul.json.validateJson
+import no.nav.eessi.eessifagmodul.utils.mapAnyToJson
+import no.nav.eessi.eessifagmodul.utils.mapJsonToAny
+import no.nav.eessi.eessifagmodul.utils.typeRefs
+import no.nav.eessi.eessifagmodul.utils.validateJson
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

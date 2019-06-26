@@ -13,8 +13,8 @@ import no.nav.eessi.eessifagmodul.services.LandkodeService
 import no.nav.eessi.eessifagmodul.services.PostnummerService
 import no.nav.eessi.eessifagmodul.services.personv3.PersonV3Service
 import no.nav.eessi.eessifagmodul.utils.NavFodselsnummer
-import no.nav.eessi.eessifagmodul.json.mapJsonToAny
-import no.nav.eessi.eessifagmodul.json.typeRefs
+import no.nav.eessi.eessifagmodul.utils.mapJsonToAny
+import no.nav.eessi.eessifagmodul.utils.typeRefs
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.*
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonResponse
 import org.junit.Before

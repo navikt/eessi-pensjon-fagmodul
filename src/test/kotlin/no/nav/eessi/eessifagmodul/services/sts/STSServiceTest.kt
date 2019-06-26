@@ -3,7 +3,7 @@ package no.nav.eessi.eessifagmodul.services.sts
 import com.nhaarman.mockito_kotlin.eq
 import com.nhaarman.mockito_kotlin.whenever
 import no.nav.eessi.eessifagmodul.models.SystembrukerTokenException
-import no.nav.eessi.eessifagmodul.json.typeRef
+import no.nav.eessi.eessifagmodul.utils.typeRef
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

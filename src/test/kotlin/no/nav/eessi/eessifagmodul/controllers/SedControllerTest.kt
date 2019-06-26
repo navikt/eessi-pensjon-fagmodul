@@ -15,9 +15,6 @@ import no.nav.eessi.eessifagmodul.services.eux.EuxService
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.Buc
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.DocumentsItem
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.ShortDocumentItem
-import no.nav.eessi.eessifagmodul.json.mapJsonToAny
-import no.nav.eessi.eessifagmodul.json.typeRefs
-import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

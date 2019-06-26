@@ -1,4 +1,4 @@
-package no.nav.eessi.eessifagmodul.json
+package no.nav.eessi.eessifagmodul.utils
 
 import no.nav.eessi.eessifagmodul.models.InstitusjonItem
 import org.junit.Test
@@ -9,9 +9,9 @@ import java.time.format.DateTimeFormatter
 import kotlin.test.assertEquals
 
 
-class JsonTest {
+class JsonUtilsTest {
 
-    private val logger: Logger by lazy { LoggerFactory.getLogger(JsonTest::class.java) }
+    private val logger: Logger by lazy { LoggerFactory.getLogger(JsonUtilsTest::class.java) }
 
     @Test
     fun testJsonmapingList() {

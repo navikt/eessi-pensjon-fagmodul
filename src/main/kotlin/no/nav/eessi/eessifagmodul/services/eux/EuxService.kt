@@ -1,9 +1,9 @@
 package no.nav.eessi.eessifagmodul.services.eux
 
 import com.google.common.base.Preconditions
-import no.nav.eessi.eessifagmodul.json.mapJsonToAny
-import no.nav.eessi.eessifagmodul.json.typeRef
-import no.nav.eessi.eessifagmodul.json.typeRefs
+import no.nav.eessi.eessifagmodul.utils.mapJsonToAny
+import no.nav.eessi.eessifagmodul.utils.typeRef
+import no.nav.eessi.eessifagmodul.utils.typeRefs
 import no.nav.eessi.eessifagmodul.metrics.getCounter
 import no.nav.eessi.eessifagmodul.models.*
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.Buc

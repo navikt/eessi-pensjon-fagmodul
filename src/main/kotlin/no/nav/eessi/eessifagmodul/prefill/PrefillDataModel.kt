@@ -4,9 +4,9 @@ import no.nav.eessi.eessifagmodul.models.AndreinstitusjonerItem
 import no.nav.eessi.eessifagmodul.models.InstitusjonItem
 import no.nav.eessi.eessifagmodul.models.SED
 import no.nav.eessi.eessifagmodul.services.eux.BucSedResponse
-import no.nav.eessi.eessifagmodul.json.mapAnyToJson
-import no.nav.eessi.eessifagmodul.json.mapJsonToAny
-import no.nav.eessi.eessifagmodul.json.typeRefs
+import no.nav.eessi.eessifagmodul.utils.mapAnyToJson
+import no.nav.eessi.eessifagmodul.utils.mapJsonToAny
+import no.nav.eessi.eessifagmodul.utils.typeRefs
 import no.nav.pensjon.v1.brukersbarn.V1BrukersBarn
 import no.nav.pensjon.v1.ektefellepartnersamboer.V1EktefellePartnerSamboer
 
