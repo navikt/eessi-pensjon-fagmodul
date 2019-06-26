@@ -20,6 +20,9 @@ data class SafRequest(
                     "dokumenter {" +
                         "dokumentInfoId " +
                         "tittel " +
+                        "dokumentvarianter {" +
+                            "variantformat" +
+                        "} " +
                     "} " +
                     "relevanteDatoer {" +
                         "dato " +
@@ -49,6 +52,18 @@ enum class BrukerIdType {
     AKTOERID
 }
 
+/**
+ * https://confluence.adeo.no/display/BOA/Enum%3A+Variantformat
+ */
+enum class VariantFormat {
+    ARKIV,
+    FULLVERSJON,
+    PRODUKSJON,
+    PRODUKSJON_DLF,
+    SLADDET,
+    ORIGINAL
+}
+
 data class HentMetadataResponse (val data: Data) {
     fun toJson(): String {
         return mapAnyToJson(this, false)
@@ -70,7 +85,12 @@ data class Journalpost(
 
 data class Dokument(
         val dokumentInfoId: String,
-        val tittel: String
+        val tittel: String,
+        val dokumentvarianter: List<Dokumentvarianter>
+)
+
+data class Dokumentvarianter(
+        val variantformat: VariantFormat
 )
 
 data class DatoHolder(
@@ -78,7 +98,7 @@ data class DatoHolder(
         val datotype: String
 )
 
-data class HentdokumentResponse (
+data class HentdokumentInnholdResponse (
         val base64: String,
         val fileName: String,
         val contentType: String

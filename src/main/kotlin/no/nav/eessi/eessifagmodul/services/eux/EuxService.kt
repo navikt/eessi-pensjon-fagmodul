@@ -10,6 +10,7 @@ import no.nav.eessi.eessifagmodul.services.eux.bucmodel.Buc
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.BucAndSedView
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.ParticipantsItem
 import no.nav.eessi.eessifagmodul.services.saf.SafService
+import no.nav.eessi.eessifagmodul.services.saf.VariantFormat
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Description
 import org.springframework.http.*
@@ -524,9 +525,10 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate,
                                   rinaSakId: String,
                                   rinaDokumentId: String,
                                   joarkJournalpostId: String,
-                                  joarkDokumentInfoId : String) {
+                                  joarkDokumentInfoId : String,
+                                  variantFormat: VariantFormat) {
         try {
-            val hentDokumentResponse = safService.hentDokumentInnhold(joarkJournalpostId, joarkDokumentInfoId)
+            val hentDokumentResponse = safService.hentDokumentInnhold(joarkJournalpostId, joarkDokumentInfoId, variantFormat)
             val requestBody = Vedlegg(hentDokumentResponse.fileName, hentDokumentResponse.base64)
 
             val httpEntity = HttpEntity(requestBody)

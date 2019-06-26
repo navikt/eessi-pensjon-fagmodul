@@ -1,6 +1,9 @@
 package no.nav.eessi.eessifagmodul.controllers
 
 import io.swagger.annotations.ApiOperation
+import no.nav.eessi.eessifagmodul.json.errorBody
+import no.nav.eessi.eessifagmodul.json.mapAnyToJson
+import no.nav.eessi.eessifagmodul.json.successBody
 import no.nav.eessi.eessifagmodul.models.InstitusjonItem
 import no.nav.eessi.eessifagmodul.models.Krav
 import no.nav.eessi.eessifagmodul.services.aktoerregister.AktoerregisterService
@@ -12,9 +15,7 @@ import no.nav.eessi.eessifagmodul.services.eux.bucmodel.Buc
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.BucAndSedView
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.Creator
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.ShortDocumentItem
-import no.nav.eessi.eessifagmodul.json.errorBody
-import no.nav.eessi.eessifagmodul.json.mapAnyToJson
-import no.nav.eessi.eessifagmodul.json.successBody
+import no.nav.eessi.eessifagmodul.services.saf.VariantFormat
 import no.nav.security.oidc.api.Protected
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -163,12 +164,18 @@ class BucController(private val euxService: EuxService,
                               @PathVariable("rinaSakId", required = true) rinaSakId: String,
                               @PathVariable("rinaDokumentId", required = true) rinaDokumentId: String,
                               @PathVariable("joarkJournalpostId", required = true) joarkJournalpostId: String,
-                              @PathVariable("joarkDokumentInfoId ", required = true) joarkDokumentInfoId : String) : ResponseEntity<String> {
-        logger.debug("Legger til vedlegg: joarkJournalpostId: $joarkJournalpostId, joarkDokumentInfoId $joarkDokumentInfoId til " +
+                              @PathVariable("joarkDokumentInfoId ", required = true) joarkDokumentInfoId : String,
+                              @PathVariable("variantFormat ", required = true) variantFormat : VariantFormat) : ResponseEntity<String> {
+        logger.debug("Legger til vedlegg: joarkJournalpostId: $joarkJournalpostId, joarkDokumentInfoId $joarkDokumentInfoId, variantFormat: $variantFormat til " +
                 "rinaSakId: $rinaSakId, rinaDokumentId: $rinaDokumentId")
 
         return try {
-            euxService.leggTilVedleggPaaDokument(aktoerId, rinaSakId, rinaDokumentId, joarkJournalpostId, joarkDokumentInfoId)
+            euxService.leggTilVedleggPaaDokument(aktoerId,
+                    rinaSakId,
+                    rinaDokumentId,
+                    joarkJournalpostId,
+                    joarkDokumentInfoId,
+                    variantFormat)
             return ResponseEntity.ok().body(successBody())
         } catch(ex: Exception) {
             ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -183,5 +190,4 @@ class BucController(private val euxService: EuxService,
     private fun getBucUtils(rinanr: String): BucUtils {
         return euxService.getBucUtils(rinanr)
     }
-
 }
