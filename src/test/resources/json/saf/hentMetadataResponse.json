@@ -10,7 +10,12 @@
           "dokumenter": [
             {
               "dokumentInfoId": "453743887",
-              "tittel": "MASKERT_FELT"
+              "tittel": "MASKERT_FELT",
+              "dokumentvarianter": [
+                {
+                  "variantformat": "ARKIV"
+                }
+              ]
             }
           ],
           "relevanteDatoer": [
@@ -36,7 +41,15 @@
           "dokumenter": [
             {
               "dokumentInfoId": "453708906",
-              "tittel": "MASKERT_FELT"
+              "tittel": "MASKERT_FELT",
+              "dokumentvarianter": [
+                {
+                  "variantformat": "ARKIV"
+                },
+                {
+                  "variantformat": "PRODUKSJON"
+                }
+              ]
             }
           ],
           "relevanteDatoer": [
