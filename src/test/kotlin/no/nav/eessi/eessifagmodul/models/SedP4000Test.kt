@@ -2,7 +2,7 @@ package no.nav.eessi.eessifagmodul.models
 
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.whenever
-import no.nav.eessi.eessifagmodul.controllers.SedController
+import no.nav.eessi.eessifagmodul.eux.SedController
 import no.nav.eessi.eessifagmodul.prefill.PrefillDataModel
 import no.nav.eessi.eessifagmodul.prefill.PrefillP4000
 import no.nav.eessi.eessifagmodul.prefill.PrefillSED

@@ -1,4 +1,4 @@
-package no.nav.eessi.eessifagmodul.controllers
+package no.nav.eessi.eessifagmodul.eux
 
 import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.whenever
@@ -6,17 +6,13 @@ import no.nav.eessi.eessifagmodul.models.*
 import no.nav.eessi.eessifagmodul.services.aktoerregister.AktoerregisterService
 import no.nav.eessi.eessifagmodul.services.eux.BucUtils
 import no.nav.eessi.eessifagmodul.services.eux.EuxService
-import no.nav.eessi.eessifagmodul.services.eux.RinaAksjon
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
-import java.nio.file.Files
-import java.nio.file.Paths
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 @RunWith(MockitoJUnitRunner.Silent::class)
 class BucControllerTest {

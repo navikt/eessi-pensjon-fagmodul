@@ -1,4 +1,4 @@
-package no.nav.eessi.eessifagmodul.controllers
+package no.nav.eessi.eessifagmodul.pensjon
 
 import io.swagger.annotations.ApiOperation
 import no.nav.eessi.eessifagmodul.models.AktoerregisterException

@@ -1,8 +1,7 @@
-package no.nav.eessi.eessifagmodul.controllers
+package no.nav.eessi.eessifagmodul.eux
 
 import no.nav.eessi.eessifagmodul.models.InstitusjonItem
 import no.nav.eessi.eessifagmodul.models.SED
-import no.nav.eessi.eessifagmodul.services.LandkodeService
 import no.nav.eessi.eessifagmodul.utils.mapAnyToJson
 import no.nav.eessi.eessifagmodul.utils.validateJson
 import org.junit.Test
@@ -18,7 +17,7 @@ class ApIRequestTest {
     private val printout = false
     private val printsed = false
 
-    private val logger: Logger by lazy { LoggerFactory.getLogger(LandkodeService::class.java) }
+    private val logger: Logger by lazy { LoggerFactory.getLogger(ApIRequestTest::class.java) }
 
 
     private fun createMockApiRequest(sedName: String, buc: String, payload: String): SedController.ApiRequest {

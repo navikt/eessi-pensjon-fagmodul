@@ -1,4 +1,4 @@
-package no.nav.eessi.eessifagmodul.controllers
+package no.nav.eessi.eessifagmodul.pensjon
 
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
@@ -6,6 +6,7 @@ import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
 import no.nav.eessi.eessifagmodul.models.IkkeFunnetException
 import no.nav.eessi.eessifagmodul.models.PensjoninformasjonException
+import no.nav.eessi.eessifagmodul.pensjon.PensjonController
 import no.nav.eessi.eessifagmodul.services.aktoerregister.AktoerregisterService
 import no.nav.eessi.eessifagmodul.services.pensjonsinformasjon.PensjonsinformasjonService
 import no.nav.eessi.eessifagmodul.services.pensjonsinformasjon.Pensjontype

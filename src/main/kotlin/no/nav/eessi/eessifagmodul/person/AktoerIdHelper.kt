@@ -1,4 +1,4 @@
-package no.nav.eessi.eessifagmodul.controllers
+package no.nav.eessi.eessifagmodul.person
 
 import no.nav.eessi.eessifagmodul.models.AktoerregisterException
 import no.nav.eessi.eessifagmodul.models.IkkeGyldigKallException

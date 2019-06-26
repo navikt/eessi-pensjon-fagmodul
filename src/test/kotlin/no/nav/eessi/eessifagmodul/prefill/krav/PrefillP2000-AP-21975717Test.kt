@@ -1,6 +1,6 @@
 package no.nav.eessi.eessifagmodul.prefill.krav
 
-import no.nav.eessi.eessifagmodul.controllers.SedController
+import no.nav.eessi.eessifagmodul.eux.SedController
 import no.nav.eessi.eessifagmodul.models.InstitusjonItem
 import no.nav.eessi.eessifagmodul.models.Nav
 import no.nav.eessi.eessifagmodul.models.SED

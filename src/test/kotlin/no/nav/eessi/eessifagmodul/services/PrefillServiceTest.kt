@@ -9,7 +9,6 @@ import no.nav.eessi.eessifagmodul.services.eux.BucSedResponse
 import no.nav.eessi.eessifagmodul.services.eux.BucUtils
 import no.nav.eessi.eessifagmodul.services.eux.EuxService
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.Buc
-import no.nav.eessi.eessifagmodul.services.eux.bucmodel.ParticipantsItem
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.ShortDocumentItem
 import no.nav.eessi.eessifagmodul.utils.mapJsonToAny
 import no.nav.eessi.eessifagmodul.utils.typeRefs

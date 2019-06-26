@@ -1,4 +1,4 @@
-package no.nav.eessi.eessifagmodul.controllers
+package no.nav.eessi.eessifagmodul.geo
 
 import io.swagger.annotations.ApiOperation
 import no.nav.eessi.eessifagmodul.services.PostnummerService

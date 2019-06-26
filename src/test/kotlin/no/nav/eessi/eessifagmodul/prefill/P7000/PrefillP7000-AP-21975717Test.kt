@@ -1,6 +1,6 @@
 package no.nav.eessi.eessifagmodul.prefill.P7000
 
-import no.nav.eessi.eessifagmodul.controllers.SedController
+import no.nav.eessi.eessifagmodul.eux.SedController
 import no.nav.eessi.eessifagmodul.models.InstitusjonItem
 import no.nav.eessi.eessifagmodul.models.SED
 import no.nav.eessi.eessifagmodul.prefill.*

@@ -1,6 +1,7 @@
-package no.nav.eessi.eessifagmodul.controllers
+package no.nav.eessi.eessifagmodul.eux
 
 import io.swagger.annotations.ApiOperation
+import no.nav.eessi.eessifagmodul.person.AktoerIdHelper
 import no.nav.eessi.eessifagmodul.models.InstitusjonItem
 import no.nav.eessi.eessifagmodul.models.Krav
 import no.nav.eessi.eessifagmodul.services.aktoerregister.AktoerregisterService
