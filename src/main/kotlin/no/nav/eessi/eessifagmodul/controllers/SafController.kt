@@ -30,7 +30,7 @@ class SafController(val safService: SafService) {
     }
 
     @ApiOperation("Henter dokumentInnhold for et JOARK dokument")
-    @GetMapping("/hentdokument/{journalpostId}/{dokumentInfoId}")
+    @GetMapping("/hentdokument/{journalpostId}/{dokumentInfoId}/{variantFormat}")
     fun getDokumentInnhold(@PathVariable("journalpostId", required = true) journalpostId: String,
                            @PathVariable("dokumentInfoId", required = true) dokumentInfoId: String,
                            @PathVariable("variantFormat", required = true) variantFormat: VariantFormat): ResponseEntity<String> {
