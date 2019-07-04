@@ -15,6 +15,7 @@ data class SafRequest(
                         "verdi " +
                     "}" +
                     "journalpostId " +
+                    "datoOpprettet " +
                     "tittel " +
                     "tema " +
                     "dokumenter {" +
@@ -24,10 +25,6 @@ data class SafRequest(
                             "variantformat" +
                         "} " +
                     "} " +
-                    "relevanteDatoer {" +
-                        "dato " +
-                        "datotype " +
-                    "}" +
                 "}}}",
         val variables: Variables
 ) {
@@ -77,10 +74,10 @@ data class DokumentoversiktBruker(val journalposter: List<Journalpost>)
 data class Journalpost(
         val tilleggsopplysninger: List<Map<String, String>>,
         val journalpostId: String,
+        val datoOpprettet: String,
         val tittel: String,
         val tema: String,
-        val dokumenter: List<Dokument>,
-        val relevanteDatoer: List<DatoHolder>
+        val dokumenter: List<Dokument>
 )
 
 data class Dokument(
@@ -91,11 +88,6 @@ data class Dokument(
 
 data class Dokumentvarianter(
         val variantformat: VariantFormat
-)
-
-data class DatoHolder(
-        val dato: String,
-        val datotype: String
 )
 
 data class HentdokumentInnholdResponse (

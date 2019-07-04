@@ -5,6 +5,7 @@
         {
           "tilleggsopplysninger": [],
           "journalpostId": "439560100",
+          "datoOpprettet": "2018-06-08T17:06:58",
           "tittel": "MASKERT_FELT",
           "tema": "SYK",
           "dokumenter": [
@@ -17,25 +18,12 @@
                 }
               ]
             }
-          ],
-          "relevanteDatoer": [
-            {
-              "dato": "2018-12-27T14:42:24",
-              "datotype": "DATO_DOKUMENT"
-            },
-            {
-              "dato": "2018-12-27T14:42:27",
-              "datotype": "DATO_JOURNALFOERT"
-            },
-            {
-              "dato": "2018-12-27T14:42:24",
-              "datotype": "DATO_REGISTRERT"
-            }
           ]
         },
         {
           "tilleggsopplysninger": [],
           "journalpostId": "439532144",
+          "datoOpprettet": "2018-06-08T17:06:58",
           "tittel": "MASKERT_FELT",
           "tema": "SYK",
           "dokumenter": [
@@ -50,20 +38,6 @@
                   "variantformat": "PRODUKSJON"
                 }
               ]
-            }
-          ],
-          "relevanteDatoer": [
-            {
-              "dato": "2018-12-26T00:00",
-              "datotype": "DATO_DOKUMENT"
-            },
-            {
-              "dato": "2018-12-26T18:30:50",
-              "datotype": "DATO_JOURNALFOERT"
-            },
-            {
-              "dato": "2018-12-26T00:00",
-              "datotype": "DATO_REGISTRERT"
             }
           ]
         }
