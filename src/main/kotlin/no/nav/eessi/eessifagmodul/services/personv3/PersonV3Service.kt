@@ -3,8 +3,6 @@ package no.nav.eessi.eessifagmodul.services.personv3
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.Metrics
 import no.nav.eessi.eessifagmodul.metrics.TimingService
-import no.nav.eessi.eessifagmodul.models.PersonV3IkkeFunnetException
-import no.nav.eessi.eessifagmodul.models.PersonV3SikkerhetsbegrensningException
 import no.nav.eessi.eessifagmodul.security.sts.configureRequestSamlToken
 import no.nav.tjeneste.virksomhet.person.v3.binding.HentPersonPersonIkkeFunnet
 import no.nav.tjeneste.virksomhet.person.v3.binding.HentPersonSikkerhetsbegrensning
@@ -18,7 +16,9 @@ import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonRequest
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonResponse
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
+import org.springframework.web.bind.annotation.ResponseStatus
 import java.lang.Exception
 
 @Component
@@ -94,3 +94,9 @@ class PersonV3Service(private val service: PersonV3,
     }
 
 }
+
+@ResponseStatus(value = HttpStatus.NOT_FOUND)
+class PersonV3IkkeFunnetException(message: String?): Exception(message)
+
+@ResponseStatus(value = HttpStatus.FORBIDDEN)
+class PersonV3SikkerhetsbegrensningException(message: String?): Exception(message)
