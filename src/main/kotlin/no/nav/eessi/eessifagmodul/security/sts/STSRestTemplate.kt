@@ -1,4 +1,4 @@
-package no.nav.eessi.eessifagmodul.services.sts
+package no.nav.eessi.eessifagmodul.security.sts
 
 import no.nav.eessi.eessifagmodul.config.RequestResponseLoggerInterceptor
 import org.slf4j.LoggerFactory

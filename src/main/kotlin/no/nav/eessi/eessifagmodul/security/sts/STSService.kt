@@ -1,4 +1,4 @@
-package no.nav.eessi.eessifagmodul.services.sts
+package no.nav.eessi.eessifagmodul.security.sts
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import no.nav.eessi.eessifagmodul.models.SystembrukerTokenException

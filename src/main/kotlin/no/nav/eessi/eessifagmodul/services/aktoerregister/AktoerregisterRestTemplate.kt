@@ -1,8 +1,8 @@
 package no.nav.eessi.eessifagmodul.services.aktoerregister
 
 import io.micrometer.core.instrument.MeterRegistry
-import no.nav.eessi.eessifagmodul.services.sts.STSService
-import no.nav.eessi.eessifagmodul.services.sts.UsernameToOidcInterceptor
+import no.nav.eessi.eessifagmodul.security.sts.STSService
+import no.nav.eessi.eessifagmodul.security.sts.UsernameToOidcInterceptor
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.actuate.metrics.web.client.DefaultRestTemplateExchangeTagsProvider
 import org.springframework.boot.actuate.metrics.web.client.MetricsRestTemplateCustomizer

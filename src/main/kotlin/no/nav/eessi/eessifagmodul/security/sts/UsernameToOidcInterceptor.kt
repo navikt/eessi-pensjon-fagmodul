@@ -1,4 +1,4 @@
-package no.nav.eessi.eessifagmodul.services.sts
+package no.nav.eessi.eessifagmodul.security.sts
 
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpRequest
