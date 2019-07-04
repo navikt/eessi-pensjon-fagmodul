@@ -2,8 +2,8 @@ package no.nav.eessi.eessifagmodul.services.pensjonsinformasjon
 
 import io.micrometer.core.instrument.MeterRegistry
 import no.nav.eessi.eessifagmodul.config.RequestResponseLoggerInterceptor
-import no.nav.eessi.eessifagmodul.services.sts.STSService
-import no.nav.eessi.eessifagmodul.services.sts.UsernameToOidcInterceptor
+import no.nav.eessi.eessifagmodul.security.sts.STSService
+import no.nav.eessi.eessifagmodul.security.sts.UsernameToOidcInterceptor
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean

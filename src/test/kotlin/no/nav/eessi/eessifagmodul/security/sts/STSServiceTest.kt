@@ -1,4 +1,4 @@
-package no.nav.eessi.eessifagmodul.services.sts
+package no.nav.eessi.eessifagmodul.security.sts
 
 import com.nhaarman.mockito_kotlin.eq
 import com.nhaarman.mockito_kotlin.whenever
@@ -13,7 +13,6 @@ import org.mockito.junit.MockitoJUnitRunner
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestTemplate
-import org.springframework.web.util.UriComponentsBuilder
 import kotlin.test.assertEquals
 
 @RunWith(MockitoJUnitRunner::class)

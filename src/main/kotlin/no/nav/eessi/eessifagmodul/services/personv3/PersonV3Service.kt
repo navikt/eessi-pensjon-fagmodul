@@ -5,7 +5,7 @@ import io.micrometer.core.instrument.Metrics
 import no.nav.eessi.eessifagmodul.metrics.TimingService
 import no.nav.eessi.eessifagmodul.models.PersonV3IkkeFunnetException
 import no.nav.eessi.eessifagmodul.models.PersonV3SikkerhetsbegrensningException
-import no.nav.eessi.eessifagmodul.services.sts.configureRequestSamlToken
+import no.nav.eessi.eessifagmodul.security.sts.configureRequestSamlToken
 import no.nav.tjeneste.virksomhet.person.v3.binding.HentPersonPersonIkkeFunnet
 import no.nav.tjeneste.virksomhet.person.v3.binding.HentPersonSikkerhetsbegrensning
 import no.nav.tjeneste.virksomhet.person.v3.binding.PersonV3
