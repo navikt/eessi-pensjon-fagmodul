@@ -71,9 +71,51 @@ data class Bruker(
         //H070
         val doedsfall: Doedsfall? = null,
 
+        //P14000
+        var endringer: Personendringer? = null,
+
         var arbeidsforhold: List<ArbeidsforholdItem>? = null,
         var bank: Bank? = null
 )
+
+//P14000
+data class Personendringer(
+        val personpinendringer: PersonpinEndringer? = null,
+        val livsforhold: EndretLivsforhold? = null,
+        val adresse: Adresse? = null,
+        val sivilstand: EndretSivilstand? = null,
+        val kjoenn: EndretKjoenn? = null,
+        val gammeltetternavn: String? = null,
+        val gammeltfornavn: String? = null,
+        val utvandret: String? = null,
+        val doedsdato: String? = null,
+        val statsborgerskap: String? = null
+)
+
+//P14000
+data class EndretLivsforhold(
+        val verdi: String? = null,
+        val startdato: String? = null
+)
+
+//P14000 endret kjønn
+data class EndretKjoenn(
+        val verdi: String? = null,
+        val startdato: String? = null
+)
+
+//P14000 endret sivilstand
+data class EndretSivilstand(
+        val verdi: String? = null,
+        val startdato: String? = null
+)
+
+//P14000 personpin endringer
+data class PersonpinEndringer(
+        val gammelt: String? = null,
+        val nytt: String? = null
+)
+
 
 //H070
 data class Doedsfall(
@@ -281,10 +323,10 @@ data class Adresse(
         var postnummer: String? = null,
         var region: String? = null,
         var land: String? = null,
-
         var kontaktpersonadresse: String? = null,
         var datoforadresseendring: String? = null,
-        var postadresse: String? = null
+        var postadresse: String? = null,
+        val startdato: String? = null
 )
 
 data class Foedested(
