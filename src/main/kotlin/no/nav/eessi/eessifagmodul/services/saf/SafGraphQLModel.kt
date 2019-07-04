@@ -8,7 +8,7 @@ import no.nav.eessi.eessifagmodul.utils.mapAnyToJson
  */
 
 data class SafRequest(
-        val query: String = "query dokumentoversiktBruker(\$brukerId: BrukerIdInput!, \$foerste: Int!) {dokumentoversiktBruker(brukerId: \$brukerId, foerste:\$foerste) {" +
+        val query: String = "query dokumentoversiktBruker(\$brukerId: BrukerIdInput!, \$foerste: Int!, \$journalstatuser: [String!]!) {dokumentoversiktBruker(brukerId: \$brukerId, journalstatuser: \$journalstatuser, foerste:\$foerste) {" +
                 "journalposter {" +
                     "tilleggsopplysninger {" +
                         "nokkel " +
@@ -35,7 +35,8 @@ data class SafRequest(
 
 data class Variables(
         val brukerId: BrukerId,
-        val foerste: Int
+        val foerste: Int,
+        val journalstatuser: List<String> = listOf("JOURNALFOERT", "FERDIGSTILT", "EKSPEDERT", "MOTTATT")
 )
 
 
