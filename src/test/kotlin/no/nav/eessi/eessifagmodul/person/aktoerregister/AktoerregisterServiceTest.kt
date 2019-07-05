@@ -1,10 +1,7 @@
-package no.nav.eessi.eessifagmodul.services
+package no.nav.eessi.eessifagmodul.person.aktoerregister
 
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.whenever
-import no.nav.eessi.eessifagmodul.services.aktoerregister.AktoerregisterException
-import no.nav.eessi.eessifagmodul.services.aktoerregister.AktoerregisterIkkeFunnetException
-import no.nav.eessi.eessifagmodul.services.aktoerregister.AktoerregisterService
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

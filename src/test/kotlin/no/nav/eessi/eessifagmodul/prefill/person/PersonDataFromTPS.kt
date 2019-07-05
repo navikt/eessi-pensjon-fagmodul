@@ -11,7 +11,7 @@ import no.nav.eessi.eessifagmodul.prefill.nav.PrefillNav
 import no.nav.eessi.eessifagmodul.prefill.nav.PrefillPersonDataFromTPS
 import no.nav.eessi.eessifagmodul.geo.LandkodeService
 import no.nav.eessi.eessifagmodul.geo.PostnummerService
-import no.nav.eessi.eessifagmodul.services.personv3.PersonV3Service
+import no.nav.eessi.eessifagmodul.person.personv3.PersonV3Service
 import no.nav.eessi.eessifagmodul.utils.NavFodselsnummer
 import no.nav.eessi.eessifagmodul.utils.mapJsonToAny
 import no.nav.eessi.eessifagmodul.utils.typeRefs

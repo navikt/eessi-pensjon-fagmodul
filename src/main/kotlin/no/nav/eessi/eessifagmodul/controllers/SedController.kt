@@ -3,9 +3,10 @@ package no.nav.eessi.eessifagmodul.controllers
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.swagger.annotations.ApiOperation
 import no.nav.eessi.eessifagmodul.models.*
+import no.nav.eessi.eessifagmodul.person.AktoerIdHelper
+import no.nav.eessi.eessifagmodul.person.aktoerregister.AktoerregisterService
 import no.nav.eessi.eessifagmodul.prefill.PrefillDataModel
 import no.nav.eessi.eessifagmodul.services.PrefillService
-import no.nav.eessi.eessifagmodul.services.aktoerregister.AktoerregisterService
 import no.nav.eessi.eessifagmodul.services.eux.BucSedResponse
 import no.nav.eessi.eessifagmodul.services.eux.EuxService
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.ShortDocumentItem
@@ -22,7 +23,7 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/sed")
 class SedController(private val euxService: EuxService,
                     private val prefillService: PrefillService,
-                    aktoerregisterService: AktoerregisterService) : AktoerIdHelper(aktoerregisterService) {
+                    private val aktoerregisterService: AktoerregisterService) : AktoerIdHelper(aktoerregisterService) {
 
     private val logger = LoggerFactory.getLogger(SedController::class.java)
 

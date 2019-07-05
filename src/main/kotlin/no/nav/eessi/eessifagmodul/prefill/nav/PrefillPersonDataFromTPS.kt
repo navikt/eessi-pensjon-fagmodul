@@ -7,7 +7,7 @@ import no.nav.eessi.eessifagmodul.prefill.EessiInformasjon
 import no.nav.eessi.eessifagmodul.prefill.PrefillDataModel
 import no.nav.eessi.eessifagmodul.geo.LandkodeService
 import no.nav.eessi.eessifagmodul.geo.PostnummerService
-import no.nav.eessi.eessifagmodul.services.personv3.PersonV3Service
+import no.nav.eessi.eessifagmodul.person.personv3.PersonV3Service
 import no.nav.eessi.eessifagmodul.utils.NavFodselsnummer
 import no.nav.eessi.eessifagmodul.utils.simpleFormat
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.*

@@ -1,4 +1,4 @@
-package no.nav.eessi.eessifagmodul.services.aktoerregister
+package no.nav.eessi.eessifagmodul.person.aktoerregister
 
 import io.micrometer.core.instrument.MeterRegistry
 import no.nav.eessi.eessifagmodul.security.sts.STSService

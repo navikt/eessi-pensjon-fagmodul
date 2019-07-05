@@ -8,9 +8,9 @@ import no.nav.eessi.eessifagmodul.prefill.PrefillP4000
 import no.nav.eessi.eessifagmodul.prefill.PrefillSED
 import no.nav.eessi.eessifagmodul.prefill.nav.PrefillPerson
 import no.nav.eessi.eessifagmodul.services.PrefillService
-import no.nav.eessi.eessifagmodul.services.aktoerregister.AktoerregisterService
+import no.nav.eessi.eessifagmodul.person.aktoerregister.AktoerregisterService
 import no.nav.eessi.eessifagmodul.services.eux.EuxService
-import no.nav.eessi.eessifagmodul.services.personv3.PersonV3Service
+import no.nav.eessi.eessifagmodul.person.personv3.PersonV3Service
 import no.nav.eessi.eessifagmodul.utils.mapAnyToJson
 import no.nav.eessi.eessifagmodul.utils.mapJsonToAny
 import no.nav.eessi.eessifagmodul.utils.typeRefs

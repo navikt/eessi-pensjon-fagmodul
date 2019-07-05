@@ -2,7 +2,7 @@ package no.nav.eessi.eessifagmodul.prefill
 
 import no.nav.eessi.eessifagmodul.models.InstitusjonItem
 import no.nav.eessi.eessifagmodul.models.SED
-import no.nav.eessi.eessifagmodul.services.aktoerregister.AktoerregisterService
+import no.nav.eessi.eessifagmodul.person.aktoerregister.AktoerregisterService
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

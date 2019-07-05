@@ -3,7 +3,7 @@ package no.nav.eessi.eessifagmodul.controllers
 import io.swagger.annotations.ApiOperation
 import no.nav.eessi.eessifagmodul.models.InstitusjonItem
 import no.nav.eessi.eessifagmodul.models.Krav
-import no.nav.eessi.eessifagmodul.services.aktoerregister.AktoerregisterService
+import no.nav.eessi.eessifagmodul.person.aktoerregister.AktoerregisterService
 import no.nav.eessi.eessifagmodul.services.eux.BucUtils
 import no.nav.eessi.eessifagmodul.services.eux.EuxService
 import no.nav.eessi.eessifagmodul.services.eux.RinaAksjon
@@ -13,6 +13,7 @@ import no.nav.eessi.eessifagmodul.services.eux.bucmodel.BucAndSedView
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.Creator
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.ShortDocumentItem
 import no.nav.eessi.eessifagmodul.arkiv.VariantFormat
+import no.nav.eessi.eessifagmodul.person.AktoerIdHelper
 import no.nav.eessi.eessifagmodul.utils.errorBody
 import no.nav.eessi.eessifagmodul.utils.mapAnyToJson
 import no.nav.eessi.eessifagmodul.utils.successBody
