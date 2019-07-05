@@ -110,17 +110,6 @@ class BucController(private val euxService: EuxService,
 
     }
 
-    //ny knall for journalforing app henter ytelsetype ut ifra P15000
-    @ApiOperation("Henter ytelsetype fra P15000 på valgt Buc og Documentid")
-    @GetMapping("/ytelseKravtype/{rinanr}/{documentid}")
-    fun getYtelseKravtype(@PathVariable("rinanr", required = true) rinanr: String,
-                          @PathVariable("documentid", required = false) documentid: String): Krav {
-
-        logger.debug("Henter opp ytelseKravType fra P15000, feiler hvis ikke P15000")
-        return euxService.hentYtelseKravtype(rinanr, documentid)
-
-    }
-
     //flyttes to BucController
     @ApiOperation("Oppretter ny tom BUC i RINA via eux-api. ny api kall til eux")
     @PostMapping("/{buctype}")
