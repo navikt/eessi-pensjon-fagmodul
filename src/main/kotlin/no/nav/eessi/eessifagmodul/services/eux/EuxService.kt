@@ -22,6 +22,9 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
 import java.io.IOException
 import java.util.*
+import org.springframework.core.io.ByteArrayResource
+import org.springframework.util.LinkedMultiValueMap
+
 
 @Service
 @Description("Service class for EuxBasis - EuxCpiServiceController.java")
@@ -527,14 +530,24 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate,
                                   joarkDokumentInfoId : String,
                                   variantFormat: VariantFormat) {
         try {
+            logger.info("Henter dokumentinnhold fra joark")
             val hentDokumentResponse = safService.hentDokumentInnhold(joarkJournalpostId, joarkDokumentInfoId, variantFormat)
-            val requestBody = Vedlegg(hentDokumentResponse.fileName, hentDokumentResponse.base64)
 
-            val httpEntity = HttpEntity(requestBody)
+            val body = LinkedMultiValueMap<String, Any>()
+            body.add("File", ByteArrayResource(hentDokumentResponse.base64.toByteArray()))
+            body.add("Filnavn", hentDokumentResponse.fileName)
+            body.add("Filtype", hentDokumentResponse.contentType.split("/")[1])
+
+            val headers = HttpHeaders()
+            headers.contentType = MediaType.MULTIPART_FORM_DATA
+            val httpEntity = HttpEntity(body, headers)
+
             val path = "/cpi/buc/$rinaSakId/sed/$rinaDokumentId/vedlegg"
+            logger.info("Legger til vedlegg i rinaSakId: $rinaSakId rinaDokumentId: $rinaDokumentId")
+
             val response = euxOidcRestTemplate.exchange(
                     path,
-                    HttpMethod.PUT,
+                    HttpMethod.POST,
                     httpEntity,
                     String::class.java)
 
