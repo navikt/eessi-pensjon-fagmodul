@@ -542,8 +542,6 @@ class EuxServiceTest {
         assertEquals("32712", result.fnr)
         assertEquals("02", result.krav?.type)
         assertEquals("2019-02-01", result.krav?.dato)
-
-        println(mapAnyToJson(result))
     }
 
     @Test
