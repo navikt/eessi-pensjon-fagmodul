@@ -498,7 +498,7 @@ class EuxServiceTest {
     }
 
     @Test
-    fun hentYtelseKravtypeTesterPaaP15000ok() {
+    fun hentYtelseKravtypeTesterPaaP15000Alderpensjon() {
         val filepath = "src/test/resources/json/nav/P15000-NAV.json"
         val json = String(Files.readAllBytes(Paths.get(filepath)))
         assertTrue(validateJson(json))
@@ -514,17 +514,15 @@ class EuxServiceTest {
                 eq(String::class.java))
         ).thenReturn(response)
 
-        //val sed = getSedOnBucByDocumentId(euxCaseId, documentId)
-
-        val kravytelse = service.hentYtelseKravtype("1234567890","100001000010000")
-
-        assertEquals("01", kravytelse.type)
-        assertEquals("2019-02-01", kravytelse.dato)
+        val result = service.hentFnrOgYtelseKravtype("1234567890","100001000010000")
+        assertEquals("21712", result.fnr)
+        assertEquals("01", result.krav?.type)
+        assertEquals("2019-02-01", result.krav?.dato)
     }
 
-    @Test(expected = SedDokumentIkkeGyldigException::class)
-    fun hentYtelseKravtypeTesterPaaP15000FeilerVedUgyldigSED() {
-        val filepath = "src/test/resources/json/nav/P9000-NAV.json"
+    @Test
+    fun hentYtelseKravtypeTesterPaaP15000Gjennlevende() {
+        val filepath = "src/test/resources/json/nav/P15000Gjennlevende-NAV.json"
         val json = String(Files.readAllBytes(Paths.get(filepath)))
         assertTrue(validateJson(json))
 
@@ -539,7 +537,53 @@ class EuxServiceTest {
                 eq(String::class.java))
         ).thenReturn(response)
 
-        service.hentYtelseKravtype("1234567890","100001000010000")
+        val result = service.hentFnrOgYtelseKravtype("1234567890","100001000010000")
+
+        assertEquals("32712", result.fnr)
+        assertEquals("02", result.krav?.type)
+        assertEquals("2019-02-01", result.krav?.dato)
+
+        println(mapAnyToJson(result))
+    }
+
+    @Test
+    fun hentYtelseKravtypeTesterPaaP2100OK() {
+        val filepath = "src/test/resources/json/nav/P2100-NAV-unfin.json"
+        val json = String(Files.readAllBytes(Paths.get(filepath)))
+        assertTrue(validateJson(json))
+
+        val orgsed = mapJsonToAny(json, typeRefs<SED>())
+        val response: ResponseEntity<String> = ResponseEntity(json, HttpStatus.OK)
+
+        whenever(mockEuxrestTemplate.exchange(
+                anyString(),
+                eq(HttpMethod.GET),
+                eq(null),
+                eq(String::class.java))
+        ).thenReturn(response)
+
+        val result = service.hentFnrOgYtelseKravtype("1234567890","100001000010000")
+
+        assertEquals("123456789012", result.fnr)
+        assertEquals(null, result.krav?.type)
+        assertEquals("2015-12-17", result.krav?.dato)
+    }
+
+
+    @Test(expected = SedDokumentIkkeGyldigException::class)
+    fun hentYtelseKravtypeTesterPaaP15000FeilerVedUgyldigSED() {
+        val filepath = "src/test/resources/json/nav/P9000-NAV.json"
+        val json = String(Files.readAllBytes(Paths.get(filepath)))
+        assertTrue(validateJson(json))
+        val orgsed = mapJsonToAny(json, typeRefs<SED>())
+        val response: ResponseEntity<String> = ResponseEntity(json, HttpStatus.OK)
+        whenever(mockEuxrestTemplate.exchange(
+                anyString(),
+                eq(HttpMethod.GET),
+                eq(null),
+                eq(String::class.java))
+        ).thenReturn(response)
+        service.hentFnrOgYtelseKravtype("1234567890","100001000010000")
     }
 
     @Test

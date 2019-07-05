@@ -52,6 +52,12 @@ data class InstitusjonX005(
         val navn: String
 )
 
+//P15000-P2100 levende PinID og Krav
+data class PinOgKrav(
+        val fnr: String? = null,
+        val krav: Krav? = null
+)
+
 
 data class Krav(
         var dato: String? = null,
@@ -306,7 +312,7 @@ data class InntektItem(
 )
 
 //TODO må kanskje oppdatere mot andre SED legge institusjonsid rett inn i PinItem..
-data class PinItem(
+data class PinItem (
         var institusjonsnavn: String? = null,
         var institusjonsid: String? = null,
         var sektor: String? = null,

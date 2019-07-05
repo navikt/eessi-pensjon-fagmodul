@@ -583,13 +583,41 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate,
     }
 
     //Henter ut Kravtype fra P15000
-    fun hentYtelseKravtype(euxCaseId: String, documentId: String): Krav {
+    fun hentFnrOgYtelseKravtype(euxCaseId: String, documentId: String): PinOgKrav {
         val sed = getSedOnBucByDocumentId(euxCaseId, documentId)
-        //validere om SED er vireklig en P15000
-        if (SEDType.P15000.name ==  sed.sed) {
-            return sed.nav?.krav ?: Krav()
+
+        //validere om SED er vireklig en P2100 eller P15000
+        if (SEDType.P2100.name == sed.sed) {
+            return PinOgKrav(
+                fnr = getFnrMedLandkodeNO(sed.pensjon?.gjenlevende?.person?.pin),
+                krav = sed.nav?.krav ?: Krav()
+            )
         }
-        throw SedDokumentIkkeGyldigException("SED ikke en P15000")
+        //P15000 sjekke om det er 02 Gjennlevende eller ikke
+        if (SEDType.P15000.name == sed.sed) {
+            val krav = sed.nav?.krav ?: Krav()
+            return if ("02" == krav.type) {
+                PinOgKrav(
+                    fnr = getFnrMedLandkodeNO(sed.pensjon?.gjenlevende?.person?.pin),
+                    krav = krav
+                )
+            } else {
+                PinOgKrav(
+                    fnr = getFnrMedLandkodeNO(sed.nav?.bruker?.person?.pin),
+                    krav = sed.nav?.krav ?: Krav()
+                )
+            }
+        }
+        throw SedDokumentIkkeGyldigException("SED gyldig SED av type P2100 eller P15000")
+    }
+
+    fun getFnrMedLandkodeNO(pinlist: List<PinItem>?): String? {
+        pinlist?.forEach {
+            if ("NO" == it.land) {
+                return it.identifikator
+            }
+        }
+        return null
     }
 
     @Throws(EuxServerException::class)
@@ -615,7 +643,6 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate,
 
     /**
      * Own impl. no list from eux that contains list of SED to a speific BUC
-     * @param bucType
      */
     companion object {
         @JvmStatic
