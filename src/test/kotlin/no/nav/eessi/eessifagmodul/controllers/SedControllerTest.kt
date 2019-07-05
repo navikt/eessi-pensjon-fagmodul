@@ -12,11 +12,8 @@ import no.nav.eessi.eessifagmodul.services.aktoerregister.AktoerregisterService
 import no.nav.eessi.eessifagmodul.services.eux.BucSedResponse
 import no.nav.eessi.eessifagmodul.services.eux.BucUtils
 import no.nav.eessi.eessifagmodul.services.eux.EuxService
-import no.nav.eessi.eessifagmodul.services.eux.bucmodel.Buc
-import no.nav.eessi.eessifagmodul.services.eux.bucmodel.DocumentsItem
 import no.nav.eessi.eessifagmodul.services.eux.bucmodel.ShortDocumentItem
 import no.nav.eessi.eessifagmodul.utils.*
-import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -112,7 +109,7 @@ class SedControllerTest {
     }
 
     @Test
-    fun `forventer alt ok ved å legge til en ny SED på en ekisternede buc `() {
+    fun `forventer alt ok ved å legge til en ny SED paa en ekisternede buc `() {
         val bucresponse = BucSedResponse("123444455", "2a427c10325c4b5eaf3c27ba5e8f1877")
 
         val items = listOf(InstitusjonItem(country = "NO", institution = "DUMMY"))
@@ -372,4 +369,23 @@ class SedControllerTest {
         val validSedListforBuc = mapJsonToAny(json, typeRefs<List<String>>())
         assertEquals(2, validSedListforBuc.size)
     }
+
+    @Test
+    fun getPinYtelseKravtypeOk() {
+        val mockKrav = PinOgKrav(fnr = "1234567890", krav = Krav(dato = "2019-02-01", type = "01"))
+
+        doReturn(mockKrav).whenever(mockEuxService).
+                hentFnrOgYtelseKravtype(
+                        ArgumentMatchers.anyString(),
+                        ArgumentMatchers.anyString()
+                )
+
+        val mockResult = sedController.getPinOgYtelseKravtype("12123", "3123123")
+
+        assertEquals("1234567890", mockResult.fnr)
+        assertEquals("01", mockResult.krav?.type)
+        assertEquals("2019-02-01", mockResult.krav?.dato)
+    }
+
+
 }
