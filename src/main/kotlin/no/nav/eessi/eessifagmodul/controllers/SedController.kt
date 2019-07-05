@@ -143,7 +143,7 @@ class SedController(private val euxService: EuxService,
     @ApiOperation("Henter ytelsetype fra P15000 på valgt Buc og Documentid")
     @GetMapping("/ytelseKravtype/{rinanr}/{documentid}")
     fun getPinOgYtelseKravtype(@PathVariable("rinanr", required = true) rinanr: String,
-                          @PathVariable("documentid", required = false) documentid: String): PinOgKrav {
+                               @PathVariable("documentid", required = false) documentid: String): PinOgKrav {
 
         logger.debug("Henter opp ytelseKravType fra P15000, feiler hvis ikke P15000")
         return euxService.hentFnrOgYtelseKravtype(rinanr, documentid)
