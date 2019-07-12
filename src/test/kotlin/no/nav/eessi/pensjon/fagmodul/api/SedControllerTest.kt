@@ -35,6 +35,7 @@ import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnitRunner
 import org.springframework.http.ResponseEntity
+import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.web.util.UriComponentsBuilder
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -51,13 +52,16 @@ class SedControllerTest {
     @Mock
     lateinit var mockPrefillSED: PrefillSED
 
+    @Mock
+    lateinit var brokerMessagingTemplate: SimpMessagingTemplate
+
     private lateinit var prefillDataMock: PrefillDataModel
     private lateinit var sedController: SedController
 
     @Before
     fun setUp() {
         prefillDataMock = PrefillDataModel()
-        this.sedController = SedController(mockEuxService, PrefillService(mockPrefillSED), mockAktoerIdHelper)
+        this.sedController = SedController(mockEuxService, PrefillService(mockPrefillSED), mockAktoerIdHelper, brokerMessagingTemplate)
     }
 
     @Test
@@ -345,7 +349,7 @@ class SedControllerTest {
     }
 
     @Test
-    fun `call addInstutionAndDocument| mock adding two institusjon when X005 exists already`() {
+    fun `call addInstitutionAndDocument| mock adding two institusjon when X005 exists already`() {
         val euxCaseId = "1234567890"
 
         doReturn("12345").whenever(mockAktoerIdHelper).hentPinForAktoer(ArgumentMatchers.anyString())
@@ -369,14 +373,14 @@ class SedControllerTest {
                 InstitusjonItem(country = "DE", institution = "Tyskland", name="Tyskland test")
         )
 
-        sedController.addInstutionAndDocument(apiRequestWith(euxCaseId, newParticipants))
+        sedController.addInstitutionAndDocument(apiRequestWith(euxCaseId, newParticipants))
 
         verify(mockEuxService, times(newParticipants.size + 1)).opprettSedOnBuc(any(), eq(euxCaseId))
         verify(mockEuxService, never()).addDeltagerInstitutions(any(), any())
     }
 
     @Test
-    fun `call addInstutionAndDocument| ingen ny Deltaker kun hovedsed`() {
+    fun `call addInstitutionAndDocument| ingen ny Deltaker kun hovedsed`() {
         val euxCaseId = "1234567890"
 
         doReturn("12345").whenever(mockAktoerIdHelper).hentPinForAktoer(ArgumentMatchers.anyString())
@@ -392,14 +396,14 @@ class SedControllerTest {
         whenever(mockEuxService.opprettSedOnBuc(any(), eq(euxCaseId))).thenReturn(BucSedResponse(euxCaseId, "1"))
 
         val noNewParticipants = listOf<InstitusjonItem>()
-        sedController.addInstutionAndDocument(apiRequestWith(euxCaseId, noNewParticipants))
+        sedController.addInstitutionAndDocument(apiRequestWith(euxCaseId, noNewParticipants))
 
         verify(mockEuxService, times(noNewParticipants.size + 1)).opprettSedOnBuc(any(), eq(euxCaseId))
         verify(mockEuxService, never()).addDeltagerInstitutions(any(), any())
     }
 
     @Test
-    fun `call addInstutionAndDocument| to nye deltakere, men ingen X005`() {
+    fun `call addInstitutionAndDocument| to nye deltakere, men ingen X005`() {
         val euxCaseId = "1234567890"
 
         doReturn("12345").whenever(mockAktoerIdHelper).hentPinForAktoer(ArgumentMatchers.anyString())
@@ -420,14 +424,14 @@ class SedControllerTest {
                 InstitusjonItem(country = "FI", institution = "Finland", name="Finland test"),
                 InstitusjonItem(country = "DE", institution = "Tyskland", name="Tyskland test")
         )
-        sedController.addInstutionAndDocument(apiRequestWith(euxCaseId, newParticipants))
+        sedController.addInstitutionAndDocument(apiRequestWith(euxCaseId, newParticipants))
 
         verify(mockEuxService).addDeltagerInstitutions(euxCaseId, newParticipants)
         verify(mockEuxService, times(1)).opprettSedOnBuc(any(), eq(euxCaseId))
     }
 
     @Test(expected = SedDokumentIkkeOpprettetException::class)
-    fun `call addInstutionAndDocument| Exception eller feil`() {
+    fun `call addInstitutionAndDocument| Exception eller feil`() {
         val euxCaseId = "1234567890"
 
         doReturn("12345").whenever(mockAktoerIdHelper).hentPinForAktoer(ArgumentMatchers.anyString())
@@ -449,9 +453,37 @@ class SedControllerTest {
                 InstitusjonItem(country = "FI", institution = "Finland", name="Finland test"),
                 InstitusjonItem(country = "DE", institution = "Tyskland", name="Tyskland test")
         )
-        sedController.addInstutionAndDocument(apiRequestWith(euxCaseId, newParticipants))
+        sedController.addInstitutionAndDocument(apiRequestWith(euxCaseId, newParticipants))
     }
 
+    @Test
+    fun `call addInstitutionAndDocument sends a web socket message`() {
+        val euxCaseId = "1234567890"
+
+        doReturn("12345").whenever(mockAktoerIdHelper).hentPinForAktoer(ArgumentMatchers.anyString())
+
+        val mockBuc = Mockito.mock(Buc::class.java)
+        whenever(mockEuxService.getBuc(euxCaseId)).thenReturn(mockBuc)
+
+        whenever(mockBuc.participants).thenReturn(listOf())
+
+        val currentX005 = DocumentsItem()
+        whenever(mockBuc.documents).thenReturn(listOf(currentX005))
+
+        val dummyPrefillData = ApiRequest.buildPrefillDataModelOnExisting(apiRequestWith(euxCaseId), mockAktoerIdHelper.hentPinForAktoer(apiRequestWith(euxCaseId).aktoerId))
+        whenever(mockPrefillSED.prefill(any())).thenReturn(dummyPrefillData)
+
+        whenever(mockEuxService.opprettSedOnBuc(any(), eq(euxCaseId))).thenReturn(BucSedResponse(euxCaseId, "1"))
+
+        val newParticipants = listOf(
+                InstitusjonItem(country = "FI", institution = "Finland", name="Finland test"),
+                InstitusjonItem(country = "DE", institution = "Tyskland", name="Tyskland test")
+        )
+        sedController.addInstitutionAndDocument(apiRequestWith(euxCaseId, newParticipants))
+        verify(brokerMessagingTemplate, times(1)).convertAndSend(
+                "/sed",
+                mapAnyToJson(mapOf("action" to "Create", "payload" to apiRequestWith(euxCaseId, newParticipants))))
+    }
     private fun apiRequestWith(euxCaseId: String, institutions: List<InstitusjonItem> = listOf()): ApiRequest {
         return ApiRequest(
                 subjectArea = "Pensjon",
@@ -464,6 +496,4 @@ class SedControllerTest {
                 aktoerId = "0105094340092"
         )
     }
-
-
 }

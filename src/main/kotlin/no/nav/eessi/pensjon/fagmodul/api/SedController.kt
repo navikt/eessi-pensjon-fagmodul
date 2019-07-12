@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.web.bind.annotation.*
 
 
@@ -25,7 +26,8 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/sed")
 class SedController(private val euxService: EuxService,
                     private val prefillService: PrefillService,
-                    private val aktoerIdHelper: AktoerIdHelper) {
+                    private val aktoerIdHelper: AktoerIdHelper,
+                    private val brokerMessagingTemplate: SimpMessagingTemplate) {
 
     private val logger = LoggerFactory.getLogger(SedController::class.java)
 
@@ -52,7 +54,7 @@ class SedController(private val euxService: EuxService,
 
     //** oppdatert i api 18.02.2019
     @ApiOperation("henter ut en SED fra et eksisterende Rina document. krever unik dokumentid fra valgt SED, ny api kall til eux")
-    @GetMapping("/{euxcaseid}/{documentid}")
+    @GetMapping("/get/{euxcaseid}/{documentid}")
     fun getDocument(@PathVariable("euxcaseid", required = true) euxcaseid: String,
                     @PathVariable("documentid", required = true) documentid: String): SED {
 
@@ -74,7 +76,7 @@ class SedController(private val euxService: EuxService,
     //** oppdatert i api 18.02.2019
     @ApiOperation("legge til SED på et eksisterende Rina document. kjører preutfylling, ny api kall til eux")
     @PostMapping("/add")
-    fun addInstutionAndDocument(@RequestBody request: ApiRequest): ShortDocumentItem {
+    fun addInstitutionAndDocument(@RequestBody request: ApiRequest): ShortDocumentItem {
 
         logger.info("kaller add (institutions and sed)")
 
@@ -98,8 +100,11 @@ class SedController(private val euxService: EuxService,
         val data = prefillService.prefillSed(dataModel)
         logger.debug("Prøver å sende SED:${dataModel.getSEDid()} inn på buc: ${dataModel.euxCaseID}")
         val docresult = euxService.opprettSedOnBuc(data.sed, data.euxCaseID)
+        if (brokerMessagingTemplate != null) {
+            brokerMessagingTemplate.convertAndSend("/sed",
+                    mapAnyToJson(mapOf("action" to "Create", "payload" to request)))
+        }
         return BucUtils(euxService.getBuc(docresult.caseId)).findDocument(docresult.documentId)
-
     }
 
     //** oppdatert i api 18.02.2019
