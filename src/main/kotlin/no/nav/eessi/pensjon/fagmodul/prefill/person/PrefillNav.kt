@@ -40,17 +40,17 @@ class PrefillNav(private val preutfyllingPersonFraTPS: PrefillPersonDataFromTPS,
                 barn = createBarnlistefraTPS(prefillData),
 
                 //7.0 verge
-                verge = createVerge(prefillData),
+                verge = createVerge(),
 
                 //8.0 Bank lagt in på bruker (P2000)
 
                 //9.0  - Tillgeggsinfo og kravdata. benyttes i P2x000
-                krav = createDiverseOgKravDato(prefillData)
+                krav = createDiverseOgKravDato()
         )
     }
 
     //7.0  TODO: 7. Informasjon om representant/verge hva kan vi hente av informasjon? fra hvor
-    private fun createVerge(prefillData: PrefillDataModel): Verge? {
+    private fun createVerge(): Verge? {
         logger.debug("7.0           (IKKE NOE HER ENNÅ!!) Informasjon om representant/verge")
         return null
     }
@@ -83,7 +83,7 @@ class PrefillNav(private val preutfyllingPersonFraTPS: PrefillPersonDataFromTPS,
 
     //
     //TODO: Dette må hentes fra sak/krav
-    private fun createDiverseOgKravDato(prefillData: PrefillDataModel): Krav {
+    private fun createDiverseOgKravDato(): Krav {
         logger.debug("9.1           (FRA V1SAK?) Dato for krav")
         return Krav(Date().simpleFormat())
     }
@@ -152,7 +152,6 @@ class PrefillNav(private val preutfyllingPersonFraTPS: PrefillPersonDataFromTPS,
         ))
     }
 
-
     private fun createInformasjonOmAnsettelsesforhold(prefillData: PrefillDataModel): List<ArbeidsforholdItem>? {
         logger.debug("3.0           Informasjon om personens ansettelsesforhold og selvstendige næringsvirksomhet")
         logger.debug("3.1           Informasjon om ansettelsesforhold og selvstendig næringsvirksomhet ")
@@ -185,6 +184,5 @@ class PrefillNav(private val preutfyllingPersonFraTPS: PrefillPersonDataFromTPS,
 
         )
     }
-
 }
 

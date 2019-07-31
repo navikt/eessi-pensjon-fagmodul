@@ -37,29 +37,13 @@ class PrefillPensjon(private val preutfyllingPersonFraTPS: PrefillPersonDataFrom
             gjenlevende = preutfyllingPersonFraTPS.prefillBruker(pinid)
         }
 
-        //kun ved bruk av P5000
-        //var p5000pensjon: Pensjon? = null
-//        if (prefillData.validSED("P5000")) {
-//            logger.debug("Preutfylling Utfylling Pensjon Medlemskap")
-//            //p5000pensjon = createMedlemskapMock()
-//        }
-
         val pensjon = Pensjon(
 
                 //etterlattpensjon
                 gjenlevende = gjenlevende
-                //P5000
-                /*
-                sak = p5000pensjon?.sak,
-                medlemskap = p5000pensjon?.medlemskap,
-                medlemskapTotal = p5000pensjon?.medlemskapTotal,
-                medlemskapAnnen = p5000pensjon?.medlemskapAnnen,
-                trygdetid = p5000pensjon?.trygdetid
-                */
         )
         logger.info("Preutfylling Utfylling Pensjon END")
 
         return pensjon
     }
-
 }

@@ -19,12 +19,10 @@ import no.nav.pensjon.v1.ytelseskomponent.V1Ytelseskomponent
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-//@Component
 /**
  * Hjelpe klasse for sak som fyller ut NAV-SED-P2000 med pensjondata fra PESYS.
  */
 open class KravDataFromPEN(private val dataFromPEN: PensjonsinformasjonHjelper) : Prefill<Pensjon> {
-    //: VedtakPensjonData(),
     private val logger: Logger by lazy { LoggerFactory.getLogger(KravDataFromPEN::class.java) }
 
     //gyldige kravhistorikk status og typer.
@@ -55,7 +53,6 @@ open class KravDataFromPEN(private val dataFromPEN: PensjonsinformasjonHjelper) 
         }
     }
 
-
     override fun prefill(prefillData: PrefillDataModel): Pensjon {
         val pendata: Pensjonsinformasjon = getPensjoninformasjonFraSak(prefillData)
 
@@ -66,17 +63,19 @@ open class KravDataFromPEN(private val dataFromPEN: PensjonsinformasjonHjelper) 
         //nyere metdoe mye å omgjøre på for å ta denne i bruk!
 
         //4.0
-        return createInformasjonOmYtelserList(prefillData, pendata, pensak)
+        return createInformasjonOmYtelserList(prefillData, pensak)
 
     }
 
-    //9.1- 9.2
-    /*
-    Fra PSAK, kravdato på alderspensjonskravet
-    Fra PSELV eller manuell kravblankett:
-    Her skal fylles ut fra hvilket tidspunkt bruker ønsker å motta pensjon fra Norge. Det er et spørsmål i søknadsdialogen og på manuell kravblankett. Det er ikke nødvendigvis lik virkningstidspunktet på pensjonen.
-    * */
-    private fun createKravDato(prefillData: PrefillDataModel, valgtSak: V1Sak, valgtKrav: V1KravHistorikk): Krav? {
+    /**
+     * 9.1- 9.2
+     *
+     *  Fra PSAK, kravdato på alderspensjonskravet
+     *  Fra PSELV eller manuell kravblankett:
+     *  Fyller ut fra hvilket tidspunkt bruker ønsker å motta pensjon fra Norge.
+     *  Det er et spørsmål i søknadsdialogen og på manuell kravblankett. Det er ikke nødvendigvis lik virkningstidspunktet på pensjonen.
+     */
+    private fun createKravDato(valgtSak: V1Sak, valgtKrav: V1KravHistorikk): Krav? {
         logger.debug("9.1        Dato Krav (med korrekt data fra PESYS krav.virkningstidspunkt)")
 
         logger.debug("--------------------------------------------------------------------------------------------------------")
@@ -90,28 +89,29 @@ open class KravDataFromPEN(private val dataFromPEN: PensjonsinformasjonHjelper) 
         logger.debug("Prøver å sette kravDato til Virkningstidpunkt: ${valgtKrav.kravType} og dato: ${valgtKrav.mottattDato}")
         return Krav(
                 dato = valgtKrav.mottattDato?.simpleFormat() ?: ""
-
         )
     }
 
-
-
-    //4.1
-    /*
-    Vi må hente informasjon fra PSAK:
-    - Hvilke saker bruker har
-    - Status på hver sak
-    - Hvilke kravtyper det finnes på hver sak
-    - Saksnummer på hver sak
-    - første virk på hver sak
-    Hvis bruker mottar en løpende ytelse, er det denne ytelsen som skal vises.
-    Hvis bruker mottar både uføretrygd og alderspensjon, skal det vises alderspensjon.
-    Hvis bruker ikke mottar løpende ytelse, skal man sjekke om han har søkt om en norsk ytelse. Hvis han har søkt om flere ytelser, skal man bruke den som det sist er søkt om. Det skal vises resultatet av denne søknaden, dvs om saken er avslått eller under behandling.
-    For å finne om han har søkt om en norsk ytelse, skal man se om det finnes krav av typen «Førstegangsbehandling», «Førstegangsbehandling Norge/utland», «Førstegangsbehandling bosatt utland» eller «Mellombehandling».
-    Obs, krav av typen «Førstegangsbehandling kun utland» eller Sluttbehandling kun utland» gjelder ikke norsk ytelse.
-    * */
-    private fun createInformasjonOmYtelserList(prefillData: PrefillDataModel, pendata: Pensjonsinformasjon, pensak: V1Sak): Pensjon {
-        //: List<YtelserItem>
+    /**
+     *
+     *  4.1
+     *  Vi må hente informasjon fra PSAK:
+     *  - Hvilke saker bruker har
+     *  - Status på hver sak
+     *  - Hvilke kravtyper det finnes på hver sak
+     *  - Saksnummer på hver sak
+     *  - første virk på hver sak
+     *  Hvis bruker mottar en løpende ytelse, er det denne ytelsen som skal vises.
+     *  Hvis bruker mottar både uføretrygd og alderspensjon, skal det vises alderspensjon.
+     *  Hvis bruker ikke mottar løpende ytelse, skal man sjekke om han har søkt om en norsk ytelse.
+     *  Hvis han har søkt om flere ytelser, skal man bruke den som det sist er søkt om.
+     *  Det skal vises resultatet av denne søknaden, dvs om saken er avslått eller under behandling.
+     *  For å finne om han har søkt om en norsk ytelse, skal man se om det finnes krav av typen:  «Førstegangsbehandling», «Førstegangsbehandling Norge/utland»,
+     *  «Førstegangsbehandling bosatt utland» eller «Mellombehandling».
+     *  Obs, krav av typen «Førstegangsbehandling kun utland» eller Sluttbehandling kun utland» gjelder ikke norsk ytelse.
+     */
+    private fun createInformasjonOmYtelserList(prefillData: PrefillDataModel,
+                                               pensak: V1Sak): Pensjon {
         logger.debug("4.1           Informasjon om ytelser")
 
         val spesialStatusList = listOf("TIL_BEHANDLING")
@@ -120,18 +120,15 @@ open class KravDataFromPEN(private val dataFromPEN: PensjonsinformasjonHjelper) 
 
         val ytelselist = mutableListOf<YtelserItem>()
 
-        //val valgtSak = getPensjonValgAvSak(pendata, it)
-        val valgtSak = pensak
-
         logger.debug("--------------------------------------------------------------------------------------------------------")
-        logger.debug("SakId:  ${valgtSak.sakId}")
-        logger.debug("SakType:  ${valgtSak.sakType}")
-        logger.debug("Status:  ${valgtSak.status}")
-        logger.debug("forsteVirkningstidspunkt:  ${valgtSak.forsteVirkningstidspunkt}")
+        logger.debug("SakId:  ${pensak.sakId}")
+        logger.debug("SakType:  ${pensak.sakType}")
+        logger.debug("Status:  ${pensak.status}")
+        logger.debug("forsteVirkningstidspunkt:  ${pensak.forsteVirkningstidspunkt}")
         logger.debug("--------------------------------------------------------------")
         logger.debug("KravHistorikk\n")
 
-        sortertKravHistorikk(valgtSak).forEach {
+        sortertKravHistorikk(pensak).forEach {
             logger.debug("KravType: ${it.kravType}")
             logger.debug("mottatDato: ${it.mottattDato}")
             logger.debug("Virkningstidspunkt: ${it.virkningstidspunkt}")
@@ -141,90 +138,92 @@ open class KravDataFromPEN(private val dataFromPEN: PensjonsinformasjonHjelper) 
         logger.debug("--------------------------------------------------------------")
         logger.debug("YtelsePerMaaned\n")
 
-        hentYtelsePerMaanedSortert(valgtSak).forEach {
+        hentYtelsePerMaanedSortert(pensak).forEach {
             logger.debug("Fom:    ${it.fom} ")
             logger.debug("Fom:    ${it.belop} ")
             logger.debug("VinnendenMetode:   ${it.vinnendeBeregningsmetode}")
         }
         logger.debug("--------------------------------------------------------------------------------------------------------")
 
-        if (spesialStatusList.contains(valgtSak.status)) {
+        if (spesialStatusList.contains(pensak.status)) {
             logger.debug("Valgtstatus")
             //kjøre ytelselist forkortet
-            ytelselist.add(createYtelseMedManglendeYtelse(prefillData, valgtSak))
+            ytelselist.add(createYtelseMedManglendeYtelse(prefillData, pensak))
 
             if (krav == null) {
-                val kravHistorikkMedUtland = hentKravHistorikkMedKravStatusTilBehandling(valgtSak)
-                krav = createKravDato(prefillData, valgtSak, kravHistorikkMedUtland)
+                val kravHistorikkMedUtland = hentKravHistorikkMedKravStatusTilBehandling(pensak)
+                krav = createKravDato(pensak, kravHistorikkMedUtland)
                 logger.warn("9.1        Opprettett P2000 med mulighet for at denne mangler KravDato!")
             }
 
         } else {
-            if (valgtSak.sakType == KSAK.ALDER.toString()) {
+            if (pensak.sakType == KSAK.ALDER.toString()) {
                 try {
-                    val kravHistorikkMedUtland = hentKravHistorikkForsteGangsBehandlingUtlandEllerForsteGang(valgtSak)
-                    val ytelseprmnd = hentYtelsePerMaanedDenSisteFraKrav(kravHistorikkMedUtland, valgtSak)
+                    val kravHistorikkMedUtland = hentKravHistorikkForsteGangsBehandlingUtlandEllerForsteGang(pensak)
+                    val ytelseprmnd = hentYtelsePerMaanedDenSisteFraKrav(kravHistorikkMedUtland, pensak)
 
                     //kjøre ytelselist på normal
                     if (krav == null) {
-                        krav = createKravDato(prefillData, valgtSak, kravHistorikkMedUtland)
+                        krav = createKravDato(pensak, kravHistorikkMedUtland)
                     }
 
-                    ytelselist.add(createYtelserItem(prefillData, ytelseprmnd, valgtSak))
+                    ytelselist.add(createYtelserItem(prefillData, ytelseprmnd, pensak))
                 } catch (ex: Exception) {
                     logger.error(ex.message, ex)
-                    ytelselist.add(createYtelseMedManglendeYtelse(prefillData, valgtSak))
+                    ytelselist.add(createYtelseMedManglendeYtelse(prefillData, pensak))
                 }
             }
 
-            if (valgtSak.sakType == KSAK.UFOREP.toString()) {
+            if (pensak.sakType == KSAK.UFOREP.toString()) {
                 try {
-                    val kravHistorikk = hentKravHistorikkSisteRevurdering(valgtSak)
-                    val ytelseprmnd = hentYtelsePerMaanedDenSisteFraKrav(kravHistorikk, valgtSak)
+                    val kravHistorikk = hentKravHistorikkSisteRevurdering(pensak)
+                    val ytelseprmnd = hentYtelsePerMaanedDenSisteFraKrav(kravHistorikk, pensak)
 
-                    ytelselist.add(createYtelserItem(prefillData, ytelseprmnd, valgtSak))
+                    ytelselist.add(createYtelserItem(prefillData, ytelseprmnd, pensak))
                 } catch (ex: Exception) {
                     logger.error(ex.message, ex)
-                    ytelselist.add(createYtelseMedManglendeYtelse(prefillData, valgtSak))
+                    ytelselist.add(createYtelseMedManglendeYtelse(prefillData, pensak))
                 }
             }
         }
 
         return Pensjon(
                 ytelser = ytelselist,
-
                 kravDato = krav
         )
     }
 
-    //4.1.. (for kun_uland,mangler inngangsvilkår)
+    /**
+     *  4.1 (for kun_uland,mangler inngangsvilkår)
+     */
     private fun createYtelseMedManglendeYtelse(prefillData: PrefillDataModel, pensak: V1Sak): YtelserItem {
         return YtelserItem(
                 //4.1.1
-                ytelse = creatYtelser(prefillData, pensak),
+                ytelse = creatYtelser(pensak),
                 //4.1.3 - fast satt til søkt
                 status = "01",
                 //4.1.4
                 pin = createInstitusjonPin(prefillData),
                 //4.1.4.1.4
                 institusjon = createInstitusjon(prefillData)
-
         )
     }
 
-    //4.1..
+    /**
+     *  4.1
+     */
     private fun createYtelserItem(prefillData: PrefillDataModel, ytelsePrmnd: V1YtelsePerMaaned, pensak: V1Sak): YtelserItem {
-        logger.debug("4.1           YtelserItem ")
+        logger.debug("4.1   YtelserItem")
         return YtelserItem(
 
                 //4.1.1
-                ytelse = creatYtelser(prefillData, pensak),
+                ytelse = creatYtelser(pensak),
 
                 //4.1.2.1 - nei
                 annenytelse = null, //ytelsePrmnd.vinnendeBeregningsmetode,
 
                 //4.1.3 (dekkes av pkt.4.1.1)
-                status = createPensionStatus(prefillData, pensak),
+                status = createPensionStatus(pensak),
                 //4.1.4
                 pin = createInstitusjonPin(prefillData),
                 //4.1.4.1.4
@@ -251,17 +250,16 @@ open class KravDataFromPEN(private val dataFromPEN: PensjonsinformasjonHjelper) 
 
                 //N/A
                 ytelseVedSykdom = null //7.2 //P2100
-
         )
-
     }
 
-    //4.1.7 Start date of entitlement to benefits  - trenger ikke fylles ut
+    /**
+     *  4.1.7 Start date of entitlement to benefits  - trenger ikke fylles ut
+     */
     private fun createStartdatoForRettTilYtelse(pensak: V1Sak): String? {
         logger.debug("4.1.7         Startdato for ytelse (forsteVirkningstidspunkt) ")
         return pensak.forsteVirkningstidspunkt?.simpleFormat()
     }
-
 
     private fun createInstitusjon(prefillData: PrefillDataModel): Institusjon? {
         logger.debug("4.1.4.1.4     Institusjon")
@@ -270,59 +268,53 @@ open class KravDataFromPEN(private val dataFromPEN: PensjonsinformasjonHjelper) 
                 institusjonsnavn = prefillData.andreInstitusjon?.institusjonsnavn,
                 saksnummer = prefillData.penSaksnummer
         )
-
     }
 
-
-    //4.1.1
-    /*
-    * */
-    private fun creatYtelser(prefillData: PrefillDataModel, pensak: V1Sak): String? {
+    /**
+     *  4.1.1
+     */
+    private fun creatYtelser(pensak: V1Sak): String? {
         logger.debug("4.1.1         Ytelser")
 
-        val sakType = KSAK.valueOf(pensak.sakType)
-        return when (sakType) {
+        return when (KSAK.valueOf(pensak.sakType)) {
             KSAK.ALDER -> "10"
             KSAK.GJENLEV -> "11"
             KSAK.UFOREP -> "08"
             else -> "07"
         }
-
     }
 
-    //4.1.3
     /**
-    Dekkes av kravene på pkt 4.1.1
-    Her skal vises status på den sist behandlede ytelsen, dvs om kravet er blitt avslått, innvilget eller er under behandling.
-    Hvis bruker mottar en løpende ytelse, skal det alltid vises Innvilget.
-    [01] Søkt
-    [02] Innvilget
-    [03] Avslått
-    [04] Foreløpig
+     *  4.1.3
+     *
+     *  Dekkes av kravene på pkt 4.1.1
+     *  Her skal vises status på den sist behandlede ytelsen, dvs om kravet er blitt avslått, innvilget eller er under behandling.
+     *  Hvis bruker mottar en løpende ytelse, skal det alltid vises Innvilget.
+     *  [01] Søkt
+     *  [02] Innvilget
+     *  [03] Avslått
+     *  [04] Foreløpig
      */
-    private fun createPensionStatus(prefillData: PrefillDataModel, pensak: V1Sak): String? {
+    private fun createPensionStatus(pensak: V1Sak): String? {
         logger.debug("4.1.3         Status")
-        val status = pensak.status
-        //val temp = prefillData.personNr
 
         return when (pensak.status) {
             "INNV" -> "02"
             "AVSL" -> "03"
             else -> "01"
         }
-
     }
 
-    /*
-
-    Fra PSAK. Det må settes opp forretningsregler. Foreløpig forslag:
-    Hvis bruker har Dnr, hukes kun av for Working
-    Hvis bruker har Fnr:
-    Hvis UT: Hvis bruker har minsteytelse, velges kun Residence. Ellers velges både Residence og Working.
-    Hvis AP: Hvis bruker mottar tilleggspensjon, velges både Residence og Working. Ellers velges kun Residence.
-    Hvis GJP: Hvis bruker mottar tilleggspensjon, velges både Residence og Working. Ellers velges kun Residence.
+    /**
+     *  4.1.10.1
+     *
+     *  Fra PSAK. Det må settes opp forretningsregler. Foreløpig forslag:
+     *  Hvis bruker har Dnr, hukes kun av for Working
+     *  Hvis bruker har Fnr:
+     *  Hvis UT: Hvis bruker har minsteytelse, velges kun Residence. Ellers velges både Residence og Working.
+     *  Hvis AP: Hvis bruker mottar tilleggspensjon, velges både Residence og Working. Ellers velges kun Residence.
+     *  Hvis GJP: Hvis bruker mottar tilleggspensjon, velges både Residence og Working. Ellers velges kun Residence.
      */
-    //4.1.10.1
     private fun createPensionBasedOn(prefillData: PrefillDataModel, pensak: V1Sak): String? {
         logger.debug("4.1.10.1      Pensjon basertpå")
         val navfnr = NavFodselsnummer(prefillData.personNr)
@@ -340,24 +332,22 @@ open class KravDataFromPEN(private val dataFromPEN: PensjonsinformasjonHjelper) 
         }
     }
 
-    //4.1.4.1
-    /*
-
-    //4.1.4.1.1
-    preutfylles med Norge.Dette kan gjøres av EESSI-pensjon
-    //4.1.4.1.2
-    preutfylles med norsk PIN
-    //4.1.4.1.3
-    kan preutfylles med Pensjon (men det er vel opplagt at pensjonsytelse tilhører sektor Pensjon)  Dette kan gjøres av EESSI-pensjon
-    //4.1.4.1.4
-    nei
-    //4.1.4.1.4.1
-    Preutfylles med NAV sin Institusjons-ID fra IR.    Dette kan gjøres av EESSI-pensjon
-    //4.1.4.1.4.2
-    preutfylles med NAV Dette kan gjøres av EESSI-pensjon
-
-     */
-
+  /**
+	 *  4.1.4.1
+	 *
+	 *  4.1.4.1.1
+	 *  preutfylles med Norge.Dette kan gjøres av EESSI-pensjon
+	 *  4.1.4.1.2
+	 *  preutfylles med norsk PIN
+	 *  4.1.4.1.3
+	 *  kan preutfylles med Pensjon (men det er vel opplagt at pensjonsytelse tilhører sektor Pensjon)  Dette kan gjøres av EESSI-pensjon
+	 *  4.1.4.1.4
+	 *  nei
+	 *  4.1.4.1.4.1
+	 *  Preutfylles med NAV sin Institusjons-ID fra IR.    Dette kan gjøres av EESSI-pensjon
+	 *  4.1.4.1.4.2
+	 *  preutfylles med NAV Dette kan gjøres av EESSI-pensjon
+	 */
     private fun createInstitusjonPin(prefillData: PrefillDataModel): PinItem {
         logger.debug("4.1.4.1       Institusjon Pin")
         return PinItem(
@@ -368,31 +358,23 @@ open class KravDataFromPEN(private val dataFromPEN: PensjonsinformasjonHjelper) 
                 //4.1.4.1.3
                 sektor = "04", //(kun pensjon)
                 institusjon = null
-//                institusjon = Institusjon(
-//                        institusjonsid = prefillData.andreInstitusjon?.institusjonsid,
-//                        institusjonsnavn = prefillData.andreInstitusjon?.institusjonsnavn
-//                )
         )
     }
 
-    //4.1.9
-    /*
-    //4.1.9 Fra PSAK
-    Denne seksjonen (4.1.9) er gjentakende.
-    Vi skal vise beløpshistorikk 5 år tilbake i tid.
-
-    Hvis bruker mottar en løpende ytelse med beløp større enn 0 kr, skal det nåværende beløpet vises her.
-    Det skal gjentas et beløp for hver beløpsendring, inntil 5 år tilbake i tid.
-
-    //4.1.9.2 Currency Fra PSAK.
-    Her fylles ut FOM-dato for hvert beløp i beløpshistorikk 5 år tilbake i tid.
-
-    //4.1.9.4 Payment frequency     Preutfylt med Månedlig
-    OBS – fra år 2021 kan det bli aktuelt med årlige utbetalinger, pga da kan brukere få utbetalt kap 20-pensjoner med veldig små beløp (ingen nedre grense)
-
-    //4.1.9.5.1  nei
-
-    */
+    /**
+     *  4.1.9
+     *
+     *  4.1.9 Fra PSAK
+     *  Denne seksjonen (4.1.9) er gjentakende.
+     *  Vi skal vise beløpshistorikk 5 år tilbake i tid.
+     *  Hvis bruker mottar en løpende ytelse med beløp større enn 0 kr, skal det nåværende beløpet vises her.
+     *  Det skal gjentas et beløp for hver beløpsendring, inntil 5 år tilbake i tid.
+     *  4.1.9.2 Currency Fra PSAK.
+     *  Her fylles ut FOM-dato for hvert beløp i beløpshistorikk 5 år tilbake i tid.
+     *  4.1.9.4 Payment frequency     Preutfylt med Månedlig
+     *  OBS – fra år 2021 kan det bli aktuelt med årlige utbetalinger, pga da kan brukere få utbetalt kap 20-pensjoner med veldig små beløp (ingen nedre grense)
+     *  4.1.9.5.1  nei
+     */
     private fun createYtelseItemBelop(ytelsePrMnd: V1YtelsePerMaaned, ytelsekomp: List<V1Ytelseskomponent>): List<BeloepItem> {
         logger.debug("4.1.9         Beløp")
         val list = mutableListOf<BeloepItem>()
@@ -415,45 +397,57 @@ open class KravDataFromPEN(private val dataFromPEN: PensjonsinformasjonHjelper) 
                     annenbetalingshyppighetytelse = null
 
             ))
-
         }
         return list
     }
 
-    //4.1.9.3
     /**
-    Fra PSAK.
-    Her fylles ut FOM-dato for hvert beløp i beløpshistorikk 5 år tilbake i tid.
+     *  4.1.9.3
+     *
+     *  Fra PSAK.
+     *  Her fylles ut FOM-dato for hvert beløp i beløpshistorikk 5 år tilbake i tid.
      */
     private fun createGjeldendesiden(ytelsePrMnd: V1YtelsePerMaaned): String? {
         logger.debug("4.1.9.3         Gjeldendesiden")
         return ytelsePrMnd.fom.simpleFormat()
     }
 
-    //4.1.9.4
-    /*
-    Preutfylt med Månedlig
-    OBS – fra år 2021 kan det bli aktuelt med årlige utbetalinger, pga da kan brukere få utbetalt kap 20-pensjoner med veldig små beløp (ingen nedre grense)
-    * */
+    /**
+     *  4.1.9.4
+     *
+     *  Preutfylt med Månedlig
+     *  OBS – fra år 2021 kan det bli aktuelt med årlige utbetalinger, pga da kan brukere få utbetalt kap 20-pensjoner med veldig små beløp (ingen nedre grense)
+     *
+     *  01: Årlig
+     *  02: Kvartal
+     *  03: Månded 12/år
+     *  04: Måned 13/år
+     *  05: Måned 14/år
+     *  06: Ukentlig
+     *  99: Annet
+     */
     private fun createBetalingshyppighe(): String {
         logger.debug("4.1.9.4         Betalingshyppighetytelse")
-        //01: Årlig, 02: Kvartal, 03: Månded 12/år, 04: Måned 13/år, 05: Måned 14/år, 06: Ukentlig, 99: Annet
         return "03"
     }
 
-
-    //i bruk av tester også -- henter ut pensjoninformasjon med brukersSakerListe
+    /**
+     *  Henter ut pensjoninformasjon med brukersSakerListe
+     */
     fun getPensjoninformasjonFraSak(prefillData: PrefillDataModel): Pensjonsinformasjon {
         return dataFromPEN.hentPensjoninformasjonMedPinid(prefillData)
     }
 
-    //i bruk av tester også -- henter ut v1Sak på brukersSakerListe ut ifra valgt sakid i prefilldatamodel
+    /**
+     *  Henter ut v1Sak på brukersSakerListe ut ifra valgt sakid i prefilldatamodel
+     */
     fun getPensjonSak(prefillData: PrefillDataModel, pendata: Pensjonsinformasjon): V1Sak {
         return dataFromPEN.hentMedSak(prefillData, pendata)
     }
 
-    //UFOREP???
-    //henter ut liste av gyldige sakkType fra brukerSakListe
+    /**
+     *  Henter ut liste av gyldige sakkType fra brukerSakListe
+     */
     fun getPensjonSakTypeList(pendata: Pensjonsinformasjon): List<KSAK> {
         val ksaklist = mutableListOf<KSAK>()
 
@@ -466,16 +460,6 @@ open class KravDataFromPEN(private val dataFromPEN: PensjonsinformasjonHjelper) 
         return ksaklist
     }
 
-    //metode for å hente ut
-    private fun getPensjonValgAvSak(pendata: Pensjonsinformasjon, sakType: KSAK): V1Sak {
-        pendata.brukersSakerListe.brukersSakerListe.forEach {
-            if (it.sakType == sakType.toString()) {
-                return it
-            }
-        }
-        return V1Sak()
-    }
-
     private fun hentYtelsePerMaanedSortert(pensak: V1Sak): List<V1YtelsePerMaaned> {
         val ytelseprmnd = pensak.ytelsePerMaanedListe
         val liste = mutableListOf<V1YtelsePerMaaned>()
@@ -483,12 +467,6 @@ open class KravDataFromPEN(private val dataFromPEN: PensjonsinformasjonHjelper) 
             liste.addAll(ytelseprmnd.ytelsePerMaanedListe)
         }
         return liste.asSequence().sortedBy { it.fom.toGregorianCalendar() }.toList()
-    }
-
-    private fun hentYtelsePerMaanedDenSiste(pensak: V1Sak): V1YtelsePerMaaned {
-        val ytelseprmnd = pensak.ytelsePerMaanedListe
-        val liste = ytelseprmnd.ytelsePerMaanedListe as List<V1YtelsePerMaaned>
-        return liste.asSequence().sortedBy { it.fom.toGregorianCalendar() }.last()
     }
 
     private fun hentYtelsePerMaanedDenSisteFraKrav(fraKravhistorik: V1KravHistorikk, pensak: V1Sak): V1YtelsePerMaaned {
@@ -508,7 +486,6 @@ open class KravDataFromPEN(private val dataFromPEN: PensjonsinformasjonHjelper) 
         return V1YtelsePerMaaned()
     }
 
-    //                it.toGregorianCalendar()
     private fun sortertKravHistorikk(pensak: V1Sak): List<V1KravHistorikk> {
         val list = pensak.kravHistorikkListe.kravHistorikkListe.toList()
         return list.asSequence().sortedBy { it.mottattDato.toGregorianCalendar() }.toList()
@@ -556,6 +533,4 @@ open class KravDataFromPEN(private val dataFromPEN: PensjonsinformasjonHjelper) 
         logger.error("Fant ikke noe Kravhistorikk..$TIL_BEHANDLING HVA GJØR VI NÅ?")
         return V1KravHistorikk()
     }
-
-
 }

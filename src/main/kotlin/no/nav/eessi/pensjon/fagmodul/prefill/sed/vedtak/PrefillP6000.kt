@@ -13,7 +13,10 @@ import no.nav.eessi.pensjon.fagmodul.prefill.tps.PrefillPersonDataFromTPS
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class PrefillP6000(private val prefillNav: PrefillNav, private val dataFromTPS: PrefillPersonDataFromTPS, private val eessiInfo: EessiInformasjon, penHjelper: PensjonsinformasjonHjelper) : Prefill<SED> {
+class PrefillP6000(private val prefillNav: PrefillNav,
+                   private val dataFromTPS: PrefillPersonDataFromTPS,
+                   private val eessiInfo: EessiInformasjon,
+                   penHjelper: PensjonsinformasjonHjelper) : Prefill<SED> {
 
     private val logger: Logger by lazy { LoggerFactory.getLogger(PrefillP6000::class.java) }
 

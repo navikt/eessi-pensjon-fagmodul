@@ -23,7 +23,6 @@ class PrefillP2000(private val prefillNav: PrefillNav, private val preutfyllingP
 
     private val sakPensiondata: KravDataFromPEN = KravDataFromPEN(dataFromPEN)
 
-    //PK-55333
     override fun prefill(prefillData: PrefillDataModel): SED {
         val sedId = prefillData.getSEDid()
 

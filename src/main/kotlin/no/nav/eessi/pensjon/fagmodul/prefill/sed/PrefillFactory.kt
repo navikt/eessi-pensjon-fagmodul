@@ -18,7 +18,10 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
 @Component
-class PrefillFactory(private val prefillNav: PrefillNav, private val dataFromTPS: PrefillPersonDataFromTPS, private val dataFromPEN: PensjonsinformasjonHjelper, private val eessiInformasjon: EessiInformasjon) {
+class PrefillFactory(private val prefillNav: PrefillNav,
+                     private val dataFromTPS: PrefillPersonDataFromTPS,
+                     private val dataFromPEN: PensjonsinformasjonHjelper,
+                     private val eessiInformasjon: EessiInformasjon) {
 
     private val logger: Logger by lazy { LoggerFactory.getLogger(PrefillFactory::class.java) }
 
@@ -70,6 +73,4 @@ class PrefillFactory(private val prefillNav: PrefillNav, private val dataFromTPS
 
         }
     }
-
-
 }
