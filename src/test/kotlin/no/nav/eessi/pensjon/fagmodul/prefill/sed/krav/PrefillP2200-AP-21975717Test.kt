@@ -23,7 +23,7 @@ class `PrefillP2200-AP-21975717Test` : AbstractPrefillIntegrationTestHelper() {
     }
 
     override fun createTestClass(prefillNav: PrefillNav, personTPS: PrefillPersonDataFromTPS, pensionDataFromPEN: PensjonsinformasjonHjelper): Prefill<SED> {
-        return PrefillP2200(prefillNav, personTPS, pensionDataFromPEN)
+        return PrefillP2200(kravdata)
     }
 
     override fun createSaksnummer(): String {

@@ -44,7 +44,7 @@ class PrefillP2000AlderPensjonUtlandForsteGangTest : AbstractPrefillIntegrationT
     }
 
     override fun createTestClass(prefillNav: PrefillNav, personTPS: PrefillPersonDataFromTPS, pensionDataFromPEN: PensjonsinformasjonHjelper): Prefill<SED> {
-        return PrefillP2000(prefillNav, personTPS, pensionDataFromPEN)
+        return PrefillP2000(kravdata)
     }
 
     //Mock persondata (P4000, persondata fra EP11)

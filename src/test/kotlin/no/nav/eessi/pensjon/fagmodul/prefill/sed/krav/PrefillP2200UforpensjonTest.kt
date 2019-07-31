@@ -35,7 +35,7 @@ class PrefillP2200UforpensjonTest : AbstractPrefillIntegrationTestHelper() {
     }
 
     override fun createTestClass(prefillNav: PrefillNav, personTPS: PrefillPersonDataFromTPS, pensionDataFromPEN: PensjonsinformasjonHjelper): Prefill<SED> {
-        return PrefillP2200(prefillNav, personTPS, pensionDataFromPEN)
+        return PrefillP2200(kravdata)
     }
 
     override fun createPayload(prefillData: PrefillDataModel) {

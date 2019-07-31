@@ -166,8 +166,8 @@ abstract class AbstractPrefillIntegrationTestHelper {
         return PensjonsinformasjonHjelper(pensjonsinformasjonService1)
     }
 
-    private fun mockKravDataFromPEN(prefillPensionDataFromPEN: PensjonsinformasjonHjelper): KravDataFromPEN {
-        return KravDataFromPEN(prefillPensionDataFromPEN)
+    fun mockKravDataFromPEN(prefillPensionDataFromPEN: PensjonsinformasjonHjelper): KravDataFromPEN {
+        return KravDataFromPEN(prefillNav, personTPS, prefillPensionDataFromPEN)
     }
 
 

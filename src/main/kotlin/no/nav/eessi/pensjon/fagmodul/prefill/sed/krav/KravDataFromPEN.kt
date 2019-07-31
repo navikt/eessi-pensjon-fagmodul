@@ -1,15 +1,12 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.sed.krav
 
-import no.nav.eessi.pensjon.fagmodul.sedmodel.BeloepItem
-import no.nav.eessi.pensjon.fagmodul.sedmodel.Institusjon
-import no.nav.eessi.pensjon.fagmodul.sedmodel.Krav
-import no.nav.eessi.pensjon.fagmodul.sedmodel.Pensjon
-import no.nav.eessi.pensjon.fagmodul.sedmodel.PinItem
-import no.nav.eessi.pensjon.fagmodul.sedmodel.YtelserItem
 import no.nav.eessi.pensjon.fagmodul.prefill.model.Prefill
 import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModel
 import no.nav.eessi.pensjon.fagmodul.prefill.pen.PensjonsinformasjonHjelper
+import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillNav
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.NavFodselsnummer
+import no.nav.eessi.pensjon.fagmodul.prefill.tps.PrefillPersonDataFromTPS
+import no.nav.eessi.pensjon.fagmodul.sedmodel.*
 import no.nav.eessi.pensjon.utils.simpleFormat
 import no.nav.pensjon.v1.kravhistorikk.V1KravHistorikk
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
@@ -18,11 +15,15 @@ import no.nav.pensjon.v1.ytelsepermaaned.V1YtelsePerMaaned
 import no.nav.pensjon.v1.ytelseskomponent.V1Ytelseskomponent
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Component
 
 /**
  * Hjelpe klasse for sak som fyller ut NAV-SED-P2000 med pensjondata fra PESYS.
  */
-open class KravDataFromPEN(private val dataFromPEN: PensjonsinformasjonHjelper) : Prefill<Pensjon> {
+@Component
+class KravDataFromPEN(private val prefillNav: PrefillNav,
+                      private val preutfyllingPersonFraTPS: PrefillPersonDataFromTPS,
+                      private val dataFromPEN: PensjonsinformasjonHjelper) : Prefill<Pensjon> {
     private val logger: Logger by lazy { LoggerFactory.getLogger(KravDataFromPEN::class.java) }
 
     //gyldige kravhistorikk status og typer.
@@ -532,5 +533,34 @@ open class KravDataFromPEN(private val dataFromPEN: PensjonsinformasjonHjelper) 
         }
         logger.error("Fant ikke noe Kravhistorikk..$TIL_BEHANDLING HVA GJØR VI NÅ?")
         return V1KravHistorikk()
+    }
+
+    /**
+     *  Henter persondata fra TPS fyller ut sed.nav
+     */
+    fun createNav(prefillData: PrefillDataModel): Nav {
+        logger.debug("[${prefillData.getSEDid()}] Preutfylling NAV")
+        return prefillNav.prefill(prefillData)
+    }
+
+    /**
+     *  Henter pensjondata fra PESYS fyller ut sed.pensjon
+     */
+    fun createPensjon(prefillData: PrefillDataModel): Pensjon {
+        logger.debug("[${prefillData.getSEDid()}]   Preutfylling PENSJON")
+        return prefill(prefillData)
+    }
+
+    /**
+     *  fylles ut kun når vi har etterlatt etterlattPinID.
+     *  noe vi må få fra PSAK. o.l
+     */
+    fun createGjenlevende(prefillData: PrefillDataModel): Bruker? {
+        var gjenlevende: Bruker? = null
+        if (prefillData.erGyldigEtterlatt()) {
+            logger.debug("          Utfylling gjenlevende (etterlatt)")
+            gjenlevende = preutfyllingPersonFraTPS.prefillBruker(prefillData.personNr)
+        }
+        return gjenlevende
     }
 }
