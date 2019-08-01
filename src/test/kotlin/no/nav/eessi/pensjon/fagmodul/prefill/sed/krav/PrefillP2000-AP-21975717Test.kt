@@ -19,6 +19,9 @@ import kotlin.test.assertNotNull
 
 class `PrefillP2000-AP-21975717Test` : AbstractPrefillIntegrationTestHelper() {
 
+    private val giftFnr = PersonDataFromTPS.generateRandomFnr(68)
+    private val ekteFnr = PersonDataFromTPS.generateRandomFnr(70)
+
     override fun mockPesysTestfilepath(): Pair<String, String> {
         return Pair("P2000", "P2000_21975717_AP_UTLAND.xml")
     }
@@ -54,8 +57,8 @@ class `PrefillP2000-AP-21975717Test` : AbstractPrefillIntegrationTestHelper() {
 
     override fun opprettMockPersonDataTPS(): Set<PersonDataFromTPS.MockTPS>? {
         return setOf(
-                PersonDataFromTPS.MockTPS("Person-11000-GIFT.json", getFakePersonFnr(), PersonDataFromTPS.MockTPS.TPSType.PERSON),
-                PersonDataFromTPS.MockTPS("Person-12000-EKTE.json", PersonDataFromTPS.generateRandomFnr(70), PersonDataFromTPS.MockTPS.TPSType.EKTE)
+                PersonDataFromTPS.MockTPS("Person-11000-GIFT.json", giftFnr, PersonDataFromTPS.MockTPS.TPSType.PERSON),
+                PersonDataFromTPS.MockTPS("Person-12000-EKTE.json", ekteFnr, PersonDataFromTPS.MockTPS.TPSType.EKTE)
         )
     }
 
@@ -119,7 +122,9 @@ class `PrefillP2000-AP-21975717Test` : AbstractPrefillIntegrationTestHelper() {
         assertEquals("RANNAR-MASK", p2000.nav?.ektefelle?.person?.fornavn)
         assertEquals("MIZINTSEV", p2000.nav?.ektefelle?.person?.etternavn)
 
-        assertEquals("01074943352", p2000.nav?.ektefelle?.person?.pin?.get(0)?.identifikator)
+        assertEquals(ekteFnr, p2000.nav?.ektefelle?.person?.pin?.get(0)?.identifikator)
+        assertEquals(giftFnr, p2000.nav?.bruker?.person?.pin?.get(0)?.identifikator)
+
         assertEquals("NO", p2000.nav?.ektefelle?.person?.pin?.get(0)?.land)
 
         val navfnr = NavFodselsnummer(p2000.nav?.ektefelle?.person?.pin?.get(0)?.identifikator!!)
