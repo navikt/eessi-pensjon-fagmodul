@@ -37,14 +37,12 @@ class PensjonsinformasjonHjelper(private val pensjonsinformasjonService: Pensjon
                 + "\nPensjonsinformasjon.ytelsePerMaanedListe: ${pendata.ytelsePerMaanedListe}"
                 + "\nPensjonsinformasjon.trygdeavtale: ${pendata.trygdeavtale}"
                 + "\nPensjonsinformasjon.person: ${pendata.person}"
-//                + "\nPensjonsinformasjon.person.pin: ${pendata.person.pid}")
                 + "")
         return pendata
     }
 
     //hjelpe metode for å hente ut date for SAK/krav P2x00 fnr benyttes
     fun hentPensjoninformasjonMedPinid(prefillData: PrefillDataModel): Pensjonsinformasjon {
-        val fnr = if (prefillData.personNr.isNotBlank()) prefillData.personNr else throw IkkeGyldigKallException("Mangler Fnr")
         val aktoer = if (prefillData.aktoerID.isNotBlank()) prefillData.aktoerID else throw IkkeGyldigKallException("Mangler AktoerId")
 
         //**********************************************

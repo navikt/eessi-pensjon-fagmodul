@@ -45,33 +45,17 @@ class MockSED001 {
     }
 
     fun mockP4000(): SED {
-        try {
+        return try {
             val p4000file = this.javaClass.getResource("/mockPesys/P4000-NAV.json").readText()
-
-            //val json = mapAnyToJson(p4000sed, true)
             val p4000 = SED.fromJson(p4000file)
 
             logger.info("p4000 mocket og legges til")
 
-            return p4000
+            p4000
         } catch (ex: Exception) {
             logger.error(ex.message)
-            return SED.create("P4000")
+            SED.create("P4000")
         }
 
     }
-
-    fun mockP5000(): SED {
-        //hvor kommer denne seden ifra? orginal.. p5000
-
-        val p5000 = SED("P5000")
-
-        p5000.pensjon = Pensjon(
-
-        )
-
-        return p5000
-    }
-
-
 }

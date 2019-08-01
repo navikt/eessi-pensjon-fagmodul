@@ -29,7 +29,6 @@ class PrefillP7000(private val prefillNav: PrefillNav) : Prefill<SED> {
         val perspin = navsed.bruker?.person?.pin?.get(0)
 
         p7000.nav = Nav(
-                //bruker = Bruker(person = navsed.nav?.bruker?.person)
                 bruker = Bruker(
                         person = Person(
                                 etternavn = person?.etternavn,
@@ -62,5 +61,4 @@ class PrefillP7000(private val prefillNav: PrefillNav) : Prefill<SED> {
 
         return prefillData.sed
     }
-
 }

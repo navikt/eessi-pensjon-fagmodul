@@ -47,7 +47,7 @@ class PrefillFactory(private val prefillNav: PrefillNav,
                 PrefillP2200(sakPensiondata)
             }
             SEDType.P2100 -> {
-                PrefillP2100(prefillPerson)
+                PrefillP2100()
             }
             //P3000_NO vil aldre gå dennee vei! men fra EU-SED->Nav-SED->PESYS
             //P3000_SE, PL, DK, DE, UK, ol vil gå denne veien.

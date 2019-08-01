@@ -29,19 +29,18 @@ class PensjonController(private val pensjonsinformasjonService: Pensjonsinformas
         // FIXME This is a hack because Pesys uses the wrong identifier in some cases
         val fnr = if (isProbablyAnFnrSentAsAktoerId(aktoerId)) aktoerId else aktoerIdHelper.hentPinForAktoer(aktoerId)
 
-        //Pensjontype //= Pensjontype(sakId = "", sakType = "")
-        try {
+        return try {
             val hentKunSakType = pensjonsinformasjonService.hentKunSakType(sakId, fnr)
             hentSakTypeVellykkede.increment()
-            return ResponseEntity.ok().body(mapAnyToJson(hentKunSakType))
+            ResponseEntity.ok().body(mapAnyToJson(hentKunSakType))
         } catch (ife: IkkeFunnetException) {
             hentSakTypeFeilede.increment()
             logger.warn("Feil ved henting av sakstype, ingen sak funnet. Sak: ${sakId}")
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorBody(ife.message!!))
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorBody(ife.message!!))
         } catch (e: Exception) {
             hentSakTypeFeilede.increment()
             logger.warn("Feil ved henting av sakstype på saksid: ${sakId}")
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorBody(e.message!!))
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorBody(e.message!!))
         }
     }
 

@@ -27,11 +27,8 @@ class PrefillP2200(private val sakPensiondata: KravDataFromPEN) : Prefill<SED> {
         sed.nav = sakPensiondata.createNav(prefillData)
 
         //henter opp pensjondat
-        //val pensjon = createPensjon(prefillData)
         sakPensiondata.hentPensjonsdata(prefillData, sed)
-
         sakPensiondata.settKravdato(prefillData, sed)
-
         logger.debug("-------------------| Preutfylling [$sedId] END |------------------- ")
         return prefillData.sed
     }

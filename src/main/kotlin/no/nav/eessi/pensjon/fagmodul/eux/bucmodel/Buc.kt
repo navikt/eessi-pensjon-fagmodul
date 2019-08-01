@@ -23,15 +23,3 @@ data class Buc(
         var participants: List<ParticipantsItem>? = null,
         var documents: List<DocumentsItem>? = null
 )
-
-//data class ShortBuc(
-//        val id: String? = null,
-//        val sensitive: Boolean? = null,
-//        var creator: Creator? = null,
-//        val actions: List<ActionsItem?>? = null,
-//        val documents: List<DocumentsItem>? = null,
-//        val participants: List<ParticipantsItem?>? = null,
-//        val subject: Subject? = null,
-//        val businessId: String? = null,
-//        val processDefinitionVersion: String? = null
-//)

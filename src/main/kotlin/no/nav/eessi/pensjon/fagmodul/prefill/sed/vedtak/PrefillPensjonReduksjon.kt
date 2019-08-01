@@ -36,7 +36,7 @@ class PrefillPensjonReduksjon : VedtakPensjonData() {
                 artikkeltype = createReduksjonArtikkelType(pendata),
 
                 //5.1.5 - Nei
-                virkningsdato = createReduksjonDato(pendata)
+                virkningsdato = createReduksjonDato()
 
         )
         if (reduksjon.type == null && reduksjon.artikkeltype == null) {
@@ -48,7 +48,7 @@ class PrefillPensjonReduksjon : VedtakPensjonData() {
     }
 
     //5.1.5 (nei)
-    private fun createReduksjonDato(pendata: Pensjonsinformasjon): List<VirkningsdatoItem>? {
+    private fun createReduksjonDato(): List<VirkningsdatoItem>? {
         logger.debug("5.1.5         ReduksjonDato  (nei)")
         //Nei
         return null

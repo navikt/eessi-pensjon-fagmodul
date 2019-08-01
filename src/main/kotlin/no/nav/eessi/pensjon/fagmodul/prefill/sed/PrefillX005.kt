@@ -1,6 +1,5 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.sed
 
-import no.nav.eessi.pensjon.fagmodul.sedmodel.InstitusjonX005
 import no.nav.eessi.pensjon.fagmodul.sedmodel.Kontekst
 import no.nav.eessi.pensjon.fagmodul.sedmodel.Leggtilinstitusjon
 import no.nav.eessi.pensjon.fagmodul.sedmodel.Navsak

@@ -35,11 +35,7 @@ class BucUtils(private val buc: Buc ) {
         return mapOf(Pair("countrycode", countryCode))
     }
 
-    fun getSubject(): Subject {
-        return getBuc().subject ?: throw NoSuchFieldException("Fant ikke Subject")
-    }
-
-    fun getDocuments(): List<DocumentsItem> {
+    private fun getDocuments(): List<DocumentsItem> {
         return getBuc().documents ?: throw NoSuchFieldException("Fant ikke DocumentsItem")
     }
 
@@ -54,11 +50,6 @@ class BucUtils(private val buc: Buc ) {
 
     fun getBucAttachments(): List<Attachment>? {
         return getBuc().attachments
-    }
-
-    fun getStartDate(): LocalDate {
-        val date = getBuc().startDate
-        return getLocalDate(date)
     }
 
     fun getLastDate(): LocalDate {
@@ -76,8 +67,7 @@ class BucUtils(private val buc: Buc ) {
         return getLocalDateTimeToLong(date)
     }
 
-
-    fun getLocalDate(date: Any?) =
+    private fun getLocalDate(date: Any?): LocalDate =
             when (date) {
                 is Long -> Instant.ofEpochMilli(date).atZone(ZoneId.systemDefault()).toLocalDate()
                 is String -> {
@@ -87,16 +77,15 @@ class BucUtils(private val buc: Buc ) {
                 else -> LocalDate.now().minusYears(1000)
             }
 
-    fun getLocalDateTimeToLong(dateTime: Any?): Long {
+    private fun getLocalDateTimeToLong(dateTime: Any?): Long {
         val zoneId = ZoneId.systemDefault()
         return getLocalDateTime(dateTime).atZone(zoneId).toEpochSecond()
     }
 
-    fun getLocalDateTime(dateTime: Any?) =
+    private fun getLocalDateTime(dateTime: Any?): LocalDateTime =
             when (dateTime) {
                 is Long -> Instant.ofEpochSecond(dateTime).atZone(ZoneId.systemDefault()).toLocalDateTime()
-                is String -> //val datestr = dateTime.substring(0, dateTime.indexOf('T'))
-                    LocalDateTime.parse(dateTime)
+                is String -> LocalDateTime.parse(dateTime)
                 else -> LocalDateTime.now().minusYears(1000)
             }
 
@@ -150,17 +139,12 @@ class BucUtils(private val buc: Buc ) {
 
     fun findAndFilterDocumentItemByType(sedType: SEDType) = findAndFilterDocumentItemByType(sedType.name)
 
-    fun findAndFilterDocumentItemByType(sedType: String) =
+    private fun findAndFilterDocumentItemByType(sedType: String) =
             getDocuments().filter { it.type == sedType }.map { createShortDocument(it) }
-
-    //hjelpefunkson for å hente ut list over alle documentid til valgt SEDType (kan ha flere docid i type)
-    fun findDocmentIdBySedType(sedType: SEDType) =
-            findAndFilterDocumentItemByType(sedType).map { it.id }.toList()
 
     fun getSbdh(): List<Sbdh> {
         val lists = mutableListOf<Sbdh>()
         val documents = getDocuments()
-        //Sbdh -> UserMessagesItem -> ConversationsItem -> DocumentsItem -> Buc
         for (doc in documents) {
             for (conv in doc.conversations!!) {
                 val usermsgs = conv.userMessages

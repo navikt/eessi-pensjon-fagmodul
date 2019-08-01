@@ -22,7 +22,6 @@ import java.time.LocalDate
 @RestController
 @RequestMapping("/pesys")
 @Protected
-//@ProtectedWithClaims(issuer = "pesys")
 
 /**
  * tjeneste for opprettelse av automatiske krav ved mottakk av Buc/Krav fra utland.
@@ -318,7 +317,6 @@ class PensjonsinformasjonUtlandController(private val timingService: TimingServi
             val landAlpha3 = hentAlpha3Land(bo.land ?: "N/A") ?: ""
 
             val periode = hentFomEllerTomFraPeriode(bo.periode)
-            val land = bo.land ?: ""
             logger.debug("oppretter bo P4000")
             var fom: LocalDate? = null
             var tom: LocalDate? = null
@@ -351,7 +349,6 @@ class PensjonsinformasjonUtlandController(private val timingService: TimingServi
 
 
     fun hentFomEllerTomFraPeriode(openLukketPeriode: TrygdeTidPeriode?): Periode {
-        //var periode: Periode? = null
         val open = openLukketPeriode?.openPeriode
         val lukket = openLukketPeriode?.lukketPeriode
 
@@ -432,11 +429,9 @@ class PensjonsinformasjonUtlandController(private val timingService: TimingServi
     //henter de nødvendige SEDer fra Rina, legger de på maps med bucId som Key.
     private fun mapSeds(bucId: Int): Map<SEDType, SED> {
         logger.debug("Henter ut alle nødvendige SED for lettere utfylle tjenesten")
-        val map = mapOf(SEDType.P2000 to fetchDocument(bucId, SEDType.P2000),
+        return mapOf(SEDType.P2000 to fetchDocument(bucId, SEDType.P2000),
                 SEDType.P3000 to fetchDocument(bucId, SEDType.P3000),
                 SEDType.P4000 to fetchDocument(bucId, SEDType.P4000))
-        val keys = map.keys
-        return map
     }
 
     //Henter inn valgt sedType fra Rina og returerer denne

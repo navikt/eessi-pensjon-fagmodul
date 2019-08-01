@@ -193,8 +193,6 @@ class PrefillPensjonVedtak : VedtakPensjonData() {
         if (createVedtakGrunnlagPentionWithRule(pendata) == "99") {
 
             //TODO: Regler for annen bergeningtekst.
-
-            //return "Ytelsen er beregnet etter spesielle beregningsregler for unge uføre"
             return "Ytelsen er beregnet etter regler for barnepensjon"
 
         }
@@ -302,57 +300,13 @@ class PrefillPensjonVedtak : VedtakPensjonData() {
         logger.debug("4.1.5         ArtikkelInnvilgelseAvYtelse (vedtak.artikkel) TODO: Må fyllesut manuelt!! sak: ${pendata.sakAlder.sakType}")
         return null
 
-        //        val kravGjelder = pendata.vedtak.kravGjelder
-        //        val sakType = KSAK.valueOf(pendata.sak.sakType)
-        //
-        //        val vinnendeBeregn = hentVinnendeBergeningsMetode(pendata)
-        //        val vedtaksresultat = hentVilkarsResultatHovedytelse(pendata)
-        //        logger.debug("              vedtaksresultat : $vedtaksresultat")
-        //
-        //        val erAvslag = vedtaksresultat == "AVSLAG"
-        //        val erInnvilgelse = vedtaksresultat == "INNV"
-
-        //pendata.vilkarsvurderingListe.vilkarsvurderingListe.get(0).avslagHovedytelse
-        //pendata.inngangOgEksport.
-
         //TODO regler her er ikke 100% det må uthentes bedre svar fra PESYS.
-        //        return when(sakType) {
-        //            KSAK.ALDER -> {
-        //                logger.debug("              alder")
-        //                if (erInnvilgelse) {
-        //                    return "01"
-        //                }
-        //                null
-        //            }
-        //
-        //            KSAK.UFOREP -> {
-        //                logger.debug("              uforp")
-        //                if (erInnvilgelse) {
-        //                    return "01"
-        //                }
-        //
-        //                null
-        //            }
-        //
-        //            KSAK.GJENLEV -> {
-        //                logger.debug("              gjenvl")
-        //                if (erInnvilgelse) {
-        //                    return "01"
-        //                }
-        //
-        //                null
-        //            }
-        //
-        //            //alle andre sakTyper return null.?
-        //            else -> null
-        //        }
     }
 
 
     //4.1.7 --
     fun createBeregningItemList(pendata: Pensjonsinformasjon): List<BeregningItem> {
 
-        //val ytelsePerMaaned = pendata.ytelsePerMaanedListe.ytelsePerMaanedListe
         val ytelsePerMaaned = pendata.ytelsePerMaanedListe.ytelsePerMaanedListe
                 .asSequence().sortedBy { it.fom.toGregorianCalendar() }.toMutableList()
 
@@ -759,19 +713,6 @@ class PrefillPensjonVedtak : VedtakPensjonData() {
         val erNedsattInntEvne = "NEDSATT_INNT_EVNE" == hentVilkarsvurderingUforetrygd(pendata).nedsattInntektsevne
         val erAlder = "ALDER" == hentVilkarsvurderingUforetrygd(pendata).alder
 
-        // debugger
-        //        logger.debug("                  avslag_vilkarsproving: $avslagVilkarsproving")
-        //        logger.debug("                  SAK-type: $sakType")
-        //        logger.debug("                  harBoddArbridet i utland: $harBoddArbeidetUtland")
-        //        logger.debug("                  erTrygdeliste tom: $erTrygdetidListeTom")
-        //        logger.debug("                  erLAVT_TIDLIG_UTTAK: $erLavtTidligUttak")
-        //        logger.debug("                  erUNDER_62: $erUnder62")
-        //        logger.debug("                  erIKKE_MOTTATT_DOK: $erIkkeMottattDok")
-        //        logger.debug("                  erFORUT_MEDL: $erForutMedlem")
-        //        logger.debug("                  erHENS_ARBRETT_TILTAK: $erHensArbrettTiltak")
-        //        logger.debug("                  erNEDSATT_INNT_EVNE: $erNedsattInntEvne")
-        //        logger.debug("                  erALDER: $erAlder")
-
         //pkt1 og pkt.9
         if ((KSAK.ALDER == sakType || KSAK.BARNEP == sakType || KSAK.GJENLEV == sakType) && harBoddArbeidetUtland && erTrygdetidListeTom && avslagVilkarsproving)
             return "01"
@@ -808,6 +749,4 @@ class PrefillPensjonVedtak : VedtakPensjonData() {
         logger.debug("              -- Ingen avslagsbegrunnelse")
         return null
     }
-
-//eof
 }

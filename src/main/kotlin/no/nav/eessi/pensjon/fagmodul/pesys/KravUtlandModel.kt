@@ -51,7 +51,6 @@ data class SkjemaPersonopplysninger(
 //P4000
 data class SkjemaUtland(
         var utlandsopphold: List<Utlandsoppholditem>? = null
-        //var harOpphold: Boolean? = null
 )
 
 //P4000 - P5000 (for bosted nå) P4000 kan f.eks inneholde kun norge noe pesys ikke vil ha

@@ -19,15 +19,6 @@ class PrefillP8000(private val prefillPerson: PrefillPerson) : Prefill<SED> {
 
     override fun prefill(prefillData: PrefillDataModel): SED {
 
-//        val p8000 = SED.create("P8000")
-//
-//        var navsed = prefillPerson.prefill(prefillData)
-//
-//        p8000.nav = Nav(
-//                eessisak = navsed.nav?.eessisak,
-//                bruker = Bruker(person = navsed.nav?.bruker?.person)
-//        )
-
         val p8000 = SED.create("P8000")
 
         val navsed = prefillPerson.prefill(prefillData)
@@ -43,7 +34,6 @@ class PrefillP8000(private val prefillPerson: PrefillPerson) : Prefill<SED> {
                         saksnummer = eessielm?.saksnummer
                 )),
 
-                //bruker = Bruker(person = navsed.nav?.bruker?.person)
                 bruker = Bruker(
                         person = Person(
                                 etternavn = person?.etternavn,
@@ -75,5 +65,4 @@ class PrefillP8000(private val prefillPerson: PrefillPerson) : Prefill<SED> {
 
         return prefillData.sed
     }
-
 }

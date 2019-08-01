@@ -66,7 +66,6 @@ class KravDataFromPEN(private val prefillNav: PrefillNav,
 
         //4.0
         return createInformasjonOmYtelserList(prefillData, pensak)
-
     }
 
     /**
