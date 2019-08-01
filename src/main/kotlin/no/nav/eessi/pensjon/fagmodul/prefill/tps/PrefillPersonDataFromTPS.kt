@@ -45,7 +45,7 @@ class PrefillPersonDataFromTPS(private val personV3Service: PersonV3Service,
             val brukerTPS = hentBrukerTPS(ident)
             var adresse: Adresse? = null
 
-            if(isPersonAvdod(brukerTPS))
+            if(!isPersonAvdod(brukerTPS))
                 adresse = prefillAdresse.hentPersonAdresse(brukerTPS)
 
             Bruker(
