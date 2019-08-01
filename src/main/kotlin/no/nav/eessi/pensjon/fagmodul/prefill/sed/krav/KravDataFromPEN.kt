@@ -7,6 +7,7 @@ import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillNav
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.NavFodselsnummer
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.PrefillPersonDataFromTPS
 import no.nav.eessi.pensjon.fagmodul.sedmodel.*
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjoninformasjonException
 import no.nav.eessi.pensjon.utils.simpleFormat
 import no.nav.pensjon.v1.kravhistorikk.V1KravHistorikk
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
@@ -562,5 +563,45 @@ class KravDataFromPEN(private val prefillNav: PrefillNav,
             gjenlevende = preutfyllingPersonFraTPS.prefillBruker(prefillData.personNr)
         }
         return gjenlevende
+    }
+
+    fun hentPensjonsdata(prefillData: PrefillDataModel, sed: SED) {
+        try {
+            if (prefillData.kanFeltSkippes("PENSED")) {
+                val pensjon = createPensjon(prefillData)
+                //vi skal ha blank pensjon ved denne toggle
+                //vi må ha med kravdato
+                sed.pensjon = Pensjon(kravDato = pensjon.kravDato)
+
+                //henter opp pensjondata
+            } else {
+                val pensjon = createPensjon(prefillData)
+
+                //gjenlevende hvis det finnes..
+                pensjon.gjenlevende = createGjenlevende(prefillData)
+                //legger pensjon på sed (få med oss gjenlevende/avdød)
+                sed.pensjon = pensjon
+            }
+        } catch (pen: PensjoninformasjonException) {
+            logger.error(pen.message)
+            sed.pensjon = Pensjon()
+        } catch (ex: Exception) {
+            logger.error(ex.message, ex)
+        }
+    }
+
+    /**
+     *  9.1
+     *
+     *  Setter kravdato på sed (denne kommer fra PESYS men opprettes i nav?!)
+     */
+    fun settKravdato(prefillData: PrefillDataModel, sed: SED) {
+        if (prefillData.kanFeltSkippes("NAVSED")) {
+            //sed.nav?.krav = Krav("")
+            //pensjon.kravDato = null
+        } else {
+            logger.debug("9.1     legger til nav kravdato fra pensjon kravdato : ${sed.pensjon?.kravDato} ")
+            sed.nav?.krav = sed.pensjon?.kravDato
+        }
     }
 }
