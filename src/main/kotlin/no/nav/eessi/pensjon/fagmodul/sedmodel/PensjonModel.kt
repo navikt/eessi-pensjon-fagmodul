@@ -1,47 +1,47 @@
 package no.nav.eessi.pensjon.fagmodul.sedmodel
 
 data class Pensjon(
-		var reduksjon: List<ReduksjonItem>? = null,
-		var vedtak: List<VedtakItem>? = null,
-		var sak: Sak? = null,
-		var gjenlevende: Bruker? = null,
-		var bruker: Bruker? = null,
-		var tilleggsinformasjon: Tilleggsinformasjon? = null,
+		val reduksjon: List<ReduksjonItem>? = null,
+		val vedtak: List<VedtakItem>? = null,
+		val sak: Sak? = null,
+		var gjenlevende: Bruker? = null, // TODO Mutable
+		val bruker: Bruker? = null,
+		val tilleggsinformasjon: Tilleggsinformasjon? = null,
 
         //p2000 - p2200
-		var ytterligeinformasjon: String? = null,
-		var etterspurtedokumenter: String? = null,
-		var ytelser: List<YtelserItem>? = null,
-		var forespurtstartdato: String? = null,
+		val ytterligeinformasjon: String? = null,
+		val etterspurtedokumenter: String? = null,
+		val ytelser: List<YtelserItem>? = null,
+		val forespurtstartdato: String? = null,
 
         //P3000
 		val landspesifikk: Landspesifikk? = null,
 
         //P5000
-		var medlemskapAnnen: List<MedlemskapItem>? = null,
-		var medlemskapTotal: List<MedlemskapItem>? = null,
-		var medlemskap: List<MedlemskapItem>? = null,
-		var trygdetid: List<MedlemskapItem>? = null,
-		var institusjonennaaikkesoektompensjon: List<String>? = null,
-		var utsettelse: List<Utsettelse>? = null,
+		var medlemskapAnnen: List<MedlemskapItem>? = null, // TODO Mutable
+		var medlemskapTotal: List<MedlemskapItem>? = null, // TODO Mutable
+		var medlemskap: List<MedlemskapItem>? = null, // TODO Mutable
+		var trygdetid: List<MedlemskapItem>? = null, // TODO Mutable
+		val institusjonennaaikkesoektompensjon: List<String>? = null,
+		val utsettelse: List<Utsettelse>? = null,
 
         //P2000, P2100, P2200, P8000?? Noen men ikke alle
-		var vedlegg: List<String>? = null,
+		val vedlegg: List<String>? = null,
 
-		var vedleggandre: String? = null,
-		var angitidligstdato: String? = null,
+		val vedleggandre: String? = null,
+		val angitidligstdato: String? = null,
 
-		var kravDato: Krav? = null, //kravDato pkt. 9.1 P2000
-		var antallSokereKjent: String? = null, //P2100 11.7
+		val kravDato: Krav? = null, //kravDato pkt. 9.1 P2000
+		val antallSokereKjent: String? = null, //P2100 11.7
 
         //P8000
-		var anmodning: AnmodningOmTilleggsInfo? = null,
+		val anmodning: AnmodningOmTilleggsInfo? = null,
 
         //P7000
-		var samletVedtak: SamletMeldingVedtak? = null,
+		val samletVedtak: SamletMeldingVedtak? = null,
 
 		//P10000 //P9000
-		var merinformasjon: Merinformasjon? = null
+		val merinformasjon: Merinformasjon? = null
         )
 
 //P10000 -- innholder ytteligere informasjon om person (se kp. 5.1) som skal oversendes tilbake
