@@ -45,7 +45,7 @@ class SedTest {
         assertNotNull(brukerback)
         assertEquals(bruker, brukerback)
 
-        val sed = SED.create("vedtak")
+        val sed = SED("vedtak")
         val navmock = NavMock().genererNavMock()
         sed.nav = Nav(bruker = navmock.bruker)
         val penmock = PensjonMock().genererMockData()

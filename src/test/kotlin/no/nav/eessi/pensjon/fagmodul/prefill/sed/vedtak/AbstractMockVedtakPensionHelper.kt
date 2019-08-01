@@ -114,7 +114,7 @@ abstract class AbstractMockVedtakPensionHelper(private val xmlFilename: String) 
         val items = listOf(InstitusjonItem(country = "NO", institution = "DUMMY"))
         prefill.apply {
             rinaSubject = "Pensjon"
-            sed = SED.create(sedId)
+            sed = SED(sedId)
             penSaksnummer = "12345"
             vedtakId = "12312312"
             buc = "P_BUC_99"

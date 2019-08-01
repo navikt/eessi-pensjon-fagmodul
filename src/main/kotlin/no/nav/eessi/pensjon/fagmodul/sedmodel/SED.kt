@@ -7,9 +7,9 @@ import no.nav.eessi.pensjon.utils.typeRefs
 // SED class main request class to basis
 // Strukturerte Elektroniske Dokumenter
 data class SED(
-        var sed: String? = null,
-        var sedGVer: String? = null,
-        var sedVer: String? = null,
+        val sed: String? = null,
+        val sedGVer: String? = "4",
+        val sedVer: String? = "1",
         var nav: Nav? = null,
         var pensjon: Pensjon? = null,
         var trygdetid: PersonArbeidogOppholdUtland? = null, //P4000
@@ -28,11 +28,6 @@ data class SED(
 
 
     companion object {
-        @JvmStatic
-        fun create(name: String): SED {
-            return SED(sed = name, sedVer = "1", sedGVer = "4")
-        }
-
         @JvmStatic
         fun fromJson(sed: String): SED {
             return mapJsonToAny(sed, typeRefs(), true)

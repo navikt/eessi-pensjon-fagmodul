@@ -178,7 +178,7 @@ abstract class AbstractPrefillIntegrationTestHelper {
 
         return PrefillDataModel().apply {
             rinaSubject = "Pensjon"
-            sed = SED.create(sedId)
+            sed = SED(sedId)
             penSaksnummer = sakId ?: "12345678"
             vedtakId = "12312312"
             buc = "P_BUC_99"

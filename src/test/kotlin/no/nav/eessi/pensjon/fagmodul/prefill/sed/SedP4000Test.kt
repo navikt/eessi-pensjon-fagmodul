@@ -45,7 +45,7 @@ class SedP4000Test {
         val result = createPersonTrygdeTidMock()
         assertNotNull(result)
 
-        val sed = SED.create("P4000")
+        val sed = SED("P4000")
         val nav = NavMock().genererNavMock()
         val pen = PensjonMock().genererMockData()
         sed.nav = nav

@@ -33,7 +33,7 @@ import org.mockito.junit.MockitoJUnitRunner
     private fun generatePrefillModel(): PrefillDataModel {
         return PrefillDataModel().apply {
             euxCaseID = "1000"
-            sed = SED.create("P2000")
+            sed = SED("P2000")
             buc = "P_BUC_01"
             institution = listOf(
                     InstitusjonItem(

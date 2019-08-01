@@ -77,7 +77,7 @@ class `PrefillP2000-AP-21975717Test` : AbstractPrefillIntegrationTestHelper() {
     fun `forventet korrekt utfylt P2000 alderpensjon med kap4 og 9`() {
         val P2000 = prefill.prefill(prefillData)
 
-        val P2000pensjon = SED.create("P2000")
+        val P2000pensjon = SED("P2000")
         P2000pensjon.pensjon = P2000.pensjon
         P2000pensjon.nav = Nav(
                 krav = P2000.nav?.krav

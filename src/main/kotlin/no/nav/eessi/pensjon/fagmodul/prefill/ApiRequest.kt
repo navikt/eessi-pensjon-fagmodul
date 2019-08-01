@@ -43,7 +43,7 @@ data class ApiRequest(
                     val pinid = fodselsnr
                     PrefillDataModel().apply {
                         penSaksnummer = request.sakId
-                        sed = SED.create(request.sed)
+                        sed = SED(request.sed)
                         aktoerID = request.aktoerId
                         personNr = pinid
                         euxCaseID = request.euxCaseId
@@ -68,7 +68,7 @@ data class ApiRequest(
                 SEDType.isValidSEDType(request.sed) -> {
                     PrefillDataModel().apply {
                         penSaksnummer = request.sakId
-                        sed = SED.create(request.sed)
+                        sed = SED(request.sed)
                         aktoerID = request.aktoerId
                         personNr = fodselsnr
                         vedtakId = request.vedtakId ?: ""
@@ -101,7 +101,7 @@ data class ApiRequest(
                         penSaksnummer = request.sakId
                         buc = request.buc
                         rinaSubject = request.subjectArea
-                        sed = SED.create(request.sed)
+                        sed = SED(request.sed)
                         aktoerID = request.aktoerId
                         personNr = pinid
                         institution = request.institutions
