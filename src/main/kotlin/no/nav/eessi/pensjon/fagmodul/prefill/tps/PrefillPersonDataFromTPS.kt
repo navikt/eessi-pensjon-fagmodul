@@ -5,8 +5,6 @@ import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModel
 import no.nav.eessi.pensjon.fagmodul.sedmodel.*
 import no.nav.eessi.pensjon.fagmodul.sedmodel.Bruker
 import no.nav.eessi.pensjon.fagmodul.sedmodel.Person
-import no.nav.eessi.pensjon.services.geo.LandkodeService
-import no.nav.eessi.pensjon.services.geo.PostnummerService
 import no.nav.eessi.pensjon.services.personv3.PersonV3Service
 import no.nav.eessi.pensjon.utils.simpleFormat
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.*
@@ -16,8 +14,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class PrefillPersonDataFromTPS(private val personV3Service: PersonV3Service,
-                               private val postnummerService: PostnummerService,
-                               private val landkodeService: LandkodeService,
+                               private val prefillAdresse: PrefillAdresse,
                                private val eessiInfo: EessiInformasjon) {
 
     private val logger: Logger by lazy { LoggerFactory.getLogger(PrefillPersonDataFromTPS::class.java) }
@@ -32,22 +29,36 @@ class PrefillPersonDataFromTPS(private val personV3Service: PersonV3Service,
         }
     }
 
+    fun isPersonAvdod(personTPS: no.nav.tjeneste.virksomhet.person.v3.informasjon.Person) : Boolean {
+        val personstatus = hentPersonStatus(personTPS)
+
+        if (personstatus == "DØD") {
+            logger.debug("Person er avdod (ingen adresse å hente).")
+            return true
+        }
+        return false
+    }
+
     fun prefillBruker(ident: String, bank: Bank? = null, ansettelsesforhold: List<ArbeidsforholdItem>? = null): Bruker {
         logger.debug("              Bruker")
-        try {
+        return try {
             val brukerTPS = hentBrukerTPS(ident)
+            var adresse: Adresse? = null
 
-            return Bruker(
+            if(isPersonAvdod(brukerTPS))
+                adresse = prefillAdresse.hentPersonAdresse(brukerTPS)
+
+            Bruker(
                     person = personData(brukerTPS),
                     far = hentRelasjon(RelasjonEnum.FAR, brukerTPS),
                     mor = hentRelasjon(RelasjonEnum.MOR, brukerTPS),
-                    adresse = hentPersonAdresse(brukerTPS),
+                    adresse = adresse,
                     bank = bank,
                     arbeidsforhold = ansettelsesforhold
             )
         } catch (ex: Exception) {
             logger.error("Feil ved henting av Bruker fra TPS, sjekk ident?")
-            return Bruker()
+            Bruker()
         }
 
     }
@@ -257,50 +268,6 @@ class PrefillPersonDataFromTPS(private val personV3Service: PersonV3Service,
         ))
     }
 
-
-    //2.2.2 adresse informasjon
-    fun hentPersonAdresse(personTPS: no.nav.tjeneste.virksomhet.person.v3.informasjon.Person): Adresse? {
-        logger.debug("2.2.2         Adresse")
-
-        val personstatus = hentPersonStatus(personTPS)
-
-        if (personstatus == "DØD") {
-            logger.debug("           Person er avdod (ingen adresse å hente).")
-            return null
-        }
-
-        //Gateadresse eller UstrukturertAdresse
-        val bostedsadresse: Bostedsadresse = personTPS.bostedsadresse ?: return hentPersonAdresseUstrukturert()
-
-        val gateAdresse = bostedsadresse.strukturertAdresse as Gateadresse
-        val gate = gateAdresse.gatenavn
-        val husnr = gateAdresse.husnummer
-        return Adresse(
-                postnummer = gateAdresse.poststed.value,
-                gate = "$gate $husnr",
-                land = hentLandkode(gateAdresse.landkode),
-                by = postnummerService.finnPoststed(gateAdresse.poststed.value)
-        )
-    }
-
-    //TODO: Denne metoden gjør ikke det den sier at den skal gjøre
-    /**
-     *  2.2.2 ustrukturert
-     *
-     *  Returnerer en bank adresse dersom det finnes en ustrukturertAdresse hos borger.
-     *  Dette må så endres/rettes av saksbehendlaer i rina?
-     */
-    private fun hentPersonAdresseUstrukturert(): Adresse {
-        logger.debug("             UstrukturertAdresse (utland)")
-        return Adresse(
-                gate = "",
-                bygning = "",
-                by = "",
-                postnummer = "",
-                land = ""
-        )
-    }
-
     //knytes til nasjonalitet for utfylling P2x00
     private fun hentStatsborgerskapTps(person: no.nav.tjeneste.virksomhet.person.v3.informasjon.Person): StatsborgerskapItem {
         logger.debug("2.2.1.1         Land / Statsborgerskap")
@@ -309,13 +276,8 @@ class PrefillPersonDataFromTPS(private val personV3Service: PersonV3Service,
         val land = statsborgerskap.land as Landkoder
 
         return StatsborgerskapItem(
-                land = hentLandkode(land)
+                land = prefillAdresse.hentLandkode(land)
         )
-    }
-
-    //TODO: Mapping av landkoder skal gjøres i codemapping i EUX
-    private fun hentLandkode(landkodertps: Landkoder): String? {
-        return landkodeService.finnLandkode2(landkodertps.value)
     }
 
     //TODO: Mapping av kjønn skal defineres i codemapping i EUX

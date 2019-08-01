@@ -30,10 +30,12 @@ class PrefillPersonDataFromTPSTest{
 
     private lateinit var prefillPersonFromTPS: PrefillPersonDataFromTPS
 
+    private val prefillAdresse = PrefillAdresse(postnummerService, landkodeService)
+
     @Before
     fun bringItOnDude() {
 
-        prefillPersonFromTPS = PrefillPersonDataFromTPS(personV3Service, postnummerService, landkodeService, eessiInfo)
+        prefillPersonFromTPS = PrefillPersonDataFromTPS(personV3Service, prefillAdresse, eessiInfo)
 
     }
 

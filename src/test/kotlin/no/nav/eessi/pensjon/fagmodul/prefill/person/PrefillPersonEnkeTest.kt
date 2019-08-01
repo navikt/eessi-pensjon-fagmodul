@@ -67,7 +67,7 @@ class PrefillPersonEnkeTest : PersonDataFromTPS(
         val person = Person()
         person.bostedsadresse = bostedadr
 
-        val result = preutfyllingTPS.hentPersonAdresse(person)!!
+        val result = prefillAdresse.hentPersonAdresse(person)!!
 
         assertNotNull(result)
 

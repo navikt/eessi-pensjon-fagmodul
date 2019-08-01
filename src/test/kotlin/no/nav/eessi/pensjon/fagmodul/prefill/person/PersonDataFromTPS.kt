@@ -8,6 +8,7 @@ import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
 import no.nav.eessi.pensjon.fagmodul.prefill.eessi.EessiInformasjon
 import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModel
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.NavFodselsnummer
+import no.nav.eessi.pensjon.fagmodul.prefill.tps.PrefillAdresse
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.PrefillPersonDataFromTPS
 import no.nav.eessi.pensjon.services.geo.LandkodeService
 import no.nav.eessi.pensjon.services.geo.PostnummerService
@@ -30,6 +31,12 @@ abstract class PersonDataFromTPS(private val mocktps: Set<MockTPS>, private val 
 
     @Mock
     protected lateinit var prefillNav: PrefillNav
+
+    private var landkodeService = LandkodeService()
+
+    private var postnummerService = PostnummerService()
+
+    protected var prefillAdresse = PrefillAdresse(postnummerService, landkodeService)
 
     @Before
     fun setup() {
@@ -149,7 +156,7 @@ abstract class PersonDataFromTPS(private val mocktps: Set<MockTPS>, private val 
             val result = initMockHentPersonResponse(it, mocktps)
             whenever(mockPersonV3Service.hentPerson(it.replaceMockfnr)).thenReturn(result)
         }
-        return PrefillPersonDataFromTPS(mockPersonV3Service, PostnummerService(), LandkodeService(), eessiInformasjon)
+        return PrefillPersonDataFromTPS(mockPersonV3Service, prefillAdresse, eessiInformasjon)
     }
 
     fun getRandomNavFodselsnummer(value: MockTPS.TPSType): String? {
