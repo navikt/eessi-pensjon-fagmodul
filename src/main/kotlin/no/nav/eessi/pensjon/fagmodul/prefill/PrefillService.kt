@@ -39,7 +39,7 @@ class PrefillService(private val prefillSED: PrefillSED) {
                         navn = it.name ?: it.checkAndConvertInstituion()
                 )
                 val datax005 = PrefillDataModel().apply {
-                    sed = SED.create(SEDType.X005.name)
+                    sed = SED(SEDType.X005.name)
                     penSaksnummer = data.penSaksnummer
                     personNr = data.personNr
                     euxCaseID = data.euxCaseID

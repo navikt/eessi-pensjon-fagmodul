@@ -20,7 +20,7 @@ class PrefillP7000(private val prefillNav: PrefillNav) : Prefill<SED> {
 
     override fun prefill(prefillData: PrefillDataModel): SED {
 
-        val p7000 = SED.create("P7000")
+        val p7000 = SED("P7000")
 
         val navsed = prefillNav.prefill(prefillData)
 

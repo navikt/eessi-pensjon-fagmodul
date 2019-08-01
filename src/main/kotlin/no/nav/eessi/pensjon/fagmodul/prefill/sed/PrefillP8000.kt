@@ -19,7 +19,7 @@ class PrefillP8000(private val prefillPerson: PrefillPerson) : Prefill<SED> {
 
     override fun prefill(prefillData: PrefillDataModel): SED {
 
-        val p8000 = SED.create("P8000")
+        val p8000 = SED("P8000")
 
         val navsed = prefillPerson.prefill(prefillData)
 

@@ -84,7 +84,7 @@ class PrefillPersonTest(val index: Int, val sedid: String) {
         val items = listOf(InstitusjonItem(country = "NO", institution = "DUMMY"))
         prefillDataMock.apply {
                 rinaSubject = "Pensjon"
-                sed = SED.create(sedid)
+                sed = SED(sedid)
                 penSaksnummer = "12345"
                 buc = "P_BUC_06"
                 aktoerID = "1234"

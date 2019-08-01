@@ -172,7 +172,7 @@ abstract class PersonDataFromTPS(private val mocktps: Set<MockTPS>, private val 
         val items = listOf(InstitusjonItem(country = "NO", institution = "DUMMY"))
         return PrefillDataModel().apply {
             rinaSubject = "Pensjon"
-            sed = SED.create(sedName)
+            sed = SED(sedName)
             penSaksnummer = "12345"
             //vedtakId = "12312312"
             vedtakId = ""

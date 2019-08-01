@@ -60,7 +60,7 @@ class PrefillServiceTest {
         val person = mockP2000.nav?.bruker?.person
 
         val x005Datamodel = PrefillDataModel.fromJson(prefillModel.clone())
-        val x005 = SED.create("X005")
+        val x005 = SED("X005")
         x005Datamodel.sed = x005
         x005.nav = Nav(
                 sak = Navsak(
@@ -89,7 +89,7 @@ class PrefillServiceTest {
     fun generatePrefillModel(): PrefillDataModel {
         return PrefillDataModel().apply {
             euxCaseID = "1000"
-            sed = SED.create("P2000")
+            sed = SED("P2000")
             buc  = "P_BUC_01"
             institution = listOf(
                     InstitusjonItem(

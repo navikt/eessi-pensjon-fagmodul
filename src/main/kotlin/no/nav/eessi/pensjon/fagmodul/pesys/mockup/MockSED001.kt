@@ -54,7 +54,7 @@ class MockSED001 {
             p4000
         } catch (ex: Exception) {
             logger.error(ex.message)
-            SED.create("P4000")
+            return SED("P4000")
         }
 
     }
