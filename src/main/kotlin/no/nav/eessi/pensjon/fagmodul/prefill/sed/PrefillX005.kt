@@ -19,30 +19,33 @@ class PrefillX005(private val prefillNav: PrefillNav) : Prefill<SED> {
 
     override fun prefill(prefillData: PrefillDataModel): SED {
 
-        val x005 = SED("X005")
+        //val x005 = SED("X005")
 
         val navsed = prefillNav.prefill(prefillData)
 
         logger.debug("Tilpasser X005 forenklet preutfylling")
         val person = navsed.bruker?.person
 
-        x005.nav = Nav(
-            sak = Navsak(
-                kontekst = Kontekst(
-                    bruker = Bruker(
-                        person = Person(
-                          fornavn = person?.fornavn,
-                          etternavn = person?.etternavn,
-                          foedselsdato = person?.foedselsdato,
-                          kjoenn = person?.kjoenn
+        val x005 = SED(
+                sed = "X005",
+                nav = Nav(
+                        sak = Navsak(
+                                kontekst = Kontekst(
+                                        bruker = Bruker(
+                                                person = Person(
+                                                        fornavn = person?.fornavn,
+                                                        etternavn = person?.etternavn,
+                                                        foedselsdato = person?.foedselsdato,
+                                                        kjoenn = person?.kjoenn
+                                                )
+                                        )
+                                ),
+                                leggtilinstitusjon = Leggtilinstitusjon(
+                                        institusjon = prefillData.institusjonX005,
+                                        grunn = null
+                                )
                         )
-                    )
-                ),
-                leggtilinstitusjon = Leggtilinstitusjon(
-                    institusjon = prefillData.institusjonX005,
-                    grunn = null
                 )
-            )
         )
         logger.debug("Tilpasser X005 forenklet preutfylling, Ferdig.")
 

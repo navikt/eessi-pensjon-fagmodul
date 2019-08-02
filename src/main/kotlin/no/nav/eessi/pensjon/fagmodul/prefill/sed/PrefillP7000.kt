@@ -20,7 +20,6 @@ class PrefillP7000(private val prefillNav: PrefillNav) : Prefill<SED> {
 
     override fun prefill(prefillData: PrefillDataModel): SED {
 
-        val p7000 = SED("P7000")
 
         val navsed = prefillNav.prefill(prefillData)
 
@@ -28,31 +27,33 @@ class PrefillP7000(private val prefillNav: PrefillNav) : Prefill<SED> {
         val person = navsed.bruker?.person
         val perspin = navsed.bruker?.person?.pin?.get(0)
 
-        p7000.nav = Nav(
-                bruker = Bruker(
-                        person = Person(
-                                etternavn = person?.etternavn,
-                                fornavn = person?.fornavn,
-                                foedselsdato = person?.foedselsdato,
-                                kjoenn = person?.kjoenn,
-                                pin = listOf(
-                                        PinItem(
-                                                identifikator = perspin?.identifikator,
-                                                land = perspin?.land,
-                                                institusjon = Institusjon(
-                                                        institusjonsid = perspin?.institusjon?.institusjonsid,
-                                                        institusjonsnavn = perspin?.institusjon?.institusjonsnavn
+        val p7000 = SED(
+                sed = "P7000",
+                nav = Nav(
+                        bruker = Bruker(
+                                person = Person(
+                                        etternavn = person?.etternavn,
+                                        fornavn = person?.fornavn,
+                                        foedselsdato = person?.foedselsdato,
+                                        kjoenn = person?.kjoenn,
+                                        pin = listOf(
+                                                PinItem(
+                                                        identifikator = perspin?.identifikator,
+                                                        land = perspin?.land,
+                                                        institusjon = Institusjon(
+                                                                institusjonsid = perspin?.institusjon?.institusjonsid,
+                                                                institusjonsnavn = perspin?.institusjon?.institusjonsnavn
+                                                        )
                                                 )
                                         )
                                 )
-                        )
+                        ),
+                        //mappe om etternavn til mappingfeil
+                        ektefelle = Ektefelle(person = Person(etternavn = navsed.bruker?.person?.etternavn))
                 ),
-                //mappe om etternavn til mappingfeil
-                ektefelle = Ektefelle(person = Person(etternavn = navsed.bruker?.person?.etternavn))
+                //mappe om kjoenn for mappingfeil
+                pensjon = Pensjon(bruker = Bruker(person = Person(kjoenn = navsed.bruker?.person?.kjoenn)))
         )
-
-        //mappe om kjoenn for mappingfeil
-        p7000.pensjon = Pensjon(bruker = Bruker(person = Person(kjoenn = navsed.bruker?.person?.kjoenn)))
 
         logger.debug("Tilpasser P7000 forenklet preutfylling, Ferdig.")
 

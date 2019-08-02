@@ -19,8 +19,6 @@ class PrefillP8000(private val prefillPerson: PrefillPerson) : Prefill<SED> {
 
     override fun prefill(prefillData: PrefillDataModel): SED {
 
-        val p8000 = SED("P8000")
-
         val navsed = prefillPerson.prefill(prefillData)
 
         logger.debug("Tilpasser P8000 forenklet preutfylling")
@@ -28,34 +26,36 @@ class PrefillP8000(private val prefillPerson: PrefillPerson) : Prefill<SED> {
         val eessielm = navsed.nav?.eessisak?.get(0)
         val perspin = navsed.nav?.bruker?.person?.pin?.get(0)
 
-        p8000.nav = Nav(
-                eessisak = listOf(EessisakItem(
-                        land = eessielm?.land,
-                        saksnummer = eessielm?.saksnummer
-                )),
+        val p8000 = SED(
+                sed = "P8000",
+                nav = Nav(
+                        eessisak = listOf(EessisakItem(
+                                land = eessielm?.land,
+                                saksnummer = eessielm?.saksnummer
+                        )),
 
-                bruker = Bruker(
-                        person = Person(
-                                etternavn = person?.etternavn,
-                                fornavn = person?.fornavn,
-                                foedselsdato = person?.foedselsdato,
-                                kjoenn = person?.kjoenn,
-                                pin = listOf(
-                                        PinItem(
-                                                identifikator = perspin?.identifikator,
-                                                land = perspin?.land,
-                                                institusjon = Institusjon(
-                                                        institusjonsid = perspin?.institusjon?.institusjonsid,
-                                                        institusjonsnavn = perspin?.institusjon?.institusjonsnavn
+                        bruker = Bruker(
+                                person = Person(
+                                        etternavn = person?.etternavn,
+                                        fornavn = person?.fornavn,
+                                        foedselsdato = person?.foedselsdato,
+                                        kjoenn = person?.kjoenn,
+                                        pin = listOf(
+                                                PinItem(
+                                                        identifikator = perspin?.identifikator,
+                                                        land = perspin?.land,
+                                                        institusjon = Institusjon(
+                                                                institusjonsid = perspin?.institusjon?.institusjonsid,
+                                                                institusjonsnavn = perspin?.institusjon?.institusjonsnavn
+                                                        )
+
                                                 )
-
                                         )
                                 )
                         )
-                )
+                ),
+                pensjon = null
         )
-
-        p8000.pensjon = null
 
         logger.debug("Tilpasser P8000 forenklet preutfylling, Ferdig.")
 

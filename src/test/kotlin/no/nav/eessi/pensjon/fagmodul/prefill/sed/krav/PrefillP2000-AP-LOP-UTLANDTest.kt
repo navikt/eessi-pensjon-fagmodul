@@ -75,10 +75,10 @@ class `PrefillP2000-AP-LOP-UTLANDTest` : AbstractPrefillIntegrationTestHelper() 
         prefillData.penSaksnummer = "21644722"
         val P2000 = prefill.prefill(prefillData)
 
-        val P2000pensjon = SED("P2000")
-        P2000pensjon.pensjon = P2000.pensjon
-        P2000pensjon.nav = Nav(
-                krav = P2000.nav?.krav
+        val P2000pensjon = SED(
+                sed ="P2000",
+                pensjon = P2000.pensjon,
+                nav = Nav( krav = P2000.nav?.krav )
         )
 
         val sed = P2000pensjon

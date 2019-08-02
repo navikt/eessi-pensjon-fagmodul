@@ -45,12 +45,14 @@ class SedP4000Test {
         val result = createPersonTrygdeTidMock()
         assertNotNull(result)
 
-        val sed = SED("P4000")
         val nav = NavMock().genererNavMock()
         val pen = PensjonMock().genererMockData()
-        sed.nav = nav
-        sed.pensjon = pen
-        sed.trygdetid = result
+        val sed = SED(
+                sed = "P4000",
+                nav= nav,
+                pensjon = pen,
+                trygdetid = result
+        )
 
         val json2 = sed.toJson()
         val mapSED = SED.fromJson(json2)

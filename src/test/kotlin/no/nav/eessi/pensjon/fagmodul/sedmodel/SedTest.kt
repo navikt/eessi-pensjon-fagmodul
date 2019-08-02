@@ -45,11 +45,16 @@ class SedTest {
         assertNotNull(brukerback)
         assertEquals(bruker, brukerback)
 
-        val sed = SED("vedtak")
+
         val navmock = NavMock().genererNavMock()
-        sed.nav = Nav(bruker = navmock.bruker)
         val penmock = PensjonMock().genererMockData()
-        sed.pensjon = Pensjon(gjenlevende = penmock.gjenlevende)
+
+        val sed = SED(
+                sed = "vedtak",
+                nav = Nav(bruker = navmock.bruker),
+                pensjon = Pensjon(gjenlevende = penmock.gjenlevende)
+        )
+
         val testPersjson = mapAnyToJson(sed, true)
         assertNotNull(testPersjson)
 

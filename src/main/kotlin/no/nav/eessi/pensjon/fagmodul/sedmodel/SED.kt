@@ -10,13 +10,13 @@ data class SED(
         val sed: String? = null,
         val sedGVer: String? = "4",
         val sedVer: String? = "1",
-        var nav: Nav? = null,
-        var pensjon: Pensjon? = null,
-        var trygdetid: PersonArbeidogOppholdUtland? = null, //P4000
-        var ignore: Ignore? = null,
+        var nav: Nav? = null, // TODO Mutable
+        var pensjon: Pensjon? = null, // TODO Mutable
+        var trygdetid: PersonArbeidogOppholdUtland? = null, //P4000 // TODO Mutable
+        val ignore: Ignore? = null,
 
         //H120
-        var horisontal: Horisontal? = null
+        val horisontal: Horisontal? = null
 ) {
     fun toJson(): String {
         return mapAnyToJson(this, false)
