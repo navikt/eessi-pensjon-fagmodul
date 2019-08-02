@@ -1,6 +1,5 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.sed.krav
 
-
 enum class Kravtype {
     REVURD,
     F_BH_MED_UTL,
@@ -29,4 +28,9 @@ enum class Saktype {
             }
         }
     }
+}
+
+enum class Sakstatus {
+    INNV,
+    AVSL
 }

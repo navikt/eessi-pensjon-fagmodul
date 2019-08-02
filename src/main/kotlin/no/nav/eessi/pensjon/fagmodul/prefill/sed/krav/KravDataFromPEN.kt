@@ -1,6 +1,5 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.sed.krav
 
-import no.nav.eessi.pensjon.fagmodul.prefill.model.Prefill
 import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModel
 import no.nav.eessi.pensjon.fagmodul.prefill.pen.PensjonsinformasjonHjelper
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillNav
@@ -24,7 +23,8 @@ import org.springframework.stereotype.Component
 @Component
 class KravDataFromPEN(private val prefillNav: PrefillNav,
                       private val preutfyllingPersonFraTPS: PrefillPersonDataFromTPS,
-                      private val dataFromPEN: PensjonsinformasjonHjelper) {
+                      private val dataFromPEN: PensjonsinformasjonHjelper,
+                      private val penTilRinaMapper: PenTilRinaMapper) {
     private val logger: Logger by lazy { LoggerFactory.getLogger(KravDataFromPEN::class.java) }
 
     /**
@@ -173,6 +173,8 @@ class KravDataFromPEN(private val prefillNav: PrefillNav,
 
     /**
      *  4.1
+     *
+     *  Informasjon om ytelser den forsikrede mottar
      */
     private fun createYtelserItem(prefillData: PrefillDataModel, ytelsePrmnd: V1YtelsePerMaaned, pensak: V1Sak): YtelserItem {
         logger.debug("4.1   YtelserItem")
@@ -216,7 +218,9 @@ class KravDataFromPEN(private val prefillNav: PrefillNav,
     }
 
     /**
-     *  4.1.7 Start date of entitlement to benefits  - trenger ikke fylles ut
+     *  4.1.7
+     *
+     *  Start date of entitlement to benefits  - trenger ikke fylles ut
      */
     private fun createStartdatoForRettTilYtelse(pensak: V1Sak): String? {
         logger.debug("4.1.7         Startdato for ytelse (forsteVirkningstidspunkt) ")
@@ -234,16 +238,12 @@ class KravDataFromPEN(private val prefillNav: PrefillNav,
 
     /**
      *  4.1.1
+     *
+     *  Ytelser
      */
     private fun creatYtelser(pensak: V1Sak): String? {
         logger.debug("4.1.1         Ytelser")
-
-        return when (Saktype.valueOf(pensak.sakType)) {
-            Saktype.ALDER -> "10"
-            Saktype.GJENLEV -> "11"
-            Saktype.UFOREP -> "08"
-            else -> "07"
-        }
+        return penTilRinaMapper.mapSaktype(pensak.sakType)
     }
 
     /**
@@ -252,23 +252,16 @@ class KravDataFromPEN(private val prefillNav: PrefillNav,
      *  Dekkes av kravene på pkt 4.1.1
      *  Her skal vises status på den sist behandlede ytelsen, dvs om kravet er blitt avslått, innvilget eller er under behandling.
      *  Hvis bruker mottar en løpende ytelse, skal det alltid vises Innvilget.
-     *  [01] Søkt
-     *  [02] Innvilget
-     *  [03] Avslått
-     *  [04] Foreløpig
      */
     private fun createPensionStatus(pensak: V1Sak): String? {
         logger.debug("4.1.3         Status")
-
-        return when (pensak.status) {
-            "INNV" -> "02"
-            "AVSL" -> "03"
-            else -> "01"
-        }
+        return penTilRinaMapper.mapSakstatus(pensak.status)
     }
 
     /**
      *  4.1.10.1
+     *
+     *  Pensjonen mottas basert på
      *
      *  Fra PSAK. Det må settes opp forretningsregler. Foreløpig forslag:
      *  Hvis bruker har Dnr, hukes kun av for Working
@@ -286,12 +279,7 @@ class KravDataFromPEN(private val prefillNav: PrefillNav,
         if (navfnr.isDNumber()) {
             return "01" // Botid
         }
-        return when (sakType) {
-            Saktype.ALDER -> "02"
-            Saktype.UFOREP -> "01"
-            Saktype.GJENLEV -> "01"
-            else -> null
-        }
+        return penTilRinaMapper.mapPensjonBasertPå(sakType.name)
     }
 
   /**
