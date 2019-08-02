@@ -39,23 +39,21 @@ class PrefillP8000(private val prefillPerson: PrefillPerson) : Prefill<SED> {
                                 etternavn = person?.etternavn,
                                 fornavn = person?.fornavn,
                                 foedselsdato = person?.foedselsdato,
-                                kjoenn = person?.kjoenn
+                                kjoenn = person?.kjoenn,
+                                pin = listOf(
+                                        PinItem(
+                                                identifikator = perspin?.identifikator,
+                                                land = perspin?.land,
+                                                institusjon = Institusjon(
+                                                        institusjonsid = perspin?.institusjon?.institusjonsid,
+                                                        institusjonsnavn = perspin?.institusjon?.institusjonsnavn
+                                                )
+
+                                        )
+                                )
                         )
                 )
         )
-        p8000.nav?.bruker?.person?.pin = listOf(
-                PinItem(
-                        identifikator = perspin?.identifikator,
-                        land = perspin?.land,
-                        institusjon = Institusjon(
-                                institusjonsid = perspin?.institusjon?.institusjonsid,
-                                institusjonsnavn = perspin?.institusjon?.institusjonsnavn
-                        )
-
-                )
-        )
-
-
 
         p8000.pensjon = null
 

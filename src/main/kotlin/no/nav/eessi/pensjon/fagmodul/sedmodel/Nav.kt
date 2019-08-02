@@ -213,7 +213,7 @@ data class EmailItem(
 )
 
 data class Person(
-        var pin: List<PinItem>? = null,  // TODO fix mutable
+        val pin: List<PinItem>? = null,
         val pinannen: PinItem? = null, //kan fjernes hvis ikke i bruk
         val statsborgerskap: List<StatsborgerskapItem>? = null, //nasjonalitet
         val etternavn: String? = null,

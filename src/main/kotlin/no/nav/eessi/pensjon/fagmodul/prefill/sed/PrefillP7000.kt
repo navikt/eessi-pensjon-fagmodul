@@ -34,23 +34,22 @@ class PrefillP7000(private val prefillNav: PrefillNav) : Prefill<SED> {
                                 etternavn = person?.etternavn,
                                 fornavn = person?.fornavn,
                                 foedselsdato = person?.foedselsdato,
-                                kjoenn = person?.kjoenn
+                                kjoenn = person?.kjoenn,
+                                pin = listOf(
+                                        PinItem(
+                                                identifikator = perspin?.identifikator,
+                                                land = perspin?.land,
+                                                institusjon = Institusjon(
+                                                        institusjonsid = perspin?.institusjon?.institusjonsid,
+                                                        institusjonsnavn = perspin?.institusjon?.institusjonsnavn
+                                                )
+                                        )
+                                )
                         )
                 ),
                 //mappe om etternavn til mappingfeil
                 ektefelle = Ektefelle(person = Person(etternavn = navsed.bruker?.person?.etternavn))
         )
-        p7000.nav?.bruker?.person?.pin = listOf(
-                PinItem(
-                        identifikator = perspin?.identifikator,
-                        land = perspin?.land,
-                        institusjon = Institusjon(
-                                institusjonsid = perspin?.institusjon?.institusjonsid,
-                                institusjonsnavn = perspin?.institusjon?.institusjonsnavn
-                        )
-                )
-        )
-
 
         //mappe om kjoenn for mappingfeil
         p7000.pensjon = Pensjon(bruker = Bruker(person = Person(kjoenn = navsed.bruker?.person?.kjoenn)))

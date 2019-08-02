@@ -5,13 +5,13 @@ import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.typeRefs
 
 data class HSED(
-        var sed: String? = null,
-        var sedGVer: String? = null,
-        var sedVer: String? = null,
-        var nav: HNav? = null,
-        var ignore: Ignore? = null,
+        val sed: String? = null,
+        val sedGVer: String? = "4",
+        val sedVer: String? = "1",
+        val nav: HNav? = null,
+        val ignore: Ignore? = null,
         //H120-H121-H070-H020-H021
-        var horisontal: Horisontal? = null
+        val horisontal: Horisontal? = null
 ) {
     fun toJson(): String {
         return mapAnyToJson(this, false)
@@ -23,11 +23,6 @@ data class HSED(
 
 
     companion object {
-        @JvmStatic
-        fun create(name: String): HSED {
-            return HSED(sed = name, sedVer = "1", sedGVer = "4")
-        }
-
         @JvmStatic
         fun fromJson(hsed: String): HSED {
             return mapJsonToAny(hsed, typeRefs(), true)
