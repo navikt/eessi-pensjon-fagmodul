@@ -24,21 +24,8 @@ import org.springframework.stereotype.Component
 @Component
 class KravDataFromPEN(private val prefillNav: PrefillNav,
                       private val preutfyllingPersonFraTPS: PrefillPersonDataFromTPS,
-                      private val dataFromPEN: PensjonsinformasjonHjelper) : Prefill<Pensjon> {
+                      private val dataFromPEN: PensjonsinformasjonHjelper) {
     private val logger: Logger by lazy { LoggerFactory.getLogger(KravDataFromPEN::class.java) }
-
-    override fun prefill(prefillData: PrefillDataModel): Pensjon {
-        val pendata: Pensjonsinformasjon = getPensjoninformasjonFraSak(prefillData)
-
-        //hent korrekt sak fra context
-        val pensak: V1Sak = getPensjonSak(prefillData, pendata)
-
-        //val pensak = getPensjonSak(prefillData, pendata)
-        //nyere metdoe mye å omgjøre på for å ta denne i bruk!
-
-        //4.0
-        return createInformasjonOmYtelserList(prefillData, pensak)
-    }
 
     /**
      * 9.1- 9.2
