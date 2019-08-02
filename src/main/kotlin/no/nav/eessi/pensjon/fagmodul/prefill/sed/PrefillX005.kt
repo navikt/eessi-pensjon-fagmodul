@@ -19,8 +19,6 @@ class PrefillX005(private val prefillNav: PrefillNav) : Prefill<SED> {
 
     override fun prefill(prefillData: PrefillDataModel): SED {
 
-        //val x005 = SED("X005")
-
         val navsed = prefillNav.prefill(prefillData)
 
         logger.debug("Tilpasser X005 forenklet preutfylling")
