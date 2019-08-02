@@ -26,15 +26,15 @@ class PrefillP6000(private val sakPensiondata: KravDataFromPEN,
         eessiInfo.mapEssiInformasjonTilPrefillDataModel(prefillData)
         logger.info("Andreinstitusjoner: ${prefillData.andreInstitusjon} ")
 
+        logger.debug("Henter opp Persondata/Gjenlevende fra TPS")
+        val gjenlevende = sakPensiondata.createGjenlevende(prefillData)
+
         logger.debug("Henter opp Pernsjondata fra PESYS")
-        val pensjon = sakPensiondata.createPensjon(prefillData)
+        val pensjon = sakPensiondata.createPensjon(prefillData, gjenlevende)
         sed.pensjon = pensjon
 
         logger.debug("Henter opp Persondata fra TPS")
         sed.nav = sakPensiondata.createNav(prefillData)
-
-        logger.debug("Henter opp Persondata/Gjenlevende fra TPS")
-        pensjon.gjenlevende = sakPensiondata.createGjenlevende(prefillData)
 
         logger.debug("-------------------| Preutfylling [$sedId] END |------------------- ")
         return prefillData.sed

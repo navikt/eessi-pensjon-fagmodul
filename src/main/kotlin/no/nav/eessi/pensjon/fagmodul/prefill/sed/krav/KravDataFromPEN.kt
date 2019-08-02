@@ -84,7 +84,8 @@ class KravDataFromPEN(private val prefillNav: PrefillNav,
      *  Obs, krav av typen «Førstegangsbehandling kun utland» eller Sluttbehandling kun utland» gjelder ikke norsk ytelse.
      */
     private fun createInformasjonOmYtelserList(prefillData: PrefillDataModel,
-                                               pensak: V1Sak): Pensjon {
+                                               pensak: V1Sak,
+                                               gjenlevende: Bruker? = null): Pensjon {
         logger.debug("4.1           Informasjon om ytelser")
 
         val spesialStatusList = listOf(Kravstatus.TIL_BEHANDLING.name)
@@ -162,7 +163,8 @@ class KravDataFromPEN(private val prefillNav: PrefillNav,
 
         return Pensjon(
                 ytelser = ytelselist,
-                kravDato = krav
+                kravDato = krav,
+                gjenlevende = gjenlevende
         )
     }
 
@@ -518,9 +520,16 @@ class KravDataFromPEN(private val prefillNav: PrefillNav,
     /**
      *  Henter pensjondata fra PESYS fyller ut sed.pensjon
      */
-    fun createPensjon(prefillData: PrefillDataModel): Pensjon {
+    fun createPensjon(prefillData: PrefillDataModel, gjenlevende: Bruker? = null): Pensjon {
         logger.debug("[${prefillData.getSEDid()}]   Preutfylling PENSJON")
-        return prefill(prefillData)
+
+        val pendata: Pensjonsinformasjon = getPensjoninformasjonFraSak(prefillData)
+
+        //hent korrekt sak fra context
+        val pensak: V1Sak = getPensjonSak(prefillData, pendata)
+
+        //4.0
+        return createInformasjonOmYtelserList(prefillData, pensak, gjenlevende)
     }
 
     /**
@@ -546,10 +555,12 @@ class KravDataFromPEN(private val prefillNav: PrefillNav,
 
                 //henter opp pensjondata
             } else {
-                val pensjon = createPensjon(prefillData)
 
                 //gjenlevende hvis det finnes..
-                pensjon.gjenlevende = createGjenlevende(prefillData)
+                val gjenlevende = createGjenlevende(prefillData)
+
+                val pensjon = createPensjon(prefillData, gjenlevende)
+
                 //legger pensjon på sed (få med oss gjenlevende/avdød)
                 sed.pensjon = pensjon
             }

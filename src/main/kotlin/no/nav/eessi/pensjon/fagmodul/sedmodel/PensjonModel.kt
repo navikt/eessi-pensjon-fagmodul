@@ -4,7 +4,7 @@ data class Pensjon(
 		val reduksjon: List<ReduksjonItem>? = null,
 		val vedtak: List<VedtakItem>? = null,
 		val sak: Sak? = null,
-		var gjenlevende: Bruker? = null, // TODO Mutable
+		val gjenlevende: Bruker? = null,
 		val bruker: Bruker? = null,
 		val tilleggsinformasjon: Tilleggsinformasjon? = null,
 
@@ -18,10 +18,10 @@ data class Pensjon(
 		val landspesifikk: Landspesifikk? = null,
 
         //P5000
-		var medlemskapAnnen: List<MedlemskapItem>? = null, // TODO Mutable
-		var medlemskapTotal: List<MedlemskapItem>? = null, // TODO Mutable
-		var medlemskap: List<MedlemskapItem>? = null, // TODO Mutable
-		var trygdetid: List<MedlemskapItem>? = null, // TODO Mutable
+		val medlemskapAnnen: List<MedlemskapItem>? = null,
+		val medlemskapTotal: List<MedlemskapItem>? = null,
+		val medlemskap: List<MedlemskapItem>? = null,
+		val trygdetid: List<MedlemskapItem>? = null,
 		val institusjonennaaikkesoektompensjon: List<String>? = null,
 		val utsettelse: List<Utsettelse>? = null,
 

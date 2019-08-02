@@ -135,17 +135,25 @@ class NavMock {
 class PensjonMock {
 
     fun genererMockDataMedMeldemskap(): Pensjon {
-        val pensjon = genererMockData()
         val pensjonMeldemskap = createMedlemskapMock()
-        pensjon.medlemskap = pensjonMeldemskap.medlemskap
-        pensjon.medlemskapAnnen = pensjonMeldemskap.medlemskapAnnen
-        pensjon.medlemskapTotal = pensjonMeldemskap.medlemskapTotal
-        pensjon.trygdetid = pensjonMeldemskap.trygdetid
+
+        val pensjon = genererMockData(
+            medlemskap= pensjonMeldemskap.medlemskap,
+            medlemskapAnnen= pensjonMeldemskap.medlemskapAnnen,
+            medlemskapTotal= pensjonMeldemskap.medlemskapTotal,
+            trygdetid= pensjonMeldemskap.trygdetid
+        )
+
         return pensjon
     }
 
 
-    fun genererMockData(): Pensjon {
+    fun genererMockData(
+            medlemskap: List<MedlemskapItem>? = null,
+            medlemskapAnnen: List<MedlemskapItem>? = null,
+            medlemskapTotal: List<MedlemskapItem>? = null,
+            trygdetid: List<MedlemskapItem>? = null
+    ): Pensjon {
         return Pensjon(
                 gjenlevende = Bruker(
                         adresse = Adresse(
@@ -441,7 +449,12 @@ class PensjonMock {
                                         )
                                 )
                         )
-                )
+                ),
+                // MockDataMedMeldemskap
+                medlemskap= medlemskap,
+                medlemskapAnnen= medlemskapAnnen,
+                medlemskapTotal= medlemskapTotal,
+                trygdetid= trygdetid
         )
     }
 
