@@ -23,8 +23,7 @@ import org.springframework.stereotype.Component
 @Component
 class KravDataFromPEN(private val prefillNav: PrefillNav,
                       private val preutfyllingPersonFraTPS: PrefillPersonDataFromTPS,
-                      private val dataFromPEN: PensjonsinformasjonHjelper,
-                      private val penTilRinaMapper: PenTilRinaMapper) {
+                      private val dataFromPEN: PensjonsinformasjonHjelper) {
     private val logger: Logger by lazy { LoggerFactory.getLogger(KravDataFromPEN::class.java) }
 
     /**
@@ -243,7 +242,7 @@ class KravDataFromPEN(private val prefillNav: PrefillNav,
      */
     private fun creatYtelser(pensak: V1Sak): String? {
         logger.debug("4.1.1         Ytelser")
-        return penTilRinaMapper.mapSaktype(pensak.sakType)
+        return mapSaktype(pensak.sakType)
     }
 
     /**
@@ -255,7 +254,7 @@ class KravDataFromPEN(private val prefillNav: PrefillNav,
      */
     private fun createPensionStatus(pensak: V1Sak): String? {
         logger.debug("4.1.3         Status")
-        return penTilRinaMapper.mapSakstatus(pensak.status)
+        return mapSakstatus(pensak.status)
     }
 
     /**
@@ -279,7 +278,7 @@ class KravDataFromPEN(private val prefillNav: PrefillNav,
         if (navfnr.isDNumber()) {
             return "01" // Botid
         }
-        return penTilRinaMapper.mapPensjonBasertPå(sakType.name)
+        return mapPensjonBasertPå(sakType.name)
     }
 
   /**

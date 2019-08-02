@@ -1,18 +1,14 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.sed.krav
 
-import org.springframework.stereotype.Component
 import java.lang.Exception
 
-
-@Component
-class PenTilRinaMapper {
     /**
      *  [07] Førtidspensjon
      *  [08] Uførepensjon
      *  [10] Alderspensjon
      *  [11] Etterlattepensjon
      */
-    fun mapSaktype(saktype: String): String {
+     fun mapSaktype(saktype: String): String {
         return try {
             return when (Saktype.valueOf(saktype)) {
                 Saktype.ALDER -> "10"
@@ -57,4 +53,3 @@ class PenTilRinaMapper {
             null
         }
     }
-}

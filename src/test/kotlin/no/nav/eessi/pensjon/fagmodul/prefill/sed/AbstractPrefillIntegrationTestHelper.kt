@@ -13,7 +13,6 @@ import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillNav
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.PrefillPersonDataFromTPS
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PersonDataFromTPS
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PersonDataFromTPS.Companion.generateRandomFnr
-import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.PenTilRinaMapper
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonService
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.RequestBuilder
 import no.nav.eessi.pensjon.services.personv3.PersonV3Service
@@ -63,8 +62,6 @@ abstract class AbstractPrefillIntegrationTestHelper {
     private lateinit var personTPS: PrefillPersonDataFromTPS
 
     protected lateinit var prefill: Prefill<SED>
-
-    private var penMapper = PenTilRinaMapper()
 
     @Before
     fun onStart() {
@@ -170,7 +167,7 @@ abstract class AbstractPrefillIntegrationTestHelper {
     }
 
     fun mockKravDataFromPEN(prefillPensionDataFromPEN: PensjonsinformasjonHjelper): KravDataFromPEN {
-        return KravDataFromPEN(prefillNav, personTPS, prefillPensionDataFromPEN, penMapper)
+        return KravDataFromPEN(prefillNav, personTPS, prefillPensionDataFromPEN)
     }
 
 
