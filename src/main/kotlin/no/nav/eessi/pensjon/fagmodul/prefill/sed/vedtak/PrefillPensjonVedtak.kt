@@ -156,7 +156,7 @@ class PrefillPensjonVedtak : VedtakPensjonData() {
         logger.debug("4.1.2         VedtakGrunnlagPention")
 
         val sakType = KSAK.valueOf(pendata.sakAlder.sakType)
-        logger.debug("              KSAK: $sakType")
+        logger.debug("              Saktype: $sakType")
 
         return when (sakType) {
             KSAK.ALDER -> {
@@ -531,21 +531,21 @@ class PrefillPensjonVedtak : VedtakPensjonData() {
     }
 
     /*
-        HVIS Sakstype er Alderspensjon uten gjenlevenderett
+        HVIS Saktype er Alderspensjon uten gjenlevenderett
         ELLER Uføretrygd uten gjenlevenderett
         SÅ skal det velges alternativ "[01] Nei".
 
-        HVIS Sakstype er (Alderspensjon med gjenlevenderett
+        HVIS Saktype er (Alderspensjon med gjenlevenderett
         OG ytelse  uten gjenlevenderett er vinnende beregning)
         ELLER Uføretrygd med gjenlevendetillegg som er lik 0
         SÅ skal det velges alternativ "[01] Nei".
 
-        HVIS Sakstype er (Alderspensjon med gjenlevenderett
+        HVIS Saktype er (Alderspensjon med gjenlevenderett
         OG ytelse  med gjenlevenderett er vinnende beregning)
         ELLER Uføretrygd med gjenlevendetillegg som er større enn 0
         SÅ skal det velges alternativ "[02] Delvis".
 
-        HVIS Sakstype er Gjenlevendepensjon
+        HVIS Saktype er Gjenlevendepensjon
         ELLER Barnepensjon
         SÅ skal det velges alternativ "[03] Fullstendig".
      */

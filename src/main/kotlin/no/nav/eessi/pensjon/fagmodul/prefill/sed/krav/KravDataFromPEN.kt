@@ -27,34 +27,6 @@ class KravDataFromPEN(private val prefillNav: PrefillNav,
                       private val dataFromPEN: PensjonsinformasjonHjelper) : Prefill<Pensjon> {
     private val logger: Logger by lazy { LoggerFactory.getLogger(KravDataFromPEN::class.java) }
 
-    //gyldige kravhistorikk status og typer.
-    private val TIL_BEHANDLING = "TIL_BEHANDLING"
-    private val F_BH_MED_UTL = "F_BH_MED_UTL"
-    private val FORSTEG_BH = "FORSTEG_BH"
-
-    val REVURD = "REVURD"
-
-
-    //K_SAK_T Kodeverk fra PESYS
-    enum class KSAK {
-        ALDER,
-        UFOREP,
-        GJENLEV,
-        BARNEP;
-
-        companion object {
-            @JvmStatic
-            fun isValid(input: String): Boolean {
-                return try {
-                    valueOf(input)
-                    true
-                } catch (ia: IllegalArgumentException) {
-                    false
-                }
-            }
-        }
-    }
-
     override fun prefill(prefillData: PrefillDataModel): Pensjon {
         val pendata: Pensjonsinformasjon = getPensjoninformasjonFraSak(prefillData)
 
@@ -115,7 +87,7 @@ class KravDataFromPEN(private val prefillNav: PrefillNav,
                                                pensak: V1Sak): Pensjon {
         logger.debug("4.1           Informasjon om ytelser")
 
-        val spesialStatusList = listOf("TIL_BEHANDLING")
+        val spesialStatusList = listOf(Kravstatus.TIL_BEHANDLING.name)
         //INNV
         var krav: Krav? = null
 
@@ -158,7 +130,7 @@ class KravDataFromPEN(private val prefillNav: PrefillNav,
             }
 
         } else {
-            if (pensak.sakType == KSAK.ALDER.toString()) {
+            if (pensak.sakType == Saktype.ALDER.name) {
                 try {
                     val kravHistorikkMedUtland = hentKravHistorikkForsteGangsBehandlingUtlandEllerForsteGang(pensak)
                     val ytelseprmnd = hentYtelsePerMaanedDenSisteFraKrav(kravHistorikkMedUtland, pensak)
@@ -175,7 +147,7 @@ class KravDataFromPEN(private val prefillNav: PrefillNav,
                 }
             }
 
-            if (pensak.sakType == KSAK.UFOREP.toString()) {
+            if (pensak.sakType == Saktype.UFOREP.name) {
                 try {
                     val kravHistorikk = hentKravHistorikkSisteRevurdering(pensak)
                     val ytelseprmnd = hentYtelsePerMaanedDenSisteFraKrav(kravHistorikk, pensak)
@@ -277,10 +249,10 @@ class KravDataFromPEN(private val prefillNav: PrefillNav,
     private fun creatYtelser(pensak: V1Sak): String? {
         logger.debug("4.1.1         Ytelser")
 
-        return when (KSAK.valueOf(pensak.sakType)) {
-            KSAK.ALDER -> "10"
-            KSAK.GJENLEV -> "11"
-            KSAK.UFOREP -> "08"
+        return when (Saktype.valueOf(pensak.sakType)) {
+            Saktype.ALDER -> "10"
+            Saktype.GJENLEV -> "11"
+            Saktype.UFOREP -> "08"
             else -> "07"
         }
     }
@@ -320,15 +292,15 @@ class KravDataFromPEN(private val prefillNav: PrefillNav,
         logger.debug("4.1.10.1      Pensjon basertpå")
         val navfnr = NavFodselsnummer(prefillData.personNr)
 
-        val sakType = KSAK.valueOf(pensak.sakType)
+        val sakType = Saktype.valueOf(pensak.sakType)
 
         if (navfnr.isDNumber()) {
             return "01" // Botid
         }
         return when (sakType) {
-            KSAK.ALDER -> "02"
-            KSAK.UFOREP -> "01"
-            KSAK.GJENLEV -> "01"
+            Saktype.ALDER -> "02"
+            Saktype.UFOREP -> "01"
+            Saktype.GJENLEV -> "01"
             else -> null
         }
     }
@@ -449,12 +421,12 @@ class KravDataFromPEN(private val prefillNav: PrefillNav,
     /**
      *  Henter ut liste av gyldige sakkType fra brukerSakListe
      */
-    fun getPensjonSakTypeList(pendata: Pensjonsinformasjon): List<KSAK> {
-        val ksaklist = mutableListOf<KSAK>()
+    fun getPensjonSakTypeList(pendata: Pensjonsinformasjon): List<Saktype> {
+        val ksaklist = mutableListOf<Saktype>()
 
         pendata.brukersSakerListe.brukersSakerListe.forEach {
-            if (KSAK.isValid(it.sakType)) {
-                val ksakType = KSAK.valueOf(it.sakType)
+            if (Saktype.isValid(it.sakType)) {
+                val ksakType = Saktype.valueOf(it.sakType)
                 ksaklist.add(ksakType)
             }
         }
@@ -496,8 +468,8 @@ class KravDataFromPEN(private val prefillNav: PrefillNav,
         val sortList = sortertKravHistorikk(pensak)
 
         for (i in sortList) {
-            logger.debug("leter etter $REVURD i  ${i.kravType} med dato ${i.virkningstidspunkt}")
-            if (i.kravType == "REVURD") {
+            logger.debug("leter etter ${Kravtype.REVURD} i  ${i.kravType} med dato ${i.virkningstidspunkt}")
+            if (i.kravType == Kravtype.REVURD.name) {
                 logger.debug("Fant Kravhistorikk med $i.kravType")
                 return i
             }
@@ -506,7 +478,7 @@ class KravDataFromPEN(private val prefillNav: PrefillNav,
     }
 
     private fun hentKravHistorikkForsteGangsBehandlingUtlandEllerForsteGang(pensak: V1Sak): V1KravHistorikk {
-        return hentKravHistorikkMedKravType(listOf(F_BH_MED_UTL, FORSTEG_BH), pensak)
+        return hentKravHistorikkMedKravType(listOf(Kravtype.F_BH_MED_UTL.name, Kravtype.FORSTEG_BH.name), pensak)
     }
 
     private fun hentKravHistorikkMedKravType(kravType: List<String>, pensak: V1Sak): V1KravHistorikk {
@@ -525,13 +497,13 @@ class KravDataFromPEN(private val prefillNav: PrefillNav,
     private fun hentKravHistorikkMedKravStatusTilBehandling(pensak: V1Sak): V1KravHistorikk {
         val sortList = sortertKravHistorikk(pensak)
         sortList.forEach {
-            logger.debug("leter etter Krav status med TIL_BEHANDLING, fant ${it.kravType} med virkningstidspunkt dato : ${it.virkningstidspunkt}")
-            if (TIL_BEHANDLING == it.status) {
+            logger.debug("leter etter Krav status med ${Kravstatus.TIL_BEHANDLING}, fant ${it.kravType} med virkningstidspunkt dato : ${it.virkningstidspunkt}")
+            if (Kravstatus.TIL_BEHANDLING.name == it.status) {
                 logger.debug("Fant Kravhistorikk med ${it.status}")
                 return it
             }
         }
-        logger.error("Fant ikke noe Kravhistorikk..$TIL_BEHANDLING HVA GJØR VI NÅ?")
+        logger.error("Fant ikke noe Kravhistorikk..${Kravstatus.TIL_BEHANDLING} HVA GJØR VI NÅ?")
         return V1KravHistorikk()
     }
 

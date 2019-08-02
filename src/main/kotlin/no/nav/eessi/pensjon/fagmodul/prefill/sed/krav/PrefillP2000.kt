@@ -19,7 +19,7 @@ class PrefillP2000(private val sakPensiondata: KravDataFromPEN) : Prefill<SED> {
     override fun prefill(prefillData: PrefillDataModel): SED {
         val sedId = prefillData.getSEDid()
 
-        prefillData.saktype = KravDataFromPEN.KSAK.ALDER.name
+        prefillData.saktype = Saktype.ALDER.name
         logger.debug("----------------------------------------------------------"
                 + "\nSaktype              : ${prefillData.saktype} "
                 + "\nSøker etter SaktId   : ${prefillData.penSaksnummer} "
