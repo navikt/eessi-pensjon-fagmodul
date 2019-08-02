@@ -44,7 +44,7 @@ class PrefillP2000AlderPensjonUtlandForsteGangTest : AbstractPrefillIntegrationT
     }
 
     override fun createTestClass(prefillNav: PrefillNav, personTPS: PrefillPersonDataFromTPS, pensionDataFromPEN: PensjonsinformasjonHjelper): Prefill<SED> {
-        return PrefillP2000(kravdata)
+        return PrefillP2000(sakHelper, kravHistorikkHelper)
     }
 
     //Mock persondata (P4000, persondata fra EP11)
@@ -64,10 +64,10 @@ class PrefillP2000AlderPensjonUtlandForsteGangTest : AbstractPrefillIntegrationT
 
     @Test
     fun `Sjekk av kravsøknad alderpensjon P2000`() {
-        pendata = kravdata.getPensjoninformasjonFraSak(prefillData)
+        pendata = sakHelper.getPensjoninformasjonFraSak(prefillData)
 
         assertNotNull(pendata)
-        val pensak = kravdata.getPensjonSak(prefillData, pendata)
+        val pensak = sakHelper.getPensjonSak(prefillData, pendata)
         assertNotNull(pensak)
 
         assertNotNull(pendata.brukersSakerListe)

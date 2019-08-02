@@ -18,11 +18,14 @@ import org.mockito.junit.MockitoJUnitRunner
     private lateinit var prefillP2000: PrefillP2000
 
     @Mock
-    lateinit var kravdata: KravDataFromPEN
+    lateinit var kravdata: SakHelper
+
+    @Mock
+    lateinit var kravHistorikkHelper: KravHistorikkHelper
 
     @Before
     fun before() {
-        prefillP2000 = PrefillP2000(kravdata)
+        prefillP2000 = PrefillP2000(kravdata, kravHistorikkHelper)
     }
 
     @Test(expected = ValidationException::class)

@@ -41,7 +41,7 @@ class PrefillP2000KravhistorieUtenvirkningstidspunktTest : AbstractPrefillIntegr
     }
 
     override fun createTestClass(prefillNav: PrefillNav, personTPS: PrefillPersonDataFromTPS, pensionDataFromPEN: PensjonsinformasjonHjelper): Prefill<SED> {
-        return PrefillP2000(kravdata)
+        return PrefillP2000(sakHelper, kravHistorikkHelper)
     }
 
     override fun createPayload(prefillData: PrefillDataModel) {
@@ -60,10 +60,10 @@ class PrefillP2000KravhistorieUtenvirkningstidspunktTest : AbstractPrefillIntegr
 
     @Test
     fun `Sjekk av kravsøknad alderpensjon P2000`() {
-        pendata = kravdata.getPensjoninformasjonFraSak(prefillData)
+        pendata = sakHelper.getPensjoninformasjonFraSak(prefillData)
 
         assertNotNull(pendata)
-        val pensak = kravdata.getPensjonSak(prefillData, pendata)
+        val pensak = sakHelper.getPensjonSak(prefillData, pendata)
         assertNotNull(pensak)
 
         assertNotNull(pendata.brukersSakerListe)

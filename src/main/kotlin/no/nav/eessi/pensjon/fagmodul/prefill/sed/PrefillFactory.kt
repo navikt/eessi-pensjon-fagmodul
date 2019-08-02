@@ -10,7 +10,8 @@ import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.PrefillP2200
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillNav
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillPensjon
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillPerson
-import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.KravDataFromPEN
+import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.SakHelper
+import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.KravHistorikkHelper
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.PrefillPersonDataFromTPS
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.vedtak.PrefillP6000
 import org.slf4j.Logger
@@ -21,7 +22,8 @@ import org.springframework.stereotype.Component
 class PrefillFactory(private val prefillNav: PrefillNav,
                      dataFromTPS: PrefillPersonDataFromTPS,
                      private val eessiInformasjon: EessiInformasjon,
-                     private val sakPensiondata: KravDataFromPEN) {
+                     private val sakHelper: SakHelper,
+                     private val kravHistorikkHelper: KravHistorikkHelper) {
 
     private val logger: Logger by lazy { LoggerFactory.getLogger(PrefillFactory::class.java) }
 
@@ -35,16 +37,16 @@ class PrefillFactory(private val prefillNav: PrefillNav,
         return when (sedValue) {
             //Status hva gjendstår
             SEDType.P6000 -> {
-                PrefillP6000(sakPensiondata, eessiInformasjon)
+                PrefillP6000(sakHelper, eessiInformasjon)
             }
             //Status hva gjendstår
             SEDType.P2000 -> {
                 //PrefillDefaultSED(prefillPerson)
-                PrefillP2000(sakPensiondata)
+                PrefillP2000(sakHelper, kravHistorikkHelper)
             }
             //Status hva gjendstår
             SEDType.P2200 -> {
-                PrefillP2200(sakPensiondata)
+                PrefillP2200(sakHelper, kravHistorikkHelper)
             }
             SEDType.P2100 -> {
                 PrefillP2100()

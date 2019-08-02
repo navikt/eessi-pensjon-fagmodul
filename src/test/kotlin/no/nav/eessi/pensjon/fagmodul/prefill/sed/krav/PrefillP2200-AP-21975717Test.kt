@@ -23,7 +23,7 @@ class `PrefillP2200-AP-21975717Test` : AbstractPrefillIntegrationTestHelper() {
     }
 
     override fun createTestClass(prefillNav: PrefillNav, personTPS: PrefillPersonDataFromTPS, pensionDataFromPEN: PensjonsinformasjonHjelper): Prefill<SED> {
-        return PrefillP2200(kravdata)
+        return PrefillP2200(sakHelper, kravHistorikkHelper)
     }
 
     override fun createSaksnummer(): String {
@@ -60,11 +60,11 @@ class `PrefillP2200-AP-21975717Test` : AbstractPrefillIntegrationTestHelper() {
 
     @Test
     fun `sjekk av kravsøknad alderpensjon P2000`() {
-        pendata = kravdata.getPensjoninformasjonFraSak(prefillData)
+        pendata = sakHelper.getPensjoninformasjonFraSak(prefillData)
 
         assertNotNull(pendata)
 
-        val list = kravdata.getPensjonSakTypeList(pendata)
+        val list = sakHelper.getPensjonSakTypeList(pendata)
         assertEquals(2, list.size)
     }
 

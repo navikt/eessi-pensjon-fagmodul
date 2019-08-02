@@ -8,11 +8,12 @@ import no.nav.eessi.pensjon.fagmodul.prefill.eessi.EessiInformasjon
 import no.nav.eessi.pensjon.fagmodul.prefill.pen.PensjonsinformasjonHjelper
 import no.nav.eessi.pensjon.fagmodul.prefill.model.Prefill
 import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModel
-import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.KravDataFromPEN
+import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.SakHelper
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillNav
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.PrefillPersonDataFromTPS
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PersonDataFromTPS
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PersonDataFromTPS.Companion.generateRandomFnr
+import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.KravHistorikkHelper
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonService
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.RequestBuilder
 import no.nav.eessi.pensjon.services.personv3.PersonV3Service
@@ -44,9 +45,11 @@ abstract class AbstractPrefillIntegrationTestHelper {
 
     protected lateinit var pendata: Pensjonsinformasjon
 
-    protected lateinit var kravdata: KravDataFromPEN
+    protected lateinit var sakHelper: SakHelper
 
     private lateinit var pensionDataFromPEN: PensjonsinformasjonHjelper
+
+    protected var kravHistorikkHelper = KravHistorikkHelper()
 
     protected val eessiInformasjon = EessiInformasjon(
             institutionid = "NO:noinst002",
@@ -86,7 +89,7 @@ abstract class AbstractPrefillIntegrationTestHelper {
         pensionDataFromPEN = mockPrefillPensionDataFromPEN(mockKravXMLfil)
 
         //mock kravData
-        kravdata = mockKravDataFromPEN(pensionDataFromPEN)
+        sakHelper = mockKravDataFromPEN(pensionDataFromPEN)
 
         //mock PrefillP2x00 class
         prefill = createTestClass(prefillNav, personTPS, pensionDataFromPEN)
@@ -166,8 +169,8 @@ abstract class AbstractPrefillIntegrationTestHelper {
         return PensjonsinformasjonHjelper(pensjonsinformasjonService1)
     }
 
-    fun mockKravDataFromPEN(prefillPensionDataFromPEN: PensjonsinformasjonHjelper): KravDataFromPEN {
-        return KravDataFromPEN(prefillNav, personTPS, prefillPensionDataFromPEN)
+    fun mockKravDataFromPEN(prefillPensionDataFromPEN: PensjonsinformasjonHjelper): SakHelper {
+        return SakHelper(prefillNav, personTPS, prefillPensionDataFromPEN, kravHistorikkHelper)
     }
 
 

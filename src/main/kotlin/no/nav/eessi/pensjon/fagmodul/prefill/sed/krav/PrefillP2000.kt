@@ -11,7 +11,8 @@ import org.slf4j.LoggerFactory
 /**
  * preutfylling av NAV-P2000 SED for søknad krav om alderpensjon
  */
-class PrefillP2000(private val sakPensiondata: KravDataFromPEN) : Prefill<SED> {
+class PrefillP2000(private val sakPensiondata: SakHelper,
+                   private val kravHistorikkHelper: KravHistorikkHelper) : Prefill<SED> {
 
     private val logger: Logger by lazy { LoggerFactory.getLogger(PrefillP2000::class.java) }
 
@@ -39,7 +40,7 @@ class PrefillP2000(private val sakPensiondata: KravDataFromPEN) : Prefill<SED> {
         //skipper å henter opp pensjondata hvis PENSED finnes
         sakPensiondata.hentPensjonsdata(prefillData, sed)
 
-        sakPensiondata.settKravdato(prefillData, sed)
+        kravHistorikkHelper.settKravdato(prefillData, sed)
 
         logger.debug("-------------------| Preutfylling [$sedId] END |------------------- ")
         return prefillData.sed
