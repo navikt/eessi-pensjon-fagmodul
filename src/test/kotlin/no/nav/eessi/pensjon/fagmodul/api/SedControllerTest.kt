@@ -293,7 +293,7 @@ class SedControllerTest {
         val buc = null
         val rinanr = null
 
-        val expectedResponse = ResponseEntity.ok().body(mapAnyToJson(listOf("P2000", "P2100", "P2200", "P5000", "P6000", "P7000", "P8000", "P9000", "P10000", "P15000")))
+        val expectedResponse = ResponseEntity.ok().body(mapAnyToJson(listOf("P2000", "P2100", "P2200", "P5000", "P6000", "P7000", "P8000", "P9000", "P10000", "P14000", "P15000")))
         val generatedResponse = sedController.getSeds(buc, rinanr)
         assertEquals(expectedResponse, generatedResponse)
     }
