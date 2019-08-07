@@ -603,6 +603,7 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
                     "P_BUC_03" to listOf("P2200"),
                     "P_BUC_05" to listOf("P5000", "P6000", "P7000", "P8000", "P9000"),
                     "P_BUC_06" to listOf("P5000", "P6000", "P7000", "P10000"),
+                    "P_BUC_09" to listOf("P14000"),
                     "P_BUC_10" to listOf("P15000")
             )
         }
@@ -618,6 +619,7 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
                 map["P_BUC_03"]?.let { set.addAll(it) }
                 map["P_BUC_05"]?.let { set.addAll(it) }
                 map["P_BUC_06"]?.let { set.addAll(it) }
+                map["P_BUC_09"]?.let { set.addAll(it) }
                 map["P_BUC_10"]?.let { set.addAll(it) }
                 return set.toList()
             }
