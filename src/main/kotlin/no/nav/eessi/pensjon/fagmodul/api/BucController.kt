@@ -19,6 +19,7 @@ import no.nav.eessi.pensjon.utils.successBody
 import no.nav.security.oidc.api.Protected
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.util.*
@@ -33,6 +34,19 @@ class BucController(private val euxService: EuxService,
 
     private val logger = LoggerFactory.getLogger(BucController::class.java)
 
+    @ApiOperation("henter liste av alle tilgjengelige BuC-typer")
+    @GetMapping("/bucs", produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun getBucs(): List<String> {
+        return listOf(
+                "P_BUC_01",
+                "P_BUC_02",
+                "P_BUC_03",
+                "P_BUC_05",
+                "P_BUC_06",
+                "P_BUC_09",
+                "P_BUC_10"
+        )
+    }
 
     @ApiOperation("Henter opp hele BUC på valgt caseid")
     @GetMapping("/{rinanr}")
