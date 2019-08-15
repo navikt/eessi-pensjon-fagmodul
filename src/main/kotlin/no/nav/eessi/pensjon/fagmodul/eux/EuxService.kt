@@ -14,6 +14,7 @@ import no.nav.eessi.pensjon.fagmodul.sedmodel.PinItem
 import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
 import no.nav.eessi.pensjon.fagmodul.models.SEDType
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
+import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.Saktype
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Description
 import org.springframework.http.*
@@ -620,10 +621,35 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
                 map["P_BUC_05"]?.let { set.addAll(it) }
                 map["P_BUC_06"]?.let { set.addAll(it) }
                 map["P_BUC_09"]?.let { set.addAll(it) }
-                map["P_BUC_10"]?.let { set.addAll(it) }
+                map["P_BUC_10"]?.let { set.addAll(it) }111111111111111111111111111111111111111111111111111111111111111111111111111111
                 return set.toList()
             }
             return map[bucType].orEmpty()
+        }
+
+        fun getKjernebrukerinformasjon(euxCaseId: String, bucType: String) {
+            val sedOnBuc = initSedOnBuc()
+
+            if (!sedOnBuc.containsKey(bucType)) throw GenericUnprocessableEntity("Ugyldig buctype, vi støtter ikke denne bucen $bucType")
+
+            val sedtype = sedOnBuc[bucType]
+                when (sedtype) {
+
+                    "P2000" in sedtype
+//                    -> {}
+//                    sedtype?.contains("P2000") -> {}
+//                    sedtype?.contains("P2200") -> {}
+                    else -> {}
+
+                }
+//            return when (Saktype.valueOf(saktype)) {
+//                Saktype.ALDER -> "10"
+//                Saktype.GJENLEV -> "11"
+//                Saktype.UFOREP -> "08"
+//                else -> "07"
+//            }
+
+
         }
     }
 }

@@ -620,6 +620,30 @@ class EuxServiceTest {
         Assert.assertEquals(generatedResponse, expectedResponse)
     }
 
+    @Test
+    fun `Calling returneKjernebrukerinformasjon | returns valid resultset` () {
+
+    val euxCaseId = "123456"
+    val bucType = "P_BUC_01"
+    val resultat = EuxService.getKjernebrukerinformasjon(euxCaseId,bucType)
+
+//     assertEquals("01011960", resultat.foedselsdato)
+
+
+
+    }
+
+    @Test (expected = GenericUnprocessableEntity::class)
+    fun `Calling returneKjernebrukerinformasjon | returns Exception when unsupported buctype is entered` () {
+
+        val euxCaseId = "123456"
+        val bucType = "P_BUC_07"
+        EuxService.getKjernebrukerinformasjon(euxCaseId,bucType)
+
+
+    }
+
+
 
 
 }
