@@ -165,7 +165,7 @@ class SedController(private val euxService: EuxService,
         return ResponseEntity.ok().body(mapAnyToJson(resultListe.filterPensionSedAndSort()))
     }
 
-    //ny knall for journalforing app henter ytelsetype ut ifra P15000
+    //ny kall for journalforing app henter ytelsetype ut ifra P15000
     @ApiOperation("Henter ytelsetype fra P15000 på valgt Buc og Documentid")
     @GetMapping("/ytelseKravtype/{rinanr}/sedid/{documentid}")
     fun getPinOgYtelseKravtype(@PathVariable("rinanr", required = true) rinanr: String,
@@ -181,6 +181,17 @@ class SedController(private val euxService: EuxService,
         return if ((request.buc ?: throw MangelfulleInndataException("Mangler Buc")) == "P_BUC_02")
             aktoerIdHelper.hentAktoerForPin ((request.avdodfnr ?: throw MangelfulleInndataException("Mangler fnr for avdød")))
         else null
+    }
+
+    //ny kall for journalforing for å hente fødselsdato fra sed
+    @ApiOperation("Henter fodselsdato fra sed for valgt euxcaseid")
+    @GetMapping("/hentfodselsdato/{rinanr}/buctype/{buctype}")
+    fun getFodselsdato(@PathVariable("rinanr", required = true) rinanr: String,
+                       @PathVariable("buctype", required = true) buctype: String): String? {
+
+        logger.debug("Henter opp fødselsdato fra sed for valgt euxcaseid")
+        return euxService.getFDatoFromSed(rinanr, buctype)
+
     }
 
 }

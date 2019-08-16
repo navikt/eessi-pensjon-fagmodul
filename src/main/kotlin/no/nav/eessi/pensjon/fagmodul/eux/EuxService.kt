@@ -592,6 +592,58 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
         }
     }
 
+    fun getFDatoFromSed(euxCaseId: String, bucType: String): String? {
+        val sedOnBuc = initSedOnBuc()
+        if (!sedOnBuc.containsKey(bucType)) throw GenericUnprocessableEntity("Ugyldig buctype, vi støtter ikke denne bucen $bucType")
+
+        val sedType = sedOnBuc[bucType]
+
+        var fdato: String? = null
+        sedType?.forEach {
+            val sedDocument = BucUtils(getBuc(euxCaseId)).findFirstDocumentItemByType(it)
+            val sed = getSedOnBucByDocumentId(euxCaseId, sedDocument?.id ?: throw NoSuchFieldException("Fant ikke DocumentsItem"))
+
+            val sedValue = sed.sed?.let { it1 -> SEDType.valueOf(it1) }
+            logger.info("mapping prefillClass to SED: $sedValue")
+            when (sedValue) {
+                SEDType.P2000 -> {
+                    fdato = sed.nav?.bruker?.person?.foedselsdato
+                }
+                SEDType.P2100 -> {
+                    fdato = sed.pensjon?.gjenlevende?.person?.foedselsdato
+                }
+                SEDType.P2200 -> {
+                    fdato = sed.nav?.bruker?.person?.foedselsdato
+                }
+                SEDType.P5000 -> {
+                    fdato = sed.nav?.bruker?.person?.foedselsdato
+                }
+                SEDType.P6000 -> {
+                    fdato = sed.nav?.bruker?.person?.foedselsdato
+                }
+                SEDType.P14000 -> {
+                    fdato = sed.nav?.bruker?.person?.foedselsdato
+                }
+                SEDType.P15000 -> {
+                    fdato = sed.nav?.bruker?.person?.foedselsdato
+                }
+                SEDType.P8000 -> {
+                    fdato = sed.nav?.bruker?.person?.foedselsdato
+                }
+                SEDType.P10000 -> {
+                    fdato = sed.nav?.bruker?.person?.foedselsdato
+                }
+                SEDType.P7000 -> {
+                    fdato = sed.nav?.bruker?.person?.foedselsdato
+                }
+                else -> fdato = null
+            }
+            if (fdato != null) return fdato
+        }
+        throw SedDokumentIkkeLestException("Ingen foedselsdato funnet")
+    }
+
+
     /**
      * Own impl. no list from eux that contains list of SED to a speific BUC
      */
@@ -621,36 +673,12 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
                 map["P_BUC_05"]?.let { set.addAll(it) }
                 map["P_BUC_06"]?.let { set.addAll(it) }
                 map["P_BUC_09"]?.let { set.addAll(it) }
-                map["P_BUC_10"]?.let { set.addAll(it) }111111111111111111111111111111111111111111111111111111111111111111111111111111
+                map["P_BUC_10"]?.let { set.addAll(it) }
                 return set.toList()
             }
             return map[bucType].orEmpty()
         }
 
-        fun getKjernebrukerinformasjon(euxCaseId: String, bucType: String) {
-            val sedOnBuc = initSedOnBuc()
-
-            if (!sedOnBuc.containsKey(bucType)) throw GenericUnprocessableEntity("Ugyldig buctype, vi støtter ikke denne bucen $bucType")
-
-            val sedtype = sedOnBuc[bucType]
-                when (sedtype) {
-
-                    "P2000" in sedtype
-//                    -> {}
-//                    sedtype?.contains("P2000") -> {}
-//                    sedtype?.contains("P2200") -> {}
-                    else -> {}
-
-                }
-//            return when (Saktype.valueOf(saktype)) {
-//                Saktype.ALDER -> "10"
-//                Saktype.GJENLEV -> "11"
-//                Saktype.UFOREP -> "08"
-//                else -> "07"
-//            }
-
-
-        }
     }
 }
 

@@ -3,8 +3,7 @@ package no.nav.eessi.pensjon.fagmodul.eux
 import com.nhaarman.mockitokotlin2.*
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucSedResponse
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
-import no.nav.eessi.pensjon.fagmodul.sedmodel.PinItem
-import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
+import no.nav.eessi.pensjon.fagmodul.sedmodel.*
 import no.nav.eessi.pensjon.utils.*
 import org.junit.After
 import org.junit.Assert
@@ -12,6 +11,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.AdditionalMatchers
 import org.mockito.AdditionalMatchers.not
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.anyString
@@ -101,13 +101,12 @@ class EuxServiceTest {
         val json = String(Files.readAllBytes(Paths.get(filepath)))
         assertTrue(validateJson(json))
 
-        val orgsed = mapJsonToAny(json, typeRefs<SED>())
-
+        val orgsed = SED.fromJson(json)
         val response: ResponseEntity<String> = ResponseEntity(json, HttpStatus.OK)
 
         //val response = euxOidcRestTemplate.exchange(builder.toUriString(), HttpMethod.GET, null, String::class.java)
         whenever(mockEuxrestTemplate.exchange(anyString(), eq(HttpMethod.GET), eq(null), eq(String::class.java))).thenReturn(response)
-        val result = service.getSedOnBucByDocumentId("12345678900", "P_BUC_99")
+        val result = service.getSedOnBucByDocumentId("12345678900", "0bb1ad15987741f1bbf45eba4f955e80")
 
         assertEquals(orgsed, result)
         assertEquals("P6000", result.sed)
@@ -621,30 +620,81 @@ class EuxServiceTest {
     }
 
     @Test
-    fun `Calling returneKjernebrukerinformasjon | returns valid resultset` () {
+    fun `Calling getFDatoFromSed | returns valid resultset on BUC_01` () {
+        val euxCaseId = "123456"
+        val bucPath = "src/test/resources/json/buc/buc-158123_2_v4.1.json"
+        val bucJson = String(Files.readAllBytes(Paths.get(bucPath)))
+        assertTrue(validateJson(bucJson))
+        val bucResponse: ResponseEntity<String> = ResponseEntity(bucJson, HttpStatus.OK)
+        whenever(mockEuxrestTemplate.exchange(eq("/buc/$euxCaseId"), eq(HttpMethod.GET), eq(null), eq(String::class.java))).thenReturn(bucResponse)
+        whenever(mockEuxrestTemplate.exchange(ArgumentMatchers.contains("buc/$euxCaseId/sed/"), eq(HttpMethod.GET), eq(null), eq(String::class.java)))
+                .thenReturn(mockSedResponse(getTestJsonFile("P2000-NAV.json")))
 
-    val euxCaseId = "123456"
-    val bucType = "P_BUC_01"
-    val resultat = EuxService.getKjernebrukerinformasjon(euxCaseId,bucType)
+        assertEquals("1980-01-01", service.getFDatoFromSed(euxCaseId,"P_BUC_01"))
 
-//     assertEquals("01011960", resultat.foedselsdato)
+    }
 
+    @Test
+    fun `Calling getFDatoFromSed | returns valid resultset on BUC_06` () {
+        val euxCaseId = "123456"
+        val bucPath = "src/test/resources/json/buc/buc-175254_noX005_v4.1.json"
+        val bucJson = String(Files.readAllBytes(Paths.get(bucPath)))
+        assertTrue(validateJson(bucJson))
+        val bucResponse: ResponseEntity<String> = ResponseEntity(bucJson, HttpStatus.OK)
+        whenever(mockEuxrestTemplate.exchange(eq("/buc/$euxCaseId"), eq(HttpMethod.GET), eq(null), eq(String::class.java))).thenReturn(bucResponse)
+        whenever(mockEuxrestTemplate.exchange(ArgumentMatchers.contains("buc/$euxCaseId/sed/"), eq(HttpMethod.GET), eq(null), eq(String::class.java)))
+                .thenReturn(mockSedResponse(getTestJsonFile("P10000-NAV.json")))
 
+        assertEquals("1948-06-28", service.getFDatoFromSed(euxCaseId,"P_BUC_06"))
 
+    }
+
+    @Test(expected = NoSuchFieldException::class)
+    fun `Calling getFDatoFromSed | returns exception when seddocumentId is not found` () {
+        val euxCaseId = "123456"
+        val bucPath = "src/test/resources/json/buc/buc-158123_v4.1.json"
+        val bucJson = String(Files.readAllBytes(Paths.get(bucPath)))
+        assertTrue(validateJson(bucJson))
+        val bucResponse: ResponseEntity<String> = ResponseEntity(bucJson, HttpStatus.OK)
+        whenever(mockEuxrestTemplate.exchange(eq("/buc/$euxCaseId"), eq(HttpMethod.GET), eq(null), eq(String::class.java))).thenReturn(bucResponse)
+        whenever(mockEuxrestTemplate.exchange(ArgumentMatchers.contains("buc/$euxCaseId/sed/"), eq(HttpMethod.GET), eq(null), eq(String::class.java)))
+                .thenReturn(mockSedResponse(getTestJsonFile("P10000-NAV.json")))
+        service.getFDatoFromSed(euxCaseId,"P_BUC_03")
+    }
+
+    @Test(expected = SedDokumentIkkeLestException::class)
+    fun `Calling getFDatoFromSed | returns exception when foedselsdato is not found` () {
+        val euxCaseId = "123456"
+        val bucPath = "src/test/resources/json/buc/buc-158123_v4.1.json"
+        val bucJson = String(Files.readAllBytes(Paths.get(bucPath)))
+        assertTrue(validateJson(bucJson))
+
+        val sed = SED("P2000")
+        sed.nav = Nav(bruker = Bruker(person = Person(fornavn = "Dummy")))
+
+        val bucResponse: ResponseEntity<String> = ResponseEntity(bucJson, HttpStatus.OK)
+        whenever(mockEuxrestTemplate.exchange(eq("/buc/$euxCaseId"), eq(HttpMethod.GET), eq(null), eq(String::class.java))).thenReturn(bucResponse)
+        whenever(mockEuxrestTemplate.exchange(ArgumentMatchers.contains("buc/$euxCaseId/sed/"), eq(HttpMethod.GET), eq(null), eq(String::class.java)))
+                .thenReturn(mockSedResponse(sed.toJson()))
+        service.getFDatoFromSed(euxCaseId,"P_BUC_01")
     }
 
     @Test (expected = GenericUnprocessableEntity::class)
-    fun `Calling returneKjernebrukerinformasjon | returns Exception when unsupported buctype is entered` () {
-
+    fun `Calling getFDatoFromSed | returns Exception when unsupported buctype is entered` () {
         val euxCaseId = "123456"
         val bucType = "P_BUC_07"
-        EuxService.getKjernebrukerinformasjon(euxCaseId,bucType)
-
-
+        service.getFDatoFromSed(euxCaseId,bucType)
     }
 
+    fun mockSedResponse(sedJson: String): ResponseEntity<String> {
+        return ResponseEntity(sedJson, HttpStatus.OK)
+    }
 
-
+    fun getTestJsonFile(filename: String): String {
+        val filepath = "src/test/resources/json/nav/${filename}"
+        val json = String(Files.readAllBytes(Paths.get(filepath)))
+        assertTrue(validateJson(json))
+        return json
+    }
 
 }
-
