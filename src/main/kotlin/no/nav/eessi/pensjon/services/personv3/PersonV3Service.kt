@@ -2,7 +2,6 @@ package no.nav.eessi.pensjon.services.personv3
 
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.Metrics
-import no.nav.eessi.pensjon.metrics.TimingService
 import no.nav.eessi.pensjon.security.sts.configureRequestSamlToken
 import no.nav.tjeneste.virksomhet.person.v3.binding.HentPersonPersonIkkeFunnet
 import no.nav.tjeneste.virksomhet.person.v3.binding.HentPersonSikkerhetsbegrensning
@@ -22,8 +21,7 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import java.lang.Exception
 
 @Component
-class PersonV3Service(private val service: PersonV3,
-                      private val timingService: TimingService) {
+class PersonV3Service(private val service: PersonV3) {
 
     private val logger: Logger by lazy { LoggerFactory.getLogger(PersonV3Service::class.java) }
 
@@ -61,21 +59,17 @@ class PersonV3Service(private val service: PersonV3,
                     Informasjonsbehov.FAMILIERELASJONER
             ))
         }
-        val persontimed = timingService.timedStart("personV3")
         try {
             logger.info("Kaller PersonV3.hentPerson service")
             val resp = service.hentPerson(request)
             hentperson_teller_type_vellykkede.increment()
-            timingService.timesStop(persontimed)
             return resp
         } catch (personIkkefunnet : HentPersonPersonIkkeFunnet) {
             logger.error("Kaller PersonV3.hentPerson service Feilet")
-            timingService.timesStop(persontimed)
             hentperson_teller_type_feilede.increment()
             throw PersonV3IkkeFunnetException(personIkkefunnet.message)
         } catch (personSikkerhetsbegrensning: HentPersonSikkerhetsbegrensning) {
             logger.error("Kaller PersonV3.hentPerson service Feilet")
-            timingService.timesStop(persontimed)
             hentperson_teller_type_feilede.increment()
             throw PersonV3SikkerhetsbegrensningException(personSikkerhetsbegrensning.message)
         }
