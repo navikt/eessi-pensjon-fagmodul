@@ -36,7 +36,7 @@ class PersonV3Service(private val service: PersonV3,
     }
 
     fun hentPersonPing(): Boolean {
-        logger.info("Henter person fra PersonV3Service")
+        logger.info("Henter person fra PersonV3Service. (Ping)")
         configureRequestSamlToken(service)
         return try {
             service.ping()
@@ -51,7 +51,7 @@ class PersonV3Service(private val service: PersonV3,
     fun hentPerson(fnr: String): HentPersonResponse {
         logger.info("Henter person fra PersonV3Service")
         configureRequestSamlToken(service)
-
+        logger.info("Henter person fra PersonV3Service. Etter Saml Token." )
         val request = HentPersonRequest().apply {
             withAktoer(PersonIdent().withIdent(
                     NorskIdent().withIdent(fnr)))
