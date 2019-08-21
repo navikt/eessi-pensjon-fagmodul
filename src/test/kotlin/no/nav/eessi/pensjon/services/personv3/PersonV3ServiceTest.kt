@@ -35,6 +35,11 @@ class PersonV3ServiceTest {
         val response = personV3Service.hentPerson(fnr)
     }
 
+    @Test
+    fun hentPersonPing() {
+        personV3Service.hentPersonPing()
+    }
+
     @After
     fun tearDown() {
     }
