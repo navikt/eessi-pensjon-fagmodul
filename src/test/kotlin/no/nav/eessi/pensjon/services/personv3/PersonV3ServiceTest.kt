@@ -11,9 +11,10 @@ import no.nav.tjeneste.virksomhet.person.v3.binding.HentPersonSikkerhetsbegrensn
 import no.nav.tjeneste.virksomhet.person.v3.binding.PersonV3
 import no.nav.tjeneste.virksomhet.person.v3.feil.PersonIkkeFunnet
 import no.nav.tjeneste.virksomhet.person.v3.feil.Sikkerhetsbegrensning
-import org.junit.Assert.assertTrue
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import javax.naming.ServiceUnavailableException
 
 class PersonV3ServiceTest {
@@ -24,7 +25,7 @@ class PersonV3ServiceTest {
     @InjectMockKs
     lateinit var personV3Service: PersonV3Service
 
-    @Before
+    @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this)
         mockkStatic("no.nav.eessi.pensjon.security.sts.STSClientConfigKt")
@@ -37,23 +38,23 @@ class PersonV3ServiceTest {
         assertTrue(personV3Service.hentPersonPing())
     }
 
-    @Test(expected = Exception::class)
+    @Test
     fun hentPersonPingException() {
         every {personV3Service.hentPersonPing() } throws ServiceUnavailableException("Får ikke kontakt med tjeneste PersonV3")
-        personV3Service.hentPersonPing()
+        assertThrows<Exception> { personV3Service.hentPersonPing() }
     }
 
-    @Test(expected = PersonV3IkkeFunnetException::class)
+    @Test
     fun hentPersonIkkeFunnet() {
         val fnr = "18128126178"
         every { personV3Mock.hentPerson(any()) } throws HentPersonPersonIkkeFunnet("Person ikke funnet", PersonIkkeFunnet())
-        personV3Service.hentPerson(fnr)
+        assertThrows<PersonV3IkkeFunnetException> {  personV3Service.hentPerson(fnr) }
     }
 
-    @Test(expected = PersonV3SikkerhetsbegrensningException::class)
+    @Test
     fun hentPersonSikkerhetsbegrensning() {
         val fnr = "18128126178"
         every { personV3Mock.hentPerson(any()) } throws HentPersonSikkerhetsbegrensning("Sikkerhetsbegrensning", Sikkerhetsbegrensning())
-        personV3Service.hentPerson(fnr)
+        assertThrows<PersonV3SikkerhetsbegrensningException> { personV3Service.hentPerson(fnr) }
     }
 }
