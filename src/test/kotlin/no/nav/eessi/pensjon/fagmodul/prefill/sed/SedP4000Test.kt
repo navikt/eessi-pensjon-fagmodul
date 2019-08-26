@@ -57,8 +57,16 @@ class SedP4000Test {
         val json2 = sed.toJson()
         val mapSED = SED.fromJson(json2)
 
+
         assertNotNull(mapSED)
         assertEquals(result, mapSED.trygdetid)
+
+        val p4000SEDOnly = SED(
+                sed = "P4000",
+                trygdetid = result
+        )
+        println(p4000SEDOnly.toJsonSkipEmpty())
+
     }
 
     @Test

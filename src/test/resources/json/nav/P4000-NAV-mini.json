@@ -1,0 +1,196 @@
+{
+  "sed": "P4000",
+  "sedGVer": "4",
+  "sedVer": "1",
+  "trygdetid": {
+    "andrePerioder": [
+      {
+        "land": "SE",
+        "annenInformasjon": "ikkenoe",
+        "periode": {
+          "lukketPeriode": {
+            "fom": "2000-01-01",
+            "tom": "2001-01-01"
+          }
+        },
+        "usikkerDatoIndikator": "1",
+        "typePeriode": "Ingen spesielt"
+      },
+      {
+        "land": "SE",
+        "annenInformasjon": "ikkenoemere",
+        "periode": {
+          "openPeriode": {
+            "fom": "2000-01-01",
+            "extra": "01"
+          }
+        },
+        "usikkerDatoIndikator": "1",
+        "typePeriode": "Leve og ha det gøy"
+      }
+    ],
+    "arbeidsledigPerioder": [
+      {
+        "land": "IT",
+        "annenInformasjon": "Arbeidsledig i Itelia for en kort periode.",
+        "periode": {
+          "lukketPeriode": {
+            "fom": "2002-01-01",
+            "tom": "2004-01-01"
+          }
+        },
+        "usikkerDatoIndikator": "1",
+        "navnPaaInstitusjon": "NAV stønad for arbeidsledigetstrygd"
+      }
+    ],
+    "boPerioder": [
+      {
+        "land": "DK",
+        "annenInformasjon": "Deilig i Danmark",
+        "periode": {
+          "lukketPeriode": {
+            "fom": "2003-01-01",
+            "tom": "2004-01-01"
+          }
+        },
+        "usikkerDatoIndikator": "1"
+      }
+    ],
+    "opplaeringPerioder": [
+      {
+        "land": "SE",
+        "annenInformasjon": "Opplæring høyere utdanning i Sverige",
+        "periode": {
+          "lukketPeriode": {
+            "fom": "2000-01-01",
+            "tom": "2007-01-01"
+          }
+        },
+        "usikkerDatoIndikator": "1",
+        "navnPaaInstitusjon": "Det Akademiske instutt for høgere lære, Stockholm"
+      }
+    ],
+    "sykePerioder": [
+      {
+        "land": "ES",
+        "annenInformasjon": "Sykdom og forkjølelse i Spania",
+        "periode": {
+          "lukketPeriode": {
+            "fom": "2005-01-01",
+            "tom": "2007-01-01"
+          }
+        },
+        "usikkerDatoIndikator": "1",
+        "navnPaaInstitusjon": "Støtte for sykeophold NAV"
+      }
+    ],
+    "barnepassPerioder": [
+      {
+        "annenInformasjon": "Pass av barn under opphold i Danmark",
+        "informasjonBarn": {
+          "fornavn": "Ole",
+          "land": "DK",
+          "etternavn": "Olsen",
+          "foedseldato": "2002-01-01"
+        },
+        "periode": {
+          "lukketPeriode": {
+            "fom": "2004-01-01",
+            "tom": "2008-01-01"
+          }
+        },
+        "usikkerDatoIndikator": "1"
+      },
+      {
+        "annenInformasjon": "Pass av barn under opphold i Danmark",
+        "informasjonBarn": {
+          "fornavn": "Teddy",
+          "land": "DK",
+          "etternavn": "Olsen",
+          "foedseldato": "2003-01-01"
+        },
+        "periode": {
+          "lukketPeriode": {
+            "fom": "2004-01-01",
+            "tom": "2008-01-01"
+          }
+        },
+        "usikkerDatoIndikator": "1"
+      }
+    ],
+    "ansattSelvstendigPerioder": [
+      {
+        "jobbUnderAnsattEllerSelvstendig": "Kanin fabrikk ansatt",
+        "annenInformasjon": "Noting else",
+        "adresseFirma": {
+          "gate": "foo",
+          "bygning": "Bygg",
+          "by": "Oslo",
+          "postnummer": "23123",
+          "region": "Region",
+          "land": "NO"
+        },
+        "periode": {
+          "lukketPeriode": {
+            "fom": "1990-01-01",
+            "tom": "1995-01-01"
+          }
+        },
+        "forsikkringEllerRegistreringNr": "12123123123123123",
+        "navnFirma": "Store Kaniner AS",
+        "typePeriode": "01",
+        "usikkerDatoIndikator": "1"
+      }
+    ],
+    "forsvartjenestePerioder": [
+      {
+        "land": "SE",
+        "annenInformasjon": "Forsvar og mlitærtjeneste fullført i Svergige",
+        "periode": {
+          "lukketPeriode": {
+            "fom": "2001-01-01",
+            "tom": "2004-01-01"
+          }
+        },
+        "usikkerDatoIndikator": "1"
+      }
+    ],
+    "foedselspermisjonPerioder": [
+      {
+        "land": "NO",
+        "annenInformasjon": "førdeslperm i Norge",
+        "periode": {
+          "lukketPeriode": {
+            "fom": "2000-01-01",
+            "tom": "2001-01-01"
+          }
+        },
+        "usikkerDatoIndikator": "1"
+      },
+      {
+        "land": "FR",
+        "annenInformasjon": "fødselperm i frankrike",
+        "periode": {
+          "openPeriode": {
+            "fom": "2002-01-01",
+            "extra": "98"
+          }
+        },
+        "usikkerDatoIndikator": "0"
+      }
+    ],
+    "frivilligPerioder": [
+      {
+        "land": "GR",
+        "annenInformasjon": "Frivilig hjelpemedarbeider i Helles",
+        "periode": {
+          "lukketPeriode": {
+            "fom": "2006-01-01",
+            "tom": "2007-01-01"
+          }
+        },
+        "usikkerDatoIndikator": "1"
+      }
+    ]
+  }
+}

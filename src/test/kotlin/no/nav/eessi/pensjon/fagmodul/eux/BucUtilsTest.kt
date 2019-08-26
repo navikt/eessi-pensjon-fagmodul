@@ -379,4 +379,30 @@ class BucUtilsTest {
         val result = bucUtils.getCaseOwner()
         assertEquals("NO:NAVT003", result.institution)
     }
+
+    @Test
+    fun checkValidetionOnCTBucAndAllIsWell() {
+        bucjson = getTestJsonFile("buc-ct-77021_v4.1.json")
+        buc = mapJsonToAny(bucjson, typeRefs<Buc>())
+        bucUtils = BucUtils(buc)
+
+        val bucid = buc.id
+        assertEquals("77021", bucid)
+        assertEquals("P_BUC_01", bucUtils.getProcessDefinitionName())
+        assertEquals(0, bucUtils.getAksjonListAsString().size)
+        assertEquals(1, bucUtils.getAllDocuments().size)
+    }
+
+    @Test
+    fun checkValidetionOnCTBucCheckForCaseOwnerErrorExpected() {
+        bucjson = getTestJsonFile("buc-ct-77021_v4.1.json")
+        buc = mapJsonToAny(bucjson, typeRefs<Buc>())
+        bucUtils = BucUtils(buc)
+
+        assertThrows<ManglerElementException> {
+            bucUtils.getCaseOwner()
+        }
+    }
+
+
 }

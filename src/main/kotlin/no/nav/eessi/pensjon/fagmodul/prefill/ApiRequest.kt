@@ -5,6 +5,7 @@ import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.models.SEDType
 import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModel
 import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
+import no.nav.eessi.pensjon.utils.mapAnyToJson
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ResponseStatus
@@ -19,6 +20,7 @@ data class ApiRequest(
         val fnr: String? = null,
         val avdodfnr: String? = null,
         val payload: String? = null,
+        val periodeInfo: Any? = null,
         val buc: String? = null,
         val sed: String? = null,
         val documentid: String? = null,
@@ -83,6 +85,9 @@ data class ApiRequest(
                     if (request.buc == "P_BUC_02") {
                         avdod = request.avdodfnr ?: throw MangelfulleInndataException("Mangler Personnr på Avdød")
                         avdodAktorID = avdodaktoerID ?: throw MangelfulleInndataException("Mangler AktoerId på Avdød")
+                    }
+                    if (request.sed == SEDType.P4000.name)    {
+                        request.periodeInfo
                     }
 //                    if (request.payload != null) {
 //                        partSedAsJson[request.sed] = request.payload

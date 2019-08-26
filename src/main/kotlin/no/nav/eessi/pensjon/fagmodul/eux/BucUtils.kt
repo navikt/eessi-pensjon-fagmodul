@@ -46,7 +46,7 @@ class BucUtils(private val buc: Buc ) {
                             institution = it.organisation?.id ?: "",  //kan hende må være id?!
                             name = it.organisation?.name ?: "" //name optinal
                     )
-                }.first()
+                }.toList().firstOrNull() ?: throw ManglerElementException("Ingen 'CaseOwner' element funnet i buc: $buc.id")
 
     fun getSubject() = buc.subject ?: throw NoSuchFieldException("Fant ikke Subject")
 
@@ -242,3 +242,6 @@ class BucUtils(private val buc: Buc ) {
 
 @ResponseStatus(value = HttpStatus.BAD_REQUEST)
 class ManglerDeltakereException(message: String) : IllegalStateException(message)
+
+@ResponseStatus(value = HttpStatus.NOT_FOUND)
+class ManglerElementException(message: String) : NoSuchElementException(message)
