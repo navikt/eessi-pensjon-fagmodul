@@ -1,26 +1,16 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.doThrow
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.whenever
+import com.nhaarman.mockitokotlin2.*
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucSedResponse
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
-import no.nav.eessi.pensjon.fagmodul.sedmodel.Bruker
-import no.nav.eessi.pensjon.fagmodul.sedmodel.Nav
-import no.nav.eessi.pensjon.fagmodul.sedmodel.Person
-import no.nav.eessi.pensjon.fagmodul.sedmodel.PinItem
-import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
+import no.nav.eessi.pensjon.fagmodul.sedmodel.*
 import no.nav.eessi.pensjon.utils.mapAnyToJson
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.typeRefs
 import no.nav.eessi.pensjon.utils.validateJson
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -35,11 +25,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.client.DefaultResponseErrorHandler
-import org.springframework.web.client.HttpClientErrorException
-import org.springframework.web.client.HttpServerErrorException
-import org.springframework.web.client.ResourceAccessException
-import org.springframework.web.client.RestTemplate
+import org.springframework.web.client.*
 import org.springframework.web.util.UriComponentsBuilder
 import java.io.IOException
 import java.nio.charset.Charset
@@ -68,7 +54,6 @@ class EuxServiceTest {
     fun takedown() {
         Mockito.reset(mockEuxrestTemplate)
     }
-
 
     @Test
     fun opprettUriComponentPath() {
@@ -175,10 +160,36 @@ class EuxServiceTest {
     }
 
     @Test
-    fun `Calling EuxService  feiler med kontakt fra eux med kall til hentbuc`() {
-        whenever(mockEuxrestTemplate.exchange(any<String>(), eq(HttpMethod.GET), eq(null), eq(String::class.java))).thenThrow(RuntimeException::class.java)
-        assertThrows<EuxServerException> {
+    fun `Calling EuxService  feiler diorthgøoirhtgiøuhmed kontakt fra eux med kall til hentbuc`() {
+        val errorresponse = ResponseEntity<String?>("", HttpStatus.NOT_FOUND)
+        whenever(mockEuxrestTemplate.exchange(any<String>(), eq(HttpMethod.GET), eq(null), eq(String::class.java))).thenReturn(errorresponse)
+        assertThrows<BucIkkeMottattException> {
             service.getBuc("P_BUC_99")
+        }
+    }
+
+//    @Test
+//    fun `Calling EUX feiler med svar tilbake fra et kall til getbucbuc`() {
+//        val feilmeldingServiceUnavailable = ResponseEntity<String?>("", HttpStatus.SERVICE_UNAVAILABLE)
+//        whenever(mockEuxrestTemplate.exchange(any<String>(), eq(HttpMethod.GET), eq(null), eq(String::class.java))).thenReturn(feilmeldingServiceUnavailable)
+//        assertThrows<EuxServerException> {
+//            service.getBuc("P_BUC_55")
+//        }
+//    }
+
+
+
+    @Test
+    fun `Calling EuxService  feiler med kontakt fra eux med kall til hentbuc`() {
+        whenever(mockEuxrestTemplate.exchange(any<String>(), eq(HttpMethod.GET), eq(null), eq(String::class.java))).thenThrow(RuntimeException("wtf??"))
+        assertThrows<RuntimeException> {
+            service.getBuc("P_BUC_99")
+        }
+
+        try {
+            service.getBuc("P_BUC_99")
+        } catch (rx: RuntimeException) {
+            assertEquals("wtf??", rx.message)
         }
     }
 
