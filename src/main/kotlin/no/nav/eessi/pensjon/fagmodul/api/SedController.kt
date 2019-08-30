@@ -47,7 +47,7 @@ class SedController(private val euxService: EuxService,
 
     //** oppdatert i api 18.02.2019
     @ApiOperation("Sender valgt NavSed på rina med valgt documentid og bucid, ut til eu/eøs, ny api kall til eux")
-    @GetMapping("/send/{euxcaseid}/{documentid}")
+    @GetMapping("/send/{euxcaseid}/{documentid}", "/buc/{euxcaseid}/docid/{documentid}/send")
     fun sendSed(@PathVariable("euxcaseid", required = true) euxCaseId: String,
                 @PathVariable("documentid", required = true) documentid: String): Boolean {
 
@@ -58,7 +58,7 @@ class SedController(private val euxService: EuxService,
 
     //** oppdatert i api 18.02.2019
     @ApiOperation("henter ut en SED fra et eksisterende Rina document. krever unik dokumentid fra valgt SED, ny api kall til eux")
-    @GetMapping("/{euxcaseid}/{documentid}")
+    @GetMapping("/{euxcaseid}/{documentid}", "/buc/{euxcaseid}/docid/{documentid}")
     fun getDocument(@PathVariable("euxcaseid", required = true) euxcaseid: String,
                     @PathVariable("documentid", required = true) documentid: String): SED {
 
@@ -69,7 +69,7 @@ class SedController(private val euxService: EuxService,
 
     //** oppdatert i api 18.02.2019
     @ApiOperation("sletter SED fra et eksisterende Rina document. krever unik dokumentid fra valgt SED, ny api kall til eux")
-    @DeleteMapping("/{euxcaseid}/{documentid}")
+    @DeleteMapping("/{euxcaseid}/{documentid}", "/buc/{euxcaseid}/docid/{documentid}")
     fun deleteDocument(@PathVariable("euxcaseid", required = true) euxcaseid: String,
                        @PathVariable("documentid", required = true) documentid: String): Boolean {
         logger.info("kaller delete  /${euxcaseid}/${documentid} ")
@@ -143,7 +143,7 @@ class SedController(private val euxService: EuxService,
 
     //TODO endre denne til å gå til denne: /cpi/buc/{RinaSakId}/sedtyper  (istede for benytte seg av egen bucutil)
     @ApiOperation("henter ut en liste av SED fra en valgt type, men bruk av sedType. ny api kall til eux")
-    @GetMapping("list/{euxcaseid}/{sedtype}")
+    @GetMapping("list/{euxcaseid}/{sedtype}", "/buc/{euxcaseid}/sedtype/{sedtype}/list")
     fun getDocumentlist(@PathVariable("euxcaseid", required = true) euxcaseid: String,
                         @PathVariable("sedtype", required = false) sedType: String?): List<SED> {
         logger.info("kaller /${euxcaseid}/${sedType} ")

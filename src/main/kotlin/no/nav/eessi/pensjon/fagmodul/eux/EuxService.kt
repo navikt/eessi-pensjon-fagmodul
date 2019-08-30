@@ -11,9 +11,12 @@ import no.nav.eessi.pensjon.fagmodul.models.SEDType
 import no.nav.eessi.pensjon.fagmodul.sedmodel.Krav
 import no.nav.eessi.pensjon.fagmodul.sedmodel.PinItem
 import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
+import no.nav.eessi.pensjon.security.oidc.OidcAuthorizationHeaderInterceptor
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.typeRef
 import no.nav.eessi.pensjon.utils.typeRefs
+import no.nav.security.oidc.context.OIDCRequestContextHolder
+import no.nav.security.spring.oidc.SpringOIDCRequestContextHolder
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Description
 import org.springframework.http.*
@@ -27,18 +30,20 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
 import java.io.File
 import java.io.IOException
-import java.util.*
 import java.nio.file.Paths
-import org.springframework.http.ResponseEntity
-
+import java.util.*
+import java.util.concurrent.CompletableFuture
+import java.util.function.Supplier
+import java.util.stream.Collectors
+import kotlin.math.log
 
 
 @Service
 @Description("Service class for EuxBasis - eux-cpi-service-controller")
-class EuxService(private val euxOidcRestTemplate: RestTemplate) {
+class EuxService(private val euxOidcRestTemplate: RestTemplate, private val oidcRequestContextHolder: OIDCRequestContextHolder, private val asyncEuxService: AsyncEuxService) {
 
     // Vi trenger denne no arg konstruktøren for å kunne bruke @Spy med mockito
-    constructor() : this(RestTemplate())
+    constructor() : this(RestTemplate(),  SpringOIDCRequestContextHolder(), AsyncEuxService(RestTemplate()))
 
     private val logger = LoggerFactory.getLogger(EuxService::class.java)
 
@@ -394,23 +399,35 @@ class EuxService(private val euxOidcRestTemplate: RestTemplate) {
 
     }
 
+    fun oidcToken(): String {
+        return OidcAuthorizationHeaderInterceptor(oidcRequestContextHolder).getIdTokenFromIssuer(oidcRequestContextHolder)
+    }
+
     fun getSingleBucAndSedView(euxCaseId: String) = BucAndSedView.from(getBuc(euxCaseId), euxCaseId, "")
 
-    fun getBucAndSedView(rinasaker: List<Rinasak>, aktoerid: String): List<BucAndSedView> {
+    fun getBucAndSedView(euxCaseIds: List<String>, aktoerid: String, oidcToken: String): List<BucAndSedView> {
         val startTime = System.currentTimeMillis()
-        val list = mutableListOf<BucAndSedView>()
 
-        rinasaker.forEach {
-            val caseId = it.id ?: throw UgyldigCaseIdException("Feil er ikke gyldig caseId fra Rina(Rinasak)")
-            list.add(BucAndSedView.from(getBuc(caseId), caseId, aktoerid))
-        }
+        //euxCaseIds -rinasaker-ids
+        logger.debug("Funnet antall saker: ${euxCaseIds.size} til aktoeid: $aktoerid")
 
-        logger.debug("9 ferdig returnerer list av BucAndSedView. Antall BUC: ${list.size}")
-        val sortlist = list.asSequence().sortedByDescending { it.startDate }.toList()
+        //AsyncBucs
+        val futures = euxCaseIds.stream()
+                .map { asyncEuxService.getBucAsync(it, oidcToken)  }
+                .collect(Collectors.toList())
+
+        //BucAndSedView
+        val bucViewlist = futures.stream()
+                .map { it.join() }
+                .collect(Collectors.toList())
+
+        logger.debug("Listen er nå ${bucViewlist.size}")
         logger.debug("10. Sortert listen på startDate nyeste dato først")
         logger.debug("11 tiden tok ${System.currentTimeMillis() - startTime} ms.")
-        return sortlist
+
+        return bucViewlist
     }
+
 
     fun createBuc(bucType: String): String {
 

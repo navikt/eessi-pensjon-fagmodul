@@ -6,15 +6,15 @@ import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 
 data class BucAndSedView(
         val type: String,
-        val creator: InstitusjonItem,
+        val creator: InstitusjonItem? = null,
         val caseId: String,
         val sakType: String? = null,
-        val aktoerId: String,
+        val aktoerId: String? =null,
         val status: String? = null,
         val startDate: Long? = null,
         val lastUpdate: Long? = null,
-        val institusjon: List<InstitusjonItem>,
-        val seds: List<ShortDocumentItem>
+        val institusjon: List<InstitusjonItem>? = null,
+        val seds: List<ShortDocumentItem>? = null
 ) {
     companion object {
         fun from(buc: Buc, euxCaseId: String, aktoerid: String): BucAndSedView {

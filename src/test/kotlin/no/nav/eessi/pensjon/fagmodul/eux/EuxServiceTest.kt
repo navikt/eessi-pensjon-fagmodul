@@ -3,12 +3,15 @@ package no.nav.eessi.pensjon.fagmodul.eux
 import com.nhaarman.mockitokotlin2.*
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucSedResponse
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.sedmodel.*
+import no.nav.eessi.pensjon.security.oidc.MockOIDCRequestContextHolder
 import no.nav.eessi.pensjon.utils.mapAnyToJson
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.typeRefs
 import no.nav.eessi.pensjon.utils.validateJson
+import no.nav.security.spring.oidc.SpringOIDCRequestContextHolder
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
@@ -33,7 +36,9 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.Instant
 import java.time.ZoneId
+import java.util.concurrent.CompletableFuture
 import kotlin.String
+import kotlin.streams.toList
 
 
 @ExtendWith(MockitoExtension::class)
@@ -44,15 +49,18 @@ class EuxServiceTest {
     @Mock
     private lateinit var mockEuxrestTemplate: RestTemplate
 
+    @Mock
+    private lateinit var mockAsyncEuxService: AsyncEuxService
+
     @BeforeEach
     fun setup() {
         mockEuxrestTemplate.errorHandler = DefaultResponseErrorHandler()
-        service = EuxService(mockEuxrestTemplate)
+        service = EuxService(mockEuxrestTemplate, SpringOIDCRequestContextHolder(), mockAsyncEuxService)
     }
 
     @AfterEach
     fun takedown() {
-        Mockito.reset(mockEuxrestTemplate)
+        Mockito.reset(mockEuxrestTemplate, mockAsyncEuxService)
     }
 
 
@@ -408,28 +416,33 @@ class EuxServiceTest {
         val orgRinasaker = mapJsonToAny(rinasakStr, typeRefs<List<Rinasak>>())
         println("rinaSaker size: " + orgRinasaker.size)
 
+        val eucCaseIds = rinasakresult.stream().map { it.id!! }.toList()
+
         val bucjson = "src/test/resources/json/buc/buc-158123_2_v4.1.json"
         val bucStr = String(Files.readAllBytes(Paths.get(bucjson)))
-        assertTrue(validateJson(bucStr))
-        doReturn(ResponseEntity.ok(bucStr))
-                .whenever(mockEuxrestTemplate)
-                .exchange( ArgumentMatchers.contains("buc/") ,
-                eq(HttpMethod.GET), eq(null), eq(String::class.java))
+        val buc = mapJsonToAny(bucStr, typeRefs<Buc>())
 
-        val result = service.getBucAndSedView(rinasakresult, "001122334455")
+        assertTrue(validateJson(bucStr))
+        doReturn( CompletableFuture.completedFuture( BucAndSedView.from(buc, buc.id!!, "001122334455")))
+                .whenever(mockAsyncEuxService)
+                .getBucAsync(any<String>(),any<String>())
+
+        val result = service.getBucAndSedView(eucCaseIds, "001122334455", "ffsdfwewerwerwer")
 
         assertNotNull(result)
         assertEquals(6, orgRinasaker.size)
         assertEquals(6, result.size)
 
         val firstJson = result.first()
-        assertEquals("8877665511", firstJson.caseId)
+        assertEquals("158123", firstJson.caseId)
 
         var lastUpdate: Long = 0
         firstJson.lastUpdate?.let { lastUpdate = it }
         assertEquals("2019-05-20T16:35:34",  Instant.ofEpochMilli(lastUpdate).atZone(ZoneId.systemDefault()).toLocalDateTime().toString())
-        assertEquals(18, firstJson.seds.size)
+        assertEquals(18, firstJson.seds?.size)
         val json = mapAnyToJson(firstJson)
+
+        println(json)
 
         val bucdetaljerpath = "src/test/resources/json/buc/bucdetaljer-158123.json"
         val bucdetaljer = String(Files.readAllBytes(Paths.get(bucdetaljerpath)))
@@ -454,7 +467,7 @@ class EuxServiceTest {
         var lastUpdate: Long = 0
         firstJson.lastUpdate?.let { lastUpdate = it }
         assertEquals("2019-05-20T16:35:34",  Instant.ofEpochMilli(lastUpdate).atZone(ZoneId.systemDefault()).toLocalDateTime().toString())
-        assertEquals(18, firstJson.seds.size)
+        assertEquals(18, firstJson.seds?.size)
     }
 
     @Test

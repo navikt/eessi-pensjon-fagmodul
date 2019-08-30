@@ -11,7 +11,11 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ResponseStatus
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.ZoneId
+import java.util.*
+import kotlin.Exception
+import kotlin.math.log
 
 
 class BucUtils(private val buc: Buc ) {
@@ -98,19 +102,36 @@ class BucUtils(private val buc: Buc ) {
                 else -> LocalDate.now().minusYears(1000)
             }
 
+    private fun getLocalDateTimeToLong(dateTime: Any?): Long {
+        val zoneId = ZoneId.systemDefault()
+        return getLocalDateTime(dateTime).atZone(zoneId).toEpochSecond()
+    }
+
+    private fun getLocalDateTime(dateTime: Any?): LocalDateTime =
+        try {
+            when (dateTime) {
+                is Long -> Instant.ofEpochSecond(dateTime).atZone(ZoneId.systemDefault()).toLocalDateTime()
+                is String -> LocalDateTime.parse(dateTime)
+                else -> LocalDateTime.now().minusYears(1000)
+            }
+        } catch (ex: Exception) {
+            logger.error(ex.message, ex)
+            LocalDateTime.now().minusYears(1000)
+        }
+
     private fun getDateTimeToLong(dateTime: Any?): Long {
         return getDateTime(dateTime).millis
     }
 
-    private fun getDateTime(dateTime: Any?): DateTime  {
+    private fun getDateTime(dateTime: Any?): DateTime {
         val zoneId = DateTimeZone.forID(ZoneId.systemDefault().id)
 
 
-            return when (dateTime) {
-                is Long -> DateTime(DateTime(dateTime).toInstant(),zoneId)
-                is String -> DateTime(DateTime.parse(dateTime).toInstant(),zoneId)
-                else -> DateTime.now().minusYears(1000)
-            }
+        return when (dateTime) {
+            is Long -> DateTime(DateTime(dateTime).toInstant(),zoneId)
+            is String -> DateTime(DateTime.parse(dateTime).toInstant(),zoneId)
+            else -> DateTime.now().minusYears(1000)
+        }
     }
 
     fun getProcessDefinitionName() = getBuc().processDefinitionName
@@ -246,3 +267,4 @@ class BucUtils(private val buc: Buc ) {
 
 @ResponseStatus(value = HttpStatus.BAD_REQUEST)
 class ManglerDeltakereException(message: String) : IllegalStateException(message)
+

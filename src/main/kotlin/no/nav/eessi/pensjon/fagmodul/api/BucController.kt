@@ -20,8 +20,10 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.scheduling.annotation.Async
 import org.springframework.web.bind.annotation.*
 import java.util.*
+import java.util.concurrent.CompletableFuture
 
 
 @Protected
@@ -111,15 +113,22 @@ class BucController(private val euxService: EuxService,
         return euxService.getRinasaker(fnr, fasitEnvName)
     }
 
-    @ApiOperation("Henter ut en json struktur for type og sed menyliste for ui. ny api kall til eux")
+    @ApiOperation("Henter ut en json struktur async for type og sed menyliste for ui. ny api kall til eux")
     @GetMapping("/detaljer/{aktoerid}", "/detaljer/{aktoerid}/{sakid}", "/detaljer/{aktoerId}/{sakId}/{euxcaseid}")
     fun getBucogSedView(@PathVariable("aktoerid", required = true) aktoerid: String,
                         @PathVariable("sakid", required = false) sakid: String? = "",
                         @PathVariable("euxcaseid", required = false) euxcaseid: String? = ""): List<BucAndSedView> {
         logger.debug("1 prøver å dekode til fnr fra aktoerid: $aktoerid")
         val fnr = aktoerIdHelper.hentPinForAktoer(aktoerid)
-        return euxService.getBucAndSedView(euxService.getRinasaker(fnr, fasitEnvName), aktoerid)
+
+        val listCaseIds = listOfCaseIds(euxService.getRinasaker(fnr, fasitEnvName))
+
+        val oidcToken = euxService.oidcToken()
+
+        return euxService.getBucAndSedView(listCaseIds, aktoerid, oidcToken)
     }
+
+    fun listOfCaseIds(rinasaker: List<Rinasak>) = rinasaker.asSequence().map { it.id!!  }.sortedBy { it }.toList()
 
     @ApiOperation("Henter ut en json struktur for type og sed menyliste for ui. ny api kall til eux")
     @GetMapping("/enkeldetalj/{euxcaseid}")

@@ -418,11 +418,26 @@ class BucUtilsTest {
     fun parseAndTestBucAndSedView() {
         val bucjson = getTestJsonFile("buc-280670.json")
         val buc = mapJsonToAny(bucjson, typeRefs<Buc>())
-        //val bucUtils = BucUtils(buc)
+        val bucUtils = BucUtils(buc)
 
         val bucview =  BucAndSedView.from(buc, buc.id!!, "")
 
-        print ( mapAnyToJson (bucview) )
+        assertEquals(1567155195638, bucview.startDate)
+        assertEquals(1567155212000, bucview.lastUpdate)
+
     }
+
+    @Test
+    fun parseAndTestBucAttachmentsDate() {
+        val bucjson = getTestJsonFile("buc-279020big.json")
+        val buc = mapJsonToAny(bucjson, typeRefs<Buc>())
+        val bucUtils = BucUtils(buc)
+
+        val bucview =  BucAndSedView.from(buc, buc.id!!, "")
+
+        assertEquals(1567088832589, bucview.startDate)
+        assertEquals(1567178490000, bucview.lastUpdate)
+    }
+
 
 }
