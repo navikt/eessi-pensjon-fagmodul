@@ -5,6 +5,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucSedResponse
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.sedmodel.*
+import no.nav.eessi.pensjon.logging.RequestResponseLoggerInterceptor
 import no.nav.eessi.pensjon.utils.mapAnyToJson
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.typeRefs
@@ -19,6 +20,7 @@ import org.mockito.AdditionalMatchers.not
 import org.mockito.ArgumentMatchers
 import org.mockito.Mock
 import org.mockito.Mockito
+import org.mockito.exceptions.base.MockitoException
 import org.mockito.junit.jupiter.MockitoExtension
 import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.http.HttpHeaders
@@ -44,9 +46,11 @@ class EuxServiceTest {
     @Mock
     private lateinit var mockEuxrestTemplate: RestTemplate
 
+
     @BeforeEach
     fun setup() {
         mockEuxrestTemplate.errorHandler = DefaultResponseErrorHandler()
+        mockEuxrestTemplate.interceptors = listOf( RequestResponseLoggerInterceptor() )
         service = EuxService(mockEuxrestTemplate)
     }
 
@@ -87,7 +91,7 @@ class EuxServiceTest {
         val errorresponse = ResponseEntity<String?>(HttpStatus.BAD_REQUEST)
         whenever(mockEuxrestTemplate.exchange(any<String>(), eq(HttpMethod.POST), any(), eq(String::class.java))).thenReturn(errorresponse)
 
-        assertThrows<RinaCasenrIkkeMottattException> {
+        assertThrows<EuxRinaServerException> {
             service.opprettBucSed(SED("P2200"), "P_BUC_99", "NO:NAVT003", "1231233")
         }
     }
@@ -151,52 +155,72 @@ class EuxServiceTest {
     }
 
     @Test
-    fun `Calling EuxService  feiler med svar tilbake fra et kall til hentbuc`() {
-        val errorresponse = ResponseEntity<String?>("", HttpStatus.BAD_REQUEST)
-        whenever(mockEuxrestTemplate.exchange(any<String>(), eq(HttpMethod.GET), eq(null), eq(String::class.java))).thenReturn(errorresponse)
-        assertThrows<BucIkkeMottattException> {
+    fun `Calling EuxService feiler med svar tilbake fra kall til getBuc`() {
+        doThrow(HttpClientErrorException.create(HttpStatus.BAD_REQUEST,"BAD REQUEST", HttpHeaders.EMPTY, byteArrayOf(),null)).whenever(mockEuxrestTemplate).exchange( any<String>(), eq(HttpMethod.GET), eq(null), eq(String::class.java))
+        assertThrows<UgyldigCaseIdException> {
             service.getBuc("P_BUC_99")
         }
     }
 
     @Test
-    fun `Calling EuxService  feiler diorthgøoirhtgiøuhmed kontakt fra eux med kall til hentbuc`() {
-        val errorresponse = ResponseEntity<String?>("", HttpStatus.NOT_FOUND)
-        whenever(mockEuxrestTemplate.exchange(any<String>(), eq(HttpMethod.GET), eq(null), eq(String::class.java))).thenReturn(errorresponse)
-        assertThrows<BucIkkeMottattException> {
+    fun `Calling EuxService feiler med en UNAUTHORIZED Exception fra kall til hentbuc`() {
+        doReturn(ResponseEntity<String?>(HttpStatus.UNAUTHORIZED)).whenever(mockEuxrestTemplate).exchange( any<String>(), eq(HttpMethod.GET), eq(null), eq(String::class.java))
+        assertThrows<RinaIkkeAutorisertBrukerException> {
             service.getBuc("P_BUC_99")
         }
     }
 
-//    @Test
-//    fun `Calling EUX feiler med svar tilbake fra et kall til getbucbuc`() {
-//        val feilmeldingServiceUnavailable = ResponseEntity<String?>("", HttpStatus.SERVICE_UNAVAILABLE)
-//        whenever(mockEuxrestTemplate.exchange(any<String>(), eq(HttpMethod.GET), eq(null), eq(String::class.java))).thenReturn(feilmeldingServiceUnavailable)
-//        assertThrows<EuxServerException> {
-//            service.getBuc("P_BUC_55")
-//        }
-//    }
-
-
+    @Test
+    fun `Calling EuxService feiler med en FORBIDDEN Exception fra kall til hentbuc`() {
+        doReturn(ResponseEntity<String?>(HttpStatus.FORBIDDEN)).whenever(mockEuxrestTemplate).exchange( any<String>(), eq(HttpMethod.GET), eq(null), eq(String::class.java))
+        assertThrows<ForbiddenException> {
+            service.getBuc("P_BUC_99")
+        }
+    }
 
     @Test
-    fun `Calling EuxService  feiler med kontakt fra eux med kall til hentbuc`() {
-        whenever(mockEuxrestTemplate.exchange(any<String>(), eq(HttpMethod.GET), eq(null), eq(String::class.java))).thenThrow(RuntimeException("wtf??"))
+    fun `Calling EuxService feiler med en NOT FOUND Exception fra kall til hentbuc`() {
+        doReturn(ResponseEntity<String?>(HttpStatus.NOT_FOUND)).whenever(mockEuxrestTemplate).exchange( any<String>(), eq(HttpMethod.GET), eq(null), eq(String::class.java))
+        assertThrows<IkkeFunnetException> {
+            service.getBuc("P_BUC_99")
+        }
+    }
+
+    @Test
+    fun `Calling EuxService feiler med en UNPROCESSABLE ENTITY Exception fra kall til hentbuc`() {
+        doReturn(ResponseEntity<String?>(HttpStatus.UNPROCESSABLE_ENTITY)).whenever(mockEuxrestTemplate).exchange( any<String>(), eq(HttpMethod.GET), eq(null), eq(String::class.java))
+        assertThrows<GenericUnprocessableEntity> {
+            service.getBuc("P_BUC_99")
+        }
+    }
+
+    @Test
+    fun `Calling EuxService kaster en GATEWAY TIMEOUT Exception ved kall til hentbuc`() {
+        doReturn(ResponseEntity<String?>(HttpStatus.GATEWAY_TIMEOUT)).whenever(mockEuxrestTemplate).exchange( any<String>(), eq(HttpMethod.GET), eq(null), eq(String::class.java))
+        assertThrows<GatewayTimeoutException> {
+            service.getBuc("P_BUC_99")
+        }
+    }
+
+    @Test
+    fun `Euxservice kaster en RuntimeException ved kall til getBuc`() {
+        doThrow(MockitoException("Boom!")).whenever(mockEuxrestTemplate).exchange( any<String>(), eq(HttpMethod.GET), eq(null), eq(String::class.java))
         assertThrows<RuntimeException> {
             service.getBuc("P_BUC_99")
         }
+    }
 
-        try {
+    @Test
+    fun `getBuc mock response HttpStatus Not_Found excpecting IkkeFunnetException`() {
+        val errorresponse = ResponseEntity<String?>("", HttpStatus.NOT_FOUND)
+        whenever(mockEuxrestTemplate.exchange(any<String>(), eq(HttpMethod.GET), eq(null), eq(String::class.java))).thenReturn(errorresponse)
+        assertThrows<IkkeFunnetException> {
             service.getBuc("P_BUC_99")
-        } catch (rx: RuntimeException) {
-            assertEquals("wtf??", rx.message)
         }
     }
 
-
-    //opprett sed på en valgt type ok
     @Test
-    fun `Calling EuxService  forventer korrekt svar tilbake fra et kall til opprettSedOnBuc`() {
+    fun `EuxService  forventer korrekt svar tilbake fra et kall til opprettSedOnBuc`() {
         val response: ResponseEntity<String> = ResponseEntity("323413415dfvsdfgq343145sdfsdfg34135", HttpStatus.OK)
         whenever(mockEuxrestTemplate.exchange(any<String>(), eq(HttpMethod.POST), any(), eq(String::class.java))).thenReturn(response)
 
@@ -405,14 +429,12 @@ class EuxServiceTest {
         val json = String(Files.readAllBytes(Paths.get(filepath)))
         assertTrue(validateJson(json))
 
-        val responseEmpty: ResponseEntity<String> = ResponseEntity("[]", HttpStatus.OK)
-        val response: ResponseEntity<String> = ResponseEntity(json, HttpStatus.OK)
         whenever(mockEuxrestTemplate.exchange(
                 any<String>(),
                 eq(HttpMethod.GET),
                 eq(null),
                 eq(String::class.java))
-        ).thenReturn(responseEmpty)
+        ).thenReturn(ResponseEntity("[]", HttpStatus.OK))
         val result = service.getRinasaker("12345678900", "T8")
         assertEquals(0, result.size)
     }
@@ -554,8 +576,7 @@ class EuxServiceTest {
     }
 
     @Test
-    fun callingEuxServicePutBucDeltager_ClientError() {
-
+    fun `call putBucMottakere feiler med ClientErrorException forventer RinaIkkeAutorisertBrukerException`() {
         val clientError = HttpClientErrorException.create(HttpStatus.UNAUTHORIZED, "Token authorization error", HttpHeaders(),"Token authorization error".toByteArray(),Charset.defaultCharset())
         whenever(mockEuxrestTemplate.exchange(
                 any<String>(),
@@ -564,13 +585,27 @@ class EuxServiceTest {
                 eq(String::class.java))
         ).thenThrow(clientError)
 
-        assertThrows<HttpClientErrorException> {
+        assertThrows<UgyldigCaseIdException> {
             service.putBucMottakere("126552", listOf(InstitusjonItem("NO", "NO:NAVT007", "NAV")))
         }
+
+        whenever(mockEuxrestTemplate.exchange(
+                any<String>(),
+                eq(HttpMethod.PUT),
+                eq(null),
+                eq(String::class.java))
+        ).thenReturn(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("ikke tilgang"))
+
+        assertThrows<RinaIkkeAutorisertBrukerException> {
+            service.putBucMottakere("126552", listOf(InstitusjonItem("NO", "NO:NAVT007", "NAV")))
+        }
+
     }
 
+
+
     @Test
-    fun putBucDeltager_ServerError(){
+    fun `call putBucMottaker feiler ved ServerErrorException forventer UgyldigCaseIdException`() {
 
         val serverError = HttpServerErrorException.create(HttpStatus.BAD_GATEWAY,"Server error",HttpHeaders(),"Server error".toByteArray(),Charset.defaultCharset())
         whenever(mockEuxrestTemplate.exchange(
@@ -580,10 +615,11 @@ class EuxServiceTest {
                 eq(String::class.java))
         ).thenThrow(serverError)
 
-        assertThrows<HttpServerErrorException> {
+        assertThrows<UgyldigCaseIdException> {
             service.putBucMottakere("122732", listOf(InstitusjonItem("NO", "NO:NAVT02", "NAV")))
         }
     }
+
 
     @Test
     fun putBucDeltager_ResourceAccessError() {
@@ -592,9 +628,23 @@ class EuxServiceTest {
                 eq(HttpMethod.PUT),
                 eq(null),
                 eq(String::class.java))
-        ).thenThrow(ResourceAccessException("I/O Error"))
+        ).thenThrow(ResourceAccessException("Other unknown Error"))
 
-        assertThrows<IOException> {
+        assertThrows<UgyldigCaseIdException> {
+            service.putBucMottakere("122732", listOf(InstitusjonItem("NO", "NO:NAVT02", "NAV")))
+        }
+    }
+
+    @Test
+    fun putBucDeltager_RuntimeExceptionError() {
+        whenever(mockEuxrestTemplate.exchange(
+                any<String>(),
+                eq(HttpMethod.PUT),
+                eq(null),
+                eq(String::class.java))
+        ).thenThrow(RuntimeException("Error"))
+
+        assertThrows<RuntimeException> {
             service.putBucMottakere("122732", listOf(InstitusjonItem("NO", "NO:NAVT02", "NAV")))
         }
     }
@@ -651,9 +701,8 @@ class EuxServiceTest {
     fun hentYtelseKravtypeTesterPaaP15000Alderpensjon() {
         val filepath = "src/test/resources/json/nav/P15000-NAV.json"
         val json = String(Files.readAllBytes(Paths.get(filepath)))
-        assertTrue(validateJson(json))
 
-        val orgsed = mapJsonToAny(json, typeRefs<SED>())
+        assertTrue(validateJson(json))
 
         val response: ResponseEntity<String> = ResponseEntity(json, HttpStatus.OK)
 
@@ -691,6 +740,8 @@ class EuxServiceTest {
         assertEquals("32712", result.fnr)
         assertEquals("02", result.krav?.type)
         assertEquals("2019-02-01", result.krav?.dato)
+
+        JSONAssert.assertEquals(json, orgsed.toJson(), false)
     }
 
     @Test
@@ -699,7 +750,6 @@ class EuxServiceTest {
         val json = String(Files.readAllBytes(Paths.get(filepath)))
         assertTrue(validateJson(json))
 
-        val orgsed = mapJsonToAny(json, typeRefs<SED>())
         val response: ResponseEntity<String> = ResponseEntity(json, HttpStatus.OK)
 
         whenever(mockEuxrestTemplate.exchange(
@@ -721,8 +771,6 @@ class EuxServiceTest {
         val filepath = "src/test/resources/json/nav/P9000-NAV.json"
         val json = String(Files.readAllBytes(Paths.get(filepath)))
         assertTrue(validateJson(json))
-
-        val orgsed = mapJsonToAny(json, typeRefs<SED>())
 
         val response: ResponseEntity<String> = ResponseEntity(json, HttpStatus.OK)
 

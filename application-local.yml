@@ -38,7 +38,7 @@ app:
   version: '0.1'
 
 security-token-service-token:
-  url: 'https://security-token-service-t4.nais.preprod.local/rest/v1/sts/token'
+  url: 'https://security-token-service-t8.nais.preprod.local/rest/v1/sts/token'
 
 securityTokenService:
   url: 'https://sts-t8.test.local/SecurityTokenServiceProvider/'
