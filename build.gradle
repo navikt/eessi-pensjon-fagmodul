@@ -176,11 +176,10 @@ task copyPensjonsinformasjonXsd(type: Copy) {
 }
 
 task copyPensjonsinformasjonXsdsFromArtifacts(type: Copy) {
-
     includeEmptyDirs = false
     def xsdArtifactPath = new File(xsdTemp).listFiles().first()
-    println("xsdArtifactPath: " + xsdArtifactPath)
 
+    println("xsdArtifactPath: " + xsdArtifactPath)
     println("Pensjoninformasjon: " + pensjonsinformasjonDir)
 
     from zipTree(xsdArtifactPath)

@@ -10,6 +10,9 @@ REGISTRY:= repo.adeo.no:5443
 all: build test docker
 release: tag docker-push
 
+clean:
+	$(GRADLE) clean
+
 build:
 	$(GRADLE) assemble
 

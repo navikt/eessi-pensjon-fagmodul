@@ -12,6 +12,7 @@ node {
     }
     stage("build") {
         try {
+            sh "make clean"
             sh "make build"
         } catch (e) {
             junit('build/test-results/test/**/*.xml')
