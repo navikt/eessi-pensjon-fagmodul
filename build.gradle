@@ -162,8 +162,6 @@ test {
 }
 
 ext.xsdTemp = "${projectDir}/src/main/resources/xsdtemp"
-ext.schemasDir = "${projectDir}/src/main/resources/schemas"
-ext.pensjonsinformasjonDir = "${schemasDir}/${configurations.xsd.dependencies[0].name}"
 
 task copyPensjonsinformasjonXsd(type: Copy) {
     println("xsdArtifactFolder: " + xsdTemp)
@@ -175,8 +173,13 @@ task copyPensjonsinformasjonXsd(type: Copy) {
     into xsdTemp
 }
 
-task copyPensjonsinformasjonXsdsFromArtifacts(type: Copy) {
+ext.schemasDir = "${projectDir}/src/main/resources/schemas"
+ext.pensjonsinformasjonDir = "${schemasDir}/${configurations.xsd.dependencies[0].name}"
+
+task copyPensjonsinformasjonXsdsFromArtifacts(type: Copy, dependsOn: copyPensjonsinformasjonXsd) {
     includeEmptyDirs = false
+    try {
+
     def xsdArtifactPath = new File(xsdTemp).listFiles().first()
 
     println("xsdArtifactPath: " + xsdArtifactPath)
@@ -185,15 +188,20 @@ task copyPensjonsinformasjonXsdsFromArtifacts(type: Copy) {
     from zipTree(xsdArtifactPath)
     include '**/*.xsd'
     into pensjonsinformasjonDir
+    } catch (e) {
+        println(e)
+    }
 }
 
 jaxb {
     xsdDir = pensjonsinformasjonDir
 }
 
-copyPensjonsinformasjonXsdsFromArtifacts.dependsOn tasks["copyPensjonsinformasjonXsd"]
 
 xjc.dependsOn tasks["copyPensjonsinformasjonXsdsFromArtifacts"]
+
+copyPensjonsinformasjonXsdsFromArtifacts.dependsOn tasks["copyPensjonsinformasjonXsd"]
+
 
 compileKotlin.dependsOn tasks["xjc"]
 
