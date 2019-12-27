@@ -164,38 +164,26 @@ test {
 ext.xsdTemp = "${projectDir}/src/main/resources/xsdtemp"
 ext.schemasDir = "${projectDir}/src/main/resources/schemas"
 ext.pensjonsinformasjonDir = "${schemasDir}/${configurations.xsd.dependencies[0].name}"
-ext.xsdArtifacrName = "pensjonsinformasjon-xsd-9.4.10.jar"
 
 task copyPensjonsinformasjonXsd(type: Copy) {
     println("xsdArtifactFolder: " + xsdTemp)
     from {
         configurations.xsd.asFileTree.each { artifact ->
-            println("ArtifactName: " + artifact.name)
-            ext.xsdArtifacrName = artifact.name
-            println("xsdArtifacrName: " + xsdArtifacrName)
+        println("found artifact: " + artifact.name)
         }
     }
     into xsdTemp
 }
 
 task copyPensjonsinformasjonXsdsFromArtifacts(type: Copy) {
-//    def xsdArtifactPathTest = new File(xsdTemp)
-//    if (xsdArtifactPathTest.size() == 0) {
-//        println("dsdfsdfsdfsdf")
-//        copyPensjonsinformasjonXsd
-//    }
-    //xsdArtifactPath = new File( xsdTemp ).listFiles().first()
-//    println("Artifact: " + artifact.name)
-//    println("xsdArtifactPath: " + xsdArtifactPath)
+    def files =  fileTree(xsdTemp).filter { it.isFile() }.files.name
+    def fileName = files[0]
 
-    with copyPensjonsinformasjonXsd
-
-    println("Artifact: " + xsdArtifacrName)
-    println("XsdTemp folder and ArtifactName: " + xsdTemp +"/"+ xsdArtifacrName)
-    println("Pensjoninformasjon: " + pensjonsinformasjonDir)
+    println("xsdArtifactFolder + artifact : " + xsdTemp + "/" + fileName)
+    println("pensjonsinformasjonDir : " + pensjonsinformasjonDir)
 
     includeEmptyDirs = false
-    from zipTree( xsdTemp + "/" + xsdArtifacrName)
+    from zipTree( xsdTemp + "/" + fileName)
     include '**/*.xsd'
     into pensjonsinformasjonDir
 
@@ -205,9 +193,14 @@ jaxb {
     xsdDir = pensjonsinformasjonDir
 }
 
+copyPensjonsinformasjonXsdsFromArtifacts.shouldRunAfter copyPensjonsinformasjonXsd
+
 compileKotlin.dependsOn tasks["xjc"]
+
 copyPensjonsinformasjonXsdsFromArtifacts.dependsOn tasks["copyPensjonsinformasjonXsd"]
+
 xjc.dependsOn tasks["copyPensjonsinformasjonXsdsFromArtifacts"]
+
 
 clean.doFirst {
     delete xsdTemp
