@@ -10,13 +10,6 @@ node {
 
         commitHash = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
     }
-    stage("init") {
-        try {
-            sh "make clean"
-        } catch (e) {
-            throw e
-        }
-    }
     stage("build") {
         try {
             sh "make build"
