@@ -110,19 +110,20 @@ dependencies {
 
     //mock - test
     testImplementation("org.junit.jupiter:junit-jupiter:5.5.2")
-    testImplementation('org.junit.platform:junit-platform-suite-api:1.5.2')
-    testImplementation('org.mockito:mockito-junit-jupiter:3.2.4')
+    testImplementation("org.junit.platform:junit-platform-suite-api:1.5.2")
+    testImplementation("org.mockito:mockito-junit-jupiter:3.2.4")
     testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
     testImplementation("org.skyscreamer:jsonassert:1.5.0")
-    testImplementation('io.mockk:mockk:1.9.3')
+    testImplementation("io.mockk:mockk:1.9.3")
 
     // Architecture tests
-    testImplementation 'com.tngtech.archunit:archunit:0.11.0'
+    testImplementation ("com.tngtech.archunit:archunit:0.11.0")
 
     // Logging
     implementation("net.logstash.logback:logstash-logback-encoder:${logstashLogbackVersion}")
     configurations { all*.exclude group: 'commons-logging', module: 'commons-logging' }
     implementation group: 'org.slf4j', name: 'jcl-over-slf4j'
+
     // auditlogger syslog
     implementation("com.papertrailapp:logback-syslog4j:1.0.0")
     implementation("org.syslog4j:syslog4j:0.9.30")
@@ -141,11 +142,11 @@ dependencies {
     jaxb ('org.glassfish.jaxb:jaxb-runtime:2.3.2')
 
     // Micrometer
-    implementation("io.micrometer:micrometer-registry-prometheus")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.3.2")
 
-    // Kafka
-    implementation 'org.springframework.kafka:spring-kafka'
-    testImplementation 'org.springframework.kafka:spring-kafka-test'
+    // Kafka -- 2.4.0 feiler
+    implementation ("org.springframework.kafka:spring-kafka:2.3.4.RELEASE")
+    testImplementation ("org.springframework.kafka:spring-kafka-test:2.3.4.RELEASE")
 }
 
 repositories {
@@ -164,12 +165,13 @@ test {
 ext.xsdTemp = "${projectDir}/src/main/resources/xsdtemp"
 ext.schemasDir = "${projectDir}/src/main/resources/schemas"
 ext.pensjonsinformasjonDir = "${schemasDir}/${configurations.xsd.dependencies[0].name}"
+ext.xsdArtifacrName = "pensjonsinformasjon-xsd-9.4.10.jar"
 
 task copyPensjonsinformasjonXsd(type: Copy) {
     println("xsdArtifactFolder: " + xsdTemp)
     from {
         configurations.xsd.asFileTree.each { artifact ->
-        println("found artifact: " + artifact.name)
+            println("ArtifactName: " + artifact.name)
         }
     }
     into xsdTemp
@@ -177,14 +179,13 @@ task copyPensjonsinformasjonXsd(type: Copy) {
 
 task copyPensjonsinformasjonXsdsFromArtifacts(type: Copy) {
     with copyPensjonsinformasjonXsd
-    def files =  fileTree( xsdTemp ).filter { it.isFile() }.files.name
-    def fileName = files[0]
 
-    println("xsdArtifactFolder + artifact : " + xsdTemp + "/" + fileName)
-    println("pensjonsinformasjonDir : " + pensjonsinformasjonDir)
+    println("Artifact: " + xsdArtifacrName)
+    println("XsdTemp folder and ArtifactName: " + xsdTemp +"/"+ xsdArtifacrName)
+    println("Pensjoninformasjon: " + pensjonsinformasjonDir)
 
     includeEmptyDirs = false
-    from zipTree( xsdTemp + "/" + fileName)
+    from zipTree( xsdTemp + "/" + xsdArtifacrName)
     include '**/*.xsd'
     into pensjonsinformasjonDir
 
@@ -194,14 +195,9 @@ jaxb {
     xsdDir = pensjonsinformasjonDir
 }
 
-copyPensjonsinformasjonXsdsFromArtifacts.shouldRunAfter copyPensjonsinformasjonXsd
-
 compileKotlin.dependsOn tasks["xjc"]
-
 copyPensjonsinformasjonXsdsFromArtifacts.dependsOn tasks["copyPensjonsinformasjonXsd"]
-
 xjc.dependsOn tasks["copyPensjonsinformasjonXsdsFromArtifacts"]
-
 
 clean.doFirst {
     delete xsdTemp
