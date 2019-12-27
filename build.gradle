@@ -176,7 +176,8 @@ task copyPensjonsinformasjonXsd(type: Copy) {
 }
 
 task copyPensjonsinformasjonXsdsFromArtifacts(type: Copy) {
-    def files =  fileTree(xsdTemp).filter { it.isFile() }.files.name
+    with copyPensjonsinformasjonXsd
+    def files =  fileTree( xsdTemp ).filter { it.isFile() }.files.name
     def fileName = files[0]
 
     println("xsdArtifactFolder + artifact : " + xsdTemp + "/" + fileName)
