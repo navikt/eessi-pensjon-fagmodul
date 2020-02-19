@@ -67,7 +67,7 @@ class SedController(private val euxService: EuxService,
 
     //** oppdatert i api 18.02.2019
     @ApiOperation("henter ut en SED fra et eksisterende Rina document. krever unik dokumentid fra valgt SED, ny api kall til eux")
-    @GetMapping("/{euxcaseid}/{documentid}")
+    @GetMapping("/get/{euxcaseid}/{documentid}")
     fun getDocument(@PathVariable("euxcaseid", required = true) euxcaseid: String,
                     @PathVariable("documentid", required = true) documentid: String): SED {
         auditlogger.logBuc("getDocument", " euxCaseId: $euxcaseid documentId: $documentid")
