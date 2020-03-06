@@ -6,3 +6,9 @@ data class VersionsItem(
         val id: String? = null,
         val user: User? = null
 )
+
+data class VersionsItemNoUser(
+
+        val date: Any? = null,
+        val id: String? = null
+)

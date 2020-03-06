@@ -139,14 +139,33 @@ class BucUtils(private val buc: Buc ) {
                 lastUpdate = getDateTimeToLong(documentItem.lastUpdate),
                 participants = createParticipants(documentItem.conversations),
                 attachments = createShortAttachemnt(documentItem.attachments),
-                version = getLatestDocumentVersion(documentItem.versions)
-
+                version = getLatestDocumentVersion(documentItem.versions),
+                firstVersion = getFirstVersion(documentItem.versions),
+                lastVersion = getLastVersion(documentItem.versions)
         )
 
     private fun getLatestDocumentVersion(list: List<VersionsItem>?): String {
         return list?.sortedBy { it.id }
                 ?.map { it.id }
                 ?.lastOrNull() ?: "1"
+    }
+
+    private fun getLastVersion(list: List<VersionsItem>?): VersionsItemNoUser? {
+        return list?.sortedBy { it.id }
+                ?.map { VersionsItemNoUser(
+                        id = it.id,
+                        date = it.date
+                )}
+                ?.lastOrNull()
+    }
+
+    private fun getFirstVersion(list: List<VersionsItem>?): VersionsItemNoUser? {
+        return list?.sortedBy { it.id }
+                ?.map { VersionsItemNoUser(
+                  id = it.id,
+                  date = it.date
+                )}
+                ?.firstOrNull()
     }
 
     /* TODO Is this working as expected? */
