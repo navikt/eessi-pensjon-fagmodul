@@ -21,6 +21,7 @@ class MetricsHelper(val registry: MeterRegistry) {
         Institusjoner,
         HentRinasaker,
         CreateBUC,
+        BUCDeltakere,
         PutMottaker,
         OpprettSED,
         AddInstutionAndDocument,

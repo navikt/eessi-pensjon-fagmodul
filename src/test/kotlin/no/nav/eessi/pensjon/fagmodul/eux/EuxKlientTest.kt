@@ -2,10 +2,13 @@ package no.nav.eessi.pensjon.fagmodul.eux
 
 import com.nhaarman.mockitokotlin2.*
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Organisation
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.sedmodel.PinItem
 import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
 import no.nav.eessi.pensjon.logging.RequestResponseLoggerInterceptor
+import no.nav.eessi.pensjon.security.sts.typeRef
 import no.nav.eessi.pensjon.utils.*
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
@@ -858,6 +861,29 @@ class EuxKlientTest {
         assertEquals(expected, actual.size)
 
     }
+
+
+    @Test
+    fun getBucDeltakere() {
+
+        val mockResponse: ResponseEntity<List<ParticipantsItem>> = ResponseEntity.ok().body(
+          listOf(
+             ParticipantsItem(organisation = Organisation(countryCode = "DK", id = "DK006")),
+             ParticipantsItem(organisation = Organisation(countryCode = "PL", id = "PolishAcc"))
+          )
+        )
+
+        whenever(mockEuxrestTemplate.exchange(
+                any<String>(),
+                eq(HttpMethod.GET),
+                eq(null),
+                eq(typeRef<List<ParticipantsItem>>()))
+        ).thenReturn(mockResponse)
+
+        val result = klient.getBucDeltakere("1234567890")
+        assertEquals(2, result.size)
+    }
+
 
     private fun dummyRequirement(dummyparam1: String?, dummyparam2: String?): Boolean{
         require(!(dummyparam1 == null && dummyparam2 == null)) { "Minst et søkekriterie må fylles ut for å få et resultat fra Rinasaker" }

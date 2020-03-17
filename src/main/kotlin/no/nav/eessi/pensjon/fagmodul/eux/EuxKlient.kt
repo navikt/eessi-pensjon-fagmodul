@@ -7,6 +7,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucSedResponse
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Vedlegg
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonDetalj
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.models.SEDType
@@ -14,6 +15,9 @@ import no.nav.eessi.pensjon.fagmodul.sedmodel.Krav
 import no.nav.eessi.pensjon.fagmodul.sedmodel.PinItem
 import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
 import no.nav.eessi.pensjon.metrics.MetricsHelper
+import no.nav.eessi.pensjon.security.sts.SecurityTokenResponse
+import no.nav.eessi.pensjon.security.sts.typeRef
+import no.nav.eessi.pensjon.utils.mapAnyToJson
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import no.nav.eessi.pensjon.utils.typeRefs
@@ -196,7 +200,29 @@ class EuxKlient(private val euxOidcRestTemplate: RestTemplate,
         )
         return response.body ?: throw ServerException("Feil ved henting av BUCdata ingen data, euxCaseId $euxCaseId")
     }
+    //@Throws(EuxServerException::class, EuxGenericServerException::class)
+    fun getBucDeltakere(euxCaseId: String): List<ParticipantsItem> {
+        logger.info("euxCaseId: $euxCaseId")
 
+        val path = "/buc/{RinaSakId}/bucdeltakere"
+        val uriParams = mapOf("RinaSakId" to euxCaseId)
+        val builder = UriComponentsBuilder.fromUriString(path).buildAndExpand(uriParams)
+        logger.info("Prøver å kontakte EUX /${builder.toUriString()}")
+
+        val response = restTemplateErrorhandler(
+                restTemplateFunction = {
+                    euxOidcRestTemplate.exchange(
+                            builder.toUriString(),
+                            HttpMethod.GET,
+                            null,
+                            typeRef<List<ParticipantsItem>>())
+                }
+                , euxCaseId = euxCaseId
+                , metricName = MetricsHelper.MeterName.BUCDeltakere
+                , prefixErrorMessage = "Feiler ved metode getDeltakerer. "
+        )
+        return  response.body ?: throw ServerException("Feil ved henting av BucDeltakere: ingen data, euxCaseId $euxCaseId")
+    }
     /**
      * sletter et SED doument på RINA.
      * @param euxCaseId  er iden til den aktuelle Buc/Rina sak

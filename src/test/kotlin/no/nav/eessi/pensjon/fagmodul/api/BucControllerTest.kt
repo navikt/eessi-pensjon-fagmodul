@@ -3,12 +3,19 @@ package no.nav.eessi.pensjon.fagmodul.api
 import com.nhaarman.mockitokotlin2.*
 import no.nav.eessi.pensjon.fagmodul.eux.*
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Vedlegg
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Organisation
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
+import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.logging.RequestResponseLoggerInterceptor
+import no.nav.eessi.pensjon.security.sts.typeRef
 import no.nav.eessi.pensjon.services.aktoerregister.AktoerregisterService
 import no.nav.eessi.pensjon.services.arkiv.HentdokumentInnholdResponse
 import no.nav.eessi.pensjon.services.arkiv.SafService
 import no.nav.eessi.pensjon.services.arkiv.VariantFormat
+import no.nav.eessi.pensjon.utils.mapAnyToJson
+import no.nav.eessi.pensjon.utils.mapJsonToAny
+import no.nav.eessi.pensjon.utils.typeRefs
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -115,8 +122,6 @@ class BucControllerTest {
                 VariantFormat.ARKIV )
 
         verify(mockEuxrestTemplate, times(1)).exchange( queryUrl , HttpMethod.POST, requestEntity, String::class.java)
-
-
     }
 
     @Test
@@ -167,4 +172,22 @@ class BucControllerTest {
         }
     }
 
+    @Test
+    fun `gitt at det finnes en gydlig euxCaseid skal det returneres en liste av Buc deltakere`() {
+        val mockEuxRinaid = "123456"
+        val mockResponse = ResponseEntity.ok().body(listOf(
+           ParticipantsItem(organisation = Organisation(countryCode = "DK", id = "DK006")),
+           ParticipantsItem(organisation = Organisation(countryCode = "PL", id = "PolishAcc"))
+        ))
+        doReturn(mockResponse).whenever(mockEuxrestTemplate).exchange(
+                any<String>(),
+                eq(HttpMethod.GET),
+                eq(null),
+                eq(typeRef<List<ParticipantsItem>>()))
+
+        val responseJson = bucController.getBucDeltakere(mockEuxRinaid)
+        val response = mapJsonToAny(responseJson, typeRefs<List<ParticipantsItem>>())
+        Assertions.assertEquals(2, response.size)
+    }
 }
+

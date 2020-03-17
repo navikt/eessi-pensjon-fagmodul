@@ -8,6 +8,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Vedlegg
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Creator
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ShortDocumentItem
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.services.aktoerregister.AktoerregisterService
@@ -61,6 +62,14 @@ class BucController(private val euxKlient: EuxKlient,
 
         logger.debug("Henter ut Creator på valgt Buc")
         return BucUtils(euxKlient.getBuc(rinanr)).getCreator()
+    }
+
+    @ApiOperation("Henter BUC deltakere")
+    @GetMapping("/{rinanr}/bucdeltakere")
+    fun getBucDeltakere(@PathVariable(value = "rinanr", required = true) rinanr: String): String {
+        auditlogger.log("getBucDeltakere")
+        logger.debug("Henter ut Buc deltakere data fra rina via eux-rina-api")
+        return mapAnyToJson(euxKlient.getBucDeltakere(rinanr))
     }
 
     @ApiOperation("Henter opp creator countrycode (type)")
