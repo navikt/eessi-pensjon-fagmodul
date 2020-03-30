@@ -52,7 +52,6 @@ class SedController(private val euxService: EuxService,
         } else {
             sed.toJson()
         }
-
     }
 
     //** oppdatert i api 18.02.2019
@@ -64,7 +63,6 @@ class SedController(private val euxService: EuxService,
 
         logger.info("Prøver å kalle getDocument for /${euxcaseid}/${documentid} ")
         return euxService.getSedOnBucByDocumentId(euxcaseid, documentid)
-
     }
 
     //** oppdatert i api 18.02.2019
@@ -78,14 +76,23 @@ class SedController(private val euxService: EuxService,
             logger.info("******* Legge til ny SED - start *******")
             logger.info("kaller add (institutions and sed) rinaId: ${request.euxCaseId} bucType: ${request.buc} sedType: ${request.sed} aktoerId: ${request.aktoerId}")
 
-            addInstitution(dataModel)
+            val bucUtil = BucUtils(euxService.getBuc(dataModel.euxCaseID))
+            val nyeInstitusjoner = bucUtil.findNewParticipants(dataModel.getInstitutionsList())
+            val x005 = bucUtil.findFirstDocumentItemByType("X005")
+
+            if(nyeInstitusjoner.isNotEmpty()){
+                if(x005 == null) {
+                    euxService.addInstitution(dataModel.euxCaseID, nyeInstitusjoner.map { it.institution })
+                } else {
+                    addInstitutionMedX005(dataModel, nyeInstitusjoner)
+                }
+            }
 
             logger.info("Prøver å prefillSED")
             val data = prefillService.prefillSed(dataModel)
             logger.info("Prøver å sende SED: ${dataModel.getSEDid()} inn på BUC: ${dataModel.euxCaseID}")
             val docresult = euxService.opprettSedOnBuc(data.sed, data.euxCaseID)
             logger.info("Opprettet ny SED med dokumentId: ${docresult.documentId}")
-            val bucUtil = BucUtils(euxService.getBuc(docresult.caseId))
             val result = bucUtil.findDocument(docresult.documentId)
 
             //extra tag metricshelper for sedType, bucType, timeStamp og rinaId.
@@ -97,23 +104,11 @@ class SedController(private val euxService: EuxService,
         }
     }
 
-    private fun addInstitution(dataModel: PrefillDataModel) {
+    private fun addInstitutionMedX005(dataModel: PrefillDataModel, nyeInstitusjoner: List<InstitusjonItem>) {
         logger.debug("Prøver å legge til Deltaker/Institusions på buc samt prefillSed og sende inn til Rina ")
-        val bucUtil = BucUtils(euxService.getBuc(dataModel.euxCaseID))
-        val nyeDeltakere = bucUtil.findNewParticipants(dataModel.getInstitutionsList())
-        if (nyeDeltakere.isNotEmpty()) {
-            logger.debug("DeltakerListe (InstitusjonItem) size: ${nyeDeltakere.size}")
-            val bucX005 = bucUtil.findFirstDocumentItemByType("X005")
-            if (bucX005 == null) {
-                logger.info("X005 finnes ikke på buc, legger til Deltakere/Institusjon på vanlig måte")
-                //kaste Exception dersom legge til deltakerfeiler?
-                euxKlient.putBucMottakere(dataModel.euxCaseID, nyeDeltakere)
-            } else {
-                logger.info("X005 finnes på buc, Sed X005 prefills og sendes inn")
-                val x005Liste = prefillService.prefillEnX005ForHverInstitusjon(nyeDeltakere, dataModel)
-                x005Liste.forEach { x005 -> euxService.opprettSedOnBuc(x005.sed, x005.euxCaseID) }
-            }
-        }
+        logger.info("X005 finnes på buc, Sed X005 prefills og sendes inn")
+        val x005Liste = prefillService.prefillEnX005ForHverInstitusjon(nyeInstitusjoner, dataModel)
+        x005Liste.forEach { x005 -> euxService.opprettSedOnBuc(x005.sed, x005.euxCaseID) }
     }
 
     private fun extraTag(dataModel: PrefillDataModel, bucUtil: BucUtils): List<Tag> {

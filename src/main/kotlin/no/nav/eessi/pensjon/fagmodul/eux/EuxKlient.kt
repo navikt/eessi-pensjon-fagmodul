@@ -291,24 +291,23 @@ class EuxKlient(private val euxOidcRestTemplate: RestTemplate,
         }()
     }
 
-    fun convertListInstitusjonItemToString(deltakere: List<InstitusjonItem>): String {
+    fun convertListInstitusjonItemToString(deltakere: List<String>): String {
         val encodedList = mutableListOf<String>()
-        deltakere.forEach { item ->
-            Preconditions.checkArgument(item.institution.contains(":"), "Ikke korrekt format på mottaker/institusjon... ")
-            encodedList.add("&mottakere=${item.institution}")
+        deltakere.forEach { institusjon ->
+            Preconditions.checkArgument(institusjon.contains(":"), "Ikke korrekt format på mottaker/institusjon... ")
+            encodedList.add("&mottakere=${institusjon}")
         }
         return encodedList.joinToString(separator = "")
     }
 
-    fun putBucMottakere(euxCaseId: String, deltaker: List<InstitusjonItem>): Boolean {
-        //cpi/buc/245580/mottakere?KorrelasjonsId=23424&mottakere=NO%3ANAVT003&mottakere=NO%3ANAVT008"
+    fun putBucMottakere(euxCaseId: String, institusjoner: List<String>): Boolean {
         val correlationId = UUID.randomUUID().toString()
         val builder = UriComponentsBuilder.fromPath("/buc/$euxCaseId/mottakere")
                 .queryParam("KorrelasjonsId", correlationId)
                 .build()
-        val url = builder.toUriString() + convertListInstitusjonItemToString(deltaker)
+        val url = builder.toUriString() + convertListInstitusjonItemToString(institusjoner)
 
-        logger.debug("Kontakter EUX for å legge til deltager: $deltaker med korrelasjonId: $correlationId på type: $euxCaseId")
+        logger.debug("Kontakter EUX for å legge til deltager: $institusjoner med korrelasjonId: $correlationId på type: $euxCaseId")
 
         val result = restTemplateErrorhandler(
                 {
@@ -387,9 +386,9 @@ class EuxKlient(private val euxOidcRestTemplate: RestTemplate,
     }
 
     //Legger en eller flere deltakere/institusjonItem inn i Rina. (Itererer for hver en)
-    fun addDeltagerInstitutions(euxCaseId: String, mottaker: List<InstitusjonItem>): Boolean {
+    fun addDeltagerInstitutions(euxCaseId: String, institusjoner: List<String>): Boolean {
         logger.debug("Prøver å legge til liste over nye InstitusjonItem til Rina ")
-        return putBucMottakere(euxCaseId, mottaker)
+        return putBucMottakere(euxCaseId, institusjoner)
     }
 
     fun getFnrMedLandkodeNO(pinlist: List<PinItem>?): String? {
