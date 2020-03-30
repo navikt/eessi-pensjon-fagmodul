@@ -342,7 +342,7 @@ class SedControllerTest {
 
         doReturn(dummyPrefillData).whenever(mockPrefillSED).prefill(any())
 
-        doReturn(true).whenever(mockEuxKlient).putBucMottakere(eq(euxCaseId), any())
+        doNothing().whenever(mockEuxService).addInstitution(any(), any())
 
         doReturn(BucSedResponse(euxCaseId,"1")).whenever(mockEuxService).opprettSedOnBuc(any(), eq(euxCaseId))
 
@@ -352,7 +352,7 @@ class SedControllerTest {
         )
         sedController.addInstutionAndDocument(apiRequestWith(euxCaseId, newParticipants))
 
-        verify(mockEuxKlient).putBucMottakere(euxCaseId, newParticipants)
+        verify(mockEuxService, times(1)).addInstitution(any(), any())
         verify(mockEuxService, times(1)).opprettSedOnBuc(any(), eq(euxCaseId))
     }
 
@@ -370,7 +370,8 @@ class SedControllerTest {
         val currentX005 = DocumentsItem()
 
         doReturn(listOf(currentX005)).whenever(mockBuc).documents
-        doReturn(true).whenever(mockEuxKlient).putBucMottakere(eq(euxCaseId), any())
+
+        doNothing().whenever(mockEuxService).addInstitution(any(), any())
 
         val dummyPrefillData = ApiRequest.buildPrefillDataModelOnExisting(apiRequestWith(euxCaseId), mockAktoerIdHelper.hentPinForAktoer(apiRequestWith(euxCaseId).aktoerId), null)
         doReturn(dummyPrefillData).whenever(mockPrefillSED).prefill(any())
