@@ -141,6 +141,12 @@ class EuxService (private val euxKlient: EuxKlient) {
         return sortlist
     }
 
+    fun addInstitution(euxCaseID: String, nyeInstitusjoner: List<String>) {
+        logger.debug("Prøver å legge til Deltaker/Institusions på buc samt prefillSed og sende inn til Rina ")
+        logger.info("X005 finnes ikke på buc, legger til Deltakere/Institusjon på vanlig måte")
+        euxKlient.putBucMottakere(euxCaseID, nyeInstitusjoner)
+    }
+
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     class SedDokumentIkkeSendtException(message: String?) : Exception(message)
 

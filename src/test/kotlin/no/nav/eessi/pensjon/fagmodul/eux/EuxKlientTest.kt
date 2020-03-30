@@ -2,7 +2,6 @@ package no.nav.eessi.pensjon.fagmodul.eux
 
 import com.nhaarman.mockitokotlin2.*
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
-import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.sedmodel.PinItem
 import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
 import no.nav.eessi.pensjon.logging.RequestResponseLoggerInterceptor
@@ -284,7 +283,7 @@ class EuxKlientTest {
     @Test
     fun callingEuxServicePutBucDeltager_WrongParticipantInput() {
         assertThrows<IllegalArgumentException> {
-            klient.putBucMottakere("126552", listOf(InstitusjonItem("NO", "NAVT", "Dummy")))
+            klient.putBucMottakere("126552", (listOf("NAVT")))
         }
     }
 
@@ -299,7 +298,7 @@ class EuxKlientTest {
         ).thenThrow(clientError)
 
         assertThrows<RinaIkkeAutorisertBrukerException> {
-            klient.putBucMottakere("126552", listOf(InstitusjonItem("NO", "NO:NAVT007", "NAV")))
+            klient.putBucMottakere("126552", listOf("NO:NAVT07"))
         }
     }
 
@@ -313,7 +312,7 @@ class EuxKlientTest {
         ).thenThrow(createDummyServerRestExecption(HttpStatus.INTERNAL_SERVER_ERROR,"Dummy Internal Server Error body"))
 
         assertThrows<EuxRinaServerException> {
-            klient.putBucMottakere("122732", listOf(InstitusjonItem("NO", "NO:NAVT02", "NAV")))
+            klient.putBucMottakere("122732", listOf("NO:NAVT02"))
         }
     }
 
@@ -328,7 +327,7 @@ class EuxKlientTest {
         ).thenThrow(ResourceAccessException("Other unknown Error"))
 
         assertThrows<ServerException> {
-            klient.putBucMottakere("122732", listOf(InstitusjonItem("NO", "NO:NAVT02", "NAV")))
+            klient.putBucMottakere("122732", listOf("NO:NAVT02"))
         }
     }
 
@@ -342,7 +341,7 @@ class EuxKlientTest {
         ).thenThrow(RuntimeException("Error"))
 
         assertThrows<RuntimeException> {
-            klient.putBucMottakere("122732", listOf(InstitusjonItem("NO", "NO:NAVT02", "NAV")))
+            klient.putBucMottakere("122732", listOf("NO:NAVT02"))
         }
     }
 
@@ -358,7 +357,7 @@ class EuxKlientTest {
                 ArgumentMatchers.eq(String::class.java))
         ).thenReturn(theResponse)
 
-        val result = klient.putBucMottakere("122732", listOf(InstitusjonItem("NO","NO:NAVT005","NAV")))
+        val result = klient.putBucMottakere("122732", listOf("NO:NAVT05"))
         assertEquals(true, result)
     }
 
@@ -421,7 +420,7 @@ class EuxKlientTest {
     fun `gitt en gyldig liste av Institusjoner naar http url genereres saa generer en liste av mottakere som path param`() {
         val euxCaseId = "1234"
         val correlationId = 123456778
-        val deltaker = listOf(InstitusjonItem("NO","NO:NAV02","NAV"), InstitusjonItem("SE", "SE:SE2", "SVER"))
+        val deltaker = listOf("NO:NAV02", "SE:SE2")
         val builder = UriComponentsBuilder.fromPath("/buc/$euxCaseId/mottakere")
                 .queryParam("KorrelasjonsId", correlationId)
                 .build()
