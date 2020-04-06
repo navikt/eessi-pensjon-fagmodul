@@ -1,7 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.pen
 
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjoninformasjonException
-import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonService
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonClient
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
 import no.nav.pensjon.v1.sak.V1Sak
 import org.slf4j.Logger
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.ResponseStatus
  * sakid eller vedtakid.
  */
 @Component
-class PensjonsinformasjonHjelper(private val pensjonsinformasjonService: PensjonsinformasjonService) {
+class PensjonsinformasjonHjelper(private val pensjonsinformasjonClient: PensjonsinformasjonClient) {
 
     private val logger: Logger by lazy { LoggerFactory.getLogger(PensjonsinformasjonHjelper::class.java) }
 
@@ -23,7 +23,7 @@ class PensjonsinformasjonHjelper(private val pensjonsinformasjonService: Pensjon
         //hjelpe metode for å hente ut valgt V1SAK på vetak/SAK fnr og sakid benyttes
         fun finnSak(sakId: String, pendata: Pensjonsinformasjon): V1Sak {
             if (sakId.isBlank()) throw IkkeGyldigKallException("Mangler sakId")
-            return PensjonsinformasjonService.finnSak(sakId, pendata) ?: throw IkkeGyldigKallException("Finner ingen sak, saktype på valgt sakId")
+            return PensjonsinformasjonClient.finnSak(sakId, pendata) ?: throw IkkeGyldigKallException("Finner ingen sak, saktype på valgt sakId")
         }
     }
 
@@ -31,7 +31,7 @@ class PensjonsinformasjonHjelper(private val pensjonsinformasjonService: Pensjon
     fun hentMedVedtak(vedtakId: String): Pensjonsinformasjon {
         if (vedtakId.isBlank()) throw IkkeGyldigKallException("Mangler vedtakID")
 
-        val pendata: Pensjonsinformasjon = pensjonsinformasjonService.hentAltPaaVedtak(vedtakId)
+        val pendata: Pensjonsinformasjon = pensjonsinformasjonClient.hentAltPaaVedtak(vedtakId)
 
         logger.debug("Pensjonsinformasjon: $pendata"
                 + "\nPensjonsinformasjon.vedtak: ${pendata.vedtak}"
@@ -55,7 +55,7 @@ class PensjonsinformasjonHjelper(private val pensjonsinformasjonService: Pensjon
         //hvis det inne inneholder noe data så feiler vi!
         //**********************************************
 
-        val pendata: Pensjonsinformasjon = pensjonsinformasjonService.hentAltPaaAktoerId(aktoerId)
+        val pendata: Pensjonsinformasjon = pensjonsinformasjonClient.hentAltPaaAktoerId(aktoerId)
         if (pendata.brukersSakerListe == null) {
             throw PensjoninformasjonException("Ingen gyldig brukerSakerListe")
         }

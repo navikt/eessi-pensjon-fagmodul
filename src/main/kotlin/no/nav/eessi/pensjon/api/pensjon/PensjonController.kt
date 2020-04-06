@@ -5,7 +5,7 @@ import io.swagger.annotations.ApiOperation
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.IkkeFunnetException
-import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonService
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.utils.errorBody
 import no.nav.eessi.pensjon.utils.mapAnyToJson
 import no.nav.security.oidc.api.Protected
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController
 @Protected
 @RestController
 @RequestMapping("/pensjon")
-class PensjonController(private val pensjonsinformasjonService: PensjonsinformasjonService,
+class PensjonController(private val pensjonsinformasjonClient: PensjonsinformasjonClient,
                         private val auditlogger: AuditLogger,
                         @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())) {
 
@@ -36,7 +36,7 @@ class PensjonController(private val pensjonsinformasjonService: Pensjonsinformas
             logger.debug("Henter sakstype på $sakId / $aktoerId")
 
             try {
-                val hentKunSakType = pensjonsinformasjonService.hentKunSakType(sakId, aktoerId)
+                val hentKunSakType = pensjonsinformasjonClient.hentKunSakType(sakId, aktoerId)
                 ResponseEntity.ok().body(mapAnyToJson(hentKunSakType))
             } catch (ife: IkkeFunnetException) {
                 logger.warn("Feil ved henting av sakstype, ingen sak funnet. Sak: ${sakId}")

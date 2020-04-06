@@ -6,7 +6,7 @@ import com.nhaarman.mockitokotlin2.whenever
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.IkkeFunnetException
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjoninformasjonException
-import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonService
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.Pensjontype
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -17,11 +17,11 @@ import org.springframework.http.HttpStatus
 @ExtendWith(MockitoExtension::class)
 class PensjonControllerTest {
 
-    private val pensjonsinformasjonService: PensjonsinformasjonService = mock()
+    private val pensjonsinformasjonClient: PensjonsinformasjonClient = mock()
 
     private val auditLogger: AuditLogger = mock()
 
-    private val controller = PensjonController(pensjonsinformasjonService, auditLogger)
+    private val controller = PensjonController(pensjonsinformasjonClient, auditLogger)
 
     private val sakId = "Some sakId"
 
@@ -30,11 +30,11 @@ class PensjonControllerTest {
         val aktoerId = "1234567890123" // 13 sifre
         val sakId = "Some sakId"
 
-        whenever(pensjonsinformasjonService.hentKunSakType(sakId, aktoerId)).thenReturn(Pensjontype(sakId, "Type"))
+        whenever(pensjonsinformasjonClient.hentKunSakType(sakId, aktoerId)).thenReturn(Pensjontype(sakId, "Type"))
 
         controller.hentPensjonSakType(sakId, aktoerId)
 
-        verify(pensjonsinformasjonService).hentKunSakType(sakId, aktoerId)
+        verify(pensjonsinformasjonClient).hentKunSakType(sakId, aktoerId)
     }
 
     @Test
@@ -42,10 +42,10 @@ class PensjonControllerTest {
         val aktoerId = "1234567890123" // 13 sifre
         val sakId = "Some sakId"
 
-        whenever(pensjonsinformasjonService.hentKunSakType(sakId, aktoerId)).thenThrow(IkkeFunnetException("Saktype ikke funnet"))
+        whenever(pensjonsinformasjonClient.hentKunSakType(sakId, aktoerId)).thenThrow(IkkeFunnetException("Saktype ikke funnet"))
         val response = controller.hentPensjonSakType(sakId, aktoerId)
 
-        verify(pensjonsinformasjonService).hentKunSakType(sakId, aktoerId)
+        verify(pensjonsinformasjonClient).hentKunSakType(sakId, aktoerId)
         assertEquals(HttpStatus.NOT_FOUND, response?.statusCode)
 
     }
@@ -55,10 +55,10 @@ class PensjonControllerTest {
         val aktoerId = "1234567890123" // 13 sifre
         val sakId = "Some sakId"
 
-        whenever(pensjonsinformasjonService.hentKunSakType(sakId, aktoerId)).thenThrow(PensjoninformasjonException("Ingen svar med PESYS"))
+        whenever(pensjonsinformasjonClient.hentKunSakType(sakId, aktoerId)).thenThrow(PensjoninformasjonException("Ingen svar med PESYS"))
         val response = controller.hentPensjonSakType(sakId, aktoerId)
 
-        verify(pensjonsinformasjonService).hentKunSakType(sakId, aktoerId)
+        verify(pensjonsinformasjonClient).hentKunSakType(sakId, aktoerId)
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response?.statusCode)
 

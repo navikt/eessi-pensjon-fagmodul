@@ -26,30 +26,30 @@ import org.springframework.web.client.RestTemplate
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension::class) // Silent?
-class PensjonsinformasjonServiceTest {
+class PensjonsinformasjonClientTest {
 
     @Mock
     private lateinit var mockrestTemplate: RestTemplate
 
-    private lateinit var pensjonsinformasjonService: PensjonsinformasjonService
+    private lateinit var pensjonsinformasjonClient: PensjonsinformasjonClient
 
     @BeforeEach
     fun setup() {
-        pensjonsinformasjonService = PensjonsinformasjonService(mockrestTemplate, RequestBuilder())
+        pensjonsinformasjonClient = PensjonsinformasjonClient(mockrestTemplate, RequestBuilder())
     }
 
     @Test
     fun hentAlt() {
         val mockResponseEntity = createResponseEntityFromJsonFile("classpath:pensjonsinformasjon/full-generated-response.xml")
         whenever(mockrestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), ArgumentMatchers.eq(String::class.java))).thenReturn(mockResponseEntity)
-        val data = pensjonsinformasjonService.hentAltPaaVedtak("1243")
+        val data = pensjonsinformasjonClient.hentAltPaaVedtak("1243")
 
         assertNotNull(data.vedtak, "Vedtak er null")
         assertEquals("2016-09-11", data.vedtak.virkningstidspunkt.simpleFormat())
     }
 
     @Test
-    fun `PensjonsinformasjonService  hentAlt paa vedtak feiler`() {
+    fun `PensjonsinformasjonClient  hentAlt paa vedtak feiler`() {
         whenever(mockrestTemplate.exchange(
                 any<String>(),
                 any(),
@@ -58,7 +58,7 @@ class PensjonsinformasjonServiceTest {
         ).thenThrow(ResourceAccessException("IOException"))
 
         assertThrows<PensjoninformasjonException> {
-            pensjonsinformasjonService.hentAltPaaVedtak("1243")
+            pensjonsinformasjonClient.hentAltPaaVedtak("1243")
         }
     }
 
@@ -72,7 +72,7 @@ class PensjonsinformasjonServiceTest {
     fun `Sjekker om pensjoninformasjon XmlCalendar kan være satt eller null sette simpleFormat`() {
         val mockResponseEntity = createResponseEntityFromJsonFile("classpath:pensjonsinformasjon/full-generated-response.xml")
         whenever(mockrestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), ArgumentMatchers.eq(String::class.java))).thenReturn(mockResponseEntity)
-        val data = pensjonsinformasjonService.hentAltPaaVedtak("1243")
+        val data = pensjonsinformasjonClient.hentAltPaaVedtak("1243")
 
         var result = data.ytelsePerMaanedListe.ytelsePerMaanedListe.first()
 
@@ -94,8 +94,8 @@ class PensjonsinformasjonServiceTest {
         val mockResponseEntity = createResponseEntityFromJsonFile("classpath:pensjonsinformasjon/krav/P2000_21975717_AP_UTLAND.xml")
         whenever(mockrestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), ArgumentMatchers.eq(String::class.java))).thenReturn(mockResponseEntity)
 
-        val data = pensjonsinformasjonService.hentAltPaaAktoerId("1231233")
-        val sak = PensjonsinformasjonService.finnSak("21975717", data)
+        val data = pensjonsinformasjonClient.hentAltPaaAktoerId("1231233")
+        val sak = PensjonsinformasjonClient.finnSak("21975717", data)
 
         sak?.let {
             assertEquals("21975717", it.sakId.toString())
@@ -109,11 +109,11 @@ class PensjonsinformasjonServiceTest {
         val mockResponseEntity = createResponseEntityFromJsonFile("classpath:pensjonsinformasjon/krav/P2000_21975717_AP_UTLAND.xml")
         whenever(mockrestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), ArgumentMatchers.eq(String::class.java))).thenReturn(mockResponseEntity)
 
-        val data = pensjonsinformasjonService.hentAltPaaAktoerId("123456789011")
+        val data = pensjonsinformasjonClient.hentAltPaaAktoerId("123456789011")
 
         assertEquals(2, data.brukersSakerListe.brukersSakerListe.size)
 
-        val sak = PensjonsinformasjonService.finnSak("21975717", data)
+        val sak = PensjonsinformasjonClient.finnSak("21975717", data)
 
         sak?.let {
             assertEquals("21975717", it.sakId.toString())
@@ -126,7 +126,7 @@ class PensjonsinformasjonServiceTest {
     fun `hentAltpåSak  mock data med tom aktoerid to saktyper en skal komme ut`() {
         val strAktor = ""
         assertThrows<IllegalArgumentException> {
-            pensjonsinformasjonService.hentAltPaaAktoerId(strAktor)
+            pensjonsinformasjonClient.hentAltPaaAktoerId(strAktor)
         }
     }
 
@@ -143,7 +143,7 @@ class PensjonsinformasjonServiceTest {
                 ArgumentMatchers.any(HttpEntity::class.java),
                 ArgumentMatchers.eq(String::class.java))
 
-        val response = pensjonsinformasjonService.hentKunSakType("22580170", "12345678901")
+        val response = pensjonsinformasjonClient.hentKunSakType("22580170", "12345678901")
 
         assertEquals("ALDER", response.sakType)
         assertEquals("22580170", response.sakId)
@@ -161,7 +161,7 @@ class PensjonsinformasjonServiceTest {
                 ArgumentMatchers.eq(String::class.java))
 
         assertThrows<IkkeFunnetException> {
-            pensjonsinformasjonService.hentKunSakType("22580170", "12345678901")
+            pensjonsinformasjonClient.hentKunSakType("22580170", "12345678901")
         }
     }
 
@@ -174,7 +174,7 @@ class PensjonsinformasjonServiceTest {
                 ArgumentMatchers.eq(String::class.java))
 
         assertThrows<IkkeFunnetException> {
-            pensjonsinformasjonService.hentKunSakType("22580170", "12345678901")
+            pensjonsinformasjonClient.hentKunSakType("22580170", "12345678901")
         }
     }
 
@@ -185,7 +185,7 @@ class PensjonsinformasjonServiceTest {
         //kjøre igjennom alle tester så ser vi!
         listOfxml.forEach { xmlFile ->
             val xml = ResourceUtils.getFile("classpath:pensjonsinformasjon/$xmlFile").readText()
-            val actual = pensjonsinformasjonService.transform(xml)
+            val actual = pensjonsinformasjonClient.transform(xml)
 
             assertNotNull(actual)
             assertEquals(Pensjonsinformasjon::class.java, actual::class.java)
@@ -196,14 +196,14 @@ class PensjonsinformasjonServiceTest {
     fun `transform en IKKE gyldig xmlString til Persjoninformasjon forventer excpetion`() {
         val xml = "fqrqadfgadf gad23423fsdvdf"
         assertThrows<PensjoninformasjonProcessingException> {
-            pensjonsinformasjonService.transform(xml)
+            pensjonsinformasjonClient.transform(xml)
         }
     }
 
     @Test
     fun `transform en tom xmlString til Persjoninformasjon forventer excpetion`() {
         assertThrows<PensjoninformasjonProcessingException> {
-            pensjonsinformasjonService.transform("")
+            pensjonsinformasjonClient.transform("")
         }
     }
 
@@ -215,7 +215,7 @@ class PensjonsinformasjonServiceTest {
                 "      \"kodeverksRef\": \"kodeverk\"\n" +
                 "}\n"
         assertThrows<PensjoninformasjonProcessingException> {
-            pensjonsinformasjonService.transform(json)
+            pensjonsinformasjonClient.transform(json)
         }
     }
 

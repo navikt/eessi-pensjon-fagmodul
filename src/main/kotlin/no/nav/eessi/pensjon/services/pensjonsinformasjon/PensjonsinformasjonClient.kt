@@ -21,13 +21,13 @@ import javax.xml.transform.stream.StreamSource
 
 
 @Service
-class PensjonsinformasjonService(
+class PensjonsinformasjonClient(
         private val pensjonsinformasjonOidcRestTemplate: RestTemplate,
         private val requestBuilder: RequestBuilder,
         @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())) {
 
     companion object {
-        private val logger = LoggerFactory.getLogger(PensjonsinformasjonService::class.java)
+        private val logger = LoggerFactory.getLogger(PensjonsinformasjonClient::class.java)
 
         fun finnSak(sakId: String, pendata: Pensjonsinformasjon): V1Sak? {
 

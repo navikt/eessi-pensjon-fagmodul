@@ -10,9 +10,9 @@ import org.springframework.http.ResponseEntity
 import org.springframework.util.ResourceUtils
 import org.springframework.web.client.RestTemplate
 
-object PensjonsinformasjonServiceMother {
+object PensjonsinformasjonClientMother {
 
-    fun fraFil(responseXMLfilename: String): PensjonsinformasjonService {
+    fun fraFil(responseXMLfilename: String): PensjonsinformasjonClient {
         val resource = ResourceUtils.getFile("classpath:pensjonsinformasjon/vedtak/$responseXMLfilename").readText()
         val readXMLresponse = ResponseEntity(resource, HttpStatus.OK)
 
@@ -20,7 +20,7 @@ object PensjonsinformasjonServiceMother {
         whenever(mockRestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), ArgumentMatchers.eq(String::class.java)))
                 .thenReturn(readXMLresponse)
 
-        return PensjonsinformasjonService(mockRestTemplate, RequestBuilder())
+        return PensjonsinformasjonClient(mockRestTemplate, RequestBuilder())
     }
 
 }
