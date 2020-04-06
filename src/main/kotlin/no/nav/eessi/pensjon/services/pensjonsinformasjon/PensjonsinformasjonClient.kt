@@ -9,7 +9,7 @@ import no.nav.pensjon.v1.sak.V1Sak
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.*
-import org.springframework.stereotype.Service
+import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
@@ -20,7 +20,7 @@ import javax.xml.bind.JAXBContext
 import javax.xml.transform.stream.StreamSource
 
 
-@Service
+@Component
 class PensjonsinformasjonClient(
         private val pensjonsinformasjonOidcRestTemplate: RestTemplate,
         private val requestBuilder: RequestBuilder,
