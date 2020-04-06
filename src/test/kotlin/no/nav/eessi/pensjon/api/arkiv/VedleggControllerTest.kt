@@ -20,7 +20,7 @@ import java.nio.file.Paths
 class VedleggControllerTest {
 
     @Mock
-    lateinit var safClient: SafClient
+    lateinit var vedleggService: VedleggService
 
     @Mock
     lateinit var auditLogger: AuditLogger
@@ -29,13 +29,13 @@ class VedleggControllerTest {
 
     @BeforeEach
     fun setup() {
-        vedleggController = VedleggController(safClient, auditLogger)
+        vedleggController = VedleggController(vedleggService, auditLogger)
 
     }
 
     @Test
     fun `gitt en 400 httpstatuscode fra safClient når metadata hentes så returnes 400 httpstatuscode`() {
-        whenever(safClient.hentDokumentMetadata("123"))
+        whenever(vedleggService.hentDokumentMetadata("123"))
                 .thenThrow(SafException("noe gikk galt", HttpStatus.valueOf(400)))
 
         val resp = vedleggController.hentDokumentMetadata("123")
@@ -53,7 +53,7 @@ class VedleggControllerTest {
                 .replace(" ", "")
         val mapper = jacksonObjectMapper()
 
-        whenever(safClient.hentDokumentMetadata("123"))
+        whenever(vedleggService.hentDokumentMetadata("123"))
                 .thenReturn(mapper.readValue(responseJson, HentMetadataResponse::class.java))
 
         val resp = vedleggController.hentDokumentMetadata("123")
@@ -63,7 +63,7 @@ class VedleggControllerTest {
 
     @Test
     fun `gitt en 400 httpstatuscode fra safClient når dokumentinnhold hentes så returnes 400 httpstatuscode`() {
-        whenever(safClient.hentDokumentInnhold("123", "4567", VariantFormat.ARKIV))
+        whenever(vedleggService.hentDokumentInnhold("123", "4567", VariantFormat.ARKIV))
                 .thenThrow(SafException("noe gikk galt", HttpStatus.valueOf(400)))
 
         val resp = vedleggController.getDokumentInnhold("123", "4567", VariantFormat.ARKIV)
@@ -73,7 +73,7 @@ class VedleggControllerTest {
 
     @Test
     fun `gitt en 200 httpstatuscode fra safClient når dokumentinnhold hentes så returnes 200 httpstatuscode`() {
-        whenever(safClient.hentDokumentInnhold("123", "4567", VariantFormat.ARKIV))
+        whenever(vedleggService.hentDokumentInnhold("123", "4567", VariantFormat.ARKIV))
                 .thenReturn(HentdokumentInnholdResponse("WVdKag==", "enFil.pdf", "application/pdf"))
 
         val resp = vedleggController.getDokumentInnhold("123", "4567", VariantFormat.ARKIV)

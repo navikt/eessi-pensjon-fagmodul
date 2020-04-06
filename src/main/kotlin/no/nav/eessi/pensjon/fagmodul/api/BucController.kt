@@ -11,11 +11,11 @@ import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Creator
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ShortDocumentItem
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.services.aktoerregister.AktoerregisterService
-import no.nav.eessi.pensjon.vedlegg.client.SafClient
 import no.nav.eessi.pensjon.vedlegg.client.VariantFormat
 import no.nav.eessi.pensjon.utils.errorBody
 import no.nav.eessi.pensjon.utils.mapAnyToJson
 import no.nav.eessi.pensjon.utils.successBody
+import no.nav.eessi.pensjon.vedlegg.VedleggService
 import no.nav.security.oidc.api.Protected
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -29,7 +29,7 @@ import java.util.*
 @RestController
 @RequestMapping("/buc")
 class BucController(private val euxService: EuxService,
-                    private val safClient: SafClient,
+                    private val vedleggService: VedleggService,
                     private val aktoerService: AktoerregisterService,
                     private val auditlogger: AuditLogger) {
 
@@ -111,7 +111,7 @@ class BucController(private val euxService: EuxService,
         logger.debug("henter rinasaker på valgt aktoerid: $aktoerId")
 
         val fnr = aktoerService.hentPinForAktoer(aktoerId)
-        val rinaSakIderFraDokumentMetadata = safClient.hentRinaSakIderFraDokumentMetadata(aktoerId)
+        val rinaSakIderFraDokumentMetadata = vedleggService.hentRinaSakIderFraDokumentMetadata(aktoerId)
         return euxService.getRinasaker(fnr, rinaSakIderFraDokumentMetadata)
     }
 
@@ -124,7 +124,7 @@ class BucController(private val euxService: EuxService,
         logger.debug("Prøver å dekode aktoerid: $aktoerid til fnr.")
 
         val fnr = aktoerService.hentPinForAktoer(aktoerid)
-        val rinaSakIderFraDokumentMetadata = safClient.hentRinaSakIderFraDokumentMetadata(aktoerid)
+        val rinaSakIderFraDokumentMetadata = vedleggService.hentRinaSakIderFraDokumentMetadata(aktoerid)
 
         val rinasakIdList = euxService.getFilteredArchivedaRinasaker( euxService.getRinasaker(fnr, rinaSakIderFraDokumentMetadata))
 
@@ -168,7 +168,7 @@ class BucController(private val euxService: EuxService,
                 "rinaSakId: $rinaSakId, rinaDokumentId: $rinaDokumentId")
 
         return try {
-            val dokument = safClient.hentDokumentInnhold(joarkJournalpostId, joarkDokumentInfoId, variantFormat)
+            val dokument = vedleggService.hentDokumentInnhold(joarkJournalpostId, joarkDokumentInfoId, variantFormat)
             euxService.leggTilVedleggPaaDokument(aktoerId,
                     rinaSakId,
                     rinaDokumentId,

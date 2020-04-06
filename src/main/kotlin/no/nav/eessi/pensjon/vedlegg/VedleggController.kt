@@ -5,7 +5,6 @@ import io.swagger.annotations.ApiOperation
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.utils.errorBody
-import no.nav.eessi.pensjon.vedlegg.client.SafClient
 import no.nav.eessi.pensjon.vedlegg.client.SafException
 import no.nav.eessi.pensjon.vedlegg.client.VariantFormat
 import no.nav.security.oidc.api.Protected
@@ -21,7 +20,7 @@ import java.util.*
 @Protected
 @RestController
 @RequestMapping("/saf")
-class VedleggController(private val safClient: SafClient,
+class VedleggController(private val vedleggService: VedleggService,
                         private val auditlogger: AuditLogger,
                         @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())) {
 
@@ -35,7 +34,7 @@ class VedleggController(private val safClient: SafClient,
         return metricsHelper.measure(MetricsHelper.MeterName.VedleggControllerMetadata) {
             logger.info("Henter metadata for dokumenter i SAF for aktørid: $aktoerId")
             return@measure try {
-                ResponseEntity.ok().body(safClient.hentDokumentMetadata(aktoerId).toJson())
+                ResponseEntity.ok().body(vedleggService.hentDokumentMetadata(aktoerId).toJson())
             } catch (ex: SafException) {
                 ResponseEntity.status(ex.httpStatus).body(errorBody(ex.message!!, UUID.randomUUID().toString()))
             }
@@ -51,7 +50,7 @@ class VedleggController(private val safClient: SafClient,
         return metricsHelper.measure(MetricsHelper.MeterName.VedleggControllerInnhold) {
             logger.info("Henter dokumentinnhold fra SAF for journalpostId: $journalpostId, dokumentInfoId: $dokumentInfoId")
             return@measure try {
-                val hentDokumentInnholdResponse = safClient.hentDokumentInnhold(journalpostId, dokumentInfoId, variantFormat)
+                val hentDokumentInnholdResponse = vedleggService.hentDokumentInnhold(journalpostId, dokumentInfoId, variantFormat)
                 ResponseEntity.ok().body(hentDokumentInnholdResponse.toJson())
             } catch (ex: SafException) {
                 ResponseEntity.status(ex.httpStatus).body(errorBody(ex.message!!, UUID.randomUUID().toString()))

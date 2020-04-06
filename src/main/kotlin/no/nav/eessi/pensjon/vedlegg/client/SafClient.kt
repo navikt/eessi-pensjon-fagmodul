@@ -7,13 +7,13 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.io.Resource
 import org.springframework.http.*
-import org.springframework.stereotype.Service
+import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
 import java.util.*
 
-@Service
+@Component
 class SafClient(private val safGraphQlOidcRestTemplate: RestTemplate,
                 private val safRestOidcRestTemplate: RestTemplate,
                 @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())) {
@@ -90,11 +90,6 @@ class SafClient(private val safGraphQlOidcRestTemplate: RestTemplate,
         }
     }
 
-    private fun genererQuery(aktoerId: String): String {
-        val request = SafRequest(variables = Variables(BrukerId(aktoerId, BrukerIdType.AKTOERID), 10000))
-        return request.toJson()
-    }
-
     /**
      * Returnerer en distinct liste av rinaSakIDer basert på tilleggsinformasjon i journalposter for en aktør
      * @param metadata journalpostmetadata fra JOARK datamodellen
@@ -112,6 +107,11 @@ class SafClient(private val safGraphQlOidcRestTemplate: RestTemplate,
             }
             rinaSakIder.distinct()
         }
+    }
+
+    private fun genererQuery(aktoerId: String): String {
+        val request = SafRequest(variables = Variables(BrukerId(aktoerId, BrukerIdType.AKTOERID), 10000))
+        return request.toJson()
     }
 }
 
