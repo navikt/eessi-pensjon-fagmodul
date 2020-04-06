@@ -1,13 +1,13 @@
-package no.nav.eessi.pensjon.api.arkiv
+package no.nav.eessi.pensjon.vedlegg
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import io.swagger.annotations.ApiOperation
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
-import no.nav.eessi.pensjon.services.arkiv.SafException
-import no.nav.eessi.pensjon.services.arkiv.SafService
-import no.nav.eessi.pensjon.services.arkiv.VariantFormat
 import no.nav.eessi.pensjon.utils.errorBody
+import no.nav.eessi.pensjon.vedlegg.client.SafClient
+import no.nav.eessi.pensjon.vedlegg.client.SafException
+import no.nav.eessi.pensjon.vedlegg.client.VariantFormat
 import no.nav.security.oidc.api.Protected
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -21,21 +21,21 @@ import java.util.*
 @Protected
 @RestController
 @RequestMapping("/saf")
-class SafController(private val safService: SafService,
-                    private val auditlogger: AuditLogger,
-                    @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())) {
+class VedleggController(private val safClient: SafClient,
+                        private val auditlogger: AuditLogger,
+                        @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())) {
 
-    private val logger = LoggerFactory.getLogger(SafController::class.java)
+    private val logger = LoggerFactory.getLogger(VedleggController::class.java)
 
 
     @ApiOperation("Henter metadata for alle dokumenter i alle journalposter for en gitt aktørid")
     @GetMapping("/metadata/{aktoerId}")
     fun hentDokumentMetadata(@PathVariable("aktoerId", required = true) aktoerId: String): ResponseEntity<String> {
         auditlogger.log("hentDokumentMetadata", aktoerId)
-        return metricsHelper.measure(MetricsHelper.MeterName.SafControllerMetadata) {
+        return metricsHelper.measure(MetricsHelper.MeterName.VedleggControllerMetadata) {
             logger.info("Henter metadata for dokumenter i SAF for aktørid: $aktoerId")
             return@measure try {
-                ResponseEntity.ok().body(safService.hentDokumentMetadata(aktoerId).toJson())
+                ResponseEntity.ok().body(safClient.hentDokumentMetadata(aktoerId).toJson())
             } catch (ex: SafException) {
                 ResponseEntity.status(ex.httpStatus).body(errorBody(ex.message!!, UUID.randomUUID().toString()))
             }
@@ -48,10 +48,10 @@ class SafController(private val safService: SafService,
                            @PathVariable("dokumentInfoId", required = true) dokumentInfoId: String,
                            @PathVariable("variantFormat", required = true) variantFormat: VariantFormat): ResponseEntity<String> {
         auditlogger.log("getDokumentInnhold")
-        return metricsHelper.measure(MetricsHelper.MeterName.SafControllerInnhold) {
+        return metricsHelper.measure(MetricsHelper.MeterName.VedleggControllerInnhold) {
             logger.info("Henter dokumentinnhold fra SAF for journalpostId: $journalpostId, dokumentInfoId: $dokumentInfoId")
             return@measure try {
-                val hentDokumentInnholdResponse = safService.hentDokumentInnhold(journalpostId, dokumentInfoId, variantFormat)
+                val hentDokumentInnholdResponse = safClient.hentDokumentInnhold(journalpostId, dokumentInfoId, variantFormat)
                 ResponseEntity.ok().body(hentDokumentInnholdResponse.toJson())
             } catch (ex: SafException) {
                 ResponseEntity.status(ex.httpStatus).body(errorBody(ex.message!!, UUID.randomUUID().toString()))

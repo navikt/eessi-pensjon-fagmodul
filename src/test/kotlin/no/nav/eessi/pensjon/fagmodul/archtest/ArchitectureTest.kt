@@ -73,13 +73,13 @@ class ArchitectureTest {
         val euxService = "fagmodul.euxservice"
         val euxBasisModel = "fagmodul.euxBasisModel"
         val euxBucModel = "fagmodul.euxBucModel"
-        val arkivService = "services.arkiv"
         val kodeverkService = "services.kodeverk"
         val geoService = "services.geo"
         val personService = "services.person"
         val pensjonService = "services.pensjon"
         val security = "security"
         val utils = "utils"
+        val vedlegg = "vedlegg"
 
         val packages: Map<String, String> = mapOf(
                 "$root.fagmodul.health.." to health,
@@ -99,7 +99,6 @@ class ArchitectureTest {
                 "$root.fagmodul.config.." to config,
                 "$root.fagmodul.metrics.." to metrics,
                 "$root.services.aktoerregister" to aktoerregisterService,
-                "$root.services.arkiv" to arkivService,
                 "$root.services.kodeverk" to kodeverkService,
                 "$root.services.geo" to geoService,
                 "$root.services.personv3" to personService,
@@ -109,7 +108,8 @@ class ArchitectureTest {
 
                 "$root.metrics.." to utils,
                 "$root.utils.." to utils,
-                "$root.logging.." to utils)
+                "$root.logging.." to utils,
+                "$root.vedlegg.." to vedlegg)
 
         // packages in each component - default is the package with the component name
         fun packagesFor(layer: String) = packages.entries.filter { it.value == layer }.map { it.key }.toTypedArray()
@@ -133,7 +133,6 @@ class ArchitectureTest {
                 .layer(models).definedBy(*packagesFor(models))
                 .layer(sedmodel).definedBy(*packagesFor(sedmodel))
                 .layer(aktoerregisterService).definedBy(*packagesFor(aktoerregisterService))
-                .layer(arkivService).definedBy(*packagesFor(arkivService))
                 .layer(kodeverkService).definedBy(*packagesFor(kodeverkService))
                 .layer(geoService).definedBy(*packagesFor(geoService))
                 .layer(personService).definedBy(*packagesFor(personService))
@@ -143,6 +142,7 @@ class ArchitectureTest {
                 .layer(metrics).definedBy(*packagesFor(metrics))
                 .layer(security).definedBy(*packagesFor(security))
                 .layer(utils).definedBy(*packagesFor(utils))
+                .layer(vedlegg).definedBy(*packagesFor(vedlegg))
 
                 .whereLayer(health).mayNotBeAccessedByAnyLayer()
 
@@ -163,14 +163,13 @@ class ArchitectureTest {
                 .whereLayer(sedmodel).mayOnlyBeAccessedByLayers(prefill, euxService, pensjonUtlandApi, bucSedApi)
                 .whereLayer(aktoerregisterService).mayOnlyBeAccessedByLayers(personApi, bucSedApi, pensjonApi)
 
-                .whereLayer(arkivService).mayOnlyBeAccessedByLayers(arkivApi, bucSedApi)
                 .whereLayer(geoService).mayOnlyBeAccessedByLayers(geoApi, pensjonUtlandApi, prefill)
                 .whereLayer(personService).mayOnlyBeAccessedByLayers(health, personApi, prefill)
                 .whereLayer(pensjonService).mayOnlyBeAccessedByLayers(health, pensjonApi, prefill)
 
                 .whereLayer(config).mayNotBeAccessedByAnyLayer()
                 .whereLayer(metrics).mayOnlyBeAccessedByLayers(health, euxService, pensjonUtlandApi)
-                .whereLayer(security).mayOnlyBeAccessedByLayers(health, euxService, aktoerregisterService, arkivService, pensjonService, personService, kodeverkService)
+                .whereLayer(security).mayOnlyBeAccessedByLayers(health, euxService, aktoerregisterService, vedlegg, pensjonService, personService, kodeverkService)
 
                 .check(allClasses)
     }
@@ -181,10 +180,12 @@ class ArchitectureTest {
         val fagmodulCore = "Fagmodul Core"
         val services = "Services"
         val support = "Support"
+        val vedlegg ="Vedlegg"
         layeredArchitecture()
                 .layer(frontendAPI).definedBy("$root.api..")
                 .layer(fagmodulCore).definedBy("$root.fagmodul..")
                 .layer(services).definedBy("$root.services..")
+                .layer(vedlegg).definedBy("$root.vedlegg..")
                 .layer(support).definedBy(
                         "$root.metrics..",
                         "$root.security..",
@@ -199,7 +200,8 @@ class ArchitectureTest {
                 .whereLayer(support).mayOnlyBeAccessedByLayers(
                         frontendAPI,
                         fagmodulCore,
-                        services)
+                        services,
+                        vedlegg)
                 .check(allClasses)
     }
 

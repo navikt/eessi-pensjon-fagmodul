@@ -11,8 +11,8 @@ class MetricsHelper(val registry: MeterRegistry) {
     enum class MeterName {
         PrefillSed,
         PensjonControllerHentSakType,
-        SafControllerMetadata,
-        SafControllerInnhold,
+        VedleggControllerMetadata,
+        VedleggControllerInnhold,
         PersonControllerHentPerson,
         PersonControllerHentPersonNavn,
         VedleggPaaDokument,

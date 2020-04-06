@@ -4,6 +4,9 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doThrow
 import com.nhaarman.mockitokotlin2.whenever
+import no.nav.eessi.pensjon.vedlegg.client.SafException
+import no.nav.eessi.pensjon.vedlegg.client.SafClient
+import no.nav.eessi.pensjon.vedlegg.client.VariantFormat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -28,7 +31,7 @@ import java.nio.file.Paths
 import java.util.*
 
 @ExtendWith(MockitoExtension::class)
-class SafServiceTest {
+class SafClientTest {
 
     @Mock
     private lateinit var safGraphQlOidcRestTemplate: RestTemplate
@@ -36,11 +39,11 @@ class SafServiceTest {
     @Mock
     private lateinit var safRestOidcRestTemplate: RestTemplate
 
-    lateinit var safService: SafService
+    lateinit var safClient: SafClient
 
     @BeforeEach
     fun setup() {
-        safService = SafService(safGraphQlOidcRestTemplate, safRestOidcRestTemplate)
+        safClient = SafClient(safGraphQlOidcRestTemplate, safRestOidcRestTemplate)
     }
 
     @Test
@@ -49,7 +52,7 @@ class SafServiceTest {
 
         whenever(safGraphQlOidcRestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), ArgumentMatchers.eq(String::class.java)))
                 .thenReturn(ResponseEntity(responseJson, HttpStatus.OK))
-        val resp = safService.hentDokumentMetadata("1234567891000")
+        val resp = safClient.hentDokumentMetadata("1234567891000")
 
         val mapper = jacksonObjectMapper()
         JSONAssert.assertEquals(mapper.writeValueAsString(resp), responseJson, true)
@@ -62,7 +65,7 @@ class SafServiceTest {
 
         whenever(safGraphQlOidcRestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), ArgumentMatchers.eq(String::class.java)))
                 .thenReturn(ResponseEntity(responseJson, HttpStatus.OK))
-        val resp = safService.hentDokumentMetadata("1234567891000")
+        val resp = safClient.hentDokumentMetadata("1234567891000")
 
         assertEquals(null, resp.data.dokumentoversiktBruker.journalposter[0].tittel)
     }
@@ -74,7 +77,7 @@ class SafServiceTest {
                 .whenever(safGraphQlOidcRestTemplate).exchange(any<String>(), any(), any<HttpEntity<Unit>>(), ArgumentMatchers.eq(String::class.java))
 
         assertThrows<SafException> {
-            safService.hentDokumentMetadata("1234567891000")
+            safClient.hentDokumentMetadata("1234567891000")
         }
     }
 
@@ -84,7 +87,7 @@ class SafServiceTest {
         whenever(safGraphQlOidcRestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), ArgumentMatchers.eq(String::class.java)))
                 .thenThrow(RestClientException("some error"))
         assertThrows<SafException> {
-            safService.hentDokumentMetadata("1234567891000")
+            safClient.hentDokumentMetadata("1234567891000")
         }
     }
 
@@ -95,7 +98,7 @@ class SafServiceTest {
                 .whenever(safRestOidcRestTemplate).exchange(any<String>(), any(), any<HttpEntity<Unit>>(), ArgumentMatchers.eq(String::class.java))
 
         assertThrows<SafException> {
-            safService.hentDokumentInnhold("123", "456", VariantFormat.ARKIV)
+            safClient.hentDokumentInnhold("123", "456", VariantFormat.ARKIV)
         }
     }
 
@@ -104,7 +107,7 @@ class SafServiceTest {
         whenever(safRestOidcRestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), ArgumentMatchers.eq(String::class.java)))
                 .thenThrow(RestClientException("some error"))
         assertThrows<SafException> {
-            safService.hentDokumentInnhold("123", "456", VariantFormat.ARKIV)
+            safClient.hentDokumentInnhold("123", "456", VariantFormat.ARKIV)
         }
     }
 
@@ -124,7 +127,7 @@ class SafServiceTest {
 
         whenever(safGraphQlOidcRestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), ArgumentMatchers.eq(String::class.java)))
                 .thenReturn(ResponseEntity(responseJson, HttpStatus.OK))
-        val sakIder = safService.hentRinaSakIderFraDokumentMetadata("1234567891000")
+        val sakIder = safClient.hentRinaSakIderFraDokumentMetadata("1234567891000")
         assertEquals(sakIder.size, 1)
         assertEquals(sakIder[0], "1111")
     }

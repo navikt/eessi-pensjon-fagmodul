@@ -1,4 +1,4 @@
-package no.nav.eessi.pensjon.services.arkiv
+package no.nav.eessi.pensjon.vedlegg.client
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
@@ -14,11 +14,11 @@ import org.springframework.web.client.RestTemplate
 import java.util.*
 
 @Service
-class SafService(private val safGraphQlOidcRestTemplate: RestTemplate,
-                 private val safRestOidcRestTemplate: RestTemplate,
-                 @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())) {
+class SafClient(private val safGraphQlOidcRestTemplate: RestTemplate,
+                private val safRestOidcRestTemplate: RestTemplate,
+                @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())) {
 
-    private val logger = LoggerFactory.getLogger(SafService::class.java)
+    private val logger = LoggerFactory.getLogger(SafClient::class.java)
     private val mapper = jacksonObjectMapper()
     private final val TILLEGGSOPPLYSNING_RINA_SAK_ID_KEY = "eessi_pensjon_bucid"
 
