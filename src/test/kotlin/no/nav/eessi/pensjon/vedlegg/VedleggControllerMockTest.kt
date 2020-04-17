@@ -18,7 +18,7 @@ import java.nio.file.Paths
 import java.util.*
 
 @ExtendWith(MockitoExtension::class)
-class VedleggControllerTest {
+class VedleggControllerMockTest {
 
     @Mock
     lateinit var vedleggService: VedleggService
