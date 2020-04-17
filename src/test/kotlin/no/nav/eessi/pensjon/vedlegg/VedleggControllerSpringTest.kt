@@ -35,7 +35,6 @@ class VedleggControllerSpringTest {
         doReturn(HentdokumentInnholdResponse("WVdKag==","blah.pdf", "application/pdf")).`when`(vedleggService).hentDokumentInnhold(any(), any(), any())
 
         this.mockMvc!!.perform(put("/saf/vedlegg/1231231231231/111111/2222222/3333333/4444444/ARKIV"))
-                .andDo(print())
                 .andExpect(status().isOk)
                 .andExpect(content().string(containsString("{\"success\": true}")))
 
