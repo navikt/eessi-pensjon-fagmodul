@@ -22,4 +22,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           export TZ=CET
-          ./gradlew -Pgithub clean build
+          ./gradlew build

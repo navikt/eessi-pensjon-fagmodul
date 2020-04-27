@@ -6,38 +6,13 @@ buildscript {
         springfoxVersion = '2.9.2'
         jacksonModuleKotlinVersion = '2.10.1'
         cxfVersion = '3.3.4'
-        personV3Version = '3.6.1'
         oidcTokenSupportVersion = '0.2.18'
         logstashLogbackVersion = '6.3'
         pensjonInformasjonVersion = '9.4.10'
     }
 
     repositories {
-
-        if (project.hasProperty('github')) {
-            mavenCentral()
-
-            maven {
-                url "https://maven.pkg.github.com/navikt/maven-release"
-                credentials {
-                    username = "token"
-                    password = "$System.env.GITHUB_TOKEN"
-                }
-            }
-
-            maven {
-                credentials {
-                    username = "token"
-                    password = "$System.env.GITHUB_TOKEN"
-                }
-
-                setUrl("https://maven.pkg.github.com/navikt/tjenestespesifikasjoner")
-            }
-        } else {
-            maven {
-                url "https://repo.adeo.no/repository/maven-central"
-            }
-        }
+        mavenCentral()
     }
 
     dependencies {
@@ -155,13 +130,8 @@ dependencies {
 
 
     // Tjenestespesifikasjoner
-    if (project.hasProperty('github')) {
-        implementation("no.nav.tjenestespesifikasjoner:person-v3-tjenestespesifikasjon:1.2020.01.30-14.36-cdf257baea96")
-        xsd("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:1.2020.01.30-14.36-cdf257baea96")
-    } else {
-        implementation("no.nav.tjenester:nav-person-v3-tjenestespesifikasjon:${personV3Version}")
-        xsd("no.nav.pensjon:pensjonsinformasjon-xsd:${pensjonInformasjonVersion}")
-    }
+    implementation("no.nav.tjenestespesifikasjoner:person-v3-tjenestespesifikasjon:1.2020.01.30-14.36-cdf257baea96")
+    xsd("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:1.2020.01.30-14.36-cdf257baea96")
 
     jaxb ('org.glassfish.jaxb:jaxb-xjc:2.3.2')
     jaxb ('org.glassfish.jaxb:jaxb-runtime:2.3.2')
@@ -175,39 +145,20 @@ dependencies {
 }
 
 repositories {
+    mavenCentral()
 
-    if (project.hasProperty('github')) {
-        mavenCentral()
-
+    ["maven-release","tjenestespesifikasjoner","eessi-pensjon-metrics"].each { repo ->
+        String token = System.getenv("GITHUB_TOKEN") ?: project.findProperty("gpr.key")
+        if (!token) throw new NullPointerException("Missing token, you have to set GITHUB_TOKEN or gpr.key, see README")
         maven {
-            url "https://maven.pkg.github.com/navikt/maven-release"
+            url = uri("https://maven.pkg.github.com/navikt/$repo")
             credentials {
                 username = "token"
-                password = "$System.env.GITHUB_TOKEN"
+                password = token
             }
-        }
-
-        maven {
-            credentials {
-                username = "token"
-                password = "$System.env.GITHUB_TOKEN"
-            }
-
-            setUrl("https://maven.pkg.github.com/navikt/tjenestespesifikasjoner")
-        }
-    } else {
-        maven {
-            url "https://repo.adeo.no/repository/maven-central"
-        }
-        maven {
-            url "https://repo.adeo.no/repository/maven-releases"
-        }
-        maven {
-            url "https://repo.adeo.no/repository/nexus2-m2internal"
         }
     }
 }
-
 
 
 test {
