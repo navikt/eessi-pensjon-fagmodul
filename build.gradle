@@ -40,21 +40,27 @@ apply plugin: "org.jetbrains.kotlin.plugin.spring"
 apply plugin: "org.jetbrains.kotlin.plugin.allopen"
 apply plugin: "org.springframework.boot"
 
+assert JavaVersion.current().isJava11Compatible(): "Java 11 or newer is required"
+
 group = 'no.nav.eessi'
 version = '0.0.1'
-sourceCompatibility = 1.8
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
 
 compileKotlin {
     kotlinOptions {
         freeCompilerArgs = ["-Xjsr305=strict"]
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
 }
 
 compileTestKotlin {
     kotlinOptions {
         freeCompilerArgs = ["-Xjsr305=strict"]
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
 }
 
@@ -132,6 +138,7 @@ dependencies {
     // Tjenestespesifikasjoner
     implementation("no.nav.tjenestespesifikasjoner:person-v3-tjenestespesifikasjon:1.2020.01.30-14.36-cdf257baea96")
     xsd("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:1.2020.01.30-14.36-cdf257baea96")
+    implementation("com.sun.xml.ws:jaxws-ri:2.3.2")
 
     jaxb ('org.glassfish.jaxb:jaxb-xjc:2.3.2')
     jaxb ('org.glassfish.jaxb:jaxb-runtime:2.3.2')
