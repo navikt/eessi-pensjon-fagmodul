@@ -31,7 +31,7 @@ class VedleggControllerMockTest {
     @BeforeEach
     fun setup() {
         vedleggController = VedleggController(vedleggService, auditLogger)
-
+        vedleggController.initMetrics()
     }
 
     @Test

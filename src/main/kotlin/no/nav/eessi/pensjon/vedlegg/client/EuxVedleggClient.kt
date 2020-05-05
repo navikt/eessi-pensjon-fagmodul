@@ -16,12 +16,20 @@ import org.springframework.web.util.UriComponentsBuilder
 import java.io.File
 import java.nio.file.Paths
 import java.util.*
+import javax.annotation.PostConstruct
 
 @Component
 class EuxVedleggClient(private val euxOidcRestTemplate: RestTemplate,
                 @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())) {
 
     private val logger = LoggerFactory.getLogger(EuxVedleggClient::class.java)
+
+    private lateinit var VedleggPaaDokument: MetricsHelper.Metric
+
+    @PostConstruct
+    fun initMetrics() {
+        VedleggPaaDokument = metricsHelper.init("VedleggPaaDokument")
+    }
 
     fun leggTilVedleggPaaDokument(aktoerId: String,
                                   rinaSakId: String,
@@ -71,7 +79,7 @@ class EuxVedleggClient(private val euxOidcRestTemplate: RestTemplate,
                                 String::class.java)
                     }
                     , rinaSakId
-                    , MetricsHelper.MeterName.VedleggPaaDokument
+                    , VedleggPaaDokument
                     ,"En feil opppstod under tilknytning av vedlegg rinaid: $rinaSakId, sed: $rinaDokumentId"
             )
 
@@ -84,8 +92,8 @@ class EuxVedleggClient(private val euxOidcRestTemplate: RestTemplate,
         }
     }
 
-    fun <T> restTemplateErrorhandler(restTemplateFunction: () -> ResponseEntity<T>, euxCaseId: String, metricName: MetricsHelper.MeterName, prefixErrorMessage: String): ResponseEntity<T> {
-        return metricsHelper.measure(metricName) {
+    fun <T> restTemplateErrorhandler(restTemplateFunction: () -> ResponseEntity<T>, euxCaseId: String, metric: MetricsHelper.Metric, prefixErrorMessage: String): ResponseEntity<T> {
+        return metric.measure {
             return@measure try {
                 val response = retryHelper( func = { restTemplateFunction.invoke() } )
                 response

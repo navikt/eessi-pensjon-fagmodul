@@ -145,7 +145,7 @@ dependencies {
 
     // Micrometer
     implementation("io.micrometer:micrometer-registry-prometheus:1.3.2")
-    implementation("no.nav.eessi.pensjon:eessi-pensjon-metrics:0.1.0")
+    implementation("no.nav.eessi.pensjon:eessi-pensjon-metrics:0.3.1")
 
     // Kafka -- 2.4.0 feiler
     implementation ("org.springframework.kafka:spring-kafka:2.3.4.RELEASE")

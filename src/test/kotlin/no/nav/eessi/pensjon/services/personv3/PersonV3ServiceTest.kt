@@ -39,6 +39,7 @@ class PersonV3ServiceTest {
         mockkStatic("no.nav.eessi.pensjon.security.sts.STSClientConfigKt")
         every { configureRequestSamlToken(personV3Mock) } returns Unit
         personV3Service = PersonV3Service(personV3Mock, auditLogger)
+        personV3Service.initMetrics()
     }
 
     @Test

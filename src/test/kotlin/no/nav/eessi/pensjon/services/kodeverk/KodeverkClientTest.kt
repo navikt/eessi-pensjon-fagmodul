@@ -29,7 +29,8 @@ class KodeverkClientTest {
 
     @BeforeEach
     fun setup() {
-       kodeverkClient = KodeverkClient(mockrestTemplate, "eessi-fagmodul")
+        kodeverkClient = KodeverkClient(mockrestTemplate, "eessi-fagmodul")
+        kodeverkClient.initMetrics()
     }
 
     @Test

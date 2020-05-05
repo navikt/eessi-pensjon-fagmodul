@@ -1,6 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucSedResponse
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
@@ -16,16 +17,29 @@ import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import no.nav.eessi.pensjon.utils.typeRefs
 import no.nav.eessi.pensjon.vedlegg.client.SafClient
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
+import javax.annotation.PostConstruct
 
 @Service
 class EuxService (private val euxKlient: EuxKlient,
-                  private val safClient: SafClient) {
+                  private val safClient: SafClient,
+                  @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())) {
+
     private val logger = LoggerFactory.getLogger(EuxService::class.java)
 
     // Vi trenger denne no arg konstruktøren for å kunne bruke @Spy med mockito
     constructor() : this(EuxKlient(RestTemplate()), SafClient(RestTemplate(), RestTemplate()))
+
+    private lateinit var OpprettSvarSED: MetricsHelper.Metric
+    private lateinit var OpprettSED: MetricsHelper.Metric
+
+    @PostConstruct
+    fun initMetrics() {
+        OpprettSvarSED = metricsHelper.init("OpprettSvarSED")
+        OpprettSED = metricsHelper.init("OpprettSED")
+    }
 
     fun getAvailableSedOnBuc(bucType: String?): List<String> {
         val map = initSedOnBuc()
@@ -69,7 +83,7 @@ class EuxService (private val euxKlient: EuxKlient,
         return euxKlient.opprettSed(euxUrlpath,
                 navSED.toJsonSkipEmpty(),
                 euxCaseId,
-                MetricsHelper.MeterName.OpprettSvarSED,
+                OpprettSvarSED,
                 "Feil ved opprettSvarSed", parentDocumentId)
     }
 
@@ -79,7 +93,7 @@ class EuxService (private val euxKlient: EuxKlient,
     @Throws(EuxGenericServerException::class, SedDokumentIkkeOpprettetException::class)
     fun opprettSedOnBuc(navSED: SED, euxCaseId: String): BucSedResponse {
         val euxUrlpath = "/buc/{RinaSakId}/sed"
-        return euxKlient.opprettSed(euxUrlpath, navSED.toJsonSkipEmpty(), euxCaseId, MetricsHelper.MeterName.OpprettSED, "Feil ved opprettSed", null)
+        return euxKlient.opprettSed(euxUrlpath, navSED.toJsonSkipEmpty(), euxCaseId, OpprettSED, "Feil ved opprettSed", null)
     }
 
     /**

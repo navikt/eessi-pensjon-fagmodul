@@ -32,6 +32,7 @@ class AktoerregisterServiceTest {
     @BeforeEach
     fun setup() {
         aktoerregisterService = AktoerregisterService(mockrestTemplate, appName = "unittests")
+        aktoerregisterService.initMetrics()
     }
 
 

@@ -21,6 +21,7 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponents
 import org.springframework.web.util.UriComponentsBuilder
 import java.util.*
+import javax.annotation.PostConstruct
 
 @Component
 @CacheConfig(cacheNames = ["kodeVerk"])
@@ -30,13 +31,20 @@ class KodeverkClient(private val kodeRestTemplate: RestTemplate,
 
     private val logger = LoggerFactory.getLogger(KodeverkClient::class.java)
 
+    private lateinit var KodeverkHentLandKode: MetricsHelper.Metric
+
+    @PostConstruct
+    fun initMetrics() {
+        KodeverkHentLandKode = metricsHelper.init("KodeverkHentLandKode")
+    }
+
     fun hentAlleLandkoder() = hentLandKoder().toJson()
 
     fun hentLandkoderAlpha2() = hentLandKoder().map { it.landkode2 }.toList()
 
     @Cacheable
     fun hentLandKoder(): List<Landkode> {
-        return metricsHelper.measure(MetricsHelper.MeterName.KodeverkHentLandKode) {
+        return KodeverkHentLandKode.measure {
             val tmpLandkoder = hentHierarki("LandkoderSammensattISO2")
 
             val rootNode = jacksonObjectMapper().readTree(tmpLandkoder)

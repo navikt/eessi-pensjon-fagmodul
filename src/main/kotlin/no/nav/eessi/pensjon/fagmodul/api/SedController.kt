@@ -14,6 +14,7 @@ import no.nav.eessi.pensjon.fagmodul.prefill.PrefillService
 import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModel
 import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
 import no.nav.eessi.pensjon.logging.AuditLogger
+import no.nav.eessi.pensjon.metrics.CounterHelper
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.services.aktoerregister.AktoerregisterService
 import no.nav.eessi.pensjon.utils.toJson
@@ -24,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDateTime
+import javax.annotation.PostConstruct
 
 @Protected
 @RestController
@@ -32,9 +34,19 @@ class SedController(private val euxService: EuxService,
                     private val prefillService: PrefillService,
                     private val aktoerService: AktoerregisterService,
                     private val auditlogger: AuditLogger,
-                    @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())) {
+                    @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry()),
+                    @Autowired(required = false) private val counterHelper: CounterHelper = CounterHelper(SimpleMeterRegistry())) {
 
     private val logger = LoggerFactory.getLogger(SedController::class.java)
+
+    private lateinit var AddInstutionAndDocument: MetricsHelper.Metric
+    private lateinit var AddDocumentToParent: MetricsHelper.Metric
+
+    @PostConstruct
+    fun initMetrics() {
+        AddInstutionAndDocument = metricsHelper.init("AddInstutionAndDocument")
+        AddDocumentToParent = metricsHelper.init("AddDocumentToParent")
+    }
 
     //** oppdatert i api 18.02.2019
     @ApiOperation("Genereren en Nav-Sed (SED), viser en oppsumering av SED (json). Før evt. innsending til EUX/Rina")
@@ -69,7 +81,7 @@ class SedController(private val euxService: EuxService,
     fun addInstutionAndDocument(@RequestBody request: ApiRequest): ShortDocumentItem {
         auditlogger.log("addInstutionAndDocument", request.aktoerId ?: "", request.toAudit())
 
-        return metricsHelper.measure(MetricsHelper.MeterName.AddInstutionAndDocument) {
+        return AddInstutionAndDocument.measure {
             val dataModel = ApiRequest.buildPrefillDataModelOnExisting(request, aktoerService.hentPinForAktoer(request.aktoerId), getAvdodAktoerId(request))
             logger.info("******* Legge til ny SED - start *******")
             logger.info("kaller add (institutions and sed) rinaId: ${request.euxCaseId} bucType: ${request.buc} sedType: ${request.sed} aktoerId: ${request.aktoerId}")
@@ -94,7 +106,7 @@ class SedController(private val euxService: EuxService,
             val result = bucUtil.findDocument(docresult.documentId)
 
             //extra tag metricshelper for sedType, bucType, timeStamp og rinaId.
-            metricsHelper.measureExtra(MetricsHelper.MeterNameExtraTag.AddInstutionAndDocument, extraTag = extraTag(dataModel, bucUtil))
+            counterHelper.count(CounterHelper.MeterNameExtraTag.AddInstutionAndDocument, extraTag = extraTag(dataModel, bucUtil))
 
             logger.info("Henter BUC dokumentdata for ny SED")
             logger.info("******* Legge til ny SED - slutt *******")
@@ -124,7 +136,7 @@ class SedController(private val euxService: EuxService,
     fun addDocumentToParent(@RequestBody(required = true) request: ApiRequest, @PathVariable("parentid", required = true) parentId: String): ShortDocumentItem {
         auditlogger.log("addDocumentToParent", request.aktoerId ?: "", request.toAudit())
 
-        return metricsHelper.measure(MetricsHelper.MeterName.AddDocumentToParent) {
+        return AddDocumentToParent.measure {
             val dataModel = ApiRequest.buildPrefillDataModelOnExisting(request, aktoerService.hentPinForAktoer(request.aktoerId), getAvdodAktoerId(request))
             logger.info("Prøver å prefillSED (svar)")
             val sed = prefillService.prefillSed(dataModel)
@@ -135,7 +147,7 @@ class SedController(private val euxService: EuxService,
             val bucUtil = BucUtils(euxService.getBuc(docresult.caseId))
 
             //extra tag metricshelper for sedType, bucType, timeStamp og rinaId.
-            metricsHelper.measureExtra(MetricsHelper.MeterNameExtraTag.AddDocumentToParent, extraTag = extraTag(dataModel, bucUtil))
+            counterHelper.count(CounterHelper.MeterNameExtraTag.AddDocumentToParent, extraTag = extraTag(dataModel, bucUtil))
 
             logger.info("Henter BUC dokumentdata for svar SED")
             val result = bucUtil.findDocument(docresult.documentId)

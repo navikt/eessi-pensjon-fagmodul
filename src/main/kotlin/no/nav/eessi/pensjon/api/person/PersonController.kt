@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RestController
+import javax.annotation.PostConstruct
 
 /**
  * Controller for å kalle NAV interne registre
@@ -31,12 +32,21 @@ class PersonController(private val aktoerregisterService: AktoerregisterService,
 
     private val logger = LoggerFactory.getLogger(PersonController::class.java)
 
+    private lateinit var PersonControllerHentPerson: MetricsHelper.Metric
+    private lateinit var PersonControllerHentPersonNavn: MetricsHelper.Metric
+
+    @PostConstruct
+    fun initMetrics() {
+        PersonControllerHentPerson = metricsHelper.init("PersonControllerHentPerson")
+        PersonControllerHentPersonNavn = metricsHelper.init("PersonControllerHentPersonNavn")
+    }
+
     @ApiOperation("henter ut personinformasjon for en aktørId")
     @GetMapping("/person/{aktoerid}", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getPerson(@PathVariable("aktoerid", required = true) aktoerid: String): ResponseEntity<Any> {
         auditLogger.log("/person/{$aktoerid}", "getPerson")
 
-        return metricsHelper.measure(MetricsHelper.MeterName.PersonControllerHentPerson) {
+        return PersonControllerHentPerson.measure {
             ResponseEntity.ok(hentPerson(aktoerid))
         }
     }
@@ -46,15 +56,15 @@ class PersonController(private val aktoerregisterService: AktoerregisterService,
     fun getNameOnly(@PathVariable("aktoerid", required = true) aktoerid: String): ResponseEntity<Personinformasjon> {
         auditLogger.log("/personinfo/{$aktoerid}", "getNameOnly")
 
-        return metricsHelper.measure(MetricsHelper.MeterName.PersonControllerHentPersonNavn) {
+        return PersonControllerHentPersonNavn.measure {
             val response = hentPerson(aktoerid)
             ResponseEntity.ok(
-            Personinformasjon(response.person.personnavn.sammensattNavn,
-                    response.person.personnavn.fornavn,
-                    response.person.personnavn.mellomnavn,
-                    response.person.personnavn.etternavn)
-                )
-            }
+                    Personinformasjon(response.person.personnavn.sammensattNavn,
+                            response.person.personnavn.fornavn,
+                            response.person.personnavn.mellomnavn,
+                            response.person.personnavn.etternavn)
+            )
+        }
     }
 
     private fun hentPerson(aktoerid: String): HentPersonResponse {

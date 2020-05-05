@@ -12,6 +12,7 @@ import no.nav.eessi.pensjon.metrics.MetricsHelper
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import javax.annotation.PostConstruct
 
 @Service
 class PrefillService(private val factory: PrefillSEDService,
@@ -19,10 +20,17 @@ class PrefillService(private val factory: PrefillSEDService,
 
     private val logger = LoggerFactory.getLogger(PrefillService::class.java)
 
+    private lateinit var PrefillSed: MetricsHelper.Metric
+
+    @PostConstruct
+    fun initMetrics() {
+        PrefillSed = metricsHelper.init("PrefillSed")
+    }
+
     //preutfylling av sed fra TPS, PESYS, AAREG o.l skjer her..
     @Throws(ValidationException::class)
     fun prefillSed(dataModel: PrefillDataModel): SED {
-        return metricsHelper.measure(MetricsHelper.MeterName.PrefillSed) {
+        return PrefillSed.measure {
 
             logger.info("******* Starter med preutfylling *******\nSED: ${dataModel.getSEDid()} aktoerId: ${dataModel.bruker.aktorId} sakNr: ${dataModel.penSaksnummer}")
 

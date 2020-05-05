@@ -15,6 +15,7 @@ import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
 import java.util.*
+import javax.annotation.PostConstruct
 
 data class Identinfo(
         val ident: String,
@@ -34,6 +35,17 @@ class AktoerregisterService(private val aktoerregisterOidcRestTemplate: RestTemp
 
     private val logger = LoggerFactory.getLogger(AktoerregisterService::class.java)
 
+    private lateinit var AktoerNorskIdentForAktorId: MetricsHelper.Metric
+    private lateinit var AktoerforNorskIdent: MetricsHelper.Metric
+    private lateinit var AktoerRequester: MetricsHelper.Metric
+
+    @PostConstruct
+    fun initMetrics() {
+        AktoerNorskIdentForAktorId = metricsHelper.init("AktoerNorskIdentForAktorId")
+        AktoerforNorskIdent = metricsHelper.init("AktoerforNorskIdent")
+        AktoerRequester = metricsHelper.init("AktoerRequester")
+    }
+
 
     @Throws(AktoerregisterException::class, ManglerAktoerIdException::class)
     fun hentPinForAktoer(aktorid: String?) = hentGjeldendeNorskIdentForAktorId(aktorid)
@@ -43,7 +55,7 @@ class AktoerregisterService(private val aktoerregisterOidcRestTemplate: RestTemp
 
 
     fun hentGjeldendeNorskIdentForAktorId(aktorid: String?): String {
-        return metricsHelper.measure(MetricsHelper.MeterName.AktoerNorskIdentForAktorId) {
+        return AktoerNorskIdentForAktorId.measure {
             if (aktorid.isNullOrBlank()) throw ManglerAktoerIdException("Mangler AktoerId")
 
             val response = doRequest(aktorid, "NorskIdent")
@@ -54,7 +66,7 @@ class AktoerregisterService(private val aktoerregisterOidcRestTemplate: RestTemp
     }
 
     fun hentGjeldendeAktorIdForNorskIdent(norskIdent: String?): String {
-        return metricsHelper.measure(MetricsHelper.MeterName.AktoerforNorskIdent) {
+        return AktoerforNorskIdent.measure {
             if (norskIdent.isNullOrBlank()) throw ManglerAktoerIdException("Mangler fnr/ident")
 
             val response = doRequest(norskIdent, "AktoerId")
@@ -89,7 +101,7 @@ class AktoerregisterService(private val aktoerregisterOidcRestTemplate: RestTemp
                           identGruppe: String,
                           gjeldende: Boolean = true): Map<String, IdentinfoForAktoer> {
 
-        return metricsHelper.measure(MetricsHelper.MeterName.AktoerRequester) {
+        return AktoerRequester.measure {
             val headers = HttpHeaders()
             headers["Nav-Personidenter"] = ident
             headers["Nav-Consumer-Id"] = appName

@@ -36,6 +36,7 @@ class PensjonsinformasjonClientTest {
     @BeforeEach
     fun setup() {
         pensjonsinformasjonClient = PensjonsinformasjonClient(mockrestTemplate, RequestBuilder())
+        pensjonsinformasjonClient.initMetrics()
     }
 
     @Test

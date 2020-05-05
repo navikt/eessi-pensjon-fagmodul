@@ -26,6 +26,7 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.UnknownHttpStatusCodeException
 import org.springframework.web.util.UriComponentsBuilder
 import java.util.*
+import javax.annotation.PostConstruct
 
 /**
  *   https://eux-app.nais.preprod.local/swagger-ui.html#/eux-cpi-service-controller/
@@ -42,9 +43,30 @@ class EuxKlient(private val euxOidcRestTemplate: RestTemplate,
 
     private val logger = LoggerFactory.getLogger(EuxKlient::class.java)
 
+    private lateinit var SEDByDocumentId: MetricsHelper.Metric
+    private lateinit var GetBUC: MetricsHelper.Metric
+    private lateinit var BUCDeltakere: MetricsHelper.Metric
+    private lateinit var Institusjoner: MetricsHelper.Metric
+    private lateinit var CreateBUC: MetricsHelper.Metric
+    private lateinit var HentRinasaker: MetricsHelper.Metric
+    private lateinit var PutMottaker: MetricsHelper.Metric
+    private lateinit var PingEux: MetricsHelper.Metric
+
+    @PostConstruct
+    fun initMetrics() {
+        SEDByDocumentId = metricsHelper.init("SEDByDocumentId")
+        GetBUC = metricsHelper.init("GetBUC")
+        BUCDeltakere = metricsHelper.init("BUCDeltakere")
+        Institusjoner = metricsHelper.init("Institusjoner")
+        CreateBUC = metricsHelper.init("CreateBUC")
+        HentRinasaker = metricsHelper.init("HentRinasaker")
+        PutMottaker = metricsHelper.init("PutMottaker")
+        PingEux = metricsHelper.init("PingEux")
+    }
+
     //ny SED på ekisterende type eller ny svar SED på ekisternede rina
     @Throws(EuxGenericServerException::class, SedDokumentIkkeOpprettetException::class)
-    fun opprettSed(urlPath: String, navSEDjson: String, euxCaseId: String, metricName: MetricsHelper.MeterName, errorMessage: String, parentDocumentId: String?): BucSedResponse {
+    fun opprettSed(urlPath: String, navSEDjson: String, euxCaseId: String, metric: MetricsHelper.Metric, errorMessage: String, parentDocumentId: String?): BucSedResponse {
 
         val uriParams = mapOf("RinaSakId" to euxCaseId, "DokuemntId" to parentDocumentId).filter { it.value != null }
         val builder = UriComponentsBuilder.fromUriString(urlPath)
@@ -65,7 +87,7 @@ class EuxKlient(private val euxOidcRestTemplate: RestTemplate,
                             String::class.java)
                 }
                 , euxCaseId
-                , metricName
+                , metric
                 , errorMessage
                 , waitTimes = 20000L
         )
@@ -89,7 +111,7 @@ class EuxKlient(private val euxOidcRestTemplate: RestTemplate,
                             String::class.java)
                 }
                 , euxCaseId
-                , MetricsHelper.MeterName.SEDByDocumentId
+                , SEDByDocumentId
                 , "Feil ved henting av Sed med DocId: $documentId"
         )
         return response.body ?: {
@@ -115,7 +137,7 @@ class EuxKlient(private val euxOidcRestTemplate: RestTemplate,
                                 String::class.java)
                 }
                 , euxCaseId = euxCaseId
-                , metricName = MetricsHelper.MeterName.GetBUC
+                , metric = GetBUC
                 , prefixErrorMessage = "Feiler ved metode GetBuc. "
         )
         return response.body ?: throw ServerException("Feil ved henting av BUCdata ingen data, euxCaseId $euxCaseId")
@@ -138,7 +160,7 @@ class EuxKlient(private val euxOidcRestTemplate: RestTemplate,
                             typeRef<List<ParticipantsItem>>())
                 }
                 , euxCaseId = euxCaseId
-                , metricName = MetricsHelper.MeterName.BUCDeltakere
+                , metric = BUCDeltakere
                 , prefixErrorMessage = "Feiler ved metode getDeltakerer. "
         )
         return  response.body ?: throw ServerException("Feil ved henting av BucDeltakere: ingen data, euxCaseId $euxCaseId")
@@ -161,7 +183,7 @@ class EuxKlient(private val euxOidcRestTemplate: RestTemplate,
                             String::class.java)
                 }
                 , ""
-                , MetricsHelper.MeterName.Institusjoner
+                , Institusjoner
                 , "Feil ved innhenting av institusjoner"
         )
         val starttid = System.currentTimeMillis()
@@ -215,7 +237,7 @@ class EuxKlient(private val euxOidcRestTemplate: RestTemplate,
                             String::class.java)
                 }
                 , euxCaseId ?: ""
-                , MetricsHelper.MeterName.HentRinasaker
+                , HentRinasaker
                 , "Feil ved Rinasaker"
         )
 
@@ -239,7 +261,7 @@ class EuxKlient(private val euxOidcRestTemplate: RestTemplate,
                             String::class.java)
                 }
                 , bucType
-                , MetricsHelper.MeterName.CreateBUC
+                , CreateBUC
                 , "Opprett Buc, "
         )
         response.body?.let { return it } ?: {
@@ -277,7 +299,7 @@ class EuxKlient(private val euxOidcRestTemplate: RestTemplate,
                             String::class.java)
                 }
                 , euxCaseId
-                , MetricsHelper.MeterName.PutMottaker
+                , PutMottaker
                 , "Feiler ved behandling. Får ikke lagt til mottaker på Buc. "
         )
         return result.statusCode == HttpStatus.OK
@@ -300,7 +322,7 @@ class EuxKlient(private val euxOidcRestTemplate: RestTemplate,
                             String::class.java)
                 }
                 , ""
-                , MetricsHelper.MeterName.PingEux
+                , PingEux
                 , ""
         )
         return pingResult.statusCode == HttpStatus.OK
@@ -326,10 +348,10 @@ class EuxKlient(private val euxOidcRestTemplate: RestTemplate,
 
     fun <T> restTemplateErrorhandler(restTemplateFunction: () -> ResponseEntity<T>,
                                      euxCaseId: String,
-                                     metricName: MetricsHelper.MeterName,
+                                     metric: MetricsHelper.Metric,
                                      prefixErrorMessage: String,
                                      waitTimes: Long = 1000L): ResponseEntity<T> {
-        return metricsHelper.measure(metricName) {
+        return metric.measure {
             return@measure try {
                 val response = retryHelper( func = { restTemplateFunction.invoke() }, waitTimes = overrideWaitTimes ?: waitTimes)
                 response

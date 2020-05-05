@@ -54,12 +54,13 @@ class SedControllerTest {
 
     @BeforeEach
     fun setUp() {
+        val prefillService = PrefillService(mockPrefillSEDService)
+        prefillService.initMetrics()
         this.sedController = SedController(mockEuxService,
-                PrefillService(mockPrefillSEDService),
+                prefillService,
                 mockAktoerIdHelper,
                 auditLogger)
-
-
+        sedController.initMetrics()
     }
 
     @Test

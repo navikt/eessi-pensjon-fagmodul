@@ -16,6 +16,7 @@ import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
 import java.io.StringReader
+import javax.annotation.PostConstruct
 import javax.xml.bind.JAXBContext
 import javax.xml.transform.stream.StreamSource
 
@@ -46,9 +47,25 @@ class PensjonsinformasjonClient(
             return null
         }
     }
+
+    private lateinit var PensjoninformasjonHentKunSakType: MetricsHelper.Metric
+    private lateinit var PensjoninformasjonHentAltPaaIdent: MetricsHelper.Metric
+    private lateinit var PensjoninformasjonAltPaaVedtak: MetricsHelper.Metric
+    private lateinit var PensjoninformasjonHentAltPaaIdentRequester: MetricsHelper.Metric
+    private lateinit var PensjoninformasjonAltPaaVedtakRequester: MetricsHelper.Metric
+
+    @PostConstruct
+    fun initMetrics() {
+        PensjoninformasjonHentKunSakType = metricsHelper.init("PensjoninformasjonHentKunSakType")
+        PensjoninformasjonHentAltPaaIdent = metricsHelper.init("PensjoninformasjonHentAltPaaIdent")
+        PensjoninformasjonAltPaaVedtak = metricsHelper.init("PensjoninformasjonAltPaaVedtak")
+        PensjoninformasjonHentAltPaaIdentRequester = metricsHelper.init("PensjoninformasjonHentAltPaaIdentRequester")
+        PensjoninformasjonAltPaaVedtakRequester = metricsHelper.init("PensjoninformasjonAltPaaVedtakRequester")
+    }
+
     @Throws(IkkeFunnetException::class)
     fun hentKunSakType(sakId: String, aktoerid: String): Pensjontype {
-        return metricsHelper.measure(MetricsHelper.MeterName.PensjoninformasjonHentKunSakType) {
+        return PensjoninformasjonHentKunSakType.measure {
             return@measure try {
                 val sak = finnSak(sakId, hentAltPaaAktoerId(aktoerid)) ?: throw IkkeFunnetException("Sak ikke funnet")
                 Pensjontype(sakId, sak.sakType)
@@ -65,7 +82,7 @@ class PensjonsinformasjonClient(
 
         //APIet skal ha urlen {host}:{port}/pensjon-ws/api/pensjonsinformasjon/v1/{ressurs}?sakId=123+fom=2018-01-01+tom=2018-28-02.
 
-        return metricsHelper.measure(MetricsHelper.MeterName.PensjoninformasjonHentAltPaaIdent) {
+        return PensjoninformasjonHentAltPaaIdent.measure {
             val informationBlocks = listOf(
                     InformasjonsType.BRUKERS_SAKER_LISTE
             )
@@ -78,7 +95,7 @@ class PensjonsinformasjonClient(
             logger.debug("Requestbody:\n${document.documentToString()}")
             logger.info("Henter pensjonsinformasjon for aktor: $aktoerId")
 
-            val xmlResponse = doRequest("/aktor/", aktoerId, document.documentToString(), MetricsHelper.MeterName.PensjoninformasjonHentAltPaaIdentRequester)
+            val xmlResponse = doRequest("/aktor/", aktoerId, document.documentToString(), PensjoninformasjonHentAltPaaIdentRequester)
             transform(xmlResponse)
         }
     }
@@ -87,7 +104,7 @@ class PensjonsinformasjonClient(
     @Throws(PensjoninformasjonException::class, HttpServerErrorException::class, HttpClientErrorException::class)
     fun hentAltPaaVedtak(vedtaksId: String): Pensjonsinformasjon {
 
-        return metricsHelper.measure(MetricsHelper.MeterName.PensjoninformasjonAltPaaVedtak) {
+        return PensjoninformasjonAltPaaVedtak.measure {
 
             val informationBlocks = listOf(
                     InformasjonsType.AVDOD,
@@ -112,7 +129,7 @@ class PensjonsinformasjonClient(
             logger.info("Henter pensjonsinformasjon for vedtaksid: $vedtaksId")
             logger.debug("Requestbody:\n${document.documentToString()}")
 
-            val xmlResponse = doRequest("/vedtak", vedtaksId, document.documentToString(), MetricsHelper.MeterName.PensjoninformasjonAltPaaVedtakRequester)
+            val xmlResponse = doRequest("/vedtak", vedtaksId, document.documentToString(), PensjoninformasjonAltPaaVedtakRequester)
             transform(xmlResponse)
         }
     }
@@ -136,7 +153,7 @@ class PensjonsinformasjonClient(
     }
 
     @Throws(PensjoninformasjonException::class, HttpServerErrorException::class, HttpClientErrorException::class)
-    private fun doRequest(path: String, id: String, requestBody: String, metricName: MetricsHelper.MeterName): String {
+    private fun doRequest(path: String, id: String, requestBody: String, metric: MetricsHelper.Metric): String {
 
         val headers = HttpHeaders()
         headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE)
@@ -144,15 +161,15 @@ class PensjonsinformasjonClient(
 
         val uriBuilder = UriComponentsBuilder.fromPath(path).pathSegment(id)
 
-        return metricsHelper.measure(metricName) {
-             return@measure try {
+        return metric.measure {
+            return@measure try {
                 val responseEntity = pensjonsinformasjonOidcRestTemplate.exchange(
-                            uriBuilder.toUriString(),
-                            HttpMethod.POST,
-                            requestEntity,
-                            String::class.java)
+                        uriBuilder.toUriString(),
+                        HttpMethod.POST,
+                        requestEntity,
+                        String::class.java)
 
-                 responseEntity.body!!
+                responseEntity.body!!
 
             } catch (hsee: HttpServerErrorException) {
                 val errorBody = hsee.responseBodyAsString

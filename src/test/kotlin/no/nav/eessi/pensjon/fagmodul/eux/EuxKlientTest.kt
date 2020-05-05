@@ -1,6 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
 import com.nhaarman.mockitokotlin2.*
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Organisation
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
 import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
@@ -41,6 +42,7 @@ class EuxKlientTest {
         mockEuxrestTemplate.errorHandler = DefaultResponseErrorHandler()
         mockEuxrestTemplate.interceptors = listOf( RequestResponseLoggerInterceptor() )
         klient = EuxKlient(mockEuxrestTemplate, overrideWaitTimes = 0L)
+        klient.initMetrics()
     }
 
     @AfterEach
@@ -397,7 +399,7 @@ class EuxKlientTest {
         val result = klient.opprettSed("/buc/{RinaSakId}/sed",
                 SED("P2000").toJsonSkipEmpty(),
                 "123456",
-                MetricsHelper.MeterName.OpprettSED,
+                MetricsHelper(SimpleMeterRegistry()).init("dummy"),
                 "Feil ved opprettSed",
                 null)
 
@@ -419,7 +421,7 @@ class EuxKlientTest {
             klient.opprettSed("/buc/{RinaSakId}/sed",
                     SED("P2200").toJsonSkipEmpty(),
                     "1231233",
-                    MetricsHelper.MeterName.OpprettSED,
+                    MetricsHelper(SimpleMeterRegistry()).init("dummy"),
                     "Feil ved opprettSed",
                     null)
         }
@@ -438,7 +440,7 @@ class EuxKlientTest {
             klient.opprettSed("/buc/{RinaSakId}/sed",
                     SED("P2000").toJsonSkipEmpty(),
                     "213123",
-                    MetricsHelper.MeterName.OpprettSED,
+                    MetricsHelper(SimpleMeterRegistry()).init("dummy"),
                     "Feil ved opprettSed",
                     null)
         }

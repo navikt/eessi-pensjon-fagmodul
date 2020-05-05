@@ -10,6 +10,7 @@ import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*
 import com.tngtech.archunit.library.Architectures.layeredArchitecture
 import com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.slices
 import no.nav.eessi.pensjon.EessiFagmodulApplication
+import no.nav.eessi.pensjon.metrics.MetricsHelper
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -282,6 +283,7 @@ class ArchitectureTest {
 
         noMethods().that()
                 .haveNameMatching("set[A-Z]+.*")
+                .and().doNotHaveRawParameterTypes(MetricsHelper.Metric::class.java)
                 .and().areDeclaredInClassesThat().areNotAnnotatedWith(Scope::class.java) // If scope is not singleton it might be ok
                 .and().areDeclaredInClassesThat().haveNameNotMatching(".*(Template|Config)") // these use setter injection
                 .should().beDeclaredInClassesThat().areAnnotatedWith(springStereotype)
@@ -291,6 +293,7 @@ class ArchitectureTest {
 
         noFields().that()
                 .areNotFinal()
+                .and().doNotHaveRawType(MetricsHelper.Metric::class.java)
                 .and().areDeclaredInClassesThat().areNotAnnotatedWith(Scope::class.java)// If scope is not singleton it might be ok
                 .and().areDeclaredInClassesThat().haveNameNotMatching(".*(Template|Config)") // these use setter injection
                 .should().beDeclaredInClassesThat().areAnnotatedWith(springStereotype)

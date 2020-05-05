@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.ResponseStatus
+import javax.annotation.PostConstruct
 
 @Component
 class PersonV3Service(private val service: PersonV3,
@@ -27,6 +28,13 @@ class PersonV3Service(private val service: PersonV3,
                       @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())) {
 
     private val logger: Logger by lazy { LoggerFactory.getLogger(PersonV3Service::class.java) }
+
+    private lateinit var HentPersonV3: MetricsHelper.Metric
+
+    @PostConstruct
+    fun initMetrics() {
+        HentPersonV3 = metricsHelper.init("HentPersonV3")
+    }
 
     final fun counter(name: String, type: String): Counter {
         return Metrics.counter(name, "type", type)
@@ -60,7 +68,7 @@ class PersonV3Service(private val service: PersonV3,
             ))
         }
 
-        return metricsHelper.measure(MetricsHelper.MeterName.HentPersonV3) {
+        return HentPersonV3.measure {
             return@measure try {
                 logger.info("Kaller PersonV3.hentPerson service")
                 val resp = service.hentPerson(request)

@@ -24,7 +24,7 @@ object PrefillTestHelper {
         lenient().`when`(pensjonsinformasjonRestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), ArgumentMatchers.eq(String::class.java))).thenReturn(readXMLresponse(responseXMLfilename))
 
         val pensjonsinformasjonClient = PensjonsinformasjonClient(pensjonsinformasjonRestTemplate, RequestBuilder())
-
+        pensjonsinformasjonClient.initMetrics()
         return PensjonsinformasjonService(pensjonsinformasjonClient)
     }
 

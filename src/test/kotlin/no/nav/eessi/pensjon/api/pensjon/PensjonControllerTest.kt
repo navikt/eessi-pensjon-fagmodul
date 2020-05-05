@@ -9,6 +9,7 @@ import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjoninformasjonExcep
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.Pensjontype
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.junit.jupiter.MockitoExtension
@@ -24,6 +25,11 @@ class PensjonControllerTest {
     private val controller = PensjonController(pensjonsinformasjonClient, auditLogger)
 
     private val sakId = "Some sakId"
+
+    @BeforeEach
+    fun setup() {
+        controller.initMetrics()
+    }
 
     @Test
     fun `hentPensjonSakType | gitt en aktoerId saa slaa opp fnr og hent deretter sakstype`() {

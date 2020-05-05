@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.util.*
+import javax.annotation.PostConstruct
 
 @Protected
 @RestController
@@ -24,12 +25,20 @@ class VedleggController(private val vedleggService: VedleggService,
 
     private val logger = LoggerFactory.getLogger(VedleggController::class.java)
 
+    private lateinit var VedleggControllerMetadata: MetricsHelper.Metric
+    private lateinit var VedleggControllerInnhold: MetricsHelper.Metric
+
+    @PostConstruct
+    fun initMetrics() {
+        VedleggControllerMetadata = metricsHelper.init("VedleggControllerMetadata")
+        VedleggControllerInnhold = metricsHelper.init("VedleggControllerInnhold")
+    }
 
     @ApiOperation("Henter metadata for alle dokumenter i alle journalposter for en gitt aktørid")
     @GetMapping("/metadata/{aktoerId}")
     fun hentDokumentMetadata(@PathVariable("aktoerId", required = true) aktoerId: String): ResponseEntity<String> {
         auditlogger.log("hentDokumentMetadata", aktoerId)
-        return metricsHelper.measure(MetricsHelper.MeterName.VedleggControllerMetadata) {
+        return VedleggControllerMetadata.measure {
             logger.info("Henter metadata for dokumenter i SAF for aktørid: $aktoerId")
             return@measure try {
                 ResponseEntity.ok().body(vedleggService.hentDokumentMetadata(aktoerId).toJson())
@@ -45,7 +54,7 @@ class VedleggController(private val vedleggService: VedleggService,
                            @PathVariable("dokumentInfoId", required = true) dokumentInfoId: String,
                            @PathVariable("variantFormat", required = true) variantFormat: String): ResponseEntity<String> {
         auditlogger.log("getDokumentInnhold")
-        return metricsHelper.measure(MetricsHelper.MeterName.VedleggControllerInnhold) {
+        return VedleggControllerInnhold.measure {
             logger.info("Henter dokumentinnhold fra SAF for journalpostId: $journalpostId, dokumentInfoId: $dokumentInfoId")
             return@measure try {
                 val hentDokumentInnholdResponse = vedleggService.hentDokumentInnhold(journalpostId, dokumentInfoId, variantFormat)

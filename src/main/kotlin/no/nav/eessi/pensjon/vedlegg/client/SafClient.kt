@@ -12,6 +12,7 @@ import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
 import java.util.*
+import javax.annotation.PostConstruct
 
 @Component
 class SafClient(private val safGraphQlOidcRestTemplate: RestTemplate,
@@ -22,6 +23,16 @@ class SafClient(private val safGraphQlOidcRestTemplate: RestTemplate,
     private val mapper = jacksonObjectMapper()
     private final val TILLEGGSOPPLYSNING_RINA_SAK_ID_KEY = "eessi_pensjon_bucid"
 
+    private lateinit var HentDokumentMetadata: MetricsHelper.Metric
+    private lateinit var HentDokumentInnhold: MetricsHelper.Metric
+    private lateinit var HentRinaSakIderFraDokumentMetadata: MetricsHelper.Metric
+
+    @PostConstruct
+    fun initMetrics() {
+        HentDokumentMetadata = metricsHelper.init("HentDokumentMetadata")
+        HentDokumentInnhold = metricsHelper.init("HentDokumentInnhold")
+        HentRinaSakIderFraDokumentMetadata = metricsHelper.init("HentRinaSakIderFraDokumentMetadata")
+    }
 
     // Vi trenger denne konstruktøren for å kunne bruke @Spy med mockito
     constructor() : this(RestTemplate(), RestTemplate())
@@ -29,7 +40,7 @@ class SafClient(private val safGraphQlOidcRestTemplate: RestTemplate,
     fun hentDokumentMetadata(aktoerId: String) : HentMetadataResponse {
         logger.info("Henter dokument metadata for aktørid: $aktoerId")
 
-        return metricsHelper.measure(MetricsHelper.MeterName.HentDokumentMetadata) {
+        return HentDokumentMetadata.measure {
             try {
                 val headers = HttpHeaders()
                 headers.contentType = MediaType.APPLICATION_JSON
@@ -39,8 +50,8 @@ class SafClient(private val safGraphQlOidcRestTemplate: RestTemplate,
                         httpEntity,
                         String::class.java)
 
-            val mappedResponse = mapper.readValue(response.body!!, HentMetadataResponse::class.java)
-            mappedResponse
+                val mappedResponse = mapper.readValue(response.body!!, HentMetadataResponse::class.java)
+                mappedResponse
 
             } catch (ce: HttpClientErrorException) {
                 if(ce.rawStatusCode == 403) {
@@ -63,7 +74,7 @@ class SafClient(private val safGraphQlOidcRestTemplate: RestTemplate,
                             dokumentInfoId: String,
                             variantFormat: String) : HentdokumentInnholdResponse {
 
-        return metricsHelper.measure(MetricsHelper.MeterName.HentDokumentInnhold) {
+        return HentDokumentInnhold.measure {
             try {
                 logger.info("Henter dokumentinnhold for journalpostId: $journalpostId, dokumentInfoId: $dokumentInfoId, variantformat: $variantFormat")
                 val variantFormatEnum = VariantFormat.valueOf(variantFormat)
@@ -105,7 +116,7 @@ class SafClient(private val safGraphQlOidcRestTemplate: RestTemplate,
      * @param metadata journalpostmetadata fra JOARK datamodellen
      */
     fun hentRinaSakIderFraDokumentMetadata(aktoerId: String): List<String> {
-        return metricsHelper.measure(MetricsHelper.MeterName.HentRinaSakIderFraDokumentMetadata) {
+        return HentRinaSakIderFraDokumentMetadata.measure {
             val metadata = hentDokumentMetadata(aktoerId)
             val rinaSakIder = mutableListOf<String>()
             metadata.data.dokumentoversiktBruker.journalposter.forEach { journalpost ->

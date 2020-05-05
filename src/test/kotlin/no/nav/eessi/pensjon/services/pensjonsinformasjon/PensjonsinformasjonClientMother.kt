@@ -20,7 +20,9 @@ object PensjonsinformasjonClientMother {
         whenever(mockRestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), ArgumentMatchers.eq(String::class.java)))
                 .thenReturn(readXMLresponse)
 
-        return PensjonsinformasjonClient(mockRestTemplate, RequestBuilder())
+        val pensjonsinformasjonClient = PensjonsinformasjonClient(mockRestTemplate, RequestBuilder())
+        pensjonsinformasjonClient.initMetrics()
+        return pensjonsinformasjonClient
     }
 
 }
