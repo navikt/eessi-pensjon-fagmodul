@@ -22,10 +22,25 @@ jobs:
         with:
           java-version: 11
 
+      # SETTER DATO OG COMMIT VARIABEL
+      - name: 'Setter dato og commit variabel'
+        run: |
+          export TZ=CET
+          echo "::set-env name=DATE::$(date "+%Y-%m-%d--%H-%M-%S")"
+          echo "::set-env name=COMMIT_HASH::$(git rev-parse HEAD)"
+
+      # SETTER IMAGE VARIABEL
+      - name: 'Setter Image'
+        run: echo "::set-env name=IMAGE::docker.pkg.github.com/${{ github.repository }}/eessi-pensjon-fagmodul:${{ env.DATE }}---${{ env.COMMIT_HASH }}"
+
       # BYGGER DOCKER CONTAINER
-      - name: 'Bygg'
+      - name: 'Bygg og publiser docker image'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           export TZ=CET
           ./gradlew build
+          docker build --tag ${{ env.IMAGE }} .
+          docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} -p ${{ secrets.GITHUB_TOKEN }}
+          docker push ${{ env.IMAGE }}
+

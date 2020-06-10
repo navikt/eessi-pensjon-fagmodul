@@ -44,6 +44,7 @@ class EuxVedleggClient(private val euxOidcRestTemplate: RestTemplate,
 
             val disposition = ContentDisposition
                     .builder("form-data")
+                    .filename("filename")
                     .name("file")
                     .build().toString()
 
