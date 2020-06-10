@@ -17,7 +17,7 @@ internal class EuxVedleggClientTest {
         client.initMetrics()
 
         every {
-            mockRestTemplate.exchange("/buc/someRinaSakId/sed/someRinaDokumentId/vedlegg?Filtype=someFiltype&synkron=true",
+            mockRestTemplate.exchange("/buc/someRinaSakId/sed/someRinaDokumentId/vedlegg?Filnavn=someFileName&Filtype=someFiltype&synkron=true",
                     HttpMethod.POST,
                     any(),
                     String::class.java)

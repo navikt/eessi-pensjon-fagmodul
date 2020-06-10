@@ -44,6 +44,7 @@ class EuxVedleggClient(private val euxOidcRestTemplate: RestTemplate,
 
             val disposition = ContentDisposition
                     .builder("form-data")
+                    .filename("filename")
                     .name("file")
                     .build().toString()
 
@@ -63,6 +64,7 @@ class EuxVedleggClient(private val euxOidcRestTemplate: RestTemplate,
                     .path("/sed/")
                     .path(rinaDokumentId)
                     .path("/vedlegg")
+                    .queryParam("Filnavn", fileName.replaceAfterLast(".", "").removeSuffix("."))
                     .queryParam("Filtype", filtype)
                     .queryParam("synkron", true)
                     .build().toUriString()
