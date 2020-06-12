@@ -18,6 +18,7 @@ import java.time.ZoneId
 class BucUtils(private val buc: Buc ) {
 
     private val logger = LoggerFactory.getLogger(BucUtils::class.java)
+    private val validbucsed = ValidBucAndSed()
 
     private fun getBuc(): Buc {
         return buc
@@ -239,7 +240,8 @@ class BucUtils(private val buc: Buc ) {
                 .sorted()
     }
 
-    fun getFiltrerteGyldigSedAksjonListAsString(backupList: List<String>) : List<String> {
+    fun getFiltrerteGyldigSedAksjonListAsString(): List<String> {
+        val backupList = validbucsed.getAvailableSedOnBuc(getProcessDefinitionName())
         val gyldigeSedList = getSedsThatCanBeCreated()
         val aksjonsliste = getGyldigeOpprettSedAksjonList()
 
@@ -266,8 +268,8 @@ class BucUtils(private val buc: Buc ) {
                 .sorted()
     }
 
-    fun checkIfSedCanBeCreated(availableSedsOnBuc: List<String>, sedType: String?): Boolean {
-        if (getFiltrerteGyldigSedAksjonListAsString(availableSedsOnBuc).none { it == sedType }) {
+    fun checkIfSedCanBeCreated(sedType: String?): Boolean {
+        if (getFiltrerteGyldigSedAksjonListAsString().none { it == sedType }) {
             logger.warn("SED $sedType kan ikke opprettes i RINA")
             throw SedDokumentKanIkkeOpprettesException("SED $sedType kan ikke opprettes i RINA")
         }
@@ -320,6 +322,8 @@ class BucUtils(private val buc: Buc ) {
             candidate -> currentParticipants.none { current -> candidate.country == current.country && candidate.institution == current.institution }
         }
     }
+
+
 
 }
 

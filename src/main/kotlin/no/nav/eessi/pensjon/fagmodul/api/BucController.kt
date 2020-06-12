@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiOperation
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxService
+import no.nav.eessi.pensjon.fagmodul.eux.ValidBucAndSed
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Creator
@@ -24,10 +25,11 @@ class BucController(private val euxService: EuxService,
                     private val auditlogger: AuditLogger) {
 
     private val logger = LoggerFactory.getLogger(BucController::class.java)
+    private val validBucAndSed = ValidBucAndSed()
 
     @ApiOperation("henter liste av alle tilgjengelige BuC-typer")
     @GetMapping("/bucs/{sakId}", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getBucs(@PathVariable(value = "sakId", required = false) sakId: String? = "") = euxService.initSedOnBuc().keys.map { it }.toList()
+    fun getBucs(@PathVariable(value = "sakId", required = false) sakId: String? = "") = validBucAndSed.initSedOnBuc().keys.map { it }.toList()
 
     @ApiOperation("Henter opp hele BUC på valgt caseid")
     @GetMapping("/{rinanr}")

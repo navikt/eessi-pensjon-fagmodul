@@ -46,13 +46,6 @@ class SedController(private val euxService: EuxService,
     fun initMetrics() {
         AddInstutionAndDocument = metricsHelper.init("AddInstutionAndDocument")
         AddDocumentToParent = metricsHelper.init("AddDocumentToParent")
-
-//        getInstitutionsWithCountry("P_BUC_01")
-//        getInstitutionsWithCountry("P_BUC_03")
-//        getInstitutionsWithCountry("P_BUC_05")
-//        getInstitutionsWithCountry("P_BUC_06")
-//        getInstitutionsWithCountry("P_BUC_10")
-
     }
 
     //** oppdatert i api 18.02.2019
@@ -94,7 +87,7 @@ class SedController(private val euxService: EuxService,
             logger.info("kaller add (institutions and sed) rinaId: ${request.euxCaseId} bucType: ${request.buc} sedType: ${request.sed} aktoerId: ${request.aktoerId}")
 
             val bucUtil = BucUtils(euxService.getBuc(dataModel.euxCaseID))
-            bucUtil.checkIfSedCanBeCreated(euxService.getAvailableSedOnBuc(bucUtil.getProcessDefinitionName()), request.sed)
+            bucUtil.checkIfSedCanBeCreated(request.sed)
 
             val nyeInstitusjoner = bucUtil.findNewParticipants(dataModel.getInstitutionsList())
             val x005 = bucUtil.findFirstDocumentItemByType("X005")
@@ -126,6 +119,7 @@ class SedController(private val euxService: EuxService,
         }
     }
 
+    //flyttes til prefill?
      fun updateSEDVersion(sed: SED, bucVersion: String) {
         when(bucVersion) {
             "v4.2" -> {
@@ -206,7 +200,7 @@ class SedController(private val euxService: EuxService,
     @GetMapping("/seds/{buctype}/{rinanr}")
     fun getSeds(@PathVariable(value = "buctype", required = true) bucType: String,
                 @PathVariable(value = "rinanr", required = true) euxCaseId: String): ResponseEntity<String?> {
-        val resultListe = BucUtils(euxService.getBuc(euxCaseId)).getFiltrerteGyldigSedAksjonListAsString(euxService.getAvailableSedOnBuc(bucType))
+        val resultListe = BucUtils(euxService.getBuc(euxCaseId)).getFiltrerteGyldigSedAksjonListAsString()
         logger.debug("Tilgjengelige sed som kan opprettes på buctype: $bucType seds: $resultListe")
         return ResponseEntity.ok().body(resultListe.toJsonSkipEmpty())
     }

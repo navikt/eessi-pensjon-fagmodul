@@ -244,7 +244,7 @@ class BucUtilsTest {
     fun `getFiltrerteGyldigSedAksjonListAsString   returns sorted of one element ok`(){
         val tmpbuc3 = mapJsonToAny(getTestJsonFile("P_BUC_01_4.2_tom.json"), typeRefs<Buc>())
         val bucUtil = BucUtils(tmpbuc3)
-        val actualOutput = bucUtil.getFiltrerteGyldigSedAksjonListAsString(listOf("DummyChooseParts", "P2000"))
+        val actualOutput = bucUtil.getFiltrerteGyldigSedAksjonListAsString()
         assertEquals(1, actualOutput.size)
     }
 
@@ -260,7 +260,7 @@ class BucUtilsTest {
     fun `getFiltrerteGyldigSedAksjonListAsString   returns no element`(){
         val tmpbuc3 = mapJsonToAny(getTestJsonFile("P_BUC_01_4.2_P2000.json"), typeRefs<Buc>())
         val bucUtil = BucUtils(tmpbuc3)
-        val actualOutput = bucUtil.getFiltrerteGyldigSedAksjonListAsString(listOf("P2000"))
+        val actualOutput = bucUtil.getFiltrerteGyldigSedAksjonListAsString()
         assertEquals(0, actualOutput.size)
     }
 
@@ -268,7 +268,7 @@ class BucUtilsTest {
 
     @Test
     fun `getFiltrerteGyldigSedAksjonListAsString  returns filtered 10 sorted elements`(){
-        val actualOutput = bucUtils.getFiltrerteGyldigSedAksjonListAsString(listOf(""))
+        val actualOutput = bucUtils.getFiltrerteGyldigSedAksjonListAsString()
         assertEquals(10, actualOutput.size)
         assertEquals("P6000", actualOutput[7])
     }
@@ -553,6 +553,105 @@ class BucUtilsTest {
         val single = seds!!.filter { it.type == "P12000" }.map { it }.first()
         assertEquals(false , single.allowsAttachments)
 
+    }
+
+    @Test
+    fun `check that document P12000 is allready on buc throw Exception`() {
+        val bucjson = getTestJsonFile("buc-P_BUC_08-P12000.json")
+        val buc = mapJsonToAny(bucjson, typeRefs<Buc>())
+        val bucUtils = BucUtils(buc)
+
+        assertThrows<SedDokumentKanIkkeOpprettesException> {
+            bucUtils.checkIfSedCanBeCreated("P120000")
+        }
+    }
+
+    @Test
+    fun `check that document P10000 is allready on buc throw Exception`() {
+        val bucjson = getTestJsonFile("buc-P_BUC_06-P6000_Sendt.json")
+        val buc = mapJsonToAny(bucjson, typeRefs<Buc>())
+        val bucUtils = BucUtils(buc)
+
+        assertThrows<SedDokumentKanIkkeOpprettesException> {
+            bucUtils.checkIfSedCanBeCreated("P10000")
+        }
+    }
+
+    @Test
+    fun `check that document P50000 is allready on buc throw Exception`() {
+        val bucjson = getTestJsonFile("buc-P_BUC_06-P6000_Sendt.json")
+        val buc = mapJsonToAny(bucjson, typeRefs<Buc>())
+        val bucUtils = BucUtils(buc)
+
+        assertThrows<SedDokumentKanIkkeOpprettesException> {
+            bucUtils.checkIfSedCanBeCreated("P50000")
+        }
+    }
+
+    @Test
+    fun `check that different document on BUC_03 is allowed or not will throw Exception`() {
+        val bucjson = getTestJsonFile("buc-279020big.json")
+        val buc = mapJsonToAny(bucjson, typeRefs<Buc>())
+        val bucUtils = BucUtils(buc)
+
+        val docs = bucUtils.getAllDocuments()
+        docs.forEach { doc -> println("type ${doc.type}  status ${doc.status} ") }
+
+
+        val allowed = listOf("P5000", "P6000", "P8000", "P10000", "H121", "H020")
+
+        allowed.forEach {
+            assertEquals(true, bucUtils.checkIfSedCanBeCreated(it) )
+        }
+
+        val notAllowd = listOf("P2200", "P4000", "P3000_NO", "P9000")
+        notAllowd.forEach {
+            assertThrows<SedDokumentKanIkkeOpprettesException> {
+                bucUtils.checkIfSedCanBeCreated(it)
+            }
+        }
+    }
+
+    @Test
+    fun `check that different document on BUC_01 is allowed or not will throw Exception`() {
+        val bucjson = getTestJsonFile("P_BUC_01_4.2_P2000.json")
+        val buc = mapJsonToAny(bucjson, typeRefs<Buc>())
+        val bucUtils = BucUtils(buc)
+
+        val docs = bucUtils.getAllDocuments()
+        docs.forEach { doc -> println("type ${doc.type}  status ${doc.status} ") }
+
+
+        val notAllowd = listOf("P2000", "P4000", "P3000_NO", "P9000")
+        notAllowd.forEach {
+            assertThrows<SedDokumentKanIkkeOpprettesException> {
+                bucUtils.checkIfSedCanBeCreated(it)
+            }
+        }
+    }
+
+    @Test
+    fun `check that different document on other BUC_01 is allowed or not will throw Exception`() {
+        val bucjson = getTestJsonFile("buc-22909_v4.1.json")
+        val buc = mapJsonToAny(bucjson, typeRefs<Buc>())
+        val bucUtils = BucUtils(buc)
+
+        val docs = bucUtils.getAllDocuments()
+        docs.forEach { doc -> println("type ${doc.type}  status ${doc.status} ") }
+
+
+        val allowed = listOf("P4000", "P5000", "P6000", "P8000", "P7000", "P10000", "H120", "H020")
+
+        allowed.forEach {
+            assertEquals(true, bucUtils.checkIfSedCanBeCreated(it) )
+        }
+
+        val notAllowd = listOf("P2000")
+        notAllowd.forEach {
+            assertThrows<SedDokumentKanIkkeOpprettesException> {
+                bucUtils.checkIfSedCanBeCreated(it)
+            }
+        }
     }
 
 }
