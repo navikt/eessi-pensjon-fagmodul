@@ -34,46 +34,12 @@ class EuxService (private val euxKlient: EuxKlient,
 
     private lateinit var OpprettSvarSED: MetricsHelper.Metric
     private lateinit var OpprettSED: MetricsHelper.Metric
+    private val validbucsed = ValidBucAndSed()
 
     @PostConstruct
     fun initMetrics() {
         OpprettSvarSED = metricsHelper.init("OpprettSvarSED")
         OpprettSED = metricsHelper.init("OpprettSED")
-    }
-
-    fun getAvailableSedOnBuc(bucType: String?): List<String> {
-        val map = initSedOnBuc()
-
-        if (bucType.isNullOrEmpty()) {
-            val set = mutableSetOf<String>()
-            map["P_BUC_01"]?.let { set.addAll(it) }
-            map["P_BUC_02"]?.let { set.addAll(it) }
-            map["P_BUC_03"]?.let { set.addAll(it) }
-            map["P_BUC_05"]?.let { set.addAll(it) }
-            map["P_BUC_06"]?.let { set.addAll(it) }
-            map["P_BUC_09"]?.let { set.addAll(it) }
-            map["P_BUC_10"]?.let { set.addAll(it) }
-            return set.toList()
-        }
-        return map[bucType].orEmpty()
-    }
-
-    /**
-     * Own impl. no list from eux that contains list of SED to a speific BUC
-     */
-    fun initSedOnBuc(): Map<String, List<String>> {
-        return mapOf(
-                "P_BUC_01" to listOf("P2000"),
-                "P_BUC_02" to listOf("P2100"),
-                "P_BUC_03" to listOf("P2200"),
-                "P_BUC_05" to listOf("P8000"),
-                "P_BUC_06" to listOf("P5000", "P6000", "P7000", "P10000"),
-                "P_BUC_09" to listOf("P14000"),
-                "P_BUC_10" to listOf("P15000"),
-                "P_BUC_04" to listOf("P1000"),
-                "P_BUC_07" to listOf("P11000"),
-                "P_BUC_08" to listOf("P12000")
-        )
     }
 
     @Throws(EuxGenericServerException::class, SedDokumentIkkeOpprettetException::class)
@@ -234,7 +200,7 @@ class EuxService (private val euxKlient: EuxKlient,
 
     fun getFilteredArchivedaRinasaker(list: List<Rinasak>): List<String> {
         val gyldigBucs = mutableListOf("H_BUC_07", "R_BUC_01", "R_BUC_02", "M_BUC_02", "M_BUC_03a", "M_BUC_03b")
-        gyldigBucs.addAll(initSedOnBuc().keys.map { it }.toList())
+        gyldigBucs.addAll(validbucsed.initSedOnBuc().keys.map { it }.toList())
 
         return list.asSequence()
                 .filterNot { rinasak -> rinasak.status == "archived" }
