@@ -4,9 +4,10 @@ import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import io.swagger.annotations.ApiOperation
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
-import no.nav.eessi.pensjon.services.aktoerregister.AktoerregisterService
-import no.nav.eessi.pensjon.services.personv3.PersonV3Service
+import no.nav.eessi.pensjon.personoppslag.aktoerregister.AktoerregisterService
+import no.nav.eessi.pensjon.personoppslag.personv3.PersonV3Service
 import no.nav.security.oidc.api.Protected
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonResponse
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -43,11 +44,12 @@ class PersonController(private val aktoerregisterService: AktoerregisterService,
 
     @ApiOperation("henter ut personinformasjon for en aktørId")
     @GetMapping("/person/{aktoerid}", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getPerson(@PathVariable("aktoerid", required = true) aktoerid: String): ResponseEntity<Any> {
+    fun getPerson(@PathVariable("aktoerid", required = true) aktoerid: String): ResponseEntity<Person> {
         auditLogger.log("/person/{$aktoerid}", "getPerson")
 
         return PersonControllerHentPerson.measure {
-            ResponseEntity.ok(hentPerson(aktoerid))
+            val person = hentPerson(aktoerid)
+            ResponseEntity.ok(person!!)
         }
     }
 
@@ -57,20 +59,21 @@ class PersonController(private val aktoerregisterService: AktoerregisterService,
         auditLogger.log("/personinfo/{$aktoerid}", "getNameOnly")
 
         return PersonControllerHentPersonNavn.measure {
-            val response = hentPerson(aktoerid)
+            val person = hentPerson(aktoerid)
             ResponseEntity.ok(
-                    Personinformasjon(response.person.personnavn.sammensattNavn,
-                            response.person.personnavn.fornavn,
-                            response.person.personnavn.mellomnavn,
-                            response.person.personnavn.etternavn)
+                    Personinformasjon(person?.personnavn?.sammensattNavn,
+                            person?.personnavn?.fornavn,
+                            person?.personnavn?.mellomnavn,
+                            person?.personnavn?.etternavn)
             )
         }
     }
 
-    private fun hentPerson(aktoerid: String): HentPersonResponse {
+    private fun hentPerson(aktoerid: String): Person? {
         logger.info("Henter personinformasjon for aktørId")
         val norskIdent: String = aktoerregisterService.hentGjeldendeNorskIdentForAktorId(aktoerid)
-        return personService.hentPerson(norskIdent)
+        val person = personService.hentPerson(norskIdent)
+        return person
     }
 
     /**

@@ -99,11 +99,6 @@ dependencies {
     // Apache httpcomponents
     implementation("org.apache.httpcomponents:fluent-hc:4.5.10")
 
-    // Apache CXF
-    implementation("org.apache.cxf:cxf-spring-boot-starter-jaxws:${cxfVersion}")
-    implementation("org.apache.cxf:cxf-rt-ws-security:${cxfVersion}")
-    implementation("commons-io:commons-io:2.6")
-
     // Kotlin
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:${jacksonModuleKotlinVersion}")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}")
@@ -143,7 +138,6 @@ dependencies {
 
 
     // Tjenestespesifikasjoner
-    implementation("no.nav.tjenestespesifikasjoner:person-v3-tjenestespesifikasjon:1.2020.01.30-14.36-cdf257baea96")
     xsd("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:1.2020.01.30-14.36-cdf257baea96")
     implementation("com.sun.xml.ws:jaxws-ri:2.3.2")
 
@@ -159,25 +153,9 @@ dependencies {
     testImplementation ("org.springframework.kafka:spring-kafka-test:2.5.1.RELEASE")
 
     implementation("no.nav.eessi.pensjon:ep-logging:0.0.12")
+    compile("no.nav.eessi.pensjon:ep-personoppslag:0.0.5")
 
 }
-
-repositories {
-    mavenCentral()
-
-    ["maven-release","tjenestespesifikasjoner","ep-metrics"].each { repo ->
-        String token = System.getenv("GITHUB_TOKEN") ?: project.findProperty("gpr.key")
-        if (!token) throw new NullPointerException("Missing token, you have to set GITHUB_TOKEN or gpr.key, see README")
-        maven {
-            url = uri("https://maven.pkg.github.com/navikt/$repo")
-            credentials {
-                username = "token"
-                password = token
-            }
-        }
-    }
-}
-
 
 test {
     useJUnitPlatform()
@@ -214,6 +192,7 @@ jaxb {
     xsdDir = pensjonsinformasjonDir
 }
 
+
 copyPensjonsinformasjonXsdsFromArtifacts.dependsOn tasks["copyPensjonsinformasjonXsd"]
 xjc.dependsOn tasks["copyPensjonsinformasjonXsdsFromArtifacts"]
 compileKotlin.dependsOn tasks["xjc"]
@@ -233,6 +212,22 @@ jacoco {
 jacocoTestReport {
     reports {
         xml.enabled true
+    }
+}
+
+repositories {
+    mavenCentral()
+
+    ["maven-release","ep-personoppslag","tjenestespesifikasjoner","ep-metrics"].each { repo ->
+        String token = System.getenv("GITHUB_TOKEN") ?: project.findProperty("gpr.key")
+        if (!token) throw new NullPointerException("Missing token, you have to set GITHUB_TOKEN or gpr.key, see README")
+        maven {
+            url = uri("https://maven.pkg.github.com/navikt/$repo")
+            credentials {
+                username = "token"
+                password = token
+            }
+        }
     }
 }
 

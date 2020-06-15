@@ -10,7 +10,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Creator
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ShortDocumentItem
 import no.nav.eessi.pensjon.logging.AuditLogger
-import no.nav.eessi.pensjon.services.aktoerregister.AktoerregisterService
+import no.nav.eessi.pensjon.personoppslag.aktoerregister.AktoerregisterService
 import no.nav.eessi.pensjon.utils.mapAnyToJson
 import no.nav.security.oidc.api.Protected
 import org.slf4j.LoggerFactory

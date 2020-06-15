@@ -2,15 +2,12 @@ package no.nav.eessi.pensjon.api.person
 
 import com.nhaarman.mockitokotlin2.*
 import no.nav.eessi.pensjon.logging.AuditLogger
-import no.nav.eessi.pensjon.services.aktoerregister.AktoerregisterService
-import no.nav.eessi.pensjon.services.personv3.PersonV3IkkeFunnetException
-import no.nav.eessi.pensjon.services.personv3.PersonV3Service
+import no.nav.eessi.pensjon.personoppslag.aktoerregister.AktoerregisterService
+import no.nav.eessi.pensjon.personoppslag.personv3.PersonV3Service
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personnavn
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonResponse
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import org.mockito.Spy
 import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
@@ -20,7 +17,6 @@ import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 

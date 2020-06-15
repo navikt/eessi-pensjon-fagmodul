@@ -100,10 +100,10 @@ class ArchitectureTest {
                 "$root.fagmodul.pesys.." to pensjonUtlandApi,
                 "$root.fagmodul.config.." to config,
                 "$root.fagmodul.metrics.." to metrics,
-                "$root.services.aktoerregister" to aktoerregisterService,
+                "$root.personoppslag.aktoerregister" to aktoerregisterService,
                 "$root.services.kodeverk" to kodeverkService,
                 "$root.services.geo" to geoService,
-                "$root.services.personv3" to personService,
+                "$root.personoppslag.personv3" to personService,
                 "$root.services.pensjonsinformasjon" to pensjonService,
 
                 "$root.security.." to security,
