@@ -140,7 +140,6 @@ dependencies {
     implementation("commons-io:commons-io:2.7")
 
     // Tjenestespesifikasjoner
-    implementation("no.nav.tjenestespesifikasjoner:person-v3-tjenestespesifikasjon:1.2020.01.30-14.36-cdf257baea96")
     xsd("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:1.2020.01.30-14.36-cdf257baea96")
     implementation("com.sun.xml.ws:jaxws-ri:2.3.2")
     implementation("joda-time:joda-time:2.10.6")
@@ -220,11 +219,6 @@ jacocoTestReport {
 }
 
 repositories {
-    repositories {
-        flatDir {
-            dirs '../ep-personoppslag/build/libs'
-        }
-    }
     mavenCentral()
 
     ["maven-release","ep-personoppslag","tjenestespesifikasjoner","ep-metrics"].each { repo ->
