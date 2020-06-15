@@ -6,7 +6,7 @@ import com.nhaarman.mockitokotlin2.whenever
 import no.nav.eessi.pensjon.fagmodul.prefill.eessi.EessiInformasjon
 import no.nav.eessi.pensjon.fagmodul.prefill.pen.PensjonsinformasjonService
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillNav
-import no.nav.eessi.pensjon.fagmodul.prefill.tps.TpsPersonService
+import no.nav.eessi.pensjon.personoppslag.personv3.PersonV3Service
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.*
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
@@ -25,7 +25,7 @@ class PrefillSEDServiceTest {
     lateinit var prefillNav: PrefillNav
 
     @Mock
-    lateinit var tpsPersonService: TpsPersonService
+    lateinit var tpsPersonService: PersonV3Service
 
     @Mock
     lateinit var eessiInformasjon: EessiInformasjon
@@ -47,7 +47,7 @@ class PrefillSEDServiceTest {
         val forelder = lagTPSBruker(foreldersPin, "Christopher", "Robin").medBarn(barnetsPin)
         val barn = lagTPSBruker(barnetsPin, "Ole", "Brum")
 
-        doReturn(barn).whenever(tpsPersonService).hentBrukerFraTPS(any())
+        doReturn(barn).whenever(tpsPersonService).hentBruker(any())
 
 
         val actual = prefillSEDService.hentBarnFraTps(forelder)
@@ -64,7 +64,7 @@ class PrefillSEDServiceTest {
         val barnetsPin = "10107512458"
         val forelder = lagTPSBruker(foreldersPin, "Christopher", "Robin").medBarn(barnetsPin)
 
-        doReturn(null).whenever(tpsPersonService).hentBrukerFraTPS(any())
+        doReturn(null).whenever(tpsPersonService).hentBruker(any())
 
 
         val actual = prefillSEDService.hentBarnFraTps(forelder)
@@ -82,8 +82,8 @@ class PrefillSEDServiceTest {
         val yngsteBarn = lagTPSBruker(yngstebarnetsPin, "Nasse", "Nuff")
 
 
-        doReturn(eldsteBarn).whenever(tpsPersonService).hentBrukerFraTPS(eldstebarnetsPin)
-        doReturn(yngsteBarn).whenever(tpsPersonService).hentBrukerFraTPS(yngstebarnetsPin)
+        doReturn(eldsteBarn).whenever(tpsPersonService).hentBruker(eldstebarnetsPin)
+        doReturn(yngsteBarn).whenever(tpsPersonService).hentBruker(yngstebarnetsPin)
 
         val actual = prefillSEDService.hentBarnFraTps(forelder)
 

@@ -27,12 +27,12 @@ class PrefillP8000APUtlandInnvTest {
 
     @BeforeEach
     fun setup() {
-        val persondataFraTPS = setupPersondataFraTPS(setOf(
+        val personV3Service = setupPersondataFraTPS(setOf(
                 MockTpsPersonServiceFactory.MockTPS("Person-11000-GIFT.json", personFnr, MockTpsPersonServiceFactory.MockTPS.TPSType.PERSON),
                 MockTpsPersonServiceFactory.MockTPS("Person-12000-EKTE.json", generateRandomFnr(70), MockTpsPersonServiceFactory.MockTPS.TPSType.EKTE)
         ))
 
-        val person = persondataFraTPS.hentBrukerFraTPS(personFnr)
+        val person = personV3Service.hentBruker(personFnr)
 
         prefillNav = PrefillNav(
                 prefillAdresse = mock(),

@@ -10,7 +10,7 @@ import no.nav.eessi.pensjon.fagmodul.prefill.pen.PensjonsinformasjonService
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillNav
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.FodselsnummerMother
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.PrefillAdresse
-import no.nav.eessi.pensjon.fagmodul.prefill.tps.TpsPersonService
+import no.nav.eessi.pensjon.personoppslag.personv3.PersonV3Service
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.*
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
@@ -32,7 +32,7 @@ class SedP3000XXTest {
     lateinit var dataFromPEN: PensjonsinformasjonService
 
     @Mock
-    lateinit var dataFromTPS: TpsPersonService
+    lateinit var dataFromTPS: PersonV3Service
 
     lateinit var prefillSEDService: PrefillSEDService
 
@@ -50,7 +50,7 @@ class SedP3000XXTest {
                 institutionnavn = "NOINST002, NO INST002, NO")
 
         prefillSEDService = PrefillSEDService(prefillNav, dataFromTPS, eessiInformasjon, dataFromPEN)
-        whenever(dataFromTPS.hentBrukerFraTPS(any())).thenReturn(person)
+        whenever(dataFromTPS.hentBruker(any())).thenReturn(person)
     }
 
 

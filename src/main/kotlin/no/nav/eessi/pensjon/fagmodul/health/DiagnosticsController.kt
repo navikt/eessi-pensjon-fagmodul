@@ -3,7 +3,6 @@ package no.nav.eessi.pensjon.fagmodul.health
 import no.nav.eessi.pensjon.fagmodul.eux.EuxKlient
 import no.nav.eessi.pensjon.security.sts.STSService
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonClient
-import no.nav.eessi.pensjon.services.personv3.PersonV3Service
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.typeRefs
 import no.nav.security.oidc.api.Protected
@@ -90,8 +89,7 @@ class DiagnosticsController(private val stsService: STSService,
 }
 
 @RestController
-class DiagnosticsControllerProtected(private val personService: PersonV3Service,
-                                     private val euxKlient: EuxKlient,
+class DiagnosticsControllerProtected(private val euxKlient: EuxKlient,
                                      private val penClient: PensjonsinformasjonClient,
                                      @Value("\${NAIS_APP_NAME}") val appName: String) {
 
@@ -109,8 +107,6 @@ class DiagnosticsControllerProtected(private val personService: PersonV3Service,
         logger.debug("Kall til selftest fra ip: ${request.remoteAddr} på sessionid: $sessionId")
 
         val selfTestChecklist = mutableListOf<Check>()
-        logger.debug("Selftest/ping TPS")
-        selfTestChecklist.add(selfTestTps())
         logger.debug("Selftest/ping PESYS")
         selfTestChecklist.add(selfTestPesys())
         logger.debug("Selftest/ping EUX")
@@ -149,15 +145,6 @@ class DiagnosticsControllerProtected(private val personService: PersonV3Service,
             Check("Pesys Personinformasjon","Personinformasjon OK", "",1)
         } catch (ex: Exception) {
             Check("Pesys Personinformasjon","Personinformasjon FAIL",ex.message!!,0)
-        }
-    }
-
-    private fun selfTestTps(): Check {
-        return try {
-            personService.hentPersonPing()
-            Check("PersonV3","TPS PersonV3 OK","",1)
-        } catch (ex: Exception) {
-            Check("PersonV3","TPS PersonV3 FAIL", ex.message!! , 0)
         }
     }
 }
