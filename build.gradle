@@ -98,10 +98,7 @@ dependencies {
 
     // Apache httpcomponents
     implementation("org.apache.httpcomponents:fluent-hc:4.5.10")
-
-    // Apache CXF
-    implementation("org.apache.cxf:cxf-spring-boot-starter-jaxws:${cxfVersion}")
-    implementation("org.apache.cxf:cxf-rt-ws-security:${cxfVersion}")
+    implementation("joda-time:joda-time:2.10.6")
     implementation("commons-io:commons-io:2.6")
 
     // Kotlin
@@ -159,25 +156,9 @@ dependencies {
     testImplementation ("org.springframework.kafka:spring-kafka-test:2.5.1.RELEASE")
 
     implementation("no.nav.eessi.pensjon:ep-logging:0.0.12")
+    implementation("no.nav.eessi.pensjon:ep-personoppslag:0.0.7")
 
 }
-
-repositories {
-    mavenCentral()
-
-    ["maven-release","tjenestespesifikasjoner","ep-metrics"].each { repo ->
-        String token = System.getenv("GITHUB_TOKEN") ?: project.findProperty("gpr.key")
-        if (!token) throw new NullPointerException("Missing token, you have to set GITHUB_TOKEN or gpr.key, see README")
-        maven {
-            url = uri("https://maven.pkg.github.com/navikt/$repo")
-            credentials {
-                username = "token"
-                password = token
-            }
-        }
-    }
-}
-
 
 test {
     useJUnitPlatform()
@@ -214,6 +195,7 @@ jaxb {
     xsdDir = pensjonsinformasjonDir
 }
 
+
 copyPensjonsinformasjonXsdsFromArtifacts.dependsOn tasks["copyPensjonsinformasjonXsd"]
 xjc.dependsOn tasks["copyPensjonsinformasjonXsdsFromArtifacts"]
 compileKotlin.dependsOn tasks["xjc"]
@@ -233,6 +215,27 @@ jacoco {
 jacocoTestReport {
     reports {
         xml.enabled true
+    }
+}
+
+repositories {
+    repositories {
+        flatDir {
+            dirs '../ep-personoppslag/build/libs'
+        }
+    }
+    mavenCentral()
+
+    ["maven-release","ep-personoppslag","tjenestespesifikasjoner","ep-metrics"].each { repo ->
+        String token = System.getenv("GITHUB_TOKEN") ?: project.findProperty("gpr.key")
+        if (!token) throw new NullPointerException("Missing token, you have to set GITHUB_TOKEN or gpr.key, see README")
+        maven {
+            url = uri("https://maven.pkg.github.com/navikt/$repo")
+            credentials {
+                username = "token"
+                password = token
+            }
+        }
     }
 }
 

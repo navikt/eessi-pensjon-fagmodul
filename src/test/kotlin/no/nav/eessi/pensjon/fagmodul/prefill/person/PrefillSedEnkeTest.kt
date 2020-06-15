@@ -48,7 +48,7 @@ class PrefillSedEnkeTest {
 
     @Test
     fun `forvent utfylling av person data av ENKE fra TPS P2000`() {
-        val preutfyllingTPS = personDataFromTPS.mockTpsPersonService()
+        val preutfyllingTPS = personDataFromTPS.mockPersonV3Service()
         val prefillNav = PrefillNav(mock<PrefillAdresse>(), institutionid = "NO:noinst002", institutionnavn = "NOINST002, NO INST002, NO")
         val fnr = personDataFromTPS.getRandomNavFodselsnummer() ?: "02345678901"
         val prefillData = initialPrefillDataModel(sedType = "P2000", pinId = fnr, vedtakId = "", penSaksnummer = pesysSaksnummer)
@@ -63,10 +63,10 @@ class PrefillSedEnkeTest {
 
     @Test
     fun `forvent utfylling av person data av ENKE fra TPS P2100`() {
-        val preutfyllingTPS = personDataFromTPS.mockTpsPersonService()
+        val preutfyllingTPS = personDataFromTPS.mockPersonV3Service()
         val prefillNav = PrefillNav(mock<PrefillAdresse>(), institutionid = "NO:noinst002", institutionnavn = "NOINST002, NO INST002, NO")
         val prefillData = initialPrefillDataModel(sedType = "P2100", pinId = fnr, avdod = PersonId(norskIdent = fnr, aktorId = "212"), vedtakId = "", penSaksnummer = "22875355")
-        val personData = PersonData(forsikretPerson = preutfyllingTPS.hentBrukerFraTPS(fnr)!!, ektefelleBruker = null, ekteTypeValue = "ENKE", brukerEllerGjenlevende = preutfyllingTPS.hentBrukerFraTPS(fnr), barnBrukereFraTPS = listOf(preutfyllingTPS.hentBrukerFraTPS(b1fnr)!!, preutfyllingTPS.hentBrukerFraTPS(b2fnr)!!))
+        val personData = PersonData(forsikretPerson = preutfyllingTPS.hentBruker(fnr)!!, ektefelleBruker = null, ekteTypeValue = "ENKE", brukerEllerGjenlevende = preutfyllingTPS.hentBruker(fnr), barnBrukereFraTPS = listOf(preutfyllingTPS.hentBruker(b1fnr)!!, preutfyllingTPS.hentBruker(b2fnr)!!))
         val response = prefillNav.prefill(penSaksnummer = prefillData.penSaksnummer, bruker = prefillData.bruker, avdod = prefillData.avdod, personData = personData, brukerInformasjon = prefillData.getPersonInfoFromRequestData())
         val sed = prefillData.sed
         sed.nav = response
@@ -102,7 +102,7 @@ class PrefillSedEnkeTest {
 
     @Test
     fun `forvent utfylling av person data av ENKE fra TPS P2200`() {
-        val preutfyllingTPS = personDataFromTPS.mockTpsPersonService()
+        val preutfyllingTPS = personDataFromTPS.mockPersonV3Service()
         val prefillNav = PrefillNav(mock<PrefillAdresse>(), institutionid = "NO:noinst002", institutionnavn = "NOINST002, NO INST002, NO")
 
         val prefillData = initialPrefillDataModel(sedType = "P2200", pinId = fnr, vedtakId = "", penSaksnummer = "14915730")

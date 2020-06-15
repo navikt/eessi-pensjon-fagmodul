@@ -78,7 +78,7 @@ class PrefillNav(private val prefillAdresse: PrefillAdresse,
         }
 
         //fdato i rinaformat
-        private fun datoFormat(person: no.nav.tjeneste.virksomhet.person.v3.informasjon.Person): String? {
+        private fun datoFormat(person: no.nav.tjeneste.virksomhet.person.v3.informasjon.Bruker): String? {
             logger.debug("2.1.3         Date of birth")
             val fdato = person.foedselsdato
             logger.debug("              Date of birth: $fdato")

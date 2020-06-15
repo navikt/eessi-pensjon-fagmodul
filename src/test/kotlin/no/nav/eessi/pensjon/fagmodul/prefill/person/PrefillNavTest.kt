@@ -10,10 +10,10 @@ import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModel
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.FodselsnummerMother
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.NavFodselsnummer
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.PrefillAdresse
-import no.nav.eessi.pensjon.fagmodul.prefill.tps.TpsPersonService
 import no.nav.eessi.pensjon.fagmodul.sedmodel.*
 import no.nav.eessi.pensjon.fagmodul.sedmodel.Bruker
 import no.nav.eessi.pensjon.fagmodul.sedmodel.Person
+import no.nav.eessi.pensjon.personoppslag.personv3.PersonV3Service
 import no.nav.eessi.pensjon.services.geo.PostnummerService
 import no.nav.eessi.pensjon.services.kodeverk.KodeverkClient
 import no.nav.eessi.pensjon.utils.convertToXMLocal
@@ -40,7 +40,7 @@ class PrefillNavTest {
     private val somePenSaksnr = "somePenSaksnr"
     private val someInstitutionId = "enInstId"
     private val someIntitutionNavn = "instNavn"
-    private val mockTpsPersonService = mock<TpsPersonService>()
+    private val mockTpsPersonService = mock<PersonV3Service>()
 
     @BeforeEach
     fun beforeStart() {
@@ -242,7 +242,7 @@ class PrefillNavTest {
 
         doReturn(person)
                 .whenever(mockTpsPersonService)
-                .hentBrukerFraTPS(somePersonNr)
+                .hentBruker(somePersonNr)
 
         val personData = PersonData(forsikretPerson = person, ektefelleBruker = null, ekteTypeValue = "", brukerEllerGjenlevende = person, barnBrukereFraTPS = listOf())
 
@@ -290,7 +290,7 @@ class PrefillNavTest {
 
         val brukeren = lagTPSBruker(brukerensPin, "Ole", "Brum")
 
-        whenever(mockTpsPersonService.hentBrukerFraTPS(brukerensPin)).thenReturn(brukeren)
+        whenever(mockTpsPersonService.hentBruker(brukerensPin)).thenReturn(brukeren)
         doReturn("NO").whenever(kodeverkClient).finnLandkode2("NOR")
 
         val personData = PersonData(forsikretPerson = brukeren, ektefelleBruker = null, ekteTypeValue = "", brukerEllerGjenlevende = brukeren, barnBrukereFraTPS = listOf())

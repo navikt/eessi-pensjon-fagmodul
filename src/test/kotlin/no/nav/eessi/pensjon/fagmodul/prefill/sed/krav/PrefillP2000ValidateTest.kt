@@ -11,8 +11,8 @@ import no.nav.eessi.pensjon.fagmodul.prefill.pen.PensjonsinformasjonService
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillNav
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillSEDService
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.PrefillAdresse
-import no.nav.eessi.pensjon.fagmodul.prefill.tps.TpsPersonService
 import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
+import no.nav.eessi.pensjon.personoppslag.personv3.PersonV3Service
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -30,7 +30,7 @@ class PrefillP2000ValidateTest {
     lateinit var dataFromPEN: PensjonsinformasjonService
 
     @Mock
-    lateinit var persondataFraTPS: TpsPersonService
+    lateinit var personV3Service: PersonV3Service
 
     private lateinit var prefillSEDService: PrefillSEDService
 
@@ -41,12 +41,12 @@ class PrefillP2000ValidateTest {
     fun before() {
         person = lagTPSBruker("12345678901", "Ola", "Testbruker")
 
-        whenever(persondataFraTPS.hentBrukerFraTPS(any())).thenReturn(person)
+        whenever(personV3Service.hentBruker(any())).thenReturn(person)
 
         prefillNav = PrefillNav(prefillAdresse = mock<PrefillAdresse>(),
                 institutionid = "NO:noinst002",
                 institutionnavn = "NOINST002, NO INST002, NO")
-        prefillSEDService = PrefillSEDService(prefillNav, persondataFraTPS, EessiInformasjon(), dataFromPEN)
+        prefillSEDService = PrefillSEDService(prefillNav, personV3Service, EessiInformasjon(), dataFromPEN)
     }
 
     @Test

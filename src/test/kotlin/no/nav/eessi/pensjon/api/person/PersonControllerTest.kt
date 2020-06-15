@@ -2,15 +2,13 @@ package no.nav.eessi.pensjon.api.person
 
 import com.nhaarman.mockitokotlin2.*
 import no.nav.eessi.pensjon.logging.AuditLogger
-import no.nav.eessi.pensjon.services.aktoerregister.AktoerregisterService
-import no.nav.eessi.pensjon.services.personv3.PersonV3IkkeFunnetException
-import no.nav.eessi.pensjon.services.personv3.PersonV3Service
+import no.nav.eessi.pensjon.personoppslag.aktoerregister.AktoerregisterService
+import no.nav.eessi.pensjon.personoppslag.personv3.PersonV3IkkeFunnetException
+import no.nav.eessi.pensjon.personoppslag.personv3.PersonV3Service
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personnavn
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonResponse
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import org.mockito.Spy
 import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
@@ -20,7 +18,6 @@ import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 
@@ -46,7 +43,7 @@ class PersonControllerTest {
 
         doNothing().whenever(auditLogger).log(any(), any())
         whenever(mockAktoerregisterService.hentGjeldendeNorskIdentForAktorId(anAktorId)).thenReturn(anFnr)
-        whenever(mockPersonV3Service.hentPerson(anFnr)).thenReturn(hentPersonResponse)
+        whenever(mockPersonV3Service.hentPersonResponse(anFnr)).thenReturn(hentPersonResponse)
 
         val response = mvc.perform(
             get("/person/$anAktorId")
@@ -60,7 +57,7 @@ class PersonControllerTest {
     fun `getNameOnly should return names as json`() {
         doNothing().whenever(auditLogger).log(any(), any())
         whenever(mockAktoerregisterService.hentGjeldendeNorskIdentForAktorId(anAktorId)).thenReturn(anFnr)
-        whenever(mockPersonV3Service.hentPerson(anFnr)).thenReturn(hentPersonResponse)
+        whenever(mockPersonV3Service.hentPersonResponse(anFnr)).thenReturn(hentPersonResponse)
 
         val response = mvc.perform(
             get("/personinfo/$anAktorId")
@@ -72,7 +69,7 @@ class PersonControllerTest {
 
     @Test
     fun `should return NOT_FOUND hvis personen ikke finnes i TPS`() {
-        doThrow(PersonV3IkkeFunnetException("Error is Expected")).whenever(mockPersonV3Service).hentPerson(anFnr)
+        doThrow(PersonV3IkkeFunnetException("Error is Expected")).whenever(mockPersonV3Service).hentPersonResponse(anFnr)
         doNothing().whenever(auditLogger).log(any(), any())
         doReturn(anFnr).whenever(mockAktoerregisterService).hentGjeldendeNorskIdentForAktorId(anAktorId)
 
@@ -86,12 +83,12 @@ class PersonControllerTest {
     private val anFnr = "01010123456"
 
     private val hentPersonResponse =
-        HentPersonResponse()
-            .withPerson(Person()
-                .withPersonnavn(Personnavn()
-                    .withFornavn("OLA")
-                    .withEtternavn("NORDMANN")
-                    .withSammensattNavn("NORDMANN OLA")))
+            HentPersonResponse()
+                    .withPerson(Person()
+                            .withPersonnavn(Personnavn()
+                                    .withFornavn("OLA")
+                                    .withEtternavn("NORDMANN")
+                                    .withSammensattNavn("NORDMANN OLA")))
 
     private val personAsJson = """{
                   "person": {
@@ -102,7 +99,7 @@ class PersonControllerTest {
                     "harFraRolleI": [],
                     "aktoer": null,
                     "kjoenn": null,
-                    "personnavn": { fornavn: "OLA", etternavn: "NORDMANN", mellomnavn: null, sammensattNavn: "NORDMANN OLA"},
+                    "personnavn": { "fornavn": "OLA", "etternavn": "NORDMANN", "mellomnavn": null, "sammensattNavn": "NORDMANN OLA", "endringstidspunkt": null, "endretAv": null, "endringstype": null},
                     "personstatus": null,
                     "postadresse": null,
                     "doedsdato": null,

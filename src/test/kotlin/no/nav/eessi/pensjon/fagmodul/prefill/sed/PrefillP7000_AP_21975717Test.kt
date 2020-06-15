@@ -35,11 +35,11 @@ class PrefillP7000_AP_21975717Test {
 
     @BeforeEach
     fun setup() {
-        val persondataFraTPS = setupPersondataFraTPS(setOf(
+        val personV3Service = setupPersondataFraTPS(setOf(
                 MockTpsPersonServiceFactory.MockTPS("Person-11000-GIFT.json", personFnr, MockTpsPersonServiceFactory.MockTPS.TPSType.PERSON)
         ))
 
-        val person = persondataFraTPS.hentBrukerFraTPS(personFnr)
+        val person = personV3Service.hentBruker(personFnr)
 
         val prefillNav = PrefillNav(prefillAdresse = mock<PrefillAdresse>(),
                 institutionid = "NO:noinst002",

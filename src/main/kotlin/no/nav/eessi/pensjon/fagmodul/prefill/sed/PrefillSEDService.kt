@@ -12,8 +12,8 @@ import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.PrefillP2000
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.PrefillP2100
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.PrefillP2200
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.vedtak.PrefillP6000
-import no.nav.eessi.pensjon.fagmodul.prefill.tps.TpsPersonService
 import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
+import no.nav.eessi.pensjon.personoppslag.personv3.PersonV3Service
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Bruker
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.PersonIdent
 import org.slf4j.Logger
@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class PrefillSEDService(private val prefillNav: PrefillNav,
-                        private val tpsPersonService: TpsPersonService,
+                        private val personV3Service: PersonV3Service,
                         private val eessiInformasjon: EessiInformasjon,
                         private val pensjonsinformasjonService: PensjonsinformasjonService) {
 
@@ -75,7 +75,7 @@ class PrefillSEDService(private val prefillNav: PrefillNav,
     }
 
     private fun getPrefillSed(prefillData: PrefillDataModel): PrefillSed {
-        val pensjonGjenlevende = PrefillGjenlevende(tpsPersonService, prefillNav).prefill(prefillData)
+        val pensjonGjenlevende = PrefillGjenlevende(personV3Service, prefillNav).prefill(prefillData)
         return PrefillSed(prefillNav, pensjonGjenlevende)
     }
 
@@ -83,17 +83,17 @@ class PrefillSEDService(private val prefillNav: PrefillNav,
     private fun hentPersoner(prefillData: PrefillDataModel, fyllUtBarnListe: Boolean = false): PersonData {
         // FIXME - det veksles mellom gjenlevende og bruker ... usikkert om dette er rett...
         logger.info("Henter hovedperson/gjenlevende eller avdød (avdød: ${prefillData.avdod == null})")
-        val brukerEllerGjenlevende = tpsPersonService.hentBrukerFraTPS(prefillData.avdod?.norskIdent ?: prefillData.bruker.norskIdent)
+        val brukerEllerGjenlevende = personV3Service.hentBruker(prefillData.avdod?.norskIdent ?: prefillData.bruker.norskIdent)
 
         logger.info("Henter hovedperson/forsikret")
-        val forsikretPerson = tpsPersonService.hentBrukerFraTPS(prefillData.bruker.norskIdent)
+        val forsikretPerson = personV3Service.hentBruker(prefillData.bruker.norskIdent)
 
         val (ektepinid, ekteTypeValue) = filterEktefelleRelasjon(forsikretPerson)
 
         logger.info("Henter ektefelle/partner (ekteType: $ekteTypeValue)")
-        val ektefelleBruker = if(ektepinid.isBlank()) null else tpsPersonService.hentBrukerFraTPS(ektepinid)
+        val ektefelleBruker = if(ektepinid.isBlank()) null else personV3Service.hentBruker(ektepinid)
 
-        val barnBrukereFraTPS = if (forsikretPerson == null || !fyllUtBarnListe ) emptyList() else hentBarnFraTps(forsikretPerson as no.nav.tjeneste.virksomhet.person.v3.informasjon.Person)
+        val barnBrukereFraTPS = if (forsikretPerson == null || !fyllUtBarnListe ) emptyList() else hentBarnFraTps(forsikretPerson)
 
         return PersonData(brukerEllerGjenlevende = brukerEllerGjenlevende, forsikretPerson = forsikretPerson!!, ektefelleBruker = ektefelleBruker, ekteTypeValue = ekteTypeValue, barnBrukereFraTPS = barnBrukereFraTPS)
     }
@@ -104,7 +104,7 @@ class PrefillSEDService(private val prefillNav: PrefillNav,
                     .map { relasjon -> (relasjon.tilPerson.aktoer as PersonIdent).ident.ident }
                     .mapNotNull { barnPin ->
                         logger.info("Henter barn fra TPS")
-                        tpsPersonService.hentBrukerFraTPS(barnPin)
+                        personV3Service.hentBruker(barnPin)
                     }
 
     private fun filterEktefelleRelasjon(bruker: Bruker?): Pair<String, String> {
