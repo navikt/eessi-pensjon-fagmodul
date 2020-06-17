@@ -70,22 +70,22 @@ class ArchitectureTest {
         val pensjonUtlandApi = "api.pensjonUtland"
         val config = "fagmodul.config"
         val metrics = "fagmodul.metrics"
-        val aktoerregisterService = "services.aktoerregister"
         val euxService = "fagmodul.euxservice"
         val euxBasisModel = "fagmodul.euxBasisModel"
         val euxBucModel = "fagmodul.euxBucModel"
         val kodeverkService = "services.kodeverk"
         val geoService = "services.geo"
-        val personService = "services.person"
         val pensjonService = "services.pensjon"
         val security = "security"
         val integrationtest = "integrationtest"
         val utils = "utils"
         val vedlegg = "vedlegg"
+        val personoppslag = "personoppslag"
+        val aktoerregisterService = "personoppslag.aktoerregister"
+        val personService = "personoppslag.personv3"
 
         val packages: Map<String, String> = mapOf(
                 "$root.fagmodul.health.." to health,
-
                 "$root.api.arkiv.." to arkivApi,
                 "$root.api.geo.." to geoApi,
                 "$root.api.person.." to personApi,
@@ -112,7 +112,10 @@ class ArchitectureTest {
                 "$root.metrics.." to utils,
                 "$root.utils.." to utils,
                 "$root.logging.." to utils,
-                "$root.vedlegg.." to vedlegg)
+                "$root.vedlegg.." to vedlegg,
+
+                "$root.personoppslag.." to personoppslag
+        )
 
         // packages in each component - default is the package with the component name
         fun packagesFor(layer: String) = packages.entries.filter { it.value == layer }.map { it.key }.toTypedArray()
@@ -186,12 +189,14 @@ class ArchitectureTest {
         val services = "Services"
         val support = "Support"
         val vedlegg ="Vedlegg"
+        val personoppslag = "Personoppslag"
         layeredArchitecture()
                 .layer(frontendAPI).definedBy("$root.api..")
                 .layer(fagmodulCore).definedBy("$root.fagmodul..")
                 .layer(integrationtest).definedBy("$root.integrationtest..")
                 .layer(services).definedBy("$root.services..")
                 .layer(vedlegg).definedBy("$root.vedlegg..")
+                .layer(personoppslag).definedBy("$root.personoppslag..")
                 .layer(support).definedBy(
                         "$root.metrics..",
                         "$root.security..",
@@ -208,7 +213,8 @@ class ArchitectureTest {
                         fagmodulCore,
                         services,
                         vedlegg,
-                        integrationtest)
+                        integrationtest,
+                        personoppslag)
                 .check(allClasses)
     }
 

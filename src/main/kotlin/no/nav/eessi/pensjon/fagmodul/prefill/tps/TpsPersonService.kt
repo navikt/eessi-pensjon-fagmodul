@@ -13,7 +13,7 @@ class TpsPersonService(private val personV3Service: PersonV3Service) {
 
     fun hentBrukerFraTPS(ident: String) =
             try {
-                personV3Service.hentPerson(ident) as Bruker
+                personV3Service.hentPerson(ident).person as Bruker
             } catch (ex: Exception) {
                 logger.error("Feil ved henting av Bruker fra TPS, sjekk ident?")
                 null
