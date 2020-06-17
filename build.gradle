@@ -140,9 +140,9 @@ dependencies {
     implementation("commons-io:commons-io:2.7")
 
     // Tjenestespesifikasjoner
+    implementation("no.nav.tjenestespesifikasjoner:person-v3-tjenestespesifikasjon:1.2020.01.30-14.36-cdf257baea96")
     xsd("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:1.2020.01.30-14.36-cdf257baea96")
     implementation("com.sun.xml.ws:jaxws-ri:2.3.2")
-    implementation("joda-time:joda-time:2.10.6")
 
     jaxb ('org.glassfish.jaxb:jaxb-xjc:2.3.2')
     jaxb ('org.glassfish.jaxb:jaxb-runtime:2.3.2')
