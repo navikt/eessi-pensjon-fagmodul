@@ -160,6 +160,7 @@ dependencies {
 
 }
 
+
 test {
     useJUnitPlatform()
 }
@@ -194,7 +195,6 @@ task copyPensjonsinformasjonXsdsFromArtifacts(type: Copy) {
 jaxb {
     xsdDir = pensjonsinformasjonDir
 }
-
 
 copyPensjonsinformasjonXsdsFromArtifacts.dependsOn tasks["copyPensjonsinformasjonXsd"]
 xjc.dependsOn tasks["copyPensjonsinformasjonXsdsFromArtifacts"]
