@@ -61,7 +61,7 @@ server:
       timeout:  '2m'
   port:         '8081'
 
-no.nav.security.oidc:
+no.nav.security.jwt:
   issuer.isso:
     proxyurl:
     cookiename: 'eessipensjon-idtoken'

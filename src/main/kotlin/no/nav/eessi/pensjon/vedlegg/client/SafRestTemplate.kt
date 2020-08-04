@@ -4,8 +4,8 @@ import io.micrometer.core.instrument.MeterRegistry
 import no.nav.eessi.pensjon.logging.RequestIdHeaderInterceptor
 import no.nav.eessi.pensjon.logging.RequestResponseLoggerInterceptor
 import no.nav.eessi.pensjon.metrics.RequestCountInterceptor
-import no.nav.eessi.pensjon.security.oidc.OidcAuthorizationHeaderInterceptor
-import no.nav.security.oidc.context.OIDCRequestContextHolder
+import no.nav.eessi.pensjon.security.token.TokenAuthorizationHeaderInterceptor
+import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
@@ -16,7 +16,7 @@ import org.springframework.web.client.DefaultResponseErrorHandler
 import org.springframework.web.client.RestTemplate
 
 @Component
-class SafRestTemplate(private val oidcRequestContextHolder: OIDCRequestContextHolder,
+class SafRestTemplate(private val tokenValidationContextHolder: TokenValidationContextHolder,
                       private val registry: MeterRegistry) {
 
     @Value("\${saf.graphql.url}")
@@ -34,7 +34,7 @@ class SafRestTemplate(private val oidcRequestContextHolder: OIDCRequestContextHo
                         RequestIdHeaderInterceptor(),
                         RequestCountInterceptor(registry),
                         RequestResponseLoggerInterceptor(),
-                        OidcAuthorizationHeaderInterceptor(oidcRequestContextHolder))
+                        TokenAuthorizationHeaderInterceptor(tokenValidationContextHolder))
                 .build().apply {
                     requestFactory = BufferingClientHttpRequestFactory(SimpleClientHttpRequestFactory())
                 }
@@ -50,7 +50,7 @@ class SafRestTemplate(private val oidcRequestContextHolder: OIDCRequestContextHo
                         RequestIdHeaderInterceptor(),
                         RequestCountInterceptor(registry),
                         RequestResponseLoggerInterceptor(),
-                        OidcAuthorizationHeaderInterceptor(oidcRequestContextHolder))
+                        TokenAuthorizationHeaderInterceptor(tokenValidationContextHolder))
                 .build().apply {
                     requestFactory = BufferingClientHttpRequestFactory(SimpleClientHttpRequestFactory())
                 }

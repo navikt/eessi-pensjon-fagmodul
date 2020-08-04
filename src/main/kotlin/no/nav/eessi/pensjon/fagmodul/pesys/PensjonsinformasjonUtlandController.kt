@@ -2,7 +2,7 @@ package no.nav.eessi.pensjon.fagmodul.pesys
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.swagger.annotations.ApiOperation
-import no.nav.security.oidc.api.Protected
+import no.nav.security.token.support.core.api.Protected
 import org.springframework.web.bind.annotation.*
 
 

@@ -3,7 +3,7 @@
 # issuer.oidc = bearer token from API (header)
 # issuer.pesys = bearer token from other places (servicebruker) (header)
 
-no.nav.security.oidc:
+no.nav.security.jwt:
  issuer.isso:
    proxyurl:
    cookiename: 'eessipensjon-idtoken'
@@ -16,8 +16,6 @@ no.nav.security.oidc:
    discoveryurl: '${security-token-service-openid-configuration_url}'
    accepted_audience: 'srvpensjon,srveessipensjon,srveessi-pensjon-j,srveessi-pensjon-b'
 
-# Older iodc audience: security-token-service,freg-token-provider-p,freg-token-provider-t0,freg-token-provider-q4,
-# preprod.local,security-token-service-t10,  https://security-token-service-t10.nais.preprod.local/rest/v1/sts/.well-known/openid-configuration
 # Empty on purpose so that oidc-spring-support doesn't use http.proxy
 http.proxy.parametername:
 

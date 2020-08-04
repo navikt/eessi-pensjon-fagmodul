@@ -8,7 +8,7 @@ import no.nav.eessi.pensjon.services.pensjonsinformasjon.IkkeFunnetException
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.utils.errorBody
 import no.nav.eessi.pensjon.utils.mapAnyToJson
-import no.nav.security.oidc.api.Protected
+import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus

@@ -2,7 +2,7 @@ package no.nav.eessi.pensjon.api.geo
 
 import io.swagger.annotations.ApiOperation
 import no.nav.eessi.pensjon.services.geo.PostnummerService
-import no.nav.security.oidc.api.Unprotected
+import no.nav.security.token.support.core.api.Unprotected
 import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable

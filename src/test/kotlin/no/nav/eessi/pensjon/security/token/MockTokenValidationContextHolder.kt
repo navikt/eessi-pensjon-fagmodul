@@ -1,4 +1,4 @@
-package no.nav.eessi.pensjon.security.oidc
+package no.nav.eessi.pensjon.security.token
 
 import no.nav.security.token.support.core.context.TokenValidationContext
 import no.nav.security.token.support.core.context.TokenValidationContextHolder

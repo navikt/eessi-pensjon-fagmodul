@@ -1,4 +1,4 @@
-package no.nav.eessi.pensjon.security.oidc
+package no.nav.eessi.pensjon.security.token
 
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.PlainJWT
@@ -11,24 +11,24 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.junit.jupiter.MockitoExtension
 
 @ExtendWith(MockitoExtension::class)
-class OidcAuthorizationHeaderInterceptorKtTest {
+class TokenAuthorizationHeaderInterceptorTest {
 
     private val allRequestContextHolders = generateMockContextHolder(listOf("isso","servicebruker","oidc"))
-    private lateinit var authInterceptor: OidcAuthorizationHeaderInterceptor
+    private lateinit var authInterceptor: TokenAuthorizationHeaderInterceptor
 
     @Test
-    fun `gitt mulitple issuers returner pesysIdToken token`() {
-        authInterceptor = OidcAuthorizationHeaderInterceptor(allRequestContextHolders)
+    fun `gitt mulitple issuers returner servicebruker token`() {
+        authInterceptor = TokenAuthorizationHeaderInterceptor(allRequestContextHolders)
 
         val token = authInterceptor.getTokenContextFromIssuer(allRequestContextHolders)
         assertEquals("servicebruker", token.issuer)
     }
 
     @Test
-    fun `gitt mulitple issuers returner issoIdToken token`() {
+    fun `gitt mulitple issuers returner isso token`() {
         val allMagicRequestContextHoldersIsso = generateMockContextHolder(listOf("isso","servicebruker","oidc"),true)
 
-        authInterceptor = OidcAuthorizationHeaderInterceptor(allMagicRequestContextHoldersIsso)
+        authInterceptor = TokenAuthorizationHeaderInterceptor(allMagicRequestContextHoldersIsso)
 
         val token = authInterceptor.getTokenContextFromIssuer(allMagicRequestContextHoldersIsso)
         assertEquals("isso", token.issuer)
@@ -37,16 +37,16 @@ class OidcAuthorizationHeaderInterceptorKtTest {
     @Test
     fun `gitt mulitple issuers returner pesys`() {
         val allMagicRequestContextHoldersIsso = generateMockContextHolder(listOf("pesys"))
-        authInterceptor = OidcAuthorizationHeaderInterceptor(allMagicRequestContextHoldersIsso)
+        authInterceptor = TokenAuthorizationHeaderInterceptor(allMagicRequestContextHoldersIsso)
 
         val token = authInterceptor.getTokenContextFromIssuer(allMagicRequestContextHoldersIsso)
         assertEquals("pesys", token.issuer)
     }
 
     @Test
-    fun `gitt mulitple issuers returner oidc`() {
-        val allMagicRequestContextHoldersIsso = generateMockContextHolder(listOf("oidc","isso"))
-        authInterceptor = OidcAuthorizationHeaderInterceptor(allMagicRequestContextHoldersIsso)
+    fun `gitt mulitple issuers returner oidc token`() {
+        val allMagicRequestContextHoldersIsso = generateMockContextHolder(listOf("isso", "oidc"))
+        authInterceptor = TokenAuthorizationHeaderInterceptor(allMagicRequestContextHoldersIsso)
 
         val token = authInterceptor.getTokenContextFromIssuer(allMagicRequestContextHoldersIsso)
         assertEquals("oidc", token.issuer)
@@ -55,7 +55,7 @@ class OidcAuthorizationHeaderInterceptorKtTest {
     @Test
     fun `gitt mulitple issuers returner isso had longest exp`() {
         val allMagicRequestContextHoldersIsso = generateMockContextHolder(listOf("oidc","isso"), true)
-        authInterceptor = OidcAuthorizationHeaderInterceptor(allMagicRequestContextHoldersIsso)
+        authInterceptor = TokenAuthorizationHeaderInterceptor(allMagicRequestContextHoldersIsso)
 
         val token = authInterceptor.getTokenContextFromIssuer(allMagicRequestContextHoldersIsso)
         assertEquals("isso", token.issuer)
@@ -66,14 +66,14 @@ class OidcAuthorizationHeaderInterceptorKtTest {
     }
 
     fun generateMockContextHolder(issuerList: List<String>, doIsso: Boolean): TokenValidationContextHolder {
-        val mymap = mutableMapOf<String, JwtToken>()
+        val tokenMap = mutableMapOf<String, JwtToken>()
             issuerList.forEach {issuer ->
                 val claimSet = JWTClaimsSet.parse(token(issuer, if (issuer == "isso" && doIsso) 1531259178 else 1531157178))
                 val jwt = PlainJWT(claimSet)
-                mymap[issuer] = JwtToken(jwt.serialize())
+                tokenMap[issuer] = JwtToken(jwt.serialize())
             }
 
-        val tokenValidationContext = TokenValidationContext(mymap)
+        val tokenValidationContext = TokenValidationContext(tokenMap)
 
         val tokenValidationContextHolder = MockTokenValidationContextHolder()
         tokenValidationContextHolder.tokenValidationContext = tokenValidationContext

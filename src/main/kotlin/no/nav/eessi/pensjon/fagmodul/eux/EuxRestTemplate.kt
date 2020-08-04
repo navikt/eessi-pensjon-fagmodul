@@ -4,8 +4,8 @@ import io.micrometer.core.instrument.MeterRegistry
 import no.nav.eessi.pensjon.logging.RequestIdHeaderInterceptor
 import no.nav.eessi.pensjon.logging.RequestResponseLoggerInterceptor
 import no.nav.eessi.pensjon.metrics.RequestCountInterceptor
-import no.nav.eessi.pensjon.security.oidc.OidcAuthorizationHeaderInterceptor
-import no.nav.security.oidc.context.OIDCRequestContextHolder
+import no.nav.eessi.pensjon.security.token.TokenAuthorizationHeaderInterceptor
+import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
@@ -17,7 +17,7 @@ import org.springframework.web.client.RestTemplate
 import java.time.Duration
 
 @Component
-class EuxRestTemplate(private val oidcRequestContextHolder: OIDCRequestContextHolder, private val registry: MeterRegistry) {
+class EuxRestTemplate(private val tokenValidationContextHolder: TokenValidationContextHolder, private val registry: MeterRegistry) {
 
     @Value("\${eessipen-eux-rina.url}")
     lateinit var url: String
@@ -33,7 +33,7 @@ class EuxRestTemplate(private val oidcRequestContextHolder: OIDCRequestContextHo
                         RequestIdHeaderInterceptor(),
                         RequestCountInterceptor(registry),
                         RequestResponseLoggerInterceptor(),
-                        OidcAuthorizationHeaderInterceptor(oidcRequestContextHolder))
+                        TokenAuthorizationHeaderInterceptor(tokenValidationContextHolder))
                 .build().apply {
                     requestFactory = BufferingClientHttpRequestFactory(SimpleClientHttpRequestFactory())
                 }

@@ -6,7 +6,7 @@ buildscript {
         springfoxVersion = '2.9.2'
         jacksonModuleKotlinVersion = '2.10.1'
         cxfVersion = '3.3.4'
-        oidcTokenSupportVersion = '0.2.18'
+        tokenSupportVersion = '1.1.6'
         logstashLogbackVersion = '6.3'
         pensjonInformasjonVersion = '9.4.10'
     }
@@ -131,11 +131,13 @@ dependencies {
     implementation("org.syslog4j:syslog4j:0.9.30")
 
     // OIDC
-    implementation("no.nav.security:oidc-spring-support:${oidcTokenSupportVersion}"){
-        exclude module: 'tomcat-embed-core'
-    }
-    implementation("no.nav.security:oidc-test-support:${oidcTokenSupportVersion}")
-    implementation("no.nav.eessi.pensjon:ep-security-sts:0.0.10")
+    implementation("no.nav.security:token-validation-spring:${tokenSupportVersion}")
+    implementation("no.nav.security:token-validation-jaxrs:${tokenSupportVersion}")
+    implementation("no.nav.security:token-client-spring:${tokenSupportVersion}")
+    // Only used for starting up locally
+    implementation("no.nav.security:token-validation-test-support:${tokenSupportVersion}")
+
+    implementation("no.nav.eessi.pensjon:ep-security-sts:0.0.11")
     testImplementation("org.pac4j:spring-webmvc-pac4j:3.2.0")
 
     // Tjenestespesifikasjoner
@@ -154,7 +156,7 @@ dependencies {
     implementation ("org.springframework.kafka:spring-kafka:2.5.1.RELEASE")
     testImplementation ("org.springframework.kafka:spring-kafka-test:2.5.1.RELEASE")
 
-    implementation("no.nav.eessi.pensjon:ep-logging:0.0.12")
+    implementation("no.nav.eessi.pensjon:ep-logging:1.0.0")
     implementation("no.nav.eessi.pensjon:ep-personoppslag:5.1.1")
 }
 

@@ -13,11 +13,11 @@
     EUXBasis                        : ${eessipen-eux-rina.url}
     Person_v3                       : ${virksomhet.person.v3.endpointurl}
 
-    ISSO Tokensupport OIDC          : ${no.nav.security.oidc.issuer.oidc.discoveryurl}
-    ISSO Tokensupport accept        : ${no.nav.security.oidc.issuer.oidc.accepted_audience}
+    ISSO Tokensupport OIDC          : ${no.nav.security.jwt.issuer.oidc.discoveryurl}
+    ISSO Tokensupport accept        : ${no.nav.security.jwt.issuer.oidc.accepted_audience}
 
-    PESYS Tokensupport OIDC         : ${no.nav.security.oidc.issuer.pesys.discoveryurl}
-    PESYS Tokensupport accept       : ${no.nav.security.oidc.issuer.pesys.accepted_audience}
+    PESYS Tokensupport OIDC         : ${no.nav.security.jwt.issuer.pesys.discoveryurl}
+    PESYS Tokensupport accept       : ${no.nav.security.jwt.issuer.pesys.accepted_audience}
 
     securityTokenService            : ${securityTokenService.url}
 

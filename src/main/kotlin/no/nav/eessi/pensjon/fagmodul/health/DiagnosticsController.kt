@@ -5,8 +5,8 @@ import no.nav.eessi.pensjon.security.sts.STSService
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.typeRefs
-import no.nav.security.oidc.api.Protected
-import no.nav.security.oidc.api.Unprotected
+import no.nav.security.token.support.core.api.Protected
+import no.nav.security.token.support.core.api.Unprotected
 import org.apache.http.HttpHeaders
 import org.apache.http.client.fluent.Request
 import org.slf4j.LoggerFactory
