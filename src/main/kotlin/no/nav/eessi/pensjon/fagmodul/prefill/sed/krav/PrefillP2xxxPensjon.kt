@@ -74,21 +74,19 @@ object PrefillP2xxxPensjon {
 
         } else {
             logger.info("sakType: ${pensak.sakType}")
-            if (erPenSaktypeEpSaktype(pensak)) {
-                try {
-                    val kravHistorikkMedUtland = hentKravHistorikkForsteGangsBehandlingUtlandEllerForsteGang(pensak.kravHistorikkListe)
-                    val ytelseprmnd = hentYtelsePerMaanedDenSisteFraKrav(kravHistorikkMedUtland, pensak)
+            try {
+                val kravHistorikkMedUtland = hentKravHistorikkForsteGangsBehandlingUtlandEllerForsteGang(pensak.kravHistorikkListe)
+                val ytelseprmnd = hentYtelsePerMaanedDenSisteFraKrav(kravHistorikkMedUtland, pensak)
 
-                    //kjøre ytelselist på normal
-                    if (krav == null) {
-                        krav = createKravDato(kravHistorikkMedUtland)
-                    }
-
-                    ytelselist.add(createYtelserItem(ytelseprmnd, pensak, personNr, penSaksnummer, andreinstitusjonerItem))
-                } catch (ex: Exception) {
-                    logger.error(ex.message, ex)
-                    ytelselist.add(createYtelseMedManglendeYtelse(pensak, personNr, penSaksnummer, andreinstitusjonerItem))
+                //kjøre ytelselist på normal
+                if (krav == null) {
+                    krav = createKravDato(kravHistorikkMedUtland)
                 }
+
+                ytelselist.add(createYtelserItem(ytelseprmnd, pensak, personNr, penSaksnummer, andreinstitusjonerItem))
+            } catch (ex: Exception) {
+                logger.error(ex.message, ex)
+                ytelselist.add(createYtelseMedManglendeYtelse(pensak, personNr, penSaksnummer, andreinstitusjonerItem))
             }
         }
 
@@ -99,33 +97,32 @@ object PrefillP2xxxPensjon {
         )
     }
 
-    private fun erPenSaktypeEpSaktype(pensak: V1Sak) =
-            when (pensak.sakType) {
-//                "GJENLEV" ->
-//                "BARNEP" ->
-                "ALDER" -> pensak.sakType == PenSaktype.ALDER.name
-                "UFOREP" -> pensak.sakType == PenSaktype.UFOREP.name
-                else -> {
-                    throw IllegalArgumentException("Saktstype mangler")
-                }
-            }
-    //   pensak.sakType != PenSaktype.GJENLEV_BARNEP.name
-
     fun hentRelevantPensjonSak(pensjonsinformasjonService: PensjonsinformasjonService,
                                aktorId: String,
                                penSaksnummer: String,
                                sakType: String,
                                sedType: String): V1Sak? {
         return pensjonsinformasjonService.hentPensjonInformasjonNullHvisFeil(aktorId)?.let {
-         //   val pensak: V1Sak = PensjonsinformasjonService.finnSak(penSaksnummer, it)
+            val pensak: V1Sak = PensjonsinformasjonService.finnSak(penSaksnummer, it)
 
-            if (pensak.sakType != sakType) {
+            if (!erPensaktypeEpsaktype(pensak, sakType)) {
                 logger.warn("Du kan ikke opprette ${sedTypeAsText(sedType)} i en ${sakTypeAsText(pensak.sakType)} (PESYS-saksnr: $penSaksnummer har sakstype ${pensak.sakType})")
                 throw FeilSakstypeForSedException("Du kan ikke opprette ${sedTypeAsText(sedType)} i en ${sakTypeAsText(pensak.sakType)} (PESYS-saksnr: $penSaksnummer har sakstype ${pensak.sakType})")
             }
             pensak
         }
     }
+
+    private fun erPensaktypeEpsaktype(pensak: V1Sak, sakType: String) =
+            when (pensak.sakType) {
+                "ALDER" -> pensak.sakType == sakType
+                "UFOREP" -> pensak.sakType == sakType
+                "GJENLEV" -> sakType.contains(pensak.sakType)
+                "BARNEP" -> sakType.contains(pensak.sakType)
+                else -> {
+                    false
+                }
+            }
 
     private fun sakTypeAsText(sakType: String?) =
             when (sakType) {
