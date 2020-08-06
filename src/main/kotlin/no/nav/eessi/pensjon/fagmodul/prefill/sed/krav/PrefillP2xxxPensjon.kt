@@ -74,7 +74,7 @@ object PrefillP2xxxPensjon {
 
         } else {
             logger.info("sakType: ${pensak.sakType}")
-            if (pensak.sakType != Saktype.BARNEP.name) {
+            if (erPenSaktypeEpSaktype(pensak)) {
                 try {
                     val kravHistorikkMedUtland = hentKravHistorikkForsteGangsBehandlingUtlandEllerForsteGang(pensak.kravHistorikkListe)
                     val ytelseprmnd = hentYtelsePerMaanedDenSisteFraKrav(kravHistorikkMedUtland, pensak)
@@ -99,13 +99,25 @@ object PrefillP2xxxPensjon {
         )
     }
 
+    private fun erPenSaktypeEpSaktype(pensak: V1Sak) =
+            when (pensak.sakType) {
+//                "GJENLEV" ->
+//                "BARNEP" ->
+                "ALDER" -> pensak.sakType == PenSaktype.ALDER.name
+                "UFOREP" -> pensak.sakType == PenSaktype.UFOREP.name
+                else -> {
+                    throw IllegalArgumentException("Saktstype mangler")
+                }
+            }
+    //   pensak.sakType != PenSaktype.GJENLEV_BARNEP.name
+
     fun hentRelevantPensjonSak(pensjonsinformasjonService: PensjonsinformasjonService,
                                aktorId: String,
                                penSaksnummer: String,
                                sakType: String,
                                sedType: String): V1Sak? {
         return pensjonsinformasjonService.hentPensjonInformasjonNullHvisFeil(aktorId)?.let {
-            val pensak: V1Sak = PensjonsinformasjonService.finnSak(penSaksnummer, it)
+         //   val pensak: V1Sak = PensjonsinformasjonService.finnSak(penSaksnummer, it)
 
             if (pensak.sakType != sakType) {
                 logger.warn("Du kan ikke opprette ${sedTypeAsText(sedType)} i en ${sakTypeAsText(pensak.sakType)} (PESYS-saksnr: $penSaksnummer har sakstype ${pensak.sakType})")
@@ -327,7 +339,7 @@ object PrefillP2xxxPensjon {
         logger.debug("4.1.10.1      Pensjon basertpå")
         val navfnr = NavFodselsnummer(personNr)
 
-        val sakType = Saktype.valueOf(pensak.sakType)
+        val sakType = PenSaktype.valueOf(pensak.sakType)
 
         if (navfnr.isDNumber()) {
             return "01" // Botid

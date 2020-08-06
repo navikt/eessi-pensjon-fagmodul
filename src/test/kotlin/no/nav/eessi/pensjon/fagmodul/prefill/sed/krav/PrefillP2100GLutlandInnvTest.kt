@@ -63,7 +63,7 @@ class PrefillP2100GLutlandInnvTest {
 
 
     @Test
-    fun `forventet korrekt utfylt P2200 uforepensjon med kap4 og 9`() {
+    fun `forventet korrekt utfylt P2100 uforepensjon med kap4 og 9`() {
         val p2100 = prefillSEDService.prefill(prefillData)
 
         val p2100gjenlev = SED(

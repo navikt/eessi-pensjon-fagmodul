@@ -1,7 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.model
 
-import no.nav.eessi.pensjon.fagmodul.sedmodel.AndreinstitusjonerItem
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
+import no.nav.eessi.pensjon.fagmodul.sedmodel.AndreinstitusjonerItem
 import no.nav.eessi.pensjon.fagmodul.sedmodel.InstitusjonX005
 import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
 import no.nav.eessi.pensjon.utils.mapAnyToJson
@@ -25,7 +25,6 @@ class PrefillDataModel(val penSaksnummer: String, val bruker: PersonId, val avdo
     //pensjon
     lateinit var vedtakId: String
 
-    //data fra pesys
     lateinit var saktype: String
 
     //rina

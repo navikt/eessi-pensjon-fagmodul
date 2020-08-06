@@ -20,7 +20,7 @@ class PrefillP2100(private val prefillNav: PrefillNav,
     fun prefill(prefillData: PrefillDataModel, personData: PersonData): SED {
         val sedId = prefillData.getSEDid()
 
-        prefillData.saktype = Saktype.GJENLEV.name
+        prefillData.saktype = PenSaktype.GJENLEV_BARNEP.name
         logger.debug("\n\n----------------------------------------------------------"
                 + "\nSaktype                  : ${prefillData.saktype} "
                 + "\nSøker etter SaktId       : ${prefillData.penSaksnummer} "

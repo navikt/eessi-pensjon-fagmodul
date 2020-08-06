@@ -1,8 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.sed.krav
 
-import java.lang.Exception
-
-    /**
+/**
      *  [07] Førtidspensjon
      *  [08] Uførepensjon
      *  [10] Alderspensjon
@@ -10,10 +8,10 @@ import java.lang.Exception
      */
      fun mapSaktype(saktype: String): String {
         return try {
-            return when (Saktype.valueOf(saktype)) {
-                Saktype.ALDER -> "10"
-                Saktype.GJENLEV -> "11"
-                Saktype.UFOREP -> "08"
+            return when (PenSaktype.valueOf(saktype)) {
+                PenSaktype.ALDER -> "10"
+                PenSaktype.GJENLEV_BARNEP -> "11"
+                PenSaktype.UFOREP -> "08"
                 else -> "07"
             }
         } catch (ex: Exception) {
@@ -43,10 +41,10 @@ import java.lang.Exception
      */
     fun mapPensjonBasertPå(saktype: String): String? {
         return try {
-            return when (Saktype.valueOf(saktype)) {
-                Saktype.ALDER -> "02"
-                Saktype.UFOREP -> "01"
-                Saktype.GJENLEV -> "01"
+            return when (PenSaktype.valueOf(saktype)) {
+                PenSaktype.ALDER -> "02"
+                PenSaktype.UFOREP -> "01"
+                PenSaktype.GJENLEV_BARNEP -> "01"
                 else -> null
             }
         } catch (ex: Exception) {
