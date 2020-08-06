@@ -8,10 +8,10 @@ package no.nav.eessi.pensjon.fagmodul.prefill.sed.krav
      */
      fun mapSaktype(saktype: String): String {
         return try {
-            return when (PenSaktype.valueOf(saktype)) {
-                PenSaktype.ALDER -> "10"
-                PenSaktype.GJENLEV_BARNEP -> "11"
-                PenSaktype.UFOREP -> "08"
+            return when (EPSaktype.valueOf(saktype)) {
+                EPSaktype.ALDER -> "10"
+                EPSaktype.GJENLEV_BARNEP -> "11"
+                EPSaktype.UFOREP -> "08"
                 else -> "07"
             }
         } catch (ex: Exception) {
@@ -41,10 +41,10 @@ package no.nav.eessi.pensjon.fagmodul.prefill.sed.krav
      */
     fun mapPensjonBasertPå(saktype: String): String? {
         return try {
-            return when (PenSaktype.valueOf(saktype)) {
-                PenSaktype.ALDER -> "02"
-                PenSaktype.UFOREP -> "01"
-                PenSaktype.GJENLEV_BARNEP -> "01"
+            return when (EPSaktype.valueOf(saktype)) {
+                EPSaktype.ALDER -> "02"
+                EPSaktype.UFOREP -> "01"
+                EPSaktype.GJENLEV_BARNEP -> "01"
                 else -> null
             }
         } catch (ex: Exception) {

@@ -336,7 +336,7 @@ object PrefillP2xxxPensjon {
         logger.debug("4.1.10.1      Pensjon basertpå")
         val navfnr = NavFodselsnummer(personNr)
 
-        val sakType = PenSaktype.valueOf(pensak.sakType)
+        val sakType = EPSaktype.valueOf(pensak.sakType)
 
         if (navfnr.isDNumber()) {
             return "01" // Botid
