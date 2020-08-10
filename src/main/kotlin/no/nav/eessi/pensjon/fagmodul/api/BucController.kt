@@ -142,6 +142,12 @@ class BucController(private val euxService: EuxService,
         //Hente opp pesysservice. hente inn vedtak pensjoninformasjon..
         val peninfo = pensjonsinformasjonClient.hentAltPaaVedtak(vedtakid)
 
+        logger.debug("Pensjoninfo vedtak avdod :"
+            + "\nAvod " + peninfo.avdod?.avdod
+            + "\nAvdodMor : " + peninfo.avdod?.avdodMor
+            + "\nAvdodFar : " + peninfo.avdod?.avdodFar
+            + "\n")
+
         val avdod = peninfo.avdod
         val person = peninfo.person
 
