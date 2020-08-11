@@ -172,7 +172,7 @@ class BucController(private val euxService: EuxService,
             annenAvdod == null && avdodFar == null && avdodMor == null -> null
             else -> {
                 logger.error("Flere en en avdød funnet")
-                throw Exception("Ingen gyldige avdøde funnet!")
+                throw Exception("Flere en en avdød funnet")
             }
         }
     }
