@@ -66,6 +66,8 @@ kafka:
   sedMottatt:
     topic: eessi-basis-sedMottatt-v1
     groupid: eessi-pensjon-fagmodul-group
+  statistikk:
+    topic: ${KAFKA-STATISTIKK-TOPIC}  #eessi-pensjon-statistikk
 
 #Spring
 spring:

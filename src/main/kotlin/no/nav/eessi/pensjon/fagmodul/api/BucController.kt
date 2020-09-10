@@ -14,6 +14,7 @@ import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.personoppslag.aktoerregister.AktoerregisterService
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonClient
+import no.nav.eessi.pensjon.services.statistikk.StatistikkHandler
 import no.nav.eessi.pensjon.utils.mapAnyToJson
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
 import no.nav.security.token.support.core.api.Protected
@@ -32,6 +33,7 @@ class BucController(private val euxService: EuxService,
                     private val aktoerService: AktoerregisterService,
                     private val auditlogger: AuditLogger,
                     private val pensjonsinformasjonClient: PensjonsinformasjonClient,
+                    private val statistikk: StatistikkHandler,
                     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())) {
 
     private val logger = LoggerFactory.getLogger(BucController::class.java)
@@ -256,6 +258,8 @@ class BucController(private val euxService: EuxService,
 
         //create bucDetail back from newly created buc call eux-rina-api to get data.
         val buc = euxService.getBuc(euxCaseId)
+
+        statistikk.leggOpprettBucPaaMelding(euxCaseId, buctype, System.currentTimeMillis())
         return BucAndSedView.from(buc)
     }
 }
