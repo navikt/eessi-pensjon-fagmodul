@@ -84,6 +84,6 @@ spring:
       value.deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       sasl:
         mechanism: PLAIN
-        jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="${srvusername}" password="${srvusername}";
+        jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="${srvusername}" password="${srvpassword}";
 
 requestsamlpolicy.path: "classpath:policy/requestSamlPolicy.xml"
