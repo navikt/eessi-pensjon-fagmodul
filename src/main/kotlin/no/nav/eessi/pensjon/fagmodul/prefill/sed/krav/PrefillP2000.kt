@@ -52,7 +52,8 @@ class PrefillP2000(private val prefillNav: PrefillNav)  {
                                 prefillData.bruker.norskIdent,
                                 prefillData.penSaksnummer,
                                 sak,
-                                prefillData.andreInstitusjon
+                                prefillData.andreInstitusjon,
+                                kravId = null
                         )
                         if (prefillData.kanFeltSkippes("PENSED")) {
                             Pensjon(kravDato = pensjon.kravDato) //vi skal ha blank pensjon ved denne toggle, men vi må ha med kravdato

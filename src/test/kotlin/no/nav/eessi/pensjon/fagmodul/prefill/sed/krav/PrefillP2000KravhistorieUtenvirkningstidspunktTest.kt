@@ -12,15 +12,13 @@ import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillTestHelper.lesPensjonsda
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillTestHelper.readJsonResponse
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillTestHelper.setupPersondataFraTPS
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.FodselsnummerMother.generateRandomFnr
-import no.nav.eessi.pensjon.fagmodul.prefill.tps.NavFodselsnummer
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.PrefillAdresse
-import no.nav.eessi.pensjon.fagmodul.sedmodel.Nav
-import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.junit.jupiter.MockitoSettings
@@ -70,18 +68,31 @@ class PrefillP2000KravhistorieUtenvirkningstidspunktTest {
 
     @Test
     fun `Utfylling alderpensjon uten kravhistorikk Kunutland uten virkningstidspunkt`() {
-        val P2000 = prefillSEDService.prefill(prefillData)
+//        val P2000 = prefillSEDService.prefill(prefillData)
+//        val P2000pensjon = SED("P2000")
+//        P2000pensjon.pensjon = P2000.pensjon
+//        P2000pensjon.nav = Nav(
+//                krav = P2000.nav?.krav
+//        )
+//        val sed = P2000pensjon
+//        val navfnr = NavFodselsnummer(sed.pensjon?.ytelser?.get(0)?.pin?.identifikator!!)
+//        assertEquals(67, navfnr.getAge())
 
-        val P2000pensjon = SED("P2000")
-        P2000pensjon.pensjon = P2000.pensjon
-        P2000pensjon.nav = Nav(
-                krav = P2000.nav?.krav
-        )
+        assertThrows<ValidationException> {
+            prefillSEDService.prefill(prefillData)
+        }
 
-        val sed = P2000pensjon
+        val expected = """
+            Kravdato mangler
+            Gjelder utsendelsen "Førstegangsbehandling kun utland", se egen rutine på Navet.
+        """.trimIndent()
 
-        val navfnr = NavFodselsnummer(sed.pensjon?.ytelser?.get(0)?.pin?.identifikator!!)
-        assertEquals(67, navfnr.getAge())
+
+        try {
+            prefillSEDService.prefill(prefillData)
+        } catch (ex: Exception) {
+            assertEquals(expected, ex.message)
+        }
 
     }
 

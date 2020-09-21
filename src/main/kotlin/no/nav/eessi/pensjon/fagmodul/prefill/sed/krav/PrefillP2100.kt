@@ -51,7 +51,8 @@ class PrefillP2100(private val prefillNav: PrefillNav) {
                                 prefillData.penSaksnummer,
                                 sak,
                                 prefillData.andreInstitusjon,
-                                eventuellGjenlevende(prefillData, personData.forsikretPerson))
+                                eventuellGjenlevende(prefillData, personData.forsikretPerson),
+                                prefillData.kravId)
                         if (prefillData.kanFeltSkippes("PENSED")) {
                             Pensjon(
                                     kravDato = pensjon.kravDato,
@@ -67,7 +68,7 @@ class PrefillP2100(private val prefillNav: PrefillNav) {
             // TODO What's consequences by removing this? and throw it up to UI?
         }
 
-        kravDatoOverider(prefillData, sak)
+        //kravDatoOverider(prefillData, sak)
 
         KravHistorikkHelper.settKravdato(prefillData, sed)
 

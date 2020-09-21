@@ -4,6 +4,7 @@ import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.KravHistorikkHelper.create
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.KravHistorikkHelper.hentKravHistorikkForsteGangsBehandlingUtlandEllerForsteGang
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.KravHistorikkHelper.hentKravHistorikkMedKravStatusAvslag
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.KravHistorikkHelper.hentKravHistorikkMedKravStatusTilBehandling
+import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.KravHistorikkHelper.hentKravhistorikkDirekteBrukAvKravArsak
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.NavFodselsnummer
 import no.nav.eessi.pensjon.fagmodul.sedmodel.*
 import no.nav.eessi.pensjon.utils.simpleFormat
@@ -42,44 +43,27 @@ object PrefillP2xxxPensjon {
                       penSaksnummer: String,
                       pensak: V1Sak,
                       andreinstitusjonerItem: AndreinstitusjonerItem?,
-                      gjenlevende: Bruker? = null): Pensjon {
+                      gjenlevende: Bruker? = null,
+                      kravId: String? = null): Pensjon {
 
         logger.debug("4.1           Informasjon om ytelser")
 
-        val spesialStatusList = listOf(Kravstatus.TIL_BEHANDLING.name, Kravstatus.AVSL.name)
+        val saksStatusListe = listOf(Kravstatus.TIL_BEHANDLING.name, Kravstatus.AVSL.name)
         //INNV
-        var krav: Krav? = null
         val ytelselist = mutableListOf<YtelserItem>()
 
-        if (spesialStatusList.contains(pensak.status) && krav == null) {
+        val krav = populerKravDato(pensak)
+        logger.debug("Krav(dato) = $krav")
+
+        if (saksStatusListe.contains(pensak.status) && krav == null) {
             logger.info("forkortet ytelsebehandling status: ${pensak.status}")
-
             ytelselist.add(createYtelseMedManglendeYtelse(pensak, personNr, penSaksnummer, andreinstitusjonerItem))
-
-            when (pensak.status) {
-                Kravstatus.TIL_BEHANDLING.name -> {
-                    val kravHistorikkMedUtland = hentKravHistorikkMedKravStatusTilBehandling(pensak.kravHistorikkListe)
-                    krav = createKravDato(kravHistorikkMedUtland)
-                    logger.warn("9.1/11.1        Opprettett med mulighet for at denne ${Kravstatus.TIL_BEHANDLING} mangler KravDato")
-                }
-                else -> {
-                    val kravHistorikkMedUtland = hentKravHistorikkMedKravStatusAvslag(pensak.kravHistorikkListe)
-                    krav = createKravDato(kravHistorikkMedUtland)
-                    logger.warn("9.1/11.1        Opprettett med mulighet for at denne ${Kravstatus.AVSL} mangler KravDato")
-                }
-            }
 
         } else {
             logger.info("sakType: ${pensak.sakType}")
             try {
                 val kravHistorikkMedUtland = hentKravHistorikkForsteGangsBehandlingUtlandEllerForsteGang(pensak.kravHistorikkListe, pensak.sakType)
                 val ytelseprmnd = hentYtelsePerMaanedDenSisteFraKrav(kravHistorikkMedUtland, pensak)
-
-                //kjøre ytelselist på normal
-                if (krav == null) {
-                    krav = createKravDato(kravHistorikkMedUtland)
-                }
-
                 ytelselist.add(createYtelserItem(ytelseprmnd, pensak, personNr, penSaksnummer, andreinstitusjonerItem))
             } catch (ex: Exception) {
                 logger.error(ex.message, ex)
@@ -92,6 +76,25 @@ object PrefillP2xxxPensjon {
                 kravDato = krav,
                 gjenlevende = gjenlevende
         )
+    }
+
+    private fun populerKravDato(pensak: V1Sak): Krav? {
+            //finn korrekt kravdato ut ifra diverse kriterier..
+            return try{
+                val tmpkrav = hentKravhistorikkDirekteBrukAvKravArsak(pensak.kravHistorikkListe)
+                if (tmpkrav != null) {
+                    createKravDato(tmpkrav)
+                } else {
+                    when (pensak.status) {
+                            Kravstatus.TIL_BEHANDLING.name -> createKravDato(hentKravHistorikkMedKravStatusTilBehandling(pensak.kravHistorikkListe), pensak.status)
+                            Kravstatus.AVSL.name ->  createKravDato(hentKravHistorikkMedKravStatusAvslag(pensak.kravHistorikkListe), pensak.status)
+                            else -> createKravDato(hentKravHistorikkForsteGangsBehandlingUtlandEllerForsteGang(pensak.kravHistorikkListe, pensak.sakType), pensak.status)
+                    }
+                }
+            } catch (ex: Exception) {
+                logger.error("NOE GALT HAR SKJEDD kravdato ikke SATT!!  !! ! !   !!   !!!!!!  ! ! !!!!!!!!!!!!!!!! $pensak")
+                null
+            }
     }
 
     /**

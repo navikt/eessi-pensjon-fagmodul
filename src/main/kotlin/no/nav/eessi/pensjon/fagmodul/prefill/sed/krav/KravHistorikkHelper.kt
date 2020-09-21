@@ -18,6 +18,7 @@ object KravHistorikkHelper {
      *  Setter kravdato på sed (denne kommer fra PESYS men opprettes i nav?!)
      */
     fun settKravdato(prefillData: PrefillDataModel, sed: SED) {
+        logger.debug("Kjører settKravdato")
         if (prefillData.kanFeltSkippes("NAVSED")) {
             //sed.nav?.krav = Krav("")
             //pensjon.kravDato = null
@@ -65,6 +66,15 @@ object KravHistorikkHelper {
         return V1KravHistorikk()
     }
 
+    fun hentKravhistorikkDirekteBrukAvKravArsak(kravHistorikkListe: V1KravHistorikkListe): V1KravHistorikk? {
+            val kravHistorikk = kravHistorikkListe.kravHistorikkListe.filter { krav -> krav.kravArsak == KravArsak.GJNL_SKAL_VURD.name }
+            if (kravHistorikk.isNotEmpty()) {
+                return kravHistorikk.first()
+            }
+            logger.error("Fant ikke noe Kravhistorikk.. med bruk av kravårsak: ${KravArsak.GJNL_SKAL_VURD.name} ")
+            return null
+    }
+
     fun hentKravHistorikkMedKravStatusTilBehandling(kravHistorikkListe: V1KravHistorikkListe): V1KravHistorikk {
         val sortList = sortertKravHistorikk(kravHistorikkListe)
         sortList.forEach {
@@ -100,15 +110,16 @@ object KravHistorikkHelper {
      *  Fyller ut fra hvilket tidspunkt bruker ønsker å motta pensjon fra Norge.
      *  Det er et spørsmål i søknadsdialogen og på manuell kravblankett. Det er ikke nødvendigvis lik virkningstidspunktet på pensjonen.
      */
-    fun createKravDato(valgtKrav: V1KravHistorikk): Krav? {
+    fun createKravDato(valgtKrav: V1KravHistorikk, message: String? = ""): Krav? {
         logger.debug("9.1        Dato Krav (med korrekt data fra PESYS krav.virkningstidspunkt)")
         logger.debug("KravType   :  ${valgtKrav.kravType}")
         logger.debug("mottattDato:  ${valgtKrav.mottattDato}")
         logger.debug("--------------------------------------------------------------")
 
         logger.debug("Prøver å sette kravDato til Virkningstidpunkt: ${valgtKrav.kravType} og dato: ${valgtKrav.mottattDato}")
+        logger.debug("$message")
         return Krav(
-                dato = valgtKrav.mottattDato?.simpleFormat() ?: ""
+                dato = valgtKrav.mottattDato?.simpleFormat() ?: null
         )
     }
 
