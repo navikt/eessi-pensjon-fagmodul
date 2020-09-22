@@ -4,7 +4,7 @@ import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.KravHistorikkHelper.create
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.KravHistorikkHelper.hentKravHistorikkForsteGangsBehandlingUtlandEllerForsteGang
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.KravHistorikkHelper.hentKravHistorikkMedKravStatusAvslag
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.KravHistorikkHelper.hentKravHistorikkMedKravStatusTilBehandling
-import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.KravHistorikkHelper.hentKravhistorikkDirekteBrukAvKravArsak
+import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.KravHistorikkHelper.hentKravhistorikkForGjenlevende
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.NavFodselsnummer
 import no.nav.eessi.pensjon.fagmodul.sedmodel.*
 import no.nav.eessi.pensjon.utils.simpleFormat
@@ -81,7 +81,7 @@ object PrefillP2xxxPensjon {
     private fun populerKravDato(pensak: V1Sak): Krav? {
             //finn korrekt kravdato ut ifra diverse kriterier..
             return try{
-                val tmpkrav = hentKravhistorikkDirekteBrukAvKravArsak(pensak.kravHistorikkListe)
+                val tmpkrav = hentKravhistorikkForGjenlevende(pensak.kravHistorikkListe)
                 if (tmpkrav != null) {
                     createKravDato(tmpkrav)
                 } else {
@@ -92,7 +92,7 @@ object PrefillP2xxxPensjon {
                     }
                 }
             } catch (ex: Exception) {
-                logger.error("NOE GALT HAR SKJEDD kravdato ikke SATT!!  !! ! !   !!   !!!!!!  ! ! !!!!!!!!!!!!!!!! $pensak")
+                logger.warn("Klarte ikke å bestemme kravDato for $pensak , fortsetter uten")
                 null
             }
     }

@@ -33,19 +33,6 @@ object KravHistorikkHelper {
         return list.asSequence().sortedBy { it.mottattDato.toGregorianCalendar() }.toList()
     }
 
-    fun hentKravHistorikkSisteRevurdering(kravHistorikkListe: V1KravHistorikkListe): V1KravHistorikk {
-        val sortList = sortertKravHistorikk(kravHistorikkListe)
-
-        sortList.forEach { kravHistorikk ->
-            logger.debug("leter etter ${Kravtype.REVURD} i  ${kravHistorikk.kravType} med dato ${kravHistorikk.virkningstidspunkt}")
-            if (kravHistorikk.kravType == Kravtype.REVURD.name) {
-                logger.debug("Fant Kravhistorikk med $kravHistorikk.kravType")
-                return kravHistorikk
-            }
-        }
-        return V1KravHistorikk()
-    }
-
     fun hentKravHistorikkForsteGangsBehandlingUtlandEllerForsteGang(kravHistorikkListe: V1KravHistorikkListe, saktype: String): V1KravHistorikk {
         if (EPSaktype.BARNEP.name == saktype) {
             return hentKravHistorikkMedKravType(listOf(Kravtype.F_BH_MED_UTL.name, Kravtype.FORSTEG_BH.name, Kravtype.F_BH_BO_UTL.name), kravHistorikkListe)
@@ -66,8 +53,8 @@ object KravHistorikkHelper {
         return V1KravHistorikk()
     }
 
-    fun hentKravhistorikkDirekteBrukAvKravArsak(kravHistorikkListe: V1KravHistorikkListe): V1KravHistorikk? {
-            val kravHistorikk = kravHistorikkListe.kravHistorikkListe.filter { krav -> krav.kravArsak == KravArsak.GJNL_SKAL_VURD.name }
+    fun hentKravhistorikkForGjenlevende(kravHistorikkListe: V1KravHistorikkListe): V1KravHistorikk? {
+            val kravHistorikk = kravHistorikkListe.kravHistorikkListe.filter { krav -> krav.kravArsak == KravArsak.GJNL_SKAL_VURD.name || krav.kravArsak == KravArsak.TILST_DOD.name  }
             if (kravHistorikk.isNotEmpty()) {
                 return kravHistorikk.first()
             }
@@ -118,9 +105,7 @@ object KravHistorikkHelper {
 
         logger.debug("Prøver å sette kravDato til Virkningstidpunkt: ${valgtKrav.kravType} og dato: ${valgtKrav.mottattDato}")
         logger.debug("$message")
-        return Krav(
-                dato = valgtKrav.mottattDato?.simpleFormat() ?: null
-        )
+        return Krav(dato = valgtKrav.mottattDato?.simpleFormat())
     }
 
 }

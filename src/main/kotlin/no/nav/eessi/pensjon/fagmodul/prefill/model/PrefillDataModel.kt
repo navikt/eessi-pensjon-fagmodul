@@ -1,6 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.model
 
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
+import no.nav.eessi.pensjon.fagmodul.models.SEDType
 import no.nav.eessi.pensjon.fagmodul.sedmodel.AndreinstitusjonerItem
 import no.nav.eessi.pensjon.fagmodul.sedmodel.InstitusjonX005
 import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
@@ -34,7 +35,7 @@ class PrefillDataModel(val penSaksnummer: String, val bruker: PersonId, val avdo
     lateinit var sed: SED
     lateinit var institution: List<InstitusjonItem>
 
-    lateinit var skipSedkey: List<String>
+    var sedSomSkalFulltPreutfylles = listOf(SEDType.P6000)
 
     //hjelpe parametere for utfylling av institusjon
     var andreInstitusjon: AndreinstitusjonerItem? = null

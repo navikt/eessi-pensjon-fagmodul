@@ -142,7 +142,6 @@ dependencies {
 
     // Tjenestespesifikasjoner
     implementation("no.nav.tjenestespesifikasjoner:person-v3-tjenestespesifikasjon:1.2020.01.30-14.36-cdf257baea96")
-//    xsd("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:1.2020.01.30-14.36-cdf257baea96")
     xsd("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:1.2020.09.21-09.58-dde2f6764e92")
 
     implementation("com.sun.xml.ws:jaxws-ri:2.3.2")

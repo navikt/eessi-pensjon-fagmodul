@@ -13,7 +13,8 @@ enum class Kravstatus {
 }
 
 enum class KravArsak {
-    GJNL_SKAL_VURD
+    GJNL_SKAL_VURD,
+    TILST_DOD
 }
 
 enum class EPSaktype {
