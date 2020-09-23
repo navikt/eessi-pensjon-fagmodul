@@ -52,7 +52,6 @@ class PrefillP2100GLutlandInnvTest {
                 pinId = personFnr,
                 penSaksnummer = pesysSaksnummer,
                 avdod = PersonId(avdodPersonFnr,"112233445566")).apply {
-            skipSedkey = listOf("PENSED")
             partSedAsJson = mutableMapOf(
                     "PersonInfo" to readJsonResponse("other/person_informasjon_selvb.json"),
                     "P4000" to readJsonResponse("other/p4000_trygdetid_part.json"))

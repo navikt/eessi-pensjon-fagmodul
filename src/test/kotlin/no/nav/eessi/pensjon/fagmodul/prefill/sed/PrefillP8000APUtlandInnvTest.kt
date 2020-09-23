@@ -43,9 +43,7 @@ class PrefillP8000APUtlandInnvTest {
 
         prefill = PrefillP8000(prefillSed)
 
-        prefillData = PrefillDataModelMother.initialPrefillDataModel("P8000", personFnr, penSaksnummer = pesysSaksnummer).apply {
-            skipSedkey = listOf("PENSED")
-        }
+        prefillData = PrefillDataModelMother.initialPrefillDataModel("P8000", personFnr, penSaksnummer = pesysSaksnummer)
 
         personData = PersonData(forsikretPerson = person!!, ekteTypeValue = "", ektefelleBruker = null, gjenlevendeEllerAvdod = person, barnBrukereFraTPS = listOf())
     }

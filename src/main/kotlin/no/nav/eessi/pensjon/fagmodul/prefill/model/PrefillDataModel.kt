@@ -35,8 +35,6 @@ class PrefillDataModel(val penSaksnummer: String, val bruker: PersonId, val avdo
     lateinit var sed: SED
     lateinit var institution: List<InstitusjonItem>
 
-    var sedSomSkalFulltPreutfylles = listOf(SEDType.P6000)
-
     //hjelpe parametere for utfylling av institusjon
     var andreInstitusjon: AndreinstitusjonerItem? = null
     var institusjonX005: InstitusjonX005? = null
@@ -45,7 +43,7 @@ class PrefillDataModel(val penSaksnummer: String, val bruker: PersonId, val avdo
     var partSedAsJson: MutableMap<String, String> = mutableMapOf()
 
     fun getSEDType(): String {
-        return sed.sed!!
+        return sed.sed
     }
 
     fun getPartSEDasJson(key: String): String? {

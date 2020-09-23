@@ -68,7 +68,6 @@ class PrefillNavTest {
 
         val expected = Nav(
                 eessisak = listOf(EessisakItem(institusjonsid =  someInstitutionId, institusjonsnavn = someIntitutionNavn, saksnummer =  somePenSaksnr, land =  "NO")),
-                krav = Krav(LocalDate.now().toString()),
                 bruker = Bruker(
                         person = lagPerson(foreldersPin, "Christopher", "Robin"),
                         adresse = lagTomAdresse()),
@@ -100,7 +99,6 @@ class PrefillNavTest {
         val actual = prefillNav.prefill(prefillData.penSaksnummer, prefillData.bruker, prefillData.avdod, personData, prefillData.getPersonInfoFromRequestData())
         val expected = Nav(
                 eessisak = listOf(EessisakItem(institusjonsid =  someInstitutionId, institusjonsnavn = someIntitutionNavn, saksnummer =  somePenSaksnr, land =  "NO")),
-                krav = Krav(LocalDate.now().toString()),
                 bruker = Bruker(
                         person = lagPerson(somePersonNr, "Ole", "Brum"),
                         adresse = lagTomAdresse()),
@@ -138,7 +136,6 @@ class PrefillNavTest {
 
         val expected = Nav(
                 eessisak = listOf(EessisakItem(institusjonsid =  someInstitutionId, institusjonsnavn = someIntitutionNavn, saksnummer =  somePenSaksnr, land =  "NO")),
-                krav = Krav(LocalDate.now().toString()),
                 bruker = Bruker(
                         person = lagPerson(somePersonNr, "Ola", "Testbruker", personFdato),
                         adresse = lagTomAdresse()
@@ -175,7 +172,6 @@ class PrefillNavTest {
 
         val expected = Nav(
                 eessisak = listOf(EessisakItem(institusjonsid =  someInstitutionId, institusjonsnavn = someIntitutionNavn, saksnummer =  somePenSaksnr, land =  "NO")),
-                krav = Krav(LocalDate.now().toString()),
                 bruker = Bruker(
                         person = lagPerson(somePersonNr, "Ola", "Testbruker", personFdato),
                         adresse = lagTomAdresse()
@@ -212,7 +208,6 @@ class PrefillNavTest {
 
         val expected = Nav(
                 eessisak = listOf(EessisakItem(institusjonsid =  someInstitutionId, institusjonsnavn = someIntitutionNavn, saksnummer =  somePenSaksnr, land =  "NO")),
-                krav = Krav(LocalDate.now().toString()),
                 bruker = Bruker(
                         person = lagPerson(somePersonNr, "Ola", "Testbruker", personFdato),
                         adresse = lagTomAdresse()
@@ -251,7 +246,6 @@ class PrefillNavTest {
         val fornavn = "Fornavn Ole Mellomnavn Mellomn"
         val expected = Nav(
                 eessisak = listOf(EessisakItem(institusjonsid =  someInstitutionId, institusjonsnavn = someIntitutionNavn, saksnummer =  somePenSaksnr, land =  "NO")),
-                krav = Krav(LocalDate.now().toString()),
                 bruker = Bruker(
                         person = lagPerson(somePersonNr, fornavn, "Test Bruker", personFdato),
                         adresse = lagTomAdresse()
@@ -299,7 +293,6 @@ class PrefillNavTest {
 
         val expected = Nav(
                 eessisak = listOf(EessisakItem(institusjonsid =  someInstitutionId, institusjonsnavn = someIntitutionNavn, saksnummer =  somePenSaksnr, land =  "NO")),
-                krav = Krav(LocalDate.now().toString()),
                 bruker = Bruker(person = lagPerson(brukerensPin, "Ole", "Brum"),
                         arbeidsforhold = listOf(ArbeidsforholdItem(
                                 planlagtstartdato = "",

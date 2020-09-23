@@ -49,7 +49,7 @@ class PrefillP2200(private val prefillNav: PrefillNav) {
                                 prefillData.andreInstitusjon,
                                 kravId = null
                         )
-                        if (prefillData.kanFeltSkippes("PENSED")) {
+                        if (prefillData.isMinimumPrefill()) {
                             Pensjon(kravDato = pensjon.kravDato) //vi skal ha blank pensjon ved denne toggle, men vi må ha med kravdato
                         } else {
                             pensjon
@@ -60,7 +60,7 @@ class PrefillP2200(private val prefillNav: PrefillNav) {
             // TODO Should we really swallow this?
         }
 
-        KravHistorikkHelper.settKravdato(prefillData, sed)
+        KravHistorikkHelper.settKravdato(sed)
 
         logger.debug("-------------------| Preutfylling [$sedType] END |------------------- ")
         return prefillData.sed

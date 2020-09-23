@@ -34,13 +34,9 @@ class PrefillP2100(private val prefillNav: PrefillNav) {
 
         val sed = prefillData.sed
 
-        //skipper å hente persondata dersom NAVSED finnes
-        if (prefillData.kanFeltSkippes("NAVSED")) {
-            sed.nav = Nav()
-        } else {
-            //henter opp persondata
-            sed.nav = prefillNav.prefill(penSaksnummer = prefillData.penSaksnummer, bruker = prefillData.bruker, avdod = prefillData.avdod, personData = personData , brukerInformasjon = prefillData.getPersonInfoFromRequestData())
-        }
+        //henter opp persondata
+        sed.nav = prefillNav.prefill(penSaksnummer = prefillData.penSaksnummer, bruker = prefillData.bruker, avdod = prefillData.avdod, personData = personData , brukerInformasjon = prefillData.getPersonInfoFromRequestData())
+
 
         try {
             sed.pensjon =
@@ -53,7 +49,7 @@ class PrefillP2100(private val prefillNav: PrefillNav) {
                                 prefillData.andreInstitusjon,
                                 eventuellGjenlevende(prefillData, personData.forsikretPerson),
                                 prefillData.kravId)
-                        if (prefillData.kanFeltSkippes("PENSED")) {
+                        if (prefillData.isMinimumPrefill()) {
                             Pensjon(
                                     kravDato = pensjon.kravDato,
                                     gjenlevende = pensjon.gjenlevende
@@ -70,7 +66,7 @@ class PrefillP2100(private val prefillNav: PrefillNav) {
 
         //kravDatoOverider(prefillData, sak)
 
-        KravHistorikkHelper.settKravdato(prefillData, sed)
+        KravHistorikkHelper.settKravdato(sed)
 
         logger.debug("-------------------| Preutfylling [$sedType] END |------------------- ")
         return prefillData.sed

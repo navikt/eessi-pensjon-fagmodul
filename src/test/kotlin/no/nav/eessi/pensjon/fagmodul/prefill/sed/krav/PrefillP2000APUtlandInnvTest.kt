@@ -64,13 +64,7 @@ class PrefillP2000APUtlandInnvTest {
     fun `forventet korrekt utfylt P2000 alderpensjon med kap4 og 9`() {
         val P2000 = prefillSEDService.prefill(prefillData)
 
-        val P2000pensjon = SED(
-                sed = "P2000",
-                pensjon = P2000.pensjon,
-                nav = Nav( krav = P2000.nav?.krav )
-        )
-
-        val sed = P2000pensjon
+        val sed = P2000
         assertNotNull(sed.nav?.krav)
         assertEquals("2015-11-25", sed.nav?.krav?.dato)
 

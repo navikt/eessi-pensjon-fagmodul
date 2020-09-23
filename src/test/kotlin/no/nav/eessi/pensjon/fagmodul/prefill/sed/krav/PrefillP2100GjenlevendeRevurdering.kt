@@ -50,9 +50,7 @@ class PrefillP2100GjenlevendeRevurdering {
                 pinId = personFnr,
                 penSaksnummer = pesysSaksnummer,
                 avdod = PersonId(avdodPersonFnr,"112233445566"),
-                kravId = pesysKravid).apply {
-            skipSedkey = listOf("PENSED")
-        }
+                kravId = pesysKravid)
         dataFromPEN = lesPensjonsdataFraFil("P2100-GJENLEV-REVURDERING-M-KRAVID-INNV.xml")
 
         val persondataFraTPS = setupPersondataFraTPS(setOf(

@@ -17,15 +17,10 @@ object KravHistorikkHelper {
      *
      *  Setter kravdato på sed (denne kommer fra PESYS men opprettes i nav?!)
      */
-    fun settKravdato(prefillData: PrefillDataModel, sed: SED) {
+    fun settKravdato(sed: SED) {
         logger.debug("Kjører settKravdato")
-        if (prefillData.kanFeltSkippes("NAVSED")) {
-            //sed.nav?.krav = Krav("")
-            //pensjon.kravDato = null
-        } else {
-            logger.debug("9.1     legger til nav kravdato fra pensjon kravdato : ${sed.pensjon?.kravDato} ")
-            sed.nav?.krav = sed.pensjon?.kravDato
-        }
+        logger.debug("9.1     legger til nav kravdato fra pensjon kravdato : ${sed.pensjon?.kravDato} ")
+        sed.nav?.krav = sed.pensjon?.kravDato
     }
 
     private fun sortertKravHistorikk(kravHistorikkListe: V1KravHistorikkListe): List<V1KravHistorikk> {
@@ -105,7 +100,9 @@ object KravHistorikkHelper {
 
         logger.debug("Prøver å sette kravDato til Virkningstidpunkt: ${valgtKrav.kravType} og dato: ${valgtKrav.mottattDato}")
         logger.debug("$message")
-        return Krav(dato = valgtKrav.mottattDato?.simpleFormat())
+        return Krav(
+                dato = valgtKrav.mottattDato?.simpleFormat()
+        )
     }
 
 }

@@ -39,7 +39,6 @@ data class ApiRequest(
         val euxCaseId: String? = null,
         val institutions: List<InstitusjonItem>? = null,
         val subjectArea: String? = null,
-        val skipSEDkey: List<String>? = null,
         val avdodfnr: String? = null, //kun P2100 på P_BUC_02
         val subject: ApiSubject? = null //P_BUC_02 alle andre seder etter P2100
 ) {
@@ -83,8 +82,6 @@ data class ApiRequest(
                         vedtakId = request.vedtakId ?: ""
                         kravDato = request.kravDato
                         partSedAsJson[request.sed] = request.payload ?: "{}"
-                        skipSedkey = request.skipSEDkey
-                                ?: listOf("PENSED") //skipper all pensjon utfylling untatt kravdato
                     }
                 }
                 else -> {
@@ -121,7 +118,6 @@ data class ApiRequest(
                         vedtakId = request.vedtakId ?: ""
                         kravDato = request.kravDato
                         partSedAsJson[request.sed] = request.payload ?: "{}"
-                        skipSedkey = request.skipSEDkey ?: listOf("PENSED")
                     }
                 }
                 else -> {

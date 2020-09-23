@@ -137,12 +137,6 @@ class PrefillNav(private val prefillAdresse: PrefillAdresse,
             )
         }
 
-        //TODO: Dette må hentes fra sak/krav
-        private fun createDiverseOgKravDato(): Krav {
-            logger.debug("9.1           (FRA V1SAK?) Dato for krav")
-            return Krav(Date().simpleFormat())
-        }
-
         //utfylling av liste av barn under 18år
         private fun createBarnliste(barn: List<Bruker?>): List<BarnItem>? {
             val barnlist = barn
@@ -254,12 +248,7 @@ class PrefillNav(private val prefillAdresse: PrefillAdresse,
                 barn = createBarnliste(barnBrukereFraTPS.map { createBruker(it, null, null) }),
 
                 //7.0 verge
-                verge = createVerge(),
-
-                //8.0 Bank lagt in på bruker (P2000)
-
-                //9.0  - Tillgeggsinfo og kravdata. benyttes i P2x000
-                krav = createDiverseOgKravDato()
+                verge = createVerge()
         )
     }
 

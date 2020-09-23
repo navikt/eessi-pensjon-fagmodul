@@ -44,9 +44,7 @@ class PrefillP9000GLmedUtlandInnvTest {
                 institutionid = "NO:noinst002",
                 institutionnavn = "NOINST002, NO INST002, NO")
 
-        prefillData = PrefillDataModelMother.initialPrefillDataModel("P9000", personFnr, penSaksnummer = pesysSaksnummer, avdod = PersonId(avdodPersonFnr, "112233445566")).apply {
-            skipSedkey = listOf("PENSED")
-        }
+        prefillData = PrefillDataModelMother.initialPrefillDataModel("P9000", personFnr, penSaksnummer = pesysSaksnummer, avdod = PersonId(avdodPersonFnr, "112233445566"))
 
         val pensjonInformasjonService = PrefillTestHelper.lesPensjonsdataFraFil("KravAlderEllerUfore_AP_UTLAND.xml")
 

@@ -46,9 +46,7 @@ class PrefillP8000GLmedUtlandInnvTest {
                 institutionid = "NO:noinst002",
                 institutionnavn = "NOINST002, NO INST002, NO")
 
-        prefillData = PrefillDataModelMother.initialPrefillDataModel("P8000", personFnr, penSaksnummer = pesysSaksnummer, avdod = PersonId(avdodPersonFnr,"112233445566")).apply {
-            skipSedkey = listOf("PENSED")
-        }
+        prefillData = PrefillDataModelMother.initialPrefillDataModel("P8000", personFnr, penSaksnummer = pesysSaksnummer, avdod = PersonId(avdodPersonFnr,"112233445566"))
 
         val prefillGjenlevende = PrefillGjenlevende(persondataFraTPS, prefillNav).prefill(prefillData)
         val prefillSed = PrefillSed(prefillNav, prefillGjenlevende)

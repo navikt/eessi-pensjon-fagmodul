@@ -107,12 +107,6 @@ class PrefillP2000_AP_LOP_UTLANDTest {
         val navfnr = NavFodselsnummer(p2000.nav?.ektefelle?.person?.pin?.get(0)?.identifikator!!)
         assertEquals(70, navfnr.getAge())
 
-        assertEquals(1, p2000.pensjon?.ytelser?.size)
-
-        assertEquals("13049", p2000.pensjon?.ytelser?.get(0)?.totalbruttobeloeparbeidsbasert)
-        assertEquals(null, p2000.pensjon?.ytelser?.get(0)?.annenytelse)
-
-
     }
 
     @Test

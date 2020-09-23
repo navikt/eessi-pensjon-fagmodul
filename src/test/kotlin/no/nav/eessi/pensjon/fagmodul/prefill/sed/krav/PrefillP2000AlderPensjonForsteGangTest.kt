@@ -71,24 +71,10 @@ class PrefillP2000AlderPensjonUtlandForsteGangTest {
     }
 
     @Test
-    fun `Korrekt ttfylling alderpensjon uten kravhistorikk KunUtland uten virkningstidspunkt`() {
+    fun `Gitt at korrekt kravdato finnes`() {
         val P2000 = prefillSEDService.prefill(prefillData)
 
-        val P2000pensjon = SED(
-                sed = "P2000",
-                pensjon = P2000.pensjon,
-                nav = Nav( krav = P2000.nav?.krav )
-        )
-
-        val sed = P2000pensjon
-
-        val navfnr = NavFodselsnummer(sed.pensjon?.ytelser?.get(0)?.pin?.identifikator!!)
-        assertEquals(67, navfnr.getAge())
-        val yearnow = LocalDate.now().year
-        val bdate = yearnow - navfnr.getAge()
-
-        assertEquals("" + bdate, navfnr.get4DigitBirthYear())
-        assertEquals("2018-05-31", sed.nav?.krav?.dato)
+        assertEquals("2018-05-31", P2000.nav?.krav?.dato)
     }
 
 }

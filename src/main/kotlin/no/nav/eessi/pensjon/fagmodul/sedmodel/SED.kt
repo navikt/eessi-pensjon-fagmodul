@@ -8,7 +8,7 @@ import no.nav.eessi.pensjon.utils.typeRefs
 // Strukturerte Elektroniske Dokumenter
 //@JsonIgnoreProperties(ignoreUnknown = true)
 data class SED(
-        val sed: String? = null,
+        val sed: String,
         var sedGVer: String? = "4",
         var sedVer: String? = "1",
         var nav: Nav? = null, // TODO Mutable

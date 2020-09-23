@@ -30,19 +30,14 @@ class PrefillP2000(private val prefillNav: PrefillNav)  {
 
         val sed = prefillData.sed
 
-        //skipper å hente persondata dersom NAVSED finnes
-        if (prefillData.kanFeltSkippes("NAVSED")) {
-            sed.nav = Nav()
-        } else {
-            //henter opp persondata
-            sed.nav = prefillNav.prefill(
-                    penSaksnummer = prefillData.penSaksnummer,
-                    bruker = prefillData.bruker,
-                    avdod = prefillData.avdod,
-                    personData = personData,
-                    brukerInformasjon = prefillData.getPersonInfoFromRequestData()
-            )
-        }
+        //henter opp persondata
+        sed.nav = prefillNav.prefill(
+                penSaksnummer = prefillData.penSaksnummer,
+                bruker = prefillData.bruker,
+                avdod = prefillData.avdod,
+                personData = personData,
+                brukerInformasjon = prefillData.getPersonInfoFromRequestData()
+        )
 
         try {
             sed.pensjon =
@@ -55,7 +50,7 @@ class PrefillP2000(private val prefillNav: PrefillNav)  {
                                 prefillData.andreInstitusjon,
                                 kravId = null
                         )
-                        if (prefillData.kanFeltSkippes("PENSED")) {
+                        if (prefillData.isMinimumPrefill()) {
                             Pensjon(kravDato = pensjon.kravDato) //vi skal ha blank pensjon ved denne toggle, men vi må ha med kravdato
                         } else {
                             pensjon
@@ -66,7 +61,7 @@ class PrefillP2000(private val prefillNav: PrefillNav)  {
             // TODO Should we really swallow this?
         }
 
-        KravHistorikkHelper.settKravdato(prefillData, sed)
+        KravHistorikkHelper.settKravdato(sed)
 
         logger.debug("-------------------| Preutfylling [$sedType] END |------------------- ")
         validate(prefillData)

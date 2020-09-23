@@ -25,19 +25,15 @@ class PrefillSed(private val prefillNav: PrefillNav, private val pensjon: Pensjo
 
         val sed = prefillData.sed
 
-        if (prefillData.kanFeltSkippes("NAVSED")) {
-            //skipper å hente persondata dersom NAVSED finnes
-            sed.nav = null
-        } else {
-            //henter opp persondata
-            sed.nav = prefillNav.prefill(
-                    penSaksnummer = prefillData.penSaksnummer,
-                    bruker = prefillData.bruker,
-                    avdod = prefillData.avdod,
-                    personData = personData,
-                    brukerInformasjon = prefillData.getPersonInfoFromRequestData()
-            )
-        }
+        //henter opp persondata
+        sed.nav = prefillNav.prefill(
+                penSaksnummer = prefillData.penSaksnummer,
+                bruker = prefillData.bruker,
+                avdod = prefillData.avdod,
+                personData = personData,
+                brukerInformasjon = prefillData.getPersonInfoFromRequestData()
+        )
+
         logger.debug("[${prefillData.getSEDType()}] Preutfylling Utfylling NAV")
 
         try {
