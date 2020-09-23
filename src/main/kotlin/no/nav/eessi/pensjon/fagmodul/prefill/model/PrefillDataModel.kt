@@ -59,14 +59,6 @@ class PrefillDataModel(val penSaksnummer: String, val bruker: PersonId, val avdo
         return institution
     }
 
-    fun kanFeltSkippes(key: String): Boolean {
-        return try {
-            skipSedkey.contains(key)
-        } catch (ex: Exception) {
-            false
-        }
-    }
-
     fun clone() : String {
         return mapAnyToJson(this)
     }
@@ -77,6 +69,8 @@ class PrefillDataModel(val penSaksnummer: String, val bruker: PersonId, val avdo
             return mapJsonToAny(prefillData, typeRefs(), true)
         }
     }
+
+    fun isMinimumPrefill() = getSEDType() != SEDType.P6000.name
 
 }
 
