@@ -1,5 +1,10 @@
 package no.nav.eessi.pensjon.fagmodul.sedmodel
 
+class MeldingOmPensjon(
+		val melding: String?,
+		val pensjon: Pensjon
+)
+
 data class Pensjon(
 		val reduksjon: List<ReduksjonItem>? = null,
 		val vedtak: List<VedtakItem>? = null,

@@ -15,6 +15,8 @@ import no.nav.pensjon.v1.ytelseskomponent.V1Ytelseskomponent
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+val meldingTilSaksbehandler = "Vi har overskrevet kravdato "
+
 /**
  * Hjelpe klasse for sak som fyller ut NAV-SED-P2000 med pensjondata fra PESYS.
  */
@@ -44,7 +46,7 @@ object PrefillP2xxxPensjon {
                       pensak: V1Sak,
                       andreinstitusjonerItem: AndreinstitusjonerItem?,
                       gjenlevende: Bruker? = null,
-                      kravId: String? = null): Pensjon {
+                      kravId: String? = null): MeldingOmPensjon {
 
         logger.debug("4.1           Informasjon om ytelser")
 
@@ -52,7 +54,10 @@ object PrefillP2xxxPensjon {
         //INNV
         val ytelselist = mutableListOf<YtelserItem>()
 
-        val krav = populerKravDato(pensak)
+        val v1KravHistorikk = finnKravHistorikkForDato(pensak)
+        val melding = opprettMeldingBasertPaaSaktype(v1KravHistorikk, kravId, pensak.sakType)
+        val krav = createKravDato(v1KravHistorikk, pensak.status)
+
         logger.debug("Krav(dato) = $krav")
 
         if (saksStatusListe.contains(pensak.status) && krav == null) {
@@ -71,29 +76,34 @@ object PrefillP2xxxPensjon {
             }
         }
 
-        return Pensjon(
+        return MeldingOmPensjon(
+                melding = melding,
+                pensjon = Pensjon(
                 ytelser = ytelselist,
                 kravDato = krav,
                 gjenlevende = gjenlevende
-        )
+        ))
     }
 
-    private fun populerKravDato(pensak: V1Sak): Krav? {
-            //finn korrekt kravdato ut ifra diverse kriterier..
-            return try{
-                val tmpkrav = hentKravhistorikkForGjenlevende(pensak.kravHistorikkListe)
-                if (tmpkrav != null) {
-                    createKravDato(tmpkrav)
-                } else {
-                    when (pensak.status) {
-                            Kravstatus.TIL_BEHANDLING.name -> createKravDato(hentKravHistorikkMedKravStatusTilBehandling(pensak.kravHistorikkListe), pensak.status)
-                            Kravstatus.AVSL.name ->  createKravDato(hentKravHistorikkMedKravStatusAvslag(pensak.kravHistorikkListe), pensak.status)
-                            else -> createKravDato(hentKravHistorikkForsteGangsBehandlingUtlandEllerForsteGang(pensak.kravHistorikkListe, pensak.sakType), pensak.status)
+    private fun finnKravHistorikkForDato(pensak: V1Sak): V1KravHistorikk {
+        return try {
+            hentKravhistorikkForGjenlevende(pensak.kravHistorikkListe)
+                    ?: when (pensak.status) {
+                        Kravstatus.TIL_BEHANDLING.name -> hentKravHistorikkMedKravStatusTilBehandling(pensak.kravHistorikkListe)
+                        Kravstatus.AVSL.name -> hentKravHistorikkMedKravStatusAvslag(pensak.kravHistorikkListe)
+                        else -> hentKravHistorikkForsteGangsBehandlingUtlandEllerForsteGang(pensak.kravHistorikkListe, pensak.sakType)
                     }
-                }
-            } catch (ex: Exception) {
-                logger.warn("Klarte ikke å bestemme kravDato for $pensak , fortsetter uten")
-                null
+        } catch (ex: Exception) {
+            logger.warn("Klarte ikke å hente kravhistorikk for $pensak , fortsetter uten")
+            V1KravHistorikk()
+        }
+    }
+
+    private fun opprettMeldingBasertPaaSaktype(kravHistorikk: V1KravHistorikk, kravId: String?, saktype: String): String? {
+        if (kravHistorikk.kravId == kravId) return ""
+            return when (saktype) {
+                EPSaktype.ALDER.name, EPSaktype.UFOREP.name -> meldingTilSaksbehandler
+                else -> ""
             }
     }
 

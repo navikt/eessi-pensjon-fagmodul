@@ -26,7 +26,7 @@ class PrefillP2100UforePRevurdering {
     private val personFnr = generateRandomFnr(45)
     private val avdodPersonFnr = generateRandomFnr(45)
     private val pesysSaksnummer = "22917763"
-    private val pesysKravid = "41101010"
+    private val pesysKravid = "12354"
 
     private lateinit var prefillData: PrefillDataModel
     private lateinit var dataFromPEN: PensjonsinformasjonService
@@ -62,6 +62,7 @@ class PrefillP2100UforePRevurdering {
           val sed = p2100
         assertNotNull(sed.nav?.krav)
         assertEquals("2020-08-01", sed.nav?.krav?.dato)
+        assertEquals("Vi har overskrevet kravdato ", prefillData.melding)
     }
 
 

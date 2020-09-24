@@ -110,6 +110,7 @@ class SedController(private val euxService: EuxService,
 
             logger.info("Prøver å prefillSED")
             val sed = prefillService.prefillSed(dataModel)
+            val melding = dataModel.melding
             //synk sed versjon med buc versjon
             updateSEDVersion(sed, bucUtil.getProcessDefinitionVersion() )
 
@@ -117,6 +118,10 @@ class SedController(private val euxService: EuxService,
             val docresult = euxService.opprettSedOnBuc(sed, dataModel.euxCaseID)
             logger.info("Opprettet ny SED med dokumentId: ${docresult.documentId}")
             val result = bucUtil.findDocument(docresult.documentId)
+
+            if (melding != null || melding != "") {
+                result.message = melding
+            }
 
             //extra tag metricshelper for sedType, bucType, timeStamp og rinaId.
             counterHelper.count(CounterHelper.MeterNameExtraTag.AddInstutionAndDocument, extraTag = extraTag(dataModel, bucUtil))

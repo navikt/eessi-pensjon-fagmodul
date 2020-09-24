@@ -41,7 +41,11 @@ class PrefillSEDService(private val prefillNav: PrefillNav,
             //krav
             SEDType.P2000 -> PrefillP2000(prefillNav).prefill(prefillData, hentPersonerMedBarn(prefillData), hentRelevantPensjonSak(prefillData, { pensakType -> pensakType == ALDER.name }))
             SEDType.P2200 -> PrefillP2200(prefillNav).prefill(prefillData, hentPersonerMedBarn(prefillData), hentRelevantPensjonSak(prefillData, { pensakType -> pensakType == UFOREP.name }))
-            SEDType.P2100 -> PrefillP2100(prefillNav).prefill(prefillData, hentPersonerMedBarn(prefillData), hentRelevantPensjonSak(prefillData, { pensakType -> listOf("ALDER", "BARNEP", "GJENLEV", "UFOREP").contains(pensakType) }))
+            SEDType.P2100 -> {
+                val sedpair = PrefillP2100(prefillNav).prefill(prefillData, hentPersonerMedBarn(prefillData), hentRelevantPensjonSak(prefillData, { pensakType -> listOf("ALDER", "BARNEP", "GJENLEV", "UFOREP").contains(pensakType) }))
+                prefillData.melding = sedpair.first
+                sedpair.second
+            }
 
             //vedtak
             SEDType.P6000 -> PrefillP6000(prefillNav, eessiInformasjon, pensjonsinformasjonService.hentVedtak(prefillData)).prefill(prefillData, hentPersonerMedBarn(prefillData))

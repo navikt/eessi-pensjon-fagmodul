@@ -17,42 +17,56 @@
             <ns28:forsteVirkningstidspunkt>1994-07-01T00:00:00+02:00</ns28:forsteVirkningstidspunkt>
             <ns28:kravHistorikkListe>
                 <ns27:kravHistorikkListe>
+                    <ns26:kravId>41098601</ns26:kravId>
+                    <ns26:kravArsak>GJNL_SKAL_VURD</ns26:kravArsak>
                     <ns26:kravType>REVURD</ns26:kravType>
                     <ns26:mottattDato>2018-05-04T00:00:00+02:00</ns26:mottattDato>
                     <ns26:virkningstidspunkt>2014-11-01T00:00:00+01:00</ns26:virkningstidspunkt>
                     <ns26:status>Avbrutt</ns26:status>
                 </ns27:kravHistorikkListe>
                 <ns27:kravHistorikkListe>
+                    <ns26:kravId>41098602</ns26:kravId>
+                    <ns26:kravArsak>NY_SOKNAD</ns26:kravArsak>
                     <ns26:kravType>REVURD</ns26:kravType>
                     <ns26:mottattDato>2015-06-16T00:00:00+02:00</ns26:mottattDato>
                     <ns26:virkningstidspunkt>2015-07-01T00:00:00+02:00</ns26:virkningstidspunkt>
                     <ns26:status>OPPHOR</ns26:status>
                 </ns27:kravHistorikkListe>
                 <ns27:kravHistorikkListe>
+                    <ns26:kravId>41098603</ns26:kravId>
+                    <ns26:kravArsak>NY_SOKNAD</ns26:kravArsak>
                     <ns26:kravType>REVURD</ns26:kravType>
                     <ns26:mottattDato>2014-10-04T00:00:00+02:00</ns26:mottattDato>
                     <ns26:virkningstidspunkt>2014-12-01T00:00:00+01:00</ns26:virkningstidspunkt>
                     <ns26:status>INNV</ns26:status>
                 </ns27:kravHistorikkListe>
                 <ns27:kravHistorikkListe>
+                    <ns26:kravId>41098604</ns26:kravId>
+                    <ns26:kravArsak>NY_SOKNAD</ns26:kravArsak>
                     <ns26:kravType>REVURD</ns26:kravType>
                     <ns26:mottattDato>2014-10-04T00:00:00+02:00</ns26:mottattDato>
                     <ns26:virkningstidspunkt>2015-01-01T00:00:00+01:00</ns26:virkningstidspunkt>
                     <ns26:status>INNV</ns26:status>
                 </ns27:kravHistorikkListe>
                 <ns27:kravHistorikkListe>
+                    <ns26:kravId>41098605</ns26:kravId>
+                    <ns26:kravArsak>NY_SOKNAD</ns26:kravArsak>
                     <ns26:kravType>KONVERTERING</ns26:kravType>
                     <ns26:mottattDato>2008-12-06T00:00:00+01:00</ns26:mottattDato>
                     <ns26:virkningstidspunkt>2009-01-01T00:00:00+01:00</ns26:virkningstidspunkt>
                     <ns26:status>INNV</ns26:status>
                 </ns27:kravHistorikkListe>
                 <ns27:kravHistorikkListe>
+                    <ns26:kravId>41098606</ns26:kravId>
+                    <ns26:kravArsak>NY_SOKNAD</ns26:kravArsak>
                     <ns26:kravType>REVURD</ns26:kravType>
                     <ns26:mottattDato>2014-08-13T00:00:00+02:00</ns26:mottattDato>
                     <ns26:virkningstidspunkt>2006-12-01T00:00:00+01:00</ns26:virkningstidspunkt>
                     <ns26:status>INNV</ns26:status>
                 </ns27:kravHistorikkListe>
                 <ns27:kravHistorikkListe>
+                    <ns26:kravId>41098607</ns26:kravId>
+                    <ns26:kravArsak>NY_SOKNAD</ns26:kravArsak>
                     <ns26:kravType>REVURD</ns26:kravType>
                     <ns26:mottattDato>2017-11-29T00:00:00+01:00</ns26:mottattDato>
                     <ns26:virkningstidspunkt>2008-10-01T00:00:00+02:00</ns26:virkningstidspunkt>
@@ -521,42 +535,56 @@
             <ns28:forsteVirkningstidspunkt>2015-07-01T00:00:00+02:00</ns28:forsteVirkningstidspunkt>
             <ns28:kravHistorikkListe>
                 <ns27:kravHistorikkListe>
+                    <ns26:kravId>41098605</ns26:kravId>
+                    <ns26:kravArsak>NY_SOKNAD</ns26:kravArsak>
                     <ns26:kravType>REVURD</ns26:kravType>
                     <ns26:mottattDato>2018-06-13T00:00:00+02:00</ns26:mottattDato>
                     <ns26:virkningstidspunkt>2015-07-01T00:00:00+02:00</ns26:virkningstidspunkt>
                     <ns26:status>Avbrutt</ns26:status>
                 </ns27:kravHistorikkListe>
                 <ns27:kravHistorikkListe>
+                    <ns26:kravId>41098601</ns26:kravId>
+                    <ns26:kravArsak>NY_SOKNAD</ns26:kravArsak>
                     <ns26:kravType>REVURD</ns26:kravType>
                     <ns26:mottattDato>2018-03-20T00:00:00+01:00</ns26:mottattDato>
                     <ns26:virkningstidspunkt>2015-07-01T00:00:00+02:00</ns26:virkningstidspunkt>
                     <ns26:status>INNV</ns26:status>
                 </ns27:kravHistorikkListe>
                 <ns27:kravHistorikkListe>
+                    <ns26:kravId>41098602</ns26:kravId>
+                    <ns26:kravArsak>GJNL_SKAL_VURD</ns26:kravArsak>
                     <ns26:kravType>FORSTEG_BH</ns26:kravType>
                     <ns26:mottattDato>2015-06-16T00:00:00+02:00</ns26:mottattDato>
                     <ns26:virkningstidspunkt>2015-07-01T00:00:00+02:00</ns26:virkningstidspunkt>
                     <ns26:status>INNV</ns26:status>
                 </ns27:kravHistorikkListe>
                 <ns27:kravHistorikkListe>
+                    <ns26:kravId>41098603</ns26:kravId>
+                    <ns26:kravArsak>NY_SOKNAD</ns26:kravArsak>
                     <ns26:kravType>REVURD</ns26:kravType>
                     <ns26:mottattDato>2017-11-29T00:00:00+01:00</ns26:mottattDato>
                     <ns26:virkningstidspunkt>2015-07-01T00:00:00+02:00</ns26:virkningstidspunkt>
                     <ns26:status>Avbrutt</ns26:status>
                 </ns27:kravHistorikkListe>
                 <ns27:kravHistorikkListe>
+                    <ns26:kravId>41098604</ns26:kravId>
+                    <ns26:kravArsak>NY_SOKNAD</ns26:kravArsak>
                     <ns26:kravType>REVURD</ns26:kravType>
                     <ns26:mottattDato>2015-12-12T00:00:00+01:00</ns26:mottattDato>
                     <ns26:virkningstidspunkt>2016-01-01T00:00:00+01:00</ns26:virkningstidspunkt>
                     <ns26:status>INNV</ns26:status>
                 </ns27:kravHistorikkListe>
                 <ns27:kravHistorikkListe>
+                    <ns26:kravId>41098605</ns26:kravId>
+                    <ns26:kravArsak>NY_SOKNAD</ns26:kravArsak>
                     <ns26:kravType>REVURD</ns26:kravType>
                     <ns26:mottattDato>2016-07-16T00:00:00+02:00</ns26:mottattDato>
                     <ns26:virkningstidspunkt>2016-09-01T00:00:00+02:00</ns26:virkningstidspunkt>
                     <ns26:status>INNV</ns26:status>
                 </ns27:kravHistorikkListe>
                 <ns27:kravHistorikkListe>
+                    <ns26:kravId>41098606</ns26:kravId>
+                    <ns26:kravArsak>NY_SOKNAD</ns26:kravArsak>
                     <ns26:kravType>REGULERING</ns26:kravType>
                     <ns26:mottattDato>2016-05-21T00:00:00+02:00</ns26:mottattDato>
                     <ns26:virkningstidspunkt>2016-05-01T00:00:00+02:00</ns26:virkningstidspunkt>
