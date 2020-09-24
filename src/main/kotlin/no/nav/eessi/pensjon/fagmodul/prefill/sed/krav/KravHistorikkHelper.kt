@@ -1,6 +1,5 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.sed.krav
 
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModel
 import no.nav.eessi.pensjon.fagmodul.sedmodel.Krav
 import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
 import no.nav.eessi.pensjon.utils.simpleFormat
@@ -53,7 +52,7 @@ object KravHistorikkHelper {
             if (kravHistorikk.isNotEmpty()) {
                 return kravHistorikk.first()
             }
-            logger.error("Fant ikke noe Kravhistorikk.. med bruk av kravårsak: ${KravArsak.GJNL_SKAL_VURD.name} ")
+            logger.warn("Fant ikke Kravhistorikk med bruk av kravårsak: ${KravArsak.GJNL_SKAL_VURD.name} eller ${KravArsak.TILST_DOD.name} ")
             return null
     }
 
