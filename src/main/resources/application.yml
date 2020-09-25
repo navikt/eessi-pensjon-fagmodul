@@ -61,7 +61,7 @@ server:
 
 kafka:
   statistikk:
-    topic: privat-eessipensjon-statistikk-q2
+    topic: ${KAFKA_STATISTIKK_TOPICNAME}
 
 #Spring
 spring:
