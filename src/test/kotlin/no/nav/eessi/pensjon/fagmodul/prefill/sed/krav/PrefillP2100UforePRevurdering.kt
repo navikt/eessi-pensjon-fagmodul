@@ -62,7 +62,7 @@ class PrefillP2100UforePRevurdering {
           val sed = p2100
         assertNotNull(sed.nav?.krav)
         assertEquals("2020-08-01", sed.nav?.krav?.dato)
-        assertEquals("Vi har overskrevet kravdato ", prefillData.melding)
+        assertEquals("Kravdato fra det opprinnelige vedtak med gjenlevenderett er angitt i SED P2100", prefillData.melding)
     }
 
 

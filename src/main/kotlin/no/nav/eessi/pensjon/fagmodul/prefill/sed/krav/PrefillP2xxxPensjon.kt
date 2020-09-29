@@ -15,7 +15,7 @@ import no.nav.pensjon.v1.ytelseskomponent.V1Ytelseskomponent
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-val meldingTilSaksbehandler = "Vi har overskrevet kravdato "
+val kravdatoMeldingOmP2100TilSaksbehandler = "Kravdato fra det opprinnelige vedtak med gjenlevenderett er angitt i SED P2100"
 
 /**
  * Hjelpe klasse for sak som fyller ut NAV-SED-P2000 med pensjondata fra PESYS.
@@ -102,7 +102,7 @@ object PrefillP2xxxPensjon {
     private fun opprettMeldingBasertPaaSaktype(kravHistorikk: V1KravHistorikk, kravId: String?, saktype: String): String? {
         if (kravHistorikk.kravId == kravId) return ""
             return when (saktype) {
-                EPSaktype.ALDER.name, EPSaktype.UFOREP.name -> meldingTilSaksbehandler
+                EPSaktype.ALDER.name, EPSaktype.UFOREP.name -> kravdatoMeldingOmP2100TilSaksbehandler
                 else -> ""
             }
     }
