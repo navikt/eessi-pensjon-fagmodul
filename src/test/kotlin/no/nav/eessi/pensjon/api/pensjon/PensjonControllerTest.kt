@@ -1,13 +1,15 @@
 package no.nav.eessi.pensjon.api.pensjon
 
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.whenever
+import com.nhaarman.mockitokotlin2.*
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.IkkeFunnetException
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjoninformasjonException
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.Pensjontype
+import no.nav.eessi.pensjon.utils.toJson
+import no.nav.pensjon.v1.brukerssakerliste.V1BrukersSakerListe
+import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
+import no.nav.pensjon.v1.sak.V1Sak
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -70,5 +72,49 @@ class PensjonControllerTest {
 
     }
 
+    @Test
+    fun `Gitt det finnes pensjonsak på aktoer så skal det returneres en liste over alle saker til aktierid`() {
+        val aktoerId = "1234567890123" // 13 sifre
+
+        val mockpen = Pensjonsinformasjon()
+        val mocksak1 = V1Sak()
+        mocksak1.sakId = 1010
+        mocksak1.status = "INNV"
+        mocksak1.sakType = "ALDER"
+        mockpen.brukersSakerListe = V1BrukersSakerListe()
+        mockpen.brukersSakerListe.brukersSakerListe.add(mocksak1)
+        val mocksak2 = V1Sak()
+        mocksak2.sakId = 2020
+        mocksak2.status = "AVSL"
+        mocksak2.sakType = "UFOREP"
+        mockpen.brukersSakerListe.brukersSakerListe.add(mocksak2)
+
+        whenever(pensjonsinformasjonClient.hentAltPaaAktoerId(aktoerId)).doReturn(mockpen)
+
+        val result = controller.hentPensjonSakIder(aktoerId)
+
+        verify(pensjonsinformasjonClient).hentAltPaaAktoerId(aktoerId)
+
+        assertEquals(2, result.size)
+        val expected = PensjonSak(1010, "ALDER", "INNV")
+        assertEquals(expected.toJson(), result.first().toJson())
+
+        println(expected.toJson())
+    }
+
+    @Test
+    fun `Gitt det ikke finnes pensjonsak på aktoer så skal det returneres et tomt svar tom liste`() {
+        val aktoerId = "1234567890123" // 13 sifre
+
+        val mockpen = Pensjonsinformasjon()
+        mockpen.brukersSakerListe = V1BrukersSakerListe()
+
+        whenever(pensjonsinformasjonClient.hentAltPaaAktoerId(aktoerId)).doReturn(mockpen)
+
+        val result = controller.hentPensjonSakIder(aktoerId)
+        verify(pensjonsinformasjonClient, times(1)).hentAltPaaAktoerId(aktoerId)
+
+        assertEquals(0, result.size)
+    }
 
 }
