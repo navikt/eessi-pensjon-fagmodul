@@ -1,6 +1,10 @@
 package no.nav.eessi.pensjon.services.statistikk
 
-import com.nhaarman.mockitokotlin2.*
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.spy
+import com.nhaarman.mockitokotlin2.times
+import com.nhaarman.mockitokotlin2.verify
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.clients.producer.RecordMetadata
 import org.junit.jupiter.api.BeforeEach
@@ -40,7 +44,7 @@ class StatistikkHandlerTest{
         val record =  ProducerRecord<String, String>("","")
         future.set( SendResult(record, recordMetadata ) )
 
-        statHandler.leggOpprettBucPaaMelding(rinaid = "", bucType = "P_BUC_01", timestamp = 10000L)
+        statHandler.produserBucOpprettetHendelse(rinaid = "", bucType = "P_BUC_01", timestamp = 10000L)
 
         verify(template, times(1)).sendDefault(any(), any())
     }

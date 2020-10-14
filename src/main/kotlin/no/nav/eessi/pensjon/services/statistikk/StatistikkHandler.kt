@@ -14,7 +14,7 @@ class StatistikkHandler(private val kafkaTemplate: KafkaTemplate<String, String>
     private val logger = LoggerFactory.getLogger(StatistikkHandler::class.java)
     private val X_REQUEST_ID = "x_request_id"
 
-    fun leggOpprettBucPaaMelding(rinaid: String, bucType: String, timestamp: Long) {
+    fun produserBucOpprettetHendelse(rinaid: String, bucType: String, timestamp: Long) {
 
         val melding = StatistikkMelding(
                 hendelseType = HendelseType.OPPRETTBUC,
@@ -23,14 +23,14 @@ class StatistikkHandler(private val kafkaTemplate: KafkaTemplate<String, String>
                 timeStamp = timestamp
         )
         try {
-            putMeldingPaaKafka(melding)
+            produserKafkaMelding(melding)
         }
         catch (e : Exception){
             logger.error(e.message, e)
         }
     }
 
-    private fun putMeldingPaaKafka(melding: StatistikkMelding) {
+    private fun produserKafkaMelding(melding: StatistikkMelding) {
         kafkaTemplate.defaultTopic = statistikkTopic
 
         val key = populerMDC()

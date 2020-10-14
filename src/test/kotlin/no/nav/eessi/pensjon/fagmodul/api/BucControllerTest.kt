@@ -3,6 +3,8 @@ package no.nav.eessi.pensjon.fagmodul.api
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.doThrow
+import com.nhaarman.mockitokotlin2.times
+import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedSubject
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
@@ -29,10 +31,14 @@ import no.nav.eessi.pensjon.utils.typeRefs
 import no.nav.pensjon.v1.avdod.V1Avdod
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
 import no.nav.pensjon.v1.person.V1Person
-import org.junit.jupiter.api.*
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.fail
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Spy
@@ -64,9 +70,11 @@ class BucControllerTest {
 
     private lateinit var bucController: BucController
 
+
+
     @BeforeEach
     fun before() {
-        bucController = BucController(mockEuxService, mockAktoerIdHelper, auditLogger, mockPensjonClient, statistikkHandler)
+        bucController = BucController("default", mockEuxService, mockAktoerIdHelper, auditLogger, mockPensjonClient, statistikkHandler)
         bucController.initMetrics()
     }
 
@@ -353,6 +361,19 @@ class BucControllerTest {
         assertThrows<Exception> {
             bucController.getBucogSedViewGjenlevende(aktoerId, avdodfnr)
         }
+    }
+
+    @Test
+    fun `createBuc run ok and does not run statistics in default namespace`() {
+        val gyldigBuc = String(Files.readAllBytes(Paths.get("src/test/resources/json/buc/buc-279020big.json")))
+        val buc : Buc =  mapJsonToAny(gyldigBuc, typeRefs())
+
+        doReturn("1231231").whenever(mockEuxService).createBuc("P_BUC_03")
+        doReturn(buc).whenever(mockEuxService).getBuc(any())
+
+        bucController.createBuc("P_BUC_03")
+
+        verify(statistikkHandler, times(0)).produserBucOpprettetHendelse(any(), any(), any())
     }
 
 }
