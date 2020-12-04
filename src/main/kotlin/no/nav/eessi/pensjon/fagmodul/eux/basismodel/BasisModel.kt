@@ -12,7 +12,7 @@ class RinaAksjon(
         val id: String? = null
 )
 
-class BucSedResponse(
+data class BucSedResponse(
         val caseId: String,
         val documentId: String
 )

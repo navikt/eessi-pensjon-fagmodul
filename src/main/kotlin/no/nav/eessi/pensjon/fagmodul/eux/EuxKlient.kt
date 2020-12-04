@@ -69,32 +69,42 @@ class EuxKlient(private val euxOidcRestTemplate: RestTemplate,
         PingEux = metricsHelper.init("PingEux")
     }
 
+
     //ny SED på ekisterende type eller ny svar SED på ekisternede rina
     @Throws(EuxGenericServerException::class, SedDokumentIkkeOpprettetException::class)
-    fun opprettSed(urlPath: String, navSEDjson: String, euxCaseId: String, metric: MetricsHelper.Metric, errorMessage: String, parentDocumentId: String?): BucSedResponse {
-
-        val uriParams = mapOf("RinaSakId" to euxCaseId, "DokuemntId" to parentDocumentId).filter { it.value != null }
-        val builder = UriComponentsBuilder.fromUriString(urlPath)
-                .queryParam("KorrelasjonsId", correlationId())
-                .queryParam("ventePaAksjon", "false")
-                .buildAndExpand(uriParams)
+    fun opprettSvarSed(navSEDjson: String, euxCaseId: String, metric: MetricsHelper.Metric, errorMessage: String, parentDocumentId: String): BucSedResponse {
 
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
-        //legger til navsed som json skipper nonemty felter dvs. null
+        val httpEntity = HttpEntity(navSEDjson, headers)
+
+        logger.debug("Kaller eux med json: $navSEDjson, euxCaseId: $euxCaseId, parentId: $parentDocumentId")
+        val response = restTemplateErrorhandler(
+                {
+                    euxOidcRestTemplate.postForEntity("/buc/$euxCaseId/sed/$parentDocumentId/",
+                            httpEntity,
+                            String::class.java)
+                }, euxCaseId, metric, errorMessage, waitTimes = 20000L
+        )
+        return BucSedResponse(euxCaseId, response.body!!)
+    }
+
+
+    //ny SED på ekisterende type eller ny svar SED på ekisternede rina
+    @Throws(EuxGenericServerException::class, SedDokumentIkkeOpprettetException::class)
+    fun opprettSed(navSEDjson: String, euxCaseId: String, metric: MetricsHelper.Metric, errorMessage: String): BucSedResponse {
+
+        val headers = HttpHeaders()
+        headers.contentType = MediaType.APPLICATION_JSON
         val httpEntity = HttpEntity(navSEDjson, headers)
 
         val response = restTemplateErrorhandler(
                 {
-                    euxOidcRestTemplate.exchange(builder.toUriString(),
-                            HttpMethod.POST,
+                    euxOidcRestTemplate.postForEntity("/buc/$euxCaseId/sed",
                             httpEntity,
-                            String::class.java)
-                }
-                , euxCaseId
-                , metric
-                , errorMessage
-                , waitTimes = 20000L
+                            String::class.java,
+                            "ventePaAksjon", "false")
+                }, euxCaseId, metric, errorMessage, waitTimes = 20000L
         )
         return BucSedResponse(euxCaseId, response.body!!)
     }

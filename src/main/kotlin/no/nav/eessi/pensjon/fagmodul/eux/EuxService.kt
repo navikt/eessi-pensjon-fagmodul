@@ -47,9 +47,7 @@ class EuxService (private val euxKlient: EuxKlient,
 
     @Throws(EuxGenericServerException::class, SedDokumentIkkeOpprettetException::class)
     fun opprettSvarSedOnBuc(navSED: SED, euxCaseId: String, parentDocumentId: String): BucSedResponse {
-        val euxUrlpath = "/buc/{RinaSakId}/sed/{DokuemntId}/svar"
-        logger.debug("prøver å kontakte eux-rina-api : $euxUrlpath")
-        return euxKlient.opprettSed(euxUrlpath,
+        return euxKlient.opprettSvarSed(
                 navSED.toJsonSkipEmpty(),
                 euxCaseId,
                 OpprettSvarSED,
@@ -61,11 +59,10 @@ class EuxService (private val euxKlient: EuxKlient,
      */
     @Throws(EuxGenericServerException::class, SedDokumentIkkeOpprettetException::class)
     fun opprettSedOnBuc(navSED: SED, euxCaseId: String): BucSedResponse {
-        val euxUrlpath = "/buc/{RinaSakId}/sed"
         logger.info("Forsøker å opprette en ${navSED.sed}, rinasakId: $euxCaseId")
         val sedJson = navSED.toJsonSkipEmpty()
         logger.debug("Logger ut $sedJson")
-        return euxKlient.opprettSed(euxUrlpath, sedJson, euxCaseId, OpprettSED, "Feil ved opprettSed: ${navSED.sed}, med rinaId: $euxCaseId", null)
+        return euxKlient.opprettSed(sedJson, euxCaseId, OpprettSED, "Feil ved opprettSed: ${navSED.sed}, med rinaId: $euxCaseId")
     }
 
     /**
