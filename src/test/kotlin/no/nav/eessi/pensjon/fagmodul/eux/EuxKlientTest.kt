@@ -1,7 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
 import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.anyVararg
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.doThrow
 import com.nhaarman.mockitokotlin2.eq
@@ -29,7 +28,6 @@ import org.mockito.Mockito
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
-import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
@@ -437,7 +435,14 @@ class EuxKlientTest {
     @Test
     fun `EuxKlient forventer korrekt svar tilbake fra et kall til opprettSedOnBuc`() {
         val response: ResponseEntity<String> = ResponseEntity("323413415dfvsdfgq343145sdfsdfg34135", HttpStatus.OK)
-        whenever(mockEuxrestTemplate.postForEntity(any<String>(), any(), eq(String::class.java))).thenReturn(response)
+        whenever(mockEuxrestTemplate.postForEntity(
+            any(),
+            any(),
+            eq(String::class.java),
+            any<String>(),
+            any<String>()
+        )
+        ).thenReturn(response)
 
         val result = klient.opprettSed(
                 SED("P2000").toJsonSkipEmpty(),
@@ -452,37 +457,64 @@ class EuxKlientTest {
     @Test
     fun `Calling EuxService  feiler med svar tilbake fra et kall til opprettSedOnBuc`() {
         doThrow(createDummyClientRestExecption(HttpStatus.BAD_REQUEST, "Dummy clent error"))
-                .whenever(mockEuxrestTemplate).postForEntity(
-                        any<String>(),
-                        any(),
-                        eq(String::class.java)
-                )
+            .whenever(mockEuxrestTemplate).postForEntity(
+                any<String>(),
+                any(),
+                eq(String::class.java),
+                any<String>(),
+                any<String>()
+
+            )
 
         assertThrows<GenericUnprocessableEntity> {
             klient.opprettSed(
-                    SED("P2200").toJsonSkipEmpty(),
-                    "1231233",
-                    MetricsHelper(SimpleMeterRegistry()).init("dummy"),
-                    "Feil ved opprettSed")
+                SED("P2200").toJsonSkipEmpty(),
+                "1231233",
+                MetricsHelper(SimpleMeterRegistry()).init("dummy"),
+                "Feil ved opprettSed"
+            )
         }
     }
 
     @Test
     fun `Calling EuxService  feiler med kontakt fra eux med kall til opprettSedOnBuc forventer GatewayTimeoutException`() {
-        doThrow(createDummyServerRestExecption(HttpStatus.GATEWAY_TIMEOUT,"Dummy body"))
-                .whenever(mockEuxrestTemplate).postForEntity(
-                        any<String>(),
-                        any(),
-                        eq(String::class.java),
-                        any()
-                )
+        doThrow(createDummyServerRestExecption(HttpStatus.GATEWAY_TIMEOUT, "Dummy body"))
+            .whenever(mockEuxrestTemplate).postForEntity(
+                any<String>(),
+                any(),
+                eq(String::class.java),
+                any<String>(),
+                any<String>()
+            )
         assertThrows<GatewayTimeoutException> {
             klient.opprettSed(
-                    SED("P2000").toJsonSkipEmpty(),
-                    "213123",
-                    MetricsHelper(SimpleMeterRegistry()).init("dummy"),
-                    "Feil ved opprettSed")
+                SED("P2000").toJsonSkipEmpty(),
+                "213123",
+                MetricsHelper(SimpleMeterRegistry()).init("dummy"),
+                "Feil ved opprettSed"
+            )
         }
+    }
+
+    @Test
+    fun `gitt en mock rest-template, så forventes en korrekt formatert response fra opprettSvarSed`() {
+        val response: ResponseEntity<String> = ResponseEntity("323413415dfvsdfgq343145sdfsdfg34135", HttpStatus.OK)
+        whenever(mockEuxrestTemplate.postForEntity(
+            any<String>(),
+            any(),
+            eq(String::class.java))
+        ).thenReturn(response)
+
+        val result = klient.opprettSvarSed(
+            SED("P2000").toJsonSkipEmpty(),
+            "123456",
+            MetricsHelper(SimpleMeterRegistry()).init("dummy"),
+            "Feil ved opprettSed",
+            "11111"
+        )
+
+        assertEquals("123456", result.caseId)
+        assertEquals("323413415dfvsdfgq343145sdfsdfg34135", result.documentId)
     }
 
     @Test

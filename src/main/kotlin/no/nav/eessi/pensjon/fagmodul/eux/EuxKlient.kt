@@ -74,17 +74,17 @@ class EuxKlient(private val euxOidcRestTemplate: RestTemplate,
     @Throws(EuxGenericServerException::class, SedDokumentIkkeOpprettetException::class)
     fun opprettSvarSed(navSEDjson: String, euxCaseId: String, metric: MetricsHelper.Metric, errorMessage: String, parentDocumentId: String): BucSedResponse {
 
-        val headers = HttpHeaders()
-        headers.contentType = MediaType.APPLICATION_JSON
-        val httpEntity = HttpEntity(navSEDjson, headers)
+        val httpEntity = createHttpHeaders(navSEDjson)
 
         logger.debug("Kaller eux med json: $navSEDjson, euxCaseId: $euxCaseId, parentId: $parentDocumentId")
         val response = restTemplateErrorhandler(
-                {
-                    euxOidcRestTemplate.postForEntity("/buc/$euxCaseId/sed/$parentDocumentId/",
-                            httpEntity,
-                            String::class.java)
-                }, euxCaseId, metric, errorMessage, waitTimes = 20000L
+            {
+                euxOidcRestTemplate.postForEntity(
+                    "/buc/$euxCaseId/sed/$parentDocumentId/",
+                    httpEntity,
+                    String::class.java
+                )
+            }, euxCaseId, metric, errorMessage, waitTimes = 20000L
         )
         return BucSedResponse(euxCaseId, response.body!!)
     }
@@ -94,13 +94,13 @@ class EuxKlient(private val euxOidcRestTemplate: RestTemplate,
     @Throws(EuxGenericServerException::class, SedDokumentIkkeOpprettetException::class)
     fun opprettSed(navSEDjson: String, euxCaseId: String, metric: MetricsHelper.Metric, errorMessage: String): BucSedResponse {
 
-        val headers = HttpHeaders()
-        headers.contentType = MediaType.APPLICATION_JSON
-        val httpEntity = HttpEntity(navSEDjson, headers)
+        val httpEntity = createHttpHeaders(navSEDjson)
 
+        logger.debug("Kaller eux med json: $navSEDjson, euxCaseId: $euxCaseId")
         val response = restTemplateErrorhandler(
                 {
-                    euxOidcRestTemplate.postForEntity("/buc/$euxCaseId/sed",
+                    euxOidcRestTemplate.postForEntity(
+                        "/buc/$euxCaseId/sed",
                             httpEntity,
                             String::class.java,
                             "ventePaAksjon", "false")
@@ -108,6 +108,13 @@ class EuxKlient(private val euxOidcRestTemplate: RestTemplate,
         )
         return BucSedResponse(euxCaseId, response.body!!)
     }
+
+    private fun createHttpHeaders( navSEDjson: String): HttpEntity<String> {
+        val headers = HttpHeaders()
+        headers.contentType = MediaType.APPLICATION_JSON
+        return HttpEntity(navSEDjson, headers)
+    }
+
 
     //henter ut sed fra rina med bucid og documentid
     @Throws(EuxServerException::class, SedDokumentIkkeLestException::class)

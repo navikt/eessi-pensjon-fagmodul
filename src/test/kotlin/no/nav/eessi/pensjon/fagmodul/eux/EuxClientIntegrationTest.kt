@@ -43,11 +43,11 @@ class EuxClientIntegrationTest {
         val euxUrlpath = "/buc/{RinaSakId}/sed"
 
         doReturn(ResponseEntity.ok().body("bah")).whenever(restEuxTemplate).postForEntity(
-                eq(euxUrlpath),
-                any(),
-                eq(String::class.java))
-
-
+            any<String>(),
+            any(),
+            eq(String::class.java),
+            any<String>(),
+            any<String>())
         val sedJson = ""
         euxClient.opprettSed(sedJson, "", opprettSedMetrics, "feil")
     }
