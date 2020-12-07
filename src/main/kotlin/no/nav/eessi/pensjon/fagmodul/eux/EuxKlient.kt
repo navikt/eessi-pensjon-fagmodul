@@ -80,7 +80,7 @@ class EuxKlient(private val euxOidcRestTemplate: RestTemplate,
         val response = restTemplateErrorhandler(
             {
                 euxOidcRestTemplate.postForEntity(
-                    "/buc/$euxCaseId/sed/$parentDocumentId/",
+                    "/buc/$euxCaseId/sed/$parentDocumentId/svar",
                     httpEntity,
                     String::class.java
                 )
