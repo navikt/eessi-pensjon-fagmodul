@@ -63,7 +63,7 @@ class SedPrefillP8000IntegrationSpringTest {
 
     @Test
     @Throws(Exception::class)
-    fun `prefill sed P8000 - Gitt gjenlevendepensjon Og henvendelse gjelder søker SÅ skal det produseres en Gyldig P8000 med referanse til person 02 (soker)`() {
+    fun `prefill sed P8000 - Gitt gjenlevendepensjon Og henvendelse gjelder søker SÅ skal det produseres en Gyldig P8000 med referanse til person 02`() {
 
         val sak = V1Sak()
         sak.sakType = EPSaktype.GJENLEV.toString()
@@ -78,7 +78,7 @@ class SedPrefillP8000IntegrationSpringTest {
         doReturn(BrukerMock.createWith(true, "Lever", "Gjenlev", "12312312312")).`when`(personV3Service).hentBruker("12312312312")
         doReturn(BrukerMock.createWith(true, "Avdød", "Død", "9876543210")).`when`(personV3Service).hentBruker("9876543210")
 
-        doReturn("QX").doReturn("XQ").`when`(kodeverkClient).finnLandkode2(any())
+        doReturn("QX").`when`(kodeverkClient).finnLandkode2(any())
 
         val subject = dummyApiSubjectjson("9876543210")
         val apijson = dummyApijson(sakid = "21337890", aktoerId = "0105094340092", sed = "P8000", buc = "P_BUC_05", subject = subject, refperson = "\"SOKER\"")
@@ -109,7 +109,7 @@ class SedPrefillP8000IntegrationSpringTest {
                   "adresse" : {
                     "gate" : "Oppoverbakken 66",
                     "by" : "SØRUMSAND",
-                    "land" : "XQ"
+                    "land" : "QX"
                   }
                 },
                 "annenperson" : {
@@ -133,7 +133,7 @@ class SedPrefillP8000IntegrationSpringTest {
                     "gate" : "Oppoverbakken 66",
                     "by" : "SØRUMSAND",
                     "postnummer" : "1920",
-                    "land" : "XQ"
+                    "land" : "QX"
                   }
                 }
               },
@@ -180,7 +180,7 @@ class SedPrefillP8000IntegrationSpringTest {
         doReturn(BrukerMock.createWith(true, "Lever", "Gjenlev", "12312312312")).`when`(personV3Service).hentBruker("12312312312")
         doReturn(BrukerMock.createWith(true, "Avdød", "Død", "9876543210")).`when`(personV3Service).hentBruker("9876543210")
 
-        doReturn("QX").doReturn("XQ").`when`(kodeverkClient).finnLandkode2(any())
+        doReturn("QX").`when`(kodeverkClient).finnLandkode2(any())
 
         val subject = dummyApiSubjectjson("9876543210")
         val apijson = dummyApijson(sakid = "21337890", aktoerId = "0105094340092", sed = "P8000", buc = "P_BUC_05", subject = subject, refperson = "\"AVDOD\"")
@@ -211,7 +211,7 @@ class SedPrefillP8000IntegrationSpringTest {
               "adresse" : {
                 "gate" : "Oppoverbakken 66",
                 "by" : "SØRUMSAND",
-                "land" : "XQ"
+                "land" : "QX"
               }
             },
             "annenperson" : {
@@ -235,7 +235,7 @@ class SedPrefillP8000IntegrationSpringTest {
                 "gate" : "Oppoverbakken 66",
                 "by" : "SØRUMSAND",
                 "postnummer" : "1920",
-                "land" : "XQ"
+                "land" : "QX"
               }
             }
           },
@@ -359,7 +359,7 @@ class SedPrefillP8000IntegrationSpringTest {
         doReturn(barn).`when`(personV3Service).hentBruker("12312312312")
         doReturn(BrukerMock.createWith(true, "Avdød", "Død", "9876543210")).`when`(personV3Service).hentBruker("9876543210")
 
-        doReturn("QX").doReturn("XQ").`when`(kodeverkClient).finnLandkode2(any())
+        doReturn("QX").`when`(kodeverkClient).finnLandkode2(any())
 
         val subject = dummyApiSubjectjson("9876543210")
         val apijson = dummyApijson(sakid = "21337890", aktoerId = "0105094340092", sed = "P8000", buc = "P_BUC_05", subject = subject, refperson = "\"SOKER\"")
@@ -400,7 +400,7 @@ class SedPrefillP8000IntegrationSpringTest {
                   "adresse" : {
                     "gate" : "Oppoverbakken 66",
                     "by" : "SØRUMSAND",
-                    "land" : "XQ"
+                    "land" : "QX"
                   }
                 },
                 "annenperson" : {
@@ -491,6 +491,46 @@ class SedPrefillP8000IntegrationSpringTest {
         val response = result.response.getContentAsString(charset("UTF-8"))
 
         JSONAssert.assertEquals(response, validResponse, false)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun `prefill sed P15000 - Gitt alderpensjon Og henvendelse gjelder søker SÅ skal det produseres en Gyldig P8000 med referanse der søker er gjenlevende`() {
+
+        val v1Kravhistorikk = V1KravHistorikk()
+        v1Kravhistorikk.kravArsak = KravArsak.GJNL_SKAL_VURD.name
+
+        val sak = V1Sak()
+        sak.sakType = EPSaktype.ALDER.toString()
+        sak.sakId = 100
+        sak.kravHistorikkListe = V1KravHistorikkListe()
+        sak.kravHistorikkListe.kravHistorikkListe.add(v1Kravhistorikk)
+
+        whenever((pensjoninformasjonservice).hentRelevantPensjonSak(any(), any())).thenReturn(sak)
+
+        doReturn(NorskIdent("12312312312")).`when`(aktoerService).hentGjeldendeIdent(IdentGruppe.NorskIdent, AktoerId("0105094340092"))
+        doReturn(AktoerId("3323332333233323")).`when`(aktoerService).hentGjeldendeIdent(IdentGruppe.AktoerId, NorskIdent("9876543210"))
+
+        doReturn(BrukerMock.createWith(true, "Lever", "Gjenlev", "12312312312")).`when`(personV3Service).hentBruker("12312312312")
+        doReturn(BrukerMock.createWith(true, "Avdød", "Død", "9876543210")).`when`(personV3Service).hentBruker("9876543210")
+
+        doReturn("QX").doReturn("XQ").`when`(kodeverkClient).finnLandkode2(any())
+
+        val subject = dummyApiSubjectjson("9876543210")
+        val apijson = dummyApijson(sakid = "21337890", aktoerId = "0105094340092", sed = "P15000", buc = "P_BUC_10", subject = subject)
+
+        val result = mockMvc.perform(post("/sed/prefill")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(apijson))
+                .andDo(print())
+                .andExpect(status().isOk)
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andReturn()
+
+        val response = result.response.getContentAsString(charset("UTF-8"))
+//        JSONAssert.assertEquals(response, validResponse, false)
+        println(response)
+
     }
 
     private fun dummyApijson(sakid: String, vedtakid: String? = "", aktoerId: String, sed: String? = "P2000", buc: String? = "P_BUC_06", subject: String? = null, refperson: String? = null): String {

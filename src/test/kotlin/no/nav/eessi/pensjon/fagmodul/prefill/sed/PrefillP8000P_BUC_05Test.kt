@@ -74,7 +74,7 @@ class PrefillP8000P_BUC_05Test {
                 institutionid = "NO:noinst002",
                 institutionnavn = "NOINST002, NO INST002, NO")
 
-        val prefillSed = PrefillSed(prefillNav, null)
+        val prefillSed = PrefillSed(prefillNav)
 
 
         prefillSEDService = PrefillSEDService(prefillNav, personV3Service, EessiInformasjon(), pensjoninformasjonservice, aktorRegisterService)

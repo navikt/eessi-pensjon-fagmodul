@@ -39,7 +39,7 @@ class PrefillP8000APUtlandInnvTest {
                 institutionid = "NO:noinst002",
                 institutionnavn = "NOINST002, NO INST002, NO")
 
-        val prefillSed = PrefillSed(prefillNav, null)
+        val prefillSed = PrefillSed(prefillNav)
         prefill = PrefillP8000(prefillSed)
         prefillData = PrefillDataModelMother.initialPrefillDataModel("P8000", personFnr, penSaksnummer = pesysSaksnummer)
         personData = PersonData(forsikretPerson = person!!, ekteTypeValue = "", ektefelleBruker = null, gjenlevendeEllerAvdod = person, barnBrukereFraTPS = listOf())

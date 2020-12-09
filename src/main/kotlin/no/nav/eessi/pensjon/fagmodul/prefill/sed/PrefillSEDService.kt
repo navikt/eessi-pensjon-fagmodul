@@ -5,7 +5,6 @@ import no.nav.eessi.pensjon.fagmodul.prefill.eessi.EessiInformasjon
 import no.nav.eessi.pensjon.fagmodul.prefill.model.PersonData
 import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModel
 import no.nav.eessi.pensjon.fagmodul.prefill.pen.PensjonsinformasjonService
-import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillGjenlevende
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillNav
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillSed
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.EPSaktype.ALDER
@@ -58,38 +57,35 @@ class PrefillSEDService(private val prefillNav: PrefillNav,
             SEDType.P6000 -> PrefillP6000(prefillNav, eessiInformasjon, pensjonsinformasjonService.hentVedtak(prefillData)).prefill(prefillData, hentPersonerMedBarn(prefillData))
 
             //andre
-            SEDType.P4000 -> PrefillP4000(getPrefillSed(prefillData)).prefill(prefillData, hentPersoner(prefillData))
-            SEDType.P7000 -> PrefillP7000(getPrefillSed(prefillData)).prefill(prefillData, hentPersoner(prefillData))
+            SEDType.P4000 -> PrefillP4000(getPrefillSed()).prefill(prefillData, hentPersoner(prefillData))
+            SEDType.P7000 -> PrefillP7000(getPrefillSed()).prefill(prefillData, hentPersoner(prefillData))
 
             SEDType.P8000 -> {
                 if (prefillData.buc == "P_BUC_05") {
                     try {
-                        PrefillP8000(getPrefillSed(prefillData)).prefill(prefillData, hentPersoner(prefillData), hentRelevantPensjonSak(prefillData) { pensakType -> listOf("ALDER", "BARNEP", "GJENLEV", "UFOREP", "GENRL", "OMSORG").contains(pensakType) })
+                        PrefillP8000(getPrefillSed()).prefill(prefillData, hentPersoner(prefillData), hentRelevantPensjonSak(prefillData) { pensakType -> listOf("ALDER", "BARNEP", "GJENLEV", "UFOREP", "GENRL", "OMSORG").contains(pensakType) })
                     } catch (ex: Exception) {
                         logger.error(ex.message)
-                        PrefillP8000(getPrefillSed(prefillData)).prefill(prefillData, hentPersoner(prefillData), null)
+                        PrefillP8000(getPrefillSed()).prefill(prefillData, hentPersoner(prefillData), null)
                     }
                 } else {
-                    PrefillP8000(getPrefillSed(prefillData)).prefill(prefillData, hentPersoner(prefillData), null)
+                    PrefillP8000(getPrefillSed()).prefill(prefillData, hentPersoner(prefillData), null)
                 }
             }
 
-
-            SEDType.P10000 -> PrefillP10000(getPrefillSed(prefillData)).prefill(prefillData, hentPersoner(prefillData))
-
+            SEDType.P10000 -> PrefillP10000(getPrefillSed()).prefill(prefillData, hentPersoner(prefillData))
             SEDType.X005 -> PrefillX005(prefillNav).prefill(prefillData, hentPersoner(prefillData))
-            SEDType.H020, SEDType.H021 -> PrefillH02X(getPrefillSed(prefillData)).prefill(prefillData, hentPersoner(prefillData))
+            SEDType.H020, SEDType.H021 -> PrefillH02X(getPrefillSed()).prefill(prefillData, hentPersoner(prefillData))
             else ->
                 //P3000_NO vil aldre gå dennee vei! men fra EU-SED->Nav-SED->PESYS
                 //P3000_SE, PL, DK, DE, UK, ol vil gå denne veien.
                 //P5000, - P9000, P14000 og og andre
-                getPrefillSed(prefillData).prefill(prefillData, hentPersoner(prefillData))
+                getPrefillSed().prefill(prefillData, hentPersoner(prefillData))
         }
     }
 
-    private fun getPrefillSed(prefillData: PrefillDataModel): PrefillSed {
-        val pensjonGjenlevende = PrefillGjenlevende(personV3Service, prefillNav).prefill(prefillData)
-        return PrefillSed(prefillNav, pensjonGjenlevende)
+    private fun getPrefillSed(): PrefillSed {
+        return PrefillSed(prefillNav)
     }
 
 

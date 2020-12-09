@@ -45,7 +45,7 @@ class PrefillP7000_AP_21975717Test {
                 institutionid = "NO:noinst002",
                 institutionnavn = "NOINST002, NO INST002, NO")
 
-        prefill = PrefillP7000(PrefillSed(prefillNav, null))
+        prefill = PrefillP7000(PrefillSed(prefillNav))
 
         prefillData = PrefillDataModel(penSaksnummer = "21975717", bruker = PersonId(personFnr, "123456789"), avdod = null).apply {
             rinaSubject = "Pensjon"

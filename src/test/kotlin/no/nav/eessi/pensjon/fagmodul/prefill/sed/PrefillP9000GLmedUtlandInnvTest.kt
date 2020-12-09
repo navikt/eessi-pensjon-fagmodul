@@ -11,8 +11,8 @@ import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillTestHelper.setupPersonda
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.FodselsnummerMother.generateRandomFnr
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.NavFodselsnummer
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.PrefillAdresse
-import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
 import no.nav.eessi.pensjon.personoppslag.aktoerregister.AktoerregisterService
+import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
@@ -27,13 +27,8 @@ class PrefillP9000GLmedUtlandInnvTest {
     private val personFnr = generateRandomFnr(65)
     private val avdodPersonFnr = generateRandomFnr(75)
     private val pesysSaksnummer = "22875355"
-
     lateinit var prefillData: PrefillDataModel
-
     lateinit var prefillNav: PrefillNav
-
-    lateinit var sed: SED
-
     lateinit var prefillSEDService: PrefillSEDService
 
     @Mock
@@ -58,13 +53,17 @@ class PrefillP9000GLmedUtlandInnvTest {
         val pensjonInformasjonService = PrefillTestHelper.lesPensjonsdataFraFil("KravAlderEllerUfore_AP_UTLAND.xml")
 
         prefillSEDService = PrefillSEDService(prefillNav, persondataFraTPS, EessiInformasjon(), pensjonInformasjonService, aktorRegisterService)
-        sed = prefillSEDService.prefill(prefillData)
 
     }
 
     @Test
     fun `forventet korrekt utfylt P9000 med mockdata fra testfiler`() {
-        val p9000 = sed
+        val p9000 = prefillSEDService.prefill(prefillData)
+
+        println("-----------------------------------------------------------")
+        println(p9000?.nav?.bruker?.person?.toJsonSkipEmpty())
+        println(p9000?.pensjon?.gjenlevende?.person?.toJsonSkipEmpty())
+        println("-----------------------------------------------------------")
 
         assertEquals("BAMSE LUR", p9000.nav?.bruker?.person?.fornavn)
         assertEquals("MOMBALO", p9000.nav?.bruker?.person?.etternavn)
