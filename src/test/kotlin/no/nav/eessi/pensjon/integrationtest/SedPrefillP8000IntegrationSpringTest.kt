@@ -489,7 +489,6 @@ class SedPrefillP8000IntegrationSpringTest {
                 .andReturn()
 
         val response = result.response.getContentAsString(charset("UTF-8"))
-
         JSONAssert.assertEquals(response, validResponse, false)
     }
 
@@ -528,9 +527,45 @@ class SedPrefillP8000IntegrationSpringTest {
                 .andReturn()
 
         val response = result.response.getContentAsString(charset("UTF-8"))
-//        JSONAssert.assertEquals(response, validResponse, false)
-        println(response)
-
+        val excpectedResponse = """
+            {
+              "sed" : "P15000",
+              "sedGVer" : "4",
+              "sedVer" : "1",
+              "nav" : {
+                "eessisak" : [ {
+                  "institusjonsid" : "NO:noinst002",
+                  "institusjonsnavn" : "NOINST002, NO INST002, NO",
+                  "saksnummer" : "21337890",
+                  "land" : "NO"
+                } ],
+                "bruker" : {
+                  "person" : {
+                    "pin" : [ {
+                      "institusjonsnavn" : "NOINST002, NO INST002, NO",
+                      "institusjonsid" : "NO:noinst002",
+                      "identifikator" : "12312312312",
+                      "land" : "NO"
+                    } ],
+                    "statsborgerskap" : [ {
+                      "land" : "QX"
+                    } ],
+                    "etternavn" : "Gjenlev",
+                    "fornavn" : "Lever",
+                    "kjoenn" : "M",
+                    "foedselsdato" : "1988-07-12"
+                  },
+                  "adresse" : {
+                    "gate" : "Oppoverbakken 66",
+                    "by" : "SØRUMSAND",
+                    "postnummer" : "1920",
+                    "land" : "XQ"
+                  }
+                }
+              }
+            }
+        """.trimIndent()
+        JSONAssert.assertEquals(response, excpectedResponse, true)
     }
 
     private fun dummyApijson(sakid: String, vedtakid: String? = "", aktoerId: String, sed: String? = "P2000", buc: String? = "P_BUC_06", subject: String? = null, refperson: String? = null): String {
