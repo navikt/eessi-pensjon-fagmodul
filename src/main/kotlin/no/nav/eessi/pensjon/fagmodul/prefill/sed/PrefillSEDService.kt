@@ -171,6 +171,3 @@ class PrefillSEDService(private val prefillNav: PrefillNav,
     }
 
 }
-
-//class ManglendeVedtakIdException(reason: String): ResponseStatusException(HttpStatus.BAD_REQUEST, reason)
-
