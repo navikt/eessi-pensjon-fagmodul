@@ -19,9 +19,6 @@ class PrefillSed(private val prefillNav: PrefillNav) {
         logger.debug("------------------| Preutfylling START |------------------ ")
         logger.debug("[${prefillData.getSEDType()}] Preutfylling Utfylling Data")
 
-        logger.debug("forsikret        : ${personData.forsikretPerson?.personnavn?.sammensattNavn}")
-        logger.debug("gjenlevendeAvdød : ${personData.gjenlevendeEllerAvdod?.personnavn?.sammensattNavn}")
-
         val sed = prefillData.sed
 
         //henter opp persondata
