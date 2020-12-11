@@ -66,6 +66,14 @@ class EuxService (private val euxKlient: EuxKlient,
         return euxKlient.opprettSed(sedJson, euxCaseId, OpprettSED, "Feil ved opprettSed: ${navSED.sed}, med rinaId: $euxCaseId")
     }
 
+    @Throws(EuxGenericServerException::class, SedDokumentIkkeOpprettetException::class)
+    fun opprettJsonSedOnBuc(jsonNavSED: String, sedType: String, euxCaseId: String): BucSedResponse {
+        logger.info("Forsøker å opprette en $sedType på rinasakId: $euxCaseId")
+        logger.debug("Logger ut $jsonNavSED")
+        return euxKlient.opprettSed(jsonNavSED, euxCaseId, OpprettSED, "Feil ved opprettSed: $sedType, med rinaId: $euxCaseId")
+    }
+
+
     /**
      * Henter ut sed fra rina med bucid og documentid
      */
@@ -197,6 +205,7 @@ class EuxService (private val euxKlient: EuxKlient,
     }
 
     fun getInstitutions(bucType: String, landkode: String? = ""): List<InstitusjonItem> {
+        logger.debug("henter institustion for bucType: $bucType, land: $landkode")
         return euxKlient.getInstitutions(bucType, landkode)
     }
 

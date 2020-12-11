@@ -62,9 +62,8 @@ class PrefillP2000UtenKravhistorieTest {
 
         dataFromPEN = lesPensjonsdataFraFil("PensjonsinformasjonSaksliste-AP-14069110.xml")
         prefillData = PrefillDataModelMother.initialPrefillDataModel("P2000", personFnr, penSaksnummer = "14069110").apply {
-            partSedAsJson = mutableMapOf(
-                    "PersonInfo" to readJsonResponse("other/person_informasjon_selvb.json"),
-                    "P4000" to readJsonResponse("other/p4000_trygdetid_part.json"))
+            partSedAsJson["PersonInfo"] = readJsonResponse("other/person_informasjon_selvb.json")
+            partSedAsJson["P4000"] = readJsonResponse("other/p4000_trygdetid_part.json")
         }
         prefillSEDService = PrefillSEDService(prefillNav, personV3Service, EessiInformasjon(), dataFromPEN, aktorRegisterService)
 

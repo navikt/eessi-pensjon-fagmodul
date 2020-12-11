@@ -199,8 +199,7 @@ class PrefillP8000P_BUC_05Test {
         doReturn("NO").whenever(kodeverkClient).finnLandkode2("NOR")
         doReturn("SE").whenever(kodeverkClient).finnLandkode2("SWE")
 
-        prefillData = PrefillDataModelMother.initialPrefillDataModel("P8000", fnr, penSaksnummer = "100", avdod = PersonId(norskIdent = avdodFnr, aktorId = "21323"),  refTilPerson = ReferanseTilPerson.SOKER)
-        prefillData.buc = "P_BUC_05"
+        prefillData = PrefillDataModelMother.initialPrefillDataModel("P8000", fnr, penSaksnummer = "100", avdod = PersonId(norskIdent = avdodFnr, aktorId = "21323"),  refTilPerson = ReferanseTilPerson.SOKER, bucType = "P_BUC_05")
 
         val sed =  prefillSEDService.prefill(prefillData)
 
@@ -231,8 +230,13 @@ class PrefillP8000P_BUC_05Test {
                     "land" : "SE"
                   }
                 }
-              }
-            }
+              },
+            "pensjon" : {
+                "anmodning" : {
+                  "referanseTilPerson" : "02"
+                }
+              }              
+             }
 
         """.trimIndent()
 
@@ -263,8 +267,7 @@ class PrefillP8000P_BUC_05Test {
         doReturn("NO").whenever(kodeverkClient).finnLandkode2("NOR")
         doReturn("SE").whenever(kodeverkClient).finnLandkode2("SWE")
 
-        prefillData = PrefillDataModelMother.initialPrefillDataModel("P8000", fnr, penSaksnummer = "100", avdod = PersonId(norskIdent = avdodFnr, aktorId = "21323"),  refTilPerson = ReferanseTilPerson.SOKER)
-        prefillData.buc = "P_BUC_05"
+        prefillData = PrefillDataModelMother.initialPrefillDataModel("P8000", fnr, penSaksnummer = "100", avdod = PersonId(norskIdent = avdodFnr, aktorId = "21323"),  refTilPerson = ReferanseTilPerson.SOKER, bucType = "P_BUC_05")
 
         val sed =  prefillSEDService.prefill(prefillData)
 
@@ -295,11 +298,15 @@ class PrefillP8000P_BUC_05Test {
                     "land" : "SE"
                   }
                 }
-              }
+              },
+            "pensjon" : {
+                "anmodning" : {
+                  "referanseTilPerson" : "02"
+                }
+              }              
             }
 
         """.trimIndent()
-
         JSONAssert.assertEquals(sed.toJsonSkipEmpty(), expected, true)
     }
 

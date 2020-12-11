@@ -5,50 +5,43 @@ import no.nav.eessi.pensjon.fagmodul.models.SEDType
 import no.nav.eessi.pensjon.fagmodul.sedmodel.AndreinstitusjonerItem
 import no.nav.eessi.pensjon.fagmodul.sedmodel.InstitusjonX005
 import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
-import no.nav.eessi.pensjon.utils.mapAnyToJson
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.typeRefs
 
 /**
  * Data class to store different required data to build any given sed, auto or semiauto.
- *
  * sed, aktoerregister,  psak-saknr, rinanr, institutions (mottaker eg. nav),
  *
  * services:  aktoerregister, person, pen, maybe joark, eux-basis.
- *
  */
-
 class PersonId(val norskIdent: String,
                val aktorId: String)
 
-class PrefillDataModel(val penSaksnummer: String, val bruker: PersonId, val avdod: PersonId?) {
+data class PrefillDataModel(
+        val penSaksnummer: String,
+        val bruker: PersonId,
+        val avdod: PersonId?,
+        val sedType: String,
+        val sed: SED,
+        val buc: String,
+        val vedtakId: String? = null,
+        val kravDato: String? = null,
+        val kravId: String? = null,
+        val euxCaseID: String,
+        val institution: List<InstitusjonItem>,
+        val refTilPerson: ReferanseTilPerson? = null,
+        var melding: String? = null,
+        var andreInstitusjon: AndreinstitusjonerItem? = null,
+        var institusjonX005: InstitusjonX005? = null,
+        val partSedAsJson: MutableMap<String, String> = mutableMapOf()
+        ) {
 
-    //pensjon
-    lateinit var vedtakId: String
-    var kravDato: String? = null
-    var kravId: String? = null
-
-    var melding: String? = null
-
-    //rina
-    lateinit var rinaSubject: String
-    lateinit var euxCaseID: String
-    lateinit var buc: String
-    lateinit var sed: SED
-    lateinit var institution: List<InstitusjonItem>
-
-    //hjelpe parametere for utfylling av institusjon
-    var andreInstitusjon: AndreinstitusjonerItem? = null
-    var institusjonX005: InstitusjonX005? = null
-
-    //div payload seddata json
-    var partSedAsJson: MutableMap<String, String> = mutableMapOf()
-
-    //P8000
-    var refTilPerson: ReferanseTilPerson? = null
+    override fun toString(): String {
+        return "DataModel: sedType: $sedType, bucType: $buc, penSakId: $penSaksnummer, vedtakId: $vedtakId, euxCaseId: $euxCaseID"
+    }
 
     fun getSEDType(): String {
-        return sed.sed
+        return sedType
     }
 
     fun getPartSEDasJson(key: String): String? {
@@ -61,18 +54,7 @@ class PrefillDataModel(val penSaksnummer: String, val bruker: PersonId, val avdo
     }
 
     fun getInstitutionsList(): List<InstitusjonItem> {
-        return institution
-    }
-
-    fun clone() : String {
-        return mapAnyToJson(this)
-    }
-
-    companion object {
-        @JvmStatic
-        fun fromJson(prefillData: String) : PrefillDataModel {
-            return mapJsonToAny(prefillData, typeRefs(), true)
-        }
+        return institution ?: emptyList()
     }
 
     fun isMinimumPrefill() = getSEDType() != SEDType.P6000.name

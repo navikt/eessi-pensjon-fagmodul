@@ -58,9 +58,8 @@ class PrefillP2000_AP_21975717Test {
         val dataFromPEN = lesPensjonsdataFraFil("KravAlderEllerUfore_AP_UTLAND.xml")
 
         prefillData = initialPrefillDataModel("P2000", personFnr, penSaksnummer = pesysSaksnummer).apply {
-            partSedAsJson = mutableMapOf(
-                    "PersonInfo" to readJsonResponse("other/person_informasjon_selvb.json"),
-                    "P4000" to readJsonResponse("other/p4000_trygdetid_part.json"))
+            partSedAsJson["PersonInfo"] = readJsonResponse("other/person_informasjon_selvb.json")
+            partSedAsJson["P4000"] = readJsonResponse("other/p4000_trygdetid_part.json")
         }
        prefillSEDService = PrefillSEDService(prefillNav, persondataFraTPS, EessiInformasjon(), dataFromPEN, aktorRegisterService)
 

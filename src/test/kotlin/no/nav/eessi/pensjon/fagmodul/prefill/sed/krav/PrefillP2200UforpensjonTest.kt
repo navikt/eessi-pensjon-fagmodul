@@ -56,7 +56,7 @@ class PrefillP2200UforpensjonTest {
         dataFromPEN = lesPensjonsdataFraFil("P2200-UP-INNV.xml")
 
         prefillData = initialPrefillDataModel("P2200", personFnr, penSaksnummer = "22874955").apply {
-            partSedAsJson = mutableMapOf("PersonInfo" to readJsonResponse("other/person_informasjon_selvb.json"))
+            partSedAsJson["PersonInfo"] = readJsonResponse("other/person_informasjon_selvb.json")
         }
         prefillSEDService = PrefillSEDService(prefillNav, persondataFraTPS, EessiInformasjon(), dataFromPEN, aktorRegisterService)
 

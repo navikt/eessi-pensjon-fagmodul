@@ -1,6 +1,5 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.model
 
-import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -13,7 +12,14 @@ class PrefillDataModelTest {
 
     @BeforeEach
     fun setup() {
-        prefillDatamodel = PrefillDataModel(penSaksnummer = "12345", bruker = PersonId("123456789", "567890"), avdod = PersonId("123","4556"))
+        prefillDatamodel = PrefillDataModelMother.initialPrefillDataModel(
+                penSaksnummer = "123123",
+                pinId = "1231231",
+                sedType = "P2000",
+                vedtakId = "323232",
+                euxCaseId = "231233213123",
+                avdod = PersonId("12312312", "23123")
+        )
     }
 
     @Test
@@ -23,25 +29,17 @@ class PrefillDataModelTest {
 
     @Test
     fun `check for valid claimant pin and aktorid is blank fail`() {
-        assertEquals(prefillDatamodel.avdod?.norskIdent, "123")
+        assertEquals(prefillDatamodel.avdod?.norskIdent, "12312312")
     }
 
     @Test
     fun `validate and check model build`() {
-
-        val items = listOf(InstitusjonItem(country = "NO", institution = "DUMMY"))
-        prefillDatamodel.apply {
-                rinaSubject = "Pensjon"
-                sed =  SED("vedtak")
-                buc = "P_BUC_06"
-                institution = items
-        }
         assertNotNull(prefillDatamodel)
-        assertEquals("vedtak", prefillDatamodel.getSEDType())
+        assertEquals("P2000", prefillDatamodel.getSEDType())
         assertEquals(SED::class, prefillDatamodel.sed::class)
-        assertEquals("12345", prefillDatamodel.penSaksnummer)
-        assertEquals("567890", prefillDatamodel.bruker.aktorId)
-        assertEquals("123456789", prefillDatamodel.bruker.norskIdent)
+        assertEquals("123123", prefillDatamodel.penSaksnummer)
+        assertEquals("123456789", prefillDatamodel.bruker.aktorId)
+        assertEquals("1231231", prefillDatamodel.bruker.norskIdent)
     }
 
 }

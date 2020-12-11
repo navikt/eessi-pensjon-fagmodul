@@ -4,8 +4,8 @@ import com.nhaarman.mockitokotlin2.mock
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.prefill.ApiRequest
 import no.nav.eessi.pensjon.fagmodul.prefill.eessi.EessiInformasjon
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PersonId
 import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModel
+import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModelMother
 import no.nav.eessi.pensjon.fagmodul.prefill.pen.PensjonsinformasjonService
 import no.nav.eessi.pensjon.fagmodul.prefill.person.MockTpsPersonServiceFactory
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillNav
@@ -16,8 +16,6 @@ import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillTestHelper.setupPersonda
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.FodselsnummerMother.generateRandomFnr
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.NavFodselsnummer
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.PrefillAdresse
-import no.nav.eessi.pensjon.fagmodul.sedmodel.Nav
-import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
 import no.nav.eessi.pensjon.personoppslag.aktoerregister.AktoerregisterService
 import no.nav.eessi.pensjon.utils.mapAnyToJson
 import no.nav.eessi.pensjon.utils.toJson
@@ -58,15 +56,10 @@ class PrefillP2000_AP_LOP_REVUTest {
 
         dataFromPEN = lesPensjonsdataFraFil("P2000-AP-LP-RVUR-20541862.xml")
 
-        prefillData = PrefillDataModel(penSaksnummer = pesysSaksnummer, bruker = PersonId(personFnr, "123456789"), avdod = null).apply {
-            rinaSubject = "Pensjon"
-            sed = SED("P2000")
-            vedtakId = ""
-            buc = "P_BUC_99"
-            institution = listOf(InstitusjonItem(country = "NO", institution = "DUMMY"))
-            partSedAsJson = mutableMapOf(
-                    "PersonInfo" to readJsonResponse("other/person_informasjon_selvb.json"),
-                    "P4000" to readJsonResponse("other/p4000_trygdetid_part.json"))
+        prefillData = PrefillDataModelMother.initialPrefillDataModel("P2000", pinId = personFnr, penSaksnummer = pesysSaksnummer).apply {
+            partSedAsJson["PersonInfo"] = readJsonResponse("other/person_informasjon_selvb.json")
+            partSedAsJson["P4000"] = readJsonResponse("other/p4000_trygdetid_part.json")
+
         }
         prefillSEDService = PrefillSEDService(prefillNav, persondataFraTPS, EessiInformasjon(), dataFromPEN, aktorRegisterService)
 
@@ -74,15 +67,7 @@ class PrefillP2000_AP_LOP_REVUTest {
 
     @Test
     fun `forventet korrekt utfylt P2000 alderpensjon med kap4 og 9`() {
-        val P2000 = prefillSEDService.prefill(prefillData)
-
-        val P2000pensjon = SED(
-                sed = "P2000",
-                pensjon = P2000.pensjon,
-                nav = Nav(krav = P2000.nav?.krav)
-        )
-
-        val sed = P2000pensjon
+        val sed = prefillSEDService.prefill(prefillData)
         assertNotNull(sed.nav?.krav)
         assertEquals("2018-06-05", sed.nav?.krav?.dato)
 

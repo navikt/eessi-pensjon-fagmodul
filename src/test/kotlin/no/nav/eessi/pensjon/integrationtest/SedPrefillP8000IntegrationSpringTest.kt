@@ -317,7 +317,12 @@ class SedPrefillP8000IntegrationSpringTest {
                     "land" : "XQ"
                   }
                 }
-              }          
+              },
+              "pensjon" : {
+                "anmodning" : {
+                  "referanseTilPerson" : "02"
+                }
+              }                      
             }
         """.trimIndent()
 

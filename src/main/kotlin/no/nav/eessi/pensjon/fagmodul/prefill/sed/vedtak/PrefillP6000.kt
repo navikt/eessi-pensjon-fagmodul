@@ -34,7 +34,7 @@ class PrefillP6000(private val prefillNav: PrefillNav,
         val gjenlevende = eventuellGjenlevende(prefillData, personData.forsikretPerson)
 
         logger.debug("Henter opp Pensjonsdata fra PESYS")
-        sed.pensjon = createPensjon(pensjoninformasjon, gjenlevende, prefillData.vedtakId, prefillData.andreInstitusjon)
+        sed.pensjon = createPensjon(pensjoninformasjon, gjenlevende, prefillData.vedtakId!!, prefillData.andreInstitusjon)
 
         logger.debug("Henter opp Persondata fra TPS")
         sed.nav = prefillNav.prefill(penSaksnummer = prefillData.penSaksnummer, bruker = prefillData.bruker, avdod = prefillData.avdod, personData = personData, brukerInformasjon = prefillData.getPersonInfoFromRequestData())

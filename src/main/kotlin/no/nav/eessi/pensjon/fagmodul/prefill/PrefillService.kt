@@ -9,6 +9,7 @@ import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.ValidationException
 import no.nav.eessi.pensjon.fagmodul.sedmodel.InstitusjonX005
 import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
 import no.nav.eessi.pensjon.metrics.MetricsHelper
+import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -32,7 +33,6 @@ class PrefillService(private val factory: PrefillSEDService,
     fun prefillSed(dataModel: PrefillDataModel): SED {
         return PrefillSed.measure {
             logger.info("******* Starter med preutfylling *******\nSED: ${dataModel.getSEDType()} aktoerId: ${dataModel.bruker.aktorId} sakNr: ${dataModel.penSaksnummer}")
-
             try {
                 return@measure factory.prefill(dataModel)
             } catch (ex: Exception) {
@@ -40,6 +40,41 @@ class PrefillService(private val factory: PrefillSEDService,
                 throw ex
             }
         }
+    }
+
+    fun prefillSedtoJson(dataModel: PrefillDataModel, version: String): SedAndType {
+        return PrefillSed.measure {
+            logger.info("******* Starter med preutfylling ******* $dataModel")
+            try {
+                val sed = factory.prefill(dataModel)
+                logger.debug("sedType: ${sed.sed}")
+
+                val sedType = SEDType.valueOf(sed.sed)
+
+                //synk sed versjon med buc versjon
+                updateSEDVersion(sed, version)
+
+                return@measure SedAndType(sedType, sed.toJsonSkipEmpty())
+            } catch (ex: Exception) {
+                logger.error("Noe gikk galt under prefill: ", ex)
+                throw ex
+            }
+        }
+    }
+
+    //flyttes til prefill / en eller annen service?
+    private fun updateSEDVersion(sed: SED, bucVersion: String) {
+        when(bucVersion) {
+            "v4.2" -> {
+                sed.sedGVer="4"
+                sed.sedVer="2"
+            }
+            else -> {
+                sed.sedGVer="4"
+                sed.sedVer="1"
+            }
+        }
+        logger.debug("SED version: v${sed.sedGVer}.${sed.sedVer} + BUC version: $bucVersion")
     }
 
     /**
@@ -54,12 +89,11 @@ class PrefillService(private val factory: PrefillSEDService,
                         id = it.checkAndConvertInstituion(),
                         navn = it.name ?: it.checkAndConvertInstituion()
                 )
-                val datax005 = PrefillDataModel(penSaksnummer = data.penSaksnummer, bruker = data.bruker, avdod = null).apply {
-                    sed = SED(SEDType.X005.name)
-                    euxCaseID = data.euxCaseID
-                    institusjonX005 = institusjon
-                }
+                val sedtype = SEDType.X005.name
+                val datax005 = data.copy(avdod = null, sedType = sedtype, sed = SED(sedtype))
 
                 factory.prefill(datax005)
             }
 }
+
+class SedAndType(val sedType: SEDType, val sed: String)

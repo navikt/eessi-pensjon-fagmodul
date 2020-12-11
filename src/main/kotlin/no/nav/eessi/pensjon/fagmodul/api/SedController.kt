@@ -52,11 +52,14 @@ class SedController(private val euxService: EuxService,
 
     private lateinit var AddInstutionAndDocument: MetricsHelper.Metric
     private lateinit var AddDocumentToParent: MetricsHelper.Metric
+    private lateinit var AddInstutionAndDocumentBucUtils: MetricsHelper.Metric
+
 
     @PostConstruct
     fun initMetrics() {
         AddInstutionAndDocument = metricsHelper.init("AddInstutionAndDocument")
         AddDocumentToParent = metricsHelper.init("AddDocumentToParent")
+        AddInstutionAndDocumentBucUtils = metricsHelper.init("AddInstutionAndDocumentBucUtils")
     }
 
     //** oppdatert i api 18.02.2019
@@ -92,27 +95,34 @@ class SedController(private val euxService: EuxService,
     @PostMapping("/add")
     fun addInstutionAndDocument(@RequestBody request: ApiRequest): ShortDocumentItem? {
         auditlogger.log("addInstutionAndDocument", request.aktoerId ?: "", request.toAudit())
+        logger.info("kaller (addInstutionAndDocument) rinaId: ${request.euxCaseId} bucType: ${request.buc} sedType: ${request.sed} aktoerId: ${request.aktoerId} sakId: ${request.sakId} vedtak: ${request.vedtakId}")
+        val norskIdent = hentFnrfraAktoerService(request.aktoerId, aktoerService)
+        val dataModel = ApiRequest.buildPrefillDataModelOnExisting(request, norskIdent, getAvdodAktoerId(request))
 
+        //Hente metadata for valgt BUC
+        val bucUtil = AddInstutionAndDocumentBucUtils.measure{
+            logger.info("******* Hent BUC sjekk om sed kan opprettes *******")
+            val bucUtil =  BucUtils(euxService.getBuc(dataModel.euxCaseID))
+            bucUtil.checkIfSedCanBeCreated(dataModel.sedType)
+            return@measure bucUtil
+        }
+
+        //Preutfyll av SED, pensjon og personer samt oppdatering av versjon
+        val sedAndType = prefillService.prefillSedtoJson(dataModel, bucUtil.getProcessDefinitionVersion())
+
+        //Sjekk og opprette deltaker og legge sed på valgt BUC
         return AddInstutionAndDocument.measure {
             logger.info("******* Legge til ny SED - start *******")
-            logger.info("kaller (addInstutionAndDocument) rinaId: ${request.euxCaseId} bucType: ${request.buc} sedType: ${request.sed} aktoerId: ${request.aktoerId} sakId: ${request.sakId} vedtak: ${request.vedtakId}")
 
-            val norskIdent = hentFnrfraAktoerService(request.aktoerId, aktoerService)
-            val dataModel = ApiRequest.buildPrefillDataModelOnExisting(request, norskIdent, getAvdodAktoerId(request))
+            val sedType = sedAndType.sedType.name
+            val sedJson = sedAndType.sed
 
-            val bucUtil = BucUtils(euxService.getBuc(dataModel.euxCaseID))
-            bucUtil.checkIfSedCanBeCreated(request.sed)
 
             //sjekk og evt legger til deltakere
             checkAndAddInstitution(dataModel, bucUtil)
 
-            logger.info("Prøver å prefillSED")
-            val sed = prefillService.prefillSed(dataModel)
-            //synk sed versjon med buc versjon
-            updateSEDVersion(sed, bucUtil.getProcessDefinitionVersion() )
-
             logger.info("Prøver å sende SED: ${dataModel.getSEDType()} inn på BUC: ${dataModel.euxCaseID}")
-            val docresult = euxService.opprettSedOnBuc(sed, dataModel.euxCaseID)
+            val docresult = euxService.opprettJsonSedOnBuc(sedJson, sedType,  dataModel.euxCaseID)
 
             logger.info("Opprettet ny SED med dokumentId: ${docresult.documentId}")
             val result = bucUtil.findDocument(docresult.documentId)
@@ -123,8 +133,9 @@ class SedController(private val euxService: EuxService,
             //extra tag metricshelper for sedType, bucType, timeStamp og rinaId.
             counterHelper.count(CounterHelper.MeterNameExtraTag.AddInstutionAndDocument, extraTag = extraTag(dataModel, bucUtil))
 
+            val documentItem = fetchBucAgainBeforeReturnShortDocument(dataModel.buc, docresult, result)
             logger.info("******* Legge til ny SED - slutt *******")
-            fetchBucAgainBeforeReturnShortDocument(dataModel.buc, docresult, result)
+            documentItem
         }
 
     }

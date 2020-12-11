@@ -75,8 +75,10 @@ class SedControllerTest {
 
     @BeforeEach
     fun setUp() {
+        mockEuxService.initMetrics()
         val prefillService = PrefillService(mockPrefillSEDService)
         prefillService.initMetrics()
+
         this.sedController = SedController(mockEuxService,
                 prefillService,
                 mockAktoerIdHelper,
@@ -264,13 +266,12 @@ class SedControllerTest {
         mockBuc.documents = listOf(createDummyBucDocumentItem(), DocumentsItem(type = "X005"))
         mockBuc.actions = listOf(ActionsItem(type = "Send", name = "Send"))
 
-        doReturn(mockBuc).whenever(mockEuxService).getBuc(euxCaseId)
-
         val dummyPrefillData = ApiRequest.buildPrefillDataModelOnExisting(apiRequestWith(euxCaseId), NorskIdent("12345").id, null)
 
-        whenever(mockPrefillSEDService.prefill(any())).thenReturn(dummyPrefillData.sed)
-
-        doReturn(BucSedResponse(euxCaseId,"1")).whenever(mockEuxService).opprettSedOnBuc(any(),eq(euxCaseId))
+        doReturn(mockBuc).whenever(mockEuxService).getBuc(euxCaseId)
+        doReturn(dummyPrefillData.sed).whenever(mockPrefillSEDService).prefill(any())
+        doReturn(BucSedResponse(euxCaseId,"1")).whenever(mockEuxService).opprettJsonSedOnBuc(any(), any(),eq(euxCaseId))
+        doReturn(BucSedResponse(euxCaseId,"1")).whenever(mockEuxService).opprettSedOnBuc(any(), eq(euxCaseId))
 
         val newParticipants = listOf(
                 InstitusjonItem(country = "FI", institution = "Finland", name="Finland test"),
@@ -279,29 +280,34 @@ class SedControllerTest {
 
         sedController.addInstutionAndDocument(apiRequestWith(euxCaseId, newParticipants))
 
-        verify(mockEuxService, times(newParticipants.size + 1)).opprettSedOnBuc(any(), eq(euxCaseId))
+        verify(mockEuxService, times(newParticipants.size )).opprettSedOnBuc(any(),eq(euxCaseId))
+        verify(mockEuxService, times(1)).opprettJsonSedOnBuc(any(), any(), eq(euxCaseId))
     }
 
     @Test
     fun `call addInstutionAndDocument mock adding two institusjon when we are not CaseOwner badrequest execption is thrown`() {
         val euxCaseId = "1234567890"
 
-        doReturn(NorskIdent("12345")).whenever(mockAktoerIdHelper).hentGjeldendeIdent(eq(IdentGruppe.NorskIdent), any<AktoerId>())
-
         val mockParticipants = listOf(ParticipantsItem(role = "CaseOwner", organisation = Organisation(countryCode = "SE", name = "SE", id = "SE")))
         val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = mockParticipants)
         mockBuc.documents = listOf(createDummyBucDocumentItem(), DocumentsItem(type = "X005"))
         mockBuc.actions = listOf(ActionsItem(type = "Send", name = "Send"))
-
-        doReturn(mockBuc).whenever(mockEuxService).getBuc(euxCaseId)
 
         val newParticipants = listOf(
                 InstitusjonItem(country = "FI", institution = "Finland", name="Finland test"),
                 InstitusjonItem(country = "DE", institution = "Tyskland", name="Tyskland test")
         )
 
+        doReturn(NorskIdent("12345")).whenever(mockAktoerIdHelper).hentGjeldendeIdent(eq(IdentGruppe.NorskIdent), any<AktoerId>())
+        doReturn(mockBuc).whenever(mockEuxService).getBuc(euxCaseId)
+
+        val apirequest = apiRequestWith(euxCaseId, newParticipants)
+        val dummyPrefillData = ApiRequest.buildPrefillDataModelOnExisting(apiRequestWith(euxCaseId), NorskIdent("12345").id)
+
+        doReturn(dummyPrefillData.sed).whenever(mockPrefillSEDService).prefill(any())
+
         assertThrows<ResponseStatusException> {
-            sedController.addInstutionAndDocument(apiRequestWith(euxCaseId, newParticipants))
+            sedController.addInstutionAndDocument(apirequest)
         }
 
     }
@@ -316,18 +322,17 @@ class SedControllerTest {
         mockBuc.documents = listOf(createDummyBucDocumentItem())
         mockBuc.actions = listOf(ActionsItem(type = "Send", name = "Send"))
 
-        doReturn(mockBuc).whenever(mockEuxService).getBuc(euxCaseId)
-
         val dummyPrefillData = ApiRequest.buildPrefillDataModelOnExisting(apiRequestWith(euxCaseId), NorskIdent("12345").id, null)
 
-        whenever(mockPrefillSEDService.prefill(any())).thenReturn(dummyPrefillData.sed)
+        doReturn(dummyPrefillData.sed).whenever(mockPrefillSEDService).prefill(any())
+        doReturn(mockBuc).whenever(mockEuxService).getBuc(euxCaseId)
 
-        doReturn(BucSedResponse(euxCaseId, "1")).whenever(mockEuxService).opprettSedOnBuc(any(),eq(euxCaseId))
+        doReturn(BucSedResponse(euxCaseId, "1")).whenever(mockEuxService).opprettJsonSedOnBuc(any(), any(),eq(euxCaseId))
 
         val noNewParticipants = listOf<InstitusjonItem>()
         sedController.addInstutionAndDocument(apiRequestWith(euxCaseId, noNewParticipants))
 
-        verify(mockEuxService, times(noNewParticipants.size + 1)).opprettSedOnBuc(any(), eq(euxCaseId))
+        verify(mockEuxService, times(noNewParticipants.size + 1)).opprettJsonSedOnBuc(any(), any(), eq(euxCaseId))
     }
 
     @Test
@@ -335,13 +340,12 @@ class SedControllerTest {
         val euxCaseId = "1234567890"
 
         doReturn(NorskIdent("12345")).whenever(mockAktoerIdHelper).hentGjeldendeIdent(eq(IdentGruppe.NorskIdent), any<AktoerId>())
-
         val mockBucJson = String(Files.readAllBytes(Paths.get("src/test/resources/json/buc/buc-P_BUC_06-P6000_Sendt.json")))
         doReturn( mapJsonToAny(mockBucJson, typeRefs<Buc>())).whenever(mockEuxService).getBuc(euxCaseId)
+        val apiRequest = apiRequestWith(euxCaseId, emptyList())
 
-        val noNewParticipants = listOf<InstitusjonItem>()
         assertThrows<SedDokumentKanIkkeOpprettesException> {
-            sedController.addInstutionAndDocument(apiRequestWith(euxCaseId, noNewParticipants))
+            sedController.addInstutionAndDocument(apiRequest)
         }
 
     }
@@ -351,9 +355,11 @@ class SedControllerTest {
         val euxCaseId = "1234567890"
 
         doReturn(NorskIdent("12345")).whenever(mockAktoerIdHelper).hentGjeldendeIdent(eq(IdentGruppe.NorskIdent), any<AktoerId>())
+        doReturn(SED("P10000")).whenever(mockPrefillSEDService).prefill(any())
 
         val mockBucJson = String(Files.readAllBytes(Paths.get("src/test/resources/json/buc/buc_P_BUC_06_4.2_tom.json")))
         val mockBucJson2 = String(Files.readAllBytes(Paths.get("src/test/resources/json/buc/P_BUC_06_P10000.json")))
+
         doReturn( mapJsonToAny(mockBucJson, typeRefs<Buc>()))
                 .doReturn( mapJsonToAny(mockBucJson2, typeRefs<Buc>()))
                 .whenever(mockEuxService).getBuc(euxCaseId)
@@ -361,15 +367,13 @@ class SedControllerTest {
         val newParticipants = listOf(
                 InstitusjonItem(country = "FI", institution = "FI:Finland", name="Finland test")
         )
-
-        doReturn(BucSedResponse(euxCaseId, "58c26271b21f4feebcc36b949b4865fe")).whenever(mockEuxService).opprettSedOnBuc(any(),eq(euxCaseId))
-        whenever(mockPrefillSEDService.prefill(any())).thenReturn(SED("P10000"))
+        doReturn(BucSedResponse(euxCaseId, "58c26271b21f4feebcc36b949b4865fe")).whenever(mockEuxService).opprettJsonSedOnBuc(any(), any(),eq(euxCaseId))
         doNothing().whenever(mockEuxService).addInstitution(any(), any())
 
         val apiRequest = apiRequestWith(euxCaseId, newParticipants, "P10000")
         val result =  sedController.addInstutionAndDocument(apiRequest)
 
-        verify(mockEuxService, times(1)).opprettSedOnBuc(any(), eq(euxCaseId))
+        verify(mockEuxService, times(1)).opprettJsonSedOnBuc(any(), any(), eq(euxCaseId))
         verify(mockEuxService, times(2)).getBuc(eq(euxCaseId))
 
         assertNotNull(result)
@@ -469,7 +473,7 @@ class SedControllerTest {
 
         doNothing().whenever(mockEuxService).addInstitution(any(), any())
 
-        doReturn(BucSedResponse(euxCaseId,"1")).whenever(mockEuxService).opprettSedOnBuc(any(), eq(euxCaseId))
+        doReturn(BucSedResponse(euxCaseId,"1")).whenever(mockEuxService).opprettJsonSedOnBuc(any(), any(), eq(euxCaseId))
 
         val newParticipants = listOf(
                 InstitusjonItem(country = "FI", institution = "FI:Finland", name="Finland test"),
@@ -478,7 +482,7 @@ class SedControllerTest {
         sedController.addInstutionAndDocument(apiRequestWith(euxCaseId, newParticipants))
 
         verify(mockEuxService, times(1)).addInstitution(any(), any())
-        verify(mockEuxService, times(1)).opprettSedOnBuc(any(), eq(euxCaseId))
+        verify(mockEuxService, times(1)).opprettJsonSedOnBuc(any(), any(), eq(euxCaseId))
     }
 
     @Test
@@ -496,9 +500,8 @@ class SedControllerTest {
 
         val dummyPrefillData = ApiRequest.buildPrefillDataModelOnExisting(apiRequestWith(euxCaseId), NorskIdent("12345").id, null)
 
-        whenever(mockPrefillSEDService.prefill(any())).thenReturn(dummyPrefillData.sed)
-
-        doThrow(SedDokumentIkkeOpprettetException("Expected!")).whenever(mockEuxService).opprettSedOnBuc(any(), eq(euxCaseId))
+        doReturn(dummyPrefillData.sed).whenever(mockPrefillSEDService).prefill(any())
+        doThrow(SedDokumentIkkeOpprettetException("Expected!")).whenever(mockEuxService).opprettJsonSedOnBuc(any(), any(), eq(euxCaseId))
 
         val newParticipants = listOf(
                 InstitusjonItem(country = "FI", institution = "FI:Finland", name="Finland test"),

@@ -41,11 +41,11 @@ class PrefillP8000(private val prefillSed: PrefillSed) {
 
         return if (prefillData.refTilPerson == ReferanseTilPerson.SOKER && sak?.sakType in listOf(EPSaktype.ALDER.name, EPSaktype.UFOREP.name) && gjenlevendeBruker != null) {
             logger.info("Prefill P8000 forenklet preutfylling for gjenlevende uten avdød, Ferdig.")
-            prefillData.refTilPerson = null
+//            prefillData.refTilPerson = null
             sedP8000(eessielm, gjenlevendeBruker.person, gjenlevendeBruker.adresse, prefillData, null)
         } else if (prefillData.refTilPerson == ReferanseTilPerson.SOKER && sak?.sakType in listOf(EPSaktype.ALDER.name, EPSaktype.UFOREP.name) && kravhistorikkGjenlev != null) {
             logger.info("Prefill P8000 forenklet preutfylling for gjenlevende med revurdering uten avdød, Ferdig.")
-            prefillData.refTilPerson = null
+//            prefillData.refTilPerson = null
             sedP8000(eessielm, gjenlevendeBruker?.person, gjenlevendeBruker?.adresse, prefillData, null)
         } else {
             logger.info("Prefill P8000 forenklet preutfylling med gjenlevende, Ferdig.")

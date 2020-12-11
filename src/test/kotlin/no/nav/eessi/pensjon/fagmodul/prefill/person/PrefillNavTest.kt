@@ -10,7 +10,7 @@ import no.nav.eessi.pensjon.fagmodul.prefill.LagTPSPerson.Companion.medBarn
 import no.nav.eessi.pensjon.fagmodul.prefill.model.BrukerInformasjon
 import no.nav.eessi.pensjon.fagmodul.prefill.model.PersonData
 import no.nav.eessi.pensjon.fagmodul.prefill.model.PersonId
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModel
+import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModelMother
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.FodselsnummerMother
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.NavFodselsnummer
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.PrefillAdresse
@@ -78,9 +78,8 @@ class PrefillNavTest {
         doReturn("NO").whenever(kodeverkClient).finnLandkode2("NOR")
 
         val foreldersPin = "somePersonNr"
-        val prefillData = PrefillDataModel(penSaksnummer = somePenSaksnr, bruker = PersonId(foreldersPin, "dummy"), avdod = null)
+        val prefillData = PrefillDataModelMother.initialPrefillDataModel("P2100", pinId = foreldersPin, penSaksnummer = somePenSaksnr, avdod = null)
         val barnetsPin = "12345678901"
-
         val forelder = lagTPSBruker(foreldersPin, "Christopher", "Robin").medBarn(barnetsPin)
         val barn = lagTPSBruker(barnetsPin, "Ole", "Brum")
 
@@ -108,8 +107,7 @@ class PrefillNavTest {
         val somePersonNr = FodselsnummerMother.generateRandomFnr(57)
         val someBarnPersonNr = FodselsnummerMother.generateRandomFnr(17)
 
-        val prefillData = PrefillDataModel(penSaksnummer = somePenSaksnr, bruker = PersonId(somePersonNr, "dummy"), avdod = null)
-
+        val prefillData = PrefillDataModelMother.initialPrefillDataModel("P2100", pinId = somePersonNr, avdod = PersonId(someBarnPersonNr, "123232312312"), penSaksnummer = somePenSaksnr)
         val barn = lagTPSBruker(someBarnPersonNr, "Nasse", "Nøff")
         val far = lagTPSBruker(somePersonNr, "Ole", "Brum")
                 .withHarFraRolleI(Familierelasjon().withTilRolle(Familierelasjoner().withValue("BARN")).withTilPerson(barn))
@@ -151,7 +149,7 @@ class PrefillNavTest {
         val person = pair.first
         val ektefelle = pair.second
 
-        val prefillData = PrefillDataModel(penSaksnummer = somePenSaksnr, bruker = PersonId(somePersonNr, "dummy"), avdod = null)
+        val prefillData = PrefillDataModelMother.initialPrefillDataModel("20000", pinId = somePersonNr, penSaksnummer = somePenSaksnr)
         val personData = PersonData(forsikretPerson = person, ektefelleBruker = ektefelle, ekteTypeValue = "EKTE", gjenlevendeEllerAvdod = person, barnBrukereFraTPS = listOf())
 
         val actual = prefillNav.prefill(prefillData.penSaksnummer, prefillData.bruker, prefillData.avdod, personData, prefillData.getPersonInfoFromRequestData())
@@ -186,8 +184,7 @@ class PrefillNavTest {
         val person = pair.first
         val ektefelle = pair.second
 
-        val prefillData = PrefillDataModel(penSaksnummer = somePenSaksnr, bruker = PersonId(somePersonNr, "dummy"), avdod = null)
-
+        val prefillData = PrefillDataModelMother.initialPrefillDataModel("P2000", pinId = somePersonNr, penSaksnummer = somePenSaksnr)
         val personData = PersonData(forsikretPerson = person, ektefelleBruker = ektefelle, ekteTypeValue = "REPA", gjenlevendeEllerAvdod = person, barnBrukereFraTPS = listOf())
 
         val actual = prefillNav.prefill(prefillData.penSaksnummer, prefillData.bruker, prefillData.avdod, personData, prefillData.getPersonInfoFromRequestData())
@@ -222,10 +219,8 @@ class PrefillNavTest {
         val person = pair.first
         val ektefelle = pair.second
 
-        val prefillData = PrefillDataModel(penSaksnummer = somePenSaksnr, bruker = PersonId(somePersonNr, "dummy"), avdod = null)
-
+        val prefillData = PrefillDataModelMother.initialPrefillDataModel("P2000", pinId = somePersonNr, penSaksnummer = somePenSaksnr)
         val personData = PersonData(forsikretPerson = person, ektefelleBruker = ektefelle, ekteTypeValue = "SAMB", gjenlevendeEllerAvdod = person, barnBrukereFraTPS = listOf())
-
         val actual = prefillNav.prefill(prefillData.penSaksnummer, prefillData.bruker, prefillData.avdod, personData, prefillData.getPersonInfoFromRequestData())
 
         val expected = Nav(
@@ -254,8 +249,7 @@ class PrefillNavTest {
         val person = lagTPSBruker(somePersonNr, "Ola", "Testbruker")
         person.personnavn = Personnavn().withEtternavn("Test Bruker").withMellomnavn("Mellomnavn Mellomn").withFornavn("Fornavn Ole").withSammensattNavn("Ole Test Bruker")
         person.foedselsdato = Foedselsdato().withFoedselsdato(convertToXMLocal(personfnr.getBirthDate()))
-
-        val prefillData = PrefillDataModel(penSaksnummer = somePenSaksnr, bruker = PersonId(somePersonNr, "dummy"), avdod = null)
+        val prefillData = PrefillDataModelMother.initialPrefillDataModel("P2000", pinId = somePersonNr, penSaksnummer = somePenSaksnr)
 
         doReturn(person)
                 .whenever(mockTpsPersonService)
@@ -286,12 +280,12 @@ class PrefillNavTest {
 
         val person = lagTPSBruker(somePersonNr, "Fornavn", "Kun etternavn")
         person.foedselsdato = Foedselsdato().withFoedselsdato(convertToXMLocal(personfnr.getBirthDate()))
-
-        val prefillData = PrefillDataModel(penSaksnummer = somePenSaksnr, bruker = PersonId(somePersonNr, "dummy"), avdod = null)
+        val prefillData = PrefillDataModelMother.initialPrefillDataModel("P2000", pinId = somePersonNr, penSaksnummer = somePenSaksnr)
 
         doReturn(person)
                 .whenever(mockTpsPersonService)
                 .hentBruker(somePersonNr)
+
 
         val personData = PersonData(forsikretPerson = person, ektefelleBruker = null, ekteTypeValue = "", gjenlevendeEllerAvdod = person, barnBrukereFraTPS = listOf())
 
@@ -311,7 +305,7 @@ class PrefillNavTest {
     @Test
     fun `minimal prefill med brukerinfo på request`() {
         val brukerensPin = "somePersonNr"
-        val prefillData = PrefillDataModel(penSaksnummer = somePenSaksnr, bruker = PersonId(brukerensPin, "dummy"), avdod = null).apply {
+        val prefillData = PrefillDataModelMother.initialPrefillDataModel("P2000", pinId = brukerensPin, penSaksnummer = somePenSaksnr).apply {
             partSedAsJson["PersonInfo"] = mapAnyToJson(
                     BrukerInformasjon(
                             null,
@@ -340,9 +334,7 @@ class PrefillNavTest {
         doReturn("NO").whenever(kodeverkClient).finnLandkode2("NOR")
 
         val personData = PersonData(forsikretPerson = brukeren, ektefelleBruker = null, ekteTypeValue = "", gjenlevendeEllerAvdod = brukeren, barnBrukereFraTPS = listOf())
-
         val actual = prefillNav.prefill(penSaksnummer = prefillData.penSaksnummer, bruker = prefillData.bruker, avdod = prefillData.avdod, personData = personData, brukerInformasjon = prefillData.getPersonInfoFromRequestData())
-
         val expected = Nav(
                 eessisak = listOf(EessisakItem(institusjonsid = someInstitutionId, institusjonsnavn = someIntitutionNavn, saksnummer = somePenSaksnr, land = "NO")),
                 bruker = Bruker(person = lagPerson(brukerensPin, "Ole", "Brum", null, someInstitutionId, someIntitutionNavn),

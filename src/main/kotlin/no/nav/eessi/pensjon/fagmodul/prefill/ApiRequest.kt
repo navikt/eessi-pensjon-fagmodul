@@ -68,7 +68,7 @@ data class ApiRequest(
         private val logger = LoggerFactory.getLogger(ApiRequest::class.java)
 
         //validatate request and convert to PrefillDataModel
-        fun buildPrefillDataModelOnExisting(request: ApiRequest, fodselsnr: String, avdodaktoerID: String?): PrefillDataModel {
+        fun buildPrefillDataModelOnExisting(request: ApiRequest, fodselsnr: String, avdodaktoerID: String? = null): PrefillDataModel {
             return when {
                 request.buc == null -> throw MangelfulleInndataException("Mangler BUC")
                 request.sed == null -> throw MangelfulleInndataException("Mangler SED")
@@ -79,15 +79,21 @@ data class ApiRequest(
                 SEDType.isValidSEDType(request.sed) -> {
                     logger.info("ALL SED on existing Rina -> SED: ${request.sed} -> euxCaseId: ${request.euxCaseId} -> sakNr: ${request.sakId} ")
                     val avdod: PersonId? = populerAvdodHvisGjenlevendePensjonSak(request, avdodaktoerID)
-                    PrefillDataModel(penSaksnummer = request.sakId, bruker = PersonId(fodselsnr, request.aktoerId),avdod = avdod).apply {
-                        sed = SED(request.sed)
-                        buc = request.buc
-                        euxCaseID = request.euxCaseId
-                        institution = request.institutions
-                        vedtakId = request.vedtakId ?: ""
-                        kravDato = request.kravDato
+                    PrefillDataModel(
+                            penSaksnummer = request.sakId,
+                            bruker = PersonId(fodselsnr, request.aktoerId),
+                            avdod = avdod,
+                            sedType = request.sed,
+                            buc = request.buc,
+                            sed = SED(request.sed),
+                            euxCaseID = request.euxCaseId,
+                            institution = request.institutions,
+                            refTilPerson = request.referanseTilPerson,
+                            vedtakId = request.vedtakId,
+                            kravDato = request.kravDato,
+                            kravId = request.kravId
+                          ).apply {
                         partSedAsJson[request.sed] = request.payload ?: "{}"
-                        refTilPerson = request.referanseTilPerson
                     }
                 }
                 else -> {
@@ -123,13 +129,21 @@ data class ApiRequest(
 
                 SEDType.isValidSEDType(request.sed) -> {
                     val avdod: PersonId? = populerAvdodHvisGjenlevendePensjonSak(request, avdodaktoerID)
-                    PrefillDataModel(penSaksnummer = request.sakId, bruker = PersonId(fodselsnr, request.aktoerId), avdod = avdod).apply {
-                        sed = SED(request.sed)
-                        buc = request.buc
-                        vedtakId = request.vedtakId ?: ""
-                        kravDato = request.kravDato
+                    PrefillDataModel(
+                            penSaksnummer = request.sakId,
+                            bruker = PersonId(fodselsnr, request.aktoerId),
+                            avdod = avdod,
+                            sedType = request.sed,
+                            buc = request.buc,
+                            sed = SED(request.sed),
+                            euxCaseID = request.euxCaseId ?: "",
+                            institution = request.institutions ?: emptyList(),
+                            refTilPerson = request.referanseTilPerson,
+                            vedtakId = request.vedtakId,
+                            kravDato = request.kravDato,
+                            kravId = request.kravId
+                    ).apply {
                         partSedAsJson[request.sed] = request.payload ?: "{}"
-                        refTilPerson = request.referanseTilPerson
                     }
                 }
                 else -> {
