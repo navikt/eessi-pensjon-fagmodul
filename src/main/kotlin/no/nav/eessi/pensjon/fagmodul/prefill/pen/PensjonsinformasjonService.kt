@@ -73,9 +73,6 @@ class PensjonsinformasjonService(private val pensjonsinformasjonClient: Pensjons
         }
 
     fun hentVedtak(vedtakId: String): Pensjonsinformasjon {
-//        val vedtakId = prefillData.vedtakId
-//        if (vedtakId?.isBlank()) throw ManglendeVedtakIdException("Mangler vedtakID")
-
         logger.debug("----------------------------------------------------------")
         val starttime = System.nanoTime()
 

@@ -12,7 +12,6 @@ import no.nav.eessi.pensjon.fagmodul.prefill.tps.FodselsnummerMother.generateRan
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.NavFodselsnummer
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.PrefillAdresse
 import no.nav.eessi.pensjon.personoppslag.aktoerregister.AktoerregisterService
-import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
@@ -59,11 +58,6 @@ class PrefillP9000GLmedUtlandInnvTest {
     @Test
     fun `forventet korrekt utfylt P9000 med mockdata fra testfiler`() {
         val p9000 = prefillSEDService.prefill(prefillData)
-
-        println("-----------------------------------------------------------")
-        println(p9000?.nav?.bruker?.person?.toJsonSkipEmpty())
-        println(p9000?.pensjon?.gjenlevende?.person?.toJsonSkipEmpty())
-        println("-----------------------------------------------------------")
 
         assertEquals("BAMSE LUR", p9000.nav?.bruker?.person?.fornavn)
         assertEquals("MOMBALO", p9000.nav?.bruker?.person?.etternavn)

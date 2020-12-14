@@ -102,9 +102,9 @@ class SedController(private val euxService: EuxService,
         //Hente metadata for valgt BUC
         val bucUtil = AddInstutionAndDocumentBucUtils.measure{
             logger.info("******* Hent BUC sjekk om sed kan opprettes *******")
-            val bucUtil =  BucUtils(euxService.getBuc(dataModel.euxCaseID))
-            bucUtil.checkIfSedCanBeCreated(dataModel.sedType)
-            return@measure bucUtil
+            BucUtils(euxService.getBuc(dataModel.euxCaseID)).also { bucUtil ->
+                bucUtil.checkIfSedCanBeCreated(dataModel.sedType)
+            }
         }
 
         //Preutfyll av SED, pensjon og personer samt oppdatering av versjon
@@ -142,13 +142,13 @@ class SedController(private val euxService: EuxService,
 
     fun fetchBucAgainBeforeReturnShortDocument(bucType: String, bucSedResponse: BucSedResponse, orginal: ShortDocumentItem?): ShortDocumentItem? {
         return if(bucType == "P_BUC_06") {
-            logger.info("Henter buc på nytt for buctype: $bucType")
+            logger.info("Henter BUC på nytt for buctype: $bucType")
             val buc = euxService.getBuc(bucSedResponse.caseId)
             val bucUtil = BucUtils(buc)
             logger.debug("Leter etter shortDocument med documentID: ${bucSedResponse.documentId}")
             bucUtil.findDocument(bucSedResponse.documentId)
         } else {
-            logger.debug("return orginal shortDocument fra første buc")
+            logger.debug("Return orginal shortDocument fra første buc")
             orginal
         }
     }
