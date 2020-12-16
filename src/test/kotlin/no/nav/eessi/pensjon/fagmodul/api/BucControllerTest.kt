@@ -1,6 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.doCallRealMethod
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.doThrow
 import com.nhaarman.mockitokotlin2.eq
@@ -43,6 +44,7 @@ import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Spy
 import org.mockito.junit.jupiter.MockitoExtension
+import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.web.client.HttpClientErrorException
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -66,12 +68,15 @@ class BucControllerTest {
     lateinit var mockPensjonClient: PensjonsinformasjonClient
 
     @Mock
+    lateinit var kafkaTemplate: KafkaTemplate<String, String>
+
     lateinit var statistikkHandler: StatistikkHandler
 
     private lateinit var bucController: BucController
 
     @BeforeEach
     fun before() {
+        statistikkHandler = StatistikkHandler("", kafkaTemplate, "")
         bucController = BucController("default", mockEuxService, mockAktoerIdHelper, auditLogger, mockPensjonClient, statistikkHandler)
         bucController.initMetrics()
     }
@@ -372,7 +377,7 @@ class BucControllerTest {
 
         bucController.createBuc("P_BUC_03")
 
-        verify(statistikkHandler, times(0)).produserBucOpprettetHendelse(any(), eq(null))
+        verify(kafkaTemplate, times(0)).sendDefault(any(), any())
     }
 
 }
