@@ -1,10 +1,8 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
 import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.doCallRealMethod
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.doThrow
-import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
@@ -371,7 +369,6 @@ class BucControllerTest {
         val gyldigBuc = String(Files.readAllBytes(Paths.get("src/test/resources/json/buc/buc-279020big.json")))
         val buc : Buc =  mapJsonToAny(gyldigBuc, typeRefs())
 
-        doReturn("q2").whenever(statistikkHandler).nameSpace
         doReturn("1231231").whenever(mockEuxService).createBuc("P_BUC_03")
         doReturn(buc).whenever(mockEuxService).getBuc(any())
 
