@@ -8,7 +8,8 @@ import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Service
 
 @Service
-class StatistikkHandler(private val kafkaTemplate: KafkaTemplate<String, String>,
+class StatistikkHandler(@Value("\${NAIS_NAMESPACE}") val nameSpace : String,
+                        private val kafkaTemplate: KafkaTemplate<String, String>,
                         @Value("\${kafka.statistikk.topic}") private val statistikkTopic: String) {
 
     private val logger = LoggerFactory.getLogger(StatistikkHandler::class.java)
@@ -34,14 +35,16 @@ class StatistikkHandler(private val kafkaTemplate: KafkaTemplate<String, String>
     }
 
     private fun produserKafkaMelding(melding: StatistikkMelding) {
-        kafkaTemplate.defaultTopic = statistikkTopic
+        if(nameSpace == "q2") {
+            kafkaTemplate.defaultTopic = statistikkTopic
 
-        val key = populerMDC()
+            val key = populerMDC()
 
-        val payload = melding.toJson()
+            val payload = melding.toJson()
 
-        logger.info("Oppretter statistikk melding på kafka: ${kafkaTemplate.defaultTopic}  melding: $melding")
-        kafkaTemplate.sendDefault(key, payload).get()
+            logger.info("Oppretter statistikk melding på kafka: ${kafkaTemplate.defaultTopic}  melding: $melding")
+            kafkaTemplate.sendDefault(key, payload).get()
+        }
     }
 
     fun populerMDC() = MDC.get(X_REQUEST_ID)

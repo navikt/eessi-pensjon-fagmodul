@@ -70,8 +70,6 @@ class BucControllerTest {
 
     private lateinit var bucController: BucController
 
-
-
     @BeforeEach
     fun before() {
         bucController = BucController("default", mockEuxService, mockAktoerIdHelper, auditLogger, mockPensjonClient, statistikkHandler)
@@ -368,6 +366,7 @@ class BucControllerTest {
         val gyldigBuc = String(Files.readAllBytes(Paths.get("src/test/resources/json/buc/buc-279020big.json")))
         val buc : Buc =  mapJsonToAny(gyldigBuc, typeRefs())
 
+        doReturn("q2").whenever(statistikkHandler).nameSpace
         doReturn("1231231").whenever(mockEuxService).createBuc("P_BUC_03")
         doReturn(buc).whenever(mockEuxService).getBuc(any())
 

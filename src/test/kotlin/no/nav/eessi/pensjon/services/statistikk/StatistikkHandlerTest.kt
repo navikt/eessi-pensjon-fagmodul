@@ -31,7 +31,7 @@ class StatistikkHandlerTest{
     fun setup(){
         val key = "key"
 
-        statHandler = spy(StatistikkHandler(template, "eessi-pensjon-statistikk"))
+        statHandler = spy(StatistikkHandler("q2", template, "eessi-pensjon-statistikk"))
         doReturn(key).`when`(statHandler).populerMDC()
     }
 
