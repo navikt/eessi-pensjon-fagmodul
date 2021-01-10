@@ -14,14 +14,14 @@ import no.nav.eessi.pensjon.fagmodul.prefill.model.ReferanseTilPerson
 import no.nav.eessi.pensjon.fagmodul.prefill.pen.PensjonsinformasjonService
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillNav
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillSed
-import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.EPSaktype
-import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.KravArsak
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.FodselsnummerMother.generateRandomFnr
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.PrefillAdresse
 import no.nav.eessi.pensjon.personoppslag.aktoerregister.AktoerregisterService
 import no.nav.eessi.pensjon.personoppslag.personv3.PersonV3Service
 import no.nav.eessi.pensjon.services.geo.PostnummerService
 import no.nav.eessi.pensjon.services.kodeverk.KodeverkClient
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.EPSaktype
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.KravArsak
 import no.nav.eessi.pensjon.utils.convertToXMLocal
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import no.nav.pensjon.v1.kravhistorikk.V1KravHistorikk

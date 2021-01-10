@@ -10,6 +10,7 @@ import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjoninformasjonValid
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.utils.errorBody
 import no.nav.eessi.pensjon.utils.mapAnyToJson
+import no.nav.eessi.pensjon.utils.simpleFormat
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -62,6 +63,35 @@ class PensjonController(private val pensjonsinformasjonClient: Pensjonsinformasj
             }
         }
     }
+
+    @ApiOperation("Henter ut kravdato når det eksisterer et vedtak")
+    @GetMapping("/kravdato/{vedtaksId}/vedtak")
+    fun hentKravDatoFraVedtak(@PathVariable("vedtaksId", required = true) vedtaksId: String) : Any? {
+        return PensjonControllerValidateSak.measure {
+            try {
+                val pensjonSak = pensjonsinformasjonClient.hentAltPaaVedtak(vedtaksId = vedtaksId)
+                pensjonSak.vedtak?.virkningstidspunkt?.simpleFormat()
+
+            } catch (e: Exception) {
+                logger.warn("Feil ved henting av kravdato på vedtaksId: ${vedtaksId}")
+                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorBody(e.message!!))
+            }
+        }
+    }
+
+    @ApiOperation("Henter ut kravdato der det ikke eksisterer et vedtak")
+    @GetMapping("/kravdato/{sakid}/{aktoer}")
+    fun hentKravDato(@PathVariable("aktoerId", required = true) aktoerId: String, @PathVariable("sakId", required = true) sakId: String) : Any? {
+        return PensjonControllerValidateSak.measure {
+            try {
+                pensjonsinformasjonClient.hentKravDato(aktoerId, sakId)
+            } catch (e: Exception) {
+                logger.warn("Feil ved henting av kravdato på saksid: ${sakId}")
+                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorBody(e.message!!))
+            }
+        }
+    }
+
 
     @ApiOperation("Henter ut en liste over alle saker på valgt aktoerId")
     @GetMapping("/validate/{aktoerId}/sakId/{sakId}/buctype/{buctype}")

@@ -58,7 +58,7 @@ class PrefillP2000(private val prefillNav: PrefillNav)  {
             //hvis feiler lar vi SB få en SED i RINA
         }
 
-        KravHistorikkHelper.settKravdato(sed)
+        PrefillP2xxxPensjon.settKravdato(sed)
 
         logger.debug("-------------------| Preutfylling [$sedType] END |------------------- ")
         validate(prefillData)

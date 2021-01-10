@@ -1,5 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.sed.krav
 
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.KravArsak
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.KravHistorikkHelper
 import no.nav.pensjon.v1.kravhistorikk.V1KravHistorikk
 import no.nav.pensjon.v1.kravhistorikkliste.V1KravHistorikkListe
 import org.junit.jupiter.api.Test
