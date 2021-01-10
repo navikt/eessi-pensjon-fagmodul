@@ -1,4 +1,4 @@
-package no.nav.eessi.pensjon.fagmodul.prefill.sed.krav
+package no.nav.eessi.pensjon.services.pensjonsinformasjon
 
 enum class Kravtype {
     REVURD,

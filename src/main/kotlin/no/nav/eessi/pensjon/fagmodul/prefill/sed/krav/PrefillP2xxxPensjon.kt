@@ -1,21 +1,24 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.sed.krav
 
 import no.nav.eessi.pensjon.fagmodul.models.SEDType
-import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.KravHistorikkHelper.createKravDato
-import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.KravHistorikkHelper.finnKravHistorikk
-import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.KravHistorikkHelper.hentKravHistorikkForsteGangsBehandlingUtlandEllerForsteGang
-import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.KravHistorikkHelper.hentKravHistorikkMedKravStatusAvslag
-import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.KravHistorikkHelper.hentKravHistorikkMedKravStatusTilBehandling
-import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.KravHistorikkHelper.hentKravhistorikkForGjenlevende
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.NavFodselsnummer
 import no.nav.eessi.pensjon.fagmodul.sedmodel.AndreinstitusjonerItem
 import no.nav.eessi.pensjon.fagmodul.sedmodel.BeloepItem
 import no.nav.eessi.pensjon.fagmodul.sedmodel.Bruker
 import no.nav.eessi.pensjon.fagmodul.sedmodel.Institusjon
+import no.nav.eessi.pensjon.fagmodul.sedmodel.Krav
 import no.nav.eessi.pensjon.fagmodul.sedmodel.MeldingOmPensjon
 import no.nav.eessi.pensjon.fagmodul.sedmodel.Pensjon
 import no.nav.eessi.pensjon.fagmodul.sedmodel.PinItem
+import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
 import no.nav.eessi.pensjon.fagmodul.sedmodel.YtelserItem
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.EPSaktype
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.KravHistorikkHelper.finnKravHistorikk
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.KravHistorikkHelper.hentKravHistorikkForsteGangsBehandlingUtlandEllerForsteGang
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.KravHistorikkHelper.hentKravHistorikkMedKravStatusAvslag
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.KravHistorikkHelper.hentKravHistorikkMedKravStatusTilBehandling
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.KravHistorikkHelper.hentKravhistorikkForGjenlevende
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.Kravstatus
 import no.nav.eessi.pensjon.utils.simpleFormat
 import no.nav.pensjon.v1.kravhistorikk.V1KravHistorikk
 import no.nav.pensjon.v1.sak.V1Sak
@@ -34,6 +37,38 @@ val kravdatoMeldingOmP2100TilSaksbehandler = "Kravdato fra det opprinnelige vedt
  */
 object PrefillP2xxxPensjon {
     private val logger: Logger by lazy { LoggerFactory.getLogger(PrefillP2xxxPensjon::class.java) }
+
+
+    /**
+     * 9.1- 9.2
+     *
+     *  Fra PSAK, kravdato på alderspensjonskravet
+     *  Fra PSELV eller manuell kravblankett:
+     *  Fyller ut fra hvilket tidspunkt bruker ønsker å motta pensjon fra Norge.
+     *  Det er et spørsmål i søknadsdialogen og på manuell kravblankett. Det er ikke nødvendigvis lik virkningstidspunktet på pensjonen.
+     */
+    fun createKravDato(valgtKrav: V1KravHistorikk, message: String? = ""): Krav? {
+        logger.debug("9.1        Dato Krav (med korrekt data fra PESYS krav.virkningstidspunkt)")
+        logger.debug("KravType   :  ${valgtKrav.kravType}")
+        logger.debug("mottattDato:  ${valgtKrav.mottattDato}")
+        logger.debug("--------------------------------------------------------------")
+
+        logger.debug("Prøver å sette kravDato til Virkningstidpunkt: ${valgtKrav.kravType} og dato: ${valgtKrav.mottattDato}")
+        logger.debug("sakstatus: $message")
+        return Krav(dato = valgtKrav.mottattDato?.simpleFormat()
+        )
+    }
+
+    /**
+     *  9.1
+     *
+     *  Setter kravdato på sed (denne kommer fra PESYS men opprettes i nav?!)
+     */
+    fun settKravdato(sed: SED) {
+        logger.debug("Kjører settKravdato")
+        logger.debug("9.1     legger til nav kravdato fra pensjon kravdato : ${sed.pensjon?.kravDato} ")
+        sed.nav?.krav = sed.pensjon?.kravDato
+    }
 
     /**
      *

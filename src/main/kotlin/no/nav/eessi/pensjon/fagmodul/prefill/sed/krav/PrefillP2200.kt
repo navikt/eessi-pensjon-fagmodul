@@ -57,7 +57,7 @@ class PrefillP2200(private val prefillNav: PrefillNav) {
             // TODO Should we really swallow this?
         }
 
-        KravHistorikkHelper.settKravdato(sed)
+        PrefillP2xxxPensjon.settKravdato(sed)
 
         logger.debug("-------------------| Preutfylling [$sedType] END |------------------- ")
         return prefillData.sed

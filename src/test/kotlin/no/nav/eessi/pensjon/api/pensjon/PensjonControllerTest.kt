@@ -1,5 +1,6 @@
 package no.nav.eessi.pensjon.api.pensjon
 
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
@@ -14,12 +15,14 @@ import no.nav.eessi.pensjon.utils.toJson
 import no.nav.pensjon.v1.brukerssakerliste.V1BrukersSakerListe
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
 import no.nav.pensjon.v1.sak.V1Sak
+import no.nav.pensjon.v1.vedtak.V1Vedtak
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.http.HttpStatus
+import javax.xml.datatype.DatatypeFactory
 
 @ExtendWith(MockitoExtension::class)
 class PensjonControllerTest {
@@ -139,4 +142,29 @@ class PensjonControllerTest {
 
     }
 
+    @Test
+    fun `hentKravDatoFraVedtak  skal hente dato fra vedtaket `() {
+        val localDate = "2020-01-01"
+
+        val pendata = Pensjonsinformasjon().apply {
+            vedtak = V1Vedtak().apply {
+                virkningstidspunkt=  DatatypeFactory.newInstance().newXMLGregorianCalendar(localDate);
+            }
+        }
+
+        whenever(pensjonsinformasjonClient.hentAltPaaVedtak(any())).doReturn(pendata)
+
+        val kravDato = controller.hentKravDatoFraVedtak("anyThingWillDo")
+        assertEquals(localDate, kravDato)
+    }
+
+
+    @Test
+    fun `hentKravDato skal gi en data hentet fra aktorid og vedtaksid `() {
+        val localDate = "2020-01-01"
+        whenever(pensjonsinformasjonClient.hentKravDato(any(), any())).doReturn(localDate)
+
+        val kravDato = controller.hentKravDato("123", "123")
+        assertEquals(localDate, kravDato)
+    }
 }

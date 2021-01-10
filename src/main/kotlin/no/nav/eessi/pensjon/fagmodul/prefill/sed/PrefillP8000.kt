@@ -5,8 +5,6 @@ import no.nav.eessi.pensjon.fagmodul.prefill.model.PersonData
 import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModel
 import no.nav.eessi.pensjon.fagmodul.prefill.model.ReferanseTilPerson
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillSed
-import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.EPSaktype
-import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.KravHistorikkHelper.hentKravhistorikkForGjenlevende
 import no.nav.eessi.pensjon.fagmodul.sedmodel.Adresse
 import no.nav.eessi.pensjon.fagmodul.sedmodel.AnmodningOmTilleggsInfo
 import no.nav.eessi.pensjon.fagmodul.sedmodel.Bruker
@@ -16,6 +14,8 @@ import no.nav.eessi.pensjon.fagmodul.sedmodel.Pensjon
 import no.nav.eessi.pensjon.fagmodul.sedmodel.Person
 import no.nav.eessi.pensjon.fagmodul.sedmodel.PinItem
 import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.EPSaktype
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.KravHistorikkHelper.hentKravhistorikkForGjenlevende
 import no.nav.pensjon.v1.sak.V1Sak
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

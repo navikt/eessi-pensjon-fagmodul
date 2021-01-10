@@ -220,4 +220,13 @@ class PensjonsinformasjonClientTest {
         }
     }
 
+    @Test
+    fun `hentKravDato henter dato fra brukersSakerListe `() {
+        val aktoerId = "any" // 13 sifre
+
+        val mockResponseEntity = createResponseEntityFromJsonFile("classpath:pensjonsinformasjon/krav/KravAlderEllerUfore_AP_UTLAND.xml")
+        whenever(mockrestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), ArgumentMatchers.eq(String::class.java))).thenReturn(mockResponseEntity)
+        assertEquals(pensjonsinformasjonClient.hentKravDato(aktoerId, "21975717"), "2015-06-16")
+    }
+
 }
