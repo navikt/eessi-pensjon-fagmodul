@@ -7,8 +7,6 @@ import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModel
 import no.nav.eessi.pensjon.fagmodul.prefill.pen.PensjonsinformasjonService
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillNav
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillSed
-import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.EPSaktype.ALDER
-import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.EPSaktype.UFOREP
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.PrefillP2000
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.PrefillP2100
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.PrefillP2200
@@ -19,7 +17,8 @@ import no.nav.eessi.pensjon.personoppslag.aktoerregister.AktoerregisterService
 import no.nav.eessi.pensjon.personoppslag.aktoerregister.IdentGruppe
 import no.nav.eessi.pensjon.personoppslag.aktoerregister.NorskIdent
 import no.nav.eessi.pensjon.personoppslag.personv3.PersonV3Service
-import no.nav.eessi.pensjon.utils.toJson
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.EPSaktype.ALDER
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.EPSaktype.UFOREP
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
 import no.nav.pensjon.v1.vedtak.V1Vedtak
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Bruker

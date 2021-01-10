@@ -8,9 +8,9 @@ import no.nav.eessi.pensjon.fagmodul.prefill.person.MockTpsPersonServiceFactory
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillNav
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillSed
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillTestHelper.setupPersondataFraTPS
-import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.EPSaktype
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.FodselsnummerMother.generateRandomFnr
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.NavFodselsnummer
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.EPSaktype
 import no.nav.pensjon.v1.kravhistorikkliste.V1KravHistorikkListe
 import no.nav.pensjon.v1.sak.V1Sak
 import org.junit.jupiter.api.Assertions.assertEquals

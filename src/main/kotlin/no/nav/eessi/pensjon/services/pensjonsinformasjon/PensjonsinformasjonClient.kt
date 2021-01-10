@@ -4,6 +4,7 @@ package no.nav.eessi.pensjon.services.pensjonsinformasjon
 import com.google.common.base.Preconditions
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import no.nav.eessi.pensjon.metrics.MetricsHelper
+import no.nav.eessi.pensjon.utils.simpleFormat
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
 import no.nav.pensjon.v1.sak.V1Sak
 import org.slf4j.LoggerFactory
@@ -91,6 +92,8 @@ class PensjonsinformasjonClient(
         }
     }
 
+
+
     @Throws(PensjoninformasjonException::class, HttpServerErrorException::class, HttpClientErrorException::class)
     fun hentAltPaaVedtak(vedtaksId: String): Pensjonsinformasjon {
 
@@ -105,6 +108,29 @@ class PensjonsinformasjonClient(
         }
     }
 
+
+    fun hentKravDato(aktorId: String, sakId: String) : Any? {
+        val pendata = hentAltPaaAktoerId(aktorId)
+        if (pendata.brukersSakerListe == null) {
+            logger.warn("Ingen gyldig brukerSakerListe funnet")
+            throw PensjoninformasjonException("Ingen gyldig brukerSakerListe, mangler data fra pesys")
+        }
+
+        val sak = finnSak(sakId, pendata)
+
+        val v1KravHistorikk = KravHistorikkHelper.hentKravhistorikkForGjenlevende(sak.kravHistorikkListe)
+            ?: when (sak.status) {
+                Kravstatus.TIL_BEHANDLING.name -> KravHistorikkHelper.hentKravHistorikkMedKravStatusTilBehandling(
+                    sak.kravHistorikkListe
+                )
+                Kravstatus.AVSL.name -> KravHistorikkHelper.hentKravHistorikkMedKravStatusAvslag(sak.kravHistorikkListe)
+                else -> KravHistorikkHelper.hentKravHistorikkForsteGangsBehandlingUtlandEllerForsteGang(
+                    sak.kravHistorikkListe,
+                    sak.sakType
+                )
+            }
+        return v1KravHistorikk.mottattDato?.simpleFormat()
+    }
 
     //transform xmlString til Pensjoninformasjon object
     fun transform(xmlString: String) : Pensjonsinformasjon {
