@@ -61,10 +61,8 @@ class PensjonsinformasjonClient(
     @Throws(IkkeFunnetException::class)
     fun hentKunSakType(sakId: String, aktoerid: String): Pensjontype {
         return pensjoninformasjonHentKunSakType.measure {
-            val sak = finnSak(sakId, hentAltPaaAktoerId(aktoerid))
-            if(sak != null) {
-                return@measure Pensjontype(sakId, sak.sakType)
-            } else throw IkkeFunnetException("Saktype for $sakId ikke funnet")
+            val sak = finnSak(sakId, hentAltPaaAktoerId(aktoerid)) ?: throw IkkeFunnetException("Saktype for $sakId ikke funnet")
+            Pensjontype(sakId, sak.sakType)
         }
     }
 
