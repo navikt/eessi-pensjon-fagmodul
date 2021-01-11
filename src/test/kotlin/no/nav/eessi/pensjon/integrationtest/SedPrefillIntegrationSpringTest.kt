@@ -955,13 +955,13 @@ class SedPrefillIntegrationSpringTest {
         doReturn(PrefillTestHelper.readXMLresponse("P2000-AP-KUNUTL-IKKEVIRKNINGTID.xml")).`when`(restTemplate).exchange(any<String>(), any(), any<HttpEntity<Unit>>(), ArgumentMatchers.eq(String::class.java))
 
         val apijson = dummyApijson(sakid = "1232123123", aktoerId = "0105094340092")
-        val expectedError = """Dersom kravet gjelder "Førstegangsbehandling kun utland" eller "Utsendelse til avtaleland", se egen rutine på Navet.""".trimIndent()
+        val expectedError = """Kan ikke opprette krav-SED: P2000 da vedtak og førstegangsbehandling utland mangler. Dersom det gjelder utsendelse til avtaleland, se egen rutine for utsendelse av SED på Navet.""".trimIndent()
 
         mockMvc.perform(post("/sed/prefill")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(apijson))
                 .andDo(print())
-                .andExpect(status().isNotFound)
+                .andExpect(status().isBadRequest)
                 .andExpect(status().reason(Matchers.containsString(expectedError)))
 
     }
@@ -1044,7 +1044,7 @@ class SedPrefillIntegrationSpringTest {
                 .content(apijson))
                 .andDo(print())
                 .andExpect(status().isBadRequest)
-                .andExpect(status().reason(Matchers.containsString("Du kan ikke opprette krav-SED P2000 fra brukerkontekst. Dersom det gjelder Utsendelse til avtaleland, se egen rutine for utsendelse av SED på Navet.")))
+                .andExpect(status().reason(Matchers.containsString("Kan ikke opprette krav-SED: P2000 da vedtak og førstegangsbehandling utland mangler. Dersom det gjelder utsendelse til avtaleland, se egen rutine for utsendelse av SED på Navet.")))
     }
 
 

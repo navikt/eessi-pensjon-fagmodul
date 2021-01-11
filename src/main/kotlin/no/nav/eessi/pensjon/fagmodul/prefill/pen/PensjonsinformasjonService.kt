@@ -23,7 +23,7 @@ class PensjonsinformasjonService(private val pensjonsinformasjonClient: Pensjons
 
     companion object {
         //hjelpe metode for å hente ut valgt V1SAK på vetak/SAK fnr og sakid benyttes
-        fun finnSak(sakId: String, pendata: Pensjonsinformasjon): V1Sak {
+        fun finnSak(sakId: String, pendata: Pensjonsinformasjon): V1Sak? {
             if (sakId.isBlank()) throw ManglendeSakIdException("Mangler sakId")
             return PensjonsinformasjonClient.finnSak(sakId, pendata)
         }
@@ -93,7 +93,7 @@ class PensjonsinformasjonService(private val pensjonsinformasjonClient: Pensjons
         return pensjonsinformasjon
     }
 
-    fun hentRelevantPensjonSak(prefillData: PrefillDataModel, akseptabelSakstypeForSed: (String) -> Boolean): V1Sak {
+    fun hentRelevantPensjonSak(prefillData: PrefillDataModel, akseptabelSakstypeForSed: (String) -> Boolean): V1Sak? {
         val aktorId = prefillData.bruker.aktorId
         val penSaksnummer = prefillData.penSaksnummer
         val sedType = prefillData.getSEDType()
@@ -106,7 +106,7 @@ class PensjonsinformasjonService(private val pensjonsinformasjonClient: Pensjons
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Ingen pensjoninformasjon funnet")
 
         return peninfo.let {
-            val sak: V1Sak = finnSak(penSaksnummer, it)
+            val sak = finnSak(penSaksnummer, it) ?: return null
 
             if (!akseptabelSakstypeForSed(sak.sakType)) {
                 logger.warn("Du kan ikke opprette ${sedTypeAsText(sedType)} i en ${sakTypeAsText(sak.sakType)} (PESYS-saksnr: $penSaksnummer har sakstype ${sak.sakType})")

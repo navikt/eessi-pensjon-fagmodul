@@ -15,13 +15,13 @@ class PrefillP2100(private val prefillNav: PrefillNav) {
     private val logger: Logger by lazy { LoggerFactory.getLogger(PrefillP2100::class.java) }
 
 
-    fun prefill(prefillData: PrefillDataModel, personData: PersonData, sak: V1Sak): Pair<String?, SED> {
+    fun prefill(prefillData: PrefillDataModel, personData: PersonData, sak: V1Sak?): Pair<String?, SED> {
         require(prefillData.avdod != null ) { "avdod er påkrevet for p2100" }
 
         val sedType = prefillData.getSEDType()
 
         logger.debug("\n\n----------------------------------------------------------"
-                + "\nSaktype                : ${sak.sakType} "
+                + "\nSaktype                : ${sak?.sakType} "
                 + "\nSøker sakId            : ${prefillData.penSaksnummer} "
                 + "\nSøker avdodaktor       : ${prefillData.avdod.aktorId} "
                 + "\nerGyldigEtterlatt      : ${prefillData.avdod.aktorId.isNotEmpty()} "

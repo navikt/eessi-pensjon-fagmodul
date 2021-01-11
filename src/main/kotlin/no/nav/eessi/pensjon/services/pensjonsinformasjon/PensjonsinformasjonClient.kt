@@ -35,14 +35,11 @@ class PensjonsinformasjonClient(
     companion object {
         private val logger = LoggerFactory.getLogger(PensjonsinformasjonClient::class.java)
 
-        fun finnSak(sakId: String, pendata: Pensjonsinformasjon): V1Sak {
+        fun finnSak(sakId: String, pendata: Pensjonsinformasjon): V1Sak? {
             logger.info("Søker brukersSakerListe etter sakId: $sakId")
             val v1saklist = pendata.brukersSakerListe.brukersSakerListe
-            return v1saklist.firstOrNull { sak -> "${sak.sakId}" == sakId  } ?: run {
-                val warning = """Dersom kravet gjelder "Førstegangsbehandling kun utland" eller "Utsendelse til avtaleland", se egen rutine på Navet."""
-                logger.warn("Finner ingen sak på sakId: $sakId.\n$warning")
-                throw IngenSakFunnetException(warning)
-            }
+
+            return v1saklist.firstOrNull { sak -> "${sak.sakId}" == sakId  }
         }
     }
 
@@ -64,13 +61,10 @@ class PensjonsinformasjonClient(
     @Throws(IkkeFunnetException::class)
     fun hentKunSakType(sakId: String, aktoerid: String): Pensjontype {
         return pensjoninformasjonHentKunSakType.measure {
-            return@measure try {
-                val sak = finnSak(sakId, hentAltPaaAktoerId(aktoerid))
-                Pensjontype(sakId, sak.sakType)
-            } catch (ex: Exception) {
-                logger.warn("Saktype ikke funnet, mangler kravhode, ${ex.message}", ex)
-                throw IkkeFunnetException("Saktype ikke funnet")
-            }
+            val sak = finnSak(sakId, hentAltPaaAktoerId(aktoerid))
+            if(sak != null) {
+                return@measure Pensjontype(sakId, sak.sakType)
+            } else throw IkkeFunnetException("Saktype for $sakId ikke funnet")
         }
     }
 
@@ -109,14 +103,14 @@ class PensjonsinformasjonClient(
     }
 
 
-    fun hentKravDato(aktorId: String, sakId: String) : Any? {
+    fun hentKravDato(aktorId: String, sakId: String) : String? {
         val pendata = hentAltPaaAktoerId(aktorId)
         if (pendata.brukersSakerListe == null) {
             logger.warn("Ingen gyldig brukerSakerListe funnet")
             throw PensjoninformasjonException("Ingen gyldig brukerSakerListe, mangler data fra pesys")
         }
 
-        val sak = finnSak(sakId, pendata)
+        val sak = finnSak(sakId, pendata) ?: return null
 
         val v1KravHistorikk = KravHistorikkHelper.hentKravhistorikkForGjenlevende(sak.kravHistorikkListe)
             ?: when (sak.status) {

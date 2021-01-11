@@ -19,11 +19,11 @@ class PrefillP2000(private val prefillNav: PrefillNav)  {
 
     private val logger: Logger by lazy { LoggerFactory.getLogger(PrefillP2000::class.java) }
 
-    fun prefill(prefillData: PrefillDataModel, personData: PersonData, sak: V1Sak, vedtak: V1Vedtak? = null): SED {
+    fun prefill(prefillData: PrefillDataModel, personData: PersonData, sak: V1Sak?, vedtak: V1Vedtak? = null): SED {
         val sedType = prefillData.getSEDType()
 
         logger.debug("----------------------------------------------------------"
-                + "\nSaktype                 : ${sak.sakType} "
+                + "\nSaktype                 : ${sak?.sakType} "
                 + "\nSøker etter SakId       : ${prefillData.penSaksnummer} "
                 + "\nSøker etter aktoerid    : ${prefillData.bruker.aktorId} "
                 + "\n------------------| Preutfylling [$sedType] START |------------------ ")

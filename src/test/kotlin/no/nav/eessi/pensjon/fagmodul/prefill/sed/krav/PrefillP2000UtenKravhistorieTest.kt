@@ -76,7 +76,7 @@ class PrefillP2000UtenKravhistorieTest {
         assertNotNull(PensjonsinformasjonService.finnSak(prefillData.penSaksnummer, pendata))
 
         assertNotNull(pendata.brukersSakerListe)
-        assertEquals("ALDER", PensjonsinformasjonService.finnSak(prefillData.penSaksnummer, pendata).sakType)
+        assertEquals("ALDER", PensjonsinformasjonService.finnSak(prefillData.penSaksnummer, pendata)?.sakType)
 
     }
 
@@ -88,7 +88,7 @@ class PrefillP2000UtenKravhistorieTest {
         val ex = assertThrows<Exception> {
             prefillSEDService.prefill(prefillData)
         }
-        assertEquals("400 BAD_REQUEST \"Du kan ikke opprette krav-SED P2000 fra brukerkontekst. Dersom det gjelder Utsendelse til avtaleland, se egen rutine for utsendelse av SED på Navet.\"", ex.message)
+        assertEquals("400 BAD_REQUEST \"Kan ikke opprette krav-SED: P2000 da vedtak og førstegangsbehandling utland mangler. Dersom det gjelder utsendelse til avtaleland, se egen rutine for utsendelse av SED på Navet.\"", ex.message)
     }
 
 

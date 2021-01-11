@@ -78,7 +78,6 @@ class PrefillErrorIntegrationTest {
         val vedtak = V1Vedtak()
         vedtak.isBoddArbeidetUtland = false
         vedtak.kravGjelder = "REVURD"
-        val peninfo = Pensjonsinformasjon()
         doReturn(vedtak).whenever(pensjoninformasjonservice).hentRelevantVedtakHvisFunnet("231231231")
 
         val apijson = dummyApijson(sakid = "1232123123", aktoerId = "0105094340092", vedtakid = "231231231", sed = "P2200",  buc = "P_BUC_03")

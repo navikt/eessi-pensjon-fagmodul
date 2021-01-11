@@ -61,12 +61,12 @@ class PrefillP2000MedIngendataTest {
     }
 
     @Test
-    fun `Preutfylling av P2000 med manglende brukersakliste i pensjoninformasjon`() {
+    fun `Gitt pensjonsinformasjon som mangler vedtak når preutfyller så stopp preutfylling med melding om vedtak mangler`() {
         try {
             prefillSEDService.prefill(prefillData)
         } catch (ex: ResponseStatusException) {
-            val errormsg = """Dersom kravet gjelder "Førstegangsbehandling kun utland" eller "Utsendelse til avtaleland", se egen rutine på Navet.""".trimIndent()
-            assertEquals("404 NOT_FOUND \"$errormsg\"", ex.message)
+            val errormsg = """Kan ikke opprette krav-SED: P2000 da vedtak og førstegangsbehandling utland mangler. Dersom det gjelder utsendelse til avtaleland, se egen rutine for utsendelse av SED på Navet.""".trimIndent()
+            assertEquals("400 BAD_REQUEST \"$errormsg\"", ex.message)
         }
     }
 

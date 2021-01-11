@@ -27,11 +27,11 @@ class PrefillP15000(private val prefillSed: PrefillSed) {
 
     private val logger: Logger by lazy { LoggerFactory.getLogger(PrefillP15000::class.java) }
 
-    fun prefill(prefillData: PrefillDataModel, personData: PersonData, sak: V1Sak, pensjonsinformasjon: Pensjonsinformasjon?): SED {
+    fun prefill(prefillData: PrefillDataModel, personData: PersonData, sak: V1Sak?, pensjonsinformasjon: Pensjonsinformasjon?): SED {
 
         val kravType = prefillData.kravType ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "For preutfylling av P15000 så kreves det kravtype")
         val penSaksnummer = prefillData.penSaksnummer
-        val sakType = sak.sakType
+        val sakType = sak?.sakType
         val gjenlevendeAktoerId = prefillData.bruker.aktorId
         val avdodFnr = prefillData.avdod?.norskIdent
 

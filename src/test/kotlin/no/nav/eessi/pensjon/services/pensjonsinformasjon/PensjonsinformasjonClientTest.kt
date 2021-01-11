@@ -167,19 +167,6 @@ class PensjonsinformasjonClientTest {
     }
 
     @Test
-    fun `hentPensjonSakType   mock response feil fra pesys execption kastet`() {
-        doThrow(ResourceAccessException("INTERNAL_SERVER_ERROR")).whenever(mockrestTemplate).exchange(
-                ArgumentMatchers.any(String::class.java),
-                ArgumentMatchers.any(HttpMethod::class.java),
-                ArgumentMatchers.any(HttpEntity::class.java),
-                ArgumentMatchers.eq(String::class.java))
-
-        assertThrows<IkkeFunnetException> {
-            pensjonsinformasjonClient.hentKunSakType("22580170", "12345678901")
-        }
-    }
-
-    @Test
     fun `transform en gyldig xmlString til Persjoninformasjon forventer et gyldig object`() {
         val listOfxml = listOf("vedtak/P6000-APUtland-301.xml","krav/AP_FORSTEG_BH.xml","vedtak/P6000-UF-Avslag.xml","empty-pensjon-response.xml")
 

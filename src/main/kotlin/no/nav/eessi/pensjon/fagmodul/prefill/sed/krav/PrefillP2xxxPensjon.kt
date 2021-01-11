@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
 
-val kravdatoMeldingOmP2100TilSaksbehandler = "Kravdato fra det opprinnelige vedtak med gjenlevenderett er angitt i SED P2100"
+const val kravdatoMeldingOmP2100TilSaksbehandler = "Kravdato fra det opprinnelige vedtak med gjenlevenderett er angitt i SED P2100"
 
 /**
  * Hjelpe klasse for sak som fyller ut NAV-SED-P2000 med pensjondata fra PESYS.
@@ -47,7 +47,7 @@ object PrefillP2xxxPensjon {
      *  Fyller ut fra hvilket tidspunkt bruker ønsker å motta pensjon fra Norge.
      *  Det er et spørsmål i søknadsdialogen og på manuell kravblankett. Det er ikke nødvendigvis lik virkningstidspunktet på pensjonen.
      */
-    fun createKravDato(valgtKrav: V1KravHistorikk, message: String? = ""): Krav? {
+    private fun createKravDato(valgtKrav: V1KravHistorikk, message: String? = ""): Krav {
         logger.debug("9.1        Dato Krav (med korrekt data fra PESYS krav.virkningstidspunkt)")
         logger.debug("KravType   :  ${valgtKrav.kravType}")
         logger.debug("mottattDato:  ${valgtKrav.mottattDato}")
@@ -90,29 +90,24 @@ object PrefillP2xxxPensjon {
      */
     fun createPensjon(personNr: String,
                       penSaksnummer: String,
-                      pensak: V1Sak,
+                      pensak: V1Sak?,
                       andreinstitusjonerItem: AndreinstitusjonerItem?,
                       gjenlevende: Bruker? = null,
                       kravId: String? = null): MeldingOmPensjon {
 
         logger.info("4.1           Informasjon om ytelser")
 
-        val saksStatusListe = listOf(Kravstatus.TIL_BEHANDLING.name, Kravstatus.AVSL.name)
         val ytelselist = mutableListOf<YtelserItem>()
 
         val v1KravHistorikk = finnKravHistorikkForDato(pensak)
-        val melding = opprettMeldingBasertPaaSaktype(v1KravHistorikk, kravId, pensak.sakType)
-        val krav = createKravDato(v1KravHistorikk, pensak.status)
+        val melding = opprettMeldingBasertPaaSaktype(v1KravHistorikk, kravId, pensak?.sakType)
+        val krav = createKravDato(v1KravHistorikk, pensak?.status)
 
         logger.debug("Krav (dato) = $krav")
 
-        when {
-            saksStatusListe.contains(pensak.status) && krav == null -> {
-                logger.info("forkortet ytelsebehandling status: ${pensak.status}")
-                ytelselist.add(opprettForkortetYtelsesItem(pensak, personNr, penSaksnummer, andreinstitusjonerItem))
-            }
-            pensak.ytelsePerMaanedListe == null -> {
-                logger.info("forkortet ytelsebehandling ved ytelsePerMaanedListe = null, status: ${pensak.status}")
+        when (pensak?.ytelsePerMaanedListe) {
+            null -> {
+                logger.info("forkortet ytelsebehandling ved ytelsePerMaanedListe = null, status: ${pensak?.status}")
                 ytelselist.add(opprettForkortetYtelsesItem(pensak, personNr, penSaksnummer, andreinstitusjonerItem))
             }
             else -> {
@@ -146,19 +141,19 @@ object PrefillP2xxxPensjon {
      * F_BH_MED_UTL     Førstegangsbehandling Norge/utland ikke finnes sakl vi avslutte
      *
      */
-    private fun validerGyldigKravtypeOgArsak(sak: V1Sak, sedType: String, vedtak: V1Vedtak?) {
+    private fun validerGyldigKravtypeOgArsak(sak: V1Sak?, sedType: String, vedtak: V1Vedtak?) {
         logger.info("start på validering av $sedType")
 
         validerGyldigKravtypeOgArsakFelles(sak , sedType)
 
-        val forsBehanBoUtlanTom = finnKravHistorikk("F_BH_BO_UTL", sak.kravHistorikkListe).isNullOrEmpty()
-        val forsBehanMedUtlanTom = finnKravHistorikk("F_BH_MED_UTL", sak.kravHistorikkListe).isNullOrEmpty()
+        val forsBehanBoUtlanTom = finnKravHistorikk("F_BH_BO_UTL", sak?.kravHistorikkListe).isNullOrEmpty()
+        val forsBehanMedUtlanTom = finnKravHistorikk("F_BH_MED_UTL", sak?.kravHistorikkListe).isNullOrEmpty()
         val vedtakErTom = (vedtak == null)
 
         if (forsBehanBoUtlanTom and forsBehanMedUtlanTom and vedtakErTom) {
             logger.debug("forsBehanBoUtlanTom: $forsBehanBoUtlanTom, forsBehanMedUtlanTom: $forsBehanMedUtlanTom")
-            logger.warn("Du kan ikke opprette krav-SED $sedType fra brukerkontekst. Dersom det gjelder Utsendelse til avtaleland, se egen rutine for utsendelse av SED på Navet.")
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Du kan ikke opprette krav-SED $sedType fra brukerkontekst. Dersom det gjelder Utsendelse til avtaleland, se egen rutine for utsendelse av SED på Navet.")
+            logger.warn("Kan ikke opprette krav-SED: $sedType da vedtak og førstegangsbehandling utland mangler. Dersom det gjelder utsendelse til avtaleland, se egen rutine for utsendelse av SED på Navet.")
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Kan ikke opprette krav-SED: $sedType da vedtak og førstegangsbehandling utland mangler. Dersom det gjelder utsendelse til avtaleland, se egen rutine for utsendelse av SED på Navet.")
         }
         if (vedtak != null && vedtak.isBoddArbeidetUtland == false) {
             logger.warn("Du kan ikke opprette krav-SED $sedType hvis ikke \"bodd/arbeidet i utlandet\" er krysset av")
@@ -167,7 +162,7 @@ object PrefillP2xxxPensjon {
         logger.info("avslutt på validering av $sedType, fortsetter med preutfylling")
     }
 
-    fun validerGyldigVedtakEllerKravtypeOgArsak(sak:V1Sak, sedType: String, vedtak: V1Vedtak?) {
+    fun validerGyldigVedtakEllerKravtypeOgArsak(sak:V1Sak?, sedType: String, vedtak: V1Vedtak?) {
 
         vedtak?.let {
             logger.info("Validering på vedtak bosatt utland ${it.isBoddArbeidetUtland}")
@@ -188,13 +183,13 @@ object PrefillP2xxxPensjon {
      * TILST_DOD       Dødsfall tilstøtende                 hvis ikke finnes ved
      *
      */
-    fun validerGyldigKravtypeOgArsakGjenlevnde(sak: V1Sak, sedType: String) {
+    fun validerGyldigKravtypeOgArsakGjenlevnde(sak: V1Sak?, sedType: String) {
         logger.info("Start på validering av $sedType")
         val validSaktype = listOf(EPSaktype.ALDER.name, EPSaktype.UFOREP.name)
 
         validerGyldigKravtypeOgArsakFelles(sak, sedType)
 
-        if (sedType == SEDType.P2100.name && (hentKravhistorikkForGjenlevende(sak.kravHistorikkListe) == null && validSaktype.contains(sak.sakType))  ) {
+        if (sedType == SEDType.P2100.name && (hentKravhistorikkForGjenlevende(sak?.kravHistorikkListe) == null && validSaktype.contains(sak?.sakType))  ) {
             logger.warn("Ikke korrkt kravårsak for P21000 (alder/uførep")
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ingen gyldig kravårsak funnet for ALDER eller UFØREP for utfylling av en krav SED P2100")
         }
@@ -202,27 +197,27 @@ object PrefillP2xxxPensjon {
     }
 
     //felles kode for validering av P2000, P2100 og P2200
-    private fun validerGyldigKravtypeOgArsakFelles(sak: V1Sak, sedType: String) {
-        val finnesKunUtland = finnKravHistorikk("F_BH_KUN_UTL", sak.kravHistorikkListe)
-        if (finnesKunUtland != null && finnesKunUtland.size == sak.kravHistorikkListe.kravHistorikkListe.size)  {
+    private fun validerGyldigKravtypeOgArsakFelles(sak: V1Sak?, sedType: String) {
+        val finnesKunUtland = finnKravHistorikk("F_BH_KUN_UTL", sak?.kravHistorikkListe)
+        if (finnesKunUtland != null && finnesKunUtland.size == sak?.kravHistorikkListe?.kravHistorikkListe?.size)  {
             logger.warn("Søknad gjelder Førstegangsbehandling kun utland. Se egen rutine på navet")
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Søknad gjelder Førstegangsbehandling kun utland. Se egen rutine på navet")
         }
 
-        val fortegBH = finnKravHistorikk("FORSTEG_BH", sak.kravHistorikkListe)
-        if (fortegBH != null && fortegBH.size == sak.kravHistorikkListe.kravHistorikkListe.size)  {
+        val fortegBH = finnKravHistorikk("FORSTEG_BH", sak?.kravHistorikkListe)
+        if (fortegBH != null && fortegBH.size == sak?.kravHistorikkListe?.kravHistorikkListe?.size)  {
             logger.warn("Det er ikke markert for bodd/arbeidet i utlandet. Krav SED $sedType blir ikke opprettet")
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Det er ikke markert for bodd/arbeidet i utlandet. Krav SED $sedType blir ikke opprettet")
         }
     }
 
-    private fun finnKravHistorikkForDato(pensak: V1Sak): V1KravHistorikk {
+    private fun finnKravHistorikkForDato(pensak: V1Sak?): V1KravHistorikk {
         return try {
-            hentKravhistorikkForGjenlevende(pensak.kravHistorikkListe)
-                    ?: when (pensak.status) {
+            hentKravhistorikkForGjenlevende(pensak?.kravHistorikkListe)
+                    ?: when (pensak?.status) {
                         Kravstatus.TIL_BEHANDLING.name -> hentKravHistorikkMedKravStatusTilBehandling(pensak.kravHistorikkListe)
                         Kravstatus.AVSL.name -> hentKravHistorikkMedKravStatusAvslag(pensak.kravHistorikkListe)
-                        else -> hentKravHistorikkForsteGangsBehandlingUtlandEllerForsteGang(pensak.kravHistorikkListe, pensak.sakType)
+                        else -> hentKravHistorikkForsteGangsBehandlingUtlandEllerForsteGang(pensak?.kravHistorikkListe, pensak?.sakType)
                     }
         } catch (ex: Exception) {
             logger.warn("Klarte ikke å hente kravhistorikk for $pensak , fortsetter uten")
@@ -230,8 +225,8 @@ object PrefillP2xxxPensjon {
         }
     }
 
-    private fun opprettMeldingBasertPaaSaktype(kravHistorikk: V1KravHistorikk, kravId: String?, saktype: String): String? {
-        if (kravHistorikk.kravId == kravId) return ""
+    private fun opprettMeldingBasertPaaSaktype(kravHistorikk: V1KravHistorikk?, kravId: String?, saktype: String?): String {
+        if (kravHistorikk?.kravId == kravId) return ""
             return when (saktype) {
                 EPSaktype.ALDER.name, EPSaktype.UFOREP.name -> kravdatoMeldingOmP2100TilSaksbehandler
                 else -> ""
@@ -241,7 +236,7 @@ object PrefillP2xxxPensjon {
     /**
      *  4.1 (for kun_uland,mangler inngangsvilkår)
      */
-    private fun opprettForkortetYtelsesItem(pensak: V1Sak, personNr: String, penSaksnummer: String, andreinstitusjonerItem: AndreinstitusjonerItem?): YtelserItem {
+    private fun opprettForkortetYtelsesItem(pensak: V1Sak?, personNr: String, penSaksnummer: String, andreinstitusjonerItem: AndreinstitusjonerItem?): YtelserItem {
         return YtelserItem(
                 //4.1.1
                 ytelse = settYtelse(pensak),
@@ -259,9 +254,9 @@ object PrefillP2xxxPensjon {
      *
      *  Ytelser
      */
-    private fun settYtelse(pensak: V1Sak): String? {
+    private fun settYtelse(pensak: V1Sak?): String {
         logger.debug("4.1.1         Ytelser")
-        return mapSaktype(pensak.sakType)
+        return mapSaktype(pensak?.sakType)
     }
 
     /**
@@ -336,7 +331,7 @@ object PrefillP2xxxPensjon {
         return pensak.forsteVirkningstidspunkt?.simpleFormat()
     }
 
-    private fun createInstitusjon(penSaksnummer: String, andreinstitusjonerItem: AndreinstitusjonerItem?): Institusjon? {
+    private fun createInstitusjon(penSaksnummer: String, andreinstitusjonerItem: AndreinstitusjonerItem?): Institusjon {
         logger.debug("4.1.4.1.4     Institusjon")
         return Institusjon(
                 institusjonsid = andreinstitusjonerItem?.institusjonsid,
@@ -387,7 +382,7 @@ object PrefillP2xxxPensjon {
      *  Fra PSAK.
      *  Her fylles ut FOM-dato for hvert beløp i beløpshistorikk 5 år tilbake i tid.
      */
-    private fun createGjeldendesiden(ytelsePrMnd: V1YtelsePerMaaned): String? {
+    private fun createGjeldendesiden(ytelsePrMnd: V1YtelsePerMaaned): String {
         logger.debug("4.1.9.3         Gjeldendesiden")
         return ytelsePrMnd.fom.simpleFormat()
     }
@@ -477,7 +472,7 @@ object PrefillP2xxxPensjon {
      *  Her skal vises status på den sist behandlede ytelsen, dvs om kravet er blitt avslått, innvilget eller er under behandling.
      *  Hvis bruker mottar en løpende ytelse, skal det alltid vises Innvilget.
      */
-    private fun createPensionStatus(pensak: V1Sak): String? {
+    private fun createPensionStatus(pensak: V1Sak): String {
         logger.debug("4.1.3         Status")
         return mapSakstatus(pensak.status)
     }

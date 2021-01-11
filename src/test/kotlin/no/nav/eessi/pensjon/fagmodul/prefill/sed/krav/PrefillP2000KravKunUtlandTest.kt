@@ -67,7 +67,7 @@ class PrefillP2000KravKunUtlandTest {
         assertNotNull(PensjonsinformasjonService.finnSak(prefillData.penSaksnummer, pendata))
 
         assertNotNull(pendata.brukersSakerListe)
-        assertEquals("ALDER", PensjonsinformasjonService.finnSak(prefillData.penSaksnummer, pendata).sakType)
+        assertEquals("ALDER", PensjonsinformasjonService.finnSak(prefillData.penSaksnummer, pendata)?.sakType)
     }
 
     @Test

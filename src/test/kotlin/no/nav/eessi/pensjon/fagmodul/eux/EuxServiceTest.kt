@@ -570,7 +570,6 @@ class EuxServiceTest {
 
 
         // 05
-        val rinaSakerBuc05 = listOf(dummyRinasak("2", "P_BUC_05"))
         doReturn(emptyList<Rinasak>()).whenever(euxKlient).getRinasaker(avdodFnr, null, "P_BUC_05", "\"open\"")
 
 
