@@ -115,7 +115,7 @@ class PensjonController(private val pensjonsinformasjonClient: Pensjonsinformasj
                     PensjoninformasjonValiderKrav.validerGyldigKravtypeOgArsakGjenlevnde(sak, bucType)
                     true
                 }
-                else -> false
+                else -> true
             }
         }
     }
