@@ -617,6 +617,100 @@ class SedPrefillIntegrationSpringTest {
 
     @Test
     @Throws(Exception::class)
+    fun `prefill sed P6000 P_BUC_01 Alderpensjon med avslag skal returnere en gyldig SED`() {
+
+        doReturn(NorskIdent("12312312312")).`when`(aktoerService).hentGjeldendeIdent(IdentGruppe.NorskIdent, AktoerId("0105094340092"))
+
+        doReturn(BrukerMock.createWith(true, "Alder", "Pensjonist", "12312312312")).`when`(personV3Service).hentBruker("12312312312")
+
+        doReturn(PrefillTestHelper.readXMLVedtakresponse("P6000-AP-Avslag.xml")).`when`(restTemplate).exchange(any<String>(), any(), any<HttpEntity<Unit>>(), ArgumentMatchers.eq(String::class.java))
+
+        doReturn("QX").doReturn("XQ").`when`(kodeverkClient).finnLandkode2(any())
+
+        val apijson = dummyApijson(sakid = "22874955", vedtakid = "123123423423", aktoerId = "0105094340092", sed = "P6000", buc = "P_BUC_01")
+
+        val result = mockMvc.perform(post("/sed/prefill")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(apijson))
+            .andDo(print())
+            .andExpect(status().isOk)
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andReturn()
+
+        val response = result.response.getContentAsString(charset("UTF-8"))
+
+        val validResponse = """
+            {
+              "sed" : "P6000",
+              "sedGVer" : "4",
+              "sedVer" : "1",
+              "nav" : {
+                "eessisak" : [ {
+                  "institusjonsid" : "NO:noinst002",
+                  "institusjonsnavn" : "NOINST002, NO INST002, NO",
+                  "saksnummer" : "22874955",
+                  "land" : "NO"
+                } ],
+                "bruker" : {
+                  "person" : {
+                    "pin" : [ {
+                      "institusjonsnavn" : "NOINST002, NO INST002, NO",
+                      "institusjonsid" : "NO:noinst002",
+                      "identifikator" : "12312312312",
+                      "land" : "NO"
+                    } ],
+                    "statsborgerskap" : [ {
+                      "land" : "QX"
+                    } ],
+                    "etternavn" : "Pensjonist",
+                    "fornavn" : "Alder",
+                    "kjoenn" : "M",
+                    "foedselsdato" : "1988-07-12"
+                  },
+                  "adresse" : {
+                    "gate" : "Oppoverbakken 66",
+                    "by" : "SØRUMSAND",
+                    "postnummer" : "1920",
+                    "land" : "XQ"
+                  }
+                }
+              },
+              "pensjon" : {
+                "vedtak" : [ {
+                  "type" : "01",
+                  "resultat" : "02",
+                  "avslagbegrunnelse" : [ {
+                    "begrunnelse" : "01"
+                  } ]
+                } ],
+                "sak" : {
+                  "kravtype" : [ {
+                    "datoFrist" : "six weeks from the date the decision is received"
+                  } ]
+                },
+                "tilleggsinformasjon" : {
+                  "dato" : "2020-12-16",
+                  "andreinstitusjoner" : [ {
+                    "institusjonsid" : "NO:noinst002",
+                    "institusjonsnavn" : "NOINST002, NO INST002, NO",
+                    "institusjonsadresse" : "Postboks 6600 Etterstad TEST",
+                    "postnummer" : "0607",
+                    "land" : "NO",
+                    "poststed" : "Oslo"
+                  } ]
+                }
+              }
+            }
+        """.trimIndent()
+
+        JSONAssert.assertEquals(response, validResponse, true)
+
+
+    }
+
+
+    @Test
+    @Throws(Exception::class)
     fun `prefill sed P3000_SE Gjenlevende har med avdod skal returnere en gyldig SED`() {
 
         doReturn(NorskIdent("12312312312")).`when`(aktoerService).hentGjeldendeIdent(IdentGruppe.NorskIdent, AktoerId("0105094340092"))

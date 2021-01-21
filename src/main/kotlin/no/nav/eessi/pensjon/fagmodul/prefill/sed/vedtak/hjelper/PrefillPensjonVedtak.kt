@@ -99,6 +99,13 @@ object PrefillPensjonVedtak {
         val sakType = KSAK.valueOf(type)
         logger.debug("4.1.1         VedtakTypePension")
 
+//        4.1.[1].1. Type pensjon
+//        [01] Alderspensjon
+//        [02] Uførhet
+//        [03]Etterlatte
+//        [04]Delvis uførhet
+//        [05] 100% uførhet
+//        [06] Førtidspensjon
         return when (sakType) {
             KSAK.ALDER -> {
                 when (pensjonUttakTidligereEnn67) {
@@ -181,6 +188,11 @@ object PrefillPensjonVedtak {
         val erMellombehandling = "MELLOMBH" == kravGjelder
         val erRevurdering = kravGjelder == "REVURD"
 
+//        4.1.[1].4. Type vedtak
+//        [01] Innvilgelse
+//        [02] Avslag
+//        [03] Ny beregning / omregning
+//        [04] Foreløpig utbetaling eller forskudd
         if (KSAK.UFOREP != sakType && erInnvilgelse
                 && (erForsteGangBehandlingNorgeUtland || erMellombehandling || erForsteGangBehandlingBosattUtland)) {
                 return "01"

@@ -23,7 +23,7 @@ import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
-import kotlin.test.assertNull
+import kotlin.test.assertEquals
 
 @ExtendWith(MockitoExtension::class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -63,41 +63,24 @@ class PrefillP6000Pensjon_UFORE_AVSLAG_Test {
         prefillData = PrefillDataModelMother.initialPrefillDataModel("P6000", personFnr, penSaksnummer = "22580170", vedtakId = "12312312")
         prefillSEDService = PrefillSEDService(prefillNav, prefillPersonService, eessiInformasjon, dataFromPEN, aktorRegisterService)
 
-        val result = prefillSEDService.prefill(prefillData)
+        val pensjon = prefillSEDService.prefill(prefillData).pensjon
 
-        assertNotNull(result)
-        assertNotNull(result.pensjon)
-        assertNull(result.pensjon?.vedtak)
-        assertNull(result.pensjon?.sak)
+         assertNotNull(pensjon?.vedtak)
+         assertNotNull(pensjon?.sak)
+         assertNotNull(pensjon?.tilleggsinformasjon)
 
-//        assertNotNull(result.vedtak)
-//        assertNotNull(result.sak)
-//        assertNotNull(result.tilleggsinformasjon)
-//
-//        val vedtak = result.vedtak?.get(0)
-//        assertEquals("2019-08-01", vedtak?.virkningsdato, "vedtak.virkningsdato")
-//        assertEquals("02", vedtak?.type)
-//        assertEquals(null, vedtak?.basertPaa)
-//        assertEquals(null, vedtak?.basertPaaAnnen)
-//        assertEquals("02", vedtak?.resultat, "vedtak.resultat")
-//        assertEquals(null, vedtak?.kjoeringsdato)
-//        assertEquals(null, vedtak?.artikkel, "4.1.5 vedtak.artikkel (må fylles ut manuelt nå)")
-//
-//        assertEquals(null, vedtak?.grunnlag?.opptjening?.forsikredeAnnen)
-//        assertEquals(null, vedtak?.grunnlag?.framtidigtrygdetid)
-//
-//        assertEquals(null, vedtak?.ukjent?.beloepBrutto?.ytelseskomponentAnnen)
-//
-//        val avslagBegrunnelse = vedtak?.avslagbegrunnelse?.get(0)
-//        assertEquals(null, avslagBegrunnelse?.begrunnelse)
-//
-//        assertEquals("six weeks from the date the decision is received", result.sak?.kravtype?.get(0)?.datoFrist)
-//
-//        assertEquals("2019-08-26", result.tilleggsinformasjon?.dato)
-//
-//        assertEquals("NO:noinst002", result.tilleggsinformasjon?.andreinstitusjoner?.get(0)?.institusjonsid)
-//        assertEquals("Postboks 6600 Etterstad TEST", result.tilleggsinformasjon?.andreinstitusjoner?.get(0)?.institusjonsadresse)
-//        assertEquals("0607", result.tilleggsinformasjon?.andreinstitusjoner?.get(0)?.postnummer)
+        val vedtak = pensjon?.vedtak?.get(0)
+        assertEquals("02", vedtak?.type)
+        assertEquals("02", vedtak?.resultat, "vedtak.resultat")
+
+        val avslagBegrunnelse = vedtak?.avslagbegrunnelse?.get(0)
+        assertEquals(null, avslagBegrunnelse?.begrunnelse)
+
+        assertEquals("six weeks from the date the decision is received", pensjon?.sak?.kravtype?.get(0)?.datoFrist)
+        assertEquals("2019-08-26", pensjon?.tilleggsinformasjon?.dato)
+        assertEquals("NO:noinst002", pensjon?.tilleggsinformasjon?.andreinstitusjoner?.get(0)?.institusjonsid)
+        assertEquals("Postboks 6600 Etterstad TEST", pensjon?.tilleggsinformasjon?.andreinstitusjoner?.get(0)?.institusjonsadresse)
+        assertEquals("0607", pensjon?.tilleggsinformasjon?.andreinstitusjoner?.get(0)?.postnummer)
 
     }
 

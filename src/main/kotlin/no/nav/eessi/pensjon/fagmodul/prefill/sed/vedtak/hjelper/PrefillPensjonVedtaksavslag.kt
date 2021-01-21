@@ -71,6 +71,18 @@ object PrefillPensjonVedtaksavslag {
         val erNedsattInntEvne = "NEDSATT_INNT_EVNE" == VedtakPensjonDataHelper.hentVilkarsvurderingUforetrygd(pendata).nedsattInntektsevne
         val erAlder = "ALDER" == VedtakPensjonDataHelper.hentVilkarsvurderingUforetrygd(pendata).alder
 
+//         Values in RINA v4.2
+//        4.1.[1].13.[1].1. Avslagsgrunner
+//        [01] Ingen forsikringsperioder
+//        [02] Forsikringsperiode på mindre enn ett år
+//        [03] Krav til perioden eller andre kvalifiseringskrav er ikke oppfylt
+//        [04] Ingen delvis uførhet eller funksjonshemming ble funnet
+//        [05] Inntektsgrensen er overskredet
+//        [06] Pensjonsalder er ikke nådd
+//        [07] Manglende innformasjon fra søkeren
+//        [08] Manglende deltakelse
+//        [99] Andre grunner
+
         if (KSAK.UFOREP != sakType && harBoddArbeidetUtland && erAvslagVilkarsproving) {
             //pkt1 og pkt.9
             if (erTrygdetidListeTom)

@@ -8,6 +8,7 @@ import no.nav.eessi.pensjon.fagmodul.prefill.sed.vedtak.hjelper.VedtakPensjonDat
 import no.nav.eessi.pensjon.fagmodul.sedmodel.AndreinstitusjonerItem
 import no.nav.eessi.pensjon.fagmodul.sedmodel.Bruker
 import no.nav.eessi.pensjon.fagmodul.sedmodel.Pensjon
+import no.nav.eessi.pensjon.fagmodul.sedmodel.VedtakItem
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -37,19 +38,28 @@ object PrefillP6000Pensjon {
 
     }
 
-    fun createPensjonEllerTom(pensjoninformasjon: Pensjonsinformasjon, gjenlevende: Bruker?, andreinstitusjonerItem: AndreinstitusjonerItem?): Pensjon {
-        //if (pensjoninformasjon.vilkarsvurderingListe == null && pensjoninformasjon.ytelsePerMaanedListe == null)
+    private fun createPensjonEllerTom(pensjoninformasjon: Pensjonsinformasjon, gjenlevende: Bruker?, andreinstitusjonerItem: AndreinstitusjonerItem?): Pensjon {
         val vilkar = pensjoninformasjon.vilkarsvurderingListe
         val ytelse = pensjoninformasjon.ytelsePerMaanedListe
         return if ((vilkar == null && ytelse == null) || (ytelse.ytelsePerMaanedListe == null || ytelse.ytelsePerMaanedListe.isEmpty())) {
             logger.warn("Ingen vilkarsvurderingListe og ytelsePerMaanedListe oppretter Vedtak SED P6000 uten pensjoninformasjon")
-            Pensjon()
+            val avslagPensjon = createPensjon(pensjoninformasjon, gjenlevende, andreinstitusjonerItem)
+            val avslagVedtak = avslagPensjon.vedtak?.firstOrNull()
+//          Selvplukk av avslagdata:
+//          Type pensjon
+//          Type vedtak (resulat)
+//          Avslagsgrunner
+            Pensjon(
+                vedtak = listOf(VedtakItem(type = avslagVedtak?.type, resultat = avslagVedtak?.resultat, avslagbegrunnelse = avslagVedtak?.avslagbegrunnelse )),
+                sak = avslagPensjon.sak,
+                tilleggsinformasjon = avslagPensjon.tilleggsinformasjon
+            )
         } else {
             createPensjon(pensjoninformasjon, gjenlevende, andreinstitusjonerItem)
         }
     }
 
-    fun createPensjon(pensjoninformasjon: Pensjonsinformasjon, gjenlevende: Bruker?, andreinstitusjonerItem: AndreinstitusjonerItem?): Pensjon {
+    private fun createPensjon(pensjoninformasjon: Pensjonsinformasjon, gjenlevende: Bruker?, andreinstitusjonerItem: AndreinstitusjonerItem?): Pensjon {
         return Pensjon(
                 gjenlevende = gjenlevende,
                 //4.1

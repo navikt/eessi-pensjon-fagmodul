@@ -20,8 +20,8 @@ class PrefillP6000(private val prefillNav: PrefillNav,
     fun prefill(prefillData: PrefillDataModel, personData: PersonData): SED {
         val sedId = prefillData.getSEDType()
 
-        logger.debug("----------------------------------------------------------"
-                + "\nPreutfylling Pensjon : ${PrefillP6000Pensjon::class.java} "
+        logger.info("----------------------------------------------------------"
+                + "\nPreutfylling Pensjon : P6000 "
                 + "\n------------------| Preutfylling [$sedId] START |------------------ ")
 
         val sed = prefillData.sed
@@ -39,7 +39,7 @@ class PrefillP6000(private val prefillNav: PrefillNav,
         logger.debug("Henter opp Persondata fra TPS")
         sed.nav = prefillNav.prefill(penSaksnummer = prefillData.penSaksnummer, bruker = prefillData.bruker, avdod = prefillData.avdod, personData = personData, brukerInformasjon = prefillData.getPersonInfoFromRequestData())
 
-        logger.debug("-------------------| Preutfylling [$sedId] END |------------------- ")
+        logger.info("-------------------| Preutfylling [$sedId] END |------------------- ")
         return sed
     }
 
