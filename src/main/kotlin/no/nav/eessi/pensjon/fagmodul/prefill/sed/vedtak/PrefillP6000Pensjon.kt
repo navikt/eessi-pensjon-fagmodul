@@ -9,6 +9,7 @@ import no.nav.eessi.pensjon.fagmodul.sedmodel.AndreinstitusjonerItem
 import no.nav.eessi.pensjon.fagmodul.sedmodel.Bruker
 import no.nav.eessi.pensjon.fagmodul.sedmodel.Pensjon
 import no.nav.eessi.pensjon.fagmodul.sedmodel.VedtakItem
+import no.nav.eessi.pensjon.utils.simpleFormat
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -41,8 +42,10 @@ object PrefillP6000Pensjon {
     private fun createPensjonEllerTom(pensjoninformasjon: Pensjonsinformasjon, gjenlevende: Bruker?, andreinstitusjonerItem: AndreinstitusjonerItem?): Pensjon {
         val vilkar = pensjoninformasjon.vilkarsvurderingListe
         val ytelse = pensjoninformasjon.ytelsePerMaanedListe
-        return if ((vilkar == null && ytelse == null) || (ytelse.ytelsePerMaanedListe == null || ytelse.ytelsePerMaanedListe.isEmpty())) {
-            logger.warn("Ingen vilkarsvurderingListe og ytelsePerMaanedListe oppretter Vedtak SED P6000 uten pensjoninformasjon")
+        val erAvslag = "AVSL" == pensjoninformasjon.vilkarsvurderingListe?.vilkarsvurderingListe?.maxBy{ it.fom.simpleFormat() }?.avslagHovedytelse
+
+        return if (erAvslag || (vilkar == null && ytelse == null) || ytelse.ytelsePerMaanedListe.isNullOrEmpty()) {
+            logger.warn("Avslag, Ingen vilkarsvurderingListe og ytelsePerMaanedListe oppretter Vedtak SED P6000 uten pensjoninformasjon")
             val avslagPensjon = createPensjon(pensjoninformasjon, gjenlevende, andreinstitusjonerItem)
             val avslagVedtak = avslagPensjon.vedtak?.firstOrNull()
 //          Selvplukk av avslagdata:
