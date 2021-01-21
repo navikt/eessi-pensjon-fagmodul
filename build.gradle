@@ -144,8 +144,8 @@ dependencies {
     testImplementation("org.pac4j:spring-webmvc-pac4j:3.2.0")
 
     // Tjenestespesifikasjoner
-    implementation("no.nav.tjenestespesifikasjoner:person-v3-tjenestespesifikasjon:1.2020.01.30-14.36-cdf257baea96")
-    xsd("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:1.2020.09.21-09.58-dde2f6764e92")
+    implementation("no.nav.tjenestespesifikasjoner:person-v3-tjenestespesifikasjon:1.2021.01.21-11.34-02f5eb27bb76")
+    xsd("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:1.2021.01.21-11.34-02f5eb27bb76")
 
     implementation("com.sun.xml.ws:jaxws-ri:2.3.2")
 

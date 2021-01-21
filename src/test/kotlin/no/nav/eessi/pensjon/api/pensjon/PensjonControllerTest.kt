@@ -148,7 +148,7 @@ class PensjonControllerTest {
 
         val pendata = Pensjonsinformasjon().apply {
             vedtak = V1Vedtak().apply {
-                virkningstidspunkt=  DatatypeFactory.newInstance().newXMLGregorianCalendar(localDate);
+                vedtaksDato=  DatatypeFactory.newInstance().newXMLGregorianCalendar(localDate);
             }
         }
 

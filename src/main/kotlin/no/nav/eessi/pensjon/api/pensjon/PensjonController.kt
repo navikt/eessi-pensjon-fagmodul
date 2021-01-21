@@ -72,7 +72,7 @@ class PensjonController(private val pensjonsinformasjonClient: Pensjonsinformasj
         return PensjonControllerKravDato.measure {
             try {
                 val pensjonSak = pensjonsinformasjonClient.hentAltPaaVedtak(vedtaksId = vedtaksId)
-                pensjonSak.vedtak?.virkningstidspunkt?.simpleFormat()?.let {
+                pensjonSak.vedtak?.vedtaksDato?.simpleFormat()?.let {
                     ResponseEntity.ok("""{ "kravDato": "$it" }""")
                 }
 
