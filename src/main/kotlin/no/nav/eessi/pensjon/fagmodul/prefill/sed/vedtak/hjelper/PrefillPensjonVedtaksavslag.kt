@@ -93,10 +93,10 @@ object PrefillPensjonVedtaksavslag {
                 return "01"
 
             //pkt.2 og pkt.10
-            if (erMindreEnn1aar || erMindreEnn3aar || VedtakPensjonDataHelper.erTrygdeTid(pendata))
+            if (erMindreEnn1aar || VedtakPensjonDataHelper.erTrygdeTid(pendata))
                 return "02"
 
-            if (erLavtTidligUttak)
+            if (erLavtTidligUttak || erMindreEnn3aar)
                 return "03"
 
             if (erUnder62)

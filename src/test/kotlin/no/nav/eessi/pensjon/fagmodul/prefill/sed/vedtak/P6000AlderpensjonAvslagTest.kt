@@ -84,6 +84,57 @@ class P6000AlderpensjonAvslagTest {
     }
 
     @Test
+    fun `forventet korrekt utfylling av pensjon objekt på alderpensjon med avslag under 1 arr`() {
+        dataFromPEN = PrefillTestHelper.lesPensjonsdataVedtakFraFil("P6000-AP-Under1aar-Avslag.xml")
+        prefillData = PrefillDataModelMother.initialPrefillDataModel("P6000", personFnr, penSaksnummer = "22580170", vedtakId = "12312312")
+        prefillSEDService = PrefillSEDService(prefillNav, prefillPersonService, eessiInformasjon, dataFromPEN, aktorRegisterService)
+
+        val sed = prefillSEDService.prefill(prefillData)
+        val result = sed.pensjon!!
+
+        val vedtak = result.vedtak?.get(0)
+        assertEquals("01", vedtak?.type)
+        assertEquals("02", vedtak?.resultat, "4.1.4 vedtak.resultat")
+
+        val avslagBegrunnelse = vedtak?.avslagbegrunnelse?.get(0)
+        assertEquals("02", avslagBegrunnelse?.begrunnelse, "4.1.13.1          AvlsagsBegrunnelse")
+
+        assertEquals("six weeks from the date the decision is received", result.sak?.kravtype?.get(0)?.datoFrist)
+
+        assertEquals("2020-12-16", result.tilleggsinformasjon?.dato)
+        assertEquals("NO:noinst002", result.tilleggsinformasjon?.andreinstitusjoner?.get(0)?.institusjonsid)
+        assertEquals("Postboks 6600 Etterstad TEST", result.tilleggsinformasjon?.andreinstitusjoner?.get(0)?.institusjonsadresse)
+        assertEquals("0607", result.tilleggsinformasjon?.andreinstitusjoner?.get(0)?.postnummer)
+
+    }
+
+    @Test
+    fun `forventet korrekt utfylling av pensjon objekt på alderpensjon med avslag under 3 arr`() {
+        dataFromPEN = PrefillTestHelper.lesPensjonsdataVedtakFraFil("P6000-AP-Avslag.xml")
+        prefillData = PrefillDataModelMother.initialPrefillDataModel("P6000", personFnr, penSaksnummer = "22580170", vedtakId = "12312312")
+        prefillSEDService = PrefillSEDService(prefillNav, prefillPersonService, eessiInformasjon, dataFromPEN, aktorRegisterService)
+
+        val sed = prefillSEDService.prefill(prefillData)
+        val result = sed.pensjon!!
+
+        val vedtak = result.vedtak?.get(0)
+        assertEquals("01", vedtak?.type)
+        assertEquals("02", vedtak?.resultat, "4.1.4 vedtak.resultat")
+
+        val avslagBegrunnelse = vedtak?.avslagbegrunnelse?.get(0)
+        assertEquals("03", avslagBegrunnelse?.begrunnelse, "4.1.13.1          AvlsagsBegrunnelse")
+
+        assertEquals("six weeks from the date the decision is received", result.sak?.kravtype?.get(0)?.datoFrist)
+
+        assertEquals("2020-12-16", result.tilleggsinformasjon?.dato)
+        assertEquals("NO:noinst002", result.tilleggsinformasjon?.andreinstitusjoner?.get(0)?.institusjonsid)
+        assertEquals("Postboks 6600 Etterstad TEST", result.tilleggsinformasjon?.andreinstitusjoner?.get(0)?.institusjonsadresse)
+        assertEquals("0607", result.tilleggsinformasjon?.andreinstitusjoner?.get(0)?.postnummer)
+
+    }
+
+
+    @Test
     fun `preutfylling P6000 feiler ved mangler av vedtakId`() {
         dataFromPEN = PrefillTestHelper.lesPensjonsdataVedtakFraFil("P6000vedtak-alderpensjon-avslag.xml")
         prefillData = PrefillDataModelMother.initialPrefillDataModel("P6000", personFnr, penSaksnummer = "22580170", vedtakId = "")

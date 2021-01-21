@@ -57,6 +57,7 @@ object PrefillP6000Pensjon {
                 sak = avslagPensjon.sak,
                 tilleggsinformasjon = avslagPensjon.tilleggsinformasjon
             )
+
         } else {
             createPensjon(pensjoninformasjon, gjenlevende, andreinstitusjonerItem)
         }
