@@ -680,7 +680,7 @@ class SedPrefillIntegrationSpringTest {
                   "type" : "01",
                   "resultat" : "02",
                   "avslagbegrunnelse" : [ {
-                    "begrunnelse" : "01"
+                    "begrunnelse" : "02"
                   } ]
                 } ],
                 "sak" : {

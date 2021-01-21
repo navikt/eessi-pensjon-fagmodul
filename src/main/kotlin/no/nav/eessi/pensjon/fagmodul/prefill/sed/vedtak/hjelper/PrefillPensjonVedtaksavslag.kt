@@ -45,6 +45,7 @@ object PrefillPensjonVedtaksavslag {
     }
 
     /**
+     *  Kodeverk pr. jan 2021 https://confluence.adeo.no/pages/viewpage.action?pageId=338181329
      *  4.1.13.1 - Rejection reasons
      */
     fun createAvlsagsBegrunnelse(pendata: Pensjonsinformasjon): String? {
@@ -63,6 +64,8 @@ object PrefillPensjonVedtaksavslag {
         val erLavtTidligUttak = VedtakPensjonDataHelper.isVilkarsvurderingAvslagHovedytelseSamme("LAVT_TIDLIG_UTTAK", pendata)
         val erUnder62 = VedtakPensjonDataHelper.isVilkarsvurderingAvslagHovedytelseSamme("UNDER_62", pendata)
         val erIkkeMottattDok = "IKKE_MOTTATT_DOK" == VedtakPensjonDataHelper.hentVilkarsProvingAvslagHovedYtelse(pendata)
+        val erMindreEnn3aar = "UNDER_3_AR_TT" == VedtakPensjonDataHelper.hentVilkarsProvingAvslagHovedYtelse(pendata)
+        val erMindreEnn1aar = "UNDER_1_AR_TT" == VedtakPensjonDataHelper.hentVilkarsProvingAvslagHovedYtelse(pendata)
 
         //UFOREP
         val erForutMedlem = "FORUT_MEDL" == VedtakPensjonDataHelper.hentVilkarsvurderingUforetrygd(pendata).unntakForutgaendeMedlemskap
@@ -83,13 +86,14 @@ object PrefillPensjonVedtaksavslag {
 //        [08] Manglende deltakelse
 //        [99] Andre grunner
 
+        //ALDER eller ETTERLATTE eller BARNEP
         if (KSAK.UFOREP != sakType && harBoddArbeidetUtland && erAvslagVilkarsproving) {
             //pkt1 og pkt.9
-            if (erTrygdetidListeTom)
+            if (erTrygdetidListeTom && !erMindreEnn3aar && !erMindreEnn1aar)
                 return "01"
 
             //pkt.2 og pkt.10
-            if (VedtakPensjonDataHelper.erTrygdeTid(pendata))
+            if (erMindreEnn1aar || erMindreEnn3aar || VedtakPensjonDataHelper.erTrygdeTid(pendata))
                 return "02"
 
             if (erLavtTidligUttak)
@@ -99,6 +103,7 @@ object PrefillPensjonVedtaksavslag {
                 return "06"
         }
 
+        //KUN UFOREP
         if (KSAK.UFOREP == sakType && harBoddArbeidetUtland) {
             //hentVilkarsvurderingUforetrygd
             if (erAlder && erAvslagVilkarsproving)
