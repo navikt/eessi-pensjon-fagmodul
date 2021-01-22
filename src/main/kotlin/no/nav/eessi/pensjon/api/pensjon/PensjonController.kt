@@ -84,8 +84,8 @@ class PensjonController(private val pensjonsinformasjonClient: Pensjonsinformasj
     }
 
     @ApiOperation("Henter ut kravdato der det ikke eksisterer et vedtak")
-    @GetMapping("/kravdato/{sakid}/{aktoerId}")
-    fun hentKravDato(@PathVariable("aktoerId", required = true) aktoerId: String, @PathVariable("sakId", required = true) sakId: String) : ResponseEntity<String>? {
+    @GetMapping("/kravdato/{sakId}/{aktoerId}")
+    fun hentKravDato(@PathVariable("sakId", required = true) sakId: String, @PathVariable("aktoerId", required = true) aktoerId: String) : ResponseEntity<String>? {
         return PensjonControllerKravDato.measure {
             try {
                 val kravDato = pensjonsinformasjonClient.hentKravDato(aktoerId, sakId)

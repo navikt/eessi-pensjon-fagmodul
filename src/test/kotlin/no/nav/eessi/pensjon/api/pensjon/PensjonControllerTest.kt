@@ -1,7 +1,7 @@
 package no.nav.eessi.pensjon.api.pensjon
 
-import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.given
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
@@ -22,6 +22,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import javax.xml.datatype.DatatypeFactory
 
 @ExtendWith(MockitoExtension::class)
@@ -33,7 +36,7 @@ class PensjonControllerTest {
 
     private val controller = PensjonController(pensjonsinformasjonClient, auditLogger)
 
-    private val sakId = "Some sakId"
+    private var mockMvc = MockMvcBuilders.standaloneSetup(controller).build()
 
     @BeforeEach
     fun setup() {
@@ -144,31 +147,43 @@ class PensjonControllerTest {
 
     @Test
     fun `hentKravDatoFraVedtak  skal hente dato fra vedtaket `() {
-        val localDate = "2020-01-01"
+        val kravDato = "2020-01-01"
+        val vedtaksId = "12345"
 
         val pendata = Pensjonsinformasjon().apply {
             vedtak = V1Vedtak().apply {
-                vedtaksDato=  DatatypeFactory.newInstance().newXMLGregorianCalendar(localDate);
+                vedtaksDato=  DatatypeFactory.newInstance().newXMLGregorianCalendar(kravDato);
             }
         }
 
-        whenever(pensjonsinformasjonClient.hentAltPaaVedtak(any())).doReturn(pendata)
+        given(pensjonsinformasjonClient.hentAltPaaVedtak(vedtaksId = vedtaksId)).willReturn(pendata)
 
-        val kravDato = controller.hentKravDatoFraVedtak("anyThingWillDo")
-        println(kravDato?.body)
-        assertEquals(HttpStatus.OK, kravDato?.statusCode)
-        assertEquals("""{ "kravDato": "2020-01-01" }""", kravDato?.body)
+        val result = mockMvc.perform(
+            MockMvcRequestBuilders.get("/pensjon/kravdato/$vedtaksId/vedtak")
+                .contentType(MediaType.APPLICATION_JSON))
+            .andReturn()
+
+        val response = result.response.getContentAsString(charset("UTF-8"))
+
+        assertEquals("""{ "kravDato": "$kravDato" }""", response)
     }
 
 
     @Test
     fun `hentKravDato skal gi en data hentet fra aktorid og vedtaksid `() {
-        val localDate = "2020-01-01"
-        whenever(pensjonsinformasjonClient.hentKravDato(any(), any())).doReturn(localDate)
+        val kravDato = "2020-01-01"
+        val aktorId = "123"
+        val saksId = "10000"
 
-        val kravDato = controller.hentKravDato("123", "123")
+        given(pensjonsinformasjonClient.hentKravDato(aktorId, saksId)).willReturn(kravDato)
 
-        assertEquals(HttpStatus.OK, kravDato?.statusCode)
-        assertEquals("""{ "kravDato": "2020-01-01" }""", kravDato?.body)
+        val result = mockMvc.perform(
+            MockMvcRequestBuilders.get("/pensjon/kravdato/$saksId/$aktorId")
+                .contentType(MediaType.APPLICATION_JSON))
+            .andReturn()
+
+        val response = result.response.getContentAsString(charset("UTF-8"))
+
+        assertEquals("""{ "kravDato": "$kravDato" }""", response)
     }
 }
