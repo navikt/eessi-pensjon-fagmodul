@@ -77,9 +77,9 @@ class PersonDataService(private val personService: PersonService,
             logger.info("Henter barn")
             val barnPerson = if (forsikretPerson == null || !fyllUtBarnListe) emptyList() else hentBarn(forsikretPerson)
 
-            logger.debug("gjenlevendeEllerAvdod: ${gjenlevendeEllerAvdod?.navn?.sammensattNavn()}, forsikretPerson: ${forsikretPerson?.navn?.sammensattNavn()}")
+            logger.debug("gjenlevendeEllerAvdod: ${gjenlevendeEllerAvdod?.navn?.sammensattNavn }, forsikretPerson: ${forsikretPerson?.navn?.sammensattNavn }")
 
-            PersonDataCollection(gjenlevendeEllerAvdod = gjenlevendeEllerAvdod, forsikretPerson = forsikretPerson!!, ektefelleBruker = ektefellePerson, ekteTypeValue = sivilstandType, barnBrukereFraTPS = barnPerson)
+            PersonDataCollection(gjenlevendeEllerAvdod = gjenlevendeEllerAvdod, forsikretPerson = forsikretPerson!!, ektefellePerson = ektefellePerson,  sivilstandstype =  sivilstandType, barnPersonList = barnPerson)
         }
     }
 

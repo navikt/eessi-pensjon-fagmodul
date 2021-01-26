@@ -185,7 +185,7 @@ class PersonController(
         val relasjon = avdodRolle ?: gjenlevende?.sivilstand?.firstOrNull { it.relatertVedSivilstand == avdodFnr }?.type
         return PersoninformasjonAvdode(
             fnr = avdodFnr,
-            fulltNavn = avdodNavn?.sammensattNavn(),
+            fulltNavn = avdodNavn?.sammensattNavn,
             fornavn = avdodNavn?.fornavn,
             mellomnavn = avdodNavn?.mellomnavn,
             etternavn = avdodNavn?.etternavn,

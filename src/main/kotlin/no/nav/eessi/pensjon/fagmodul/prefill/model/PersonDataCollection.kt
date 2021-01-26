@@ -6,7 +6,7 @@ import no.nav.eessi.pensjon.personoppslag.pdl.model.Sivilstandstype
 data class PersonDataCollection(
         val gjenlevendeEllerAvdod: Person?,
         val forsikretPerson: Person?,
-        val ektefelleBruker: Person?,
-        val ekteTypeValue: Sivilstandstype?,
-        val barnBrukereFraTPS: List<Person>
+        val ektefellePerson: Person?,
+        val sivilstandstype: Sivilstandstype?,
+        val barnPersonList: List<Person>
 )
