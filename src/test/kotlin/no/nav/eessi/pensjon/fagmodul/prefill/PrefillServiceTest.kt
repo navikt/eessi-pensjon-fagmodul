@@ -2,6 +2,7 @@ package no.nav.eessi.pensjon.fagmodul.prefill
 
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.whenever
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.models.SEDType
@@ -49,7 +50,7 @@ class PrefillServiceTest {
                 InstitusjonItem(country = "DE", institution = "Tyskland", name="Tyskland test")
         )
         val x005sed = generateMockX005(data)
-        whenever(mockPrefillSEDService.prefill(any())).thenReturn(x005sed)
+        doReturn(x005sed).whenever(mockPrefillSEDService).prefill(any(), eq(null))
         val x005Liste = prefillService.prefillEnX005ForHverInstitusjon(mockInstitusjonList, data)
         assertEquals(x005Liste.size, 2)
     }
@@ -69,7 +70,7 @@ class PrefillServiceTest {
         val datax005 = data.copy(avdod = null, sedType = sedtype, sed = SED(sedtype), institution = emptyList(), institusjonX005 = instX005)
         val x005sed = generateMockX005(datax005)
 
-        doReturn(x005sed).whenever(mockPrefillSEDService).prefill(any())
+        doReturn(x005sed).whenever(mockPrefillSEDService).prefill(any(), eq(null))
 
         val mockInstitusjonList = listOf(de)
         val x005Liste = prefillService.prefillEnX005ForHverInstitusjon(mockInstitusjonList, data)

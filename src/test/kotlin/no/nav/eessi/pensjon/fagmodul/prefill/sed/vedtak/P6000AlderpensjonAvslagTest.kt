@@ -8,6 +8,7 @@ import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModelMother
 import no.nav.eessi.pensjon.fagmodul.prefill.pen.PensjonsinformasjonService
 import no.nav.eessi.pensjon.fagmodul.prefill.person.MockTpsPersonServiceFactory
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillNav
+import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillPDLNav
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillSEDService
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillTestHelper
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.FodselsnummerMother
@@ -40,7 +41,8 @@ class P6000AlderpensjonAvslagTest {
 
     @Mock
     lateinit var aktorRegisterService: AktoerregisterService
-
+    @Mock
+    lateinit var prefillPDLNav: PrefillPDLNav
 
     @BeforeEach
     fun setup() {
@@ -62,7 +64,7 @@ class P6000AlderpensjonAvslagTest {
     fun `forventet korrekt utfylling av pensjon objekt på alderpensjon med avslag`() {
         dataFromPEN = PrefillTestHelper.lesPensjonsdataVedtakFraFil("P6000vedtak-alderpensjon-avslag.xml")
         prefillData = PrefillDataModelMother.initialPrefillDataModel("P6000", personFnr, penSaksnummer = "22580170", vedtakId = "12312312")
-        prefillSEDService = PrefillSEDService(prefillNav, prefillPersonService, eessiInformasjon, dataFromPEN, aktorRegisterService)
+        prefillSEDService = PrefillSEDService(prefillNav, prefillPersonService, eessiInformasjon, dataFromPEN, aktorRegisterService, prefillPDLNav)
 
         val sed = prefillSEDService.prefill(prefillData)
         val result = sed.pensjon!!
@@ -87,7 +89,7 @@ class P6000AlderpensjonAvslagTest {
     fun `forventet korrekt utfylling av pensjon objekt på alderpensjon med avslag under 1 arr`() {
         dataFromPEN = PrefillTestHelper.lesPensjonsdataVedtakFraFil("P6000-AP-Under1aar-Avslag.xml")
         prefillData = PrefillDataModelMother.initialPrefillDataModel("P6000", personFnr, penSaksnummer = "22580170", vedtakId = "12312312")
-        prefillSEDService = PrefillSEDService(prefillNav, prefillPersonService, eessiInformasjon, dataFromPEN, aktorRegisterService)
+        prefillSEDService = PrefillSEDService(prefillNav, prefillPersonService, eessiInformasjon, dataFromPEN, aktorRegisterService, prefillPDLNav)
 
         val sed = prefillSEDService.prefill(prefillData)
         val result = sed.pensjon!!
@@ -112,7 +114,7 @@ class P6000AlderpensjonAvslagTest {
     fun `forventet korrekt utfylling av pensjon objekt på alderpensjon med avslag under 3 arr`() {
         dataFromPEN = PrefillTestHelper.lesPensjonsdataVedtakFraFil("P6000-AP-Avslag.xml")
         prefillData = PrefillDataModelMother.initialPrefillDataModel("P6000", personFnr, penSaksnummer = "22580170", vedtakId = "12312312")
-        prefillSEDService = PrefillSEDService(prefillNav, prefillPersonService, eessiInformasjon, dataFromPEN, aktorRegisterService)
+        prefillSEDService = PrefillSEDService(prefillNav, prefillPersonService, eessiInformasjon, dataFromPEN, aktorRegisterService, prefillPDLNav)
 
         val sed = prefillSEDService.prefill(prefillData)
         val result = sed.pensjon!!
@@ -138,7 +140,7 @@ class P6000AlderpensjonAvslagTest {
     fun `preutfylling P6000 feiler ved mangler av vedtakId`() {
         dataFromPEN = PrefillTestHelper.lesPensjonsdataVedtakFraFil("P6000vedtak-alderpensjon-avslag.xml")
         prefillData = PrefillDataModelMother.initialPrefillDataModel("P6000", personFnr, penSaksnummer = "22580170", vedtakId = "")
-        prefillSEDService = PrefillSEDService(prefillNav, prefillPersonService, eessiInformasjon, dataFromPEN, aktorRegisterService)
+        prefillSEDService = PrefillSEDService(prefillNav, prefillPersonService, eessiInformasjon, dataFromPEN, aktorRegisterService, prefillPDLNav)
 
         assertThrows<ResponseStatusException> {
             prefillSEDService.prefill(prefillData)

@@ -6,6 +6,7 @@ import com.nhaarman.mockitokotlin2.whenever
 import no.nav.eessi.pensjon.fagmodul.prefill.eessi.EessiInformasjon
 import no.nav.eessi.pensjon.fagmodul.prefill.pen.PensjonsinformasjonService
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillNav
+import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillPDLNav
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.FodselsnummerMother
 import no.nav.eessi.pensjon.personoppslag.aktoerregister.AktoerId
 import no.nav.eessi.pensjon.personoppslag.aktoerregister.AktoerregisterService
@@ -41,9 +42,12 @@ class PrefillSEDServiceTest {
     @Mock
     lateinit var aktorRegisterService: AktoerregisterService
 
+    @Mock
+    lateinit var prefillPDLNav: PrefillPDLNav
+
     @BeforeEach
     fun beforeEach() {
-        prefillSEDService = PrefillSEDService(prefillNav, tpsPersonService, eessiInformasjon, pensjonsinformasjonService, aktorRegisterService)
+        prefillSEDService = PrefillSEDService(prefillNav, tpsPersonService, eessiInformasjon, pensjonsinformasjonService, aktorRegisterService, prefillPDLNav)
     }
 
 

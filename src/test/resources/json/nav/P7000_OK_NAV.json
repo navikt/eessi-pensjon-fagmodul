@@ -1,41 +1,37 @@
 {
-  "sed": "P7000",
-  "sedGVer": "4",
-  "sedVer": "1",
-  "nav": {
-    "eessisak": [
-      {
-        "institusjonsnavn": "NOINST002, NO INST002, NO",
-        "saksnummer": "21975717",
-        "land": "NO",
-        "institusjonsid": "NO:noinst002"
-      }
-    ],
-    "bruker": {
-      "person": {
-        "pin": [
-          {
-            "identifikator": "01071843352",
-            "land": "NO",
-            "institusjon": {}
-          }
-        ],
-        "etternavn": "BALDER",
-        "fornavn": "ODIN ETTØYE",
-        "kjoenn": "M",
-        "foedselsdato": "1951-11-07"
+  "sed" : "P7000",
+  "sedGVer" : "4",
+  "sedVer" : "1",
+  "nav" : {
+    "eessisak" : [ {
+      "institusjonsid" : "NO:noinst002",
+      "institusjonsnavn" : "NOINST002, NO INST002, NO",
+      "saksnummer" : "21975717",
+      "land" : "NO"
+    } ],
+    "bruker" : {
+      "person" : {
+        "pin" : [ {
+          "identifikator" : "3123",
+          "land" : "NO",
+          "institusjon" : { }
+        } ],
+        "etternavn" : "BALDER",
+        "fornavn" : "Test",
+        "kjoenn" : "M",
+        "foedselsdato" : "1988-07-12"
       }
     },
-    "ektefelle": {
-      "person": {
-        "etternavn": "BALDER"
+    "ektefelle" : {
+      "person" : {
+        "etternavn" : "BALDER"
       }
     }
   },
-  "pensjon": {
-    "bruker": {
-      "person": {
-        "kjoenn": "M"
+  "pensjon" : {
+    "bruker" : {
+      "person" : {
+        "kjoenn" : "M"
       }
     }
   }

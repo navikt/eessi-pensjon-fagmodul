@@ -7,6 +7,7 @@ import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModelMother.initia
 import no.nav.eessi.pensjon.fagmodul.prefill.pen.PensjonsinformasjonService
 import no.nav.eessi.pensjon.fagmodul.prefill.person.MockTpsPersonServiceFactory
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillNav
+import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillPDLNav
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillSEDService
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillTestHelper.createMockApiRequest
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillTestHelper.lesPensjonsdataFraFil
@@ -39,8 +40,12 @@ class PrefillP2000AlderpensjonkravavvistTest {
     lateinit var prefillData: PrefillDataModel
     lateinit var dataFromPEN: PensjonsinformasjonService
     private lateinit var prefillSEDService: PrefillSEDService
+
     @Mock
     lateinit var aktorRegisterService: AktoerregisterService
+
+    @Mock
+    lateinit var prefillPDLNav: PrefillPDLNav
 
 
     @BeforeEach
@@ -60,7 +65,7 @@ class PrefillP2000AlderpensjonkravavvistTest {
             partSedAsJson["PersonInfo"] = readJsonResponse("other/person_informasjon_selvb.json")
             partSedAsJson["P4000"] = readJsonResponse("other/p4000_trygdetid_part.json")
         }
-        prefillSEDService = PrefillSEDService(prefillNav, persondataFraTPS, EessiInformasjon(), dataFromPEN, aktorRegisterService)
+        prefillSEDService = PrefillSEDService(prefillNav, persondataFraTPS, EessiInformasjon(), dataFromPEN, aktorRegisterService, prefillPDLNav)
 
    }
 

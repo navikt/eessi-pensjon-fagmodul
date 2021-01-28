@@ -8,6 +8,7 @@ import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModelMother.initia
 import no.nav.eessi.pensjon.fagmodul.prefill.pen.PensjonsinformasjonService
 import no.nav.eessi.pensjon.fagmodul.prefill.person.MockTpsPersonServiceFactory
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillNav
+import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillPDLNav
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillSEDService
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillTestHelper.lesPensjonsdataFraFil
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillTestHelper.readJsonResponse
@@ -40,6 +41,8 @@ class PrefillP2200UforpensjonTest {
     private lateinit var prefillSEDService: PrefillSEDService
     @Mock
     lateinit var aktorRegisterService: AktoerregisterService
+    @Mock
+    lateinit var prefillPDLNav: PrefillPDLNav
 
     @BeforeEach
     fun setup() {
@@ -58,7 +61,7 @@ class PrefillP2200UforpensjonTest {
         prefillData = initialPrefillDataModel("P2200", personFnr, penSaksnummer = "22874955").apply {
             partSedAsJson["PersonInfo"] = readJsonResponse("other/person_informasjon_selvb.json")
         }
-        prefillSEDService = PrefillSEDService(prefillNav, persondataFraTPS, EessiInformasjon(), dataFromPEN, aktorRegisterService)
+        prefillSEDService = PrefillSEDService(prefillNav, persondataFraTPS, EessiInformasjon(), dataFromPEN, aktorRegisterService, prefillPDLNav)
 
     }
 

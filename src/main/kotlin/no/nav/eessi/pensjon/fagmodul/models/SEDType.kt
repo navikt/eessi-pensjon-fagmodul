@@ -1,6 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.models
 
 enum class SEDType {
+    P2001,
     P2000,
     P2100,
     P2200,

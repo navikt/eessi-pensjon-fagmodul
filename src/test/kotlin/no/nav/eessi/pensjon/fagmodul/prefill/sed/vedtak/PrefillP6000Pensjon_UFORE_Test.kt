@@ -8,6 +8,7 @@ import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModelMother
 import no.nav.eessi.pensjon.fagmodul.prefill.pen.PensjonsinformasjonService
 import no.nav.eessi.pensjon.fagmodul.prefill.person.MockTpsPersonServiceFactory
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillNav
+import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillPDLNav
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillSEDService
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillTestHelper
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.FodselsnummerMother
@@ -42,6 +43,9 @@ class PrefillP6000Pensjon_UFORE_Test {
     @Mock
     lateinit var aktorRegisterService: AktoerregisterService
 
+    @Mock
+    lateinit var prefillPDLNav: PrefillPDLNav
+
     @BeforeEach
     fun setup() {
         prefillPersonService = PrefillTestHelper.setupPersondataFraTPS(setOf(
@@ -63,7 +67,7 @@ class PrefillP6000Pensjon_UFORE_Test {
 
         dataFromPEN = PrefillTestHelper.lesPensjonsdataVedtakFraFil("P6000-UT-201.xml")
         prefillData = PrefillDataModelMother.initialPrefillDataModel("P6000", personFnr, penSaksnummer = "22580170", vedtakId = "12312312")
-        prefillSEDService = PrefillSEDService(prefillNav, prefillPersonService, eessiInformasjon, dataFromPEN, aktorRegisterService)
+        prefillSEDService = PrefillSEDService(prefillNav, prefillPersonService, eessiInformasjon, dataFromPEN, aktorRegisterService, prefillPDLNav)
 
         val result = prefillSEDService.prefill(prefillData).pensjon!!
 
@@ -111,7 +115,7 @@ class PrefillP6000Pensjon_UFORE_Test {
     fun `preutfylling P6000 feiler ved mangler av vedtakId`() {
         dataFromPEN = PrefillTestHelper.lesPensjonsdataVedtakFraFil("P6000-UT-201.xml")
         prefillData = PrefillDataModelMother.initialPrefillDataModel("P6000", personFnr, penSaksnummer = "22580170", vedtakId = "")
-        prefillSEDService = PrefillSEDService(prefillNav, prefillPersonService, eessiInformasjon, dataFromPEN, aktorRegisterService)
+        prefillSEDService = PrefillSEDService(prefillNav, prefillPersonService, eessiInformasjon, dataFromPEN, aktorRegisterService, prefillPDLNav)
 
         assertThrows<ResponseStatusException> {
             prefillSEDService.prefill(prefillData)

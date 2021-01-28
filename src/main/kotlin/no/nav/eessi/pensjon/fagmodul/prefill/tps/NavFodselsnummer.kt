@@ -67,6 +67,8 @@ class NavFodselsnummer(private val fodselsnummer: String) {
 
     fun getBirthDate() = LocalDate.of(get4DigitBirthYear().toInt(), getMonth().toInt(), getDayInMonth().toInt())
 
+    fun getBirthDateAsString() = getBirthDate().toString()
+
     fun getValidPentionAge(): Boolean {
         val validAge = 67
         val nowDate = LocalDate.now()

@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service
 import javax.annotation.PostConstruct
 
 @Service
-class PrefillService(private val factory: PrefillSEDService,
+class PrefillService(private val prefillSedService: PrefillSEDService,
                      @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())) {
 
     private val logger = LoggerFactory.getLogger(PrefillService::class.java)
@@ -29,13 +29,13 @@ class PrefillService(private val factory: PrefillSEDService,
         PrefillSed = metricsHelper.init("PrefillSed")
     }
 
-    fun prefillSedtoJson(dataModel: PrefillDataModel, version: String) = prefillSedtoJson(dataModel, version, null)
+//    fun prefillSedtoJson(dataModel: PrefillDataModel, version: String) = prefillSedtoJson(dataModel, version, null)
 
     fun prefillSedtoJson(dataModel: PrefillDataModel, version: String, personDataCollection: PersonDataCollection? = null): SedAndType {
         return PrefillSed.measure {
             logger.info("******* Starter med preutfylling ******* $dataModel")
             try {
-                val sed = factory.prefill(dataModel)
+                val sed = prefillSedService.prefill(dataModel, personDataCollection)
                 logger.debug("sedType: ${sed.getType()}")
                 val sedType = SEDType.valueOf(sed.getType())
 
@@ -80,7 +80,7 @@ class PrefillService(private val factory: PrefillSEDService,
                 val sedtype = SEDType.X005.name
                 val datax005 = data.copy(avdod = null, sedType = sedtype, sed = SED(sedtype), institution = emptyList(), institusjonX005 = institusjon)
 
-                factory.prefill(datax005)
+                prefillSedService.prefill(datax005)
             }
 }
 

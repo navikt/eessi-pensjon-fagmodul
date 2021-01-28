@@ -13,6 +13,7 @@ import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModelMother
 import no.nav.eessi.pensjon.fagmodul.prefill.model.ReferanseTilPerson
 import no.nav.eessi.pensjon.fagmodul.prefill.pen.PensjonsinformasjonService
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillNav
+import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillPDLNav
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillSed
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.FodselsnummerMother.generateRandomFnr
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.PrefillAdresse
@@ -60,6 +61,9 @@ class PrefillP8000P_BUC_05Test {
     lateinit var aktorRegisterService: AktoerregisterService
 
     @Mock
+    lateinit var prefillPDLNav: PrefillPDLNav
+
+    @Mock
     lateinit var kodeverkClient: KodeverkClient
 
     lateinit var prefillAdresse: PrefillAdresse
@@ -77,7 +81,7 @@ class PrefillP8000P_BUC_05Test {
         val prefillSed = PrefillSed(prefillNav)
 
 
-        prefillSEDService = PrefillSEDService(prefillNav, personV3Service, EessiInformasjon(), pensjoninformasjonservice, aktorRegisterService)
+        prefillSEDService = PrefillSEDService(prefillNav, personV3Service, EessiInformasjon(), pensjoninformasjonservice, aktorRegisterService, prefillPDLNav)
 
         prefill = PrefillP8000(prefillSed)
         prefillData = PrefillDataModelMother.initialPrefillDataModel("P8000", personFnr, penSaksnummer = pesysSaksnummer)

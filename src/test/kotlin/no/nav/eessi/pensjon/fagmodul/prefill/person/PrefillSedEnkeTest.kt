@@ -36,6 +36,9 @@ class PrefillSedEnkeTest {
     @Mock
     lateinit var aktorRegisterService: AktoerregisterService
 
+    @Mock
+    lateinit var prefillPDLNav: PrefillPDLNav
+
     private val fnr = generateRandomFnr(67)
     private val b1fnr = generateRandomFnr(37)
     private val b2fnr = generateRandomFnr(17)
@@ -50,26 +53,6 @@ class PrefillSedEnkeTest {
                 ))
         pensjonsinformasjonService = PrefillTestHelper.lesPensjonsdataFraFil("KravAlderEllerUfore_AP_UTLAND.xml")
         pensjonsinformasjonServiceGjen = PrefillTestHelper.lesPensjonsdataFraFil("P2100-GL-UTL-INNV.xml")
-
-    }
-
-    @Test
-    fun `forvent utfylling av person data av ENKE fra TPS P2000`() {
-        val preutfyllingTPS = personDataFromTPS.mockPersonV3Service()
-        val prefillNav = PrefillNav(mock<PrefillAdresse>(), institutionid = "NO:noinst002", institutionnavn = "NOINST002, NO INST002, NO")
-
-        val prefillData = initialPrefillDataModel(sedType = "P2200", pinId = fnr, vedtakId = "", penSaksnummer = "14915730")
-
-        doReturn(AktoerId("3323332333233300")).`when`(aktorRegisterService).hentGjeldendeIdent(IdentGruppe.AktoerId, NorskIdent(b1fnr))
-        doReturn(AktoerId("3323332333233399")).`when`(aktorRegisterService).hentGjeldendeIdent(IdentGruppe.AktoerId, NorskIdent(b2fnr))
-
-
-        val sed = PrefillSEDService(prefillNav, preutfyllingTPS, EessiInformasjon(), pensjonsinformasjonService, aktorRegisterService).prefill(prefillData)
-
-        assertEquals("JESSINE TORDNU", sed.nav?.bruker?.person?.fornavn)
-        assertEquals("BOUWMANS", sed.nav?.bruker?.person?.etternavn)
-        assertEquals("K", sed.nav?.bruker?.person?.kjoenn)
-        assertEquals(1, sed.nav?.barn?.size)
 
     }
 
@@ -122,7 +105,7 @@ class PrefillSedEnkeTest {
         doReturn(AktoerId("1212121212121212")).`when`(aktorRegisterService).hentGjeldendeIdent(IdentGruppe.AktoerId, NorskIdent(b2fnr))
 
         val prefillData = initialPrefillDataModel(sedType = "P2200", pinId = fnr, vedtakId = "", penSaksnummer = "14915730")
-        val sed = PrefillSEDService(prefillNav, preutfyllingTPS, EessiInformasjon(), pensjonsinformasjonService, aktorRegisterService).prefill(prefillData)
+        val sed = PrefillSEDService(prefillNav, preutfyllingTPS, EessiInformasjon(), pensjonsinformasjonService, aktorRegisterService, prefillPDLNav).prefill(prefillData)
 
         assertEquals("JESSINE TORDNU", sed.nav?.bruker?.person?.fornavn)
         assertEquals("BOUWMANS", sed.nav?.bruker?.person?.etternavn)
@@ -132,5 +115,6 @@ class PrefillSedEnkeTest {
         assertEquals("P2200", sed.sed)
 
     }
+
 
 }

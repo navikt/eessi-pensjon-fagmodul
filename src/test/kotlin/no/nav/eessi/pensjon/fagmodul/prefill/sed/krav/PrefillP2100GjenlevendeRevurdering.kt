@@ -8,6 +8,7 @@ import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModelMother
 import no.nav.eessi.pensjon.fagmodul.prefill.pen.PensjonsinformasjonService
 import no.nav.eessi.pensjon.fagmodul.prefill.person.MockTpsPersonServiceFactory
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillNav
+import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillPDLNav
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillSEDService
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillTestHelper.lesPensjonsdataFraFil
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillTestHelper.setupPersondataFraTPS
@@ -40,6 +41,8 @@ class PrefillP2100GjenlevendeRevurdering {
     @Mock
     lateinit var aktorRegisterService: AktoerregisterService
 
+    @Mock
+    lateinit var prefillPDLNav: PrefillPDLNav
 
     @BeforeEach
     fun setup() {
@@ -63,7 +66,7 @@ class PrefillP2100GjenlevendeRevurdering {
                 MockTpsPersonServiceFactory.MockTPS("Person-30000.json", personFnr, MockTpsPersonServiceFactory.MockTPS.TPSType.PERSON)
         ))
 
-        prefillSEDService = PrefillSEDService(prefillNav, persondataFraTPS, EessiInformasjon(), dataFromPEN, aktorRegisterService)
+        prefillSEDService = PrefillSEDService(prefillNav, persondataFraTPS, EessiInformasjon(), dataFromPEN, aktorRegisterService, prefillPDLNav)
         val p2100 = prefillSEDService.prefill(prefillData)
 
         val p2100gjenlev = SED(

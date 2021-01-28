@@ -1,7 +1,12 @@
 package no.nav.eessi.pensjon.fagmodul.prefill
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
-import no.nav.eessi.pensjon.fagmodul.models.SEDType
+import no.nav.eessi.pensjon.fagmodul.models.SEDType.P2000
+import no.nav.eessi.pensjon.fagmodul.models.SEDType.P2001
+import no.nav.eessi.pensjon.fagmodul.models.SEDType.P2100
+import no.nav.eessi.pensjon.fagmodul.models.SEDType.P2200
+import no.nav.eessi.pensjon.fagmodul.models.SEDType.P6000
+import no.nav.eessi.pensjon.fagmodul.models.SEDType.valueOf
 import no.nav.eessi.pensjon.fagmodul.prefill.model.PersonDataCollection
 import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModel
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.NavFodselsnummer
@@ -39,11 +44,11 @@ class PersonDataService(private val personService: PersonService,
     }
 
     fun hentPersonData(prefillData: PrefillDataModel) : PersonDataCollection {
-        val sedType = SEDType.valueOf(prefillData.sedType)
+        val sedType = valueOf(prefillData.sedType)
 
         return when (sedType) {
             //alle med barn
-            SEDType.P2000, SEDType.P2200, SEDType.P2100, SEDType.P6000 -> hentPersonerMedBarn(prefillData)
+            P2001, P2000, P2200, P2100, P6000 -> hentPersonerMedBarn(prefillData)
             //alle uten barn
             else -> hentPersoner(prefillData)
         }

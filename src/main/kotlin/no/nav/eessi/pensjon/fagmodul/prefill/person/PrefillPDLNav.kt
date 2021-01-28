@@ -22,6 +22,7 @@ import no.nav.eessi.pensjon.fagmodul.sedmodel.Sepa
 import no.nav.eessi.pensjon.fagmodul.sedmodel.StatsborgerskapItem
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Familierelasjonsrolle
 import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentGruppe
+import no.nav.eessi.pensjon.personoppslag.pdl.model.KjoennType
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Navn
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Sivilstandstype
 import no.nav.eessi.pensjon.utils.simpleFormat
@@ -44,8 +45,18 @@ class PrefillPDLNav(private val prefillAdresse: PrefillPDLAdresse,
 
         private fun PDLPerson.norskIdent() = this.identer.firstOrNull { it.gruppe == IdentGruppe.FOLKEREGISTERIDENT }?.ident
 
+        private fun PDLPerson.kortKjonn() = when(this.kjoenn?.kjoenn) {
+            KjoennType.MANN -> "M"
+            KjoennType.KVINNE -> "K"
+            else -> "U"
+        }
+        private fun PDLPerson.foedseldato() = this.foedsel?.foedselsdato.toString()
+
+
         fun createFodested(pdlperson: PDLPerson): Foedested? {
             logger.debug("2.1.8.1       Fødested")
+
+            logger.debug("              foedsel : ${pdlperson.foedsel}")
 
             val fsted = Foedested(
                     land = pdlperson.foedsel?.foedeland ?: "Unknown",
@@ -58,7 +69,10 @@ class PrefillPDLNav(private val prefillAdresse: PrefillPDLAdresse,
 
         fun isPersonAvdod(pdlperson: PDLPerson) : Boolean {
             return pdlperson.erDoed()
-               .also { logger.debug("Person er avdod (ingen adresse å hente).") }
+                .also {
+                 if (it)
+                  logger.debug("Person er avdod (ingen adresse å hente).")
+                }
         }
 
         fun createPersonPinNorIdent(
@@ -163,9 +177,6 @@ class PrefillPDLNav(private val prefillAdresse: PrefillPDLAdresse,
     }
 
     fun prefill(penSaksnummer: String, bruker: PersonId, avdod: PersonId?, personData: PersonDataCollection, brukerInformasjon: BrukerInformasjon?): Nav {
-
-        logger.debug("hei")
-
         val forsikretPerson = personData.forsikretPerson
         val avdodEllerGjenlevende = personData.gjenlevendeEllerAvdod
         val ektefellePerson = personData.ektefellePerson
@@ -214,6 +225,7 @@ class PrefillPDLNav(private val prefillAdresse: PrefillPDLAdresse,
     }
 
     fun createPersonBarn(pdlperson: PDLPerson, personData: PersonDataCollection): Bruker? {
+        logger.debug("6.0 barn og familierelasjoner far/mor")
         return Bruker(
             person = createPersonData(pdlperson),
             far = createFamilieRelasjon(Familierelasjonsrolle.FAR, pdlperson, personData),
@@ -228,8 +240,8 @@ class PrefillPDLNav(private val prefillAdresse: PrefillPDLAdresse,
         //ident til relasjon (FAR/MOR)
         val relasjonIdent = barnpdlperson.familierelasjoner.firstOrNull { it.relatertPersonsRolle == relasjon }?.relatertPersonsIdent
 
-        val ektePerson = personData.ektefellePerson
         val forsikretPerson = personData.forsikretPerson
+        val ektePerson = personData.ektefellePerson
 
         //hvem er foreldre for denne relasjonen (FAR/MOR)
         val foreldrePerson = if (ektePerson?.norskIdent() == relasjonIdent) {
@@ -273,9 +285,9 @@ class PrefillPDLNav(private val prefillAdresse: PrefillPDLAdresse,
                 //2.1.2     forname
                 fornavn = createFornavnMellomNavn(pdlperson.navn),
                 //2.1.3
-                foedselsdato = pdlperson.foedsel?.foedselsdato?.toString(),
+                foedselsdato = pdlperson.foedseldato() ,
                 //2.1.4     //sex
-                kjoenn = pdlperson.kjoenn?.kjoenn?.name ,
+                kjoenn = pdlperson.kortKjonn(),
                 //2.1.6
                 fornavnvedfoedsel = null,
                 //2.1.7

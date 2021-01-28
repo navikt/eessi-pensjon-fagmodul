@@ -7,6 +7,7 @@ import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModel
 import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModelMother
 import no.nav.eessi.pensjon.fagmodul.prefill.person.MockTpsPersonServiceFactory
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillNav
+import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillPDLNav
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillTestHelper.setupPersondataFraTPS
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.FodselsnummerMother.generateRandomFnr
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.NavFodselsnummer
@@ -33,7 +34,8 @@ class PrefillP9000GLmedUtlandInnvTest {
     @Mock
     lateinit var aktorRegisterService: AktoerregisterService
 
-
+    @Mock
+    lateinit var prefillPDLNav: PrefillPDLNav
 
     @BeforeEach
     fun setup() {
@@ -51,7 +53,7 @@ class PrefillP9000GLmedUtlandInnvTest {
 
         val pensjonInformasjonService = PrefillTestHelper.lesPensjonsdataFraFil("KravAlderEllerUfore_AP_UTLAND.xml")
 
-        prefillSEDService = PrefillSEDService(prefillNav, persondataFraTPS, EessiInformasjon(), pensjonInformasjonService, aktorRegisterService)
+        prefillSEDService = PrefillSEDService(prefillNav, persondataFraTPS, EessiInformasjon(), pensjonInformasjonService, aktorRegisterService, prefillPDLNav)
 
     }
 

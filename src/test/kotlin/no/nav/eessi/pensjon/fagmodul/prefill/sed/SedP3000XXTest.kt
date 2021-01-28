@@ -8,6 +8,7 @@ import no.nav.eessi.pensjon.fagmodul.prefill.eessi.EessiInformasjon
 import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModel
 import no.nav.eessi.pensjon.fagmodul.prefill.pen.PensjonsinformasjonService
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillNav
+import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillPDLNav
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.FodselsnummerMother
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.PrefillAdresse
 import no.nav.eessi.pensjon.personoppslag.aktoerregister.AktoerregisterService
@@ -42,6 +43,9 @@ class SedP3000XXTest {
     @Mock
     lateinit var dataFromTPS: PersonV3Service
 
+    @Mock
+    lateinit var prefillPDLNav: PrefillPDLNav
+
     lateinit var prefillSEDService: PrefillSEDService
 
     private val personFnr = FodselsnummerMother.generateRandomFnr(68)
@@ -49,7 +53,7 @@ class SedP3000XXTest {
     private lateinit var person: Bruker
 
     @Mock
-lateinit var aktorRegisterService: AktoerregisterService
+    lateinit var aktorRegisterService: AktoerregisterService
 
 
     @BeforeEach
@@ -61,7 +65,7 @@ lateinit var aktorRegisterService: AktoerregisterService
                 institutionid = "NO:noinst002",
                 institutionnavn = "NOINST002, NO INST002, NO")
 
-        prefillSEDService = PrefillSEDService(prefillNav, dataFromTPS, eessiInformasjon, dataFromPEN, aktorRegisterService)
+        prefillSEDService = PrefillSEDService(prefillNav, dataFromTPS, eessiInformasjon, dataFromPEN, aktorRegisterService, prefillPDLNav)
         whenever(dataFromTPS.hentBruker(any())).thenReturn(person)
     }
 

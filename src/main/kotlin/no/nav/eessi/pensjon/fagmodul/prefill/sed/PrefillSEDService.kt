@@ -5,6 +5,7 @@ import no.nav.eessi.pensjon.fagmodul.models.SEDType.H021
 import no.nav.eessi.pensjon.fagmodul.models.SEDType.P10000
 import no.nav.eessi.pensjon.fagmodul.models.SEDType.P15000
 import no.nav.eessi.pensjon.fagmodul.models.SEDType.P2000
+import no.nav.eessi.pensjon.fagmodul.models.SEDType.P2001
 import no.nav.eessi.pensjon.fagmodul.models.SEDType.P2100
 import no.nav.eessi.pensjon.fagmodul.models.SEDType.P2200
 import no.nav.eessi.pensjon.fagmodul.models.SEDType.P4000
@@ -19,6 +20,7 @@ import no.nav.eessi.pensjon.fagmodul.prefill.model.PersonDataCollection
 import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModel
 import no.nav.eessi.pensjon.fagmodul.prefill.pen.PensjonsinformasjonService
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillNav
+import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillPDLNav
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillSed
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.PrefillP2000
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.PrefillP2100
@@ -45,15 +47,18 @@ import org.springframework.stereotype.Component
 import org.springframework.web.server.ResponseStatusException
 
 @Component
-class PrefillSEDService(private val prefillNav: PrefillNav,
-                        private val personV3Service: PersonV3Service,
-                        private val eessiInformasjon: EessiInformasjon,
-                        private val pensjonsinformasjonService: PensjonsinformasjonService,
-                        private val aktorRegisterService: AktoerregisterService) {
+class PrefillSEDService(
+    private val prefillNav: PrefillNav,
+    private val personV3Service: PersonV3Service,
+    private val eessiInformasjon: EessiInformasjon,
+    private val pensjonsinformasjonService: PensjonsinformasjonService,
+    private val aktorRegisterService: AktoerregisterService,
+    private val prefillPDLnav: PrefillPDLNav
+) {
 
     private val logger: Logger by lazy { LoggerFactory.getLogger(PrefillSEDService::class.java) }
 
-    fun prefill(prefillData: PrefillDataModel) = prefill(prefillData, null)
+    //fun prefill(prefillData: PrefillDataModel) = prefill(prefillData, null)
 
     fun prefill(prefillData: PrefillDataModel, personDataCollection: PersonDataCollection? = null): SED {
 
@@ -62,6 +67,9 @@ class PrefillSEDService(private val prefillNav: PrefillNav,
         logger.debug("mapping prefillClass to SED: $sedType")
 
         return when (sedType) {
+            //krav - PDL
+            P2001 -> PrefillP2000(prefillNav).prefillPDL(prefillPDLnav, prefillData, personDataCollection , hentRelevantPensjonSak(prefillData) { pensakType -> pensakType == ALDER.name }, hentRelevantVedtak(prefillData))
+
             //krav
             P2000 -> PrefillP2000(prefillNav).prefill(prefillData, hentPersonerMedBarn(prefillData), hentRelevantPensjonSak(prefillData) { pensakType -> pensakType == ALDER.name }, hentRelevantVedtak(prefillData))
             P2200 -> PrefillP2200(prefillNav).prefill(prefillData, hentPersonerMedBarn(prefillData), hentRelevantPensjonSak(prefillData) { pensakType -> pensakType == UFOREP.name }, hentRelevantVedtak(prefillData))
