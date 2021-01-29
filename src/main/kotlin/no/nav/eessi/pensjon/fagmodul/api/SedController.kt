@@ -102,7 +102,7 @@ class SedController(
         logger.debug("request: ${request.toJson()}")
 
         val norskIdent = personService.hentIdent(IdentType.NorskIdent, AktoerId(request.aktoerId!!)).id
-        val dataModel = ApiRequest.buildPrefillDataModelOnExisting(request, norskIdent, getAvdodAktoerId(request))
+        val dataModel = ApiRequest.buildPrefillDataModelOnExisting(request, norskIdent, getAvdodAktoerIdPDL(request))
 
         logger.debug(
             """
@@ -379,6 +379,33 @@ class SedController(
                     HttpStatus.NOT_FOUND,
                     "AktoerId for NorskIdent ikke funnet."
                 )
+            }
+            else -> null
+        }
+    }
+
+
+    //Hjelpe funksjon for å validere og hente aktoerid for evt. avdodfnr fra UI (P2100) - PDL
+    fun getAvdodAktoerIdPDL(request: ApiRequest): String? {
+        val buc = request.buc ?: throw MangelfulleInndataException("Mangler Buc")
+        return when (buc) {
+            "P_BUC_02" -> {
+                val norskIdent = request.riktigAvdod() ?: run {
+                    logger.error("Mangler fnr for avdød")
+                    throw MangelfulleInndataException("Mangler fnr for avdød")
+                }
+                if (norskIdent.isBlank()) {
+                    logger.debug("Ident har tom input")
+                    throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ident har tom input-verdi")
+                }
+                personService.hentIdent(IdentType.AktoerId, no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent(norskIdent)).id
+            }
+            "P_BUC_05","P_BUC_06","P_BUC_10" -> {
+                val norskIdent = request.riktigAvdod() ?: return null
+                if (norskIdent.isBlank()) {
+                    throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ident har tom input-verdi")
+                }
+                personService.hentIdent(IdentType.AktoerId, no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent(norskIdent)).id
             }
             else -> null
         }

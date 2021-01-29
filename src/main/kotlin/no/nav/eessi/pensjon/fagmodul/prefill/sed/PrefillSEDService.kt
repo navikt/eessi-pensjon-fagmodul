@@ -7,6 +7,7 @@ import no.nav.eessi.pensjon.fagmodul.models.SEDType.P15000
 import no.nav.eessi.pensjon.fagmodul.models.SEDType.P2000
 import no.nav.eessi.pensjon.fagmodul.models.SEDType.P2001
 import no.nav.eessi.pensjon.fagmodul.models.SEDType.P2100
+import no.nav.eessi.pensjon.fagmodul.models.SEDType.P2101
 import no.nav.eessi.pensjon.fagmodul.models.SEDType.P2200
 import no.nav.eessi.pensjon.fagmodul.models.SEDType.P4000
 import no.nav.eessi.pensjon.fagmodul.models.SEDType.P6000
@@ -69,7 +70,18 @@ class PrefillSEDService(
         return when (sedType) {
             //krav - PDL
             P2001 -> PrefillP2000(prefillNav).prefillPDL(prefillPDLnav, prefillData, personDataCollection , hentRelevantPensjonSak(prefillData) { pensakType -> pensakType == ALDER.name }, hentRelevantVedtak(prefillData))
-
+            P2101 -> {
+                val sedpair = PrefillP2100(prefillNav).prefillPDL(prefillPDLnav, prefillData, personDataCollection, hentRelevantPensjonSak(prefillData) { pensakType ->
+                    listOf(
+                        "ALDER",
+                        "BARNEP",
+                        "GJENLEV",
+                        "UFOREP"
+                    ).contains(pensakType)
+                })
+                prefillData.melding = sedpair.first
+                sedpair.second
+            }
             //krav
             P2000 -> PrefillP2000(prefillNav).prefill(prefillData, hentPersonerMedBarn(prefillData), hentRelevantPensjonSak(prefillData) { pensakType -> pensakType == ALDER.name }, hentRelevantVedtak(prefillData))
             P2200 -> PrefillP2200(prefillNav).prefill(prefillData, hentPersonerMedBarn(prefillData), hentRelevantPensjonSak(prefillData) { pensakType -> pensakType == UFOREP.name }, hentRelevantVedtak(prefillData))

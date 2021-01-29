@@ -183,6 +183,18 @@ class PrefillPDLNav(private val prefillAdresse: PrefillPDLAdresse,
         val sivilstandstype = personData.sivilstandstype
         val barnPersonList = personData.barnPersonList
 
+        logger.debug(
+            """
+                ----------------------------------------------------------------------------------------
+                forsikret: ${forsikretPerson?.navn?.sammensattNavn}
+                avdød    : ${avdodEllerGjenlevende?.navn?.sammensattNavn}
+                ----------------------------------------------------------------------------------------
+            """.trimIndent()
+
+
+        )
+
+
         val personInfo = brukerInformasjon
 
         return Nav(
@@ -211,6 +223,8 @@ class PrefillPDLNav(private val prefillAdresse: PrefillPDLAdresse,
                 barn = createBarnliste(barnPersonList.map { createPersonBarn(it, personData) })
         )
     }
+
+    fun createBruker(pdlperson: PDLPerson) = createBruker(pdlperson, null, null)
 
     fun createBruker(pdlperson: PDLPerson,
                      bank: Bank?,

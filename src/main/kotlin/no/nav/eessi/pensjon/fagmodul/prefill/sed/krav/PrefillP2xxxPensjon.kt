@@ -47,16 +47,19 @@ object PrefillP2xxxPensjon {
      *  Fyller ut fra hvilket tidspunkt bruker ønsker å motta pensjon fra Norge.
      *  Det er et spørsmål i søknadsdialogen og på manuell kravblankett. Det er ikke nødvendigvis lik virkningstidspunktet på pensjonen.
      */
-    private fun createKravDato(valgtKrav: V1KravHistorikk, message: String? = ""): Krav {
+    private fun createKravDato(valgtKrav: V1KravHistorikk?, message: String? = ""): Krav? {
         logger.debug("9.1        Dato Krav (med korrekt data fra PESYS krav.virkningstidspunkt)")
-        logger.debug("KravType   :  ${valgtKrav.kravType}")
-        logger.debug("mottattDato:  ${valgtKrav.mottattDato}")
+        logger.debug("KravType   :  ${valgtKrav?.kravType}")
+        logger.debug("mottattDato:  ${valgtKrav?.mottattDato}")
         logger.debug("--------------------------------------------------------------")
 
-        logger.debug("Prøver å sette kravDato til Virkningstidpunkt: ${valgtKrav.kravType} og dato: ${valgtKrav.mottattDato}")
+        logger.debug("Prøver å sette kravDato til Virkningstidpunkt: ${valgtKrav?.kravType} og dato: ${valgtKrav?.mottattDato}")
         logger.debug("sakstatus: $message")
-        return Krav(dato = valgtKrav.mottattDato?.simpleFormat()
-        )
+
+        if (valgtKrav != null && valgtKrav.mottattDato != null) {
+            return Krav(dato = valgtKrav.mottattDato?.simpleFormat())
+        }
+        return null
     }
 
     /**

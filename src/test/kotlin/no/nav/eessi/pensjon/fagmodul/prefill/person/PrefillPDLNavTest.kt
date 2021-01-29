@@ -117,6 +117,7 @@ class PrefillPDLNavTest {
         val far = lagPerson(somePersonNr, "Ole", "Brum").medBarn(someBarnPersonNr)
         val barn = lagPerson(someBarnPersonNr, "Nasse", "Nøff").medForeldre(far)
 
+        //fdato
         val farfdato = far.foedsel?.foedselsdato?.toString()
         val barnfdato = barn.foedsel?.foedselsdato?.toString()
 
@@ -147,11 +148,10 @@ class PrefillPDLNavTest {
         val somePersonNr = FodselsnummerMother.generateRandomFnr(60)
         val somerEktefellePersonNr = FodselsnummerMother.generateRandomFnr(50)
 
-        val personfnr = NavFodselsnummer(somePersonNr)
-        val ektefnr = NavFodselsnummer(somerEktefellePersonNr)
-        val personFdato = personfnr.getBirthDate().toString()
-        val ektefellFdato = ektefnr.getBirthDate().toString()
+        val personFdato =  NavFodselsnummer(somePersonNr).getBirthDate().toString()
+        val ektefellFdato = NavFodselsnummer(somerEktefellePersonNr).getBirthDate().toString()
 
+        //ektefelle
         val pair = createPersonMedEktefellePartner(somePersonNr, somerEktefellePersonNr, Sivilstandstype.GIFT)
 
         val person = pair.first
@@ -181,32 +181,32 @@ class PrefillPDLNavTest {
 
     @Test
     fun `prefill komplett familierelasjon og sivilstand`() {
+        //generer fnr
         val farfnr = FodselsnummerMother.generateRandomFnr(42)
         val morfnr = FodselsnummerMother.generateRandomFnr(41)
         val barn1 = FodselsnummerMother.generateRandomFnr(11)
         val barn2 = FodselsnummerMother.generateRandomFnr(13)
 
-        val personfnr = NavFodselsnummer(farfnr)
-        val ektefnr = NavFodselsnummer(morfnr)
-        val barn1fnr = NavFodselsnummer(barn1)
-        val barn2fnr = NavFodselsnummer(barn2)
+        val personFdato = NavFodselsnummer(farfnr).getBirthDateAsString()
+        val ektefellFdato = NavFodselsnummer(morfnr).getBirthDateAsString()
+        val barnetfdato = NavFodselsnummer(barn1).getBirthDateAsString()
+        val barntofdato = NavFodselsnummer(barn2).getBirthDateAsString()
 
-        val personFdato = personfnr.getBirthDateAsString()
-        val ektefellFdato = ektefnr.getBirthDateAsString()
-        val barnetfdato = barn1fnr.getBirthDateAsString()
-        val barntofdato = barn2fnr.getBirthDateAsString()
-
+        //far og mor i pair
         val pair = createPersonMedEktefellePartner(farfnr, morfnr, Sivilstandstype.GIFT)
 
-        val far = pair.first.medBarn(barn1).medBarn(barn2).medAdresse("STORGATA")
-        val mor = pair.second.medBarn(barn1).medBarn(barn2).medAdresse("STORGATA")
+        //far og mor med barn
+        val far = pair.first.medAdresse("STORGATA").medBarn(barn1).medBarn(barn2)
+        val mor = pair.second.medAdresse("STORGATA").medBarn(barn1).medBarn(barn2)
 
+        //barn
         val barnet = lagPerson(barn1, fornavn = "OLE", etternavn = "BRUM").medForeldre(far).medForeldre(mor)
         val barnto = lagPerson(barn2, fornavn = "NASSE", etternavn = "NØFF").medForeldre(far).medForeldre(mor)
 
         val personDataCollection = PersonDataCollection(forsikretPerson = far, ektefellePerson = mor, sivilstandstype = Sivilstandstype.GIFT, gjenlevendeEllerAvdod = far, barnPersonList = listOf(barnet, barnto))
         val prefillData = PrefillDataModelMother.initialPrefillDataModel("P2200", pinId = farfnr, penSaksnummer = somePenSaksnr)
 
+        //landkode NO
         doReturn("NO").whenever(kodeverkClient).finnLandkode2("NOR")
 
         val actual = prefillPDLNav.prefill(prefillData.penSaksnummer, prefillData.bruker, prefillData.avdod, personDataCollection, prefillData.getPersonInfoFromRequestData())

@@ -96,6 +96,12 @@ class PrefillNavTest {
                         person = lagPerson(barnetsPin, "Ole", "Brum", null, someInstitutionId, someIntitutionNavn),
                         relasjontilbruker = "BARN")))
 
+        println("--------------------------------------")
+        println(actual.toJsonSkipEmpty())
+        println("--------------------------------------")
+        println(expected.toJsonSkipEmpty())
+        println("--------------------------------------")
+
         assertEquals(expected, actual)
     }
 
