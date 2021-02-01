@@ -3,6 +3,7 @@ package no.nav.eessi.pensjon.fagmodul.prefill
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.FodselsnummerMother
 import no.nav.eessi.pensjon.fagmodul.prefill.tps.NavFodselsnummer
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Bostedsadresse
+import no.nav.eessi.pensjon.personoppslag.pdl.model.Doedsfall
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Familierelasjonsrolle
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Familierlasjon
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Foedsel
@@ -22,8 +23,10 @@ import java.time.LocalDateTime
 
 class LagPDLPerson {
     companion object {
-        fun lagPerson(norskIdent: String = FodselsnummerMother.generateRandomFnr(60), fornavn: String = "OLE", etternavn: String = "OLSEN", land: String = "NOR", kjoennType: KjoennType = KjoennType.MANN): Person {
+        fun lagPerson(norskIdent: String = FodselsnummerMother.generateRandomFnr(60), fornavn: String = "OLE", etternavn: String = "OLSEN", land: String = "NOR", kjoennType: KjoennType = KjoennType.MANN, erDod: Boolean? = false): Person {
             val personfnr = NavFodselsnummer(norskIdent)
+            val fdatoaar =  if (erDod != null && erDod == true) LocalDate.of(1921, 7, 12) else personfnr.getBirthDate()
+            val doeadfall = if (erDod != null && erDod == true) Doedsfall(LocalDate.of(2020, 10, 1), null) else null
             return Person(
                 identer = listOf(IdentInformasjon(norskIdent, IdentGruppe.FOLKEREGISTERIDENT)),
                 navn = Navn(fornavn, null, etternavn),
@@ -31,21 +34,17 @@ class LagPDLPerson {
                 bostedsadresse = null,
                 oppholdsadresse = null,
                 statsborgerskap = listOf(Statsborgerskap(land, LocalDate.of(2000, 10, 1), LocalDate.of(2300, 10, 1))),
-                foedsel = Foedsel(personfnr.getBirthDate(), null, null, null),
+                foedsel = Foedsel(fdatoaar, "NOR", null, null),
                 geografiskTilknytning = null,
                 kjoenn = Kjoenn(kjoennType, null),
-                doedsfall = null,
-                familierelasjoner = mutableListOf(),
+                doedsfall = doeadfall,
+                familierelasjoner = emptyList(),
                 sivilstand = emptyList()
             )
         }
 
         fun Person.medBarn(barnfnr: String): Person {
-                val minRolle = when(this.kjoenn?.kjoenn) {
-                    KjoennType.MANN -> Familierelasjonsrolle.FAR
-                    KjoennType.KVINNE -> Familierelasjonsrolle.MOR
-                    else -> Familierelasjonsrolle.MEDMOR
-                }
+                val minRolle = familieRolle(this)
                 val list = mutableListOf<Familierlasjon>()
                 list.addAll(this.familierelasjoner)
                 list.add(Familierlasjon(
@@ -57,11 +56,7 @@ class LagPDLPerson {
         }
 
         fun Person.medForeldre(foreldre: Person): Person {
-            val foreldreRolle = when(foreldre.kjoenn?.kjoenn) {
-                KjoennType.MANN -> Familierelasjonsrolle.FAR
-                KjoennType.KVINNE -> Familierelasjonsrolle.MOR
-                else -> Familierelasjonsrolle.MEDMOR
-            }
+            val foreldreRolle = familieRolle(foreldre)
             val foreldrefnr = foreldre.identer.firstOrNull { it.gruppe == IdentGruppe.FOLKEREGISTERIDENT }?.ident
             val list = mutableListOf<Familierlasjon>()
             list.addAll(this.familierelasjoner)
@@ -71,6 +66,14 @@ class LagPDLPerson {
                 minRolleForPerson = Familierelasjonsrolle.BARN)
             )
             return this.copy(familierelasjoner = list)
+        }
+
+        private fun familieRolle(person: Person) : Familierelasjonsrolle {
+            return when(person.kjoenn?.kjoenn) {
+                KjoennType.MANN -> Familierelasjonsrolle.FAR
+                KjoennType.KVINNE -> Familierelasjonsrolle.MOR
+                else -> Familierelasjonsrolle.MEDMOR
+            }
         }
 
         fun Person.medAdresse(gate: String?) = this.copy(bostedsadresse = Bostedsadresse(

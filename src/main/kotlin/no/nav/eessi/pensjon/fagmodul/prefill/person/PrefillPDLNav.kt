@@ -52,21 +52,6 @@ class PrefillPDLNav(private val prefillAdresse: PrefillPDLAdresse,
         }
         private fun PDLPerson.foedseldato() = this.foedsel?.foedselsdato.toString()
 
-
-        fun createFodested(pdlperson: PDLPerson): Foedested? {
-            logger.debug("2.1.8.1       Fødested")
-
-            logger.debug("              foedsel : ${pdlperson.foedsel}")
-
-            val fsted = Foedested(
-                    land = pdlperson.foedsel?.foedeland ?: "Unknown",
-                    by = "Unkown",
-                    region = ""
-            )
-
-            return fsted.takeUnless { it.land == "Unknown" }
-        }
-
         fun isPersonAvdod(pdlperson: PDLPerson) : Boolean {
             return pdlperson.erDoed()
                 .also {
@@ -332,13 +317,35 @@ class PrefillPDLNav(private val prefillAdresse: PrefillPDLAdresse,
         )
     }
 
+    private fun validateUgyldigeLand(landkode: String?): String? {
+        return if(UGYLDIGE_LAND_RINA.contains(landkode)){
+            null
+        } else {
+            return prefillAdresse.hentLandkode(landkode)
+        }
+    }
+
+    fun createFodested(pdlperson: PDLPerson): Foedested? {
+        logger.debug("2.1.8.1       Fødested")
+        logger.debug("              foedsel : ${pdlperson.foedsel}")
+
+        val landkode = validateUgyldigeLand(pdlperson.foedsel?.foedeland)
+        val fsted = Foedested(
+            land = landkode ?: "Unknown",
+            by = "Unknown",
+            region = ""
+        )
+
+        return fsted.takeUnless { it.land == "Unknown" }
+    }
+
     /**
      * Prefiller to-bokstavs statsborgerskap
      * Hopper over Kosovo (XXK) fordi Rina ikke støttet Kosovo
      */
     private fun createStatsborgerskap(landkode: String?): StatsborgerskapItem {
         logger.debug("2.2.1.1         Land / Statsborgerskap")
-        if(UGYLDIGE_LAND_RINA.contains(landkode)){
+        if(validateUgyldigeLand(landkode) == null){
             return StatsborgerskapItem()
         }
         return StatsborgerskapItem(prefillAdresse.hentLandkode(landkode))

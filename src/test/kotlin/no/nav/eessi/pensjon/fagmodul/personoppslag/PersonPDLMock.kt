@@ -27,7 +27,6 @@ object PersonPDLMock {
                 true -> "026123"
                 else -> null
             }
-
             return Person(
                 listOf(
                     IdentInformasjon(
