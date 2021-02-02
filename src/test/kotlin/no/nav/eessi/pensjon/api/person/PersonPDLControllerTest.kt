@@ -37,7 +37,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.context.annotation.ComponentScan
-import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
@@ -45,6 +44,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDate
 import java.time.LocalDateTime
+import kotlin.test.assertEquals
 
 @WebMvcTest(PersonPDLController::class)
 @ComponentScan(basePackages = ["no.nav.eessi.pensjon.api.person"])
@@ -68,6 +68,13 @@ class PersonPDLControllerTest {
 
     @MockBean
     lateinit var pdlService: PersonService
+
+    companion object {
+        const val AKTOERID = "012345"
+
+        const val FNR = "01010123456"
+
+    }
 
     @Test
     fun `getPerson should return Person as json`() {
@@ -100,15 +107,12 @@ class PersonPDLControllerTest {
     }
 
     @Test
-    fun `should return NOT_FOUND hvis personen ikke finnes i TPS`() {
-//        doThrow(PersonV3IkkeFunnetException("Error is Expected")).whenever(mockPersonV3Service).hentPersonResponse(anFnr)
+    fun `should return NOT_FOUND hvis personen ikke finnes`() {
         doNothing().whenever(auditLogger).log(any(), any())
-//        whenever(mockAktoerregisterService.hentGjeldendeIdent(IdentGruppe.NorskIdent, AktoerId(anAktorId))).thenReturn(NorskIdent(anFnr))
-
-        doThrow(PersonoppslagException(HttpStatus.NOT_FOUND.name)).whenever(pdlService).hentPerson(any<Ident<*>>())
+        doThrow(PersonoppslagException("not_found: Fant ikke person")).whenever(pdlService).hentPerson(any<Ident<*>>())
 
         mvc.perform(
-            get("/person/pdl/info/${Companion.AKTOERID}")
+            get("/person/pdl/info/${AKTOERID}")
                 .accept(MediaType.APPLICATION_JSON)
         )
             .andExpect(status().isNotFound)
@@ -147,28 +151,26 @@ class PersonPDLControllerTest {
                 Familierlasjon(avdodMorfnr, Familierelasjonsrolle.MOR, Familierelasjonsrolle.BARN)
             )
         )
-
         doReturn(mockPensjoninfo).whenever(mockPensjonClient).hentAltPaaVedtak(vedtaksId)
-
         doReturn(avdodMor).whenever(pdlService).hentPerson(NorskIdent(avdodMorfnr))
         doReturn(avdodFar).whenever(pdlService).hentPerson(NorskIdent(avdodFarfnr))
         doReturn(barn).whenever(pdlService).hentPerson(AktoerId(aktoerId))
 
         val response = mvc.perform(
-            get("/person/pdl/$fnrGjenlevende/avdode/vedtak/$vedtaksId")
+            get("/person/pdl/$aktoerId/avdode/vedtak/$vedtaksId")
                 .accept(MediaType.APPLICATION_JSON)
         )
             .andReturn().response
 
         println(response.contentAsString)
-//        val actual = mapJsonToAny(response.contentAsString, typeRefs<List<PersonPDLController.PersoninformasjonAvdode>>())
-//        val avdodFarResponse = actual.first()
-//        val avdodMorResponse = actual.last()
+        val actual = mapJsonToAny(response.contentAsString, typeRefs<List<PersonPDLController.PersoninformasjonAvdode>>())
+        val avdodFarResponse = actual.first()
+        val avdodMorResponse = actual.last()
 
-//        assertEquals(avdodMorfnr, avdodMorResponse.fnr)
-//        assertEquals(MOR.name, avdodMorResponse.relasjon)
-//        assertEquals(avdodFarfnr, avdodFarResponse.fnr)
-//        assertEquals(FAR.name, avdodFarResponse.relasjon)
+        assertEquals(avdodMorfnr, avdodMorResponse.fnr)
+        assertEquals(Familierelasjonsrolle.MOR.name, avdodMorResponse.relasjon)
+        assertEquals(avdodFarfnr, avdodFarResponse.fnr)
+        assertEquals(Familierelasjonsrolle.FAR.name, avdodFarResponse.relasjon)
     }
 
     @Test
@@ -184,36 +186,29 @@ class PersonPDLControllerTest {
         mockPensjoninfo.avdod.avdodMor = avdodMorfnr
         mockPensjoninfo.person.aktorId = aktoerId
 
-        val relasjonMor = "MORA"
-//        val avdodMorTPSBruker = lagTPSBruker(avdodMorfnr, "Stor", "Blyant")
-//        val gjenlevendeBarnTSPBruker =
-//            lagTPSBruker(fnrGjenlevende, "Liten", "Blyant").medVoksen(avdodMorfnr, relasjonMor)
-
         val avdodmor = lagPerson(avdodMorfnr, "Stor", "Blyant",
             listOf(Familierlasjon(fnrGjenlevende, Familierelasjonsrolle.BARN, Familierelasjonsrolle.MOR)))
         val barn = lagPerson(fnrGjenlevende, "Liten", "Blyant",
             listOf(Familierlasjon(avdodMorfnr, Familierelasjonsrolle.MOR, Familierelasjonsrolle.BARN)))
 
         doReturn(mockPensjoninfo).whenever(mockPensjonClient).hentAltPaaVedtak(vedtaksId)
-//        doReturn(avdodMorTPSBruker).whenever(mockPersonV3Service).hentBruker(avdodMorfnr)
-//        doReturn(NorskIdent(fnrGjenlevende)).whenever(mockAktoerregisterService).hentGjeldendeIdent(eq(IdentGruppe.NorskIdent), any<AktoerId>())
-//        doReturn(HentPersonResponse().withPerson(gjenlevendeBarnTSPBruker)).whenever(mockPersonV3Service).hentPersonResponse(fnrGjenlevende)
-
         doReturn(avdodmor).whenever(pdlService).hentPerson(NorskIdent(avdodMorfnr))
         doReturn(barn).whenever(pdlService).hentPerson(AktoerId(aktoerId))
 
-
         val response = mvc.perform(
-            get("/person/pdl/$fnrGjenlevende/avdode/vedtak/$vedtaksId")
+            get("/person/pdl/$aktoerId/avdode/vedtak/$vedtaksId")
                 .accept(MediaType.APPLICATION_JSON)
-        )
-            .andReturn().response
+        ).andReturn().response
 
-        println(response.contentAsString)
-//        val actual =
-//            mapJsonToAny(response.contentAsString, typeRefs<List<PersonPDLController.PersoninformasjonAvdode>>()).first()
-//        assertTrue(actual.fnr == avdodMorfnr)
-//        assertTrue(actual.relasjon == MOR.name)
+
+        print(response.contentAsString)
+        val result = mapJsonToAny(response.contentAsString, typeRefs<List<PersonPDLController.PersoninformasjonAvdode?>>())
+
+        assertEquals(1, result.size)
+        val element = result.firstOrNull()
+        assertEquals  (avdodMorfnr, element?.fnr)
+        assertEquals (Familierelasjonsrolle.MOR.name, element?.relasjon)
+
     }
 
 
@@ -221,31 +216,33 @@ class PersonPDLControllerTest {
     fun `getDeceased should return an empty list when both partents are alive`() {
         val vedtaksId = "22455454"
         val fnrGjenlevende = "13057065487"
-        val avdodMorfnr = "310233213123"
+        val aktoerId = "212342321312"
 
         val mockPensjoninfo = Pensjonsinformasjon()
-        mockPensjoninfo.avdod = V1Avdod()
         mockPensjoninfo.person = V1Person()
+        mockPensjoninfo.person.aktorId = aktoerId
 
-//        val gjenlevendeBarnTSPBruker = lagTPSBruker(fnrGjenlevende, "Liten", "Blyant").medVoksen(avdodMorfnr, "MOR")
         doReturn(mockPensjoninfo).whenever(mockPensjonClient).hentAltPaaVedtak(vedtaksId)
-//        doReturn(NorskIdent(fnrGjenlevende)).whenever(mockAktoerregisterService).hentGjeldendeIdent(eq(IdentGruppe.NorskIdent), any<AktoerId>())
-//        doReturn(HentPersonResponse().withPerson(gjenlevendeBarnTSPBruker)).whenever(mockPersonV3Service).hentPersonResponse(fnrGjenlevende)
+
+        val barn = lagPerson(fnrGjenlevende, "Liten", "Blyant",
+            listOf(Familierlasjon("231231231231", Familierelasjonsrolle.MOR, Familierelasjonsrolle.BARN)))
+        doReturn(barn).whenever(pdlService).hentPerson(any<Ident<*>>())
 
         val response = mvc.perform(
-            get("/person/$fnrGjenlevende/avdode/vedtak/$vedtaksId")
+            get("/person/pdl/$aktoerId/avdode/vedtak/$vedtaksId")
                 .accept(MediaType.APPLICATION_JSON)
         )
             .andReturn().response
-        val list: List<String> = mapJsonToAny(response.contentAsString, typeRefs())
-        assert(list.isEmpty())
+
+        val list: List<PersonPDLController.PersoninformasjonAvdode?> = mapJsonToAny(response.contentAsString, typeRefs())
+        assertEquals(emptyList(), list)
     }
 
     private val personResponsAsJson = """
         {
           "identer": [
             {
-              "ident": "123456",
+              "ident": "01010123456",
               "gruppe": "FOLKEREGISTERIDENT"
             }
           ],
@@ -279,36 +276,15 @@ class PersonPDLControllerTest {
         }
     """.trimIndent()
 
-    private val personAsJson = """{
-                  "person": {
-                    "diskresjonskode": null,
-                    "bostedsadresse": null,
-                    "sivilstand": null,
-                    "statsborgerskap": null,
-                    "harFraRolleI": [],
-                    "aktoer": null,
-                    "kjoenn": null,
-                    "personnavn": { "fornavn": "OLA", "etternavn": "NORDMANN", "mellomnavn": null, "sammensattNavn": "NORDMANN OLA", "endringstidspunkt": null, "endretAv": null, "endringstype": null},
-                    "personstatus": null,
-                    "postadresse": null,
-                    "doedsdato": null,
-                    "foedselsdato": null
-                  }
-                }"""
-
-    private val namesAsJson =
-        """{ fornavn: "OLA", etternavn: "NORDMANN", mellomnavn: null, fulltNavn: "NORDMANN OLA"}"""
-
+    private val namesAsJson =  """{ fornavn: "OLA", etternavn: "NORDMANN", mellomnavn: null, fulltNavn: "NORDMANN OLA"}""".trimIndent()
 
     private fun lagPerson(
-        fnr: String = FNR,
+        fnr: String = FNR ,
         fornavn: String = "Fornavn",
         etternavn: String = "Etternavn",
         familierlasjon: List<Familierlasjon> = emptyList(),
         sivilstand: List<Sivilstand> = emptyList()
-    ): Person {
-
-        return Person(
+    ) = Person(
             listOf(IdentInformasjon(fnr, IdentGruppe.FOLKEREGISTERIDENT)),
             Navn(fornavn = fornavn, etternavn = etternavn, mellomnavn = null),
             emptyList(),
@@ -331,11 +307,5 @@ class PersonPDLControllerTest {
             familierlasjon,
             sivilstand
         )
-    }
 
-    companion object {
-        private const val AKTOERID = "012345"
-        private const val FNR = "01010123456"
-
-    }
 }

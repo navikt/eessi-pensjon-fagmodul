@@ -5,12 +5,14 @@ import io.swagger.annotations.ApiOperation
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
+import no.nav.eessi.pensjon.personoppslag.pdl.PersonoppslagException
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Familierelasjonsrolle
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Navn
 import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Person
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonClient
+import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -70,15 +72,22 @@ class PersonPDLController(
     fun getDeceased(
         @PathVariable("aktoerId", required = true) gjenlevendeAktoerId: String,
         @PathVariable("vedtaksId", required = true) vedtaksId: String
-    ): ResponseEntity<Any> {
-
+    ): ResponseEntity<List<PersoninformasjonAvdode?>> {
         logger.debug("Henter informasjon om avdøde $gjenlevendeAktoerId fra vedtak $vedtaksId")
         auditLogger.log("/person/{$gjenlevendeAktoerId}/vedtak", "getDeceased")
 
         return PersonControllerHentPersonAvdod.measure {
 
             val pensjonInfo = pensjonsinformasjonClient.hentAltPaaVedtak(vedtaksId)
+            logger.debug("pensjonInfo: ${pensjonInfo.toJsonSkipEmpty()}")
+
+            if (pensjonInfo.avdod == null) {
+                logger.info("Ingen avdøde return empty list")
+                return@measure ResponseEntity.ok(emptyList())
+            }
+
             val gjenlevende = hentPerson(gjenlevendeAktoerId)
+            logger.debug("gjenlevende : $gjenlevende")
 
             val avdode = mapOf(
                 pensjonInfo.avdod?.avdod to null,
@@ -86,12 +95,15 @@ class PersonPDLController(
                 pensjonInfo.avdod?.avdodMor to Familierelasjonsrolle.MOR
             )
 
+            logger.debug("avdød map : ${avdode}")
+
             val avdodeMedFnr = avdode
                 .filter { (fnr, _) -> isNumber(fnr) }
                 .map { (fnr, rolle) -> pairPersonFnr(fnr!!, rolle, gjenlevende) }
 
             logger.info("Det ble funnet ${avdodeMedFnr.size} avdøde for den gjenlevende med aktørID: $gjenlevendeAktoerId")
 
+            logger.debug("result: ${avdodeMedFnr.toJsonSkipEmpty()}")
             ResponseEntity.ok(avdodeMedFnr)
         }
     }
@@ -102,10 +114,13 @@ class PersonPDLController(
         gjenlevende: Person?
     ): PersoninformasjonAvdode {
 
+        logger.debug("Henter avdød person")
         val avdode = pdlService.hentPerson(NorskIdent(avdodFnr))
         val avdodNavn = avdode?.navn
 
         val relasjon = avdodRolle ?: gjenlevende?.sivilstand?.firstOrNull { it.relatertVedSivilstand == avdodFnr }?.type
+
+        logger.debug("return PersoninformasjonAvdode")
         return PersoninformasjonAvdode(
             fnr = avdodFnr,
             fulltNavn = avdodNavn?.sammensattNavn,
@@ -129,7 +144,7 @@ class PersonPDLController(
         auditLogger.log("/personinfo/{$aktoerid}", "getNameOnly")
 
         return PersonControllerHentPersonNavn.measure {
-            val navn = hentPerson(aktoerid)?.navn
+            val navn = hentPerson(aktoerid).navn
             ResponseEntity.ok(
                 Personinformasjon(
                     navn?.sammensattNavn(),
@@ -146,17 +161,24 @@ class PersonPDLController(
         if (aktoerid.isBlank()) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Tom input-verdi")
         }
+        //https://curly-enigma-afc9cd64.pages.github.io/#_feilmeldinger_fra_pdl_api_graphql_response_errors
         return try {
-            pdlService.hentPerson(AktoerId(aktoerid)) ?: throw ResponseStatusException(
-                HttpStatus.NOT_FOUND,
-                "Person ikke funnet"
-            )
+            pdlService.hentPerson(AktoerId(aktoerid)) ?: throw NullPointerException("Person ikke funnet")
+        } catch (np: NullPointerException) {
+            logger.error("PDL Person null")
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Person ikke funnet")
+        } catch (pe: PersonoppslagException) {
+            logger.error("PersonoppslagExcpetion: ${pe.message}")
+            when(pe.message) {
+                "not_found: Fant ikke person" -> throw ResponseStatusException(HttpStatus.NOT_FOUND, "Person ikke funnet")
+                "unauthorized: Ikke tilgang til å se person" -> throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Ikke tilgang til å se person")
+                else -> throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, pe.message)
+            }
         } catch (ex: Exception) {
-            throw ResponseStatusException(
-                HttpStatus.NOT_FOUND,
-                "Person ikke funnet"
-            )
+            logger.error("Excpetion: ${ex.message}")
+            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Feil ved Personoppslag")
         }
+
     }
 
     /**
