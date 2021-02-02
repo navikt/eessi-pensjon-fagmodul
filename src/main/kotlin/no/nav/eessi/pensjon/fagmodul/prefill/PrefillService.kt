@@ -29,8 +29,6 @@ class PrefillService(private val prefillSedService: PrefillSEDService,
         PrefillSed = metricsHelper.init("PrefillSed")
     }
 
-//    fun prefillSedtoJson(dataModel: PrefillDataModel, version: String) = prefillSedtoJson(dataModel, version, null)
-
     fun prefillSedtoJson(dataModel: PrefillDataModel, version: String, personDataCollection: PersonDataCollection? = null): SedAndType {
         return PrefillSed.measure {
             logger.info("******* Starter med preutfylling ******* $dataModel")

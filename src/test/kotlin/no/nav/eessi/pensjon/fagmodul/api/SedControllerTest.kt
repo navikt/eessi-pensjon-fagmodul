@@ -75,11 +75,10 @@ class SedControllerTest {
     @Mock
     lateinit var mockPrefillSEDService: PrefillSEDService
 
-
     @Mock
     lateinit var personService: PersonDataService
 
-    private lateinit var prefillService: PrefillService
+//    private lateinit var prefillService: PrefillService
 
     private lateinit var sedController: SedController
 
@@ -282,7 +281,6 @@ class SedControllerTest {
         val dummyPrefillData = ApiRequest.buildPrefillDataModelOnExisting(apiRequestWith(euxCaseId), NorskIdent("12345").id, null)
 
         doReturn(mockBuc).whenever(mockEuxService).getBuc(euxCaseId)
-//        doReturn(dummyPrefillData.sed).whenever(mockPrefillSEDService).prefill(any())
         doReturn(dummyPrefillData.sed).whenever(mockPrefillSEDService).prefill(any(), eq(null))
         doReturn(BucSedResponse(euxCaseId,"1")).whenever(mockEuxService).opprettJsonSedOnBuc(any(), any(),eq(euxCaseId),eq(dummyPrefillData.vedtakId))
 
@@ -337,7 +335,6 @@ class SedControllerTest {
         val dummyPrefillData = ApiRequest.buildPrefillDataModelOnExisting(apiRequestWith(euxCaseId), NorskIdent("12345").id, null)
 
         doReturn(dummyPrefillData.sed).whenever(mockPrefillSEDService).prefill(any(), eq(null))
-//        doReturn(dummyPrefillData.sed).whenever(mockPrefillSEDService).prefill(any())
         doReturn(mockBuc).whenever(mockEuxService).getBuc(euxCaseId)
 
         doReturn(BucSedResponse(euxCaseId, "1")).whenever(mockEuxService).opprettJsonSedOnBuc(any(), any(),eq(euxCaseId),eq(dummyPrefillData.vedtakId))
@@ -364,7 +361,6 @@ class SedControllerTest {
         val sedandtype = SedAndType(SEDType.P9000, sed.toJsonSkipEmpty())
 
         doReturn(sed).whenever(mockPrefillSEDService).prefill(any(), eq(null))
-//        doReturn(sed).whenever(mockPrefillSEDService).prefill(any())
 
         doReturn(mockBuc).whenever(mockEuxService).getBuc(euxCaseId)
         doReturn(BucSedResponse(euxCaseId, "3123123")).whenever(mockEuxService).opprettSvarJsonSedOnBuc(

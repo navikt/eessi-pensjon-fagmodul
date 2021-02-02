@@ -59,8 +59,6 @@ class PrefillSEDService(
 
     private val logger: Logger by lazy { LoggerFactory.getLogger(PrefillSEDService::class.java) }
 
-    //fun prefill(prefillData: PrefillDataModel) = prefill(prefillData, null)
-
     fun prefill(prefillData: PrefillDataModel, personDataCollection: PersonDataCollection? = null): SED {
 
         val sedType = valueOf(prefillData.getSEDType())
