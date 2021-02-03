@@ -136,11 +136,11 @@ class PersonControllerTest {
         doReturn(avdodMorTPSBruker).whenever(mockPersonV3Service).hentBruker(avdodMorfnr)
         doReturn(avdodFarTPSBruker).whenever(mockPersonV3Service).hentBruker(avdodFarfnr)
 
-        doReturn(NorskIdent(fnrGjenlevende)).whenever(mockAktoerregisterService).hentGjeldendeIdent(eq(IdentGruppe.NorskIdent), any<AktoerId>())
+        doReturn(NorskIdent(fnrGjenlevende)).whenever(mockAktoerregisterService).hentGjeldendeIdent(IdentGruppe.NorskIdent, AktoerId(aktoerId))
         doReturn(HentPersonResponse().withPerson(gjenlevendeBarnTSPBruker)).whenever(mockPersonV3Service).hentPersonResponse(fnrGjenlevende)
 
         val response = mvc.perform(
-                get("/person/$fnrGjenlevende/avdode/vedtak/$vedtaksId")
+                get("/person/$aktoerId/avdode/vedtak/$vedtaksId")
                         .accept(MediaType.APPLICATION_JSON))
                 .andReturn().response
 
@@ -174,11 +174,11 @@ class PersonControllerTest {
 
         doReturn(mockPensjoninfo).whenever(mockPensjonClient).hentAltPaaVedtak(vedtaksId)
         doReturn(avdodMorTPSBruker).whenever(mockPersonV3Service).hentBruker(avdodMorfnr)
-        doReturn(NorskIdent(fnrGjenlevende)).whenever(mockAktoerregisterService).hentGjeldendeIdent(eq(IdentGruppe.NorskIdent), any<AktoerId>())
+        doReturn(NorskIdent(fnrGjenlevende)).whenever(mockAktoerregisterService).hentGjeldendeIdent(IdentGruppe.NorskIdent, AktoerId(aktoerId))
         doReturn(HentPersonResponse().withPerson(gjenlevendeBarnTSPBruker)).whenever(mockPersonV3Service).hentPersonResponse(fnrGjenlevende)
 
         val response = mvc.perform(
-                get("/person/$fnrGjenlevende/avdode/vedtak/$vedtaksId")
+                get("/person/$aktoerId/avdode/vedtak/$vedtaksId")
                         .accept(MediaType.APPLICATION_JSON))
                 .andReturn().response
 
