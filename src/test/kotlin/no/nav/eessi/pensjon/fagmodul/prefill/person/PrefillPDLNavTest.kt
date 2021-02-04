@@ -2,19 +2,19 @@ package no.nav.eessi.pensjon.fagmodul.prefill.person
 
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.whenever
+import no.nav.eessi.pensjon.fagmodul.models.BrukerInformasjon
+import no.nav.eessi.pensjon.fagmodul.models.PersonDataCollection
+import no.nav.eessi.pensjon.fagmodul.models.PersonId
+import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModelMother
 import no.nav.eessi.pensjon.fagmodul.models.SEDType
 import no.nav.eessi.pensjon.fagmodul.prefill.LagPDLPerson.Companion.createPersonMedEktefellePartner
 import no.nav.eessi.pensjon.fagmodul.prefill.LagPDLPerson.Companion.lagPerson
 import no.nav.eessi.pensjon.fagmodul.prefill.LagPDLPerson.Companion.medAdresse
 import no.nav.eessi.pensjon.fagmodul.prefill.LagPDLPerson.Companion.medBarn
 import no.nav.eessi.pensjon.fagmodul.prefill.LagPDLPerson.Companion.medForeldre
-import no.nav.eessi.pensjon.fagmodul.prefill.model.BrukerInformasjon
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PersonDataCollection
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PersonId
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModelMother
-import no.nav.eessi.pensjon.fagmodul.prefill.tps.FodselsnummerMother
-import no.nav.eessi.pensjon.fagmodul.prefill.tps.NavFodselsnummer
-import no.nav.eessi.pensjon.fagmodul.prefill.tps.PrefillPDLAdresse
+import no.nav.eessi.pensjon.fagmodul.prefill.pdl.FodselsnummerMother
+import no.nav.eessi.pensjon.fagmodul.prefill.pdl.NavFodselsnummer
+import no.nav.eessi.pensjon.fagmodul.prefill.pdl.PrefillPDLAdresse
 import no.nav.eessi.pensjon.fagmodul.sedmodel.Adresse
 import no.nav.eessi.pensjon.fagmodul.sedmodel.ArbeidsforholdItem
 import no.nav.eessi.pensjon.fagmodul.sedmodel.Bank

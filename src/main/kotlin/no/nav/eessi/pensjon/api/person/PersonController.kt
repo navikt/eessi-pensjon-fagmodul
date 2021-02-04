@@ -34,6 +34,8 @@ import javax.annotation.PostConstruct
  * @property personService
  * @property pensjonsinformasjonClient
  */
+
+@Deprecated("Går ut i fordel for PersonPDLController")
 @Protected
 @RestController
 class PersonController(

@@ -1,10 +1,5 @@
-package no.nav.eessi.pensjon.fagmodul.prefill.model
+package no.nav.eessi.pensjon.fagmodul.models
 
-import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
-import no.nav.eessi.pensjon.fagmodul.models.SEDType
-import no.nav.eessi.pensjon.fagmodul.sedmodel.AndreinstitusjonerItem
-import no.nav.eessi.pensjon.fagmodul.sedmodel.InstitusjonX005
-import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.typeRefs
 
@@ -22,7 +17,6 @@ data class PrefillDataModel(
     val bruker: PersonId,
     val avdod: PersonId?,
     val sedType: SEDType,
-    val sed: SED,
     val buc: String,
     val vedtakId: String? = null,
     val kravDato: String? = null,
@@ -32,8 +26,6 @@ data class PrefillDataModel(
     val institution: List<InstitusjonItem>,
     val refTilPerson: ReferanseTilPerson? = null,
     var melding: String? = null,
-    var andreInstitusjon: AndreinstitusjonerItem? = null,
-    var institusjonX005: InstitusjonX005? = null,
     val partSedAsJson: MutableMap<String, String> = mutableMapOf()
     ) {
 
@@ -52,8 +44,7 @@ data class PrefillDataModel(
 
     fun getInstitutionsList(): List<InstitusjonItem> = institution
 
-    fun isMinimumPrefill() = sedType != SEDType.P6000
-
+    //fun isMinimumPrefill() = sedType != SEDType.P6000
 }
 
 enum class ReferanseTilPerson(val verdi: String) {

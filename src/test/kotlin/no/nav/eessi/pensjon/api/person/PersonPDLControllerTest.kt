@@ -58,10 +58,10 @@ class PersonPDLControllerTest {
     lateinit var auditLogger: AuditLogger
 
     @MockBean
-    lateinit var mockAktoerregisterService: AktoerregisterService
+    private lateinit var personV3Service: PersonV3Service
 
     @MockBean
-    lateinit var mockPersonV3Service: PersonV3Service
+    private lateinit var aktoerregisterService: AktoerregisterService
 
     @MockBean
     lateinit var mockPensjonClient: PensjonsinformasjonClient
@@ -287,27 +287,27 @@ class PersonPDLControllerTest {
         familierlasjon: List<Familierelasjon> = emptyList(),
         sivilstand: List<Sivilstand> = emptyList()
     ) = Person(
-            listOf(IdentInformasjon(fnr, IdentGruppe.FOLKEREGISTERIDENT)),
-            Navn(fornavn = fornavn, etternavn = etternavn, mellomnavn = null),
-            emptyList(),
-            null,
-            null,
-            listOf(
-                Statsborgerskap(
-                    "NOR",
-                    LocalDate.of(2010, 10, 11),
-                    LocalDate.of(2020, 10, 2)
-                )
-            ),
-            null,
-            null,
-            Kjoenn(
-                KjoennType.MANN,
-                Folkeregistermetadata(LocalDateTime.of(2000, 10, 1, 12, 10, 31))
-            ),
-            null,
-            familierlasjon,
-            sivilstand
-        )
+        listOf(IdentInformasjon(fnr, IdentGruppe.FOLKEREGISTERIDENT)),
+        Navn(fornavn = fornavn, etternavn = etternavn, mellomnavn = null),
+        emptyList(),
+        null,
+        null,
+        listOf(
+            Statsborgerskap(
+                "NOR",
+                LocalDate.of(2010, 10, 11),
+                LocalDate.of(2020, 10, 2)
+            )
+        ),
+        null,
+        null,
+        Kjoenn(
+            KjoennType.MANN,
+            Folkeregistermetadata(LocalDateTime.of(2000, 10, 1, 12, 10, 31))
+        ),
+        null,
+        familierlasjon,
+        sivilstand
+    )
 
 }

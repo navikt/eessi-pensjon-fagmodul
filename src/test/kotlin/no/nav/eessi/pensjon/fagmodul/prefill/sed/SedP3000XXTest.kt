@@ -1,20 +1,16 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.sed
 
-import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import no.nav.eessi.pensjon.fagmodul.models.PersonDataCollection
+import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
 import no.nav.eessi.pensjon.fagmodul.models.SEDType
 import no.nav.eessi.pensjon.fagmodul.prefill.ApiRequest
+import no.nav.eessi.pensjon.fagmodul.prefill.LagPDLPerson
 import no.nav.eessi.pensjon.fagmodul.prefill.eessi.EessiInformasjon
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModel
+import no.nav.eessi.pensjon.fagmodul.prefill.pdl.FodselsnummerMother
+import no.nav.eessi.pensjon.fagmodul.prefill.pdl.PrefillPDLAdresse
 import no.nav.eessi.pensjon.fagmodul.prefill.pen.PensjonsinformasjonService
-import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillNav
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillPDLNav
-import no.nav.eessi.pensjon.fagmodul.prefill.tps.FodselsnummerMother
-import no.nav.eessi.pensjon.fagmodul.prefill.tps.PrefillAdresse
-import no.nav.eessi.pensjon.personoppslag.aktoerregister.AktoerregisterService
-import no.nav.eessi.pensjon.personoppslag.personv3.PersonV3Service
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Bruker
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Kjoenn
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Kjoennstyper
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Landkoder
@@ -33,50 +29,36 @@ import org.mockito.junit.jupiter.MockitoExtension
 class SedP3000XXTest {
 
     @Mock
-    lateinit var prefillNav: PrefillNav
-
-    @Mock
     lateinit var eessiInformasjon: EessiInformasjon
 
     @Mock
     lateinit var dataFromPEN: PensjonsinformasjonService
 
-    @Mock
-    lateinit var dataFromTPS: PersonV3Service
-
-    @Mock
-    lateinit var prefillPDLNav: PrefillPDLNav
-
     lateinit var prefillSEDService: PrefillSEDService
 
     private val personFnr = FodselsnummerMother.generateRandomFnr(68)
-
-    private lateinit var person: Bruker
-
-    @Mock
-    lateinit var aktorRegisterService: AktoerregisterService
+    private lateinit var personDataCollection: PersonDataCollection
 
 
     @BeforeEach
     fun setupAndRunAtStart() {
-        person = lagTPSBruker(personFnr, "Ola", "Testbruker")
+        val person = LagPDLPerson.lagPerson(personFnr, "Ola", "Testbruker")
+        personDataCollection = PersonDataCollection(person, person)
 
-        prefillNav = PrefillNav(
-                prefillAdresse = mock<PrefillAdresse>(),
+        val prefillNav = PrefillPDLNav(
+                prefillAdresse = mock<PrefillPDLAdresse>(),
                 institutionid = "NO:noinst002",
                 institutionnavn = "NOINST002, NO INST002, NO")
 
-        prefillSEDService = PrefillSEDService(prefillNav, dataFromTPS, eessiInformasjon, dataFromPEN, aktorRegisterService, prefillPDLNav)
-        whenever(dataFromTPS.hentBruker(any())).thenReturn(person)
+        prefillSEDService = PrefillSEDService(dataFromPEN, eessiInformasjon, prefillNav)
     }
 
 
     @Test
     fun testP3000_AT() {
-
         val datamodel = getMockDataModel("P3000_AT", personFnr)
 
-        val sed = prefillSEDService.prefill(datamodel)
+        val sed = prefillSEDService.prefill(datamodel, personDataCollection)
         Assertions.assertEquals(SEDType.P3000_AT, sed.type)
 
     }
@@ -86,7 +68,7 @@ class SedP3000XXTest {
 
         val datamodel = getMockDataModel("P3000_IT", personFnr)
 
-        val sed = prefillSEDService.prefill(datamodel)
+        val sed = prefillSEDService.prefill(datamodel, personDataCollection)
         Assertions.assertEquals(SEDType.P3000_IT, sed.type)
     }
 
@@ -94,7 +76,7 @@ class SedP3000XXTest {
     fun testP3000_SE() {
         val datamodel = getMockDataModel("P3000_SE", personFnr)
 
-        val sed = prefillSEDService.prefill(datamodel)
+        val sed = prefillSEDService.prefill(datamodel, personDataCollection)
         Assertions.assertEquals(SEDType.P3000_SE, sed.type)
     }
 

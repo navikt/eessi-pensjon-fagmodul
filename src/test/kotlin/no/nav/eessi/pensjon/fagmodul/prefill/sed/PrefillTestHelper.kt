@@ -6,8 +6,6 @@ import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.models.SEDType
 import no.nav.eessi.pensjon.fagmodul.prefill.ApiRequest
 import no.nav.eessi.pensjon.fagmodul.prefill.pen.PensjonsinformasjonService
-import no.nav.eessi.pensjon.fagmodul.prefill.person.MockTpsPersonServiceFactory
-import no.nav.eessi.pensjon.personoppslag.personv3.PersonV3Service
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.RequestBuilder
 import org.mockito.ArgumentMatchers
@@ -36,11 +34,6 @@ object PrefillTestHelper {
         val pensjonsinformasjonClient = PensjonsinformasjonClient(pensjonsinformasjonRestTemplate, RequestBuilder())
         pensjonsinformasjonClient.initMetrics()
         return PensjonsinformasjonService(pensjonsinformasjonClient)
-    }
-
-    fun setupPersondataFraTPS(mockPersonDataFraTPS: Set<MockTpsPersonServiceFactory.MockTPS>): PersonV3Service {
-        val datatps = MockTpsPersonServiceFactory(mockPersonDataFraTPS)
-        return datatps.mockPersonV3Service()
     }
 
     fun readJsonResponse(file: String): String {

@@ -5,7 +5,7 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.whenever
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
 import no.nav.eessi.pensjon.fagmodul.models.SEDType
-import no.nav.eessi.pensjon.fagmodul.personoppslag.PersonPDLMock
+import no.nav.eessi.pensjon.fagmodul.prefill.PersonPDLMock
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillTestHelper
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
@@ -71,9 +71,9 @@ class SedPrefillPDLIntegrationSpringTest {
 
         doReturn(NorskIdent(FNR_VOKSEN)).`when`(personService).hentIdent(IdentType.NorskIdent, AktoerId(AKTOER_ID))
         doReturn(PersonPDLMock.createWith(true, fnr = FNR_VOKSEN, aktoerid = AKTOER_ID)).whenever(personService).hentPerson(NorskIdent(FNR_VOKSEN))
-        val apijson = dummyApijson(sed = "P2001", sakid = "21337890", aktoerId = AKTOER_ID)
+        val apijson = dummyApijson(sedType = SEDType.P2000, sakid = "21337890", aktoerId = AKTOER_ID)
 
-        val result = mockMvc.perform(post("/sed/pdl/prefill")
+        val result = mockMvc.perform(post("/sed/prefill")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(apijson))
                 .andDo(print())
@@ -84,50 +84,50 @@ class SedPrefillPDLIntegrationSpringTest {
         val actual = result.response.getContentAsString(charset("UTF-8"))
 
         val excpected = """
-{
-  "sed" : "P2000",
-  "sedGVer" : "4",
-  "sedVer" : "1",
-  "nav" : {
-    "eessisak" : [ {
-      "institusjonsid" : "NO:noinst002",
-      "institusjonsnavn" : "NOINST002, NO INST002, NO",
-      "saksnummer" : "21337890",
-      "land" : "NO"
-    } ],
-    "bruker" : {
-      "person" : {
-        "pin" : [ {
-          "institusjonsnavn" : "NOINST002, NO INST002, NO",
-          "institusjonsid" : "NO:noinst002",
-          "identifikator" : "11067122781",
-          "land" : "NO"
-        } ],
-        "statsborgerskap" : [ {
-          "land" : "QX"
-        } ],
-        "etternavn" : "Testesen",
-        "fornavn" : "Test",
-        "kjoenn" : "M",
-        "foedselsdato" : "1988-07-12"
-      },
-      "adresse" : {
-        "gate" : "Oppoverbakken 66",
-        "by" : "SØRUMSAND",
-        "postnummer" : "1920",
-        "land" : "QX"
-      }
-    },
-    "krav" : {
-      "dato" : "2018-06-28"
-    }
-  },
-  "pensjon" : {
-    "kravDato" : {
-      "dato" : "2018-06-28"
-    }
-  }
-}            
+            {
+              "sed" : "P2000",
+              "sedGVer" : "4",
+              "sedVer" : "1",
+              "nav" : {
+                "eessisak" : [ {
+                  "institusjonsid" : "NO:noinst002",
+                  "institusjonsnavn" : "NOINST002, NO INST002, NO",
+                  "saksnummer" : "21337890",
+                  "land" : "NO"
+                } ],
+                "bruker" : {
+                  "person" : {
+                    "pin" : [ {
+                      "institusjonsnavn" : "NOINST002, NO INST002, NO",
+                      "institusjonsid" : "NO:noinst002",
+                      "identifikator" : "11067122781",
+                      "land" : "NO"
+                    } ],
+                    "statsborgerskap" : [ {
+                      "land" : "QX"
+                    } ],
+                    "etternavn" : "Testesen",
+                    "fornavn" : "Test",
+                    "kjoenn" : "M",
+                    "foedselsdato" : "1988-07-12"
+                  },
+                  "adresse" : {
+                    "gate" : "Oppoverbakken 66",
+                    "by" : "SØRUMSAND",
+                    "postnummer" : "1920",
+                    "land" : "NO"
+                  }
+                },
+                "krav" : {
+                  "dato" : "2018-06-28"
+                }
+              },
+              "pensjon" : {
+                "kravDato" : {
+                  "dato" : "2018-06-28"
+                }
+              }
+            }         
         """.trimIndent()
         JSONAssert.assertEquals(excpected, actual , true)
 
@@ -147,9 +147,9 @@ class SedPrefillPDLIntegrationSpringTest {
 
         doReturn("QX").whenever(kodeverkClient).finnLandkode2(any())
 
-        val apijson = dummyApijson(sakid = "22874955", aktoerId = AKTOER_ID, sed = "P2101", buc = "P_BUC_02", fnravdod = FNR_VOKSEN_2)
+        val apijson = dummyApijson(sakid = "22874955", aktoerId = AKTOER_ID, sedType = SEDType.P2100, buc = "P_BUC_02", fnravdod = FNR_VOKSEN_2)
 
-        val result = mockMvc.perform(post("/sed/pdl/prefill")
+        val result = mockMvc.perform(post("/sed/prefill")
             .contentType(MediaType.APPLICATION_JSON)
             .content(apijson))
             .andExpect(status().isOk)
@@ -159,61 +159,61 @@ class SedPrefillPDLIntegrationSpringTest {
         val actual = result.response.getContentAsString(charset("UTF-8"))
 
         val expected = """
-{
-  "sed" : "P2100",
-  "sedGVer" : "4",
-  "sedVer" : "1",
-  "nav" : {
-    "eessisak" : [ {
-      "institusjonsid" : "NO:noinst002",
-      "institusjonsnavn" : "NOINST002, NO INST002, NO",
-      "saksnummer" : "22874955",
-      "land" : "NO"
-    } ],
-    "bruker" : {
-      "person" : {
-        "pin" : [ {
-          "institusjonsnavn" : "NOINST002, NO INST002, NO",
-          "institusjonsid" : "NO:noinst002",
-          "identifikator" : "22117320034",
-          "land" : "NO"
-        } ],
-        "statsborgerskap" : [ {
-          "land" : "QX"
-        } ],
-        "etternavn" : "Død",
-        "fornavn" : "Avdød",
-        "kjoenn" : "M",
-        "foedselsdato" : "1921-07-12"
-      }
-    }
-  },
-  "pensjon" : {
-    "gjenlevende" : {
-      "person" : {
-        "pin" : [ {
-          "institusjonsnavn" : "NOINST002, NO INST002, NO",
-          "institusjonsid" : "NO:noinst002",
-          "identifikator" : "11067122781",
-          "land" : "NO"
-        } ],
-        "statsborgerskap" : [ {
-          "land" : "QX"
-        } ],
-        "etternavn" : "Gjenlev",
-        "fornavn" : "Lever",
-        "kjoenn" : "M",
-        "foedselsdato" : "1988-07-12"
-      },
-      "adresse" : {
-        "gate" : "Oppoverbakken 66",
-        "by" : "SØRUMSAND",
-        "postnummer" : "1920",
-        "land" : "QX"
-      }
-    }
-  }
-}
+            {
+              "sed" : "P2100",
+              "sedGVer" : "4",
+              "sedVer" : "1",
+              "nav" : {
+                "eessisak" : [ {
+                  "institusjonsid" : "NO:noinst002",
+                  "institusjonsnavn" : "NOINST002, NO INST002, NO",
+                  "saksnummer" : "22874955",
+                  "land" : "NO"
+                } ],
+                "bruker" : {
+                  "person" : {
+                    "pin" : [ {
+                      "institusjonsnavn" : "NOINST002, NO INST002, NO",
+                      "institusjonsid" : "NO:noinst002",
+                      "identifikator" : "22117320034",
+                      "land" : "NO"
+                    } ],
+                    "statsborgerskap" : [ {
+                      "land" : "QX"
+                    } ],
+                    "etternavn" : "Død",
+                    "fornavn" : "Avdød",
+                    "kjoenn" : "M",
+                    "foedselsdato" : "1921-07-12"
+                  }
+                }
+              },
+              "pensjon" : {
+                "gjenlevende" : {
+                  "person" : {
+                    "pin" : [ {
+                      "institusjonsnavn" : "NOINST002, NO INST002, NO",
+                      "institusjonsid" : "NO:noinst002",
+                      "identifikator" : "11067122781",
+                      "land" : "NO"
+                    } ],
+                    "statsborgerskap" : [ {
+                      "land" : "QX"
+                    } ],
+                    "etternavn" : "Gjenlev",
+                    "fornavn" : "Lever",
+                    "kjoenn" : "M",
+                    "foedselsdato" : "1988-07-12"
+                  },
+                  "adresse" : {
+                    "gate" : "Oppoverbakken 66",
+                    "by" : "SØRUMSAND",
+                    "postnummer" : "1920",
+                    "land" : "NO"
+                  }
+                }
+              }
+            }
           """.trimIndent()
 
         println(actual)
@@ -230,7 +230,7 @@ class SedPrefillPDLIntegrationSpringTest {
         doReturn(PrefillTestHelper.readXMLresponse("P2000-AP-UP-21337890.xml")).`when`(restTemplate).exchange(any<String>(), any(), any<HttpEntity<Unit>>(), ArgumentMatchers.eq(String::class.java))
         doReturn("QX").`when`(kodeverkClient).finnLandkode2(any())
 
-        val apijson = dummyApijson(sed = "P2001", sakid = "21337890", aktoerId = AKTOER_ID)
+        val apijson = dummyApijson(sedType = SEDType.P2000, sakid = "21337890", aktoerId = AKTOER_ID)
 
         val validResponse = """
             {
@@ -264,7 +264,7 @@ class SedPrefillPDLIntegrationSpringTest {
                     "gate" : "Oppoverbakken 66",
                     "by" : "SØRUMSAND",
                     "postnummer" : "1920",
-                    "land" : "QX"
+                    "land" : "NO"
                   }
                 },
                 "krav" : {
@@ -279,7 +279,7 @@ class SedPrefillPDLIntegrationSpringTest {
             }
         """.trimIndent()
 
-        val result = mockMvc.perform(post("/sed/pdl/prefill")
+        val result = mockMvc.perform(post("/sed/prefill")
             .contentType(MediaType.APPLICATION_JSON)
             .content(apijson))
             .andExpect(status().isOk)

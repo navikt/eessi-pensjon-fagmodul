@@ -1,10 +1,9 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.sed.krav
 
+import no.nav.eessi.pensjon.fagmodul.models.PersonDataCollection
+import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
 import no.nav.eessi.pensjon.fagmodul.models.SEDType
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PersonData
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PersonDataCollection
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModel
-import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillNav
+import no.nav.eessi.pensjon.fagmodul.prefill.eessi.EessiInformasjon
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillPDLNav
 import no.nav.eessi.pensjon.fagmodul.sedmodel.Bruker
 import no.nav.eessi.pensjon.fagmodul.sedmodel.Nav
@@ -15,26 +14,15 @@ import no.nav.pensjon.v1.sak.V1Sak
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class PrefillP2100(private val prefillNav: PrefillNav) {
+class PrefillP2100(private val prefillNav: PrefillPDLNav) {
 
     private val logger: Logger by lazy { LoggerFactory.getLogger(PrefillP2100::class.java) }
 
-
-    fun prefillPDL(prefillPDLNav: PrefillPDLNav, prefillData: PrefillDataModel, personDataCollection: PersonDataCollection?, sak: V1Sak?): Pair<String?, SED> {
-        require(personDataCollection != null) { "Trenger PersonDataCollection" }
-        //PDL
-        postLog(prefillData, sak)
-        val nav =  prefillPDLNav.prefill(penSaksnummer = prefillData.penSaksnummer, bruker = prefillData.bruker, avdod = prefillData.avdod, personData = personDataCollection , brukerInformasjon = prefillData.getPersonInfoFromRequestData())
-        val gjenlev = eventuellGjenlevendePDL(prefillPDLNav, prefillData, personDataCollection.forsikretPerson)
-
-        return prefillPen(prefillData, nav, gjenlev, sak)
-    }
-
-    fun prefill(prefillData: PrefillDataModel, personData: PersonData, sak: V1Sak?): Pair<String?, SED> {
+    fun prefill(prefillData: PrefillDataModel, personData: PersonDataCollection, sak: V1Sak?): Pair<String?, SED> {
         //TPS
         postLog(prefillData, sak)
         val nav = prefillNav.prefill(penSaksnummer = prefillData.penSaksnummer, bruker = prefillData.bruker, avdod = prefillData.avdod, personData = personData , brukerInformasjon = prefillData.getPersonInfoFromRequestData())
-        val gjenlev = eventuellGjenlevende(prefillData, personData.forsikretPerson)
+        val gjenlev = eventuellGjenlevendePDL(prefillData, personData.forsikretPerson)
 
         return prefillPen(prefillData, nav, gjenlev, sak)
     }
@@ -54,6 +42,8 @@ class PrefillP2100(private val prefillNav: PrefillNav) {
     private fun prefillPen(prefillData: PrefillDataModel, nav: Nav, gjenlev: Bruker? = null, sak: V1Sak?): Pair<String?, SED> {
         val sedType = prefillData.sedType
 
+        val andreInstitusjondetaljer = EessiInformasjon().asAndreinstitusjonerItem()
+
         PrefillP2xxxPensjon.validerGyldigKravtypeOgArsakGjenlevnde(sak, sedType)
         var melding: String? = ""
         var pensjon: Pensjon? = Pensjon()
@@ -62,12 +52,12 @@ class PrefillP2100(private val prefillNav: PrefillNav) {
                         prefillData.bruker.norskIdent,
                         prefillData.penSaksnummer,
                         sak,
-                        prefillData.andreInstitusjon,
+                        andreInstitusjondetaljer,
                         gjenlev,
                     prefillData.kravId)
                 melding = meldingOmPensjon.melding
                 pensjon = meldingOmPensjon.pensjon
-                if (prefillData.isMinimumPrefill()) {
+                if (prefillData.sedType != SEDType.P6000) {
                     pensjon = Pensjon(
                             kravDato = meldingOmPensjon.pensjon.kravDato,
                             gjenlevende = meldingOmPensjon.pensjon.gjenlevende
@@ -89,17 +79,10 @@ class PrefillP2100(private val prefillNav: PrefillNav) {
         return Pair(melding, sed)
     }
 
-    private fun eventuellGjenlevende(prefillData: PrefillDataModel, gjenlevendeBruker: no.nav.tjeneste.virksomhet.person.v3.informasjon.Bruker?): Bruker? {
+    private fun eventuellGjenlevendePDL(prefillData: PrefillDataModel, gjenlevendeBruker: Person?): Bruker? {
         return if (prefillData.avdod != null) {
             logger.info("          Utfylling gjenlevende (etterlatt persjon.gjenlevende)")
-            prefillNav.createBruker(gjenlevendeBruker!!, null, null)
-        } else null
-    }
-
-    private fun eventuellGjenlevendePDL(prefillPDLNav: PrefillPDLNav, prefillData: PrefillDataModel, gjenlevendeBruker: Person?): Bruker? {
-        return if (prefillData.avdod != null) {
-            logger.info("          Utfylling gjenlevende (etterlatt persjon.gjenlevende)")
-            prefillPDLNav.createBruker(gjenlevendeBruker!!)
+            prefillNav.createBruker(gjenlevendeBruker!!)
         } else null
     }
 

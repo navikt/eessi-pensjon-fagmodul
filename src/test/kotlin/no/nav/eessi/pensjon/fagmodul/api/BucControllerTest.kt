@@ -16,12 +16,12 @@ import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Organisation
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
+import no.nav.eessi.pensjon.fagmodul.prefill.PersonDataService
 import no.nav.eessi.pensjon.fagmodul.models.SEDType
 import no.nav.eessi.pensjon.logging.AuditLogger
-import no.nav.eessi.pensjon.personoppslag.aktoerregister.AktoerId
-import no.nav.eessi.pensjon.personoppslag.aktoerregister.AktoerregisterService
-import no.nav.eessi.pensjon.personoppslag.aktoerregister.IdentGruppe
-import no.nav.eessi.pensjon.personoppslag.aktoerregister.NorskIdent
+import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
+import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentType
+import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjoninformasjonException
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.utils.mapJsonToAny
@@ -60,19 +60,25 @@ class BucControllerTest {
     lateinit var mockEuxService: EuxService
 
     @Mock
-    lateinit var mockAktoerIdHelper: AktoerregisterService
-
-    @Mock
     lateinit var mockPensjonClient: PensjonsinformasjonClient
 
     @Mock
     lateinit var kafkaTemplate: KafkaTemplate<String, String>
 
+    @Mock
+    private lateinit var personDataService: PersonDataService
+
     private lateinit var bucController: BucController
 
     @BeforeEach
     fun before() {
-        bucController = BucController("default", mockEuxService, mockAktoerIdHelper, auditLogger, mockPensjonClient)
+        bucController = BucController(
+            "default",
+            mockEuxService,
+            auditLogger,
+            mockPensjonClient,
+            personDataService
+        )
         bucController.initMetrics()
     }
 
@@ -169,7 +175,7 @@ class BucControllerTest {
         val aktoerId = "123456789"
         val fnr = "10101835868"
 
-        whenever(mockAktoerIdHelper.hentGjeldendeIdent(IdentGruppe.NorskIdent, AktoerId(aktoerId))).thenReturn(NorskIdent(fnr))
+        doReturn(NorskIdent(fnr)).whenever(personDataService).hentIdent(IdentType.NorskIdent, AktoerId(aktoerId))
 
         val rinaSaker = listOf<Rinasak>(Rinasak("1234","P_BUC_01", Traits(), "", Properties(), "open"))
         doReturn(rinaSaker).whenever(mockEuxService).getRinasaker(fnr, aktoerId)
@@ -185,7 +191,7 @@ class BucControllerTest {
         val aktoerId = "123456789"
         val fnr = "10101835868"
 
-        whenever(mockAktoerIdHelper.hentGjeldendeIdent(IdentGruppe.NorskIdent, AktoerId(aktoerId))).thenReturn(NorskIdent(fnr))
+        doReturn(NorskIdent(fnr)).whenever(personDataService).hentIdent(IdentType.NorskIdent, AktoerId(aktoerId))
         doThrow(RuntimeException::class).whenever(mockEuxService).getRinasaker(fnr, aktoerId)
 
         assertThrows<Exception> {
@@ -205,7 +211,8 @@ class BucControllerTest {
         val aktoerId = "123456789"
         val fnr = "10101835868"
 
-        whenever(mockAktoerIdHelper.hentGjeldendeIdent(IdentGruppe.NorskIdent, AktoerId(aktoerId))).thenReturn(NorskIdent(fnr))
+        doReturn(NorskIdent(fnr)).whenever(personDataService).hentIdent(IdentType.NorskIdent, AktoerId(aktoerId))
+
         doThrow(RuntimeException("Feiler ved BUC")).whenever(mockEuxService).getBuc(any())
 
         val rinaSaker = listOf<Rinasak>(Rinasak("1234","P_BUC_01", Traits(), "", Properties(), "open"))
@@ -232,7 +239,7 @@ class BucControllerTest {
 
         doReturn(mockPensjoninfo).whenever(mockPensjonClient).hentAltPaaVedtak(vedtaksId)
 
-        whenever(mockAktoerIdHelper.hentGjeldendeIdent(IdentGruppe.NorskIdent, AktoerId(aktoerId))).thenReturn(NorskIdent(fnrGjenlevende))
+        doReturn(NorskIdent(fnrGjenlevende)).whenever(personDataService).hentIdent(IdentType.NorskIdent, AktoerId(aktoerId))
 
         val documentsItem = listOf(DocumentsItem(type = SEDType.P2100))
         val avdodView = listOf(BucAndSedView.from(Buc(id = "123", processDefinitionName = "P_BUC_02", documents = documentsItem), fnrGjenlevende, avdodfnr ))
@@ -273,7 +280,8 @@ class BucControllerTest {
 
         doReturn(NorskIdent(fnrGjenlevende))
             .doReturn(NorskIdent(fnrGjenlevende))
-            .`when`(mockAktoerIdHelper).hentGjeldendeIdent(IdentGruppe.NorskIdent, AktoerId(aktoerId))
+            .whenever(personDataService).hentIdent(IdentType.NorskIdent, AktoerId(aktoerId))
+
 
         val rinaSaker = listOf<Rinasak>()
         doReturn(rinaSaker).whenever(mockEuxService).getRinasaker(any(), any())
@@ -315,7 +323,7 @@ class BucControllerTest {
         doReturn(mockPensjoninfo).whenever(mockPensjonClient).hentAltPaaVedtak(vedtaksId)
 
         //aktoerService.hentPinForAktoer
-        whenever(mockAktoerIdHelper.hentGjeldendeIdent(IdentGruppe.NorskIdent, AktoerId(aktoerId))).thenReturn(NorskIdent(fnrGjenlevende))
+        doReturn(NorskIdent(fnrGjenlevende)).whenever(personDataService).hentIdent(IdentType.NorskIdent, AktoerId(aktoerId))
 
         //euxService.getrinasakeravdod
         val rinaSaker = listOf<Rinasak>(Rinasak("1234","P_BUC_01", Traits(), "", Properties(), "open"))
@@ -352,8 +360,7 @@ class BucControllerTest {
         val avdodfnr = "12312312312312312312312"
 
         //aktoerService.hentPinForAktoer
-        whenever(mockAktoerIdHelper.hentGjeldendeIdent(IdentGruppe.NorskIdent, AktoerId(aktoerId))).thenReturn(NorskIdent(fnrGjenlevende))
-
+        doReturn(NorskIdent(fnrGjenlevende)).whenever(personDataService).hentIdent(IdentType.NorskIdent, AktoerId(aktoerId))
         doThrow(HttpClientErrorException::class).whenever(mockEuxService).getBucAndSedViewAvdod(fnrGjenlevende, avdodfnr)
 
         assertThrows<Exception> {

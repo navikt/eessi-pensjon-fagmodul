@@ -3,12 +3,11 @@ package no.nav.eessi.pensjon.fagmodul.prefill
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.google.common.base.Joiner
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
+import no.nav.eessi.pensjon.fagmodul.models.KravType
+import no.nav.eessi.pensjon.fagmodul.models.PersonId
+import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
+import no.nav.eessi.pensjon.fagmodul.models.ReferanseTilPerson
 import no.nav.eessi.pensjon.fagmodul.models.SEDType
-import no.nav.eessi.pensjon.fagmodul.prefill.model.KravType
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PersonId
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModel
-import no.nav.eessi.pensjon.fagmodul.prefill.model.ReferanseTilPerson
-import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import no.nav.eessi.pensjon.utils.typeRefs
@@ -88,7 +87,7 @@ data class ApiRequest(
                             avdod = populerAvdodHvisGjenlevendePensjonSak(request, avdodaktoerID),
                             sedType = sedType,
                             buc = request.buc,
-                            sed = SED(sedType),
+                            //sed = SED(sedType),
                             euxCaseID = request.euxCaseId,
                             institution = request.institutions,
                             refTilPerson = request.referanseTilPerson,

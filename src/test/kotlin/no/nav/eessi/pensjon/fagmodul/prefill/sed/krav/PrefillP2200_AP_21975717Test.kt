@@ -3,23 +3,21 @@ package no.nav.eessi.pensjon.fagmodul.prefill.sed.krav
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.whenever
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
+import no.nav.eessi.pensjon.fagmodul.models.PersonDataCollection
+import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
+import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModelMother
 import no.nav.eessi.pensjon.fagmodul.models.SEDType
 import no.nav.eessi.pensjon.fagmodul.prefill.ApiRequest
+import no.nav.eessi.pensjon.fagmodul.prefill.PersonPDLMock
 import no.nav.eessi.pensjon.fagmodul.prefill.eessi.EessiInformasjon
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModel
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModelMother
+import no.nav.eessi.pensjon.fagmodul.prefill.pdl.FodselsnummerMother.generateRandomFnr
+import no.nav.eessi.pensjon.fagmodul.prefill.pdl.NavFodselsnummer
+import no.nav.eessi.pensjon.fagmodul.prefill.pdl.PrefillPDLAdresse
 import no.nav.eessi.pensjon.fagmodul.prefill.pen.PensjonsinformasjonService
-import no.nav.eessi.pensjon.fagmodul.prefill.person.MockTpsPersonServiceFactory
-import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillNav
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillPDLNav
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillSEDService
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillTestHelper.lesPensjonsdataFraFil
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillTestHelper.readJsonResponse
-import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillTestHelper.setupPersondataFraTPS
-import no.nav.eessi.pensjon.fagmodul.prefill.tps.FodselsnummerMother.generateRandomFnr
-import no.nav.eessi.pensjon.fagmodul.prefill.tps.NavFodselsnummer
-import no.nav.eessi.pensjon.fagmodul.prefill.tps.PrefillAdresse
-import no.nav.eessi.pensjon.personoppslag.aktoerregister.AktoerregisterService
 import no.nav.eessi.pensjon.services.geo.PostnummerService
 import no.nav.eessi.pensjon.services.kodeverk.KodeverkClient
 import no.nav.eessi.pensjon.utils.mapAnyToJson
@@ -39,28 +37,21 @@ class PrefillP2200_AP_21975717Test {
     lateinit var kodeverkClient: KodeverkClient
 
     private val personFnr = generateRandomFnr(68)
+    private val ekteFnr = generateRandomFnr(70)
 
     private val pesysSaksnummer = "14915730"
 
-    lateinit var prefillData: PrefillDataModel
-    lateinit var prefillNav: PrefillNav
-    lateinit var dataFromPEN: PensjonsinformasjonService
+    private lateinit var prefillData: PrefillDataModel
+    private lateinit var dataFromPEN: PensjonsinformasjonService
     private lateinit var prefillSEDService: PrefillSEDService
-
-    @Mock
-    private lateinit var aktorRegisterService: AktoerregisterService
-
-    @Mock
-    private lateinit var prefillPDLNav: PrefillPDLNav
+    private lateinit var personDataCollection: PersonDataCollection
+    private lateinit var prefillNav: PrefillPDLNav
 
     @BeforeEach
     fun setup() {
-        val persondataFraTPS = setupPersondataFraTPS(setOf(
-                MockTpsPersonServiceFactory.MockTPS("Person-11000-GIFT.json", personFnr, MockTpsPersonServiceFactory.MockTPS.TPSType.PERSON),
-                MockTpsPersonServiceFactory.MockTPS("Person-12000-EKTE.json", generateRandomFnr(70), MockTpsPersonServiceFactory.MockTPS.TPSType.EKTE)
-        ))
-        prefillNav = PrefillNav(
-                prefillAdresse = PrefillAdresse(PostnummerService(), kodeverkClient),
+        personDataCollection = PersonPDLMock.createEnkelFamilie(personFnr, ekteFnr)
+
+        prefillNav = PrefillPDLNav(prefillAdresse = PrefillPDLAdresse(PostnummerService(), kodeverkClient),
                 institutionid = "NO:noinst002",
                 institutionnavn = "NOINST002, NO INST002, NO")
 
@@ -70,7 +61,7 @@ class PrefillP2200_AP_21975717Test {
             partSedAsJson["PersonInfo"] = readJsonResponse("other/person_informasjon_selvb.json")
             partSedAsJson["P4000"] = readJsonResponse("other/p4000_trygdetid_part.json")
         }
-        prefillSEDService = PrefillSEDService(prefillNav, persondataFraTPS, EessiInformasjon(), dataFromPEN, aktorRegisterService, prefillPDLNav)
+        prefillSEDService = PrefillSEDService(dataFromPEN, EessiInformasjon(), prefillNav)
 
     }
 
@@ -78,7 +69,7 @@ class PrefillP2200_AP_21975717Test {
     fun `forventet korrekt utfylt P2200 uforerpensjon med mockdata fra testfiler`() {
         doReturn("NO").whenever(kodeverkClient).finnLandkode2("NOR")
 
-        val p2200 = prefillSEDService.prefill(prefillData)
+        val p2200 = prefillSEDService.prefill(prefillData, personDataCollection)
 
         assertEquals(null, p2200.nav?.barn)
 
@@ -107,6 +98,9 @@ class PrefillP2200_AP_21975717Test {
         assertEquals("NO", pinitem?.land)
 
         assertEquals("NO", p2200.nav?.bruker?.adresse?.land)
+        assertEquals("FORUSBEEN 2294", p2200.nav?.bruker?.adresse?.gate)
+        assertEquals("0010", p2200.nav?.bruker?.adresse?.postnummer)
+        assertEquals("OSLO", p2200.nav?.bruker?.adresse?.by)
 
         assertEquals("THOR-DOPAPIR", p2200.nav?.ektefelle?.person?.fornavn)
         assertEquals("RAGNAROK", p2200.nav?.ektefelle?.person?.etternavn)
@@ -117,7 +111,7 @@ class PrefillP2200_AP_21975717Test {
 
     @Test
     fun `testing av komplett P2200 med utskrift og testing av innsending`() {
-        val P2200 = prefillSEDService.prefill(prefillData)
+        val P2200 = prefillSEDService.prefill(prefillData, personDataCollection)
         val json = mapAnyToJson(createMockApiRequest("P2200", "P_BUC_01", P2200.toJson()))
         assertNotNull(json)
     }

@@ -1,7 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.prefill
 
-import no.nav.eessi.pensjon.fagmodul.prefill.tps.FodselsnummerMother
-import no.nav.eessi.pensjon.fagmodul.prefill.tps.NavFodselsnummer
+import no.nav.eessi.pensjon.fagmodul.prefill.pdl.FodselsnummerMother
+import no.nav.eessi.pensjon.fagmodul.prefill.pdl.NavFodselsnummer
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Bostedsadresse
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Doedsfall
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Familierelasjon

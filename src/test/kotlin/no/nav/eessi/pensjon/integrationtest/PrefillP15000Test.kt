@@ -2,16 +2,17 @@ package no.nav.eessi.pensjon.integrationtest
 
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.whenever
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
-import no.nav.eessi.pensjon.fagmodul.personoppslag.BrukerMock
-import no.nav.eessi.pensjon.fagmodul.prefill.model.KravType
+import no.nav.eessi.pensjon.fagmodul.models.KravType
+import no.nav.eessi.pensjon.fagmodul.models.SEDType
+import no.nav.eessi.pensjon.fagmodul.prefill.PersonPDLMock
 import no.nav.eessi.pensjon.fagmodul.prefill.pen.PensjonsinformasjonService
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillTestHelper
-import no.nav.eessi.pensjon.personoppslag.aktoerregister.AktoerId
-import no.nav.eessi.pensjon.personoppslag.aktoerregister.AktoerregisterService
-import no.nav.eessi.pensjon.personoppslag.aktoerregister.IdentGruppe
-import no.nav.eessi.pensjon.personoppslag.aktoerregister.NorskIdent
-import no.nav.eessi.pensjon.personoppslag.personv3.PersonV3Service
+import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
+import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
+import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentType
+import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
 import no.nav.eessi.pensjon.security.sts.STSService
 import no.nav.eessi.pensjon.services.kodeverk.KodeverkClient
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.EPSaktype
@@ -51,12 +52,6 @@ class PrefillP15000Test {
     @MockBean
     lateinit var stsService: STSService
 
-    @MockBean
-    lateinit var personV3Service: PersonV3Service
-
-    @MockBean
-    lateinit var aktoerService: AktoerregisterService
-
     @MockBean(name = "pensjonsinformasjonOidcRestTemplate")
     lateinit var restTemplate: RestTemplate
 
@@ -66,19 +61,34 @@ class PrefillP15000Test {
     @MockBean
     lateinit var pensjoninformasjonservice: PensjonsinformasjonService
 
+    @MockBean
+    private lateinit var personService: PersonService
+
     @Autowired
     private lateinit var mockMvc: MockMvc
 
+    private companion object {
+        const val SAK_ID = "12345"
+
+        const val FNR_OVER_60 = "09035225916"   // SLAPP SKILPADDE
+        const val FNR_VOKSEN = "11067122781"    // KRAFTIG VEGGPRYD
+        const val FNR_VOKSEN_2 = "22117320034"  // LEALAUS KAKE
+        const val FNR_VOKSEN_3 = "12312312312"
+        const val FNR_VOKSEN_4 = "9876543210"
+        const val FNR_BARN = "12011577847"      // STERK BUSK
+
+        const val AKTOER_ID = "0123456789000"
+        const val AKTOER_ID_2 = "0009876543210"
+    }
 
     @Test
     @Throws(Exception::class)
     fun `prefill P15000 P_BUC_10 fra vedtakskontekst hvor saktype er GJENLEV og pensjoninformasjon gir BARNEP med GJENLEV`() {
+        doReturn(NorskIdent(FNR_VOKSEN_3)).whenever(personService).hentIdent(IdentType.NorskIdent, AktoerId(AKTOER_ID))
+        doReturn(AktoerId(AKTOER_ID_2)).whenever(personService).hentIdent(IdentType.AktoerId, NorskIdent(FNR_VOKSEN_4))
 
-        doReturn(NorskIdent("12312312312")).`when`(aktoerService).hentGjeldendeIdent(IdentGruppe.NorskIdent, AktoerId("0105094340092"))
-        doReturn(AktoerId("3323332333233323")).`when`(aktoerService).hentGjeldendeIdent(IdentGruppe.AktoerId, NorskIdent("9876543210"))
-
-        doReturn(BrukerMock.createWith(true, "Lever", "Gjenlev", "12312312312")).`when`(personV3Service).hentBruker("12312312312")
-        doReturn(BrukerMock.createWith(true, "Avdød", "Død", "9876543210", erDod = true)).`when`(personV3Service).hentBruker("9876543210")
+        doReturn(PersonPDLMock.createWith(true, "Lever", "Gjenlev", FNR_VOKSEN_3, AKTOER_ID)).whenever(personService).hentPerson(NorskIdent(FNR_VOKSEN_3))
+        doReturn(PersonPDLMock.createWith(true, "Avdød", "Død", FNR_VOKSEN_4, AKTOER_ID_2, true)).whenever(personService).hentPerson(NorskIdent(FNR_VOKSEN_4))
 
         val banrepSak = V1Sak()
         banrepSak.sakType = "BARNEP"
@@ -107,9 +117,9 @@ class PrefillP15000Test {
         sak.kravHistorikkListe.kravHistorikkListe.add(v1Kravhistorikk)
 
         doReturn(pensjonsinformasjon).`when`(pensjoninformasjonservice).hentMedVedtak("123123123")
-        doReturn("QX").doReturn("XQ").`when`(kodeverkClient).finnLandkode2(any())
+        doReturn("XQ").`when`(kodeverkClient).finnLandkode2(any())
 
-        val apijson =  dummyApijson(sakid = "22915555", vedtakid = "123123123", aktoerId = "0105094340092", sed = "P15000", buc = "P_BUC_10", kravtype = KravType.GJENLEV, kravdato = "01-01-2020", fnravdod = "9876543210")
+        val apijson =  dummyApijson(sakid = "22915555", vedtakid = "123123123", aktoerId = AKTOER_ID, sedType = SEDType.P15000, buc = "P_BUC_10", kravtype = KravType.GJENLEV, kravdato = "01-01-2020", fnravdod = "9876543210")
 
         val result = mockMvc.perform(post("/sed/prefill")
             .contentType(MediaType.APPLICATION_JSON)
@@ -174,7 +184,7 @@ class PrefillP15000Test {
                 "gate" : "Oppoverbakken 66",
                 "by" : "SØRUMSAND",
                 "postnummer" : "1920",
-                "land" : "XQ"
+                "land" : "NO"
               }
             }
           }
@@ -189,11 +199,12 @@ class PrefillP15000Test {
     @Throws(Exception::class)
     fun `prefill P15000 P_BUC_10 fra vedtakskontekst hvor saktype er ALDER og pensjoninformasjon returnerer ALDER med GJENLEV`() {
 
-        doReturn(NorskIdent("12312312312")).`when`(aktoerService).hentGjeldendeIdent(IdentGruppe.NorskIdent, AktoerId("0105094340092"))
-        doReturn(AktoerId("3323332333233323")).`when`(aktoerService).hentGjeldendeIdent(IdentGruppe.AktoerId, NorskIdent("9876543210"))
+        doReturn(NorskIdent(FNR_VOKSEN_3)).whenever(personService).hentIdent(IdentType.NorskIdent, AktoerId(AKTOER_ID))
+        doReturn(AktoerId(AKTOER_ID_2)).whenever(personService).hentIdent(IdentType.AktoerId, NorskIdent(FNR_VOKSEN_4))
 
-        doReturn(BrukerMock.createWith(true, "Lever", "Gjenlev", "12312312312")).`when`(personV3Service).hentBruker("12312312312")
-        doReturn(BrukerMock.createWith(true, "Avdød", "Død", "9876543210", erDod = true)).`when`(personV3Service).hentBruker("9876543210")
+        doReturn(PersonPDLMock.createWith(true, "Lever", "Gjenlev", FNR_VOKSEN_3, AKTOER_ID)).whenever(personService).hentPerson(NorskIdent(FNR_VOKSEN_3))
+        doReturn(PersonPDLMock.createWith(true, "Avdød", "Død", FNR_VOKSEN_4, AKTOER_ID_2, true)).whenever(personService).hentPerson(NorskIdent(FNR_VOKSEN_4))
+
 
         val aldersak = V1Sak()
         aldersak.sakType = "ALDER"
@@ -222,7 +233,7 @@ class PrefillP15000Test {
         doReturn(pensjonsinformasjon).`when`(pensjoninformasjonservice).hentMedVedtak("123123123")
         doReturn("QX").doReturn("XQ").`when`(kodeverkClient).finnLandkode2(any())
 
-        val apijson =  dummyApijson(sakid = "22915555", vedtakid = "123123123", aktoerId = "0105094340092", sed = "P15000", buc = "P_BUC_10", kravtype = KravType.ALDER, kravdato = "01-01-2020", fnravdod = "9876543210")
+        val apijson =  dummyApijson(sakid = "22915555", vedtakid = "123123123", aktoerId = AKTOER_ID, sedType = SEDType.P15000, buc = "P_BUC_10", kravtype = KravType.ALDER, kravdato = "01-01-2020", fnravdod = FNR_VOKSEN_4)
 
         val result = mockMvc.perform(post("/sed/prefill")
             .contentType(MediaType.APPLICATION_JSON)
@@ -260,7 +271,7 @@ class PrefillP15000Test {
                 "gate" : "Oppoverbakken 66",
                 "by" : "SØRUMSAND",
                 "postnummer" : "1920",
-                "land" : "XQ"
+                "land" : "NO"
               }
             },
             "krav" : {
@@ -278,9 +289,9 @@ class PrefillP15000Test {
     @Test
     @Throws(Exception::class)
     fun `prefill P15000 P_BUC_10 hvor saktype er ALDER men data fra pensjonsinformasjon gir UFOREP som resulterer i en bad request`() {
+        doReturn(NorskIdent(FNR_VOKSEN)).whenever(personService).hentIdent(IdentType.NorskIdent, AktoerId(AKTOER_ID ))
+        doReturn(PersonPDLMock.createWith(true, fnr = FNR_VOKSEN, aktoerid = AKTOER_ID)).whenever(personService).hentPerson(NorskIdent(FNR_VOKSEN))
 
-        doReturn(NorskIdent("12312312312")).`when`(aktoerService).hentGjeldendeIdent(IdentGruppe.NorskIdent, AktoerId("0105094340092"))
-        doReturn(BrukerMock.createWith()).`when`(personV3Service).hentBruker(any())
 
         val aldersak = V1Sak()
         aldersak.sakType = "UFOREP"
@@ -295,7 +306,7 @@ class PrefillP15000Test {
 
         doReturn(pensjonsinformasjon).`when`(pensjoninformasjonservice).hentMedVedtak("123123123")
 
-        val apijson = dummyApijson(sakid = "22874955", vedtakid = "123123123", aktoerId = "0105094340092", sed = "P15000", buc = "P_BUC_10", kravtype = KravType.ALDER, kravdato = "01-01-2020")
+        val apijson = dummyApijson(sakid = "22874955", vedtakid = "123123123", aktoerId = AKTOER_ID, sedType = SEDType.P15000, buc = "P_BUC_10", kravtype = KravType.ALDER, kravdato = "01-01-2020")
 
         mockMvc.perform(post("/sed/prefill")
             .contentType(MediaType.APPLICATION_JSON)
@@ -309,9 +320,9 @@ class PrefillP15000Test {
     @Test
     @Throws(Exception::class)
     fun `prefill P15000 P_BUC_10 hvor saktype er UFOREP men data fra pensjonsinformasjon gir ALDER som resulterer i en bad request`() {
+        doReturn(NorskIdent(FNR_VOKSEN)).whenever(personService).hentIdent(IdentType.NorskIdent, AktoerId(AKTOER_ID ))
+        doReturn(PersonPDLMock.createWith(true, fnr = FNR_VOKSEN, aktoerid = AKTOER_ID)).whenever(personService).hentPerson(NorskIdent(FNR_VOKSEN))
 
-        doReturn(NorskIdent("12312312312")).`when`(aktoerService).hentGjeldendeIdent(IdentGruppe.NorskIdent, AktoerId("0105094340092"))
-        doReturn(BrukerMock.createWith()).`when`(personV3Service).hentBruker(any())
 
         val aldersak = V1Sak()
         aldersak.sakType = "ALDER"
@@ -326,7 +337,7 @@ class PrefillP15000Test {
 
         doReturn(pensjonsinformasjon).`when`(pensjoninformasjonservice).hentMedVedtak("123123123")
 
-        val apijson = dummyApijson(sakid = "21337890", vedtakid = "123123123" , aktoerId = "0105094340092", sed = "P15000", buc = "P_BUC_10", kravtype = KravType.UFOREP, kravdato = "01-01-2020")
+        val apijson = dummyApijson(sakid = "21337890", vedtakid = "123123123" , aktoerId = AKTOER_ID, sedType = SEDType.P15000, buc = "P_BUC_10", kravtype = KravType.UFOREP, kravdato = "01-01-2020")
 
         mockMvc.perform(post("/sed/prefill")
             .contentType(MediaType.APPLICATION_JSON)
@@ -340,8 +351,9 @@ class PrefillP15000Test {
     @Throws(Exception::class)
     fun `prefill P15000 P_BUC_10 hvor saktype er ALDER`() {
 
-        doReturn(NorskIdent("12312312312")).`when`(aktoerService).hentGjeldendeIdent(IdentGruppe.NorskIdent, AktoerId("0105094340092"))
-        doReturn(BrukerMock.createWith(true, "Lever", "Gjenlev", "12312312312")).`when`(personV3Service).hentBruker("12312312312")
+        doReturn(NorskIdent(FNR_VOKSEN)).whenever(personService).hentIdent(IdentType.NorskIdent, AktoerId(AKTOER_ID ))
+        doReturn(PersonPDLMock.createWith(true, "Lever", "Gjenlev", fnr = FNR_VOKSEN, aktoerid = AKTOER_ID)).whenever(personService).hentPerson(NorskIdent(FNR_VOKSEN))
+
 
         val aldersak = V1Sak()
         aldersak.sakType = "ALDER"
@@ -358,7 +370,7 @@ class PrefillP15000Test {
 
         doReturn("QX").doReturn("XQ").`when`(kodeverkClient).finnLandkode2(any())
 
-        val apijson = dummyApijson(sakid = "21337890", vedtakid = "123123123" , aktoerId = "0105094340092", sed = "P15000", buc = "P_BUC_10", kravtype = KravType.ALDER, kravdato = "01-01-2020")
+        val apijson = dummyApijson(sakid = "21337890", vedtakid = "123123123" , aktoerId = AKTOER_ID, sedType = SEDType.P15000, buc = "P_BUC_10", kravtype = KravType.ALDER, kravdato = "01-01-2020")
 
         val result = mockMvc.perform(post("/sed/prefill")
             .contentType(MediaType.APPLICATION_JSON)
@@ -387,7 +399,7 @@ class PrefillP15000Test {
                 "bruker" : {
                   "person" : {
                     "pin" : [ {
-                      "identifikator" : "12312312312",
+                      "identifikator" : "$FNR_VOKSEN",
                       "land" : "NO"
                     } ],
                     "etternavn" : "Gjenlev",
@@ -399,7 +411,7 @@ class PrefillP15000Test {
                     "gate" : "Oppoverbakken 66",
                     "by" : "SØRUMSAND",
                     "postnummer" : "1920",
-                    "land" : "XQ"
+                    "land" : "NO"
                   }
                 },
                 "krav" : {
@@ -418,8 +430,8 @@ class PrefillP15000Test {
     @Throws(Exception::class)
     fun `prefill P15000 P_BUC_10 hvor saktype er UFOREP`() {
 
-        doReturn(NorskIdent("12312312312")).`when`(aktoerService).hentGjeldendeIdent(IdentGruppe.NorskIdent, AktoerId("0105094340092"))
-        doReturn(BrukerMock.createWith(true, "Lever", "Gjenlev", "12312312312")).`when`(personV3Service).hentBruker("12312312312")
+        doReturn(NorskIdent(FNR_VOKSEN)).whenever(personService).hentIdent(IdentType.NorskIdent, AktoerId(AKTOER_ID ))
+        doReturn(PersonPDLMock.createWith(true, "Lever", "Gjenlev", fnr = FNR_VOKSEN, aktoerid = AKTOER_ID)).whenever(personService).hentPerson(NorskIdent(FNR_VOKSEN))
 
         val aldersak = V1Sak()
         aldersak.sakType = "UFOREP"
@@ -433,9 +445,11 @@ class PrefillP15000Test {
         pensjonsinformasjon.vedtak.vedtakStatus = "INNV"
 
         doReturn(pensjonsinformasjon).`when`(pensjoninformasjonservice).hentMedVedtak("123123123")
-        doReturn("QX").doReturn("XQ").`when`(kodeverkClient).finnLandkode2(any())
+        doReturn("QX").whenever(kodeverkClient).finnLandkode2(any())
 
-        val apijson = dummyApijson(sakid = "22874955", vedtakid = "123123123" ,aktoerId = "0105094340092", sed = "P15000", buc = "P_BUC_10", kravtype = KravType.UFOREP, kravdato = "01-01-2020")
+        val apijson = dummyApijson(
+            sakid = "22874955", vedtakid = "123123123" ,
+            aktoerId = AKTOER_ID, sedType = SEDType.P15000, buc = "P_BUC_10", kravtype = KravType.UFOREP, kravdato = "01-01-2020")
 
         val result = mockMvc.perform(post("/sed/prefill")
             .contentType(MediaType.APPLICATION_JSON)
@@ -462,7 +476,7 @@ class PrefillP15000Test {
                 "bruker" : {
                   "person" : {
                     "pin" : [ {
-                      "identifikator" : "12312312312",
+                      "identifikator" : "$FNR_VOKSEN",
                       "land" : "NO"
                     } ],
                     "etternavn" : "Gjenlev",
@@ -474,7 +488,7 @@ class PrefillP15000Test {
                     "gate" : "Oppoverbakken 66",
                     "by" : "SØRUMSAND",
                     "postnummer" : "1920",
-                    "land" : "XQ"
+                    "land" : "NO"
                   }
                 },
                 "krav" : {
@@ -493,15 +507,12 @@ class PrefillP15000Test {
     @Test
     @Throws(Exception::class)
     fun `prefill P15000 P_BUC_10 hvor saktype er satt men vedtakid mangler skal gi exception bad request`() {
-
-        doReturn(NorskIdent("12312312312")).`when`(aktoerService).hentGjeldendeIdent(IdentGruppe.NorskIdent, AktoerId("0105094340092"))
-        doReturn(BrukerMock.createWith(true, "Lever", "Gjenlev", "12312312312")).`when`(personV3Service).hentBruker("12312312312")
-
+        doReturn(NorskIdent(FNR_VOKSEN)).whenever(personService).hentIdent(IdentType.NorskIdent, AktoerId(AKTOER_ID ))
+        doReturn(PersonPDLMock.createWith(true, fnr = FNR_VOKSEN, aktoerid = AKTOER_ID)).whenever(personService).hentPerson(NorskIdent(FNR_VOKSEN))
         doReturn(PrefillTestHelper.readXMLresponse("P2200-UP-INNV.xml")).`when`(restTemplate).exchange(any<String>(), any(), any<HttpEntity<Unit>>(), ArgumentMatchers.eq(String::class.java))
+        doReturn("QX").`when`(kodeverkClient).finnLandkode2(any())
 
-        doReturn("QX").doReturn("XQ").`when`(kodeverkClient).finnLandkode2(any())
-
-        val apijson = dummyApijson(sakid = "22874955", aktoerId = "0105094340092", sed = "P15000", buc = "P_BUC_10", kravtype = KravType.UFOREP, kravdato = "01-01-2020")
+        val apijson = dummyApijson(sakid = "22874955", aktoerId = AKTOER_ID, sedType = SEDType.P15000, buc = "P_BUC_10", kravtype = KravType.UFOREP, kravdato = "01-01-2020")
 
         val expectedError = """Vennligst åpne EESSI-Pensjon fra Vedtakskontekst i PESYS for å opprette og bestille P_BUC_10 og SED P15000""".trimIndent()
 
@@ -520,11 +531,11 @@ class PrefillP15000Test {
     @Throws(Exception::class)
     fun `prefill P15000 P_BUC_10 hvor saktype er GJENLEV og pensjoninformasjon gir UFOREP med GJENLEV`() {
 
-        doReturn(NorskIdent("12312312312")).`when`(aktoerService).hentGjeldendeIdent(IdentGruppe.NorskIdent, AktoerId("0105094340092"))
-        doReturn(AktoerId("3323332333233323")).`when`(aktoerService).hentGjeldendeIdent(IdentGruppe.AktoerId, NorskIdent("9876543210"))
+        doReturn(NorskIdent(FNR_VOKSEN)).whenever(personService).hentIdent(IdentType.NorskIdent, AktoerId(AKTOER_ID))
+        doReturn(AktoerId(AKTOER_ID_2)).whenever(personService).hentIdent(IdentType.AktoerId, NorskIdent(FNR_VOKSEN_2))
 
-        doReturn(BrukerMock.createWith(true, "Lever", "Gjenlev", "12312312312")).`when`(personV3Service).hentBruker("12312312312")
-        doReturn(BrukerMock.createWith(true, "Avdød", "Død", "9876543210", erDod = true)).`when`(personV3Service).hentBruker("9876543210")
+        doReturn(PersonPDLMock.createWith(true, "Lever", "Gjenlev", FNR_VOKSEN, AKTOER_ID)).whenever(personService).hentPerson(NorskIdent(FNR_VOKSEN))
+        doReturn(PersonPDLMock.createWith(true, "Avdød", "Død", FNR_VOKSEN_2, AKTOER_ID_2, true)).whenever(personService).hentPerson(NorskIdent(FNR_VOKSEN_2))
 
         val aldersak = V1Sak()
         aldersak.sakType = "UFOREP"
@@ -540,7 +551,7 @@ class PrefillP15000Test {
         doReturn(pensjonsinformasjon).`when`(pensjoninformasjonservice).hentMedVedtak("123123123")
         doReturn("QX").doReturn("XQ").`when`(kodeverkClient).finnLandkode2(any())
 
-        val apijson = dummyApijson(sakid = "22915550", vedtakid = "123123123", aktoerId = "0105094340092", sed = "P15000", buc = "P_BUC_10", kravtype = KravType.GJENLEV, kravdato = "01-01-2020", fnravdod = "9876543210")
+        val apijson = dummyApijson(sakid = "22915550", vedtakid = "123123123", aktoerId = AKTOER_ID, sedType =SEDType.P15000, buc = "P_BUC_10", kravtype = KravType.GJENLEV, kravdato = "01-01-2020", fnravdod = FNR_VOKSEN_2)
 
         val result = mockMvc.perform(post("/sed/prefill")
             .contentType(MediaType.APPLICATION_JSON)
@@ -567,7 +578,7 @@ class PrefillP15000Test {
                 "bruker" : {
                   "person" : {
                     "pin" : [ {
-                      "identifikator" : "9876543210",
+                      "identifikator" : "$FNR_VOKSEN_2",
                       "land" : "NO"
                     } ],
                     "etternavn" : "Død",
@@ -587,7 +598,7 @@ class PrefillP15000Test {
                     "pin" : [ {
                       "institusjonsnavn" : "NOINST002, NO INST002, NO",
                       "institusjonsid" : "NO:noinst002",
-                      "identifikator" : "12312312312",
+                      "identifikator" : "$FNR_VOKSEN",
                       "land" : "NO"
                     } ],
                     "statsborgerskap" : [ {
@@ -603,7 +614,7 @@ class PrefillP15000Test {
                     "gate" : "Oppoverbakken 66",
                     "by" : "SØRUMSAND",
                     "postnummer" : "1920",
-                    "land" : "XQ"
+                    "land" : "NO"
                   }
                 }
               }
@@ -617,12 +628,11 @@ class PrefillP15000Test {
     @Test
     @Throws(Exception::class)
     fun `prefill P15000 P_BUC_10 hvor saktype er GJENLEV og pensjoninformasjon gir BARNEP med GJENLEV`() {
+        doReturn(NorskIdent(FNR_VOKSEN)).whenever(personService).hentIdent(IdentType.NorskIdent, AktoerId(AKTOER_ID))
+        doReturn(AktoerId(AKTOER_ID_2)).whenever(personService).hentIdent(IdentType.AktoerId, NorskIdent(FNR_VOKSEN_2))
 
-        doReturn(NorskIdent("12312312312")).`when`(aktoerService).hentGjeldendeIdent(IdentGruppe.NorskIdent, AktoerId("0105094340092"))
-        doReturn(AktoerId("3323332333233323")).`when`(aktoerService).hentGjeldendeIdent(IdentGruppe.AktoerId, NorskIdent("9876543210"))
-
-        doReturn(BrukerMock.createWith(true, "Lever", "Gjenlev", "12312312312")).`when`(personV3Service).hentBruker("12312312312")
-        doReturn(BrukerMock.createWith(true, "Avdød", "Død", "9876543210", erDod = true)).`when`(personV3Service).hentBruker("9876543210")
+        doReturn(PersonPDLMock.createWith(true, "Lever", "Gjenlev", FNR_VOKSEN, AKTOER_ID)).whenever(personService).hentPerson(NorskIdent(FNR_VOKSEN))
+        doReturn(PersonPDLMock.createWith(true, "Avdød", "Død", FNR_VOKSEN_2, AKTOER_ID_2, true)).whenever(personService).hentPerson(NorskIdent(FNR_VOKSEN_2))
 
         val aldersak = V1Sak()
         aldersak.sakType = "UFOREP"
@@ -636,8 +646,8 @@ class PrefillP15000Test {
         pensjonsinformasjon.vedtak.vedtakStatus = "INNV"
 
         val avdod = V1Avdod()
-        avdod.avdodFar = "9876543210"
-        avdod.avdodFarAktorId = "3323332333233323"
+        avdod.avdodFar = FNR_VOKSEN_2
+        avdod.avdodFarAktorId = AKTOER_ID_2
         avdod.avdodMor = "12312312441"
         avdod.avdodMorAktorId = "123343242034739845719384257134513"
         pensjonsinformasjon.avdod = avdod
@@ -645,7 +655,7 @@ class PrefillP15000Test {
         doReturn(pensjonsinformasjon).`when`(pensjoninformasjonservice).hentMedVedtak("123123123")
         doReturn("QX").doReturn("XQ").`when`(kodeverkClient).finnLandkode2(any())
 
-        val apijson = dummyApijson(sakid = "22915555", vedtakid = "123123123", aktoerId = "0105094340092", sed = "P15000", buc = "P_BUC_10", kravtype = KravType.GJENLEV, kravdato = "01-01-2020", fnravdod = "9876543210")
+        val apijson = dummyApijson(sakid = "22915555", vedtakid = "123123123", aktoerId = AKTOER_ID, sedType = SEDType.P15000, buc = "P_BUC_10", kravtype = KravType.GJENLEV, kravdato = "01-01-2020", fnravdod = FNR_VOKSEN_2)
 
         val result = mockMvc.perform(post("/sed/prefill")
             .contentType(MediaType.APPLICATION_JSON)
@@ -672,7 +682,7 @@ class PrefillP15000Test {
                 "bruker" : {
                   "person" : {
                     "pin" : [ {
-                      "identifikator" : "9876543210",
+                      "identifikator" : "$FNR_VOKSEN_2",
                       "land" : "NO"
                     } ],
                     "etternavn" : "Død",
@@ -692,7 +702,7 @@ class PrefillP15000Test {
                     "pin" : [ {
                       "institusjonsnavn" : "NOINST002, NO INST002, NO",
                       "institusjonsid" : "NO:noinst002",
-                      "identifikator" : "12312312312",
+                      "identifikator" : "$FNR_VOKSEN",
                       "land" : "NO"
                     } ],
                     "statsborgerskap" : [ {
@@ -711,7 +721,7 @@ class PrefillP15000Test {
                     "gate" : "Oppoverbakken 66",
                     "by" : "SØRUMSAND",
                     "postnummer" : "1920",
-                    "land" : "XQ"
+                    "land" : "NO"
                   }
                 }
               }

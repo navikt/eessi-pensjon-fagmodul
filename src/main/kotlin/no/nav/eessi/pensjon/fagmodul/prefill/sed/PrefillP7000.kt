@@ -1,8 +1,8 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.sed
 
+import no.nav.eessi.pensjon.fagmodul.models.PersonDataCollection
+import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
 import no.nav.eessi.pensjon.fagmodul.models.SEDType
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PersonData
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModel
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillSed
 import no.nav.eessi.pensjon.fagmodul.sedmodel.Bruker
 import no.nav.eessi.pensjon.fagmodul.sedmodel.EessisakItem
@@ -20,7 +20,7 @@ class PrefillP7000(private val prefillSed: PrefillSed) {
 
     private val logger: Logger by lazy { LoggerFactory.getLogger(PrefillP7000::class.java) }
 
-    fun prefill(prefillData: PrefillDataModel, personData: PersonData): SED {
+    fun prefill(prefillData: PrefillDataModel, personData: PersonDataCollection): SED {
 
         val sed = prefillSed.prefill(prefillData, personData)
         logger.debug("Tilpasser P7000 forenklet preutfylling")

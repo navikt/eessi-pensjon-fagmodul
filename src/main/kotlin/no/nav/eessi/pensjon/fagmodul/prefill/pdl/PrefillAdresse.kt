@@ -1,4 +1,4 @@
-package no.nav.eessi.pensjon.fagmodul.prefill.tps
+package no.nav.eessi.pensjon.fagmodul.prefill.pdl
 
 import no.nav.eessi.pensjon.fagmodul.sedmodel.Adresse
 import no.nav.eessi.pensjon.services.geo.PostnummerService

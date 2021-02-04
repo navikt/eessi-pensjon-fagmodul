@@ -1,16 +1,13 @@
 package no.nav.eessi.pensjon.fagmodul.prefill
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
+import no.nav.eessi.pensjon.fagmodul.models.PersonDataCollection
+import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
 import no.nav.eessi.pensjon.fagmodul.models.SEDType.P2000
-import no.nav.eessi.pensjon.fagmodul.models.SEDType.P2001
 import no.nav.eessi.pensjon.fagmodul.models.SEDType.P2100
-import no.nav.eessi.pensjon.fagmodul.models.SEDType.P2101
 import no.nav.eessi.pensjon.fagmodul.models.SEDType.P2200
 import no.nav.eessi.pensjon.fagmodul.models.SEDType.P6000
-import no.nav.eessi.pensjon.fagmodul.models.SEDType.valueOf
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PersonDataCollection
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModel
-import no.nav.eessi.pensjon.fagmodul.prefill.tps.NavFodselsnummer
+import no.nav.eessi.pensjon.fagmodul.prefill.pdl.NavFodselsnummer
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Familierelasjonsrolle
@@ -47,7 +44,7 @@ class PersonDataService(private val personService: PersonService,
     fun hentPersonData(prefillData: PrefillDataModel) : PersonDataCollection {
         return when (prefillData.sedType) {
             //alle med barn
-            P2001, P2101, P2000, P2200, P2100, P6000 -> hentPersonerMedBarn(prefillData)
+            P2000, P2200, P2100, P6000 -> hentPersonerMedBarn(prefillData)
             //alle uten barn
             else -> hentPersoner(prefillData)
         }

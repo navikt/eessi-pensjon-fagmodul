@@ -4,13 +4,14 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.whenever
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
-import no.nav.eessi.pensjon.fagmodul.personoppslag.BrukerMock
+import no.nav.eessi.pensjon.fagmodul.prefill.PersonPDLMock
+import no.nav.eessi.pensjon.fagmodul.prefill.PersonPDLMock.medBeskyttelse
 import no.nav.eessi.pensjon.fagmodul.prefill.pen.PensjonsinformasjonService
-import no.nav.eessi.pensjon.personoppslag.aktoerregister.AktoerId
-import no.nav.eessi.pensjon.personoppslag.aktoerregister.AktoerregisterService
-import no.nav.eessi.pensjon.personoppslag.aktoerregister.IdentGruppe
-import no.nav.eessi.pensjon.personoppslag.aktoerregister.NorskIdent
-import no.nav.eessi.pensjon.personoppslag.personv3.PersonV3Service
+import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
+import no.nav.eessi.pensjon.personoppslag.pdl.model.AdressebeskyttelseGradering
+import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
+import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentType
+import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
 import no.nav.eessi.pensjon.security.sts.STSService
 import no.nav.eessi.pensjon.services.kodeverk.KodeverkClient
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.EPSaktype
@@ -18,7 +19,6 @@ import no.nav.eessi.pensjon.services.pensjonsinformasjon.KravArsak
 import no.nav.pensjon.v1.kravhistorikk.V1KravHistorikk
 import no.nav.pensjon.v1.kravhistorikkliste.V1KravHistorikkListe
 import no.nav.pensjon.v1.sak.V1Sak
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Diskresjonskoder
 import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.beans.factory.annotation.Autowired
@@ -40,47 +40,55 @@ import org.springframework.web.client.RestTemplate
 class SedPrefillP8000IntegrationSpringTest {
 
     @MockBean
-    lateinit var stsService: STSService
-
-    @MockBean
-    lateinit var personV3Service: PersonV3Service
-
-    @MockBean
-    lateinit var aktoerService: AktoerregisterService
+    private lateinit var stsService: STSService
 
     @MockBean(name = "pensjonsinformasjonOidcRestTemplate")
-    lateinit var restTemplate: RestTemplate
+    private lateinit var restTemplate: RestTemplate
 
     @MockBean
-    lateinit var kodeverkClient: KodeverkClient
+    private lateinit var kodeverkClient: KodeverkClient
 
     @MockBean
-    lateinit var pensjoninformasjonservice: PensjonsinformasjonService
+    private lateinit var pensjoninformasjonservice: PensjonsinformasjonService
 
     @Autowired
     private lateinit var mockMvc: MockMvc
 
+    @MockBean
+    private lateinit var personService: PersonService
+
+    private companion object {
+        const val SAK_ID = "12345"
+
+        const val FNR_OVER_60 = "09035225916"   // SLAPP SKILPADDE
+        const val FNR_VOKSEN = "11067122781"    // KRAFTIG VEGGPRYD
+        const val FNR_VOKSEN_2 = "22117320034"  // LEALAUS KAKE
+        const val FNR_VOKSEN_3 = "12312312312"
+        const val FNR_VOKSEN_4 = "9876543210"
+        const val FNR_BARN = "12011577847"      // STERK BUSK
+
+        const val AKTOER_ID = "0123456789000"
+        const val AKTOER_ID_2 = "0009876543210"
+    }
+
     @Test
     @Throws(Exception::class)
     fun `prefill sed P8000 - Gitt gjenlevendepensjon Og henvendelse gjelder søker SÅ skal det produseres en Gyldig P8000 med referanse til person 02`() {
+        doReturn(NorskIdent(FNR_VOKSEN_3)).whenever(personService).hentIdent(IdentType.NorskIdent, AktoerId(AKTOER_ID))
+        doReturn(AktoerId(AKTOER_ID_2)).whenever(personService).hentIdent(IdentType.AktoerId, NorskIdent(FNR_VOKSEN_4))
+        doReturn(PersonPDLMock.createWith(true, "Lever", "Gjenlev", FNR_VOKSEN_3, AKTOER_ID)).whenever(personService).hentPerson(NorskIdent(FNR_VOKSEN_3))
+        doReturn(PersonPDLMock.createWith(true, "Avdød", "Død", FNR_VOKSEN_4, AKTOER_ID_2, true)).whenever(personService).hentPerson(NorskIdent(FNR_VOKSEN_4))
 
         val sak = V1Sak()
         sak.sakType = EPSaktype.GJENLEV.toString()
         sak.sakId = 100
         sak.kravHistorikkListe = V1KravHistorikkListe()
 
-        whenever((pensjoninformasjonservice).hentRelevantPensjonSak(any(), any())).thenReturn(sak)
+        doReturn(sak).whenever(pensjoninformasjonservice).hentRelevantPensjonSak(any(), any())
+        doReturn("QX").whenever(kodeverkClient).finnLandkode2(any())
 
-        doReturn(NorskIdent("12312312312")).`when`(aktoerService).hentGjeldendeIdent(IdentGruppe.NorskIdent, AktoerId("0105094340092"))
-        doReturn(AktoerId("3323332333233323")).`when`(aktoerService).hentGjeldendeIdent(IdentGruppe.AktoerId, NorskIdent("9876543210"))
-
-        doReturn(BrukerMock.createWith(true, "Lever", "Gjenlev", "12312312312")).`when`(personV3Service).hentBruker("12312312312")
-        doReturn(BrukerMock.createWith(true, "Avdød", "Død", "9876543210")).`when`(personV3Service).hentBruker("9876543210")
-
-        doReturn("QX").`when`(kodeverkClient).finnLandkode2(any())
-
-        val subject = dummyApiSubjectjson("9876543210")
-        val apijson = dummyApijson(sakid = "21337890", aktoerId = "0105094340092", sed = "P8000", buc = "P_BUC_05", subject = subject, refperson = "\"SOKER\"")
+        val subject = dummyApiSubjectjson(FNR_VOKSEN_4)
+        val apijson = dummyApijson(sakid = "21337890", aktoerId = AKTOER_ID, sed = "P8000", buc = "P_BUC_05", subject = subject, refperson = "\"SOKER\"")
 
         val validResponse = """
             {
@@ -97,26 +105,22 @@ class SedPrefillP8000IntegrationSpringTest {
                 "bruker" : {
                   "person" : {
                     "pin" : [ {
-                      "identifikator" : "9876543210",
+                      "identifikator" : "$FNR_VOKSEN_4",
                       "land" : "NO"
                     } ],
                     "etternavn" : "Død",
                     "fornavn" : "Avdød",
                     "kjoenn" : "M",
-                    "foedselsdato" : "1988-07-12"
+                    "foedselsdato" : "1921-07-12"
                   },
-                  "adresse" : {
-                    "gate" : "Oppoverbakken 66",
-                    "by" : "SØRUMSAND",
-                    "land" : "QX"
-                  }
+                  "adresse" : { }
                 },
                 "annenperson" : {
                   "person" : {
                     "pin" : [ {
                       "institusjonsnavn" : "NOINST002, NO INST002, NO",
                       "institusjonsid" : "NO:noinst002",
-                      "identifikator" : "12312312312",
+                      "identifikator" : "$FNR_VOKSEN_3",
                       "land" : "NO"
                     } ],
                     "statsborgerskap" : [ {
@@ -132,7 +136,7 @@ class SedPrefillP8000IntegrationSpringTest {
                     "gate" : "Oppoverbakken 66",
                     "by" : "SØRUMSAND",
                     "postnummer" : "1920",
-                    "land" : "QX"
+                    "land" : "NO"
                   }
                 }
               },
@@ -160,6 +164,10 @@ class SedPrefillP8000IntegrationSpringTest {
     @Test
     @Throws(Exception::class)
     fun `prefill sed P8000 - Gitt alderpensjon Og henvendelse gjelder avdød SÅ skal det produseres en Gyldig P8000 med avdød og gjenlevende`() {
+        doReturn(NorskIdent(FNR_VOKSEN_3)).whenever(personService).hentIdent(IdentType.NorskIdent, AktoerId(AKTOER_ID))
+        doReturn(AktoerId(AKTOER_ID_2)).whenever(personService).hentIdent(IdentType.AktoerId, NorskIdent(FNR_VOKSEN_4))
+        doReturn(PersonPDLMock.createWith(true, "Lever", "Gjenlev", FNR_VOKSEN_3, AKTOER_ID)).whenever(personService).hentPerson(NorskIdent(FNR_VOKSEN_3))
+        doReturn(PersonPDLMock.createWith(true, "Avdød", "Død", FNR_VOKSEN_4, AKTOER_ID_2, true)).whenever(personService).hentPerson(NorskIdent(FNR_VOKSEN_4))
 
         val v1Kravhistorikk = V1KravHistorikk()
         v1Kravhistorikk.kravArsak = KravArsak.GJNL_SKAL_VURD.name
@@ -170,18 +178,11 @@ class SedPrefillP8000IntegrationSpringTest {
         sak.kravHistorikkListe = V1KravHistorikkListe()
         sak.kravHistorikkListe.kravHistorikkListe.add(v1Kravhistorikk)
 
-        whenever((pensjoninformasjonservice).hentRelevantPensjonSak(any(), any())).thenReturn(sak)
+        doReturn(sak).whenever(pensjoninformasjonservice).hentRelevantPensjonSak(any(), any())
+        doReturn("QX").whenever(kodeverkClient).finnLandkode2(any())
 
-        doReturn(NorskIdent("12312312312")).`when`(aktoerService).hentGjeldendeIdent(IdentGruppe.NorskIdent, AktoerId("0105094340092"))
-        doReturn(AktoerId("3323332333233323")).`when`(aktoerService).hentGjeldendeIdent(IdentGruppe.AktoerId, NorskIdent("9876543210"))
-
-        doReturn(BrukerMock.createWith(true, "Lever", "Gjenlev", "12312312312")).`when`(personV3Service).hentBruker("12312312312")
-        doReturn(BrukerMock.createWith(true, "Avdød", "Død", "9876543210")).`when`(personV3Service).hentBruker("9876543210")
-
-        doReturn("QX").`when`(kodeverkClient).finnLandkode2(any())
-
-        val subject = dummyApiSubjectjson("9876543210")
-        val apijson = dummyApijson(sakid = "21337890", aktoerId = "0105094340092", sed = "P8000", buc = "P_BUC_05", subject = subject, refperson = "\"AVDOD\"")
+        val subject = dummyApiSubjectjson(FNR_VOKSEN_4)
+        val apijson = dummyApijson(sakid = "21337890", aktoerId = AKTOER_ID, sed = "P8000", buc = "P_BUC_05", subject = subject, refperson = "\"AVDOD\"")
 
         val validResponse = """
         {
@@ -198,26 +199,22 @@ class SedPrefillP8000IntegrationSpringTest {
             "bruker" : {
               "person" : {
                 "pin" : [ {
-                  "identifikator" : "9876543210",
+                  "identifikator" : "$FNR_VOKSEN_4",
                   "land" : "NO"
                 } ],
                 "etternavn" : "Død",
                 "fornavn" : "Avdød",
                 "kjoenn" : "M",
-                "foedselsdato" : "1988-07-12"
+                "foedselsdato" : "1921-07-12"
               },
-              "adresse" : {
-                "gate" : "Oppoverbakken 66",
-                "by" : "SØRUMSAND",
-                "land" : "QX"
-              }
+              "adresse" : { }
             },
             "annenperson" : {
               "person" : {
                 "pin" : [ {
                   "institusjonsnavn" : "NOINST002, NO INST002, NO",
                   "institusjonsid" : "NO:noinst002",
-                  "identifikator" : "12312312312",
+                  "identifikator" : "$FNR_VOKSEN_3",
                   "land" : "NO"
                 } ],
                 "statsborgerskap" : [ {
@@ -233,7 +230,7 @@ class SedPrefillP8000IntegrationSpringTest {
                 "gate" : "Oppoverbakken 66",
                 "by" : "SØRUMSAND",
                 "postnummer" : "1920",
-                "land" : "QX"
+                "land" : "NO"
               }
             }
           },
@@ -263,6 +260,10 @@ class SedPrefillP8000IntegrationSpringTest {
     @Test
     @Throws(Exception::class)
     fun `prefill sed P8000 - Gitt alderpensjon Og henvendelse gjelder søker SÅ skal det produseres en Gyldig P8000 med referanse der søker er gjenlevende`() {
+        doReturn(NorskIdent(FNR_VOKSEN_3)).whenever(personService).hentIdent(IdentType.NorskIdent, AktoerId(AKTOER_ID))
+        doReturn(AktoerId(AKTOER_ID_2)).whenever(personService).hentIdent(IdentType.AktoerId, NorskIdent(FNR_VOKSEN_4))
+        doReturn(PersonPDLMock.createWith(true, "Lever", "Gjenlev", FNR_VOKSEN_3, AKTOER_ID)).whenever(personService).hentPerson(NorskIdent(FNR_VOKSEN_3))
+        doReturn(PersonPDLMock.createWith(true, "Avdød", "Død", FNR_VOKSEN_4, AKTOER_ID_2, true)).whenever(personService).hentPerson(NorskIdent(FNR_VOKSEN_4))
 
         val v1Kravhistorikk = V1KravHistorikk()
         v1Kravhistorikk.kravArsak = KravArsak.GJNL_SKAL_VURD.name
@@ -273,18 +274,11 @@ class SedPrefillP8000IntegrationSpringTest {
         sak.kravHistorikkListe = V1KravHistorikkListe()
         sak.kravHistorikkListe.kravHistorikkListe.add(v1Kravhistorikk)
 
-        whenever((pensjoninformasjonservice).hentRelevantPensjonSak(any(), any())).thenReturn(sak)
+        doReturn(sak).whenever(pensjoninformasjonservice).hentRelevantPensjonSak(any(), any())
+        doReturn("QX").whenever(kodeverkClient).finnLandkode2(any())
 
-        doReturn(NorskIdent("12312312312")).`when`(aktoerService).hentGjeldendeIdent(IdentGruppe.NorskIdent, AktoerId("0105094340092"))
-        doReturn(AktoerId("3323332333233323")).`when`(aktoerService).hentGjeldendeIdent(IdentGruppe.AktoerId, NorskIdent("9876543210"))
-
-        doReturn(BrukerMock.createWith(true, "Lever", "Gjenlev", "12312312312")).`when`(personV3Service).hentBruker("12312312312")
-        doReturn(BrukerMock.createWith(true, "Avdød", "Død", "9876543210")).`when`(personV3Service).hentBruker("9876543210")
-
-        doReturn("QX").doReturn("XQ").`when`(kodeverkClient).finnLandkode2(any())
-
-        val subject = dummyApiSubjectjson("9876543210")
-        val apijson = dummyApijson(sakid = "21337890", aktoerId = "0105094340092", sed = "P8000", buc = "P_BUC_05", subject = subject, refperson = "\"SOKER\"")
+        val subject = dummyApiSubjectjson(FNR_VOKSEN_4)
+        val apijson = dummyApijson(sakid = "21337890", aktoerId = AKTOER_ID, sed = "P8000", buc = "P_BUC_05", subject = subject, refperson = "\"SOKER\"")
 
         val validResponse = """
             {
@@ -312,7 +306,7 @@ class SedPrefillP8000IntegrationSpringTest {
                   "adresse" : {
                     "gate" : "Oppoverbakken 66",
                     "by" : "SØRUMSAND",
-                    "land" : "XQ"
+                    "land" : "NO"
                   }
                 }
               },
@@ -353,19 +347,17 @@ class SedPrefillP8000IntegrationSpringTest {
 
         whenever((pensjoninformasjonservice).hentRelevantPensjonSak(any(), any())).thenReturn(sak)
 
-        doReturn(NorskIdent("12312312312")).`when`(aktoerService).hentGjeldendeIdent(IdentGruppe.NorskIdent, AktoerId("0105094340092"))
-        doReturn(AktoerId("3323332333233323")).`when`(aktoerService).hentGjeldendeIdent(IdentGruppe.AktoerId, NorskIdent("9876543210"))
+        doReturn(NorskIdent(FNR_BARN)).whenever(personService).hentIdent(IdentType.NorskIdent, AktoerId(AKTOER_ID))
+        doReturn(AktoerId(AKTOER_ID_2)).whenever(personService).hentIdent(IdentType.AktoerId, NorskIdent(FNR_VOKSEN_4))
 
-        val barn = BrukerMock.createWith(true, "Barn", "Diskret", "12312312312")
-        barn?.diskresjonskode = Diskresjonskoder().withValue("SPFO")
-
-        doReturn(barn).`when`(personV3Service).hentBruker("12312312312")
-        doReturn(BrukerMock.createWith(true, "Avdød", "Død", "9876543210")).`when`(personV3Service).hentBruker("9876543210")
-
+        val diskeBarn = PersonPDLMock.createWith(true, "Barn", "Diskret", FNR_BARN, AKTOER_ID)
+                            .medBeskyttelse(AdressebeskyttelseGradering.STRENGT_FORTROLIG)
+        doReturn(diskeBarn).whenever(personService).hentPerson(NorskIdent(FNR_BARN))
+        doReturn(PersonPDLMock.createWith(true, "Avdød", "Død", FNR_VOKSEN_4, AKTOER_ID_2, true)).whenever(personService).hentPerson(NorskIdent(FNR_VOKSEN_4))
         doReturn("QX").`when`(kodeverkClient).finnLandkode2(any())
 
-        val subject = dummyApiSubjectjson("9876543210")
-        val apijson = dummyApijson(sakid = "21337890", aktoerId = "0105094340092", sed = "P8000", buc = "P_BUC_05", subject = subject, refperson = "\"SOKER\"")
+        val subject = dummyApiSubjectjson(FNR_VOKSEN_4)
+        val apijson = dummyApijson(sakid = "21337890", aktoerId = AKTOER_ID, sed = "P8000", buc = "P_BUC_05", subject = subject, refperson = "\"SOKER\"")
 
         val result = mockMvc.perform(post("/sed/prefill")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -392,26 +384,22 @@ class SedPrefillP8000IntegrationSpringTest {
                 "bruker" : {
                   "person" : {
                     "pin" : [ {
-                      "identifikator" : "9876543210",
+                      "identifikator" : "$FNR_VOKSEN_4",
                       "land" : "NO"
                     } ],
                     "etternavn" : "Død",
                     "fornavn" : "Avdød",
                     "kjoenn" : "M",
-                    "foedselsdato" : "1988-07-12"
+                    "foedselsdato" : "1921-07-12"
                   },
-                  "adresse" : {
-                    "gate" : "Oppoverbakken 66",
-                    "by" : "SØRUMSAND",
-                    "land" : "QX"
-                  }
+                  "adresse" : { }
                 },
                 "annenperson" : {
                   "person" : {
                     "pin" : [ {
                       "institusjonsnavn" : "NOINST002, NO INST002, NO",
                       "institusjonsid" : "NO:noinst002",
-                      "identifikator" : "12312312312",
+                      "identifikator" : "$FNR_BARN",
                       "land" : "NO"
                     } ],
                     "statsborgerskap" : [ {
@@ -440,14 +428,11 @@ class SedPrefillP8000IntegrationSpringTest {
     @Test
     @Throws(Exception::class)
     fun `prefill sed P8000 - Gitt en alderspensjon så skal det genereres en P8000 uten referanse til person`() {
+        doReturn(NorskIdent(FNR_VOKSEN_3)).whenever(personService).hentIdent(IdentType.NorskIdent, AktoerId(AKTOER_ID))
+        doReturn(PersonPDLMock.createWith(true, "Alder", "Pensjon", FNR_VOKSEN_3, AKTOER_ID)).whenever(personService).hentPerson(NorskIdent(FNR_VOKSEN_3))
+        doReturn("QX").doReturn("XQ").whenever(kodeverkClient).finnLandkode2(any())
 
-
-        doReturn(NorskIdent("12312312312")).`when`(aktoerService).hentGjeldendeIdent(IdentGruppe.NorskIdent, AktoerId("0105094340092"))
-        doReturn(BrukerMock.createWith(true, "Alder", "Pensjon", "12312312312")).`when`(personV3Service).hentBruker("12312312312")
-
-        doReturn("QX").doReturn("XQ").`when`(kodeverkClient).finnLandkode2(any())
-
-        val apijson = dummyApijson(sakid = "21337890", aktoerId = "0105094340092", sed = "P8000", buc = "P_BUC_05")
+        val apijson = dummyApijson(sakid = "21337890", aktoerId = AKTOER_ID, sed = "P8000", buc = "P_BUC_05")
 
         val validResponse = """
             {
@@ -475,7 +460,7 @@ class SedPrefillP8000IntegrationSpringTest {
                   "adresse" : {
                     "gate" : "Oppoverbakken 66",
                     "by" : "SØRUMSAND",
-                    "land" : "XQ"
+                    "land" : "NO"
                   }
                 }
               },

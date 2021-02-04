@@ -1,4 +1,4 @@
-package no.nav.eessi.pensjon.fagmodul.prefill.tps
+package no.nav.eessi.pensjon.fagmodul.prefill.pdl
 
 import java.time.LocalDate
 

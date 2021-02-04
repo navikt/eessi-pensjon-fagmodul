@@ -1,4 +1,4 @@
-package no.nav.eessi.pensjon.fagmodul.prefill.model
+package no.nav.eessi.pensjon.fagmodul.models
 
 import java.util.*
 

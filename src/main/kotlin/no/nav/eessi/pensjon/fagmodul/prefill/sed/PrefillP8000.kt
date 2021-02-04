@@ -1,9 +1,9 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.sed
 
+import no.nav.eessi.pensjon.fagmodul.models.PersonDataCollection
+import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
+import no.nav.eessi.pensjon.fagmodul.models.ReferanseTilPerson
 import no.nav.eessi.pensjon.fagmodul.models.SEDType
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PersonData
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModel
-import no.nav.eessi.pensjon.fagmodul.prefill.model.ReferanseTilPerson
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillSed
 import no.nav.eessi.pensjon.fagmodul.sedmodel.Adresse
 import no.nav.eessi.pensjon.fagmodul.sedmodel.AnmodningOmTilleggsInfo
@@ -28,7 +28,7 @@ class PrefillP8000(private val prefillSed: PrefillSed) {
 
     private val logger: Logger by lazy { LoggerFactory.getLogger(PrefillP8000::class.java) }
 
-    fun prefill(prefillData: PrefillDataModel, personData: PersonData, sak: V1Sak?): SED {
+    fun prefill(prefillData: PrefillDataModel, personData: PersonDataCollection, sak: V1Sak?): SED {
         val navsed = prefillSed.prefill(prefillData, personData)
         val eessielm = navsed.nav?.eessisak
         val gjenlevendeBruker: Bruker? = navsed.pensjon?.gjenlevende

@@ -1,18 +1,18 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.person
 
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PersonData
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModel
+import no.nav.eessi.pensjon.fagmodul.models.PersonDataCollection
+import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
 import no.nav.eessi.pensjon.fagmodul.sedmodel.Pensjon
 import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 //TODO: Denne klasser vil nok utgå når alle SED er klar med egen Preutfylling..
-class PrefillSed(private val prefillNav: PrefillNav) {
+class PrefillSed(private val prefillNav: PrefillPDLNav) {
 
     private val logger: Logger by lazy { LoggerFactory.getLogger(PrefillSed::class.java) }
 
-    fun prefill(prefillData: PrefillDataModel, personData: PersonData): SED {
+    fun prefill(prefillData: PrefillDataModel, personData: PersonDataCollection): SED {
 
         logger.debug("----------------------------------------------------------")
         logger.debug("Preutfylling NAV     : ${prefillNav::class.java} ")
@@ -35,7 +35,7 @@ class PrefillSed(private val prefillNav: PrefillNav) {
         val prefillPensjon = try {
             val pensjon = prefillData.avdod?.let {
                 logger.info("Preutfylling Utfylling Pensjon Gjenlevende (etterlatt)")
-                val gjenlevendePerson = prefillNav.createBruker(personData.forsikretPerson, null, null)
+                val gjenlevendePerson = prefillNav.createBruker(personData.forsikretPerson!!, null, null)
                 Pensjon(gjenlevende = gjenlevendePerson)
             }
             logger.debug("[${prefillData.sedType}] Preutfylling Utfylling Pensjon")

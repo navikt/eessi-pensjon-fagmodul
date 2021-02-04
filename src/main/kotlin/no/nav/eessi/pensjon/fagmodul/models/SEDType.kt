@@ -4,8 +4,6 @@ import com.fasterxml.jackson.annotation.JsonCreator
 
 enum class SEDType {
     DummyChooseParts, // I særtilfeller hvor SedType ikke er valgt (P_BUC_06)
-    P2001, //PDL P2000
-    P2101, //PDL P2100
     P2000,
     P2100,
     P2200,

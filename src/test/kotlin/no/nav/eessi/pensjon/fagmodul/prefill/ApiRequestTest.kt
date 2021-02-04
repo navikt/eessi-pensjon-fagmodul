@@ -13,8 +13,6 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import java.nio.file.Files
-import java.nio.file.Paths
 
 class ApiRequestTest {
 
@@ -155,9 +153,6 @@ class ApiRequestTest {
         assertEquals("12234", model.penSaksnummer)
         assertEquals("0105094340092", model.bruker.aktorId)
         assertEquals(SEDType.P6000, model.sedType)
-
-        assertEquals(SED::class.java, model.sed::class.java)
-
     }
 
     @Test
@@ -180,7 +175,6 @@ class ApiRequestTest {
         assertEquals(SEDType.P2100, model.sedType)
         assertEquals("2223312", model.avdod?.aktorId)
         assertEquals("010244212312", model.avdod?.norskIdent)
-        assertEquals(SED::class.java, model.sed::class.java)
 
     }
 
@@ -205,7 +199,6 @@ class ApiRequestTest {
         assertEquals(SEDType.P5000, model.sedType)
         assertEquals("113123123123", model.avdod?.aktorId)
         assertEquals("576567567567", model.avdod?.norskIdent)
-        assertEquals(SED::class.java, model.sed::class.java)
 
     }
 
