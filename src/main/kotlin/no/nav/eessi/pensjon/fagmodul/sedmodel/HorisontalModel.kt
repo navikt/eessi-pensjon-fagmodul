@@ -1,8 +1,5 @@
 package no.nav.eessi.pensjon.fagmodul.sedmodel
 
-class HorisontalModel {
-}
-
 data class Medisinsk(
         val undersoekelse: Undersoekelse? = null,
         val informasjon: Informasjon? = null

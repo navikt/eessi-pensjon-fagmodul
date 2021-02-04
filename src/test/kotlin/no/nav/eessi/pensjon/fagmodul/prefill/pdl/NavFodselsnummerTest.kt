@@ -1,6 +1,6 @@
-package no.nav.eessi.pensjon.fagmodul.prefill.tps
+package no.nav.eessi.pensjon.fagmodul.prefill.pdl
 
-import no.nav.eessi.pensjon.fagmodul.prefill.tps.FodselsnummerMother.generateRandomFnr
+import no.nav.eessi.pensjon.fagmodul.prefill.pdl.FodselsnummerMother.generateRandomFnr
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Test

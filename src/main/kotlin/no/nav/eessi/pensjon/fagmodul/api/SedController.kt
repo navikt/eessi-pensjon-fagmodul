@@ -10,21 +10,19 @@ import no.nav.eessi.pensjon.fagmodul.eux.PinOgKrav
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucSedResponse
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ShortDocumentItem
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
+import no.nav.eessi.pensjon.fagmodul.models.PersonDataCollection
+import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
 import no.nav.eessi.pensjon.fagmodul.models.SEDType
 import no.nav.eessi.pensjon.fagmodul.prefill.ApiRequest
 import no.nav.eessi.pensjon.fagmodul.prefill.MangelfulleInndataException
 import no.nav.eessi.pensjon.fagmodul.prefill.PersonDataService
 import no.nav.eessi.pensjon.fagmodul.prefill.PrefillService
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModel
 import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.CounterHelper
 import no.nav.eessi.pensjon.metrics.MetricsHelper
-import no.nav.eessi.pensjon.personoppslag.aktoerregister.AktoerregisterService
-import no.nav.eessi.pensjon.personoppslag.aktoerregister.IdentGruppe
-import no.nav.eessi.pensjon.personoppslag.aktoerregister.NorskIdent
-import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
 import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentType
+import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import no.nav.security.token.support.core.api.Protected
@@ -50,7 +48,6 @@ class SedController(
     private val euxService: EuxService,
     private val prefillService: PrefillService,
     private val personService: PersonDataService,
-    private val aktoerService: AktoerregisterService,
     private val auditlogger: AuditLogger,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry()),
     @Autowired(required = false) private val counterHelper: CounterHelper = CounterHelper(SimpleMeterRegistry())
@@ -71,7 +68,6 @@ class SedController(
         addDocumentToParentBucUtils = metricsHelper.init("AddDocumentToParentBucUtils",  ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
     }
 
-    //** oppdatert i api 18.02.2019
     @ApiOperation("Generer en Nav-Sed (SED), viser en oppsumering av SED (json). Før evt. innsending til EUX/Rina")
     @PostMapping( "/prefill",  consumes = ["application/json"],  produces = [MediaType.APPLICATION_JSON_VALUE])
     fun prefillDocument(@RequestBody request: ApiRequest, @PathVariable("filter", required = false) filter: String? = null): String {
@@ -79,29 +75,7 @@ class SedController(
         logger.info("kaller (previewDocument) rinaId: ${request.euxCaseId} bucType: ${request.buc} sedType: ${request.sed} aktoerId: ${request.aktoerId} sakId: ${request.sakId} vedtak: ${request.vedtakId}")
         logger.debug("request: ${request.toJson()}")
 
-        val norskIdent = hentFnrfraAktoerService(request.aktoerId, aktoerService)
-        val dataModel = ApiRequest.buildPrefillDataModelOnExisting(request, norskIdent, getAvdodAktoerId(request))
-
-        logger.debug(
-            """
-            ---------------------------------------------------------------------------
-            har avdød: ${dataModel.avdod != null}, avdød: ${dataModel.avdod?.toJson()}
-            søker    : ${dataModel.bruker.toJson()}
-            ---------------------------------------------------------------------------
-            """.trimIndent())
-
-        return prefillService.prefillSedtoJson(dataModel, "4.2").sed
-    }
-
-    //** oppdatert i api 18.02.2019
-    @ApiOperation("Generer en Nav-Sed (SED), viser en oppsumering av SED (json). Før evt. innsending til EUX/Rina")
-    @PostMapping("/pdl/prefill", consumes = ["application/json"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun prefillPdlDocument(@RequestBody request: ApiRequest): String {
-        auditlogger.log("previewDocument", request.aktoerId ?: "", request.toAudit())
-        logger.info("kaller (previewDocument) rinaId: ${request.euxCaseId} bucType: ${request.buc} sedType: ${request.sed} aktoerId: ${request.aktoerId} sakId: ${request.sakId} vedtak: ${request.vedtakId}")
-        logger.debug("request: ${request.toJson()}")
-
-        val norskIdent = personService.hentIdent(IdentType.NorskIdent, AktoerId(request.aktoerId!!)).id
+        val norskIdent = hentFnrfraAktoerService(request.aktoerId, personService)
         val dataModel = ApiRequest.buildPrefillDataModelOnExisting(request, norskIdent, getAvdodAktoerIdPDL(request))
 
         logger.debug(
@@ -114,10 +88,8 @@ class SedController(
 
         val personcollection = personService.hentPersonData(dataModel)
         return prefillService.prefillSedtoJson(dataModel, "4.2", personcollection).sed
-
     }
 
-    //** oppdatert i api 18.02.2019
     @ApiOperation("henter ut en SED fra et eksisterende Rina document. krever unik dokumentid fra valgt SED, ny api kall til eux")
     @GetMapping("/get/{euxcaseid}/{documentid}")
     fun getDocument(
@@ -130,14 +102,13 @@ class SedController(
         return euxService.getSedOnBucByDocumentId(euxcaseid, documentid)
     }
 
-    //** oppdatert i api 18.02.2019
     @ApiOperation("legge til Deltaker(e) og SED på et eksisterende Rina document. kjører preutfylling, ny api kall til eux")
     @PostMapping("/add")
     fun addInstutionAndDocument(@RequestBody request: ApiRequest): ShortDocumentItem? {
         auditlogger.log("addInstutionAndDocument", request.aktoerId ?: "", request.toAudit())
         logger.info("kaller (addInstutionAndDocument) rinaId: ${request.euxCaseId} bucType: ${request.buc} sedType: ${request.sed} aktoerId: ${request.aktoerId} sakId: ${request.sakId} vedtak: ${request.vedtakId}")
-        val norskIdent = hentFnrfraAktoerService(request.aktoerId, aktoerService)
-        val dataModel = ApiRequest.buildPrefillDataModelOnExisting(request, norskIdent, getAvdodAktoerId(request))
+        val norskIdent = hentFnrfraAktoerService(request.aktoerId, personService)
+        val dataModel = ApiRequest.buildPrefillDataModelOnExisting(request, norskIdent, getAvdodAktoerIdPDL(request))
 
         logger.debug(
             """
@@ -156,7 +127,8 @@ class SedController(
         }
 
         //Preutfyll av SED, pensjon og personer samt oppdatering av versjon
-        val sedAndType = prefillService.prefillSedtoJson(dataModel, bucUtil.getProcessDefinitionVersion())
+        val personcollection = personService.hentPersonData(dataModel)
+        val sedAndType = prefillService.prefillSedtoJson(dataModel, bucUtil.getProcessDefinitionVersion(), personcollection)
 
         //Sjekk og opprette deltaker og legge sed på valgt BUC
         return addInstutionAndDocument.measure {
@@ -166,7 +138,7 @@ class SedController(
             val sedJson = sedAndType.sed
 
             //sjekk og evt legger til deltakere
-            checkAndAddInstitution(dataModel, bucUtil)
+            checkAndAddInstitution(dataModel, bucUtil, personcollection)
 
             logger.info("Prøver å sende SED: ${dataModel.sedType} inn på BUC: ${dataModel.euxCaseID}")
             val docresult = euxService.opprettJsonSedOnBuc(sedJson, sedType, dataModel.euxCaseID, request.vedtakId)
@@ -215,7 +187,7 @@ class SedController(
         logger.debug("SED version: v${sed.sedGVer}.${sed.sedVer} + BUC version: $bucVersion")
     }
 
-    fun checkAndAddInstitution(dataModel: PrefillDataModel, bucUtil: BucUtils) {
+    fun checkAndAddInstitution(dataModel: PrefillDataModel, bucUtil: BucUtils, personcollection: PersonDataCollection) {
         logger.info("Hvem er caseOwner: ${bucUtil.getCaseOwner()?.toJson()} på buc: ${bucUtil.getProcessDefinitionName()}")
         val navCaseOwner = bucUtil.getCaseOwner()?.country == "NO"
 
@@ -232,17 +204,22 @@ class SedController(
                         throw ResponseStatusException(HttpStatus.BAD_REQUEST, "NAV er ikke sakseier. Du kan ikke legge til deltakere utenfor Norge")
                     }
                 }
-                addInstitutionMedX005(dataModel, nyeInstitusjoner, bucUtil.getProcessDefinitionVersion())
+                addInstitutionMedX005(dataModel, nyeInstitusjoner, bucUtil.getProcessDefinitionVersion(), personcollection)
             }
         }
     }
 
-    private fun addInstitutionMedX005(dataModel: PrefillDataModel, nyeInstitusjoner: List<InstitusjonItem>, bucVersion: String) {
+    private fun addInstitutionMedX005(
+        dataModel: PrefillDataModel,
+        nyeInstitusjoner: List<InstitusjonItem>,
+        bucVersion: String,
+        personcollection: PersonDataCollection
+    ) {
         logger.debug("Prøver å legge til Deltaker/Institusions på buc samt prefillSed og sende inn til Rina ")
         logger.info("X005 finnes på buc, Sed X005 prefills og sendes inn: ${nyeInstitusjoner.toJsonSkipEmpty()}")
 
         var execptionError: Exception? = null
-        val x005Liste = prefillService.prefillEnX005ForHverInstitusjon(nyeInstitusjoner, dataModel)
+        val x005Liste = prefillService.prefillEnX005ForHverInstitusjon(nyeInstitusjoner, dataModel, personcollection)
 
             x005Liste.forEach { x005 ->
                 try {
@@ -280,8 +257,8 @@ class SedController(
         @PathVariable("parentid", required = true) parentId: String
     ): ShortDocumentItem? {
         auditlogger.log("addDocumentToParent", request.aktoerId ?: "", request.toAudit())
-        val norskIdent = hentFnrfraAktoerService(request.aktoerId, aktoerService)
-        val dataModel = ApiRequest.buildPrefillDataModelOnExisting(request, norskIdent, getAvdodAktoerId(request))
+        val norskIdent = hentFnrfraAktoerService(request.aktoerId, personService)
+        val dataModel = ApiRequest.buildPrefillDataModelOnExisting(request, norskIdent, getAvdodAktoerIdPDL(request))
 
         //Hente metadata for valgt BUC
         val bucUtil = addDocumentToParentBucUtils.measure {
@@ -290,7 +267,8 @@ class SedController(
         }
 
         logger.info("Prøver å prefillSED (svarSED) parentId: $parentId")
-        val sedAndType = prefillService.prefillSedtoJson(dataModel, bucUtil.getProcessDefinitionVersion())
+        val personcollection = personService.hentPersonData(dataModel)
+        val sedAndType = prefillService.prefillSedtoJson(dataModel, bucUtil.getProcessDefinitionVersion(), personcollection)
 
         return addDocumentToParent.measure {
             logger.info("Prøver å sende SED: ${dataModel.sedType} inn på BUC: ${dataModel.euxCaseID}")
@@ -353,36 +331,36 @@ class SedController(
     }
 
     //Hjelpe funksjon for å validere og hente aktoerid for evt. avdodfnr fra UI (P2100)
-    fun getAvdodAktoerId(request: ApiRequest): String? {
-        val buc = request.buc ?: throw MangelfulleInndataException("Mangler Buc")
-        return when (buc) {
-            "P_BUC_02" -> {
-                val norskIdent = request.riktigAvdod() ?: run {
-                    logger.error("Mangler fnr for avdød")
-                    throw MangelfulleInndataException("Mangler fnr for avdød")
-                }
-                if (norskIdent.isBlank()) {
-                    logger.debug("Ident har tom input")
-                    throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ident har tom input-verdi")
-                }
-                aktoerService.hentGjeldendeIdent(IdentGruppe.AktoerId, NorskIdent(norskIdent))?.id ?: throw ResponseStatusException(
-                    HttpStatus.NOT_FOUND,
-                    "AktoerId for NorskIdent ikke funnet."
-                )
-            }
-            "P_BUC_05","P_BUC_06","P_BUC_10" -> {
-                val norskIdent = request.riktigAvdod() ?: return null
-                if (norskIdent.isBlank()) {
-                    throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ident har tom input-verdi")
-                }
-                aktoerService.hentGjeldendeIdent(IdentGruppe.AktoerId, NorskIdent(norskIdent))?.id ?: throw ResponseStatusException(
-                    HttpStatus.NOT_FOUND,
-                    "AktoerId for NorskIdent ikke funnet."
-                )
-            }
-            else -> null
-        }
-    }
+//    fun getAvdodAktoerId(request: ApiRequest): String? {
+//        val buc = request.buc ?: throw MangelfulleInndataException("Mangler Buc")
+//        return when (buc) {
+//            "P_BUC_02" -> {
+//                val norskIdent = request.riktigAvdod() ?: run {
+//                    logger.error("Mangler fnr for avdød")
+//                    throw MangelfulleInndataException("Mangler fnr for avdød")
+//                }
+//                if (norskIdent.isBlank()) {
+//                    logger.debug("Ident har tom input")
+//                    throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ident har tom input-verdi")
+//                }
+//                aktoerService.hentGjeldendeIdent(IdentGruppe.AktoerId, NorskIdent(norskIdent))?.id ?: throw ResponseStatusException(
+//                    HttpStatus.NOT_FOUND,
+//                    "AktoerId for NorskIdent ikke funnet."
+//                )
+//            }
+//            "P_BUC_05","P_BUC_06","P_BUC_10" -> {
+//                val norskIdent = request.riktigAvdod() ?: return null
+//                if (norskIdent.isBlank()) {
+//                    throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ident har tom input-verdi")
+//                }
+//                aktoerService.hentGjeldendeIdent(IdentGruppe.AktoerId, NorskIdent(norskIdent))?.id ?: throw ResponseStatusException(
+//                    HttpStatus.NOT_FOUND,
+//                    "AktoerId for NorskIdent ikke funnet."
+//                )
+//            }
+//            else -> null
+//        }
+//    }
 
 
     //Hjelpe funksjon for å validere og hente aktoerid for evt. avdodfnr fra UI (P2100) - PDL
@@ -398,14 +376,14 @@ class SedController(
                     logger.debug("Ident har tom input")
                     throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ident har tom input-verdi")
                 }
-                personService.hentIdent(IdentType.AktoerId, no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent(norskIdent)).id
+                personService.hentIdent(IdentType.AktoerId, NorskIdent(norskIdent)).id
             }
             "P_BUC_05","P_BUC_06","P_BUC_10" -> {
                 val norskIdent = request.riktigAvdod() ?: return null
                 if (norskIdent.isBlank()) {
                     throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ident har tom input-verdi")
                 }
-                personService.hentIdent(IdentType.AktoerId, no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent(norskIdent)).id
+                personService.hentIdent(IdentType.AktoerId, NorskIdent(norskIdent)).id
             }
             else -> null
         }

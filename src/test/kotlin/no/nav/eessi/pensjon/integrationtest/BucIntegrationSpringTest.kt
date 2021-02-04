@@ -17,10 +17,10 @@ import no.nav.eessi.pensjon.fagmodul.sedmodel.Pensjon
 import no.nav.eessi.pensjon.fagmodul.sedmodel.Person
 import no.nav.eessi.pensjon.fagmodul.sedmodel.PinItem
 import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
-import no.nav.eessi.pensjon.personoppslag.aktoerregister.AktoerId
-import no.nav.eessi.pensjon.personoppslag.aktoerregister.AktoerregisterService
-import no.nav.eessi.pensjon.personoppslag.aktoerregister.IdentGruppe
-import no.nav.eessi.pensjon.personoppslag.aktoerregister.NorskIdent
+import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
+import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
+import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentType
+import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
 import no.nav.eessi.pensjon.security.sts.STSService
 import no.nav.eessi.pensjon.services.kodeverk.KodeverkClient
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonClient
@@ -52,8 +52,6 @@ import org.springframework.util.ResourceUtils
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponents
 import org.springframework.web.util.UriComponentsBuilder
-import java.nio.file.Files
-import java.nio.file.Paths
 import java.time.LocalDate
 import java.time.Month
 import kotlin.test.assertEquals
@@ -67,21 +65,20 @@ class BucIntegrationSpringTest {
     @MockBean
     lateinit var stsService: STSService
 
-    @MockBean
-    lateinit var aktoerService: AktoerregisterService
-
     @MockBean(name = "euxOidcRestTemplate")
-    lateinit var restEuxTemplate: RestTemplate
-
+    private lateinit var restEuxTemplate: RestTemplate
 
     @MockBean(name = "safGraphQlOidcRestTemplate")
-    lateinit var restSafTemplate: RestTemplate
+    private lateinit var restSafTemplate: RestTemplate
 
     @MockBean
-    lateinit var kodeverkClient: KodeverkClient
+    private lateinit var kodeverkClient: KodeverkClient
 
     @MockBean
-    lateinit var pensjonsinformasjonClient: PensjonsinformasjonClient
+    private lateinit var pensjonsinformasjonClient: PensjonsinformasjonClient
+
+    @MockBean
+    private lateinit var personService: PersonService
 
     @Autowired
     private lateinit var mockMvc: MockMvc
@@ -95,7 +92,7 @@ class BucIntegrationSpringTest {
         val avdodFnr = "01010100001"
 
         //gjenlevende aktoerid -> gjenlevendefnr
-        doReturn(NorskIdent(gjenlevendeFnr)).`when`(aktoerService).hentGjeldendeIdent(IdentGruppe.NorskIdent, AktoerId(gjenlevendeAktoerId))
+        doReturn(NorskIdent(gjenlevendeFnr)).whenever(personService).hentIdent(IdentType.NorskIdent, AktoerId(gjenlevendeAktoerId))
 
         val rinaBuc02url = dummyRinasakAvdodUrl(avdodFnr, "P_BUC_02")
         doReturn( ResponseEntity.ok().body(emptyList<Rinasak>().toJson()) ).whenever(restEuxTemplate).exchange( eq(rinaBuc02url.toUriString()), eq(HttpMethod.GET), eq(null), eq(String::class.java))
@@ -136,7 +133,7 @@ class BucIntegrationSpringTest {
     }
 
     @Test
-    fun `Gett det finnes gjenlevende og en avdød på buc02 så skal det hentes og lever en liste av buc`() {
+    fun `Gitt det finnes gjenlevende og en avdød på buc02 så skal det hentes og lever en liste av buc`() {
 
         val sedjson = javaClass.getResource("/json/nav/P2100-PinNO-NAV.json").readText()
 
@@ -145,10 +142,10 @@ class BucIntegrationSpringTest {
         val avdodFnr = "01010100001"
         val vedtakid = "2312123123123"
 
-        doReturn(mockVedtak(avdodFnr, gjenlevendeAktoerId)).`when`(pensjonsinformasjonClient).hentAltPaaVedtak(vedtakid)
+        doReturn(mockVedtak(avdodFnr, gjenlevendeAktoerId)).whenever(pensjonsinformasjonClient).hentAltPaaVedtak(vedtakid)
 
         //gjenlevende aktoerid -> gjenlevendefnr
-        doReturn(NorskIdent(gjenlevendeFnr)).`when`(aktoerService).hentGjeldendeIdent(IdentGruppe.NorskIdent, AktoerId(gjenlevendeAktoerId))
+        doReturn(NorskIdent(gjenlevendeFnr)).whenever(personService).hentIdent(IdentType.NorskIdent, AktoerId(gjenlevendeAktoerId))
 
         //buc02 - avdød rinasak
         val rinaSakerBuc02 = listOf(dummyRinasak("1010", "P_BUC_02"))
@@ -210,7 +207,7 @@ class BucIntegrationSpringTest {
     }
 
     @Test
-    fun `Gett det finnes gjenlevende og en avdød på buc02 og fra SAF så skal det hentes og lever en liste av buc`() {
+    fun `Gitt det finnes gjenlevende og en avdød på buc02 og fra SAF så skal det hentes og lever en liste av buc`() {
         val sedjson = javaClass.getResource("/json/nav/P2100-PinNO-NAV.json").readText()
 
         val gjenlevendeFnr = "1234567890000"
@@ -221,7 +218,7 @@ class BucIntegrationSpringTest {
         doReturn(mockVedtak(avdodFnr, gjenlevendeAktoerId)).`when`(pensjonsinformasjonClient).hentAltPaaVedtak(vedtakid)
 
         //gjenlevende aktoerid -> gjenlevendefnr
-        doReturn(NorskIdent(gjenlevendeFnr)).`when`(aktoerService).hentGjeldendeIdent(IdentGruppe.NorskIdent, AktoerId(gjenlevendeAktoerId))
+        doReturn(NorskIdent(gjenlevendeFnr)).whenever(personService).hentIdent(IdentType.NorskIdent, AktoerId(gjenlevendeAktoerId))
 
         //buc02 - avdød rinasak
         val rinaSakerBuc02 = listOf(dummyRinasak("1010", "P_BUC_02"))
@@ -287,7 +284,7 @@ class BucIntegrationSpringTest {
     }
 
     @Test
-    fun `Gett det finnes gjenlevende og en avdød kun fra SAF så skal det hentes og lever en liste av buc med subject`() {
+    fun `Gitt det finnes gjenlevende og en avdød kun fra SAF så skal det hentes og lever en liste av buc med subject`() {
         val sedjson = javaClass.getResource("/json/nav/P2100-PinNO-NAV.json").readText()
 
         val gjenlevendeFnr = "1234567890000"
@@ -298,7 +295,8 @@ class BucIntegrationSpringTest {
         doReturn(mockVedtak(avdodFnr, gjenlevendeAktoerId)).`when`(pensjonsinformasjonClient).hentAltPaaVedtak(vedtakid)
 
         //gjenlevende aktoerid -> gjenlevendefnr
-        doReturn(NorskIdent(gjenlevendeFnr)).`when`(aktoerService).hentGjeldendeIdent(IdentGruppe.NorskIdent, AktoerId(gjenlevendeAktoerId))
+        doReturn(NorskIdent(gjenlevendeFnr)).whenever(personService).hentIdent(IdentType.NorskIdent, AktoerId(gjenlevendeAktoerId))
+
 
         //buc02 - avdød rinasak
         val rinaBuc02url = dummyRinasakAvdodUrl(avdodFnr, "P_BUC_02")
@@ -379,7 +377,8 @@ class BucIntegrationSpringTest {
         doReturn(mockVedtak(avdodFnr, gjenlevendeAktoerId)).`when`(pensjonsinformasjonClient).hentAltPaaVedtak(vedtakid)
 
         //gjenlevende aktoerid -> gjenlevendefnr
-        doReturn(NorskIdent(gjenlevendeFnr)).`when`(aktoerService).hentGjeldendeIdent(IdentGruppe.NorskIdent, AktoerId(gjenlevendeAktoerId))
+        doReturn(NorskIdent(gjenlevendeFnr)).whenever(personService).hentIdent(IdentType.NorskIdent, AktoerId(gjenlevendeAktoerId))
+
 
         //buc02 - avdød rinasak
         val rinaSakerBuc02 = listOf(dummyRinasak("1010", "P_BUC_02"))
@@ -467,7 +466,7 @@ class BucIntegrationSpringTest {
         doReturn(mockVedtak(avdodFnr, gjenlevendeAktoerId)).`when`(pensjonsinformasjonClient).hentAltPaaVedtak(vedtakid)
 
         //gjenlevende aktoerid -> gjenlevendefnr
-        doReturn(NorskIdent(gjenlevendeFnr)).`when`(aktoerService).hentGjeldendeIdent(IdentGruppe.NorskIdent, AktoerId(gjenlevendeAktoerId))
+        doReturn(NorskIdent(gjenlevendeFnr)).whenever(personService).hentIdent(IdentType.NorskIdent, AktoerId(gjenlevendeAktoerId))
 
         //buc02 - avdød rinasak
         val rinaBuc02url = dummyRinasakAvdodUrl(avdodFnr, "P_BUC_02")
@@ -494,7 +493,6 @@ class BucIntegrationSpringTest {
 
         //dummy date
         val lastupdate = LocalDate.of(2020, Month.AUGUST, 7).toString()
-
 
         //buc05
         val doc05Items = listOf(DocumentsItem(id = "5", creationDate = lastupdate, lastUpdate = lastupdate, status = "sent", type = SEDType.P8000), DocumentsItem(id = "2", creationDate = lastupdate,  lastUpdate = lastupdate, status = "draft", type = SEDType.P4000))
@@ -540,8 +538,6 @@ class BucIntegrationSpringTest {
             .andReturn()
 
         val response = result.response.getContentAsString(charset("UTF-8"))
-
-        //println(response)
 
         verify(restEuxTemplate, times(1)).exchange("/rinasaker?fødselsnummer=01010100001&rinasaksnummer=&buctype=P_BUC_05&status=\"open\"", HttpMethod.GET, null, String::class.java)
         verify(restEuxTemplate, times(1)).exchange("/rinasaker?fødselsnummer=01010100001&rinasaksnummer=&buctype=P_BUC_06&status=\"open\"", HttpMethod.GET, null, String::class.java)

@@ -1,10 +1,9 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.sed
 
-import no.nav.eessi.pensjon.fagmodul.models.FamilieRelasjonType
+import no.nav.eessi.pensjon.fagmodul.models.KravType
+import no.nav.eessi.pensjon.fagmodul.models.PersonDataCollection
+import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
 import no.nav.eessi.pensjon.fagmodul.models.SEDType
-import no.nav.eessi.pensjon.fagmodul.prefill.model.KravType
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PersonData
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModel
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillSed
 import no.nav.eessi.pensjon.fagmodul.sedmodel.Bruker
 import no.nav.eessi.pensjon.fagmodul.sedmodel.Krav
@@ -14,9 +13,11 @@ import no.nav.eessi.pensjon.fagmodul.sedmodel.Person
 import no.nav.eessi.pensjon.fagmodul.sedmodel.PinItem
 import no.nav.eessi.pensjon.fagmodul.sedmodel.RelasjonAvdodItem
 import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
+import no.nav.eessi.pensjon.personoppslag.pdl.model.Familierelasjonsrolle
+import no.nav.eessi.pensjon.personoppslag.pdl.model.Sivilstandstype
+import no.nav.eessi.pensjon.utils.toJson
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
 import no.nav.pensjon.v1.sak.V1Sak
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.PersonIdent
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -28,7 +29,7 @@ class PrefillP15000(private val prefillSed: PrefillSed) {
 
     fun prefill(
         prefillData: PrefillDataModel,
-        personData: PersonData,
+        personData: PersonDataCollection,
         sak: V1Sak?,
         pensjonsinformasjon: Pensjonsinformasjon?
     ): SED {
@@ -50,7 +51,7 @@ class PrefillP15000(private val prefillSed: PrefillSed) {
             )
         }
 
-        val relasjon = relasjon(pensjonsinformasjon, gjenlevendeAktoerId, avdodFnr, personData)
+        val relasjon = relasjon(pensjonsinformasjon, avdodFnr)
         val navsed = prefillSed.prefill(prefillData, personData)
         val eessielm = navsed.nav?.eessisak
 
@@ -98,15 +99,10 @@ class PrefillP15000(private val prefillSed: PrefillSed) {
     }
 
 
-    private fun relasjon(
-        pensjonsinformasjon: Pensjonsinformasjon?,
-        gjenlevendeAktoerId: String,
-        avdodFnr: String?,
-        personData: PersonData
-    ): String? {
+    private fun relasjon(pensjonsinformasjon: Pensjonsinformasjon?, avdodFnr: String?): String? {
         return if (pensjonsinformasjon != null && avdodFnr != null) {
-            val relasjon = relasjonRolle(gjenlevendeAktoerId, avdodFnr, personData.forsikretPerson, pensjonsinformasjon)
-            logger.debug("relsajson: $relasjon")
+            val relasjon = relasjonRolle(pensjonsinformasjon, avdodFnr)
+            logger.debug("relsajson: ${relasjon?.toJson()}")
             when (relasjon) {
                 null -> null
                 "FAR", "MOR" -> "06"
@@ -151,45 +147,17 @@ class PrefillP15000(private val prefillSed: PrefillSed) {
             KravType.UFOREP -> "uføretrygdkrav"
         }
 
-    private fun relasjonRolle(
-        gjenlevendeAktoerId: String,
-        avdodFnr: String?,
-        gjenlevende: no.nav.tjeneste.virksomhet.person.v3.informasjon.Person,
-        pensjonInfo: Pensjonsinformasjon
-    ): String? {
-        return hentRetteAvdode(
-            avdodFnr,
-            mapOf(
-                pensjonInfo.avdod?.avdod.toString() to "EKTE",
-                pensjonInfo.avdod?.avdodFar.toString() to FamilieRelasjonType.FAR.name,
-                pensjonInfo.avdod?.avdodMor.toString() to FamilieRelasjonType.MOR.name
-            )
-        ).map { avdod -> pairPersonFnr(avdod.key, avdod.value, gjenlevende) }
+    private fun relasjonRolle(pensjonInfo: Pensjonsinformasjon, avdodFnr: String): String? {
+        val avdode = mapOf(
+            pensjonInfo.avdod?.avdod to Sivilstandstype.GIFT.name,
+            pensjonInfo.avdod?.avdodFar to Familierelasjonsrolle.FAR.name,
+            pensjonInfo.avdod?.avdodMor to Familierelasjonsrolle.MOR.name
+        )
+        return avdode
+            .filter { (fnr, _) -> isNumber(fnr) }
+            .filter { (fnr, _) -> fnr == avdodFnr }
+            .map { (_, value) -> value }
             .singleOrNull()
-                .also { logger.info("Det ble funnet $it avdøde for den gjenlevende med aktørID: $gjenlevendeAktoerId")
-            }
-
-    }
-
-    private fun pairPersonFnr(
-        avdodFnr: String,
-        avdodRolle: String?,
-        gjenlevende: no.nav.tjeneste.virksomhet.person.v3.informasjon.Person
-    ): String {
-
-        return if (avdodRolle == null) {
-            val familierelasjon =
-                gjenlevende.harFraRolleI.first { (it.tilPerson.aktoer as PersonIdent).ident.ident == avdodFnr }
-            familierelasjon.tilRolle.value.toUpperCase()
-        } else {
-            avdodRolle
-        }
-    }
-
-    private fun hentRetteAvdode(avdodFnr: String?, avdode: Map<String, String>): Map<String, String> {
-        return avdode.filter { isNumber(it.key) }
-            .filter { avdodFnr == it.key }
-            .map { it.key to it.value }.toMap()
     }
 
     private fun isNumber(s: String?): Boolean {

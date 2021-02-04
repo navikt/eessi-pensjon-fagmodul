@@ -1,27 +1,24 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.sed.krav
 
 import com.nhaarman.mockitokotlin2.mock
+import no.nav.eessi.pensjon.fagmodul.models.PersonDataCollection
+import no.nav.eessi.pensjon.fagmodul.models.PersonId
+import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
+import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModelMother
 import no.nav.eessi.pensjon.fagmodul.models.SEDType
+import no.nav.eessi.pensjon.fagmodul.prefill.PersonPDLMock
 import no.nav.eessi.pensjon.fagmodul.prefill.eessi.EessiInformasjon
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PersonId
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModel
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModelMother
+import no.nav.eessi.pensjon.fagmodul.prefill.pdl.FodselsnummerMother.generateRandomFnr
+import no.nav.eessi.pensjon.fagmodul.prefill.pdl.PrefillPDLAdresse
 import no.nav.eessi.pensjon.fagmodul.prefill.pen.PensjonsinformasjonService
-import no.nav.eessi.pensjon.fagmodul.prefill.person.MockTpsPersonServiceFactory
-import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillNav
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillPDLNav
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillSEDService
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillTestHelper.lesPensjonsdataFraFil
-import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillTestHelper.setupPersondataFraTPS
-import no.nav.eessi.pensjon.fagmodul.prefill.tps.FodselsnummerMother.generateRandomFnr
-import no.nav.eessi.pensjon.fagmodul.prefill.tps.PrefillAdresse
-import no.nav.eessi.pensjon.personoppslag.aktoerregister.AktoerregisterService
-import no.nav.eessi.pensjon.personoppslag.personv3.PersonV3Service
+import no.nav.eessi.pensjon.personoppslag.pdl.model.Sivilstandstype
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 
 @ExtendWith(MockitoExtension::class)
@@ -35,32 +32,29 @@ class PrefillP2100MedAlderSakTest {
 
     private lateinit var dataFromPEN: PensjonsinformasjonService
     private lateinit var prefillSEDService: PrefillSEDService
-    private lateinit var persondataFraTPS: PersonV3Service
-    private lateinit var prefillNav: PrefillNav
 
-    @Mock
-    lateinit var aktorRegisterService: AktoerregisterService
-
-    @Mock
-    lateinit var prefillPDLNav: PrefillPDLNav
+    private lateinit var prefillNav: PrefillPDLNav
 
     @BeforeEach
     fun setup() {
-        prefillNav = PrefillNav(
-                prefillAdresse = mock<PrefillAdresse>(),
+        prefillNav = PrefillPDLNav(
+                prefillAdresse = mock<PrefillPDLAdresse>(),
                 institutionid = "NO:noinst002",
                 institutionnavn = "NOINST002, NO INST002, NO")
 
+        dataFromPEN = lesPensjonsdataFraFil("KravAlderEllerUfore_AP_UTLAND.xml")
     }
 
     @Test
     fun `forventer utfylt P2100`() {
-        persondataFraTPS = setupPersondataFraTPS(setOf(
-                MockTpsPersonServiceFactory.MockTPS("Person-30000.json", personFnr, MockTpsPersonServiceFactory.MockTPS.TPSType.PERSON),
-                MockTpsPersonServiceFactory.MockTPS("Person-31000.json", avdodPersonFnr, MockTpsPersonServiceFactory.MockTPS.TPSType.PERSON)
-        ))
-
-        dataFromPEN = lesPensjonsdataFraFil("KravAlderEllerUfore_AP_UTLAND.xml")
+        val person = PersonPDLMock.createWith(fornavn = "BAMSE ULUR", fnr = personFnr)
+        val avdod = PersonPDLMock.createWith(fornavn = "BAMSE LUR", fnr = avdodPersonFnr, erDod = true)
+        val persondataCollection = PersonDataCollection(
+            forsikretPerson = person,
+            ektefellePerson = null,
+            sivilstandstype = Sivilstandstype.ENKE_ELLER_ENKEMANN,
+            gjenlevendeEllerAvdod = avdod
+        )
 
         prefillData = PrefillDataModelMother.initialPrefillDataModel(
                 sedType = SEDType.P2100,
@@ -69,8 +63,8 @@ class PrefillP2100MedAlderSakTest {
                 penSaksnummer = pesysSaksnummer,
                 avdod = PersonId(avdodPersonFnr, "112233445566"))
 
-        prefillSEDService = PrefillSEDService(prefillNav, persondataFraTPS, EessiInformasjon(), dataFromPEN, aktorRegisterService, prefillPDLNav)
-        val p2100 = prefillSEDService.prefill(prefillData)
+        prefillSEDService = PrefillSEDService(dataFromPEN, EessiInformasjon(), prefillNav)
+        val p2100 = prefillSEDService.prefill(prefillData, persondataCollection)
 
         assertEquals(SEDType.P2100, p2100.type)
         assertEquals("BAMSE ULUR", p2100.pensjon?.gjenlevende?.person?.fornavn)

@@ -1,16 +1,15 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.sed
 
 import com.nhaarman.mockitokotlin2.mock
+import no.nav.eessi.pensjon.fagmodul.models.PersonDataCollection
+import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
+import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModelMother
 import no.nav.eessi.pensjon.fagmodul.models.SEDType
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PersonData
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModel
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModelMother
-import no.nav.eessi.pensjon.fagmodul.prefill.person.MockTpsPersonServiceFactory
-import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillNav
+import no.nav.eessi.pensjon.fagmodul.prefill.PersonPDLMock
+import no.nav.eessi.pensjon.fagmodul.prefill.pdl.FodselsnummerMother.generateRandomFnr
+import no.nav.eessi.pensjon.fagmodul.prefill.pdl.NavFodselsnummer
+import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillPDLNav
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillSed
-import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillTestHelper.setupPersondataFraTPS
-import no.nav.eessi.pensjon.fagmodul.prefill.tps.FodselsnummerMother.generateRandomFnr
-import no.nav.eessi.pensjon.fagmodul.prefill.tps.NavFodselsnummer
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.EPSaktype
 import no.nav.pensjon.v1.kravhistorikkliste.V1KravHistorikkListe
 import no.nav.pensjon.v1.sak.V1Sak
@@ -22,20 +21,18 @@ import org.junit.jupiter.api.Test
 
 class PrefillP8000APUtlandInnvTest {
     private val personFnr = generateRandomFnr(68)
+    private val ekteFnr = generateRandomFnr(70)
     private val pesysSaksnummer = "14398627"
     lateinit var prefillData: PrefillDataModel
     lateinit var prefill: PrefillP8000
-    lateinit var prefillNav: PrefillNav
-    lateinit var personData: PersonData
+    lateinit var prefillNav: PrefillPDLNav
+    lateinit var persondataCollection: PersonDataCollection
 
     @BeforeEach
     fun setup() {
-        val personV3Service = setupPersondataFraTPS(setOf(
-                MockTpsPersonServiceFactory.MockTPS("Person-11000-GIFT.json", personFnr, MockTpsPersonServiceFactory.MockTPS.TPSType.PERSON),
-                MockTpsPersonServiceFactory.MockTPS("Person-12000-EKTE.json", generateRandomFnr(70), MockTpsPersonServiceFactory.MockTPS.TPSType.EKTE)
-        ))
-        val person = personV3Service.hentBruker(personFnr)
-        prefillNav = PrefillNav(
+        persondataCollection = PersonPDLMock.createEnkelFamilie(personFnr, ekteFnr)
+
+        prefillNav = PrefillPDLNav(
                 prefillAdresse = mock(),
                 institutionid = "NO:noinst002",
                 institutionnavn = "NOINST002, NO INST002, NO")
@@ -43,7 +40,7 @@ class PrefillP8000APUtlandInnvTest {
         val prefillSed = PrefillSed(prefillNav)
         prefill = PrefillP8000(prefillSed)
         prefillData = PrefillDataModelMother.initialPrefillDataModel(SEDType.P8000, personFnr, penSaksnummer = pesysSaksnummer)
-        personData = PersonData(forsikretPerson = person!!, ekteTypeValue = "", ektefelleBruker = null, gjenlevendeEllerAvdod = person, barnBrukereFraTPS = listOf())
+
     }
 
     @Test
@@ -54,7 +51,7 @@ class PrefillP8000APUtlandInnvTest {
         sak.sakId = 100
         sak.kravHistorikkListe = V1KravHistorikkListe()
 
-        val p8000 = prefill.prefill(prefillData, personData, sak)
+        val p8000 = prefill.prefill(prefillData, persondataCollection, sak)
 
         assertEquals("ODIN ETTØYE", p8000.nav?.bruker?.person?.fornavn)
         assertEquals("BALDER", p8000.nav?.bruker?.person?.etternavn)

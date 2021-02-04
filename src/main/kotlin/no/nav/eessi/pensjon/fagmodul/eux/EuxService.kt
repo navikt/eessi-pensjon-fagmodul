@@ -65,17 +65,6 @@ class EuxService (private val euxKlient: EuxKlient,
     /**
      * Ny SED på ekisterende type
      */
-//    @Throws(EuxGenericServerException::class, SedDokumentIkkeOpprettetException::class)
-//    fun opprettSedOnBuc(navSED: SED, euxCaseId: String): BucSedResponse {
-//        logger.info("Forsøker å opprette en ${navSED.sed}, rinasakId: $euxCaseId")
-//        val sedJson = navSED.toJsonSkipEmpty()
-//        logger.debug("Logger ut $sedJson")
-//        return euxKlient.opprettSed(sedJson, euxCaseId, opprettSED, "Feil ved opprettSed: ${navSED.sed}, med rinaId: $euxCaseId")
-//    }
-
-    /**
-     * Ny SED på ekisterende type
-     */
     @Throws(EuxGenericServerException::class, SedDokumentIkkeOpprettetException::class)
     fun opprettJsonSedOnBuc(jsonNavSED: String, sedType: SEDType, euxCaseId: String, vedtakId: String?): BucSedResponse {
         logger.info("Forsøker å opprette en $sedType på rinasakId: $euxCaseId")
@@ -254,8 +243,6 @@ class EuxService (private val euxKlient: EuxKlient,
         val bucdocumentidAvdod = hentBucOgDocumentIdAvdod(filteredRinaIdAvdod)
 
         val listeAvSedsPaaAvdod = hentDocumentJsonAvdod(bucdocumentidAvdod)
-
-        //listeAvSedsPaaAvdod.map { logger.debug("avdødrinaid: ${it.rinaidAvdod}, bucType: ${it.buc.processDefinitionName}, sedJson: ${it.dokumentJson} ")}
 
         val gyldigeBucs = filterGyldigBucGjenlevendeAvdod(listeAvSedsPaaAvdod, gjenlevendeFnr)
 

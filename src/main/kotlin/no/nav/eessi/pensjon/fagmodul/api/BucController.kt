@@ -13,9 +13,9 @@ import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Creator
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ShortDocumentItem
 import no.nav.eessi.pensjon.fagmodul.models.SEDType
+import no.nav.eessi.pensjon.fagmodul.prefill.PersonDataService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
-import no.nav.eessi.pensjon.personoppslag.aktoerregister.AktoerregisterService
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.utils.mapAnyToJson
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
@@ -36,12 +36,14 @@ import javax.annotation.PostConstruct
 @Protected
 @RestController
 @RequestMapping("/buc")
-class BucController(@Value("\${NAIS_NAMESPACE}") val nameSpace : String,
-                    private val euxService: EuxService,
-                    private val aktoerService: AktoerregisterService,
-                    private val auditlogger: AuditLogger,
-                    private val pensjonsinformasjonClient: PensjonsinformasjonClient,
-                    @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())) {
+class BucController(
+    @Value("\${NAIS_NAMESPACE}") val nameSpace: String,
+    private val euxService: EuxService,
+    private val auditlogger: AuditLogger,
+    private val pensjonsinformasjonClient: PensjonsinformasjonClient,
+    private val personDataService: PersonDataService,
+    @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())
+) {
 
 
 
@@ -135,7 +137,7 @@ class BucController(@Value("\${NAIS_NAMESPACE}") val nameSpace : String,
         auditlogger.log("getRinasaker", aktoerId)
         logger.debug("henter rinasaker på valgt aktoerid: $aktoerId")
 
-        val norskIdent = hentFnrfraAktoerService(aktoerId, aktoerService)
+        val norskIdent = hentFnrfraAktoerService(aktoerId, personDataService)
 
         return euxService.getRinasaker(norskIdent, aktoerId)
     }
@@ -150,7 +152,7 @@ class BucController(@Value("\${NAIS_NAMESPACE}") val nameSpace : String,
         return bucDetaljer.measure {
             logger.debug("Prøver å dekode aktoerid: $aktoerid til fnr.")
 
-            val fnr = hentFnrfraAktoerService(aktoerid, aktoerService)
+            val fnr = hentFnrfraAktoerService(aktoerid, personDataService)
 
             val rinasakIdList = try {
                 val rinasaker = euxService.getRinasaker(fnr, aktoerid)
@@ -225,7 +227,7 @@ class BucController(@Value("\${NAIS_NAMESPACE}") val nameSpace : String,
 
         return bucDetaljerGjenlev.measure {
             logger.info("Prøver å dekode aktoerid: $aktoerid til gjenlevende fnr.")
-            val fnrGjenlevende = hentFnrfraAktoerService(aktoerid, aktoerService)
+            val fnrGjenlevende = hentFnrfraAktoerService(aktoerid, personDataService)
             logger.debug("gjenlevendeFnr: $fnrGjenlevende samt avdødfnr: $avdodfnr")
 
             //hente BucAndSedView på avdød

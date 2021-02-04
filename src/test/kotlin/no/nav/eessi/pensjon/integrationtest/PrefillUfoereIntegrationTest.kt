@@ -2,14 +2,14 @@ package no.nav.eessi.pensjon.integrationtest
 
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.whenever
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
-import no.nav.eessi.pensjon.fagmodul.personoppslag.BrukerMock
+import no.nav.eessi.pensjon.fagmodul.prefill.PersonPDLMock
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillTestHelper
-import no.nav.eessi.pensjon.personoppslag.aktoerregister.AktoerId
-import no.nav.eessi.pensjon.personoppslag.aktoerregister.AktoerregisterService
-import no.nav.eessi.pensjon.personoppslag.aktoerregister.IdentGruppe
-import no.nav.eessi.pensjon.personoppslag.aktoerregister.NorskIdent
-import no.nav.eessi.pensjon.personoppslag.personv3.PersonV3Service
+import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
+import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
+import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentType
+import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
 import no.nav.eessi.pensjon.security.sts.STSService
 import no.nav.eessi.pensjon.services.kodeverk.KodeverkClient
 import org.junit.jupiter.api.Test
@@ -37,33 +37,40 @@ class PrefillUfoereIntegrationTest {
     @MockBean
     lateinit var stsService: STSService
 
-    @MockBean
-    lateinit var personV3Service: PersonV3Service
-
-    @MockBean
-    lateinit var aktoerService: AktoerregisterService
-
     @MockBean(name = "pensjonsinformasjonOidcRestTemplate")
-    lateinit var restTemplate: RestTemplate
+    private lateinit var restTemplate: RestTemplate
 
     @MockBean
-    lateinit var kodeverkClient: KodeverkClient
+    private lateinit var kodeverkClient: KodeverkClient
 
     @Autowired
     private lateinit var mockMvc: MockMvc
 
+    @MockBean
+    private lateinit var personService: PersonService
+
+    private companion object {
+        const val SAK_ID = "12345"
+
+        const val FNR_OVER_60 = "09035225916"   // SLAPP SKILPADDE
+        const val FNR_VOKSEN = "11067122781"    // KRAFTIG VEGGPRYD
+        const val FNR_VOKSEN_2 = "12312312312"  //
+        const val FNR_BARN = "12011577847"      // STERK BUSK
+
+        const val AKTOER_ID = "0123456789000"
+        const val AKTOER_ID_2 = "0009876543210"
+    }
 
     @Test
     @Throws(Exception::class)
     fun `prefill sed P2200 ufoere med AVSL skal returnere valid sedjson`() {
+        doReturn(NorskIdent(FNR_VOKSEN)).`when`(personService).hentIdent(IdentType.NorskIdent, AktoerId(AKTOER_ID))
+        doReturn(PersonPDLMock.createWith()).whenever(personService).hentPerson(NorskIdent(FNR_VOKSEN))
 
-
-        doReturn(NorskIdent("23123123")).`when`(aktoerService).hentGjeldendeIdent(IdentGruppe.NorskIdent, AktoerId("0105094340092"))
-        doReturn(BrukerMock.createWith()).`when`(personV3Service).hentBruker(any())
         doReturn(PrefillTestHelper.readXMLresponse("P2200-AVSL.xml")).`when`(restTemplate).exchange(any<String>(), any(), any<HttpEntity<Unit>>(), ArgumentMatchers.eq(String::class.java))
         doReturn("QX").`when`(kodeverkClient).finnLandkode2(any())
 
-        val apijson = dummyApijson(sakid = "22922563", aktoerId = "0105094340092", sed = "P2200")
+        val apijson = dummyApijson(sakid = "22922563", aktoerId = AKTOER_ID, sed = "P2200")
         val result = mockMvc.perform(post("/sed/prefill")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(apijson))
@@ -106,7 +113,7 @@ class PrefillUfoereIntegrationTest {
                             "gate" : "Oppoverbakken 66",
                             "by" : "SØRUMSAND",
                             "postnummer" : "1920",
-                            "land" : "QX"
+                            "land" : "NO"
                           }
                         },
                         "krav" : {
@@ -127,16 +134,16 @@ class PrefillUfoereIntegrationTest {
     @Test
     fun `prefill sed med kravtype førstehangbehandling norge men med vedtak bodsatt utland skal prefylle sed`() {
 
-        doReturn(NorskIdent("12312312312")).`when`(aktoerService).hentGjeldendeIdent(IdentGruppe.NorskIdent, AktoerId("0105094340092"))
-        doReturn(BrukerMock.createWith(true, "Lever", "Gjenlev", "12312312312")).`when`(personV3Service).hentBruker("12312312312")
+        doReturn(NorskIdent(FNR_VOKSEN_2)).`when`(personService).hentIdent(IdentType.NorskIdent, AktoerId(AKTOER_ID))
+        doReturn(PersonPDLMock.createWith(true, "Lever", "Gjenlev", FNR_VOKSEN_2)).whenever(personService).hentPerson(NorskIdent(FNR_VOKSEN_2))
 
         doReturn(PrefillTestHelper.readXMLresponse("P2200-UP-INNV.xml")).
         doReturn(PrefillTestHelper.readXMLVedtakresponse("P6000-APUtland-301.xml")).
         `when`(restTemplate).exchange(any<String>(), any(), any<HttpEntity<Unit>>(), ArgumentMatchers.eq(String::class.java))
 
-        doReturn("QX").doReturn("XQ").`when`(kodeverkClient).finnLandkode2(any())
+        doReturn("QX").whenever(kodeverkClient).finnLandkode2(any())
 
-        val apijson = dummyApijson(sakid = "22874955", aktoerId = "0105094340092", vedtakid = "5134513451345", sed = "P2200")
+        val apijson = dummyApijson(sakid = "22874955", aktoerId = AKTOER_ID, vedtakid = "5134513451345", sed = "P2200")
 
         val result = mockMvc.perform(post("/sed/prefill")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -165,7 +172,7 @@ class PrefillUfoereIntegrationTest {
                     "pin" : [ {
                       "institusjonsnavn" : "NOINST002, NO INST002, NO",
                       "institusjonsid" : "NO:noinst002",
-                      "identifikator" : "12312312312",
+                      "identifikator" : "$FNR_VOKSEN_2",
                       "land" : "NO"
                     } ],
                     "statsborgerskap" : [ {
@@ -180,7 +187,7 @@ class PrefillUfoereIntegrationTest {
                     "gate" : "Oppoverbakken 66",
                     "by" : "SØRUMSAND",
                     "postnummer" : "1920",
-                    "land" : "XQ"
+                    "land" : "NO"
                   }
                 },
                 "krav" : {

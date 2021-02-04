@@ -2,12 +2,12 @@ package no.nav.eessi.pensjon.fagmodul.prefill
 
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.whenever
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
+import no.nav.eessi.pensjon.fagmodul.models.PersonDataCollection
+import no.nav.eessi.pensjon.fagmodul.models.PersonId
+import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
 import no.nav.eessi.pensjon.fagmodul.models.SEDType
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PersonId
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModel
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillSEDService
 import no.nav.eessi.pensjon.fagmodul.sedmodel.Bruker
 import no.nav.eessi.pensjon.fagmodul.sedmodel.InstitusjonX005
@@ -35,10 +35,13 @@ class PrefillServiceTest {
     lateinit var mockPrefillSEDService: PrefillSEDService
 
     private lateinit var prefillService: PrefillService
+    private lateinit var personcollection: PersonDataCollection
+
 
     @BeforeEach
     fun `startup initilize testing`() {
         prefillService = PrefillService(mockPrefillSEDService)
+        personcollection = PersonDataCollection(null, null)
     }
 
     @Test
@@ -50,8 +53,8 @@ class PrefillServiceTest {
                 InstitusjonItem(country = "DE", institution = "Tyskland", name="Tyskland test")
         )
         val x005sed = generateMockX005(data)
-        doReturn(x005sed).whenever(mockPrefillSEDService).prefill(any(), eq(null))
-        val x005Liste = prefillService.prefillEnX005ForHverInstitusjon(mockInstitusjonList, data)
+        doReturn(x005sed).whenever(mockPrefillSEDService).prefill(any(), any())
+        val x005Liste = prefillService.prefillEnX005ForHverInstitusjon(mockInstitusjonList, data, personcollection)
         assertEquals(x005Liste.size, 2)
     }
 
@@ -62,18 +65,18 @@ class PrefillServiceTest {
         val de = InstitusjonItem(country = "DE", institution = "Tyskland", name="Tyskland test")
 
         val sedtype = SEDType.X005
-        val instX005 = InstitusjonX005(
-            id = de.checkAndConvertInstituion(),
-            navn = de.name ?: de.checkAndConvertInstituion()
-        )
+//        val instX005 = InstitusjonX005(
+//            id = de.checkAndConvertInstituion(),
+//            navn = de.name ?: de.checkAndConvertInstituion()
+//        )
 
-        val datax005 = data.copy(avdod = null, sedType = sedtype, sed = SED(sedtype), institution = emptyList(), institusjonX005 = instX005)
+        val datax005 = data.copy(avdod = null, sedType = sedtype, institution = listOf(de))
         val x005sed = generateMockX005(datax005)
 
-        doReturn(x005sed).whenever(mockPrefillSEDService).prefill(any(), eq(null))
+        doReturn(x005sed).whenever(mockPrefillSEDService).prefill(any(), any())
 
         val mockInstitusjonList = listOf(de)
-        val x005Liste = prefillService.prefillEnX005ForHverInstitusjon(mockInstitusjonList, data)
+        val x005Liste = prefillService.prefillEnX005ForHverInstitusjon(mockInstitusjonList, data, personcollection)
 
         assertEquals(x005Liste.size, 1)
         val result = x005Liste[0]
@@ -111,7 +114,7 @@ class PrefillServiceTest {
 
 
     fun generateMockP2000(prefillModel: PrefillDataModel): SED {
-        val mocksed = prefillModel.sed
+        val mocksed = SED(type = prefillModel.sedType)
         val mockp2000 = SedMock().genererP2000Mock()
         mocksed.nav = mockp2000.nav
         mocksed.nav?.krav = Krav("1960-06-12")
@@ -122,6 +125,12 @@ class PrefillServiceTest {
     fun generateMockX005(prefillModel: PrefillDataModel): SED {
         val mockP2000 = generateMockP2000(prefillModel)
         val person = mockP2000.nav?.bruker?.person
+
+        val singleSelectedInstitustion = prefillModel.institution.first()
+        val institusjonX005 = InstitusjonX005(
+            id = singleSelectedInstitustion.checkAndConvertInstituion(),
+            navn = singleSelectedInstitustion.name ?: singleSelectedInstitustion.checkAndConvertInstituion()
+        )
 
         //val x005Datamodel = PrefillDataModel.fromJson(prefillModel.clone())
         val x005 = SED(SEDType.X005)
@@ -137,7 +146,7 @@ class PrefillServiceTest {
                                 )
                         ),
                         leggtilinstitusjon = Leggtilinstitusjon(
-                                institusjon = prefillModel.institusjonX005,
+                                institusjon = institusjonX005,
                                 grunn = null
                         )
                 )
@@ -152,7 +161,6 @@ class PrefillServiceTest {
                 avdod = null,
                 euxCaseID = "1000",
                 sedType = SEDType.P2000,
-                sed = SED(SEDType.P2000),
                 buc  = "P_BUC_01",
                 institution = listOf(
                 InstitusjonItem(

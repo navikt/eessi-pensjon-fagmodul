@@ -1,28 +1,25 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.sed.vedtak
 
 import com.nhaarman.mockitokotlin2.mock
+import no.nav.eessi.pensjon.fagmodul.models.PersonDataCollection
+import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
+import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModelMother
 import no.nav.eessi.pensjon.fagmodul.models.SEDType
+import no.nav.eessi.pensjon.fagmodul.prefill.PersonPDLMock
 import no.nav.eessi.pensjon.fagmodul.prefill.eessi.EessiInformasjon
 import no.nav.eessi.pensjon.fagmodul.prefill.eessi.EessiInformasjonMother.standardEessiInfo
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModel
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModelMother
+import no.nav.eessi.pensjon.fagmodul.prefill.pdl.FodselsnummerMother
+import no.nav.eessi.pensjon.fagmodul.prefill.pdl.PrefillPDLAdresse
 import no.nav.eessi.pensjon.fagmodul.prefill.pen.PensjonsinformasjonService
-import no.nav.eessi.pensjon.fagmodul.prefill.person.MockTpsPersonServiceFactory
-import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillNav
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillPDLNav
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillSEDService
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillTestHelper
-import no.nav.eessi.pensjon.fagmodul.prefill.tps.FodselsnummerMother
-import no.nav.eessi.pensjon.fagmodul.prefill.tps.PrefillAdresse
-import no.nav.eessi.pensjon.personoppslag.aktoerregister.AktoerregisterService
-import no.nav.eessi.pensjon.personoppslag.personv3.PersonV3Service
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
@@ -33,29 +30,21 @@ import org.springframework.web.server.ResponseStatusException
 class PrefillP6000Pensjon_UFORE_Test {
 
     private val personFnr = FodselsnummerMother.generateRandomFnr(67)
+    private val ekteFnr = FodselsnummerMother.generateRandomFnr(70)
 
     private lateinit var prefillData: PrefillDataModel
     private lateinit var prefillSEDService: PrefillSEDService
     private lateinit var dataFromPEN: PensjonsinformasjonService
-    private lateinit var prefillNav: PrefillNav
-    private lateinit var prefillPersonService: PersonV3Service
+    private lateinit var prefillNav: PrefillPDLNav
     private lateinit var eessiInformasjon: EessiInformasjon
-
-    @Mock
-    lateinit var aktorRegisterService: AktoerregisterService
-
-    @Mock
-    lateinit var prefillPDLNav: PrefillPDLNav
+    private lateinit var personDataCollection: PersonDataCollection
 
     @BeforeEach
     fun setup() {
-        prefillPersonService = PrefillTestHelper.setupPersondataFraTPS(setOf(
-                MockTpsPersonServiceFactory.MockTPS("Person-11000-GIFT.json", personFnr, MockTpsPersonServiceFactory.MockTPS.TPSType.PERSON),
-                MockTpsPersonServiceFactory.MockTPS("Person-12000-EKTE.json", FodselsnummerMother.generateRandomFnr(69), MockTpsPersonServiceFactory.MockTPS.TPSType.EKTE)
-        ))
+        personDataCollection = PersonPDLMock.createEnkelFamilie(personFnr, ekteFnr)
 
-        prefillNav = PrefillNav(
-                prefillAdresse = mock<PrefillAdresse>(),
+        prefillNav = PrefillPDLNav(
+                prefillAdresse = mock<PrefillPDLAdresse>(),
                 institutionid = "NO:noinst002",
                 institutionnavn = "NOINST002, NO INST002, NO")
 
@@ -68,9 +57,9 @@ class PrefillP6000Pensjon_UFORE_Test {
 
         dataFromPEN = PrefillTestHelper.lesPensjonsdataVedtakFraFil("P6000-UT-201.xml")
         prefillData = PrefillDataModelMother.initialPrefillDataModel(SEDType.P6000, personFnr, penSaksnummer = "22580170", vedtakId = "12312312")
-        prefillSEDService = PrefillSEDService(prefillNav, prefillPersonService, eessiInformasjon, dataFromPEN, aktorRegisterService, prefillPDLNav)
+        prefillSEDService = PrefillSEDService(dataFromPEN, eessiInformasjon, prefillNav)
 
-        val result = prefillSEDService.prefill(prefillData).pensjon!!
+        val result = prefillSEDService.prefill(prefillData, personDataCollection).pensjon!!
 
         assertNotNull(result.vedtak)
         assertNotNull(result.sak)
@@ -116,10 +105,10 @@ class PrefillP6000Pensjon_UFORE_Test {
     fun `preutfylling P6000 feiler ved mangler av vedtakId`() {
         dataFromPEN = PrefillTestHelper.lesPensjonsdataVedtakFraFil("P6000-UT-201.xml")
         prefillData = PrefillDataModelMother.initialPrefillDataModel(SEDType.P6000, personFnr, penSaksnummer = "22580170", vedtakId = "")
-        prefillSEDService = PrefillSEDService(prefillNav, prefillPersonService, eessiInformasjon, dataFromPEN, aktorRegisterService, prefillPDLNav)
+        prefillSEDService = PrefillSEDService(dataFromPEN, eessiInformasjon, prefillNav)
 
         assertThrows<ResponseStatusException> {
-            prefillSEDService.prefill(prefillData)
+            prefillSEDService.prefill(prefillData, personDataCollection)
         }
     }
 }

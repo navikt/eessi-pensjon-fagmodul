@@ -4,19 +4,17 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.whenever
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
-import no.nav.eessi.pensjon.fagmodul.personoppslag.BrukerMock
+import no.nav.eessi.pensjon.fagmodul.prefill.PersonPDLMock
 import no.nav.eessi.pensjon.fagmodul.prefill.pen.PensjonsinformasjonService
-import no.nav.eessi.pensjon.personoppslag.aktoerregister.AktoerId
-import no.nav.eessi.pensjon.personoppslag.aktoerregister.AktoerregisterService
-import no.nav.eessi.pensjon.personoppslag.aktoerregister.IdentGruppe
-import no.nav.eessi.pensjon.personoppslag.aktoerregister.NorskIdent
-import no.nav.eessi.pensjon.personoppslag.personv3.PersonV3Service
+import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
+import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
+import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentType
+import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
 import no.nav.eessi.pensjon.security.sts.STSService
 import no.nav.eessi.pensjon.services.kodeverk.KodeverkClient
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.EPSaktype
 import no.nav.pensjon.v1.kravhistorikk.V1KravHistorikk
 import no.nav.pensjon.v1.kravhistorikkliste.V1KravHistorikkListe
-import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
 import no.nav.pensjon.v1.sak.V1Sak
 import no.nav.pensjon.v1.vedtak.V1Vedtak
 import org.hamcrest.Matchers
@@ -41,12 +39,6 @@ class PrefillErrorIntegrationTest {
     lateinit var stsService: STSService
 
     @MockBean
-    lateinit var personV3Service: PersonV3Service
-
-    @MockBean
-    lateinit var aktoerService: AktoerregisterService
-
-    @MockBean
     lateinit var kodeverkClient: KodeverkClient
 
     @Autowired
@@ -55,13 +47,21 @@ class PrefillErrorIntegrationTest {
     @MockBean
     private lateinit var pensjoninformasjonservice: PensjonsinformasjonService
 
+    @MockBean
+    lateinit var personService: PersonService
+
+    private companion object {
+        const val SAK_ID = "12345"
+        const val FNR_VOKSEN = "11067122781"    // KRAFTIG VEGGPRYD
+        const val AKTOER_ID = "0123456789000"
+    }
 
     @Test
     @Throws(Exception::class)
     fun `prefill sed P2200 med vedtak, F_BH_BO_UTL og F_BH_MED_UTL mangler samt vedtak isBoddArbeidetUtland er false skal Exception`() {
 
-        doReturn(NorskIdent("23123123")).`when`(aktoerService).hentGjeldendeIdent(IdentGruppe.NorskIdent, AktoerId("0105094340092"))
-        doReturn(BrukerMock.createWith()).`when`(personV3Service).hentBruker(any())
+        doReturn(NorskIdent(FNR_VOKSEN)).`when`(personService).hentIdent(IdentType.NorskIdent, AktoerId(AKTOER_ID))
+        doReturn(PersonPDLMock.createWith()).whenever(personService).hentPerson(NorskIdent(FNR_VOKSEN))
 
         val sak = V1Sak()
         sak.sakType = EPSaktype.UFOREP.toString()
@@ -78,9 +78,10 @@ class PrefillErrorIntegrationTest {
         val vedtak = V1Vedtak()
         vedtak.isBoddArbeidetUtland = false
         vedtak.kravGjelder = "REVURD"
+
         doReturn(vedtak).whenever(pensjoninformasjonservice).hentRelevantVedtakHvisFunnet("231231231")
 
-        val apijson = dummyApijson(sakid = "1232123123", aktoerId = "0105094340092", vedtakid = "231231231", sed = "P2200",  buc = "P_BUC_03")
+        val apijson = dummyApijson(sakid = "1232123123", aktoerId = AKTOER_ID, vedtakid = "231231231", sed = "P2200",  buc = "P_BUC_03")
         val expectedError = """Du kan ikke opprette krav-SED P2200 hvis ikke "bodd/arbeidet i utlandet" er krysset av""".trimIndent()
 
         mockMvc.perform(

@@ -1,4 +1,4 @@
-package no.nav.eessi.pensjon.fagmodul.prefill.tps
+package no.nav.eessi.pensjon.fagmodul.prefill.pdl
 
 import no.nav.eessi.pensjon.fagmodul.sedmodel.Adresse
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AdressebeskyttelseGradering
@@ -25,15 +25,26 @@ class PrefillPDLAdresse (private val postnummerService: PostnummerService,
             return null
         }
         val bostedsadresse = pdlperson.bostedsadresse ?: return tomAdresse()
-        val vegadresse = bostedsadresse.vegadresse
-        val husnr = listOfNotNull(vegadresse?.husnummer, vegadresse?.husbokstav)
-            .joinToString(separator = " ")
 
+        val vegadresse = bostedsadresse.vegadresse ?: return utlandsAdresse(pdlperson)
+
+        val husnr = listOfNotNull(vegadresse.husnummer, vegadresse.husbokstav)
+            .joinToString(separator = " ")
         return Adresse(
-                postnummer = vegadresse?.postnummer,
-                gate = "${vegadresse?.adressenavn} $husnr",
-                land = hentLandkode("NOR"),
-                by = postnummerService.finnPoststed(vegadresse?.postnummer)
+                postnummer = vegadresse.postnummer,
+                gate = "${vegadresse.adressenavn} $husnr",
+                land = "NO",
+                by = postnummerService.finnPoststed(vegadresse.postnummer)
+        )
+    }
+
+    protected fun utlandsAdresse(pdlperson: PDLPerson) : Adresse {
+        val utlandsAdresse = pdlperson.bostedsadresse?.utenlandskAdresse
+        return Adresse(
+            postnummer = utlandsAdresse?.postkode,
+            gate = utlandsAdresse?.adressenavnNummer,
+            land = hentLandkode(utlandsAdresse?.landkode),
+            by = utlandsAdresse?.bySted
         )
     }
 

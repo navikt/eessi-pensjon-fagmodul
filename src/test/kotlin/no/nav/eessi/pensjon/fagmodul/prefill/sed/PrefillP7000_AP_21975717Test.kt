@@ -1,19 +1,15 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.sed
 
-import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import no.nav.eessi.pensjon.fagmodul.models.PersonDataCollection
+import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
+import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModelMother
 import no.nav.eessi.pensjon.fagmodul.models.SEDType
-import no.nav.eessi.pensjon.fagmodul.personoppslag.BrukerMock
+import no.nav.eessi.pensjon.fagmodul.prefill.PersonPDLMock
 import no.nav.eessi.pensjon.fagmodul.prefill.eessi.EessiInformasjon
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModel
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModelMother
+import no.nav.eessi.pensjon.fagmodul.prefill.pdl.PrefillPDLAdresse
 import no.nav.eessi.pensjon.fagmodul.prefill.pen.PensjonsinformasjonService
-import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillNav
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillPDLNav
-import no.nav.eessi.pensjon.fagmodul.prefill.tps.PrefillAdresse
-import no.nav.eessi.pensjon.personoppslag.aktoerregister.AktoerregisterService
-import no.nav.eessi.pensjon.personoppslag.personv3.PersonV3Service
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import no.nav.eessi.pensjon.utils.validateJson
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -31,28 +27,19 @@ import java.nio.file.Paths
 class PrefillP7000_AP_21975717Test {
 
     @Mock
-    private lateinit var aktorRegisterService: AktoerregisterService
-
-    @Mock
-    private lateinit var personV3Service: PersonV3Service
-
-    @Mock
-    private lateinit var prefillPDLNav: PrefillPDLNav
-
-    @Mock
     private lateinit var pensjonInformasjonService: PensjonsinformasjonService
 
     private val personFnr = "01071843352"
     private lateinit var prefillData: PrefillDataModel
-    private lateinit var prefillNav: PrefillNav
+    private lateinit var prefillPDLNav: PrefillPDLNav
+    private lateinit var personCollection: PersonDataCollection
 
     @BeforeEach
     fun setup() {
-        val person = BrukerMock.createWith(etternavn = "BALDER")
-        doReturn(person)
-            .whenever(personV3Service).hentBruker(personFnr)
+        val person = PersonPDLMock.createWith(etternavn = "BALDER")
+        personCollection = PersonDataCollection(person, person, barnPersonList = emptyList())
 
-        prefillNav = PrefillNav(prefillAdresse = mock<PrefillAdresse>(),
+    prefillPDLNav = PrefillPDLNav(prefillAdresse = mock<PrefillPDLAdresse>(),
                 institutionid = "NO:noinst002",
                 institutionnavn = "NOINST002, NO INST002, NO")
 
@@ -61,8 +48,8 @@ class PrefillP7000_AP_21975717Test {
 
     @Test
     fun `forventet korrekt utfylt P7000 Melding om vedtakssammendrag med MockData fra testfiler`() {
-        val prefillSEDService = PrefillSEDService(prefillNav, personV3Service, EessiInformasjon(), pensjonInformasjonService, aktorRegisterService, prefillPDLNav)
-        val p7000 = prefillSEDService.prefill(prefillData)
+        val prefillSEDService = PrefillSEDService(pensjonInformasjonService, EessiInformasjon(), prefillPDLNav)
+        val p7000 = prefillSEDService.prefill(prefillData, personCollection)
 
         assertEquals("BALDER", p7000.nav?.ektefelle?.person?.etternavn)
         assertEquals("M", p7000.pensjon?.bruker?.person?.kjoenn)
@@ -76,8 +63,8 @@ class PrefillP7000_AP_21975717Test {
         val json = String(Files.readAllBytes(Paths.get(filepath)))
         assertTrue(validateJson(json))
 
-        val prefillSEDService = PrefillSEDService(prefillNav, personV3Service, EessiInformasjon(), pensjonInformasjonService, aktorRegisterService, prefillPDLNav)
-        val p7000 = prefillSEDService.prefill(prefillData)
+        val prefillSEDService = PrefillSEDService(pensjonInformasjonService, EessiInformasjon(), prefillPDLNav)
+        val p7000 = prefillSEDService.prefill(prefillData, personCollection)
 
         val sed = p7000.toJsonSkipEmpty()
 

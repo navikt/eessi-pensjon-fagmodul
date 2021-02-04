@@ -1,25 +1,22 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.sed
 
 import com.nhaarman.mockitokotlin2.mock
+import no.nav.eessi.pensjon.fagmodul.models.PersonDataCollection
+import no.nav.eessi.pensjon.fagmodul.models.PersonId
+import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
+import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModelMother
 import no.nav.eessi.pensjon.fagmodul.models.SEDType
+import no.nav.eessi.pensjon.fagmodul.prefill.PersonPDLMock
 import no.nav.eessi.pensjon.fagmodul.prefill.eessi.EessiInformasjon
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PersonId
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModel
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModelMother
-import no.nav.eessi.pensjon.fagmodul.prefill.person.MockTpsPersonServiceFactory
-import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillNav
+import no.nav.eessi.pensjon.fagmodul.prefill.pdl.FodselsnummerMother.generateRandomFnr
+import no.nav.eessi.pensjon.fagmodul.prefill.pdl.NavFodselsnummer
+import no.nav.eessi.pensjon.fagmodul.prefill.pdl.PrefillPDLAdresse
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillPDLNav
-import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillTestHelper.setupPersondataFraTPS
-import no.nav.eessi.pensjon.fagmodul.prefill.tps.FodselsnummerMother.generateRandomFnr
-import no.nav.eessi.pensjon.fagmodul.prefill.tps.NavFodselsnummer
-import no.nav.eessi.pensjon.fagmodul.prefill.tps.PrefillAdresse
-import no.nav.eessi.pensjon.personoppslag.aktoerregister.AktoerregisterService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 
 @ExtendWith(MockitoExtension::class)
@@ -27,26 +24,19 @@ class PrefillP9000GLmedUtlandInnvTest {
 
     private val personFnr = generateRandomFnr(65)
     private val avdodPersonFnr = generateRandomFnr(75)
+
     private val pesysSaksnummer = "22875355"
     lateinit var prefillData: PrefillDataModel
-    lateinit var prefillNav: PrefillNav
+    lateinit var prefillNav: PrefillPDLNav
     lateinit var prefillSEDService: PrefillSEDService
-
-    @Mock
-    lateinit var aktorRegisterService: AktoerregisterService
-
-    @Mock
-    lateinit var prefillPDLNav: PrefillPDLNav
+    private lateinit var personDataCollection: PersonDataCollection
 
     @BeforeEach
     fun setup() {
-        val persondataFraTPS = setupPersondataFraTPS(setOf(
-                MockTpsPersonServiceFactory.MockTPS("Person-30000.json", personFnr, MockTpsPersonServiceFactory.MockTPS.TPSType.PERSON),
-                MockTpsPersonServiceFactory.MockTPS("Person-31000.json", avdodPersonFnr, MockTpsPersonServiceFactory.MockTPS.TPSType.PERSON)
-        ))
+        personDataCollection = PersonPDLMock.createAvdodFamilie(personFnr, avdodPersonFnr)
 
-        prefillNav = PrefillNav(
-                prefillAdresse = mock<PrefillAdresse>(),
+        prefillNav = PrefillPDLNav(
+                prefillAdresse = mock<PrefillPDLAdresse>(),
                 institutionid = "NO:noinst002",
                 institutionnavn = "NOINST002, NO INST002, NO")
 
@@ -54,13 +44,13 @@ class PrefillP9000GLmedUtlandInnvTest {
 
         val pensjonInformasjonService = PrefillTestHelper.lesPensjonsdataFraFil("KravAlderEllerUfore_AP_UTLAND.xml")
 
-        prefillSEDService = PrefillSEDService(prefillNav, persondataFraTPS, EessiInformasjon(), pensjonInformasjonService, aktorRegisterService, prefillPDLNav)
+        prefillSEDService = PrefillSEDService(pensjonInformasjonService, EessiInformasjon(), prefillNav)
 
     }
 
     @Test
     fun `forventet korrekt utfylt P9000 med mockdata fra testfiler`() {
-        val p9000 = prefillSEDService.prefill(prefillData)
+        val p9000 = prefillSEDService.prefill(prefillData, personDataCollection)
 
         assertEquals("BAMSE LUR", p9000.nav?.bruker?.person?.fornavn)
         assertEquals("MOMBALO", p9000.nav?.bruker?.person?.etternavn)

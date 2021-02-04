@@ -1,9 +1,9 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.person
 
-import no.nav.eessi.pensjon.fagmodul.prefill.model.BrukerInformasjon
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PersonDataCollection
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PersonId
-import no.nav.eessi.pensjon.fagmodul.prefill.tps.PrefillPDLAdresse
+import no.nav.eessi.pensjon.fagmodul.models.BrukerInformasjon
+import no.nav.eessi.pensjon.fagmodul.models.PersonDataCollection
+import no.nav.eessi.pensjon.fagmodul.models.PersonId
+import no.nav.eessi.pensjon.fagmodul.prefill.pdl.PrefillPDLAdresse
 import no.nav.eessi.pensjon.fagmodul.sedmodel.Adresse
 import no.nav.eessi.pensjon.fagmodul.sedmodel.ArbeidsforholdItem
 import no.nav.eessi.pensjon.fagmodul.sedmodel.Bank
@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Person as PDLPerson
-
 
 private val UGYLDIGE_LAND_RINA = listOf("XXK")
 

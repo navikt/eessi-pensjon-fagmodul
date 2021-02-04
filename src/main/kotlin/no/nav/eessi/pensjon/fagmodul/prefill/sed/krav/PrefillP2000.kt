@@ -1,10 +1,9 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.sed.krav
 
+import no.nav.eessi.pensjon.fagmodul.models.PersonDataCollection
+import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
 import no.nav.eessi.pensjon.fagmodul.models.SEDType
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PersonData
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PersonDataCollection
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModel
-import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillNav
+import no.nav.eessi.pensjon.fagmodul.prefill.eessi.EessiInformasjon
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillPDLNav
 import no.nav.eessi.pensjon.fagmodul.sedmodel.Nav
 import no.nav.eessi.pensjon.fagmodul.sedmodel.Pensjon
@@ -19,39 +18,19 @@ import org.springframework.web.bind.annotation.ResponseStatus
 /**
  * preutfylling av NAV-P2000 SED for søknad krav om alderpensjon
  */
-class PrefillP2000(private val prefillNav: PrefillNav)  {
+class PrefillP2000(private val prefillNav: PrefillPDLNav)  {
 
     private val logger: Logger by lazy { LoggerFactory.getLogger(PrefillP2000::class.java) }
 
-    fun prefillPDL(prefillPDLNav: PrefillPDLNav, prefillData: PrefillDataModel, personData: PersonDataCollection?, sak: V1Sak?, vedtak: V1Vedtak? = null): SED {
-        require(personData != null) { "Trenger PersonDataCollection" }
-
+    fun prefill(prefillData: PrefillDataModel, personData: PersonDataCollection, sak: V1Sak?, vedtak: V1Vedtak? = null): SED {
         postPrefill(prefillData, sak, vedtak)
 
-        val nav = prefillPDLNav(prefillPDLNav, prefillData, personData)
+        val nav = prefillPDLNav(prefillData, personData)
 
         return prefillpen(prefillData, nav, sak, vedtak)
     }
 
-    fun prefill(prefillData: PrefillDataModel, personData: PersonData, sak: V1Sak?, vedtak: V1Vedtak? = null): SED {
-        postPrefill(prefillData, sak, vedtak)
-
-        val nav = prefillNav(prefillData, personData)
-
-        return prefillpen(prefillData, nav, sak, vedtak)
-    }
-
-    private fun prefillPDLNav(prefillPDLNav: PrefillPDLNav, prefillData: PrefillDataModel, personData: PersonDataCollection): Nav {
-        return prefillPDLNav.prefill(
-            penSaksnummer = prefillData.penSaksnummer,
-            bruker = prefillData.bruker,
-            avdod = prefillData.avdod,
-            personData = personData,
-            brukerInformasjon = prefillData.getPersonInfoFromRequestData()
-        )
-    }
-
-    private fun prefillNav(prefillData: PrefillDataModel, personData: PersonData): Nav {
+    private fun prefillPDLNav(prefillData: PrefillDataModel, personData: PersonDataCollection): Nav {
         return prefillNav.prefill(
             penSaksnummer = prefillData.penSaksnummer,
             bruker = prefillData.bruker,
@@ -74,6 +53,8 @@ class PrefillP2000(private val prefillNav: PrefillNav)  {
     private fun prefillpen(prefillData: PrefillDataModel, nav: Nav, sak: V1Sak?, vedtak: V1Vedtak? = null): SED {
         val sedType = prefillData.sedType
 
+        val andreInstitusjondetaljer = EessiInformasjon().asAndreinstitusjonerItem()
+
         //valider pensjoninformasjon,
         var pensjon: Pensjon ? = null
         try {
@@ -82,9 +63,9 @@ class PrefillP2000(private val prefillNav: PrefillNav)  {
                     prefillData.bruker.norskIdent,
                     prefillData.penSaksnummer,
                     sak,
-                    prefillData.andreInstitusjon)
+                    andreInstitusjondetaljer)
             pensjon = meldingOmPensjon.pensjon
-            if (prefillData.isMinimumPrefill()) {
+            if (prefillData.sedType != SEDType.P6000) {
                 pensjon = Pensjon(
                         kravDato = meldingOmPensjon.pensjon.kravDato
                 ) //vi skal ha blank pensjon ved denne toggle, men vi må ha med kravdato

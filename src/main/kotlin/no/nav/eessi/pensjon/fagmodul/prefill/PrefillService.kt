@@ -2,12 +2,11 @@ package no.nav.eessi.pensjon.fagmodul.prefill
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
+import no.nav.eessi.pensjon.fagmodul.models.PersonDataCollection
+import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
 import no.nav.eessi.pensjon.fagmodul.models.SEDType
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PersonDataCollection
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModel
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillSEDService
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.ValidationException
-import no.nav.eessi.pensjon.fagmodul.sedmodel.InstitusjonX005
 import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
@@ -29,7 +28,7 @@ class PrefillService(private val prefillSedService: PrefillSEDService,
         PrefillSed = metricsHelper.init("PrefillSed")
     }
 
-    fun prefillSedtoJson(dataModel: PrefillDataModel, version: String, personDataCollection: PersonDataCollection? = null): SedAndType {
+    fun prefillSedtoJson(dataModel: PrefillDataModel, version: String, personDataCollection: PersonDataCollection): SedAndType {
         return PrefillSed.measure {
             logger.info("******* Starter med preutfylling ******* $dataModel")
             try {
@@ -66,18 +65,17 @@ class PrefillService(private val prefillSedService: PrefillSEDService,
      * Prefill for X005 - Legg til ny institusjon
      */
     @Throws(ValidationException::class)
-    fun prefillEnX005ForHverInstitusjon(nyeDeltakere: List<InstitusjonItem>, data: PrefillDataModel) =
+    fun prefillEnX005ForHverInstitusjon(
+        nyeDeltakere: List<InstitusjonItem>,
+        data: PrefillDataModel,
+        personcollection: PersonDataCollection
+    ) =
             nyeDeltakere.map {
                 logger.debug("Legger til Institusjon på X005 ${it.institution}")
                 // ID og Navn på X005 er påkrevd må hente innn navn fra UI.
-                val institusjon = InstitusjonX005(
-                        id = it.checkAndConvertInstituion(),
-                        navn = it.name ?: it.checkAndConvertInstituion()
-                )
-                val sedtype = SEDType.X005
-                val datax005 = data.copy(avdod = null, sedType = sedtype, sed = SED(sedtype), institution = emptyList(), institusjonX005 = institusjon)
+                val datax005 = data.copy(avdod = null, sedType = SEDType.X005, institution = listOf(it))
 
-                prefillSedService.prefill(datax005)
+                prefillSedService.prefill(datax005, personcollection)
             }
 }
 

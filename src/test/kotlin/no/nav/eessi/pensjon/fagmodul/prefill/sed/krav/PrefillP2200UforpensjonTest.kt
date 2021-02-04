@@ -1,32 +1,25 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.sed.krav
 
-import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
+import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
+import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModelMother.initialPrefillDataModel
 import no.nav.eessi.pensjon.fagmodul.models.SEDType
+import no.nav.eessi.pensjon.fagmodul.prefill.PersonPDLMock
 import no.nav.eessi.pensjon.fagmodul.prefill.eessi.EessiInformasjon
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModel
-import no.nav.eessi.pensjon.fagmodul.prefill.model.PrefillDataModelMother.initialPrefillDataModel
+import no.nav.eessi.pensjon.fagmodul.prefill.pdl.FodselsnummerMother.generateRandomFnr
+import no.nav.eessi.pensjon.fagmodul.prefill.pdl.PrefillPDLAdresse
 import no.nav.eessi.pensjon.fagmodul.prefill.pen.PensjonsinformasjonService
-import no.nav.eessi.pensjon.fagmodul.prefill.person.MockTpsPersonServiceFactory
-import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillNav
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillPDLNav
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillSEDService
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillTestHelper.lesPensjonsdataFraFil
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillTestHelper.readJsonResponse
-import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillTestHelper.setupPersondataFraTPS
-import no.nav.eessi.pensjon.fagmodul.prefill.tps.FodselsnummerMother.generateRandomFnr
-import no.nav.eessi.pensjon.fagmodul.prefill.tps.PrefillAdresse
-import no.nav.eessi.pensjon.personoppslag.aktoerregister.AktoerId
-import no.nav.eessi.pensjon.personoppslag.aktoerregister.AktoerregisterService
-import no.nav.eessi.pensjon.personoppslag.aktoerregister.IdentGruppe
-import no.nav.eessi.pensjon.personoppslag.aktoerregister.NorskIdent
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 
 @ExtendWith(MockitoExtension::class)
@@ -37,23 +30,14 @@ class PrefillP2200UforpensjonTest {
     private val barn2Fnr = generateRandomFnr(17)
 
     lateinit var prefillData: PrefillDataModel
-    lateinit var prefillNav: PrefillNav
+    lateinit var prefillNav: PrefillPDLNav
     lateinit var dataFromPEN: PensjonsinformasjonService
     private lateinit var prefillSEDService: PrefillSEDService
-    @Mock
-    lateinit var aktorRegisterService: AktoerregisterService
-    @Mock
-    lateinit var prefillPDLNav: PrefillPDLNav
 
     @BeforeEach
     fun setup() {
-        val persondataFraTPS = setupPersondataFraTPS(setOf(
-                MockTpsPersonServiceFactory.MockTPS("Person-20000.json", personFnr, MockTpsPersonServiceFactory.MockTPS.TPSType.PERSON),
-                MockTpsPersonServiceFactory.MockTPS("Person-30000.json", barn1Fnr, MockTpsPersonServiceFactory.MockTPS.TPSType.BARN),
-                MockTpsPersonServiceFactory.MockTPS("Person-30000.json", barn2Fnr, MockTpsPersonServiceFactory.MockTPS.TPSType.BARN)
-        ))
-        prefillNav = PrefillNav(
-                prefillAdresse = mock<PrefillAdresse>(),
+        prefillNav = PrefillPDLNav(
+                prefillAdresse = mock<PrefillPDLAdresse>(),
                 institutionid = "NO:noinst002",
                 institutionnavn = "NOINST002, NO INST002, NO")
 
@@ -62,22 +46,33 @@ class PrefillP2200UforpensjonTest {
         prefillData = initialPrefillDataModel(SEDType.P2200, personFnr, penSaksnummer = "22874955").apply {
             partSedAsJson["PersonInfo"] = readJsonResponse("other/person_informasjon_selvb.json")
         }
-        prefillSEDService = PrefillSEDService(prefillNav, persondataFraTPS, EessiInformasjon(), dataFromPEN, aktorRegisterService, prefillPDLNav)
+        prefillSEDService = PrefillSEDService(dataFromPEN, EessiInformasjon(), prefillNav)
 
     }
 
     @Test
     fun `Testing av komplett utfylling kravsøknad uførepensjon P2200`() {
         val pendata: Pensjonsinformasjon = dataFromPEN.hentPensjonInformasjon(prefillData.bruker.aktorId)
-
-        doReturn(AktoerId("3323332333233323")).`when`(aktorRegisterService).hentGjeldendeIdent(IdentGruppe.AktoerId, NorskIdent(barn1Fnr))
-        doReturn(AktoerId("123332333233323")).`when`(aktorRegisterService).hentGjeldendeIdent(IdentGruppe.AktoerId, NorskIdent(barn2Fnr))
+        val persondataCollection = PersonPDLMock.createEnkeWithBarn(personFnr, barn1Fnr, barn2Fnr)
 
         assertNotNull(pendata.brukersSakerListe)
 
-        val P2200 = prefillSEDService.prefill(prefillData)
+        val P2200 = prefillSEDService.prefill(prefillData, persondataCollection)
         val p2200Actual = P2200.toJsonSkipEmpty()
         assertNotNull(p2200Actual)
+        assertEquals(SEDType.P2200, P2200.type)
+        assertEquals("JESSINE TORDNU", P2200.nav?.bruker?.person?.fornavn)
+        assertEquals("BOUWMANS", P2200.nav?.bruker?.person?.etternavn)
+        assertEquals(2, P2200.nav?.barn?.size)
+
+        val barn1 = P2200.nav?.barn?.first()
+        val barn2 = P2200.nav?.barn?.last()
+
+        assertEquals("BOUWMANS", barn1?.person?.etternavn)
+        assertEquals("TOPPI DOTTO", barn1?.person?.fornavn)
+        assertEquals("BOUWMANS", barn2?.person?.etternavn)
+        assertEquals("EGIDIJS MASKOT", barn2?.person?.fornavn)
+
     }
 
 }

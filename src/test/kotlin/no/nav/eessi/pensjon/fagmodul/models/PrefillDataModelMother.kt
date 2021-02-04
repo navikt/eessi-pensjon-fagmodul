@@ -1,8 +1,4 @@
-package no.nav.eessi.pensjon.fagmodul.prefill.model
-
-import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
-import no.nav.eessi.pensjon.fagmodul.models.SEDType
-import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
+package no.nav.eessi.pensjon.fagmodul.models
 
 object PrefillDataModelMother {
 
@@ -22,7 +18,6 @@ object PrefillDataModelMother {
                     bruker = PersonId(pinId, "123456789"),
                     avdod = avdod,
                     sedType = sedType,
-                    sed = SED(sedType),
                     vedtakId = vedtakId ?: "",
                     buc = bucType,
                     institution = institution,
