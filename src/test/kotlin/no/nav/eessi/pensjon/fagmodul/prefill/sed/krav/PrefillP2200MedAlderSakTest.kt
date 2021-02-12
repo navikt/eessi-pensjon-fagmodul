@@ -36,11 +36,6 @@ class PrefillP2200MedAlderSakTest {
 
     @BeforeEach
     fun setup() {
-//        val persondataFraTPS = PrefillTestHelper.setupPersondataFraTPS(setOf(
-//                MockTpsPersonServiceFactory.MockTPS("Person-11000-GIFT.json", personFnr, MockTpsPersonServiceFactory.MockTPS.TPSType.PERSON),
-//                MockTpsPersonServiceFactory.MockTPS("Person-12000-EKTE.json", generateRandomFnr(70), MockTpsPersonServiceFactory.MockTPS.TPSType.EKTE)
-//        ))
-
         val person = PersonPDLMock.createWith(fornavn = "BAMSE ULUR", fnr = personFnr)
         val ekte = PersonPDLMock.createWith(fornavn = "BAMSE LUR", fnr = ekteFnr)
 

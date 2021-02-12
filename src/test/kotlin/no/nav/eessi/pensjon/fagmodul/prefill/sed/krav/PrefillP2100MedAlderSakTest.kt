@@ -15,7 +15,6 @@ import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillPDLNav
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillSEDService
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillTestHelper.lesPensjonsdataFraFil
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Sivilstandstype
-import no.nav.eessi.pensjon.personoppslag.personv3.PersonV3Service
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -33,7 +32,6 @@ class PrefillP2100MedAlderSakTest {
 
     private lateinit var dataFromPEN: PensjonsinformasjonService
     private lateinit var prefillSEDService: PrefillSEDService
-    private lateinit var persondataFraTPS: PersonV3Service
 
     private lateinit var prefillNav: PrefillPDLNav
 
@@ -49,11 +47,6 @@ class PrefillP2100MedAlderSakTest {
 
     @Test
     fun `forventer utfylt P2100`() {
-//        persondataFraTPS = setupPersondataFraTPS(setOf(
-//                MockTpsPersonServiceFactory.MockTPS("Person-30000.json", personFnr, MockTpsPersonServiceFactory.MockTPS.TPSType.PERSON),
-//                MockTpsPersonServiceFactory.MockTPS("Person-31000.json", avdodPersonFnr, MockTpsPersonServiceFactory.MockTPS.TPSType.PERSON)
-//        ))
-
         val person = PersonPDLMock.createWith(fornavn = "BAMSE ULUR", fnr = personFnr)
         val avdod = PersonPDLMock.createWith(fornavn = "BAMSE LUR", fnr = avdodPersonFnr, erDod = true)
         val persondataCollection = PersonDataCollection(

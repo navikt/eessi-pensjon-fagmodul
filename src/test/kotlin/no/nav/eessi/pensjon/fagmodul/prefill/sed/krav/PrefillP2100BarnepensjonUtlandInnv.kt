@@ -38,11 +38,6 @@ class PrefillP2100BarnepensjonUtlandInnv {
 
     @BeforeEach
     fun setup() {
-//        val persondataFraTPS = setupPersondataFraTPS(setOf(
-//                MockTpsPersonServiceFactory.MockTPS("Person-30000.json", personFnr, MockTpsPersonServiceFactory.MockTPS.TPSType.PERSON),
-//                MockTpsPersonServiceFactory.MockTPS("Person-31000.json", avdodPersonFnr, MockTpsPersonServiceFactory.MockTPS.TPSType.PERSON)
-//        ))
-
         personDataCollection = PersonPDLMock.createAvdodFamilie(personFnr, avdodPersonFnr)
 
         val prefillNav = PrefillPDLNav(

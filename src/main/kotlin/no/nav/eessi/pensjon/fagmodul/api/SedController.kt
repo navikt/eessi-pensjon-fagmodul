@@ -69,7 +69,6 @@ class SedController(
         addDocumentToParentBucUtils = metricsHelper.init("AddDocumentToParentBucUtils")
     }
 
-    //** oppdatert i api 18.02.2019
     @ApiOperation("Generer en Nav-Sed (SED), viser en oppsumering av SED (json). Før evt. innsending til EUX/Rina")
     @PostMapping( "/prefill",  consumes = ["application/json"],  produces = [MediaType.APPLICATION_JSON_VALUE])
     fun prefillDocument(@RequestBody request: ApiRequest, @PathVariable("filter", required = false) filter: String? = null): String {
@@ -92,7 +91,6 @@ class SedController(
         return prefillService.prefillSedtoJson(dataModel, "4.2", personcollection).sed
     }
 
-    //** oppdatert i api 18.02.2019
     @ApiOperation("henter ut en SED fra et eksisterende Rina document. krever unik dokumentid fra valgt SED, ny api kall til eux")
     @GetMapping("/get/{euxcaseid}/{documentid}")
     fun getDocument(
@@ -105,7 +103,6 @@ class SedController(
         return euxService.getSedOnBucByDocumentId(euxcaseid, documentid)
     }
 
-    //** oppdatert i api 18.02.2019
     @ApiOperation("legge til Deltaker(e) og SED på et eksisterende Rina document. kjører preutfylling, ny api kall til eux")
     @PostMapping("/add")
     fun addInstutionAndDocument(@RequestBody request: ApiRequest): ShortDocumentItem? {

@@ -125,8 +125,6 @@ object PersonPDLMock {
                 .medFodsel(LocalDate.of(1988,5,3))
         }
 
-        println("disse barna  barn1: ${barn1.navn?.sammensattNavn}   barn2: ${barn2?.navn?.sammensattNavn}")
-
         return PersonDataCollection(
             forsikretPerson = enkePerson,
             ektefellePerson = null,

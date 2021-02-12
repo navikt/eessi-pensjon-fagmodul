@@ -102,7 +102,6 @@ class PersonPDLControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
         )
             .andReturn().response
-        println(response.contentAsString)
 
         JSONAssert.assertEquals(namesAsJson, response.contentAsString, false)
     }
@@ -163,7 +162,6 @@ class PersonPDLControllerTest {
         )
             .andReturn().response
 
-        println(response.contentAsString)
         val actual = mapJsonToAny(response.contentAsString, typeRefs<List<PersonPDLController.PersoninformasjonAvdode>>())
         val avdodFarResponse = actual.first()
         val avdodMorResponse = actual.last()

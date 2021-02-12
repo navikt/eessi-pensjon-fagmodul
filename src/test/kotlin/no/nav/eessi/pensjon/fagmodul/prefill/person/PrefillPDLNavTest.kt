@@ -105,14 +105,7 @@ class PrefillPDLNavTest {
                             pin = listOf(PinItem(identifikator = foreldersPin, land = "NO", institusjonsid = "enInstId", institusjonsnavn = "instNavn")))),
                         relasjontilbruker = "BARN")))
 
-        //assertEquals(expected, actual)
-
-        println("--------------------------------------")
-        println(actual.toJsonSkipEmpty())
-        println("--------------------------------------")
-        println(expected.toJsonSkipEmpty())
-        println("--------------------------------------")
-
+        assertEquals(expected, actual)
         JSONAssert.assertEquals(expected.toJsonSkipEmpty(), actual.toJsonSkipEmpty(), true)
 
     }
@@ -255,12 +248,6 @@ class PrefillPDLNavTest {
                     person = lagNavPerson(barn2, "NASSE", "NØFF", barntofdato, someInstitutionId, someIntitutionNavn), relasjontilbruker = "BARN")
                 ))
 
-        println("--------------------------------------")
-        println(actual.toJsonSkipEmpty())
-        println("--------------------------------------")
-        println(expected.toJsonSkipEmpty())
-        println("--------------------------------------")
-
         assertEquals(expected, actual)
         JSONAssert.assertEquals(expected.toJsonSkipEmpty(), actual.toJsonSkipEmpty(), true)
 
@@ -329,13 +316,6 @@ class PrefillPDLNavTest {
                         adresse = lagTomAdresse()
                 )
         )
-
-        println("--------------------------------------")
-        println(actual.toJsonSkipEmpty())
-        println("--------------------------------------")
-        println(expected.toJsonSkipEmpty())
-        println("--------------------------------------")
-
 
         assertEquals(expected, actual)
         JSONAssert.assertEquals(expected.toJsonSkipEmpty(), actual.toJsonSkipEmpty(), true)

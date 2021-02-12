@@ -216,7 +216,6 @@ class SedPrefillPDLIntegrationSpringTest {
             }
           """.trimIndent()
 
-        println(actual)
         JSONAssert.assertEquals(expected, actual, true)
     }
 

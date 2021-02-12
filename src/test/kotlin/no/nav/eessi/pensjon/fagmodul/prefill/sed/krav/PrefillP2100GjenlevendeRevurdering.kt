@@ -55,10 +55,6 @@ class PrefillP2100GjenlevendeRevurdering {
                 kravId = pesysKravid)
         dataFromPEN = lesPensjonsdataFraFil("P2100-GJENLEV-REVURDERING-M-KRAVID-INNV.xml")
 
-//        val persondataFraTPS = setupPersondataFraTPS(setOf(
-//                MockTpsPersonServiceFactory.MockTPS("Person-30000.json", personFnr, MockTpsPersonServiceFactory.MockTPS.TPSType.PERSON)
-//        ))
-
         val person = PersonPDLMock.createWith(fornavn = "BAMSE ULUR", fnr = personFnr)
         val avdod = PersonPDLMock.createWith(fornavn = "BAMSE LUR", fnr = avdodPersonFnr, erDod = true)
         val persondataCollection = PersonDataCollection(

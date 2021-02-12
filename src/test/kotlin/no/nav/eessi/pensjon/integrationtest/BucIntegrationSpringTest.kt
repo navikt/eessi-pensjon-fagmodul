@@ -52,8 +52,6 @@ import org.springframework.util.ResourceUtils
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponents
 import org.springframework.web.util.UriComponentsBuilder
-import java.nio.file.Files
-import java.nio.file.Paths
 import java.time.LocalDate
 import java.time.Month
 import kotlin.test.assertEquals
@@ -540,8 +538,6 @@ class BucIntegrationSpringTest {
             .andReturn()
 
         val response = result.response.getContentAsString(charset("UTF-8"))
-
-        //println(response)
 
         verify(restEuxTemplate, times(1)).exchange("/rinasaker?fødselsnummer=01010100001&rinasaksnummer=&buctype=P_BUC_05&status=\"open\"", HttpMethod.GET, null, String::class.java)
         verify(restEuxTemplate, times(1)).exchange("/rinasaker?fødselsnummer=01010100001&rinasaksnummer=&buctype=P_BUC_06&status=\"open\"", HttpMethod.GET, null, String::class.java)
