@@ -34,8 +34,6 @@ class PrefillP15000(private val prefillSed: PrefillSed) {
         pensjonsinformasjon: Pensjonsinformasjon?
     ): SED {
 
-
-        val vedtakid = prefillData.vedtakId ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Vennligst åpne EESSI-Pensjon fra Vedtakskontekst i PESYS for å opprette og bestille P_BUC_10 og SED P15000")
         val kravType = prefillData.kravType ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "For preutfylling av P15000 så kreves det kravtype")
         val penSaksnummer = prefillData.penSaksnummer
         val sakType = sak?.sakType

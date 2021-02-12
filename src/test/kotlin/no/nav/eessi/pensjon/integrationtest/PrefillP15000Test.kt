@@ -8,7 +8,6 @@ import no.nav.eessi.pensjon.fagmodul.models.KravType
 import no.nav.eessi.pensjon.fagmodul.models.SEDType
 import no.nav.eessi.pensjon.fagmodul.prefill.PersonPDLMock
 import no.nav.eessi.pensjon.fagmodul.prefill.pen.PensjonsinformasjonService
-import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillTestHelper
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
 import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentType
@@ -25,21 +24,16 @@ import no.nav.pensjon.v1.sak.V1Sak
 import no.nav.pensjon.v1.vedtak.V1Vedtak
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.Test
-import org.mockito.ArgumentMatchers
 import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.http.HttpEntity
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.web.client.RestTemplate
@@ -501,29 +495,6 @@ class PrefillP15000Test {
         """.trimIndent()
 
         JSONAssert.assertEquals(response, validResponse, true)
-
-    }
-
-    @Test
-    @Throws(Exception::class)
-    fun `prefill P15000 P_BUC_10 hvor saktype er satt men vedtakid mangler skal gi exception bad request`() {
-        doReturn(NorskIdent(FNR_VOKSEN)).whenever(personService).hentIdent(IdentType.NorskIdent, AktoerId(AKTOER_ID ))
-        doReturn(PersonPDLMock.createWith(true, fnr = FNR_VOKSEN, aktoerid = AKTOER_ID)).whenever(personService).hentPerson(NorskIdent(FNR_VOKSEN))
-        doReturn(PrefillTestHelper.readXMLresponse("P2200-UP-INNV.xml")).`when`(restTemplate).exchange(any<String>(), any(), any<HttpEntity<Unit>>(), ArgumentMatchers.eq(String::class.java))
-        doReturn("QX").`when`(kodeverkClient).finnLandkode2(any())
-
-        val apijson = dummyApijson(sakid = "22874955", aktoerId = AKTOER_ID, sedType = SEDType.P15000, buc = "P_BUC_10", kravtype = KravType.UFOREP, kravdato = "01-01-2020")
-
-        val expectedError = """Vennligst åpne EESSI-Pensjon fra Vedtakskontekst i PESYS for å opprette og bestille P_BUC_10 og SED P15000""".trimIndent()
-
-        mockMvc.perform(
-            MockMvcRequestBuilders.post("/sed/prefill")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(apijson))
-            .andDo(MockMvcResultHandlers.print())
-            .andExpect(MockMvcResultMatchers.status().isBadRequest)
-            .andExpect(MockMvcResultMatchers.status().reason(Matchers.containsString(expectedError)))
-
 
     }
 
