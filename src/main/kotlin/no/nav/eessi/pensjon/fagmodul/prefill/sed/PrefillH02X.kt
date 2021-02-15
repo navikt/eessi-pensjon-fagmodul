@@ -24,8 +24,6 @@ class PrefillH02X(private val prefillSed: PrefillSed)  {
                 oppholdsland = pinitem?.land,
                 kompetenteuland = pinitem?.identifikator
         )
-        //val sed = prefillData.sed
-        //sed.nav?.bruker?.person?.pinland = pinLand
 
         return SED(
             type = prefillData.sedType,

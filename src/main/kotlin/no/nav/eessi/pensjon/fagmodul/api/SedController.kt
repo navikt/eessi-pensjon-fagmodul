@@ -330,39 +330,6 @@ class SedController(
         return euxService.hentFnrOgYtelseKravtype(rinanr, documentid)
     }
 
-    //Hjelpe funksjon for å validere og hente aktoerid for evt. avdodfnr fra UI (P2100)
-//    fun getAvdodAktoerId(request: ApiRequest): String? {
-//        val buc = request.buc ?: throw MangelfulleInndataException("Mangler Buc")
-//        return when (buc) {
-//            "P_BUC_02" -> {
-//                val norskIdent = request.riktigAvdod() ?: run {
-//                    logger.error("Mangler fnr for avdød")
-//                    throw MangelfulleInndataException("Mangler fnr for avdød")
-//                }
-//                if (norskIdent.isBlank()) {
-//                    logger.debug("Ident har tom input")
-//                    throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ident har tom input-verdi")
-//                }
-//                aktoerService.hentGjeldendeIdent(IdentGruppe.AktoerId, NorskIdent(norskIdent))?.id ?: throw ResponseStatusException(
-//                    HttpStatus.NOT_FOUND,
-//                    "AktoerId for NorskIdent ikke funnet."
-//                )
-//            }
-//            "P_BUC_05","P_BUC_06","P_BUC_10" -> {
-//                val norskIdent = request.riktigAvdod() ?: return null
-//                if (norskIdent.isBlank()) {
-//                    throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ident har tom input-verdi")
-//                }
-//                aktoerService.hentGjeldendeIdent(IdentGruppe.AktoerId, NorskIdent(norskIdent))?.id ?: throw ResponseStatusException(
-//                    HttpStatus.NOT_FOUND,
-//                    "AktoerId for NorskIdent ikke funnet."
-//                )
-//            }
-//            else -> null
-//        }
-//    }
-
-
     //Hjelpe funksjon for å validere og hente aktoerid for evt. avdodfnr fra UI (P2100) - PDL
     fun getAvdodAktoerIdPDL(request: ApiRequest): String? {
         val buc = request.buc ?: throw MangelfulleInndataException("Mangler Buc")

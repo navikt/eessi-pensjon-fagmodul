@@ -15,7 +15,6 @@ import no.nav.eessi.pensjon.fagmodul.sedmodel.RelasjonAvdodItem
 import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Familierelasjonsrolle
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Sivilstandstype
-import no.nav.eessi.pensjon.utils.toJson
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
 import no.nav.pensjon.v1.sak.V1Sak
 import org.slf4j.Logger
@@ -102,7 +101,7 @@ class PrefillP15000(private val prefillSed: PrefillSed) {
     private fun relasjon(pensjonsinformasjon: Pensjonsinformasjon?, avdodFnr: String?): String? {
         return if (pensjonsinformasjon != null && avdodFnr != null) {
             val relasjon = relasjonRolle(pensjonsinformasjon, avdodFnr)
-            logger.debug("relsajson: ${relasjon?.toJson()}")
+            logger.debug("relsajson: $relasjon")
             when (relasjon) {
                 null -> null
                 "FAR", "MOR" -> "06"

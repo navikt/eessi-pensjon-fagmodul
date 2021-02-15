@@ -20,6 +20,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 internal class PersonDataServiceTest {
 
@@ -63,8 +64,8 @@ internal class PersonDataServiceTest {
 
         val result = persondataService.hentPersonData(data)
 
-        assertEquals(null, result.ektefellePerson)
-        assertEquals(null, result.sivilstandstype)
+        assertNull(result.ektefellePerson)
+        assertNull(result.sivilstandstype)
         assertEquals(emptyList(), result.barnPersonList)
         assertEquals(mockPerson, result.gjenlevendeEllerAvdod)
         assertEquals(mockPerson, result.forsikretPerson)
@@ -86,8 +87,8 @@ internal class PersonDataServiceTest {
 
         val result = persondataService.hentPersonData(data)
 
-        assertEquals(null, result.ektefellePerson)
-        assertEquals(null, result.sivilstandstype)
+        assertNull(result.ektefellePerson)
+        assertNull(result.sivilstandstype)
         assertEquals(emptyList(), result.barnPersonList)
         assertEquals(avdod, result.gjenlevendeEllerAvdod)
         assertEquals(gjenlev, result.forsikretPerson)
@@ -110,8 +111,8 @@ internal class PersonDataServiceTest {
 
         val result = persondataService.hentPersonData(data)
 
-        assertEquals(null, result.ektefellePerson)
-        assertEquals(null, result.sivilstandstype)
+        assertNull(result.ektefellePerson)
+        assertNull(result.sivilstandstype)
         assertEquals(barn, result.barnPersonList.firstOrNull())
         assertEquals(forelder, result.gjenlevendeEllerAvdod)
         assertEquals(forelder, result.forsikretPerson)
@@ -138,8 +139,8 @@ internal class PersonDataServiceTest {
 
         val result = persondataService.hentPersonData(data)
 
-        assertEquals(null, result.ektefellePerson)
-        assertEquals(null, result.sivilstandstype)
+        assertNull(result.ektefellePerson)
+        assertNull(result.sivilstandstype)
         assertEquals(barn1, result.barnPersonList.firstOrNull())
         assertEquals(1, result.barnPersonList.size)
         assertEquals(forelder, result.gjenlevendeEllerAvdod)
@@ -167,8 +168,8 @@ internal class PersonDataServiceTest {
 
         val result = persondataService.hentPersonData(data)
 
-        assertEquals(null, result.ektefellePerson)
-        assertEquals(null, result.sivilstandstype)
+        assertNull( result.ektefellePerson)
+        assertNull( result.sivilstandstype)
         assertEquals(barn1, result.barnPersonList.firstOrNull())
         assertEquals(1, result.barnPersonList.size)
         assertEquals(forelder, result.gjenlevendeEllerAvdod)

@@ -87,7 +87,6 @@ data class ApiRequest(
                             avdod = populerAvdodHvisGjenlevendePensjonSak(request, avdodaktoerID),
                             sedType = sedType,
                             buc = request.buc,
-                            //sed = SED(sedType),
                             euxCaseID = request.euxCaseId,
                             institution = request.institutions,
                             refTilPerson = request.referanseTilPerson,
