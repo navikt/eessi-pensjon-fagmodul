@@ -128,7 +128,7 @@ class PrefillP6000Pensjon_ALDER_Test {
         prefillSEDService = PrefillSEDService(dataFromPEN, eessiInformasjon, prefillNav)
 
         assertThrows<HttpClientErrorException> {
-            prefillSEDService.prefill(prefillData)
+            prefillSEDService.prefill(prefillData, personDataCollection)
         }
     }
 }
