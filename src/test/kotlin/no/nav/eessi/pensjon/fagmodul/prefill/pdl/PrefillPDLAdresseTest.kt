@@ -39,9 +39,12 @@ class PrefillPDLAdresseTest{
                     "Kirkeveien",
                     "12",
                     null,
-                    "0123"
+                    "0123",
+                    null,
+                    null
                 ),
-                utenlandskAdresse = null
+                utenlandskAdresse = null,
+                metadata = no.nav.eessi.pensjon.personoppslag.pdl.model.Metadata(emptyList(), false, "DOLLY", "Doll")
             ))
 
        val result = prefillAdresse.createPersonAdresse(person)!!

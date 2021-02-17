@@ -103,7 +103,7 @@ class PersonDataService(private val personService: PersonService,
         val validRelasjoner = listOf(Sivilstandstype.GIFT, Sivilstandstype.PARTNER)
         return forsikretPerson?.sivilstand
             ?.filter { validRelasjoner.contains(it.type) }
-            ?.maxBy { it.gyldigFraOgMed!! }
+            ?.maxBy { it.metadata.maxby() }
     }
 
 }

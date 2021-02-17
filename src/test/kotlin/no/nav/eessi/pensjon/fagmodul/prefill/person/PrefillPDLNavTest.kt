@@ -7,6 +7,7 @@ import no.nav.eessi.pensjon.fagmodul.models.PersonDataCollection
 import no.nav.eessi.pensjon.fagmodul.models.PersonId
 import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModelMother
 import no.nav.eessi.pensjon.fagmodul.models.SEDType
+import no.nav.eessi.pensjon.fagmodul.prefill.LagPDLPerson
 import no.nav.eessi.pensjon.fagmodul.prefill.LagPDLPerson.Companion.createPersonMedEktefellePartner
 import no.nav.eessi.pensjon.fagmodul.prefill.LagPDLPerson.Companion.lagPerson
 import no.nav.eessi.pensjon.fagmodul.prefill.LagPDLPerson.Companion.medAdresse
@@ -301,7 +302,7 @@ class PrefillPDLNavTest {
         val personfnr = NavFodselsnummer(somePersonNr)
         val personFdato = personfnr.getBirthDate().toString()
 
-        val single = lagPerson(somePersonNr, "Ola", "Testbruker").copy(navn = Navn("Fornavn Ole","Mellomnavn Mellomn", "Test Bruker"))
+        val single = lagPerson(somePersonNr, "Ola", "Testbruker").copy(navn = Navn("Fornavn Ole","Mellomnavn Mellomn", "Test Bruker", null, null, null, LagPDLPerson.mockMeta()))
 
         val prefillData = PrefillDataModelMother.initialPrefillDataModel(SEDType.P2000, pinId = somePersonNr, penSaksnummer = somePenSaksnr)
         val personDataCollection = PersonDataCollection(forsikretPerson = single, ektefellePerson = null,  sivilstandstype = Sivilstandstype.UGIFT, gjenlevendeEllerAvdod = single, barnPersonList = emptyList())
@@ -393,7 +394,7 @@ class PrefillPDLNavTest {
     @Test
     fun `create correct birthplace known`() {
         val person = lagPerson()
-        val nyPerson = person.copy(foedsel = Foedsel(person.foedsel?.foedselsdato, "NOR", "OSLO", null))
+        val nyPerson = person.copy(foedsel = Foedsel(person.foedsel?.foedselsdato, "NOR", "OSLO", null, null, LagPDLPerson.mockMeta()))
         doReturn("NO").`when`(kodeverkClient).finnLandkode2("NOR")
 
 
@@ -405,7 +406,7 @@ class PrefillPDLNavTest {
 
     @Test
     fun `isPersonAvdod gir true`() {
-        val dodPerson = lagPerson().copy(doedsfall = Doedsfall(LocalDate.of(2010, 10, 1), null))
+        val dodPerson = lagPerson().copy(doedsfall = Doedsfall(LocalDate.of(2010, 10, 1), null, LagPDLPerson.mockMeta()))
         assertEquals (true, PrefillPDLNav.isPersonAvdod(dodPerson))
     }
     @Test
@@ -417,7 +418,7 @@ class PrefillPDLNavTest {
     @Test
     fun `Gitt en person med kosovo statsborgerskap Når preutfyller Statsborgerstak Så preutfyll tomt statsborgerskap`() {
         val personfnr = FodselsnummerMother.generateRandomFnr(40)
-        val person = lagPerson(personfnr).copy(statsborgerskap = listOf(Statsborgerskap("XXK", LocalDate.of(2000, 10, 1), LocalDate.of(2300, 10, 1))))
+        val person = lagPerson(personfnr).copy(statsborgerskap = listOf(Statsborgerskap("XXK", LocalDate.of(2000, 10, 1), LocalDate.of(2300, 10, 1), LagPDLPerson.mockMeta())))
         //Run
         val bruker = prefillPDLNav.createBruker(person, bank = null, ansettelsesforhold = null)
         //Asssert
@@ -428,7 +429,7 @@ class PrefillPDLNavTest {
     @Test
     fun `Gitt en person med noe annet enn kosovo statsborgerskap Når preutfyller Statsborgerstak Så preutfyll statsborgerskap`() {
         val personfnr = FodselsnummerMother.generateRandomFnr(40)
-        val person = lagPerson(personfnr).copy(statsborgerskap = listOf(Statsborgerskap("NOR", LocalDate.of(2000, 10, 1), LocalDate.of(2300, 10, 1))))
+        val person = lagPerson(personfnr).copy(statsborgerskap = listOf(Statsborgerskap("NOR", LocalDate.of(2000, 10, 1), LocalDate.of(2300, 10, 1), LagPDLPerson.mockMeta())))
 
         doReturn("NO")
             .doReturn("NO")

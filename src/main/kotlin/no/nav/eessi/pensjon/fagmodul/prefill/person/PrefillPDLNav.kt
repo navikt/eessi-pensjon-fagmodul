@@ -292,7 +292,7 @@ class PrefillPDLNav(private val prefillAdresse: PrefillPDLAdresse,
                 //2.1.2     forname
                 fornavn = createFornavnMellomNavn(pdlperson.navn),
                 //2.1.3
-                foedselsdato = pdlperson.foedseldato() ,
+                foedselsdato = pdlperson.foedseldato(),
                 //2.1.4     //sex
                 kjoenn = pdlperson.kortKjonn(),
                 //2.1.6

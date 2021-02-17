@@ -4,6 +4,8 @@ import no.nav.eessi.pensjon.fagmodul.models.PersonDataCollection
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AdressebeskyttelseGradering
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Bostedsadresse
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Doedsfall
+import no.nav.eessi.pensjon.personoppslag.pdl.model.Endring
+import no.nav.eessi.pensjon.personoppslag.pdl.model.Endringstype
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Familierelasjon
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Familierelasjonsrolle
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Foedsel
@@ -13,6 +15,7 @@ import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentGruppe
 import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentInformasjon
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Kjoenn
 import no.nav.eessi.pensjon.personoppslag.pdl.model.KjoennType
+import no.nav.eessi.pensjon.personoppslag.pdl.model.Metadata
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Navn
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Person
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Sivilstand
@@ -24,9 +27,9 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 
 object PersonPDLMock {
-    internal fun createWith(landkoder: Boolean = true, fornavn: String = "Test", etternavn: String = "Testesen", fnr: String = "3123", aktoerid: String = "3213", erDod: Boolean? = false) :Person {
+    internal fun createWith(landkoder: Boolean = true, fornavn: String = "Test", etternavn: String = "Testesen", fnr: String = "3123", aktoerid: String = "3213", erDod: Boolean? = false, metadata: Metadata = mockMeta()) :Person {
             val fdatoaar =  if (erDod != null && erDod == true) LocalDate.of(1921, 7, 12) else LocalDate.of(1988, 7, 12)
-            val doeadfall = if (erDod != null && erDod == true) Doedsfall(LocalDate.of(2020, 10, 1), null) else null
+            val doeadfall = if (erDod != null && erDod == true) Doedsfall(LocalDate.of(2020, 10, 1), null, metadata) else null
             val kommuneLandkode = when(landkoder) {
                 true -> "026123"
                 else -> null
@@ -42,7 +45,7 @@ object PersonPDLMock {
                         IdentGruppe.AKTORID
                     )
                 ),
-                Navn(fornavn, null, etternavn),
+                Navn(fornavn, null, etternavn, null, null, null, metadata),
                 emptyList(),
                 Bostedsadresse(
                     LocalDateTime.of(1980, 10, 1, 10, 10, 10),
@@ -51,21 +54,27 @@ object PersonPDLMock {
                         "Oppoverbakken",
                         "66",
                         null,
-                        "1920"
+                        "1920",
+                        null,
+                        null
                     ),
-                    null
+                    null,
+                    metadata
                 ),
                 null,
                 listOf(Statsborgerskap(
                     "NOR",
                     LocalDate.of(1980, 10 , 1),
-                    LocalDate.of(2300, 10, 1))
+                    LocalDate.of(2300, 10, 1),
+                    metadata)
                 ),
                 Foedsel(
                     fdatoaar,
                     null,
                     null,
-                    null
+                    null,
+                    null,
+                    metadata
                 ),
                 GeografiskTilknytning(
                     GtType.KOMMUNE,
@@ -75,7 +84,8 @@ object PersonPDLMock {
                 ),
                 Kjoenn(
                     KjoennType.MANN,
-                    null
+                    null,
+                    metadata
                 ),
                 doeadfall,
                 emptyList(),
@@ -83,14 +93,32 @@ object PersonPDLMock {
                     Sivilstand(
                         Sivilstandstype.UGIFT,
                         LocalDate.of(2000, 10, 1),
-                        null
+                        null,
+                        metadata
                     )
                 )
             )
     }
-    internal fun Person.medFodsel(date: LocalDate, land: String? = "NORR")  = this.copy(foedsel = Foedsel(date,land,null, null))
+    internal fun mockMeta(registrert: LocalDate = LocalDate.of(2010, 4, 2)) : Metadata {
+        return Metadata(
+            listOf(
+                Endring(
+                "DOLLY",
+                registrert,
+                "Dolly",
+                "FREG",
+                Endringstype.OPPRETT
+            )
+            ),
+            false,
+            "FREG",
+            "23123123-12312312-123123"
+        )
+    }
 
-    internal fun Person.medKjoenn(type: KjoennType) = this.copy(kjoenn = Kjoenn(type, null))
+    internal fun Person.medFodsel(date: LocalDate, land: String? = "NORR")  = this.copy(foedsel = Foedsel(date,land,null, null, null, mockMeta()))
+
+    internal fun Person.medKjoenn(type: KjoennType) = this.copy(kjoenn = Kjoenn(type, null, mockMeta()))
 
     internal fun Person.medBeskyttelse(gradering: AdressebeskyttelseGradering) = this.copy(adressebeskyttelse = listOf(gradering))
 
@@ -103,7 +131,8 @@ object PersonPDLMock {
             Familierelasjon(
             relatertPersonsIdent = foreldrefnr!!,
             relatertPersonsRolle = foreldreRolle,
-            minRolleForPerson = Familierelasjonsrolle.BARN)
+            minRolleForPerson = Familierelasjonsrolle.BARN,
+            metadata = mockMeta())
         )
         return this.copy(familierelasjoner = list)
     }
@@ -151,9 +180,12 @@ object PersonPDLMock {
             adressenavn = gate,
             husnummer = husnr,
             husbokstav = null,
-            postnummer = postnummer
+            postnummer = postnummer,
+            kommunenummer = null,
+            bydelsnummer = null
         ),
-        utenlandskAdresse = null)
+        utenlandskAdresse = null,
+        metadata = mockMeta())
     )
 
     internal fun Person.medUtlandAdresse(gateOgnr: String, postnummer: String, landkode: String) = this.copy(bostedsadresse = Bostedsadresse(
@@ -167,7 +199,8 @@ object PersonPDLMock {
             bySted = "UTLANDBY",
             bygningEtasjeLeilighet = null,
             postboksNummerNavn = null,
-            regionDistriktOmraade = null)
+            regionDistriktOmraade = null),
+        metadata = mockMeta()
         )
     )
 

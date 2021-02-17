@@ -10,6 +10,8 @@ import no.nav.eessi.pensjon.personoppslag.aktoerregister.AktoerregisterService
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonoppslagException
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
+import no.nav.eessi.pensjon.personoppslag.pdl.model.Endring
+import no.nav.eessi.pensjon.personoppslag.pdl.model.Endringstype
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Familierelasjon
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Familierelasjonsrolle
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Folkeregistermetadata
@@ -45,6 +47,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDate
 import java.time.LocalDateTime
 import kotlin.test.assertEquals
+import no.nav.eessi.pensjon.personoppslag.pdl.model.Metadata as PDLMetaData
 
 @WebMvcTest(PersonPDLController::class)
 @ComponentScan(basePackages = ["no.nav.eessi.pensjon.api.person"])
@@ -84,12 +87,12 @@ class PersonPDLControllerTest {
 
 
         val response = mvc.perform(
-            get("/person/pdl/${Companion.AKTOERID}")
+            get("/person/pdl/$AKTOERID")
                 .accept(MediaType.APPLICATION_JSON)
         )
             .andReturn().response
 
-        JSONAssert.assertEquals(personResponsAsJson, response.contentAsString, true)
+        JSONAssert.assertEquals(personResponsAsJson2, response.contentAsString, true)
     }
 
     @Test
@@ -135,20 +138,20 @@ class PersonPDLControllerTest {
 
         val avdodMor = lagPerson(
             avdodMorfnr, "Fru", "Blyant",
-            listOf(Familierelasjon(fnrGjenlevende, Familierelasjonsrolle.BARN, Familierelasjonsrolle.MOR)),
-            listOf(Sivilstand(Sivilstandstype.GIFT, LocalDate.of(2000, 10, 2), avdodFarfnr))
+            listOf(Familierelasjon(fnrGjenlevende, Familierelasjonsrolle.BARN, Familierelasjonsrolle.MOR, mockMeta())),
+            listOf(Sivilstand(Sivilstandstype.GIFT, LocalDate.of(2000, 10, 2), avdodFarfnr, mockMeta()))
         )
         val avdodFar = lagPerson(
             avdodFarfnr, "Hr", "Blyant",
-            listOf(Familierelasjon(fnrGjenlevende, Familierelasjonsrolle.BARN, Familierelasjonsrolle.FAR)),
-            listOf(Sivilstand(Sivilstandstype.GIFT, LocalDate.of(2000, 10, 2), avdodMorfnr))
+            listOf(Familierelasjon(fnrGjenlevende, Familierelasjonsrolle.BARN, Familierelasjonsrolle.FAR, mockMeta())),
+            listOf(Sivilstand(Sivilstandstype.GIFT, LocalDate.of(2000, 10, 2), avdodMorfnr, mockMeta()))
         )
 
         val barn = lagPerson(
             fnrGjenlevende, "Liten", "Blyant",
             listOf(
-                Familierelasjon(avdodFarfnr, Familierelasjonsrolle.FAR, Familierelasjonsrolle.BARN),
-                Familierelasjon(avdodMorfnr, Familierelasjonsrolle.MOR, Familierelasjonsrolle.BARN)
+                Familierelasjon(avdodFarfnr, Familierelasjonsrolle.FAR, Familierelasjonsrolle.BARN, mockMeta()),
+                Familierelasjon(avdodMorfnr, Familierelasjonsrolle.MOR, Familierelasjonsrolle.BARN, mockMeta())
             )
         )
         doReturn(mockPensjoninfo).whenever(mockPensjonClient).hentAltPaaVedtak(vedtaksId)
@@ -186,9 +189,9 @@ class PersonPDLControllerTest {
         mockPensjoninfo.person.aktorId = aktoerId
 
         val avdodmor = lagPerson(avdodMorfnr, "Stor", "Blyant",
-            listOf(Familierelasjon(fnrGjenlevende, Familierelasjonsrolle.BARN, Familierelasjonsrolle.MOR)))
+            listOf(Familierelasjon(fnrGjenlevende, Familierelasjonsrolle.BARN, Familierelasjonsrolle.MOR, mockMeta())))
         val barn = lagPerson(fnrGjenlevende, "Liten", "Blyant",
-            listOf(Familierelasjon(avdodMorfnr, Familierelasjonsrolle.MOR, Familierelasjonsrolle.BARN)))
+            listOf(Familierelasjon(avdodMorfnr, Familierelasjonsrolle.MOR, Familierelasjonsrolle.BARN, mockMeta())))
 
         doReturn(mockPensjoninfo).whenever(mockPensjonClient).hentAltPaaVedtak(vedtaksId)
         doReturn(avdodmor).whenever(pdlService).hentPerson(NorskIdent(avdodMorfnr))
@@ -224,7 +227,7 @@ class PersonPDLControllerTest {
         doReturn(mockPensjoninfo).whenever(mockPensjonClient).hentAltPaaVedtak(vedtaksId)
 
         val barn = lagPerson(fnrGjenlevende, "Liten", "Blyant",
-            listOf(Familierelasjon("231231231231", Familierelasjonsrolle.MOR, Familierelasjonsrolle.BARN)))
+            listOf(Familierelasjon("231231231231", Familierelasjonsrolle.MOR, Familierelasjonsrolle.BARN, mockMeta())))
         doReturn(barn).whenever(pdlService).hentPerson(any<Ident<*>>())
 
         val response = mvc.perform(
@@ -236,6 +239,10 @@ class PersonPDLControllerTest {
         val list: List<PersonPDLController.PersoninformasjonAvdode?> = mapJsonToAny(response.contentAsString, typeRefs())
         assertEquals(emptyList(), list)
     }
+
+    private val personResponsAsJson2 = """
+        {"identer":[{"ident":"01010123456","gruppe":"FOLKEREGISTERIDENT"}],"navn":{"fornavn":"OLA","mellomnavn":null,"etternavn":"NORDMANN","forkortetNavn":null,"gyldigFraOgMed":null,"folkeregistermetadata":null,"metadata":{"endringer":[{"kilde":"DOLLY","registrert":"2010-04-01","registrertAv":"Dolly","systemkilde":"FREG","type":"OPPRETT"}],"historisk":false,"master":"FREG","opplysningsId":"fdsa234-sdfsf234-sfsdf234"},"sammensattNavn":"OLA NORDMANN","sammensattEtterNavn":"NORDMANN OLA"},"adressebeskyttelse":[],"bostedsadresse":null,"oppholdsadresse":null,"statsborgerskap":[{"land":"NOR","gyldigFraOgMed":"2010-10-11","gyldigTilOgMed":"2020-10-02","metadata":{"endringer":[{"kilde":"DOLLY","registrert":"2010-04-01","registrertAv":"Dolly","systemkilde":"FREG","type":"OPPRETT"}],"historisk":false,"master":"FREG","opplysningsId":"fdsa234-sdfsf234-sfsdf234"}}],"foedsel":null,"geografiskTilknytning":null,"kjoenn":{"kjoenn":"MANN","folkeregistermetadata":{"gyldighetstidspunkt":"2000-10-01T12:10:31"},"metadata":{"endringer":[{"kilde":"DOLLY","registrert":"2010-04-01","registrertAv":"Dolly","systemkilde":"FREG","type":"OPPRETT"}],"historisk":false,"master":"FREG","opplysningsId":"fdsa234-sdfsf234-sfsdf234"}},"doedsfall":null,"familierelasjoner":[],"sivilstand":[]}
+    """.trimIndent()
 
     private val personResponsAsJson = """
         {
@@ -278,6 +285,21 @@ class PersonPDLControllerTest {
 
     private val namesAsJson =  """{ fornavn: "OLA", etternavn: "NORDMANN", mellomnavn: null, fulltNavn: "NORDMANN OLA"}""".trimIndent()
 
+    private fun mockMeta() : PDLMetaData {
+        return PDLMetaData(
+            listOf(Endring(
+                "DOLLY",
+                LocalDate.of(2010, 4, 1),
+                "Dolly",
+                "FREG",
+                Endringstype.OPPRETT
+            )),
+            false,
+            "FREG",
+            "fdsa234-sdfsf234-sfsdf234"
+        )
+    }
+
     private fun lagPerson(
         fnr: String = FNR ,
         fornavn: String = "Fornavn",
@@ -286,7 +308,7 @@ class PersonPDLControllerTest {
         sivilstand: List<Sivilstand> = emptyList()
     ) = Person(
         listOf(IdentInformasjon(fnr, IdentGruppe.FOLKEREGISTERIDENT)),
-        Navn(fornavn = fornavn, etternavn = etternavn, mellomnavn = null),
+        Navn(fornavn, null,  etternavn, null, null, null, mockMeta()),
         emptyList(),
         null,
         null,
@@ -294,14 +316,16 @@ class PersonPDLControllerTest {
             Statsborgerskap(
                 "NOR",
                 LocalDate.of(2010, 10, 11),
-                LocalDate.of(2020, 10, 2)
+                LocalDate.of(2020, 10, 2),
+                mockMeta()
             )
         ),
         null,
         null,
         Kjoenn(
             KjoennType.MANN,
-            Folkeregistermetadata(LocalDateTime.of(2000, 10, 1, 12, 10, 31))
+            Folkeregistermetadata(LocalDateTime.of(2000, 10, 1, 12, 10, 31)),
+            mockMeta()
         ),
         null,
         familierlasjon,
