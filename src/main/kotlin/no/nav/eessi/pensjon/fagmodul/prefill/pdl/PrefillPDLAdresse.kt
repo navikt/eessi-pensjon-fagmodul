@@ -40,12 +40,17 @@ class PrefillPDLAdresse (private val postnummerService: PostnummerService,
 
     protected fun utlandsAdresse(pdlperson: PDLPerson) : Adresse {
         val utlandsAdresse = pdlperson.bostedsadresse?.utenlandskAdresse
-        return Adresse(
-            postnummer = utlandsAdresse?.postkode,
-            gate = utlandsAdresse?.adressenavnNummer,
-            land = hentLandkode(utlandsAdresse?.landkode),
-            by = utlandsAdresse?.bySted
-        )
+        return if (utlandsAdresse == null) {
+            tomAdresse()
+        } else {
+            Adresse(
+                postnummer = utlandsAdresse.postkode,
+                gate = utlandsAdresse.adressenavnNummer,
+                land = hentLandkode(utlandsAdresse.landkode),
+                by = utlandsAdresse.bySted
+            )
+        }
+
     }
 
     protected fun sjekkForDiskresjonKodeAdresse(pdlperson: PDLPerson): Boolean {
