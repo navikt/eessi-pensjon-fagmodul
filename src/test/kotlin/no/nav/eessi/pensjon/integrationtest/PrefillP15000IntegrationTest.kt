@@ -41,7 +41,7 @@ import org.springframework.web.client.RestTemplate
 @SpringBootTest(classes = [UnsecuredWebMvcTestLauncher::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(profiles = ["unsecured-webmvctest"])
 @AutoConfigureMockMvc
-class PrefillP15000Test {
+class PrefillP15000IntegrationTest {
 
     @MockBean
     lateinit var stsService: STSService

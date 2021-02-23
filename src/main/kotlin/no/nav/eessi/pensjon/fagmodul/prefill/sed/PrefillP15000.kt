@@ -42,11 +42,9 @@ class PrefillP15000(private val prefillSed: PrefillSed) {
         logger.debug("Vedtak har avdød? ${pensjonsinformasjon?.avdod != null}")
 
         if (kravType != KravType.GJENLEV && kravType.name != sakType) {
-            logger.warn("Du kan ikke opprette ${sedTypeAsText(kravType)} i en ${sakTypeAsText(sakType)} (PESYS-saksnr: $penSaksnummer har sakstype $sakType)")
-            throw ResponseStatusException(
-                HttpStatus.BAD_REQUEST,
-                "Du kan ikke opprette ${sedTypeAsText(kravType)} i en ${sakTypeAsText(sakType)} (PESYS-saksnr: $penSaksnummer har sakstype $sakType)"
-            )
+            val errorMsg =  "Du kan ikke opprette ${sedTypeAsText(kravType)} i en ${sakTypeAsText(sakType)} (PESYS-saksnr: $penSaksnummer har sakstype ${sakType ?:": MANGLER"})"
+            logger.warn(errorMsg)
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, errorMsg)
         }
 
         val relasjon = relasjon(pensjonsinformasjon, avdodFnr)
@@ -134,7 +132,7 @@ class PrefillP15000(private val prefillSed: PrefillSed) {
             "ALDER" -> "alderspensjonssak"
             "GJENLEV" -> "gjenlevendesak"
             "BARNEP" -> "barnepensjonssak"
-            null -> "[NULL]"
+            null -> "SAKTYPE MANGLER"
             else -> "$sakType-sak"
         }
 
