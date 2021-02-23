@@ -34,11 +34,15 @@ class PrefillService(private val prefillSedService: PrefillSEDService,
             logger.info("******* Starter med preutfylling ******* $dataModel")
             try {
                 val sed = prefillSedService.prefill(dataModel, personDataCollection)
-                logger.debug("sedType: ${sed.type}")
+
+                val sedType = sed.type
+                logger.debug("SedType: $sedType")
+
+                require(sedType.kanPrefilles()) { "SedType $sedType kan ikke prefilles!" }
 
                 //synk sed versjon med buc versjon
                 updateSEDVersion(sed, version)
-                return@measure SedAndType(sed.type, sed.toJsonSkipEmpty())
+                return@measure SedAndType(sedType, sed.toJsonSkipEmpty())
 
             } catch (ex: Exception) {
                 logger.error("Noe gikk galt under prefill: ", ex)
