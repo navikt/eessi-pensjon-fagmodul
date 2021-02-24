@@ -7,7 +7,7 @@ buildscript {
         jacksonModuleKotlinVersion = '2.12.1'
         cxfVersion = '3.3.4'
         tokenSupportVersion = '1.1.6'
-        logstashLogbackVersion = '6.3'
+        logstashLogbackVersion = '6.6'
         pensjonInformasjonVersion = '9.4.10'
     }
 
