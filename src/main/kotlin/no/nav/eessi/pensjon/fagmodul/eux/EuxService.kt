@@ -126,38 +126,6 @@ class EuxService (private val euxKlient: EuxKlient,
         return SED.fromJson(json)
     }
 
-    /**
-     * Henter ut Kravtype og Fnr fra P2100 og P15000
-     * TODO hvor brukes denne nå?
-     */
-    fun hentFnrOgYtelseKravtype(euxCaseId: String, documentId: String): PinOgKrav {
-        val sed = getSedOnBucByDocumentId(euxCaseId, documentId)
-
-        //validere om SED er virkelig en P2100 eller P15000
-        if (SEDType.P2100 == sed.type) {
-            return PinOgKrav(
-                    fnr = getFnrMedLandkodeNO(sed.pensjon?.gjenlevende?.person?.pin),
-                    krav = sed.nav?.krav ?: Krav()
-            )
-        }
-        //P15000 sjekke om det er 02 Gjenlevende eller ikke
-        if (SEDType.P15000 == sed.type) {
-            val krav = sed.nav?.krav ?: Krav()
-            return if ("02" == krav.type) {
-                PinOgKrav(
-                        fnr = getFnrMedLandkodeNO(sed.pensjon?.gjenlevende?.person?.pin),
-                        krav = krav
-                )
-            } else {
-                PinOgKrav(
-                        fnr = getFnrMedLandkodeNO(sed.nav?.bruker?.person?.pin),
-                        krav = sed.nav?.krav ?: Krav()
-                )
-            }
-        }
-        throw SedDokumentIkkeGyldigException("SED gyldig SED av type P2100 eller P15000")
-    }
-
     fun getFnrMedLandkodeNO(pinlist: List<PinItem>?): String? =
             pinlist?.firstOrNull { it.land == "NO" }?.identifikator
 

@@ -258,23 +258,6 @@ class SedControllerTest {
         assertEquals(0, list.size)
     }
 
-     @Test
-    fun getYtelseKravtypeOk() {
-        val mockKrav = PinOgKrav(fnr = "13212312", krav = Krav(dato = "2019-02-01", type = "01"))
-
-        doReturn(mockKrav).whenever(mockEuxService).
-                hentFnrOgYtelseKravtype(
-                        any(),
-                        any()
-                )
-
-        val mockResult =  sedController.getPinOgYtelseKravtype("12123", "3123123")
-
-        assertEquals("13212312", mockResult.fnr)
-        assertEquals("01", mockResult.krav?.type)
-        assertEquals("2019-02-01", mockResult.krav?.dato)
-    }
-
     @Test
     fun `call addInstutionAndDocument mock adding two institusjon when X005 exists already`() {
         val euxCaseId = "1234567890"

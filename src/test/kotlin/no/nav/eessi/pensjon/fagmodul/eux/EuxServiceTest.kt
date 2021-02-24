@@ -90,65 +90,6 @@ class EuxServiceTest {
     }
 
     @Test
-    fun hentYtelseKravtypeTesterPaaP15000Alderpensjon() {
-        val filepath = "src/test/resources/json/nav/P15000-NAV.json"
-        val json = String(Files.readAllBytes(Paths.get(filepath)))
-
-        assertTrue(validateJson(json))
-
-        whenever(euxKlient.getSedOnBucByDocumentIdAsJson(any(), any())).thenReturn(json)
-
-        val result = service.hentFnrOgYtelseKravtype("1234567890","100001000010000")
-        assertEquals("21712", result.fnr)
-        assertEquals("01", result.krav?.type)
-        assertEquals("2019-02-01", result.krav?.dato)
-    }
-
-    @Test
-    fun hentYtelseKravtypeTesterPaaP15000Gjennlevende() {
-        val filepath = "src/test/resources/json/nav/P15000Gjennlevende-NAV.json"
-        val json = String(Files.readAllBytes(Paths.get(filepath)))
-        assertTrue(validateJson(json))
-
-        whenever(euxKlient.getSedOnBucByDocumentIdAsJson(any(), any())).thenReturn(json)
-
-        val orgsed = mapJsonToAny(json, typeRefs<SED>())
-        JSONAssert.assertEquals(json, orgsed.toJson(), false)
-
-        val result = service.hentFnrOgYtelseKravtype("1234567890","100001000010000")
-        assertEquals("32712", result.fnr)
-        assertEquals("02", result.krav?.type)
-        assertEquals("2019-02-01", result.krav?.dato)
-
-    }
-
-    @Test
-    fun feilerVedHentingAvP2100GrunnetManglendeMapping() {
-        val filepath = "src/test/resources/json/nav/P2100-NAV-unfin.json"
-        val json = String(Files.readAllBytes(Paths.get(filepath)))
-        assertTrue(validateJson(json))
-
-        whenever(euxKlient.getSedOnBucByDocumentIdAsJson(any(), any())).thenReturn(json)
-
-        assertThrows<JsonIllegalArgumentException> {
-            service.hentFnrOgYtelseKravtype("1234567890","100001000010000")
-        }
-    }
-
-    @Test
-    fun hentYtelseKravtypeTesterPaaP15000FeilerVedUgyldigSED() {
-        val filepath = "src/test/resources/json/nav/P9000-NAV.json"
-        val json = String(Files.readAllBytes(Paths.get(filepath)))
-        assertTrue(validateJson(json))
-
-        whenever(euxKlient.getSedOnBucByDocumentIdAsJson(any(), any())).thenReturn(json)
-
-        assertThrows<SedDokumentIkkeGyldigException> {
-            service.hentFnrOgYtelseKravtype("1234567890", "100001000010000")
-        }
-    }
-
-    @Test
     fun `Calling eux-rina-api to create BucSedAndView gets one BUC per rinaid`() {
         val rinasakerJson = File("src/test/resources/json/rinasaker/rinasaker_34567890111.json").readText()
         val rinasaker = mapJsonToAny(rinasakerJson, typeRefs<List<Rinasak>>())

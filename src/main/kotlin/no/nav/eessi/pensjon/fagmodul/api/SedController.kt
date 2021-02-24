@@ -326,17 +326,6 @@ class SedController(
         return ResponseEntity.ok().body(resultListe.toJsonSkipEmpty())
     }
 
-    @ApiOperation("Henter ytelsetype fra P15000 på valgt Buc og Documentid")
-    @GetMapping("/ytelseKravtype/{rinanr}/sedid/{documentid}")
-    fun getPinOgYtelseKravtype(
-        @PathVariable("rinanr", required = true) rinanr: String,
-        @PathVariable("documentid", required = false) documentid: String
-    ): PinOgKrav {
-        auditlogger.logBuc("getPinOgYtelseKravtype", " euxCaseId: $rinanr  documentId: $documentid")
-        logger.debug("Henter opp ytelseKravType fra P2100 eller P15000, feiler hvis ikke rett SED")
-        return euxService.hentFnrOgYtelseKravtype(rinanr, documentid)
-    }
-
     //Hjelpe funksjon for å validere og hente aktoerid for evt. avdodfnr fra UI (P2100) - PDL
     fun getAvdodAktoerIdPDL(request: ApiRequest): String? {
         val buc = request.buc ?: throw MangelfulleInndataException("Mangler Buc")
