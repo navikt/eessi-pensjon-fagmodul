@@ -9,6 +9,5 @@ class UserMessagesItem(
         val isSent: Boolean? = null,
         val id: String? = null,
         val error: Any? = null,
-        val sent: Boolean? = null,
         val status: Any? = null
 )
