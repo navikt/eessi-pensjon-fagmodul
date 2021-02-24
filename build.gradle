@@ -2,7 +2,7 @@ buildscript {
 
     ext {
         kotlinVersion = '1.4.30'
-        springBootVersion = '2.3.0.RELEASE'
+        springBootVersion = '2.4.3'
         springfoxVersion = '2.10.5'
         jacksonModuleKotlinVersion = '2.10.1'
         cxfVersion = '3.3.4'
@@ -24,15 +24,13 @@ buildscript {
 }
 
 plugins {
-    id "io.spring.dependency-management" version "1.0.8.RELEASE"
+    id "io.spring.dependency-management" version "1.0.11.RELEASE"
     id "org.openrepose.gradle.plugins.jaxb" version "2.5.0"
-    id 'com.github.ben-manes.versions' version '0.28.0'
+    id 'com.github.ben-manes.versions' version '0.36.0'
     id "se.patrikerdes.use-latest-versions" version "0.2.12"
-    id "org.owasp.dependencycheck" version "5.2.0"
+    id "org.owasp.dependencycheck" version "6.1.1"
     id "com.vanniktech.dependency.graph.generator" version "0.5.0"
-    id "org.sonarqube" version "2.7.1"
-    id 'jacoco'
-    id 'com.adarshr.test-logger' version '2.0.0'
+    id 'com.adarshr.test-logger' version '2.1.1'
 }
 
 apply plugin: "org.jetbrains.kotlin.jvm"
@@ -78,12 +76,11 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web") {
         exclude module: 'tomcat-embed-core'
     }
-    implementation("org.apache.tomcat.embed:tomcat-embed-core:9.0.35")
 
-    implementation("org.springframework.boot:spring-boot-starter-aop")
-    implementation("org.springframework.boot:spring-boot-starter-cache")
-    implementation("org.springframework.boot:spring-boot-starter-actuator")
-    implementation("org.springframework.boot:spring-boot-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-aop:$springBootVersion")
+    implementation("org.springframework.boot:spring-boot-starter-cache:$springBootVersion")
+    implementation("org.springframework.boot:spring-boot-starter-actuator:$springBootVersion")
+    implementation("org.springframework.boot:spring-boot-actuator:$springBootVersion")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude module: 'junit'
         exclude module: "mockito-core"
@@ -112,8 +109,8 @@ dependencies {
     implementation("io.springfox:springfox-data-rest:${springfoxVersion}")
 
     //mock - test
-    testImplementation("org.junit.platform:junit-platform-suite-api:1.5.2")
-    testImplementation("org.mockito:mockito-core:3.3.3")
+    testImplementation("org.junit.platform:junit-platform-suite-api:1.7.1")
+    testImplementation("org.mockito:mockito-core:3.8.0")
     testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
     testImplementation("org.skyscreamer:jsonassert:1.5.0")
     testImplementation("org.jetbrains.kotlin:kotlin-test:${kotlinVersion}") {
@@ -157,9 +154,8 @@ dependencies {
     implementation("io.micrometer:micrometer-registry-prometheus:1.5.1")
     implementation("no.nav.eessi.pensjon:ep-metrics:0.4.2")
 
-    // Kafka -- 2.4.0 feiler
-    implementation ("org.springframework.kafka:spring-kafka:2.5.1.RELEASE")
-    testImplementation ("org.springframework.kafka:spring-kafka-test:2.5.1.RELEASE")
+    implementation ("org.springframework.kafka:spring-kafka")
+    testImplementation ("org.springframework.kafka:spring-kafka-test")
 
     implementation("no.nav.eessi.pensjon:ep-logging:1.0.7")
     implementation("no.nav.eessi.pensjon:ep-personoppslag:7.1.23")
@@ -212,17 +208,6 @@ wrapper {
     distributionType = Wrapper.DistributionType.ALL
 }
 
-// https://docs.gradle.org/current/userguide/jacoco_plugin.html
-jacoco {
-    toolVersion = "0.8.4"
-}
-
-jacocoTestReport {
-    reports {
-        xml.enabled true
-    }
-}
-
 repositories {
     mavenCentral()
 
@@ -238,8 +223,6 @@ repositories {
         }
     }
 }
-
-tasks.sonarqube.dependsOn tasks["jacocoTestReport"]
 
 /* https://github.com/ben-manes/gradle-versions-plugin */
 dependencyUpdates {
