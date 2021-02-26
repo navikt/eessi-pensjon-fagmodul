@@ -20,7 +20,7 @@ class PrefillP7000(private val prefillSed: PrefillSed) {
 
     private val logger: Logger by lazy { LoggerFactory.getLogger(PrefillP7000::class.java) }
 
-    fun prefill(prefillData: PrefillDataModel, personData: PersonDataCollection): SED {
+    fun prefillSed(prefillData: PrefillDataModel, personData: PersonDataCollection): SED {
 
         val sed = prefillSed.prefill(prefillData, personData)
         logger.debug("Tilpasser P7000 forenklet preutfylling")

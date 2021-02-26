@@ -26,7 +26,7 @@ class PrefillP15000(private val prefillSed: PrefillSed) {
 
     private val logger: Logger by lazy { LoggerFactory.getLogger(PrefillP15000::class.java) }
 
-    fun prefill(
+    fun prefillSed(
         prefillData: PrefillDataModel,
         personData: PersonDataCollection,
         sak: V1Sak?,

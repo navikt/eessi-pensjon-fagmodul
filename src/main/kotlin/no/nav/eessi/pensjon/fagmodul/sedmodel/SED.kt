@@ -9,11 +9,10 @@ import no.nav.eessi.pensjon.utils.typeRefs
 
 // SED class main request class to basis
 // Strukturerte Elektroniske Dokumenter
-//@JsonIgnoreProperties(ignoreUnknown = true)
 data class SED(
         @JsonProperty("sed")
         val type: SEDType,
-        var sedGVer: String? = "4",
+        val sedGVer: String? = "4",
         var sedVer: String? = "1",
         var nav: Nav? = null, // TODO Mutable
         var pensjon: Pensjon? = null, // TODO Mutable

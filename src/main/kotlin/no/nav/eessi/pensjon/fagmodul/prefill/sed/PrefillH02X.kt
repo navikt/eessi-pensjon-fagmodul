@@ -11,7 +11,7 @@ import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
 
 class PrefillH02X(private val prefillSed: PrefillSed)  {
 
-    fun prefill(prefillData: PrefillDataModel, personData: PersonDataCollection): SED {
+    fun prefillSed(prefillData: PrefillDataModel, personData: PersonDataCollection): SED {
 
         val personSed = prefillSed.prefill(
                 prefillData = prefillData,

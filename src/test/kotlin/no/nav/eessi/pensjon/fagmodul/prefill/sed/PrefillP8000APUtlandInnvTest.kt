@@ -51,7 +51,7 @@ class PrefillP8000APUtlandInnvTest {
         sak.sakId = 100
         sak.kravHistorikkListe = V1KravHistorikkListe()
 
-        val p8000 = prefill.prefill(prefillData, persondataCollection, sak)
+        val p8000 = prefill.prefillSed(prefillData, persondataCollection, sak)
 
         assertEquals("ODIN ETTØYE", p8000.nav?.bruker?.person?.fornavn)
         assertEquals("BALDER", p8000.nav?.bruker?.person?.etternavn)

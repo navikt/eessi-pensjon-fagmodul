@@ -160,7 +160,7 @@ class SedP4000Test {
 
         val personData = PersonDataCollection(forsikretPerson = PersonPDLMock.createWith(), gjenlevendeEllerAvdod = PersonPDLMock.createWith())
 
-        val sed = pre4000.prefill(data, personData)
+        val sed = pre4000.prefillSed(data, personData)
         assertNull(sed.trygdetid)
     }
 
@@ -197,7 +197,7 @@ class SedP4000Test {
 
         whenever(prefillSed.prefill(any(), any())).thenReturn(SED(type = SEDType.P4000))
 
-        val sed = pre4000.prefill(data, personData)
+        val sed = pre4000.prefillSed(data, personData)
         assertNotNull(sed)
     }
 }

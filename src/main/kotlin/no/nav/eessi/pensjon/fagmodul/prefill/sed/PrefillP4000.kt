@@ -16,7 +16,7 @@ class PrefillP4000(private val prefillSed: PrefillSed) {
     private val logger: Logger =  LoggerFactory.getLogger(PrefillP4000::class.java)
     private val mapper = jacksonObjectMapper()
 
-    fun prefill(prefillData: PrefillDataModel, personData: PersonDataCollection): SED {
+    fun prefillSed(prefillData: PrefillDataModel, personData: PersonDataCollection): SED {
         return try {
             val sed = prefillSed.prefill(prefillData, personData)
             sed.trygdetid = perfillPersonTrygdetid(prefillData)

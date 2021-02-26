@@ -5,10 +5,7 @@ import no.nav.eessi.pensjon.fagmodul.prefill.sed.vedtak.hjelper.PrefillPensjonSa
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.vedtak.hjelper.PrefillPensjonTilleggsinformasjon
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.vedtak.hjelper.PrefillPensjonVedtak
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.vedtak.hjelper.VedtakPensjonDataHelper.harBoddArbeidetUtland
-import no.nav.eessi.pensjon.fagmodul.sedmodel.AndreinstitusjonerItem
-import no.nav.eessi.pensjon.fagmodul.sedmodel.Bruker
-import no.nav.eessi.pensjon.fagmodul.sedmodel.Pensjon
-import no.nav.eessi.pensjon.fagmodul.sedmodel.VedtakItem
+import no.nav.eessi.pensjon.fagmodul.sedmodel.*
 import no.nav.eessi.pensjon.utils.simpleFormat
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
 import org.slf4j.Logger
@@ -24,7 +21,11 @@ object PrefillP6000Pensjon {
 
     private val logger: Logger by lazy { LoggerFactory.getLogger(PrefillP6000Pensjon::class.java) }
 
-    fun createPensjon(pensjoninformasjon: Pensjonsinformasjon, gjenlevende: Bruker?, vedtakId: String, andreinstitusjonerItem: AndreinstitusjonerItem?): Pensjon {
+    fun prefillPensjon(
+        pensjoninformasjon: Pensjonsinformasjon,
+        gjenlevende: Bruker?,
+        andreinstitusjonerItem: AndreinstitusjonerItem?
+    ): Pensjon {
 
         //Sjekk opp om det er Bodd eller Arbeid utland. (hvis ikke avslutt)
         if (!harBoddArbeidetUtland(pensjoninformasjon))
@@ -37,71 +38,90 @@ object PrefillP6000Pensjon {
 
         //prefill Pensjon obj med data fra PESYS. (pendata)
         logger.debug("4.1       VedtakItem")
-        return createPensjonEllerTom(pensjoninformasjon, gjenlevende, andreinstitusjonerItem)
 
-    }
-
-    private fun createPensjonEllerTom(pensjoninformasjon: Pensjonsinformasjon, gjenlevende: Bruker?, andreinstitusjonerItem: AndreinstitusjonerItem?): Pensjon {
-        val vilkar = pensjoninformasjon.vilkarsvurderingListe
-        val ytelse = pensjoninformasjon.ytelsePerMaanedListe
-        val erAvslag = "AVSL" == pensjoninformasjon.vilkarsvurderingListe?.vilkarsvurderingListe?.maxByOrNull{ it.fom.simpleFormat() }?.avslagHovedytelse
-
-        return if (erAvslag || (vilkar == null && ytelse == null) || ytelse.ytelsePerMaanedListe.isNullOrEmpty()) {
-            logger.warn("Avslag, Ingen vilkarsvurderingListe og ytelsePerMaanedListe oppretter Vedtak SED P6000 uten pensjoninformasjon")
-            val avslagPensjon = createPensjon(pensjoninformasjon, gjenlevende, andreinstitusjonerItem)
-            val avslagVedtak = avslagPensjon.vedtak?.firstOrNull()
-//          Selvplukk av avslagdata:
-//          Type pensjon
-//          Type vedtak (resulat)
-//          Avslagsgrunner
-            val vedtaklist = if (avslagVedtak == null) null else  listOf(VedtakItem(type = avslagVedtak.type, resultat = avslagVedtak.resultat, avslagbegrunnelse = avslagVedtak.avslagbegrunnelse ))
-            Pensjon(
-                vedtak = vedtaklist,
-                sak = avslagPensjon.sak,
-                tilleggsinformasjon = avslagPensjon.tilleggsinformasjon
-            )
-
+        return if (erAvslag(pensjoninformasjon)) {
+            prefillPensjonMedAvslag(pensjoninformasjon, andreinstitusjonerItem)
         } else {
-            createPensjon(pensjoninformasjon, gjenlevende, andreinstitusjonerItem)
+            return Pensjon(
+                gjenlevende = gjenlevende,
+                //4.1
+                vedtak = prefillVedtak(pensjoninformasjon),
+                //5.1
+                reduksjon = prefillReduksjon(pensjoninformasjon),
+                //6.1
+                sak = prefillSak(pensjoninformasjon),
+                //6.x
+                tilleggsinformasjon = prefillTilleggsinformasjon(pensjoninformasjon, andreinstitusjonerItem)
+            )
         }
     }
 
-    private fun createPensjon(pensjoninformasjon: Pensjonsinformasjon, gjenlevende: Bruker?, andreinstitusjonerItem: AndreinstitusjonerItem?): Pensjon {
-        val vedtak = try {
-            listOf(PrefillPensjonVedtak.createVedtakItem(pensjoninformasjon))
-        } catch (ex: Exception) {
-            logger.warn("Feilet ved preutfylling av vedtaksdetaljer, fortsetter uten")
-            emptyList()
-        }
-        val redukjson = try {
-            PrefillPensjonReduksjon.createReduksjon(pensjoninformasjon)
-        } catch (ex: Exception) {
-            logger.warn("Feilet ved preutfylling av reduksjoner, fortsetter uten")
-            emptyList()
-        }
-        val sak = try {
-            PrefillPensjonSak.createSak(pensjoninformasjon)
-        } catch (ex: Exception) {
-            logger.warn("Feilet ved preutfylling av sak, fortsetter uten")
-            null
-        }
-        val tilleggsinformasjon = try {
+    private fun prefillPensjonMedAvslag(
+        pensjoninformasjon: Pensjonsinformasjon,
+        andreinstitusjonerItem: AndreinstitusjonerItem?
+    ): Pensjon {
+        logger.warn("Avslag, Ingen vilkarsvurderingListe og ytelsePerMaanedListe oppretter Vedtak SED P6000 uten pensjoninformasjon")
+
+        val vedtak = prefillVedtak(pensjoninformasjon).firstOrNull()
+        val vedtaklist = if (vedtak == null) null else listOf(
+            VedtakItem(
+                type = vedtak.type,
+                resultat = vedtak.resultat,
+                avslagbegrunnelse = vedtak.avslagbegrunnelse
+            )
+        )
+
+        return Pensjon(
+            vedtak = vedtaklist,
+            sak = prefillSak(pensjoninformasjon),
+            tilleggsinformasjon = prefillTilleggsinformasjon(pensjoninformasjon, andreinstitusjonerItem)
+        )
+    }
+
+    private fun prefillTilleggsinformasjon(
+        pensjoninformasjon: Pensjonsinformasjon,
+        andreinstitusjonerItem: AndreinstitusjonerItem?
+    ): Tilleggsinformasjon? {
+        return try {
             PrefillPensjonTilleggsinformasjon.createTilleggsinformasjon(pensjoninformasjon, andreinstitusjonerItem)
         } catch (ex: Exception) {
             logger.warn("Feilet ved preutfylling tilleggsinformasjon, fortsetter uten")
             null
         }
+    }
 
-        return Pensjon(
-                gjenlevende = gjenlevende,
-                //4.1
-                vedtak = vedtak,
-                //5.1
-                reduksjon = redukjson,
-                //6.1
-                sak = sak,
-                //6.x
-                tilleggsinformasjon = tilleggsinformasjon
-        )
+    private fun prefillSak(pensjoninformasjon: Pensjonsinformasjon): Sak? {
+        return try {
+            PrefillPensjonSak.createSak(pensjoninformasjon)
+        } catch (ex: Exception) {
+            logger.warn("Feilet ved preutfylling av sak, fortsetter uten")
+            null
+        }
+    }
+
+    private fun prefillReduksjon(pensjoninformasjon: Pensjonsinformasjon): List<ReduksjonItem>? {
+        return try {
+            PrefillPensjonReduksjon.createReduksjon(pensjoninformasjon)
+        } catch (ex: Exception) {
+            logger.warn("Feilet ved preutfylling av reduksjoner, fortsetter uten")
+            emptyList()
+        }
+    }
+
+    private fun prefillVedtak(pensjoninformasjon: Pensjonsinformasjon): List<VedtakItem> {
+        return try {
+            listOf(PrefillPensjonVedtak.createVedtakItem(pensjoninformasjon))
+        } catch (ex: Exception) {
+            logger.warn("Feilet ved preutfylling av vedtaksdetaljer, fortsetter uten")
+            emptyList()
+        }
+    }
+
+    private fun erAvslag(pensjoninformasjon: Pensjonsinformasjon): Boolean {
+        val vilkar = pensjoninformasjon.vilkarsvurderingListe
+        val ytelse = pensjoninformasjon.ytelsePerMaanedListe
+        val erAvslag =
+            "AVSL" == pensjoninformasjon.vilkarsvurderingListe?.vilkarsvurderingListe?.maxByOrNull { it.fom.simpleFormat() }?.avslagHovedytelse
+        return (erAvslag || (vilkar == null && ytelse == null) || ytelse.ytelsePerMaanedListe.isNullOrEmpty())
     }
 }

@@ -19,7 +19,7 @@ class PrefillP15000Test {
         whenever(mockedPrefill.kravType).thenReturn(KravType.ALDER)
 
         val exception = assertFailsWith<ResponseStatusException> {
-            PrefillP15000(mock()).prefill(
+            PrefillP15000(mock()).prefillSed(
                 mockedPrefill, mock(), mock(), mock()
             )
         }

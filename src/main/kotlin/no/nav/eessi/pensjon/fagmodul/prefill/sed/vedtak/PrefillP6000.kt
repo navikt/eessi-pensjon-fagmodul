@@ -4,7 +4,7 @@ import no.nav.eessi.pensjon.fagmodul.models.PersonDataCollection
 import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
 import no.nav.eessi.pensjon.fagmodul.prefill.eessi.EessiInformasjon
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillPDLNav
-import no.nav.eessi.pensjon.fagmodul.prefill.sed.vedtak.PrefillP6000Pensjon.createPensjon
+import no.nav.eessi.pensjon.fagmodul.prefill.sed.vedtak.PrefillP6000Pensjon.prefillPensjon
 import no.nav.eessi.pensjon.fagmodul.sedmodel.Bruker
 import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Person
@@ -18,7 +18,7 @@ class PrefillP6000(private val prefillNav: PrefillPDLNav,
 
     private val logger: Logger by lazy { LoggerFactory.getLogger(PrefillP6000::class.java) }
 
-    fun prefill(prefillData: PrefillDataModel, personData: PersonDataCollection): SED {
+    fun prefillSed(prefillData: PrefillDataModel, personData: PersonDataCollection): SED {
         val sedType = prefillData.sedType
 
         logger.info("----------------------------------------------------------"
@@ -26,7 +26,6 @@ class PrefillP6000(private val prefillNav: PrefillPDLNav,
                 + "\n------------------| Preutfylling [$sedType] START |------------------ ")
 
         logger.info("Henter ut lokal kontakt, institusjon (NAV Utland)")
-        //prefillData.andreInstitusjon = eessiInfo.asAndreinstitusjonerItem()
         val andreInstitusjondetaljer = eessiInfo.asAndreinstitusjonerItem()
         logger.info("Andreinstitusjoner: $andreInstitusjondetaljer ")
 
@@ -34,7 +33,7 @@ class PrefillP6000(private val prefillNav: PrefillPDLNav,
         val gjenlevende = eventuellGjenlevende(prefillData, personData.forsikretPerson)
 
         logger.debug("Henter opp Pensjonsdata fra PESYS")
-        val pensjon = createPensjon(pensjoninformasjon, gjenlevende, prefillData.vedtakId!!, andreInstitusjondetaljer)
+        val pensjon = prefillPensjon(pensjoninformasjon, gjenlevende, andreInstitusjondetaljer)
 
         logger.debug("Henter opp Persondata fra TPS")
         val nav = prefillNav.prefill(

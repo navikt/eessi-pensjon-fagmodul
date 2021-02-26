@@ -18,7 +18,7 @@ class PrefillP2100(private val prefillNav: PrefillPDLNav) {
 
     private val logger: Logger by lazy { LoggerFactory.getLogger(PrefillP2100::class.java) }
 
-    fun prefill(prefillData: PrefillDataModel, personData: PersonDataCollection, sak: V1Sak?): Pair<String?, SED> {
+    fun prefillSed(prefillData: PrefillDataModel, personData: PersonDataCollection, sak: V1Sak?): Pair<String?, SED> {
         val pensjon = PrefillP2xxxPensjon.populerPensjon(prefillData, sak)
 
         //TPS

@@ -17,7 +17,7 @@ class PrefillP2200(private val prefillNav: PrefillPDLNav) {
 
     private val logger: Logger by lazy { LoggerFactory.getLogger(PrefillP2200::class.java) }
 
-    fun prefill(prefillData: PrefillDataModel, personData: PersonDataCollection, sak: V1Sak?, vedtak: V1Vedtak? = null) : SED {
+    fun prefillSed(prefillData: PrefillDataModel, personData: PersonDataCollection, sak: V1Sak?, vedtak: V1Vedtak? = null) : SED {
         logger.debug("----------------------------------------------------------"
                 + "\nSaktype                 : ${sak?.sakType} "
                 + "\nSøker etter SakId       : ${prefillData.penSaksnummer} "

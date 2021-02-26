@@ -55,11 +55,9 @@ class PrefillService(private val prefillSedService: PrefillSEDService,
     private fun updateSEDVersion(sed: SED, bucVersion: String) {
         when(bucVersion) {
             "v4.2" -> {
-                sed.sedGVer="4"
                 sed.sedVer="2"
             }
             else -> {
-                sed.sedGVer="4"
                 sed.sedVer="1"
             }
         }

@@ -11,7 +11,7 @@ class PrefillP10000(private val prefillSed: PrefillSed) {
 
     private val logger: Logger by lazy { LoggerFactory.getLogger(PrefillP10000::class.java) }
 
-    fun prefill(prefillData: PrefillDataModel, personData: PersonDataCollection): SED {
+    fun prefillSed(prefillData: PrefillDataModel, personData: PersonDataCollection): SED {
 
         logger.info("Default SED prefill [${prefillData.sedType}]")
 

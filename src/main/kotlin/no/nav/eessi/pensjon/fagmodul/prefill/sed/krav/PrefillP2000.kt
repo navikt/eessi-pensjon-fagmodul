@@ -6,7 +6,6 @@ import no.nav.eessi.pensjon.fagmodul.models.SEDType
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillPDLNav
 import no.nav.eessi.pensjon.fagmodul.sedmodel.Krav
 import no.nav.eessi.pensjon.fagmodul.sedmodel.Nav
-import no.nav.eessi.pensjon.fagmodul.sedmodel.Pensjon
 import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
 import no.nav.pensjon.v1.sak.V1Sak
 import no.nav.pensjon.v1.vedtak.V1Vedtak
@@ -22,14 +21,21 @@ class PrefillP2000(private val prefillNav: PrefillPDLNav)  {
 
     private val logger: Logger by lazy { LoggerFactory.getLogger(PrefillP2000::class.java) }
 
-    fun prefill(prefillData: PrefillDataModel, personData: PersonDataCollection, sak: V1Sak?, vedtak: V1Vedtak? = null): SED {
+    fun prefillSed(prefillData: PrefillDataModel, personData: PersonDataCollection, sak: V1Sak?, vedtak: V1Vedtak? = null): SED {
         postPrefill(prefillData, sak, vedtak)
 
         val pensjon = PrefillP2xxxPensjon.populerPensjon(prefillData, sak)
 
         val nav = prefillPDLNav(prefillData, personData, pensjon?.kravDato)
 
-        return prefillpen(prefillData, nav, pensjon)
+        val sed = SED(
+            type = SEDType.P2000,
+            nav = nav,
+            pensjon = pensjon
+        )
+
+        validate(sed)
+        return sed
     }
 
     private fun prefillPDLNav(prefillData: PrefillDataModel, personData: PersonDataCollection, krav: Krav?): Nav {
@@ -51,21 +57,6 @@ class PrefillP2000(private val prefillNav: PrefillPDLNav)  {
                 + "\nSøker etter SakId       : ${prefillData.penSaksnummer} "
                 + "\nSøker etter aktoerid    : ${prefillData.bruker.aktorId} "
                 + "\n------------------| Preutfylling [$sedType] START |------------------ ")
-    }
-
-    private fun prefillpen(prefillData: PrefillDataModel, nav: Nav, pensjon: Pensjon?): SED {
-        val sedType = prefillData.sedType
-
-        //opprette en P2000 sed
-        val sed = SED(
-            type = SEDType.P2000,
-            nav = nav,
-            pensjon = pensjon
-        )
-
-        logger.debug("-------------------| Preutfylling [$sedType] END |------------------- ")
-        validate(sed)
-        return sed
     }
 
     private fun validate(sed: SED) {

@@ -51,10 +51,10 @@ class PrefillSEDService(
 
         return when (sedType) {
             //krav
-            P2000 -> PrefillP2000(prefillPDLnav).prefill(prefillData, personDataCollection, hentRelevantPensjonSak(prefillData) { pensakType -> pensakType == ALDER.name }, hentRelevantVedtak(prefillData))
-            P2200 -> PrefillP2200(prefillPDLnav).prefill(prefillData, personDataCollection, hentRelevantPensjonSak(prefillData) { pensakType -> pensakType == UFOREP.name }, hentRelevantVedtak(prefillData))
+            P2000 -> PrefillP2000(prefillPDLnav).prefillSed(prefillData, personDataCollection, hentRelevantPensjonSak(prefillData) { pensakType -> pensakType == ALDER.name }, hentRelevantVedtak(prefillData))
+            P2200 -> PrefillP2200(prefillPDLnav).prefillSed(prefillData, personDataCollection, hentRelevantPensjonSak(prefillData) { pensakType -> pensakType == UFOREP.name }, hentRelevantVedtak(prefillData))
             P2100 -> {
-                val sedpair = PrefillP2100(prefillPDLnav).prefill(prefillData, personDataCollection, hentRelevantPensjonSak(prefillData) { pensakType ->
+                val sedpair = PrefillP2100(prefillPDLnav).prefillSed(prefillData, personDataCollection, hentRelevantPensjonSak(prefillData) { pensakType ->
                     listOf(
                         "ALDER",
                         "BARNEP",
@@ -67,34 +67,34 @@ class PrefillSEDService(
             }
 
             //vedtak
-            P6000 -> PrefillP6000(prefillPDLnav, eessiInformasjon, pensjonsinformasjonService.hentVedtak(hentVedtak(prefillData))).prefill(prefillData, personDataCollection)
+            P6000 -> PrefillP6000(prefillPDLnav, eessiInformasjon, pensjonsinformasjonService.hentVedtak(hentVedtak(prefillData))).prefillSed(prefillData, personDataCollection)
 
-            P4000 -> PrefillP4000(PrefillSed(prefillPDLnav)).prefill(prefillData, personDataCollection)
-            P7000 -> PrefillP7000(PrefillSed(prefillPDLnav)).prefill(prefillData, personDataCollection)
+            P4000 -> PrefillP4000(PrefillSed(prefillPDLnav)).prefillSed(prefillData, personDataCollection)
+            P7000 -> PrefillP7000(PrefillSed(prefillPDLnav)).prefillSed(prefillData, personDataCollection)
 
             P8000 -> {
                 if (prefillData.buc == "P_BUC_05") {
                     try {
-                        PrefillP8000(PrefillSed(prefillPDLnav)).prefill(prefillData, personDataCollection, hentRelevantPensjonSak(prefillData) { pensakType -> listOf("ALDER", "BARNEP", "GJENLEV", "UFOREP", "GENRL", "OMSORG").contains(pensakType) })
+                        PrefillP8000(PrefillSed(prefillPDLnav)).prefillSed(prefillData, personDataCollection, hentRelevantPensjonSak(prefillData) { pensakType -> listOf("ALDER", "BARNEP", "GJENLEV", "UFOREP", "GENRL", "OMSORG").contains(pensakType) })
                     } catch (ex: Exception) {
                         logger.error(ex.message)
-                        PrefillP8000(PrefillSed(prefillPDLnav)).prefill(prefillData, personDataCollection, null)
+                        PrefillP8000(PrefillSed(prefillPDLnav)).prefillSed(prefillData, personDataCollection, null)
                     }
                 } else {
-                    PrefillP8000(PrefillSed(prefillPDLnav)).prefill(prefillData, personDataCollection, null)
+                    PrefillP8000(PrefillSed(prefillPDLnav)).prefillSed(prefillData, personDataCollection, null)
                 }
             }
 
-            P15000 -> PrefillP15000(PrefillSed(prefillPDLnav)).prefill(
+            P15000 -> PrefillP15000(PrefillSed(prefillPDLnav)).prefillSed(
                 prefillData,
                 personDataCollection,
                 hentRelevantPensjonSak(prefillData) { pensakType -> listOf("ALDER", "BARNEP", "GJENLEV", "UFOREP", "GENRL", "OMSORG").contains(pensakType) },
                 hentRelevantPensjonsinformasjon(prefillData)
             )
 
-            P10000 -> PrefillP10000(PrefillSed(prefillPDLnav)).prefill(prefillData, personDataCollection)
+            P10000 -> PrefillP10000(PrefillSed(prefillPDLnav)).prefillSed(prefillData, personDataCollection)
             X005 -> PrefillX005(prefillPDLnav).prefill(prefillData, personDataCollection)
-            H020, H021 -> PrefillH02X(PrefillSed(prefillPDLnav)).prefill(prefillData, personDataCollection)
+            H020, H021 -> PrefillH02X(PrefillSed(prefillPDLnav)).prefillSed(prefillData, personDataCollection)
             else ->
                 //P3000_SE, PL, DK, DE, UK, med flere vil gå denne veien..
                 //P5000, P9000, P14000, P15000.. med flere..
