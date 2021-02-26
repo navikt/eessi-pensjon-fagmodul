@@ -19,12 +19,6 @@ eessipen-eux-rina:
 pensjonsinformasjon:
   url: 'http://example.com:8099'
 
-virksomhet.person.v3:
-  endpointurl: 'https://example.com/tpsws/ws/Person/v3'
-
-aktoerregister.api.v1:
-  url: 'http://example.com:8090'
-
 srvusername: 'username'
 srvpassword: 'password'
 

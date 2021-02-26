@@ -176,7 +176,7 @@ class PersonPDLController(
     }
 
     /**
-     * Personinformasjon fra TPS ( PersonV3 )
+     * Personinformasjon
      */
     data class Personinformasjon(
         var fulltNavn: String? = null,

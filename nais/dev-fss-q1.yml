@@ -11,8 +11,6 @@ spec:
       value: test
     - name: PENSJONSINFORMASJON_URL
       value: https://pensjon-pen-q1.nais.preprod.local/pen/api/pensjonsinformasjon/v1
-    - name: AKTOERREGISTER_API_V1_URL
-      value: https://app-q1.adeo.no/aktoerregister/api/v1
     - name: EESSIPEN_EUX_RINA_URL
       value: https://eux-rina-api-q1.nais.preprod.local/cpi
     - name: SAF_GRAPHQL_URL
@@ -21,8 +19,6 @@ spec:
       value: https://saf-q1.nais.preprod.local/rest/hentdokument
     - name: PDL_URL
       value: https://pdl-api.nais.preprod.local/graphql
-    - name: VIRKSOMHET_PERSON_V3_ENDPOINTURL
-      value: https://app-q1.adeo.no/tpsws-aura/ws/Person/v3
     - name: OPENIDCONNECT_URL
       value: https://isso-q.adeo.no:443/isso
     - name: SECURITY_TOKEN_SERVICE_OPENID_CONFIGURATION_URL

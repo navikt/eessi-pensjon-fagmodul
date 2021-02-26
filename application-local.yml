@@ -17,12 +17,6 @@ eessi-pensjon-institusjon-navn: 'NAVAT 07'
 eessipen-eux-rina:
    url: 'https://eux-rina-api-q2.nais.preprod.local/cpi'
 
-virksomhet.person.v3:
-  endpointurl: 'https://wasapp-q2.adeo.no/tpsws/ws/Person/v3'
-
-aktoerregister.api.v1:
-  url: 'https://app-q2.adeo.no/aktoerregister/api/v1'
-
 pensjonsinformasjon:
   url: 'https://wasapp-q2.adeo.no/pensjon-ws/api/pensjonsinformasjon/v1'
 

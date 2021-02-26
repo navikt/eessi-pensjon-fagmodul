@@ -11,13 +11,6 @@ import no.nav.eessi.pensjon.fagmodul.prefill.pdl.FodselsnummerMother
 import no.nav.eessi.pensjon.fagmodul.prefill.pdl.PrefillPDLAdresse
 import no.nav.eessi.pensjon.fagmodul.prefill.pen.PensjonsinformasjonService
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillPDLNav
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Kjoenn
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Kjoennstyper
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Landkoder
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.NorskIdent
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.PersonIdent
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personnavn
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Statsborgerskap
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -95,14 +88,4 @@ class SedP3000XXTest {
         )
         return ApiRequest.buildPrefillDataModelOnExisting(req, "12345", null)
     }
-
-    private fun lagTPSBruker(foreldersPin: String, fornavn: String, etternavn: String) =
-            no.nav.tjeneste.virksomhet.person.v3.informasjon.Bruker()
-                    .withPersonnavn(Personnavn()
-                            .withEtternavn(etternavn)
-                            .withFornavn(fornavn))
-                    .withKjoenn(Kjoenn().withKjoenn(Kjoennstyper().withValue("M")))
-                    .withAktoer(PersonIdent().withIdent(NorskIdent().withIdent(foreldersPin)))
-                    .withStatsborgerskap(Statsborgerskap().withLand(Landkoder().withValue("NOR")))
-
 }

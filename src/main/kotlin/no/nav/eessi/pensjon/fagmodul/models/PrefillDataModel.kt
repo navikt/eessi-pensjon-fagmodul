@@ -5,9 +5,9 @@ import no.nav.eessi.pensjon.utils.typeRefs
 
 /**
  * Data class to store different required data to build any given sed, auto or semiauto.
- * sed, aktoerregister,  psak-saknr, rinanr, institutions (mottaker eg. nav),
+ * sed, pdl,  psak-saknr, rinanr, institutions (mottaker eg. nav),
  *
- * services:  aktoerregister, person, pen, maybe joark, eux-basis.
+ * services:  pdl, person, pen, maybe joark, eux-basis.
  */
 class PersonId(val norskIdent: String,
                val aktorId: String)

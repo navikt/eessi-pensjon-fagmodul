@@ -197,7 +197,7 @@ class PrefillPDLNav(private val prefillAdresse: PrefillPDLAdresse,
                 //1.0
                 eessisak = createEssisakItem(penSaksnummer, institutionid, institutionnavn),
 
-                //createBrukerfraTPS død hvis etterlatt (etterlatt aktoerregister fylt ut)
+                //createBruker fra Persondataløsning
                 //2.0 For levende, eller hvis person er dod (hvis dod flyttes levende til 3.0)
                 //3.0 Anstalleseforhold og
                 //8.0 Bank

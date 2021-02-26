@@ -11,8 +11,6 @@ spec:
       value: prod
     - name: PENSJONSINFORMASJON_URL
       value: https://pensjon-pen.nais.adeo.no/pen/api/pensjonsinformasjon/v1
-    - name: AKTOERREGISTER_API_V1_URL
-      value: https://app.adeo.no/aktoerregister/api/v1
     - name: EESSIPEN_EUX_RINA_URL
       value: https://eux-rina-api.nais.adeo.no/cpi
     - name: SAF_GRAPHQL_URL
@@ -21,8 +19,6 @@ spec:
       value: https://saf.nais.adeo.no/rest/hentdokument
     - name: PDL_URL
       value: https://pdl-api.nais.adeo.no/graphql
-    - name: VIRKSOMHET_PERSON_V3_ENDPOINTURL
-      value: https://app.adeo.no/tpsws-aura/ws/Person/v3
     - name: OPENIDCONNECT_URL
       value: https://isso.adeo.no:443/isso
     - name: SECURITY_TOKEN_SERVICE_OPENID_CONFIGURATION_URL

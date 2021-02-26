@@ -6,7 +6,6 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.doThrow
 import com.nhaarman.mockitokotlin2.whenever
 import no.nav.eessi.pensjon.logging.AuditLogger
-import no.nav.eessi.pensjon.personoppslag.aktoerregister.AktoerregisterService
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonoppslagException
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
@@ -26,7 +25,6 @@ import no.nav.eessi.pensjon.personoppslag.pdl.model.Person
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Sivilstand
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Sivilstandstype
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Statsborgerskap
-import no.nav.eessi.pensjon.personoppslag.personv3.PersonV3Service
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.typeRefs
@@ -59,12 +57,6 @@ class PersonPDLControllerTest {
 
     @MockBean
     lateinit var auditLogger: AuditLogger
-
-    @MockBean
-    private lateinit var personV3Service: PersonV3Service
-
-    @MockBean
-    private lateinit var aktoerregisterService: AktoerregisterService
 
     @MockBean
     lateinit var mockPensjonClient: PensjonsinformasjonClient
@@ -322,45 +314,6 @@ class PersonPDLControllerTest {
           "sivilstand": []
         }
           """.trimIndent()
-
-    private val personResponsAsJson = """
-        {
-          "identer": [
-            {
-              "ident": "01010123456",
-              "gruppe": "FOLKEREGISTERIDENT"
-            }
-          ],
-          "navn": {
-            "fornavn": "OLA",
-            "mellomnavn": null,
-            "etternavn": "NORDMANN",
-            "sammensattNavn": "OLA NORDMANN",
-            "sammensattEtterNavn": "NORDMANN OLA"
-          },
-          "adressebeskyttelse": [],
-          "bostedsadresse": null,
-          "oppholdsadresse": null,
-          "statsborgerskap": [
-            {
-              "land": "NOR",
-              "gyldigFraOgMed": "2010-10-11",
-              "gyldigTilOgMed": "2020-10-02"
-            }
-          ],
-          "foedsel": null,
-          "geografiskTilknytning": null,
-          "kjoenn": {
-            "kjoenn": "MANN",
-            "folkeregistermetadata": {
-              "gyldighetstidspunkt": "2000-10-01T12:10:31"
-            }
-          },
-          "doedsfall": null,
-          "familierelasjoner": [],
-          "sivilstand": []
-        }
-    """.trimIndent()
 
     private val namesAsJson =  """{ fornavn: "OLA", etternavn: "NORDMANN", mellomnavn: null, fulltNavn: "NORDMANN OLA"}""".trimIndent()
 
