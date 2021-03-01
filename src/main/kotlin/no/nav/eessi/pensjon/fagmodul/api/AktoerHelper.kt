@@ -8,9 +8,8 @@ import org.springframework.web.server.ResponseStatusException
 
     fun hentFnrfraAktoerService(aktoerid: String?, persondataService: PersonDataService): String {
         if (aktoerid.isNullOrBlank()) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Tom input-verdi")
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Fant ingen aktoerident")
         }
-        return persondataService.hentIdent (IdentType.NorskIdent, AktoerId(aktoerid))?.id
-           ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "NorskIdent for aktoerId $aktoerid ikke funnet.")
+        return persondataService.hentIdent (IdentType.NorskIdent, AktoerId(aktoerid)).id
 
     }

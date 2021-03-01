@@ -10,6 +10,7 @@ import no.nav.eessi.pensjon.fagmodul.models.SEDType.P6000
 import no.nav.eessi.pensjon.fagmodul.prefill.pdl.NavFodselsnummer
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
+import no.nav.eessi.pensjon.personoppslag.pdl.PersonoppslagException
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Familierelasjonsrolle
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Ident
 import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentGruppe
@@ -23,6 +24,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import org.springframework.web.server.ResponseStatusException
 import javax.annotation.PostConstruct
 
 @Service
@@ -51,13 +53,29 @@ class PersonDataService(private val personService: PersonService,
         }
     }
 
+    private fun personServiceHentPerson(ident: NorskIdent): Person? {
+        return try {
+            personService.hentPerson(ident) ?: throw NullPointerException()
+        } catch (np: NullPointerException) {
+            logger.error("PDL Person null")
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Person ikke funnet")
+        } catch (pe: PersonoppslagException) {
+            logger.error("PersonoppslagExcpetion: ${pe.message}")
+            when(pe.message) {
+                "not_found: Fant ikke person" -> throw ResponseStatusException(HttpStatus.NOT_FOUND, "Person ikke funnet")
+                "unauthorized: Ikke tilgang til å se person" -> throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Ikke tilgang til å se person")
+                else -> throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, pe.message)
+            }
+        }
+    }
+
     private fun hentPersonerMedBarn(prefillData: PrefillDataModel) = hentPersoner(prefillData, true)
 
     //Henter inn alle personer fra ep-personoppslag  først før preutfylling
     private fun hentPersoner(prefillData: PrefillDataModel, fyllUtBarnListe: Boolean = false): PersonDataCollection {
         return HentPerson.measure {
             logger.info("Henter hovedperson/forsikret/gjenlevende")
-            val forsikretPerson = personService.hentPerson(NorskIdent(prefillData.bruker.norskIdent))
+            val forsikretPerson = personServiceHentPerson(NorskIdent(prefillData.bruker.norskIdent))
 
             val gjenlevendeEllerAvdod = if (prefillData.avdod != null) {
                 logger.info("Henter avød person/forsikret")
@@ -70,7 +88,6 @@ class PersonDataService(private val personService: PersonService,
             val sivilstand = filterEktefelleRelasjon(forsikretPerson)
             val sivilstandType = sivilstand?.type
             logger.info("Henter ektefelle/partner (ekteType: ${sivilstand?.type})")
-
 
             val ektefelleBruker = sivilstand?.relatertVedSivilstand?.let { personService.hentPerson(NorskIdent(it)) }
             val ektefellePerson = ektefelleBruker?.takeUnless { it.erDoed() }
@@ -93,7 +110,7 @@ class PersonDataService(private val personService: PersonService,
         logger.info("prøver å hente ut alle barn (filtrert) på hovedperson: " + barnepinListe.size )
 
         return barnepinListe
-            .mapNotNull { barnPin -> personService.hentPerson(NorskIdent(barnPin)) }
+            .mapNotNull { barnPin -> personServiceHentPerson(NorskIdent(barnPin)) }
             .filterNot{ barn -> barn.erDoed() }
             .onEach {barn ->
                 logger.debug("Hentet følgende barn fra PDL aktoerid: ${barn.identer.firstOrNull { it.gruppe == IdentGruppe.AKTORID }}")

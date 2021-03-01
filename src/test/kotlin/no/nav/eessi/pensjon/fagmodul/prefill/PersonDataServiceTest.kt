@@ -13,12 +13,15 @@ import no.nav.eessi.pensjon.fagmodul.prefill.LagPDLPerson.Companion.medBarn
 import no.nav.eessi.pensjon.fagmodul.prefill.LagPDLPerson.Companion.medForeldre
 import no.nav.eessi.pensjon.fagmodul.prefill.pdl.FodselsnummerMother
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
+import no.nav.eessi.pensjon.personoppslag.pdl.PersonoppslagException
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Ident
 import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Sivilstandstype
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import org.springframework.web.server.ResponseStatusException
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
@@ -54,8 +57,22 @@ internal class PersonDataServiceTest {
     }
 
     @Test
-    fun `test henting av forsikretperson for persondatacollection`() {
+    fun `test henting av forsikretperson som feiler`() {
 
+        every { personService.hentPerson(any<Ident<*>>()) } throws PersonoppslagException("not_found: Fant ikke person")
+
+        val data = PrefillDataModelMother.initialPrefillDataModel(SEDType.P2000, FNR_VOKSEN, SAK_ID, euxCaseId = EUX_RINA)
+
+        assertThrows<ResponseStatusException> {
+            persondataService.hentPersonData(data)
+        }
+
+        verify ( exactly = 1 ) { personService.hentPerson(any<Ident<*>>())  }
+
+    }
+
+    @Test
+    fun `test henting av forsikretperson for persondatacollection`() {
         val mockPerson = lagPerson(FNR_VOKSEN)
 
         every { personService.hentPerson(any<Ident<*>>()) } returns mockPerson
@@ -76,7 +93,6 @@ internal class PersonDataServiceTest {
 
     @Test
     fun `test henting av forsikretperson og avdødperson for persondatacollection`() {
-
         val gjenlev = lagPerson(FNR_VOKSEN)
         val avdod = lagPerson(FNR_VOKSEN_2, erDod = true)
 
@@ -94,13 +110,10 @@ internal class PersonDataServiceTest {
         assertEquals(gjenlev, result.forsikretPerson)
 
         verify ( exactly = 2 ) { personService.hentPerson(any<Ident<*>>())  }
-
-
     }
 
     @Test
     fun `test henting av forsikretperson og barn for persondatacollection`() {
-
         val forelder = lagPerson(FNR_VOKSEN, "Christopher", "Robin").medBarn(FNR_BARN)
         val barn = lagPerson(FNR_BARN, "Ole", "Brum").medForeldre(forelder)
 
