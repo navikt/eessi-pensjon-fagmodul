@@ -29,6 +29,7 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.UnknownHttpStatusCodeException
 import org.springframework.web.server.ResponseStatusException
 import org.springframework.web.util.UriComponentsBuilder
+import java.net.URI
 import java.util.*
 import javax.annotation.PostConstruct
 
@@ -77,7 +78,7 @@ class EuxKlient(private val euxOidcRestTemplate: RestTemplate,
                        errorMessage: String,
                        metric: MetricsHelper.Metric
     ): BucSedResponse {
-        val httpEntity = createHttpHeaders(navSEDjson)
+        val httpEntity = populerHttpEntity(navSEDjson)
 
         logger.debug("Kaller eux med json: $navSEDjson, euxCaseId: $euxCaseId, parentId: $parentDocumentId")
         val response = restTemplateErrorhandler(
@@ -100,22 +101,22 @@ class EuxKlient(private val euxOidcRestTemplate: RestTemplate,
                    metric: MetricsHelper.Metric,
                    errorMessage: String): BucSedResponse {
 
-        val httpEntity = createHttpHeaders(navSEDjson)
+        val httpEntity = populerHttpEntity(navSEDjson)
+        val ventePaAksjonVerdi = "false"
 
         logger.debug("Kaller eux med json: $navSEDjson, euxCaseId: $euxCaseId")
         val response = restTemplateErrorhandler(
                 {
                     euxOidcRestTemplate.postForEntity(
-                        "/buc/$euxCaseId/sed?ventePaAksjon={ventePaAksjonVerdi}",
+                        URI("/buc/$euxCaseId/sed?ventePaAksjon=$ventePaAksjonVerdi"),
                             httpEntity,
-                            String::class.java,
-                            "ventePaAksjonVerdi", "false")
+                            String::class.java)
                 }, euxCaseId, metric, errorMessage, waitTimes = 20000L
         )
         return BucSedResponse(euxCaseId, response.body!!)
     }
 
-    private fun createHttpHeaders( navSEDjson: String): HttpEntity<String> {
+    private fun populerHttpEntity(navSEDjson: String): HttpEntity<String> {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
         return HttpEntity(navSEDjson, headers)
