@@ -11,7 +11,7 @@ class SedP8000Test {
     @Test
     fun `create SED P8000 from json datafile`() {
         val p8000json = getTestJsonFile("P8000-NAV.json")
-        val p8000sed = getSEDfromTestfile(p8000json)
+        val p8000sed = SED.fromJson(p8000json)
 
         val json = p8000sed.toJson()
         JSONAssert.assertEquals(p8000json, json, false)

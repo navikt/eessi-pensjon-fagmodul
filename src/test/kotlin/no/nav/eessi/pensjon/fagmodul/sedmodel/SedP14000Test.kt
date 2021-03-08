@@ -11,7 +11,7 @@ class SedP14000Test {
     fun `create SED P14000 from json datafile`() {
 
         val p14000json = getTestJsonFile("P14000-NAV.json")
-        val p14000sed = getSEDfromTestfile(p14000json)
+        val p14000sed = SED.fromJson(p14000json)
 
         assertEquals("342", p14000sed.nav?.bruker?.endringer?.personpinendringer?.gammelt)
         assertEquals("341", p14000sed.nav?.bruker?.endringer?.personpinendringer?.nytt)

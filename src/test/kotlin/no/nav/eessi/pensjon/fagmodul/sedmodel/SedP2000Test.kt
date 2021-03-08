@@ -10,7 +10,7 @@ class SedP2000Test {
     fun `create SED P2000 from json datafile`() {
 
         val p2000json = getTestJsonFile("P2000-NAV.json")
-        val p2000sed = getSEDfromTestfile(p2000json)
+        val p2000sed = SED.fromJson(p2000json)
 
         val json = p2000sed.toJson()
         JSONAssert.assertEquals(p2000json, json, false)
@@ -20,7 +20,7 @@ class SedP2000Test {
     fun `create SED P2000 new v4_1 from json datafile`() {
 
         val p2000json = getTestJsonFile("P2000-NAV-4.1-new.json")
-        val p2000sed = getSEDfromTestfile(p2000json)
+        val p2000sed = SED.fromJson(p2000json)
 
         val json = p2000sed.toJson()
         JSONAssert.assertEquals(p2000json, json, false)

@@ -11,7 +11,3 @@ fun getTestJsonFile(filename: String): String {
     assertTrue(validateJson(json))
     return json
 }
-
-fun getSEDfromTestfile(json: String): SED {
-    return SED.fromJson(json)
-}

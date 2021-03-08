@@ -6,18 +6,17 @@ class MeldingOmPensjon(
 )
 
 data class Pensjon(
-		val reduksjon: List<ReduksjonItem>? = null,
-		val vedtak: List<VedtakItem>? = null,
-		val sak: Sak? = null,
-		val gjenlevende: Bruker? = null,
-		val bruker: Bruker? = null,
-		val tilleggsinformasjon: Tilleggsinformasjon? = null,
+		val gjenlevende: Bruker? = null, // Brukes fleres steder
 
-        //p2000 - p2200
+		//P6000
+		val reduksjon: List<ReduksjonItem>? = null, // P6000
+		val vedtak: List<VedtakItem>? = null, // P6000
+		val sak: Sak? = null, // P6000
+		val tilleggsinformasjon: Tilleggsinformasjon? = null, //P6000
 		val ytterligeinformasjon: String? = null,
-		val etterspurtedokumenter: String? = null,
+
+		//P2XXX
 		val ytelser: List<YtelserItem>? = null,
-		val forespurtstartdato: String? = null,
 
         //P3000
 		val landspesifikk: Landspesifikk? = null,
@@ -44,6 +43,7 @@ data class Pensjon(
 
         //P7000
 		val samletVedtak: SamletMeldingVedtak? = null,
+		val bruker: Bruker? = null,
 
 		//P10000 //P9000
 		val merinformasjon: Merinformasjon? = null,

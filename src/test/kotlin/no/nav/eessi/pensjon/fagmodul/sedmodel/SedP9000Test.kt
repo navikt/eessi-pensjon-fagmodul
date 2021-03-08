@@ -11,7 +11,7 @@ class SedP9000Test {
     fun `compare SED P9000 to P9000 from json datafile`() {
 
         val p9000json = getTestJsonFile("P9000-NAV.json")
-        val p9000sed = getSEDfromTestfile(p9000json)
+        val p9000sed = SED.fromJson(p9000json)
 
         val json = p9000sed.toJson()
         JSONAssert.assertEquals(p9000json, json, false)

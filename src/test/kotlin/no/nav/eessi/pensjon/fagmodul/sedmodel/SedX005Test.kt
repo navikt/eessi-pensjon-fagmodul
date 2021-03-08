@@ -12,7 +12,7 @@ class SedX005Test {
     fun `compare SED X005 to X005 from json datafile`() {
 
         val x005json = getTestJsonFile("X005-NAV.json")
-        val x005sed = getSEDfromTestfile(x005json)
+        val x005sed = SED.fromJson(x005json)
 
         assertEquals("Duck", x005sed.nav?.sak?.kontekst?.bruker?.person?.etternavn)
         assertEquals("Dummy", x005sed.nav?.sak?.kontekst?.bruker?.person?.fornavn)
@@ -26,7 +26,7 @@ class SedX005Test {
 
 
         val xprefill005json = getTestJsonFile("PrefillX005-NAV.json")
-        val xprefill005sed = getSEDfromTestfile(xprefill005json)
+        val xprefill005sed = SED.fromJson(xprefill005json)
 
         assertEquals("POTET", xprefill005sed.nav?.sak?.kontekst?.bruker?.person?.etternavn)
         assertEquals("KRIMINELL", xprefill005sed.nav?.sak?.kontekst?.bruker?.person?.fornavn)

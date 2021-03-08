@@ -2,7 +2,6 @@ package no.nav.eessi.pensjon.fagmodul.sedmodel
 
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
 
@@ -11,7 +10,7 @@ class SedP12000Test {
     @Test
     fun `compare SED P12000`() {
         val sedJson = getTestJsonFile("P12000-NAV.json")
-        val p12000sed = getSEDfromTestfile(sedJson)
+        val p12000sed = SED.fromJson(sedJson)
 
         Assertions.assertEquals(null, p12000sed.pensjon?.pensjoninfotillegg?.opphoraarsak)
         Assertions.assertEquals(null, p12000sed.pensjon?.pensjoninfotillegg?.endret?.get(0)?.belopforendring)

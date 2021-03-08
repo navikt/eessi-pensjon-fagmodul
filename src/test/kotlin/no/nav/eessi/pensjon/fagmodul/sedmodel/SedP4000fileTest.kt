@@ -2,7 +2,10 @@ package no.nav.eessi.pensjon.fagmodul.sedmodel
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.nav.eessi.pensjon.fagmodul.models.SEDType
-import no.nav.eessi.pensjon.utils.*
+import no.nav.eessi.pensjon.utils.mapAnyToJson
+import no.nav.eessi.pensjon.utils.mapJsonToAny
+import no.nav.eessi.pensjon.utils.toJson
+import no.nav.eessi.pensjon.utils.typeRefs
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
@@ -13,7 +16,7 @@ class SedP4000fileTest {
     @Test
     fun `validate P4000 to json and back`() {
         val p4000json = getTestJsonFile("P4000-NAV.json")
-        val p4000sed = getSEDfromTestfile(p4000json)
+        val p4000sed = SED.fromJson(p4000json)
 
         val json = mapAnyToJson(p4000sed, true)
         val pensjondata = mapJsonToAny(json, typeRefs<SED>())

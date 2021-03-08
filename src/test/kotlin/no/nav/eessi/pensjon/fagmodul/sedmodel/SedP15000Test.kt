@@ -13,7 +13,7 @@ class SedP15000Test {
     fun `compare SED P15000 to P15000 from json datafile`() {
 
         val p15000json = getTestJsonFile("P15000-NAV.json")
-        val p15000sed = getSEDfromTestfile(p15000json)
+        val p15000sed = SED.fromJson(p15000json)
 
         val json = p15000sed.toJson()
         JSONAssert.assertEquals(p15000json, json, false)
@@ -33,7 +33,7 @@ class SedP15000Test {
     fun `P15000 med element Sector feiler ved innlesing`() {
         val p15000json = getTestJsonFile("P15000-SectorFeiler-NAV.json")
         assertThrows<JsonIllegalArgumentException> {
-            getSEDfromTestfile(p15000json)
+            SED.fromJson(p15000json)
         }
     }
 }

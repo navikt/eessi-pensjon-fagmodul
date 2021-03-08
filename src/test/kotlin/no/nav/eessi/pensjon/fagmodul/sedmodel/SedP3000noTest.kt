@@ -10,7 +10,7 @@ class SedP3000noTest {
     @Test
     fun `create SED P3000_NO from json datafile`() {
         val p3000json = getTestJsonFile("P3000_NO-NAV.json")
-        val p3000sed = getSEDfromTestfile(p3000json)
+        val p3000sed = SED.fromJson(p3000json)
 
         val json = p3000sed.toJson()
         JSONAssert.assertEquals(p3000json, json, false)

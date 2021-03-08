@@ -11,7 +11,7 @@ class SedH121Test {
     fun `compare SED H121 from json datafile`() {
 
         val h121json = getTestJsonFile("horisontal/H121-NAV.json")
-        val h121sed = getSEDfromTestfile(h121json)
+        val h121sed = SED.fromJson(h121json)
 
         val startskap = h121sed.nav?.bruker?.person?.statsborgerskap
         assertEquals(2, startskap?.size)
@@ -27,7 +27,7 @@ class SedH121Test {
     fun `compare SED H121-2 from json datafile`() {
 
         val h121json = getTestJsonFile("horisontal/H121_2-NAV.json")
-        val h121sed = getSEDfromTestfile(h121json)
+        val h121sed = SED.fromJson(h121json)
 
 
         assertEquals("24234234234", h121sed.nav?.bruker?.person?.pin?.first()?.identifikator)
@@ -49,7 +49,7 @@ class SedH121Test {
     fun `compare SED H121-3 from json datafile`() {
 
         val h121json = getTestJsonFile("horisontal/H121_3-NAV.json")
-        val h121sed = getSEDfromTestfile(h121json)
+        val h121sed = SED.fromJson(h121json)
 
         assertEquals("24234234234", h121sed.nav?.bruker?.person?.pin?.first()?.identifikator)
 
@@ -68,7 +68,7 @@ class SedH121Test {
     fun `compare SED H121-4 from json datafile`() {
 
         val h121json = getTestJsonFile("horisontal/H121_4-NAV.json")
-        val h121sed = getSEDfromTestfile(h121json)
+        val h121sed = SED.fromJson(h121json)
 
         assertEquals("24234234234", h121sed.nav?.bruker?.person?.pin?.first()?.identifikator)
 

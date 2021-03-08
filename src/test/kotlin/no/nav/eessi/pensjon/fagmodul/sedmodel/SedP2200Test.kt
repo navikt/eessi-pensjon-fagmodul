@@ -17,7 +17,7 @@ class SedP2200Test {
     @BeforeEach
     fun bringItOn() {
         p2200json = getTestJsonFile("P2000-NAV.json")
-        p2200sed = getSEDfromTestfile(p2200json)
+        p2200sed = SED.fromJson(p2200json)
     }
 
     @Test
