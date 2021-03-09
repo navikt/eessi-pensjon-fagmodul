@@ -1,9 +1,11 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ConversationsItem
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Organisation
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ReceiversItem
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.models.SEDType
 import no.nav.eessi.pensjon.utils.mapJsonToAny
@@ -392,6 +394,73 @@ class BucUtilsTest {
                 InstitusjonItem(country = "NO", institution = "NO:NAVT008", name = "NAV T008")
         )
         assertEquals(0, bucUtils.findNewParticipants(candidates).size)
+    }
+
+    @Test
+    fun `finn alle deltakere på buc som er aktive og deaktive`() {
+        val bucjson = getTestJsonFile("buc-4929378.json")
+        val buc = mapJsonToAny(bucjson, typeRefs<Buc>())
+        val bucUtils = BucUtils(buc)
+
+        fun prettyPrint(organisation: Organisation?): String {
+            return """
+                ID  : ${organisation?.id}
+                Name: ${organisation?.name}
+                Land: ${organisation?.countryCode}
+                ${"-".repeat(80)}
+            """.trimIndent()
+        }
+
+        fun prettyPrintSbdhReceivers(reciver: ReceiversItem?): String {
+            return """
+              id:    ${reciver?.identifier}
+              type:  ${reciver?.contactTypeIdentifier}
+            """.trimIndent()
+        }
+
+fun prettyPrintConversation(conversationsItem: ConversationsItem?) {
+
+println("id   : ${conversationsItem?.id}")
+println("date : ${conversationsItem?.date}")
+conversationsItem?.userMessages?.onEach {
+    println(prettyPrint(it.receiver))
+    println(prettyPrint(it.sender))
+    println(
+        """
+        ident : ${it.sbdh?.sender?.identifier}
+        type :  ${it.sbdh?.sender?.contactTypeIdentifier}
+        """.trimIndent()
+    )
+        it.sbdh?.receivers?.onEach {
+            println( prettyPrintSbdhReceivers(it) )
+        }
+    }
+}
+        bucUtils.getParticipants().onEach {
+            println("""
+ORG:               
+${prettyPrint(it.organisation)}   
+ROLE:
+${it.role}
+${"-".repeat(80)}
+            """.trimIndent()
+            )
+        }
+
+        bucUtils.getBuc().documents?.filter { doc -> doc.type == SEDType.X007 && doc.status == "received"}
+            ?.onEach { doc ->
+            println("""
+                ID: ${doc.id}
+                TYPE: ${doc.type}
+                STATUS: ${doc.status}
+                ${"-".repeat(80)}
+            """)
+                doc.conversations?.forEach {  con ->
+                    prettyPrintConversation(con)
+                }
+                println("-".repeat(80))
+            }
+
     }
 
 
