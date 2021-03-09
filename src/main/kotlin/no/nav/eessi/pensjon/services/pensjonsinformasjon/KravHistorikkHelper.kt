@@ -71,7 +71,15 @@ object KravHistorikkHelper {
         return V1KravHistorikk()
     }
 
+    fun hentKravHistorikkMedValgtKravType(kravHistorikkListe: V1KravHistorikkListe?, kravtype: Kravtype): V1KravHistorikk {
+        val sortList = sortertKravHistorikk(kravHistorikkListe)
 
+        logger.debug("leter etter Krav sakstatus status med ${Sakstatus.`Ingen status`} og med kravtype: $kravtype")
+        val result = sortList?.firstOrNull { kravhist -> kravhist.kravType == kravtype.name && kravhist.kravArsak == KravArsak.NY_SOKNAD.name }
+            .also { logger.debug("fant ${it?.kravType} med virkningstidspunkt dato : ${it?.virkningstidspunkt}") }
+
+        return result ?: V1KravHistorikk()
+    }
 
 
 }

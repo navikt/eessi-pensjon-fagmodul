@@ -26,6 +26,7 @@ import no.nav.eessi.pensjon.services.pensjonsinformasjon.Sakstatus
     fun mapSakstatus(sakstatus: String): String {
         return try {
             when (Sakstatus.valueOf(sakstatus)) {
+                Sakstatus.`Ingen status` -> "01"
                 Sakstatus.INNV -> "02"
                 Sakstatus.AVSL -> "03"
             }

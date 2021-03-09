@@ -4,7 +4,8 @@ enum class Kravtype {
     REVURD,
     F_BH_MED_UTL,
     FORSTEG_BH,
-    F_BH_BO_UTL
+    F_BH_BO_UTL,
+    F_BH_KUN_UTL
 }
 
 enum class Kravstatus {
@@ -15,7 +16,9 @@ enum class Kravstatus {
 //https://confluence.adeo.no/pages/viewpage.action?pageId=338181301
 enum class KravArsak {
     GJNL_SKAL_VURD,
-    TILST_DOD
+    TILST_DOD,
+    NY_SOKNAD,
+    `Ingen status`
     //GJENLEVENDERETT
     //GJENLEVENDETILLEGG
 }
@@ -29,5 +32,6 @@ enum class EPSaktype {
 
 enum class Sakstatus {
     INNV,
-    AVSL
+    AVSL,
+    `Ingen status`
 }
