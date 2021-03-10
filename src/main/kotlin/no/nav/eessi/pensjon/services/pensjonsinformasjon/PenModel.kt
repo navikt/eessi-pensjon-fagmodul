@@ -1,5 +1,7 @@
 package no.nav.eessi.pensjon.services.pensjonsinformasjon
 
+import com.fasterxml.jackson.annotation.JsonProperty
+
 enum class Kravtype {
     REVURD,
     F_BH_MED_UTL,
@@ -33,5 +35,7 @@ enum class EPSaktype {
 enum class Sakstatus {
     INNV,
     AVSL,
-    `Ingen status`
+    @JsonProperty("Ingen status")
+    INGEN_STATUS,
+    TIL_BEHANDLING;
 }

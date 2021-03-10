@@ -16,7 +16,7 @@ object KravHistorikkHelper {
         if (EPSaktype.BARNEP.name == saktype) {
             return hentKravHistorikkMedKravType(listOf(Kravtype.F_BH_MED_UTL.name, Kravtype.FORSTEG_BH.name, Kravtype.F_BH_BO_UTL.name), kravHistorikkListe)
         }
-        return hentKravHistorikkMedKravType(listOf(Kravtype.F_BH_MED_UTL.name, Kravtype.FORSTEG_BH.name), kravHistorikkListe)
+        return hentKravHistorikkMedKravType(listOf(Kravtype.F_BH_MED_UTL.name, Kravtype.FORSTEG_BH.name, Kravtype.F_BH_KUN_UTL.name), kravHistorikkListe)
     }
 
     fun finnKravHistorikk(kravType: String, kravHistorikkListe: V1KravHistorikkListe?): List<V1KravHistorikk>? {
@@ -37,7 +37,7 @@ object KravHistorikkHelper {
     }
 
     fun hentKravhistorikkForGjenlevende(kravHistorikkListe: V1KravHistorikkListe?): V1KravHistorikk? {
-            val kravHistorikk = kravHistorikkListe?.kravHistorikkListe?.filter { krav -> krav.kravArsak == KravArsak.GJNL_SKAL_VURD.name || krav.kravArsak == KravArsak.TILST_DOD.name  }
+            val kravHistorikk = kravHistorikkListe?.kravHistorikkListe?.filter { krav -> krav.kravArsak == KravArsak.GJNL_SKAL_VURD.name || krav.kravArsak == KravArsak.TILST_DOD.name }
             if (kravHistorikk?.isNotEmpty() == true) {
                 return kravHistorikk.first()
             }
@@ -71,14 +71,13 @@ object KravHistorikkHelper {
         return V1KravHistorikk()
     }
 
-    fun hentKravHistorikkMedValgtKravType(kravHistorikkListe: V1KravHistorikkListe?, kravtype: Kravtype): V1KravHistorikk {
+    fun hentKravHistorikkMedValgtKravType(kravHistorikkListe: V1KravHistorikkListe?, kravtype: Kravtype): V1KravHistorikk? {
         val sortList = sortertKravHistorikk(kravHistorikkListe)
+        if (sortList == null || sortList.size > 1) return null
+        logger.debug("leter etter kravtype: $kravtype")
+        return sortList.firstOrNull { kravhist -> kravhist.kravType == kravtype.name}
+            .also { logger.debug("fant ${it?.kravType} med kravÅrsak: ${it?.kravArsak} med virkningstidspunkt dato : ${it?.virkningstidspunkt}") }
 
-        logger.debug("leter etter Krav sakstatus status med ${Sakstatus.`Ingen status`} og med kravtype: $kravtype")
-        val result = sortList?.firstOrNull { kravhist -> kravhist.kravType == kravtype.name && kravhist.kravArsak == KravArsak.NY_SOKNAD.name }
-            .also { logger.debug("fant ${it?.kravType} med virkningstidspunkt dato : ${it?.virkningstidspunkt}") }
-
-        return result ?: V1KravHistorikk()
     }
 
 

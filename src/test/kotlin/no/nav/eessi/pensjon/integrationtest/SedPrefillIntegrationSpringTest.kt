@@ -667,24 +667,24 @@ class SedPrefillIntegrationSpringTest {
     }
 
 
-    @Test
-    @Throws(Exception::class)
-    fun `prefill sed med kravtype kun utland skal kaste en Exception`() {
-        doReturn(NorskIdent(FNR_VOKSEN)).whenever(personService).hentIdent(IdentType.NorskIdent, AktoerId(AKTOER_ID))
-        doReturn(PersonPDLMock.createWith()).whenever(personService).hentPerson(NorskIdent(FNR_VOKSEN))
-        doReturn(PrefillTestHelper.readXMLresponse("P2000-AP-KUNUTL-IKKEVIRKNINGTID.xml")).`when`(restTemplate).exchange(any<String>(), any(), any<HttpEntity<Unit>>(), ArgumentMatchers.eq(String::class.java))
-
-
-        val apijson = dummyApijson(sakid = "21920707", aktoerId = AKTOER_ID)
-
-        mockMvc.perform(post("/sed/prefill")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(apijson))
-                .andDo(print())
-                .andExpect(status().isBadRequest)
-                .andExpect(status().reason(Matchers.containsString("Søknad gjelder Førstegangsbehandling kun utland. Se egen rutine på navet")))
-
-    }
+//    @Test
+//    @Throws(Exception::class)
+//    fun `prefill sed med kravtype kun utland skal kaste en Exception`() {
+//        doReturn(NorskIdent(FNR_VOKSEN)).whenever(personService).hentIdent(IdentType.NorskIdent, AktoerId(AKTOER_ID))
+//        doReturn(PersonPDLMock.createWith()).whenever(personService).hentPerson(NorskIdent(FNR_VOKSEN))
+//        doReturn(PrefillTestHelper.readXMLresponse("P2000-AP-KUNUTL-IKKEVIRKNINGTID.xml")).`when`(restTemplate).exchange(any<String>(), any(), any<HttpEntity<Unit>>(), ArgumentMatchers.eq(String::class.java))
+//
+//
+//        val apijson = dummyApijson(sakid = "21920707", aktoerId = AKTOER_ID)
+//
+//        mockMvc.perform(post("/sed/prefill")
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .content(apijson))
+//                .andDo(print())
+//                .andExpect(status().isBadRequest)
+//                .andExpect(status().reason(Matchers.containsString("Søknad gjelder Førstegangsbehandling kun utland. Se egen rutine på navet")))
+//
+//    }
 
     @Test
     @Throws(Exception::class)
