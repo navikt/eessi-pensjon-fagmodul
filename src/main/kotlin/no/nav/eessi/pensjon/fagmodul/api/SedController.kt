@@ -119,6 +119,7 @@ class SedController(
             logger.info("******* Hent BUC sjekk om sed kan opprettes *******")
             BucUtils(euxService.getBuc(dataModel.euxCaseID)).also { bucUtil ->
                 bucUtil.checkIfSedCanBeCreated(dataModel.sedType, dataModel.penSaksnummer)
+                bucUtil.checkForParticipantsNoLongerActiveFromX007AsInstitusjonItem(dataModel.getInstitutionsList())
             }
         }
 

@@ -1,11 +1,9 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ConversationsItem
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Organisation
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ReceiversItem
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.models.SEDType
 import no.nav.eessi.pensjon.utils.mapJsonToAny
@@ -20,6 +18,7 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.junit.jupiter.MockitoExtension
 import org.skyscreamer.jsonassert.JSONAssert
+import org.springframework.web.server.ResponseStatusException
 import java.time.format.DateTimeFormatter
 
 @ExtendWith(MockitoExtension::class)
@@ -397,72 +396,20 @@ class BucUtilsTest {
     }
 
     @Test
-    fun `finn alle deltakere på buc som er aktive og deaktive`() {
+    fun `sjekk deltakere mot buc og om den er fjernet i x007`() {
         val bucjson = getTestJsonFile("buc-4929378.json")
         val buc = mapJsonToAny(bucjson, typeRefs<Buc>())
         val bucUtils = BucUtils(buc)
 
-        fun prettyPrint(organisation: Organisation?): String {
-            return """
-                ID  : ${organisation?.id}
-                Name: ${organisation?.name}
-                Land: ${organisation?.countryCode}
-                ${"-".repeat(80)}
-            """.trimIndent()
+        val list = listOf(InstitusjonItem("FI", "FI:0200000010", ""), InstitusjonItem("FI", "FI:0200000046", ""))
+        assertThrows<ResponseStatusException> {
+            bucUtils.checkForParticipantsNoLongerActiveFromX007AsInstitusjonItem(list)
         }
 
-        fun prettyPrintSbdhReceivers(reciver: ReceiversItem?): String {
-            return """
-              id:    ${reciver?.identifier}
-              type:  ${reciver?.contactTypeIdentifier}
-            """.trimIndent()
-        }
-
-fun prettyPrintConversation(conversationsItem: ConversationsItem?) {
-
-println("id   : ${conversationsItem?.id}")
-println("date : ${conversationsItem?.date}")
-conversationsItem?.userMessages?.onEach {
-    println(prettyPrint(it.receiver))
-    println(prettyPrint(it.sender))
-    println(
-        """
-        ident : ${it.sbdh?.sender?.identifier}
-        type :  ${it.sbdh?.sender?.contactTypeIdentifier}
-        """.trimIndent()
-    )
-        it.sbdh?.receivers?.onEach {
-            println( prettyPrintSbdhReceivers(it) )
-        }
-    }
-}
-        bucUtils.getParticipants().onEach {
-            println("""
-ORG:               
-${prettyPrint(it.organisation)}   
-ROLE:
-${it.role}
-${"-".repeat(80)}
-            """.trimIndent()
-            )
-        }
-
-        bucUtils.getBuc().documents?.filter { doc -> doc.type == SEDType.X007 && doc.status == "received"}
-            ?.onEach { doc ->
-            println("""
-                ID: ${doc.id}
-                TYPE: ${doc.type}
-                STATUS: ${doc.status}
-                ${"-".repeat(80)}
-            """)
-                doc.conversations?.forEach {  con ->
-                    prettyPrintConversation(con)
-                }
-                println("-".repeat(80))
-            }
+        val result = bucUtils.checkForParticipantsNoLongerActiveFromX007AsInstitusjonItem(listOf(InstitusjonItem("FI", "FI:0200000046", "")))
+        assertEquals(true, result)
 
     }
-
 
     @Test
     fun findNewParticipantsMockwithExternalCaseOwnerResultExpectedToBeZero(){
