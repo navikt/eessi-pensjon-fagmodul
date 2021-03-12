@@ -15,10 +15,13 @@ import no.nav.eessi.pensjon.fagmodul.eux.SedDokumentKanIkkeOpprettesException
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucSedResponse
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ActionsItem
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ConversationsItem
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Organisation
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Sender
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ShortDocumentItem
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.UserMessagesItem
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.models.PersonDataCollection
 import no.nav.eessi.pensjon.fagmodul.models.SEDType
@@ -312,6 +315,47 @@ class SedControllerTest {
             sedController.addInstutionAndDocument(apirequest)
         }
 
+    }
+
+    @Test
+    fun `call addInstutionAndDocument mock check on X007 will fail on matching newparticipants with exception`() {
+        val euxCaseId = "1234567890"
+        val mockParticipants = listOf(ParticipantsItem(role = "CaseOwner", organisation = Organisation(countryCode = "SE", name = "SE", id = "SE")))
+        val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = mockParticipants)
+        mockBuc.documents = listOf(
+            createDummyBucDocumentItem(),
+            DocumentsItem(
+                type = SEDType.X007, status = "received" ,
+                conversations = listOf(
+                    ConversationsItem(
+                        id = "1",
+                        userMessages =listOf(
+                            UserMessagesItem(
+                                id = "1",
+                                sender = Sender(
+                                    name = "Danish test",
+                                    id = "DK:213231"
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        )
+        mockBuc.actions = listOf(ActionsItem(type = "Send", name = "Send"))
+
+        val newParticipants = listOf(
+            InstitusjonItem(country = "FI", institution = "FI:213231", name="Finland test"),
+            InstitusjonItem(country = "DK", institution = "DK:213231", name="Tyskland test")
+        )
+
+        doReturn(NorskIdent("12345")).whenever(personService).hentIdent(eq(IdentType.NorskIdent), any< Ident<*>>())
+        doReturn(mockBuc).whenever(mockEuxService).getBuc(euxCaseId)
+        val apirequest = apiRequestWith(euxCaseId, newParticipants)
+
+        assertThrows<ResponseStatusException> {
+            sedController.addInstutionAndDocument(apirequest)
+        }
     }
 
     @Test

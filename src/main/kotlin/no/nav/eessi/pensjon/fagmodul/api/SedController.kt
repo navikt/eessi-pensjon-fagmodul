@@ -118,8 +118,10 @@ class SedController(
         val bucUtil = addInstutionAndDocumentBucUtils.measure {
             logger.info("******* Hent BUC sjekk om sed kan opprettes *******")
             BucUtils(euxService.getBuc(dataModel.euxCaseID)).also { bucUtil ->
-                bucUtil.checkIfSedCanBeCreated(dataModel.sedType, dataModel.penSaksnummer)
+                //sjekk for om deltakere alt er fjernet med x007 sed
                 bucUtil.checkForParticipantsNoLongerActiveFromX007AsInstitusjonItem(dataModel.getInstitutionsList())
+                //gyldig sed kan opprettes
+                bucUtil.checkIfSedCanBeCreated(dataModel.sedType, dataModel.penSaksnummer)
             }
         }
 
@@ -246,6 +248,9 @@ class SedController(
         val bucUtil = addDocumentToParentBucUtils.measure {
             logger.info("******* Hent BUC sjekk om sed kan opprettes *******")
             BucUtils(euxService.getBuc(dataModel.euxCaseID)).also { bucUtil ->
+                //sjekk for om deltakere alt er fjernet med x007 sed
+                bucUtil.checkForParticipantsNoLongerActiveFromX007AsInstitusjonItem(dataModel.getInstitutionsList())
+                //sjekk om en svarsed kan opprettes eller om den alt finnes
                 bucUtil.checkIfSedCanBeCreatedEmptyStatus(dataModel.sedType, parentId)
             }
         }

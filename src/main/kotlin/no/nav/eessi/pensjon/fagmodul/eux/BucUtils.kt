@@ -256,19 +256,21 @@ class BucUtils(private val buc: Buc ) {
     fun getParticipants() = getBuc().participants ?: emptyList()
 
     fun checkForParticipantsNoLongerActiveFromX007AsInstitusjonItem(list: List<InstitusjonItem>): Boolean {
-        val newlistId = list.map { it.institution }
-
-        getParticipantsAsInstitusjonItem()
-            .onEach { logger.debug("ID: ${it.institution}") }
-
-        val x007 = getBuc().documents?.filter { doc -> doc.type == SEDType.X007 && doc.status == "received" }
-            ?.mapNotNull { doc -> doc.conversations }?.flatten()
-            ?.mapNotNull { con -> con.userMessages?.map { um -> um.sender } }?.flatten()
-            ?.onEach { logger.debug("ID: ${it?.id} NOT VALID")}
-
-        val result = x007?.firstOrNull { sender -> newlistId.contains(sender?.id) }
-        if (result != null) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Institusjon med id: ${result.id} ikke er lenger i bruk. Da den er byttet ut via SED X007")
-
+        val result = try {
+            logger.debug("Sjekk på om newInstitusjonItem er dekativert ved mottatt x007")
+            val newlistId = list.map { it.institution }
+            getBuc().documents
+                ?.asSequence()
+                ?.filter { doc -> doc.type == SEDType.X007 && doc.status == "received" }
+                ?.mapNotNull { doc -> doc.conversations }?.flatten()
+                ?.mapNotNull { con -> con.userMessages?.map { um -> um.sender?.id } }?.flatten()
+                ?.firstOrNull { senderId -> newlistId.contains(senderId) }
+        } catch (ex: Exception) {
+            logger.error("En feil under sjekk av X007", ex)
+        }
+        if (result != null) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Institusjon med id: $result, er ikke lenger i bruk. Da den er byttet ut via SED X007")
+        }
         return true
     }
 
