@@ -72,8 +72,6 @@ class PrefillP6000Pensjon_UFORE_Test {
         assertEquals("02", vedtak?.type)
         assertEquals("02", vedtak?.basertPaa)
         assertEquals("03", vedtak?.resultat, "vedtak.resultat")
-        assertEquals(null, vedtak?.kjoeringsdato)
-        assertEquals(null, vedtak?.artikkel, "4.1.5 vedtak.artikkel (må fylles ut manuelt nå)")
 
         assertEquals("01", vedtak?.grunnlag?.opptjening?.forsikredeAnnen)
         assertEquals("0", vedtak?.grunnlag?.framtidigtrygdetid)

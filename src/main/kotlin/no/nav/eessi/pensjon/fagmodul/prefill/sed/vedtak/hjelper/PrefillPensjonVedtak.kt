@@ -41,17 +41,11 @@ object PrefillPensjonVedtak {
                 //4.1.4 $pensjon.vedtak[x].resultat
                 resultat = createTypeVedtakPentionWithRule(pendata),
 
-                //4.1.5 $pensjon.vedtak[x].artikkel
-                artikkel = null,
-
                 //4.1.6  $pensjon.vedtak[x].virkningsdato
                 virkningsdato = pendata.vedtak.virkningstidspunkt.simpleFormat(),
 
                 //4.1.7 -- $pensjon.vedtak[x].beregning[x]..
                 beregning = createBeregningItemList(pendata),
-
-                //4.1.8  $pensjon.vedtak[x].kjoeringsdato -- datoFattetVedtak?
-                kjoeringsdato = null,
 
                 //4.1.9
                 ukjent = createEkstraTilleggPensjon(pendata),
@@ -59,18 +53,8 @@ object PrefillPensjonVedtak {
                 //4.1.10 - 4.1.12 $pensjon.vedtak[x].grunnlag
                 grunnlag = createGrunnlag(pendata),
 
-                //Na
-                mottaker = null,      //ikke i bruk?
-                trekkgrunnlag = null,  //ikke i bruk?
-
-                //4.1.13.2 Nei
-                begrunnelseAnnen = null,
-
                 //4.1.13.1 -- 4.1.13.2.1 - $pensjon.vedtak[x].avslagbegrunnelse[x].begrunnelse
                 avslagbegrunnelse = createAvlsagsBegrunnelseItem(pendata),
-
-                //4.1.14.1 // Ikke i bruk
-                delvisstans = null
         )
 
     }
@@ -211,10 +195,6 @@ object PrefillPensjonVedtak {
         if (sjekkForVilkarsvurderingListeHovedytelseellerAvslag(pendata)) return Grunnlag()
 
         return Grunnlag(
-
-                //4.1.10 - Nei
-                medlemskap = null,
-
                 //4.1.11
                 opptjening = Opptjening(forsikredeAnnen = createOpptjeningForsikredeAnnen(pendata)),
 

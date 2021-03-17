@@ -79,8 +79,6 @@ class PrefillP6000Pensjon_GJENLEV_Test {
         assertEquals("03", vedtak?.type, "vedtak.type")
         assertEquals("02", vedtak?.basertPaa, "vedtak.basertPaa")
         assertEquals("03", vedtak?.resultat, "vedtak.resultat")
-        assertEquals(null, vedtak?.kjoeringsdato)
-        assertEquals(null, vedtak?.artikkel, "4.1.5 vedtak.artikkel (må fylles ut manuelt nå)")
 
         assertEquals("03", vedtak?.grunnlag?.opptjening?.forsikredeAnnen)
         assertEquals("1", vedtak?.grunnlag?.framtidigtrygdetid)
@@ -123,8 +121,6 @@ class PrefillP6000Pensjon_GJENLEV_Test {
         assertEquals("03", vedtak?.type, "vedtak.type")
         assertEquals("02", vedtak?.basertPaa, "vedtak.basertPaa")
         assertEquals("03", vedtak?.resultat, "vedtak.resultat")
-        assertEquals(null, vedtak?.kjoeringsdato)
-        assertEquals(null, vedtak?.artikkel, "4.1.5 vedtak.artikkel (må fylles ut manuelt nå)")
 
         assertEquals("03", vedtak?.grunnlag?.opptjening?.forsikredeAnnen)
         assertEquals("1", vedtak?.grunnlag?.framtidigtrygdetid)

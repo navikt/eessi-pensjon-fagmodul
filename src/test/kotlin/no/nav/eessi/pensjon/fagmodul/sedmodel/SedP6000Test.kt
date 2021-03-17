@@ -149,17 +149,7 @@ class SedP6000Test {
                             )
                         ),
                         basertPaa = "02",
-                        delvisstans = Delvisstans(
-                            utbetaling = Utbetaling(
-                                begrunnelse = "sfdgsdf\\nfdg\\ns",
-                                beloepBrutto = "24234",
-                                valuta = "SEK"
-                            ),
-                            indikator = "1"
-                        ),
                         virkningsdato = "2020-10-01",
-                        artikkel = "02",
-                        kjoeringsdato = "2020-12-01",
                         type = "02",
                         basertPaaAnnen = "sadfsdf",
                         ukjent = Ukjent(
@@ -177,8 +167,7 @@ class SedP6000Test {
                                 begrunnelse = "02",
                                 annenbegrunnelse = "tet\\nertert\\nretret"
                             )
-                        ),
-                        begrunnelseAnnen = "afsdaf\\nsdafsfasd\\nsadfsd"
+                        )
                     ),
                     VedtakItem(
                         beregning = listOf(
@@ -217,20 +206,9 @@ class SedP6000Test {
                                 forsikredeAnnen = "03"
                             )
                         ),
-                        artikkel = "03",
                         basertPaaAnnen = "wertwertwert",
-                        delvisstans = Delvisstans(
-                            utbetaling = Utbetaling(
-                                begrunnelse = "sdfsdf\nsdfsdf\nsdf\nfsd",
-                                beloepBrutto = "234",
-                                valuta = "NZD"
-                            ),
-                            indikator = "0"
-                        ),
                         type = "03",
-                        begrunnelseAnnen = "sdfsdf\\nsd\\nfsd",
                         resultat = "03",
-                        kjoeringsdato = "2022-10-01",
                         ukjent = Ukjent(
                             beloepBrutto = BeloepBrutto(
                                 ytelseskomponentAnnen = "dsfsdf\\ns\\ndf\\nsdf"

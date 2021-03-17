@@ -11,7 +11,6 @@ class SedP8000Test {
         val p8000json = getTestJsonFile("P8000-NAV.json")
         val p8000sed = SED.fromJson(p8000json)
 
-        assertEquals("Her kommer tekst ad Begrunnelse for kravet", p8000sed.pensjon?.anmodning?.informasjon?.begrunnelseKrav)
-        assertEquals("Begrunnelse for kravet", p8000sed.pensjon?.anmodning?.begrunnKrav)
+        assertEquals("02", p8000sed.pensjon?.anmodning?.referanseTilPerson)
     }
 }

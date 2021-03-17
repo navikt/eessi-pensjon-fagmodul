@@ -77,11 +77,6 @@ class PrefillP6000Pensjon_ALDER_Test {
         assertEquals(null, vedtak?.basertPaaAnnen, "4.1.3.1 artikkel.basertPaaAnnen")
         assertEquals("01", vedtak?.resultat, "4.1.4 vedtak.resultat ")
 
-        assertEquals(null, vedtak?.artikkel, "4.1.5 vedtak.artikkel ")
-        assertEquals(null, vedtak?.artikkel, "4.1.5 vedtak.artikkel (må fylles ut manuelt nå)")
-
-        assertEquals(null, vedtak?.kjoeringsdato, "4.1.8 vedtak.kjoeringsdato")
-
         assertEquals("01", vedtak?.grunnlag?.opptjening?.forsikredeAnnen, "4.1.10 vedtak?.grunnlag?.opptjening?.forsikredeAnnen")
         assertEquals("0", vedtak?.grunnlag?.framtidigtrygdetid, "4.1.10 vedtak?.grunnlag?.framtidigtrygdetid")
 

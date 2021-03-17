@@ -15,8 +15,6 @@ class SedP7000Test {
         val p7000sed = SED.fromJson(p7000json)
 
         assertEquals("daglig4166", p7000sed.pensjon?.ytelser?.get(0)?.beloep?.get(0)?.annenbetalingshyppighetytelse)
-        assertEquals("5.1.5.2.1. Adressat for revurderingen Repetetive", p7000sed.pensjon?.samletVedtak?.avslag?.get(0)?.adresse)
-
         assertEquals("1942-12-19", p7000sed.pensjon?.ytelser?.get(0)?.startdatoutbetaling)
     }
 

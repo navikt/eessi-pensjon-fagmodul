@@ -231,61 +231,27 @@ class PensjonMock {
 //P5000 - bekreftforsikred
 fun createMedlemskapMock(): Pensjon {
 
-    return Pensjon(
-            medlemskap = listOf(
-                    MedlemskapItem(
-                            land = "DK",
-                            ordning = "01",
-                            type = "10",
-                            relevans = "100",
-                            gyldigperiode = "1",
-                            beregning = "100",
-                            periode = Periode(
-                                    fom = "2000-01-01",
-                                    tom = "2010-01-01"
-                            ),
-                            sum = TotalSum(
-                                    aar = "4",
-                                    dager = Dager(nr = "2"),
-                                    maaneder = "2"
-                            )
-                    )
-            ),
-            medlemskapAnnen = listOf(
-                    MedlemskapItem(
-                            land = "DE",
-                            type = "21",
-                            ordning = "01",
-                            relevans = "100",
-                            beregning = "100",
-                            sum = TotalSum(
-                                    aar = "4",
-                                    maaneder = "2",
-                                    dager = Dager(nr = "5")
-                            )
+        return Pensjon(
+                medlemskap = listOf(
+                        MedlemskapItem(
+                                land = "DK",
+                                periode = Periode(
+                                        fom = "2000-01-01",
+                                        tom = "2010-01-01"
+                                )
+                        )
+                ),
+                medlemskapAnnen = listOf(
+                        MedlemskapItem(
+                                land = "DE"
+                        )
+                ),
+                medlemskapTotal = listOf(
+                        MedlemskapItem()
+                ),
+                trygdetid = listOf(
+                        MedlemskapItem()
+                )
+        )
 
-                    )
-            ),
-            medlemskapTotal = listOf(
-                    MedlemskapItem(
-                            type = "10",
-                            relevans = "100",
-                            sum = TotalSum(
-                                    aar = "11",
-                                    maaneder = "1",
-                                    dager = Dager(nr = "6")
-                            )
-                    )
-            ),
-            trygdetid = listOf(
-                    MedlemskapItem(
-                            type = "11",
-                            sum = TotalSum(
-                                    aar = "10",
-                                    maaneder = "2",
-                                    dager = Dager(nr = "5")
-                            )
-                    )
-            )
-    )
 }
