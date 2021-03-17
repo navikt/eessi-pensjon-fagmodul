@@ -130,18 +130,12 @@ class PensjonMock {
                 val pensjonMeldemskap = createMedlemskapMock()
 
                 return genererMockData(
-                        medlemskap = pensjonMeldemskap.medlemskap,
-                        medlemskapAnnen = pensjonMeldemskap.medlemskapAnnen,
-                        medlemskapTotal = pensjonMeldemskap.medlemskapTotal,
                         trygdetid = pensjonMeldemskap.trygdetid
                 )
         }
 
 
     fun genererMockData(
-            medlemskap: List<MedlemskapItem>? = null,
-            medlemskapAnnen: List<MedlemskapItem>? = null,
-            medlemskapTotal: List<MedlemskapItem>? = null,
             trygdetid: List<MedlemskapItem>? = null
     ): Pensjon {
         return Pensjon(
@@ -218,10 +212,6 @@ class PensjonMock {
                                 )
                         )
                 ),
-                // MockDataMedMeldemskap
-                medlemskap= medlemskap,
-                medlemskapAnnen= medlemskapAnnen,
-                medlemskapTotal= medlemskapTotal,
                 trygdetid= trygdetid
         )
     }
@@ -232,23 +222,6 @@ class PensjonMock {
 fun createMedlemskapMock(): Pensjon {
 
         return Pensjon(
-                medlemskap = listOf(
-                        MedlemskapItem(
-                                land = "DK",
-                                periode = Periode(
-                                        fom = "2000-01-01",
-                                        tom = "2010-01-01"
-                                )
-                        )
-                ),
-                medlemskapAnnen = listOf(
-                        MedlemskapItem(
-                                land = "DE"
-                        )
-                ),
-                medlemskapTotal = listOf(
-                        MedlemskapItem()
-                ),
                 trygdetid = listOf(
                         MedlemskapItem()
                 )

@@ -18,20 +18,4 @@ class SedP5000Test {
         assertNotNull(pensjondata)
     }
 
-    @Test
-    fun `validate for p5000 sed in buc`() {
-        val sedOne = SED.fromJson(getTestJsonFile("/p5000/P5000a_898403-nav.json"))
-        assertNotNull(sedOne.pensjon?.medlemskap)
-
-        val sedTwo = SED.fromJson(getTestJsonFile("/p5000/P5000b_898403-nav.json"))
-        assertNotNull(sedTwo.pensjon?.medlemskap)
-
-        val sedTree = SED.fromJson(getTestJsonFile("/p5000/P5000c_898403-nav.json"))
-        assertNotNull(sedTree.pensjon?.medlemskap)
-
-        val sedFour = SED.fromJson(getTestJsonFile("/p5000/P5000d_898403-nav.json"))
-        assertNotNull(sedFour.pensjon?.medlemskap)
-
-    }
-
 }
