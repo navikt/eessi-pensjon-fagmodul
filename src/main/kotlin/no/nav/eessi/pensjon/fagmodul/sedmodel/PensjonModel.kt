@@ -11,16 +11,10 @@ class MeldingOmPensjon(
 data class Pensjon(
 		val gjenlevende: Bruker? = null, // Brukes fleres steder
 
-		//P2000
-		val angitidligstdato: String? = null,
-
 		//P2XXX
 		val ytelser: List<YtelserItem>? = null,
 		val forespurtstartdato: String? = null,
 		val kravDato: Krav? = null, //kravDato pkt. 9.1 P2000
-
-		//P3000
-		val landspesifikk: Landspesifikk? = null
 )
 
 //Institusjon
@@ -35,13 +29,6 @@ data class Institusjon(
         val innvilgetPensjon: String? = null,  // 4.1.3.
         val utstedelsesDato: String? = null,  //4.1.4.
         val startdatoPensjonsRettighet: String? = null  //4.1.5
-)
-
-//P5000
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class MedlemskapItem(
-		val land: String? = null,
-		val periode: Periode? = null,
 )
 
 //P2000 - P2200

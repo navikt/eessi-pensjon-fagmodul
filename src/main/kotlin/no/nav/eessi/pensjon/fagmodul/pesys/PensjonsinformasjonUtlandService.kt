@@ -3,14 +3,7 @@ package no.nav.eessi.pensjon.fagmodul.pesys
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxService
 import no.nav.eessi.pensjon.fagmodul.models.SEDType
-import no.nav.eessi.pensjon.fagmodul.pesys.RinaTilPenMapper.parsePensjonsgrad
-import no.nav.eessi.pensjon.fagmodul.sedmodel.AnsattSelvstendigItem
-import no.nav.eessi.pensjon.fagmodul.sedmodel.P4000
-import no.nav.eessi.pensjon.fagmodul.sedmodel.P5000
-import no.nav.eessi.pensjon.fagmodul.sedmodel.Periode
-import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
-import no.nav.eessi.pensjon.fagmodul.sedmodel.StandardItem
-import no.nav.eessi.pensjon.fagmodul.sedmodel.TrygdeTidPeriode
+import no.nav.eessi.pensjon.fagmodul.sedmodel.*
 import no.nav.eessi.pensjon.services.kodeverk.KodeverkClient
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -94,13 +87,8 @@ class PensjonsinformasjonUtlandService(
     //iverksettelsesdato
     //p2000 9.4.1 - 9.4.4
     fun hentRettIverksettelsesdato(p2000: SED): LocalDate {
-        val startDatoUtbet = p2000.pensjon?.forespurtstartdato
-        return if (p2000.pensjon?.angitidligstdato == "1") {
-            LocalDate.parse(startDatoUtbet)
-        } else {
-            val kravdato = LocalDate.parse(p2000.nav?.krav?.dato) ?: LocalDate.now()
-            kravdato.withDayOfMonth(1).plusMonths(1)
-        }
+        val kravdato = LocalDate.parse(p2000.nav?.krav?.dato) ?: LocalDate.now()
+        return kravdato.withDayOfMonth(1).plusMonths(1)
     }
 
     //TODO: vil trenge en innhentSedFraRinaService..
@@ -109,7 +97,6 @@ class PensjonsinformasjonUtlandService(
     fun kravAlderpensjonUtland(kravSed: SED, bucUtils: BucUtils): KravUtland {
 
         val p2000 = kravSed
-        val p3000no: SED? = null
         logger.debug("oppretter KravUtland")
 
         //https://confluence.adeo.no/pages/viewpage.action?pageId=203178268
@@ -122,9 +109,6 @@ class PensjonsinformasjonUtlandService(
 
             //P2000 ?? kravdatao?
             iverksettelsesdato = hentRettIverksettelsesdato(p2000),
-
-            //P3000_NO 4.6.1. Forsikredes anmodede prosentdel av full pensjon
-            uttaksgrad = parsePensjonsgrad(p3000no?.pensjon?.landspesifikk?.norge?.alderspensjon?.pensjonsgrad),
 
             //P2000 2.2.1.1
             personopplysninger = SkjemaPersonopplysninger(
