@@ -7,7 +7,6 @@ import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.models.SEDType
 import no.nav.eessi.pensjon.utils.mapJsonToAny
-import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.typeRefs
 import no.nav.eessi.pensjon.utils.validateJson
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -17,7 +16,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.junit.jupiter.MockitoExtension
-import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.web.server.ResponseStatusException
 import java.time.format.DateTimeFormatter
 
@@ -39,19 +37,6 @@ class BucUtilsTest {
         bucjson = getTestJsonFile("buc-22909_v4.1.json")
         buc = mapJsonToAny(bucjson, typeRefs())
         bucUtils = BucUtils(buc)
-    }
-
-    @Test
-    fun getListofSbdh() {
-        val result = bucUtils.getSbdh()
-        assertEquals(1, result.size)
-        val sbdh = result.first()
-
-        assertEquals("NO:NAVT003", sbdh.sender?.identifier)
-        assertEquals("NO:NAVT002", sbdh.receivers?.first()?.identifier)
-        assertEquals(SEDType.P2000, sbdh.documentIdentification?.type)
-        assertEquals("4.1", sbdh.documentIdentification?.schemaVersion)
-
     }
 
     @Test
@@ -769,29 +754,5 @@ class BucUtilsTest {
 
         assertEquals("NO:NAVAT08", participantsP22000?.filter { it?.role == "Sender" }?.first()?.organisation?.id)
         assertEquals("NO:NAVAT07", participantsP22000?.filter { it?.role == "Receiver" }?.first()?.organisation?.id)
-    }
-
-    @Test
-    fun `compare generated result with expectation - for BUC with X007`() {
-        val input = getTestJsonFile("BucResponseFraEUXMedX007.json")
-        val expected = getTestJsonFile("BucResponseFraFagmodulenMedX007.json")
-        val buc = mapJsonToAny(input, typeRefs<Buc>())
-
-        val bucAndSedView = BucAndSedView.from(buc)
-
-        val actual = listOf(bucAndSedView).toJson()
-        JSONAssert.assertEquals(expected, actual, false)
-    }
-
-    @Test
-    fun `compare generated result with expectation - for BUC with X007 - caseid 1410989`() {
-        val input = getTestJsonFile("BucResponseFraEUXMedX007-1410989.json")
-        val expected = getTestJsonFile("BucResponseFraFagmodulenMedX007_1410989.json")
-        val buc = mapJsonToAny(input, typeRefs<Buc>())
-
-        val bucAndSedView = BucAndSedView.from(buc)
-
-        val actual = listOf(bucAndSedView).toJson()
-        JSONAssert.assertEquals(expected, actual, false)
     }
 }

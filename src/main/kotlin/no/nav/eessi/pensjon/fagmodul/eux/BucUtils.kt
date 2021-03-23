@@ -1,19 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.RinaAksjon
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Attachment
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ConversationsItem
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Creator
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Receiver
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Sbdh
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Sender
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ShortAttachment
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ShortDocumentItem
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.VersionsItem
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.VersionsItemNoUser
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.*
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.models.SEDType
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
@@ -144,8 +132,6 @@ class BucUtils(private val buc: Buc ) {
                 participants = createParticipants(documentItem.conversations),
                 attachments = createShortAttachemnt(documentItem.attachments),
                 version = getLatestDocumentVersion(documentItem.versions),
-                firstVersion = getFirstVersion(documentItem.versions),
-                lastVersion = getLastVersion(documentItem.versions),
                 allowsAttachments = overrideAllowAttachemnts(documentItem)
         )
 
@@ -236,21 +222,6 @@ class BucUtils(private val buc: Buc ) {
 
     fun getDocumentByType(sedType: SEDType): ShortDocumentItem? = getAllDocuments().firstOrNull { sedType == it.type && it.status != "empty" }
 
-    fun getSbdh(): List<Sbdh> {
-        val lists = mutableListOf<Sbdh>()
-        val documents = getDocuments()
-        for (doc in documents) {
-            for (conv in doc.conversations!!) {
-                val usermsgs = conv.userMessages
-                usermsgs?.forEach {
-                    val sbdh = it.sbdh!!
-                    lists.add(sbdh)
-                }
-            }
-        }
-        return lists
-    }
-
     fun getInternatinalId() = getBuc().internationalId
 
     fun getParticipants() = getBuc().participants ?: emptyList()
@@ -273,15 +244,6 @@ class BucUtils(private val buc: Buc ) {
         }
         return true
     }
-
-    fun getParticipantsAsInstitusjonItem() = getParticipants()
-            .map {
-                InstitusjonItem(
-                        country = it.organisation?.countryCode ?: "",
-                        institution = it.organisation?.id ?: "",  //kan hende må være id?!
-                        name = it.organisation?.name ?: "" //name optinal
-                )
-            }.sortedBy { it.country }.toList()
 
     fun getBucAction() = getBuc().actions
 

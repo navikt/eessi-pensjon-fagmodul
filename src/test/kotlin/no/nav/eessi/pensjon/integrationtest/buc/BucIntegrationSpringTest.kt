@@ -1,10 +1,6 @@
 package no.nav.eessi.pensjon.integrationtest.buc
 
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.times
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.whenever
+import com.nhaarman.mockitokotlin2.*
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Properties
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
@@ -12,11 +8,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Traits
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.fagmodul.models.SEDType
-import no.nav.eessi.pensjon.fagmodul.sedmodel.Bruker
-import no.nav.eessi.pensjon.fagmodul.sedmodel.Pensjon
-import no.nav.eessi.pensjon.fagmodul.sedmodel.Person
-import no.nav.eessi.pensjon.fagmodul.sedmodel.PinItem
-import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
+import no.nav.eessi.pensjon.fagmodul.sedmodel.*
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
 import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentType
@@ -39,11 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
-import org.springframework.http.MediaType
-import org.springframework.http.ResponseEntity
+import org.springframework.http.*
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
@@ -531,13 +519,11 @@ class BucIntegrationSpringTest {
         val rinabucd10ocumentidpath = "/buc/4040/sed/10"
         doReturn( ResponseEntity.ok().body( SED(SEDType.P15000, pensjon = Pensjon(gjenlevende = Bruker(person = Person(pin = listOf(PinItem(land = "NO", identifikator = gjenlevendeFnr)), fornavn = "test", etternavn = "etter")))).toJsonSkipEmpty() )).whenever(restEuxTemplate).exchange( eq(rinabucd10ocumentidpath), eq(HttpMethod.GET), eq(null), eq(String::class.java))
 
-        val result = mockMvc.perform(get("/buc/detaljer/$gjenlevendeAktoerId/vedtak/$vedtakid")
+        mockMvc.perform(get("/buc/detaljer/$gjenlevendeAktoerId/vedtak/$vedtakid")
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andReturn()
-
-        val response = result.response.getContentAsString(charset("UTF-8"))
 
         verify(restEuxTemplate, times(1)).exchange("/rinasaker?fødselsnummer=01010100001&rinasaksnummer=&buctype=P_BUC_05&status=\"open\"", HttpMethod.GET, null, String::class.java)
         verify(restEuxTemplate, times(1)).exchange("/rinasaker?fødselsnummer=01010100001&rinasaksnummer=&buctype=P_BUC_06&status=\"open\"", HttpMethod.GET, null, String::class.java)
@@ -550,13 +536,6 @@ class BucIntegrationSpringTest {
         verify(restEuxTemplate, times(1)).exchange("/buc/4040", HttpMethod.GET, null, String::class.java)
         verify(restEuxTemplate, times(1)).exchange("/buc/4040/sed/10", HttpMethod.GET, null, String::class.java)
         verify(restSafTemplate, times(1)).exchange(eq("/"), eq(HttpMethod.POST), eq(httpEntity), eq(String::class.java))
-
-        val validResponse = """
-            [{"type":"P_BUC_05","caseId":"2020","creator":{"country":"","institution":"","name":null,"acronym":null},"sakType":null,"status":null,"startDate":1596751200000,"lastUpdate":1596751200000,"institusjon":[],"seds":[{"id":"5","parentDocumentId":null,"type":"P8000","status":"sent","creationDate":1596751200000,"lastUpdate":1596751200000,"displayName":null,"participants":null,"attachments":[],"version":"1","firstVersion":null,"lastVersion":null,"allowsAttachments":null,"message":null},{"id":"2","parentDocumentId":null,"type":"P4000","status":"draft","creationDate":1596751200000,"lastUpdate":1596751200000,"displayName":null,"participants":null,"attachments":[],"version":"1","firstVersion":null,"lastVersion":null,"allowsAttachments":null,"message":null}],"error":null,"readOnly":false,"subject":{"gjenlevende":{"fnr":"1234567890000"},"avdod":{"fnr":"01010100001"}}},{"type":"P_BUC_06","caseId":"3030","creator":{"country":"","institution":"","name":null,"acronym":null},"sakType":null,"status":null,"startDate":1596751200000,"lastUpdate":1596751200000,"institusjon":[],"seds":[{"id":"6","parentDocumentId":null,"type":"P6000","status":"sent","creationDate":1596751200000,"lastUpdate":1596751200000,"displayName":null,"participants":null,"attachments":[],"version":"1","firstVersion":null,"lastVersion":null,"allowsAttachments":null,"message":null},{"id":"2","parentDocumentId":null,"type":"P4000","status":"draft","creationDate":1596751200000,"lastUpdate":1596751200000,"displayName":null,"participants":null,"attachments":[],"version":"1","firstVersion":null,"lastVersion":null,"allowsAttachments":null,"message":null}],"error":null,"readOnly":false,"subject":{"gjenlevende":{"fnr":"1234567890000"},"avdod":{"fnr":"01010100001"}}},{"type":"P_BUC_10","caseId":"4040","creator":{"country":"","institution":"","name":null,"acronym":null},"sakType":null,"status":null,"startDate":1596751200000,"lastUpdate":1596751200000,"institusjon":[],"seds":[{"id":"10","parentDocumentId":null,"type":"P15000","status":"sent","creationDate":1596751200000,"lastUpdate":1596751200000,"displayName":null,"participants":null,"attachments":[],"version":"1","firstVersion":null,"lastVersion":null,"allowsAttachments":null,"message":null},{"id":"2","parentDocumentId":null,"type":"P4000","status":"draft","creationDate":1596751200000,"lastUpdate":1596751200000,"displayName":null,"participants":null,"attachments":[],"version":"1","firstVersion":null,"lastVersion":null,"allowsAttachments":null,"message":null}],"error":null,"readOnly":false,"subject":{"gjenlevende":{"fnr":"1234567890000"},"avdod":{"fnr":"01010100001"}}}]
-        """.trimIndent()
-
-        JSONAssert.assertEquals(response, validResponse, true)
-
     }
 
 

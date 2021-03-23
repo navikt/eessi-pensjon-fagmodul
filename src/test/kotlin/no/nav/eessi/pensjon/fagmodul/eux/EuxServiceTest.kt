@@ -23,7 +23,6 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
-import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.http.HttpStatus
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.util.UriComponentsBuilder
@@ -111,12 +110,6 @@ class EuxServiceTest {
 
         val firstBucAndSedView = result.first()
         assertEquals("158123", firstBucAndSedView.caseId)
-
-        val actualBucAndSedViewJson = firstBucAndSedView.toJson()
-
-        val expectedBucDetaljer = javaClass.getResource("/json/buc/bucdetaljer-158123.json").readText()
-
-        JSONAssert.assertEquals(expectedBucDetaljer, actualBucAndSedViewJson, false)
     }
 
     @Test

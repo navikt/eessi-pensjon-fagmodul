@@ -240,7 +240,7 @@ class SedControllerTest {
         val mockParticipants = listOf(ParticipantsItem(role = "CaseOwner", organisation = Organisation(countryCode = "NO", name = "NAV", id = "NAV")))
         val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = mockParticipants)
         mockBuc.documents = listOf(createDummyBucDocumentItem(), DocumentsItem(type = SEDType.X005))
-        mockBuc.actions = listOf(ActionsItem(type = "Send", name = "Send"))
+        mockBuc.actions = listOf(ActionsItem(name = "Send"))
 
         val dummyPrefillData = ApiRequest.buildPrefillDataModelOnExisting(apiRequestWith(euxCaseId), NorskIdent("12345").id, null)
 
@@ -265,7 +265,7 @@ class SedControllerTest {
         val mockParticipants = listOf(ParticipantsItem(role = "CaseOwner", organisation = Organisation(countryCode = "SE", name = "SE", id = "SE")))
         val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = mockParticipants)
         mockBuc.documents = listOf(createDummyBucDocumentItem(), DocumentsItem(type = SEDType.X005))
-        mockBuc.actions = listOf(ActionsItem(type = "Send", name = "Send"))
+        mockBuc.actions = listOf(ActionsItem(name = "Send"))
 
         val newParticipants = listOf(
                 InstitusjonItem(country = "FI", institution = "Finland", name="Finland test"),
@@ -301,7 +301,6 @@ class SedControllerTest {
                         id = "1",
                         userMessages =listOf(
                             UserMessagesItem(
-                                id = "1",
                                 sender = Sender(
                                     name = "Danish test",
                                     id = "DK:213231"
@@ -312,7 +311,7 @@ class SedControllerTest {
                 )
             )
         )
-        mockBuc.actions = listOf(ActionsItem(type = "Send", name = "Send"))
+        mockBuc.actions = listOf(ActionsItem(name = "Send"))
 
         val newParticipants = listOf(
             InstitusjonItem(country = "FI", institution = "FI:213231", name="Finland test"),
@@ -337,7 +336,7 @@ class SedControllerTest {
 
         val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = listOf(ParticipantsItem()))
         mockBuc.documents = listOf(createDummyBucDocumentItem())
-        mockBuc.actions = listOf(ActionsItem(type = "Send", name = "Send"))
+        mockBuc.actions = listOf(ActionsItem(name = "Send"))
 
         val dummyPrefillData = ApiRequest.buildPrefillDataModelOnExisting(apiRequestWith(euxCaseId), NorskIdent("12345").id, null)
 
@@ -365,7 +364,7 @@ class SedControllerTest {
         mockBuc.documents = listOf(
             DocumentsItem(id = "3123123", type = SEDType.P9000, status = "empty", allowsAttachments = true, lastUpdate = lastupdate, creationDate = lastupdate, parentDocumentId = parentDocumentId),
             DocumentsItem(id = parentDocumentId, type = SEDType.P8000, status = "received", allowsAttachments = true,  lastUpdate = lastupdate, creationDate = lastupdate))
-        mockBuc.actions = listOf(ActionsItem(id = "1000", type = "Received", name = "Received"))
+        mockBuc.actions = listOf(ActionsItem(id = "1000", name = "Received"))
 
         val api = apiRequestWith(euxCaseId, sed = "P9000", institutions = emptyList())
 
@@ -394,8 +393,6 @@ class SedControllerTest {
               "participants" : null,
               "attachments" : [ ],
               "version" : "1",
-              "firstVersion" : null,
-              "lastVersion" : null,
               "allowsAttachments" : true,
               "message" : null
             }
@@ -474,81 +471,6 @@ class SedControllerTest {
 
         assertNotNull(result)
         assertEquals(ShortDocumentItem::class.java, result?.javaClass)
-
-        val expected = """
-            {
-              "id" : "58c26271b21f4feebcc36b949b4865fe",
-              "parentDocumentId" : null,
-              "type" : "P10000",
-              "status" : "received",
-              "creationDate" : 1593520973389,
-              "lastUpdate" : 1593520973389,
-              "displayName" : "Transfer of additional information",
-              "participants" : [ {
-                "role" : "Sender",
-                "organisation" : {
-                  "address" : {
-                    "country" : "NO",
-                    "town" : null,
-                    "street" : null,
-                    "postalCode" : null,
-                    "region" : null
-                  },
-                  "activeSince" : "2018-08-26T22:00:00.000+0000",
-                  "registryNumber" : null,
-                  "acronym" : "NAV ACCT 08",
-                  "countryCode" : "NO",
-                  "contactMethods" : null,
-                  "name" : "NAV ACCEPTANCE TEST 08",
-                  "location" : null,
-                  "assignedBUCs" : null,
-                  "id" : "NO:NAVAT08",
-                  "accessPoint" : null,
-                  "identifier" : null,
-                  "contactTypeIdentifier" : null,
-                  "authority" : null
-                },
-                "selected" : false
-              }, {
-                "role" : "Receiver",
-                "organisation" : {
-                  "address" : {
-                    "country" : "NO",
-                    "town" : null,
-                    "street" : null,
-                    "postalCode" : null,
-                    "region" : null
-                  },
-                  "activeSince" : "2018-08-26T22:00:00.000+0000",
-                  "registryNumber" : null,
-                  "acronym" : "NAV ACCT 07",
-                  "countryCode" : "NO",
-                  "contactMethods" : null,
-                  "name" : "NAV ACCEPTANCE TEST 07",
-                  "location" : null,
-                  "assignedBUCs" : null,
-                  "id" : "NO:NAVAT07",
-                  "accessPoint" : null
-                },
-                "selected" : false
-              } ],
-              "attachments" : [ ],
-              "version" : "1",
-              "firstVersion" : {
-                "date" : "2020-06-30T12:42:53.389+0000",
-                "id" : "1"
-              },
-              "lastVersion" : {
-                "date" : "2020-06-30T12:42:53.389+0000",
-                "id" : "1"
-              },
-              "allowsAttachments" : true,
-              "message" : null
-            }
-        """.trimIndent()
-
-        assertEquals(expected, result?.toJson())
-
     }
 
     @Test
@@ -559,7 +481,7 @@ class SedControllerTest {
 
         val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = listOf(ParticipantsItem()))
         mockBuc.documents = listOf(createDummyBucDocumentItem())
-        mockBuc.actions = listOf(ActionsItem(type = "Send", name = "Send"))
+        mockBuc.actions = listOf(ActionsItem(name = "Send"))
 
         doReturn(mockBuc).whenever(mockEuxService).getBuc(euxCaseId)
 
@@ -589,7 +511,7 @@ class SedControllerTest {
 
         val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = listOf(ParticipantsItem()))
         mockBuc.documents = listOf(createDummyBucDocumentItem(), DocumentsItem())
-        mockBuc.actions = listOf(ActionsItem(type = "Send", name = "Send"))
+        mockBuc.actions = listOf(ActionsItem(name = "Send"))
 
         doReturn(mockBuc).whenever(mockEuxService).getBuc(euxCaseId)
         doNothing().whenever(mockEuxService).addInstitution(any(), any())
