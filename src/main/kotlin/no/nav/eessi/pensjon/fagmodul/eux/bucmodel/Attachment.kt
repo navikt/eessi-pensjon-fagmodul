@@ -8,6 +8,8 @@ class Attachment(
         val name: String? = null,
         val documentId: String? = null,
         val id: String? = null,
+        // I bruk av frontend
+        val parentDocumentId: Any? = null
 )
 
 class ShortAttachment(

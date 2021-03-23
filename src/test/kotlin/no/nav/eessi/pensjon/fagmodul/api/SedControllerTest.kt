@@ -393,6 +393,8 @@ class SedControllerTest {
               "participants" : null,
               "attachments" : [ ],
               "version" : "1",
+              "firstVersion" : null,
+              "lastVersion" : null,
               "allowsAttachments" : true,
               "message" : null
             }

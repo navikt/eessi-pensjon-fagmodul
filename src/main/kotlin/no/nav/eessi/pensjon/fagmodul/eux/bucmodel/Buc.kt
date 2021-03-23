@@ -6,6 +6,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 class Buc(
         var creator: Creator? = null,
         val attachments: List<Attachment>? = null,
+        // I bruk av frontend
+        val comments: List<Any>? = null,
+        // I bruk av frontend
+        var subject: Subject? = null,
         val processDefinitionName: String? = null,
         val lastUpdate: Any? = null,
         val internationalId: String? = null,

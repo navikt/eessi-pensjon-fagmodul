@@ -132,6 +132,8 @@ class BucUtils(private val buc: Buc ) {
                 participants = createParticipants(documentItem.conversations),
                 attachments = createShortAttachemnt(documentItem.attachments),
                 version = getLatestDocumentVersion(documentItem.versions),
+                firstVersion = getFirstVersion(documentItem.versions),
+                lastVersion = getLastVersion(documentItem.versions),
                 allowsAttachments = overrideAllowAttachemnts(documentItem)
         )
 
