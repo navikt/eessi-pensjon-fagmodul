@@ -80,7 +80,13 @@ class PrefillSEDService(
                 hentRelevantPensjonsinformasjon(prefillData)
             )
 
-            P10000 -> PrefillP10000(PrefillSed(prefillPDLnav)).prefillSed(prefillData, personDataCollection)
+            P10000 -> PrefillP10000(prefillPDLnav).prefill(
+                prefillData.penSaksnummer,
+                prefillData.bruker,
+                prefillData.avdod,
+                prefillData.getPersonInfoFromRequestData(),
+                personDataCollection
+            )
             X005 -> PrefillX005(prefillPDLnav).prefill(prefillData, personDataCollection)
             H020, H021 -> PrefillH02X(PrefillSed(prefillPDLnav)).prefillSed(prefillData, personDataCollection)
             else ->
