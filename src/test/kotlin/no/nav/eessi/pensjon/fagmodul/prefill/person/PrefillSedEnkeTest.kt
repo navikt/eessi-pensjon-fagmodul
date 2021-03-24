@@ -55,7 +55,8 @@ class PrefillSedEnkeTest {
             avdod = prefillData.avdod,
             personData = persondataCollection,
             brukerInformasjon = prefillData.getPersonInfoFromRequestData(),
-            null
+            krav = null,
+            annenPerson = null
         )
 
         val sed = SED(

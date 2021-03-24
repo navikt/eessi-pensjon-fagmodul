@@ -29,6 +29,12 @@ class PrefillP10000(private val prefillNav: PrefillPDLNav) {
             null
         }
 
+        //Spesielle SED som har etterlette men benyttes av flere BUC
+        //Må legge gjenlevende også som nav.annenperson
+        if (avdod != null) {
+            gjenlevende?.person?.rolle = "01" //Claimant - etterlatte
+        }
+
         //henter opp persondata
         val navSed = prefillNav.prefill(
             penSaksnummer = penSaksnummer,
@@ -36,15 +42,9 @@ class PrefillP10000(private val prefillNav: PrefillPDLNav) {
             avdod = avdod,
             personData = personData,
             brukerInformasjon = brukerInformasjon,
-            null
+            annenPerson = gjenlevende
         )
 
-        //Spesielle SED som har etterlette men benyttes av flere BUC
-        //Må legge gjenlevende også som nav.annenperson
-        if (avdod != null) {
-            navSed.annenperson = gjenlevende
-            navSed.annenperson?.person?.rolle = "01"  //Claimant - etterlatte
-        }
         logger.debug("-------------------| Preutfylling END |------------------- ")
 
         return P10000(nav = navSed)

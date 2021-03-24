@@ -29,7 +29,8 @@ class PrefillP2100(private val prefillNav: PrefillPDLNav) {
             avdod = prefillData.avdod,
             personData = personData,
             brukerInformasjon = prefillData.getPersonInfoFromRequestData(),
-            pensjon?.kravDato
+            krav = pensjon?.kravDato,
+            annenPerson = null
         )
         val gjenlev = eventuellGjenlevendePDL(prefillData, personData.forsikretPerson)
 

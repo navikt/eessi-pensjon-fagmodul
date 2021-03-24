@@ -157,7 +157,8 @@ class PrefillPDLNav(private val prefillAdresse: PrefillPDLAdresse,
         avdod: PersonId?,
         personData: PersonDataCollection,
         brukerInformasjon: BrukerInformasjon?,
-        krav: Krav?
+        krav: Krav? = null,
+        annenPerson: Bruker?
     ): Nav {
         val forsikretPerson = personData.forsikretPerson
         val avdodEllerGjenlevende = personData.gjenlevendeEllerAvdod
@@ -198,6 +199,7 @@ class PrefillPDLNav(private val prefillAdresse: PrefillPDLAdresse,
                 //sjekke om SED er P2x00 for utfylling av BARN
                 //sjekke punkt for barn. pkt. 6.0 for P2000 og P2200 pkt. 8.0 for P2100
                 barn = createBarnliste(barnPersonList.map { createPersonBarn(it, personData) }),
+                annenperson = annenPerson,
                 krav = krav
         )
     }

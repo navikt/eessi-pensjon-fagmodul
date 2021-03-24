@@ -35,7 +35,8 @@ class PrefillP2200(private val prefillNav: PrefillPDLNav) {
             avdod = prefillData.avdod,
             personData = personData,
             brukerInformasjon = prefillData.getPersonInfoFromRequestData(),
-            pensjon?.kravDato
+            krav = pensjon?.kravDato,
+            annenPerson = null
         )
 
         PrefillP2xxxPensjon.validerGyldigVedtakEllerKravtypeOgArsak(sak, sedType, vedtak)

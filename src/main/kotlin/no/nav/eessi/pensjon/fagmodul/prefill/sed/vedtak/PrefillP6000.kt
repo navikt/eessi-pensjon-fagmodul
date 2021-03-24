@@ -42,7 +42,8 @@ class PrefillP6000(private val prefillNav: PrefillPDLNav,
             avdod = prefillData.avdod,
             personData = personData,
             brukerInformasjon = prefillData.getPersonInfoFromRequestData(),
-            p6000Pensjon.kravDato
+            krav = p6000Pensjon.kravDato,
+            annenPerson = null
         )
 
         logger.info("-------------------| Preutfylling [$sedType] END |------------------- ")

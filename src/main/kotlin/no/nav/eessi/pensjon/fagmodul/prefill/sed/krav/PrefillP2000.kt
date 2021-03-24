@@ -45,7 +45,8 @@ class PrefillP2000(private val prefillNav: PrefillPDLNav)  {
             avdod = prefillData.avdod,
             personData = personData,
             brukerInformasjon = prefillData.getPersonInfoFromRequestData(),
-            krav = krav
+            krav = krav,
+            annenPerson = null
         )
     }
 

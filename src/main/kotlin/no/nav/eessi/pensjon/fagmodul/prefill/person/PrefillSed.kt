@@ -39,7 +39,8 @@ class PrefillSed(private val prefillNav: PrefillPDLNav) {
             avdod = prefillData.avdod,
             personData = personData,
             brukerInformasjon = prefillData.getPersonInfoFromRequestData(),
-            prefillPensjon?.kravDato
+            krav = prefillPensjon?.kravDato,
+            annenPerson = null
         )
         logger.debug("[${prefillData.sedType}] Preutfylling Utfylling NAV")
 

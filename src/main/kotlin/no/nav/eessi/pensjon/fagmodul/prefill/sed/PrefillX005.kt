@@ -20,7 +20,8 @@ class PrefillX005(private val prefillNav: PrefillPDLNav)  {
             avdod = prefillData.avdod,
             personData = personData,
             brukerInformasjon = prefillData.getPersonInfoFromRequestData(),
-            null
+            krav = null,
+            annenPerson = null
         )
 
         val singleSelectedInstitustion = prefillData.institution.first()
