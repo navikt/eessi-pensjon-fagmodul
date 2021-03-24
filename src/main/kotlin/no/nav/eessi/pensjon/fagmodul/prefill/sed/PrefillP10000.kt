@@ -6,7 +6,6 @@ import no.nav.eessi.pensjon.fagmodul.models.PersonId
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillPDLNav
 import no.nav.eessi.pensjon.fagmodul.sedmodel.P10000
 import no.nav.eessi.pensjon.fagmodul.sedmodel.P10000Pensjon
-import no.nav.eessi.pensjon.fagmodul.sedmodel.Pensjon
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -20,16 +19,15 @@ class PrefillP10000(private val prefillNav: PrefillPDLNav) {
                 brukerInformasjon: BrukerInformasjon?,
                 personData: PersonDataCollection): P10000 {
 
-        val prefillPensjon = try {
+        val gjenlevende = try {
             val pensjon = avdod?.let {
                 logger.info("Preutfylling Utfylling Pensjon Gjenlevende (etterlatt)")
-                val gjenlevendePerson = prefillNav.createBruker(personData.forsikretPerson!!, null, null)
-                Pensjon(gjenlevende = gjenlevendePerson)
+                prefillNav.createBruker(personData.forsikretPerson!!, null, null)
             }
             pensjon
         } catch (ex: Exception) {
             logger.error(ex.message, ex)
-            Pensjon()
+            null
         }
 
         //henter opp persondata
@@ -39,18 +37,18 @@ class PrefillP10000(private val prefillNav: PrefillPDLNav) {
             avdod = avdod,
             personData = personData,
             brukerInformasjon = brukerInformasjon,
-            prefillPensjon?.kravDato
+            null
         )
 
         //Spesielle SED som har etterlette men benyttes av flere BUC
         //Må legge gjenlevende også som nav.annenperson
         if (avdod != null) {
-            navSed.annenperson = prefillPensjon?.gjenlevende
+            navSed.annenperson = gjenlevende
             navSed.annenperson?.person?.rolle = "01"  //Claimant - etterlatte
         }
 
         logger.debug("-------------------| Preutfylling END |------------------- ")
-        val p10000 = P10000(nav = navSed, p10000Pensjon = P10000Pensjon(prefillPensjon?.gjenlevende))
+        val p10000 = P10000(nav = navSed, p10000Pensjon = P10000Pensjon(gjenlevende))
 
         if (avdod != null) {
             logger.info("Preutfylling Utfylling Pensjon Gjenlevende (etterlatt)")
