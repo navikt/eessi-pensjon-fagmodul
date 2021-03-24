@@ -45,15 +45,8 @@ class PrefillP10000(private val prefillNav: PrefillPDLNav) {
             navSed.annenperson = gjenlevende
             navSed.annenperson?.person?.rolle = "01"  //Claimant - etterlatte
         }
-
         logger.debug("-------------------| Preutfylling END |------------------- ")
-        val p10000 = P10000(nav = navSed)
 
-        if (avdod != null) {
-            logger.info("Preutfylling Utfylling Pensjon Gjenlevende (etterlatt)")
-            p10000.nav?.annenperson =  gjenlevende
-            p10000.nav?.annenperson?.person?.rolle = "01"  //Claimant
-        }
-        return p10000
+        return P10000(nav = navSed)
     }
 }
