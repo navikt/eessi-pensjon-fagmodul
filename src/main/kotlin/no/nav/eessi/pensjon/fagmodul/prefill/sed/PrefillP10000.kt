@@ -5,7 +5,6 @@ import no.nav.eessi.pensjon.fagmodul.models.PersonDataCollection
 import no.nav.eessi.pensjon.fagmodul.models.PersonId
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillPDLNav
 import no.nav.eessi.pensjon.fagmodul.sedmodel.P10000
-import no.nav.eessi.pensjon.fagmodul.sedmodel.P10000Pensjon
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -20,11 +19,11 @@ class PrefillP10000(private val prefillNav: PrefillPDLNav) {
                 personData: PersonDataCollection): P10000 {
 
         val gjenlevende = try {
-            val pensjon = avdod?.let {
+            val gjenlevende = avdod?.let {
                 logger.info("Preutfylling Utfylling Pensjon Gjenlevende (etterlatt)")
                 prefillNav.createBruker(personData.forsikretPerson!!, null, null)
             }
-            pensjon
+            gjenlevende
         } catch (ex: Exception) {
             logger.error(ex.message, ex)
             null
@@ -48,13 +47,12 @@ class PrefillP10000(private val prefillNav: PrefillPDLNav) {
         }
 
         logger.debug("-------------------| Preutfylling END |------------------- ")
-        val p10000 = P10000(nav = navSed, p10000Pensjon = P10000Pensjon(gjenlevende))
+        val p10000 = P10000(nav = navSed)
 
         if (avdod != null) {
             logger.info("Preutfylling Utfylling Pensjon Gjenlevende (etterlatt)")
-            p10000.nav?.annenperson =  p10000.pensjon?.gjenlevende
+            p10000.nav?.annenperson =  gjenlevende
             p10000.nav?.annenperson?.person?.rolle = "01"  //Claimant
-            p10000.pensjon = null
         }
         return p10000
     }

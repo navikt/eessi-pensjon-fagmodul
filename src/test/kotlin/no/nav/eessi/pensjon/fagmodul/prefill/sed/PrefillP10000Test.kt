@@ -37,7 +37,7 @@ class PrefillP10000Test {
     }
 
     @Test
-    fun `forventet korrekt utfylt P8000 alderperson med mockdata fra testfiler`() {
+    fun `Gitt en preutfylt P10 000 så fyll ut annen person dersom den finnes`() {
         val p10000 = prefill.prefill(
             prefillData.penSaksnummer,
             prefillData.bruker,
@@ -45,7 +45,7 @@ class PrefillP10000Test {
             prefillData.getPersonInfoFromRequestData(),
             persondataCollection)
 
-        assertNotNull(p10000.p10000Pensjon!!.gjenlevende)
+        assertNotNull(p10000.nav!!.annenperson)
     }
 }
 
