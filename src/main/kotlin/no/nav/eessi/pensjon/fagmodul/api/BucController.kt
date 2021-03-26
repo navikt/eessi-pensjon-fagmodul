@@ -90,14 +90,6 @@ class BucController(
         return mapAnyToJson(euxService.getBucDeltakere(rinanr))
     }
 
-    @ApiOperation("Henter opp creator countrycode (type)")
-    @GetMapping("/{rinanr}/creator/countryCode")
-    fun getCreatorCountryCode(@PathVariable(value = "rinanr", required = true) rinanr: String): String? {
-
-        logger.debug("Henter ut CountryCode for Creator på valgt Buc")
-        return mapAnyToJson(BucUtils(euxService.getBuc(rinanr)).getCreatorContryCode())
-    }
-
     @ApiOperation("Henter alle gyldige sed på valgt rinanr")
     @GetMapping("/{rinanr}/allDocuments")
     fun getAllDocuments(@PathVariable(value = "rinanr", required = true) rinanr: String): List<DocumentsItem> {

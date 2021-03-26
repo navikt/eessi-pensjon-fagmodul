@@ -48,13 +48,6 @@ class BucUtilsTest {
     }
 
     @Test
-    fun getCreatorCountryCode() {
-        val result = bucUtils.getCreatorContryCode()
-        assertEquals("NO", result.values.first())
-    }
-
-
-    @Test
     fun findFirstDocumentItemByType() {
         val result = bucUtils.findFirstDocumentItemByType(SEDType.P2000)
         assertEquals(SEDType.P2000, result?.type)
@@ -83,13 +76,6 @@ class BucUtilsTest {
         assertThrows<SedDokumentKanIkkeOpprettesException> {
             bucUtil.checkIfSedCanBeCreatedEmptyStatus(sedType, parentIdStatusSendt)
         }
-    }
-
-
-    @Test
-    fun getBucCaseOwnerAndCreatorCountry() {
-        val result = bucUtils.getCreatorContryCode()
-        assertEquals("NO", result["countrycode"])
     }
 
     @Test

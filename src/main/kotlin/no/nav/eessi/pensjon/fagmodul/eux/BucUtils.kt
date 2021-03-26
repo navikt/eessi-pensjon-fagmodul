@@ -45,11 +45,6 @@ class BucUtils(private val buc: Buc) {
         }
     }
 
-    fun getCreatorContryCode(): Map<String, String> {
-        val countryCode = buc.creator?.organisation?.countryCode ?: "N/A"
-        return mapOf(Pair("countrycode", countryCode))
-    }
-
     private fun getDocuments(): List<DocumentsItem> {
         return buc.documents ?: throw NoSuchFieldException("Fant ikke DocumentsItem")
     }
