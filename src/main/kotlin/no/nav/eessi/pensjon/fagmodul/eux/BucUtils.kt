@@ -1,17 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.RinaAksjon
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Attachment
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ConversationsItem
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Receiver
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Sender
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ShortAttachment
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ShortDocumentItem
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.VersionsItem
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.VersionsItemNoUser
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.*
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.models.SEDType
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
@@ -64,7 +54,7 @@ class BucUtils(private val buc: Buc) {
         return buc.documents ?: throw NoSuchFieldException("Fant ikke DocumentsItem")
     }
 
-    fun findDocument(documentId: String): ShortDocumentItem? =
+    fun findDocument(documentId: String): DocumentsItem? =
             getAllDocuments().firstOrNull { it.id == documentId }
 
     fun getStartDateLong(): Long {
@@ -98,7 +88,7 @@ class BucUtils(private val buc: Buc) {
     fun findFirstDocumentItemByType(sedType: SEDType) = getDocuments().find { sedType == it.type }?.let { createShortDocument(it) }
 
     private fun createShortDocument(documentItem: DocumentsItem) =
-            ShortDocumentItem(
+            DocumentsItem(
                 id = documentItem.id,
                 parentDocumentId = documentItem.parentDocumentId,
                 type = documentItem.type,
@@ -186,7 +176,7 @@ class BucUtils(private val buc: Buc) {
 
     private fun createShortAttachemnt(attachments: List<Attachment>?) =
             attachments?.map {
-                ShortAttachment(
+                Attachment(
                     id = it.id,
                     name = it.name,
                     mimeType = it.mimeType,
@@ -199,7 +189,7 @@ class BucUtils(private val buc: Buc) {
 
     fun getAllDocuments() = getDocuments().map { createShortDocument(it) }
 
-    fun getDocumentByType(sedType: SEDType): ShortDocumentItem? = getAllDocuments().firstOrNull { sedType == it.type && it.status != "empty" }
+    fun getDocumentByType(sedType: SEDType): DocumentsItem? = getAllDocuments().firstOrNull { sedType == it.type && it.status != "empty" }
 
     fun getParticipants() = buc.participants ?: emptyList()
 

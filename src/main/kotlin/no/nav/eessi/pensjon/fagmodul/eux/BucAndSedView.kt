@@ -1,7 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ShortDocumentItem
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.utils.toJson
 
@@ -23,7 +23,7 @@ data class BucAndSedView(
         val startDate: Long? = null,
         val lastUpdate: Long? = null,
         val institusjon: List<InstitusjonItem>? = null,
-        val seds: List<ShortDocumentItem>? = null,
+        val seds: List<DocumentsItem>? = null,
         val error: String? = null,
         val readOnly: Boolean? = false,
         val subject: BucAndSedSubject? = null

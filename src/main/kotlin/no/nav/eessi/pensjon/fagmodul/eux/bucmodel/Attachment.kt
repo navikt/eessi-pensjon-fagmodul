@@ -8,16 +8,5 @@ class Attachment(
         val name: String? = null,
         val documentId: String? = null,
         val id: String? = null,
-        // I bruk av frontend
-        val parentDocumentId: Any? = null
-)
-
-class ShortAttachment(
-        val id: String? = null,
-        val name: String? = null,
-        val fileName: String? = null,
-        val mimeType: String? = null,
-        val documentId: String? = null,
-        val lastUpdate: Any? = null,
-        val medical: Boolean? = null
+        val parentDocumentId: Any? = null         // I bruk av frontend
 )

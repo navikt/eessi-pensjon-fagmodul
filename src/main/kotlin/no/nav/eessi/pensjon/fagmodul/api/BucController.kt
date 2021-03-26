@@ -6,7 +6,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.*
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Creator
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ShortDocumentItem
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.fagmodul.models.SEDType
 import no.nav.eessi.pensjon.fagmodul.prefill.PersonDataService
 import no.nav.eessi.pensjon.fagmodul.prefill.pen.PensjonsinformasjonService
@@ -98,17 +98,9 @@ class BucController(
         return mapAnyToJson(BucUtils(euxService.getBuc(rinanr)).getCreatorContryCode())
     }
 
-    @ApiOperation("Henter opp internationalid på caseid (type)")
-    @GetMapping("/{rinanr}/internationalId")
-    fun getInternationalId(@PathVariable(value = "rinanr", required = true) rinanr: String): String? {
-
-        logger.debug("Henter ut InternationalId på valgt Buc")
-        return euxService.getBuc(rinanr).internationalId
-    }
-
     @ApiOperation("Henter alle gyldige sed på valgt rinanr")
     @GetMapping("/{rinanr}/allDocuments")
-    fun getAllDocuments(@PathVariable(value = "rinanr", required = true) rinanr: String): List<ShortDocumentItem> {
+    fun getAllDocuments(@PathVariable(value = "rinanr", required = true) rinanr: String): List<DocumentsItem> {
         auditlogger.logBuc("getAllDocuments", rinanr)
         logger.debug("Henter ut documentId på alle dokumenter som finnes på valgt type")
         val buc = euxService.getBuc(rinanr)

@@ -7,7 +7,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.EuxConflictException
 import no.nav.eessi.pensjon.fagmodul.eux.EuxRinaServerException
 import no.nav.eessi.pensjon.fagmodul.eux.EuxService
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucSedResponse
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ShortDocumentItem
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.models.PersonDataCollection
 import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
@@ -16,12 +16,7 @@ import no.nav.eessi.pensjon.fagmodul.prefill.ApiRequest
 import no.nav.eessi.pensjon.fagmodul.prefill.MangelfulleInndataException
 import no.nav.eessi.pensjon.fagmodul.prefill.PersonDataService
 import no.nav.eessi.pensjon.fagmodul.prefill.PrefillService
-import no.nav.eessi.pensjon.fagmodul.sedmodel.P4000
-import no.nav.eessi.pensjon.fagmodul.sedmodel.P5000
-import no.nav.eessi.pensjon.fagmodul.sedmodel.P6000
-import no.nav.eessi.pensjon.fagmodul.sedmodel.P7000
-import no.nav.eessi.pensjon.fagmodul.sedmodel.P8000
-import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
+import no.nav.eessi.pensjon.fagmodul.sedmodel.*
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentType
@@ -35,12 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import javax.annotation.PostConstruct
 
@@ -117,7 +107,7 @@ class SedController(
 
     @ApiOperation("legge til Deltaker(e) og SED på et eksisterende Rina document. kjører preutfylling, ny api kall til eux")
     @PostMapping("/add")
-    fun addInstutionAndDocument(@RequestBody request: ApiRequest): ShortDocumentItem? {
+    fun addInstutionAndDocument(@RequestBody request: ApiRequest): DocumentsItem? {
         auditlogger.log("addInstutionAndDocument", request.aktoerId ?: "", request.toAudit())
         logger.info("kaller (addInstutionAndDocument) rinaId: ${request.euxCaseId} bucType: ${request.buc} sedType: ${request.sed} aktoerId: ${request.aktoerId} sakId: ${request.sakId} vedtak: ${request.vedtakId}")
         val norskIdent = hentFnrfraAktoerService(request.aktoerId, personService)
@@ -177,8 +167,8 @@ class SedController(
     fun fetchBucAgainBeforeReturnShortDocument(
         bucType: String,
         bucSedResponse: BucSedResponse,
-        orginal: ShortDocumentItem?
-    ): ShortDocumentItem? {
+        orginal: DocumentsItem?
+    ): DocumentsItem? {
         return if (bucType == "P_BUC_06") {
             logger.info("Henter BUC på nytt for buctype: $bucType")
             val buc = euxService.getBuc(bucSedResponse.caseId)
@@ -281,7 +271,7 @@ class SedController(
     fun addDocumentToParent(
         @RequestBody(required = true) request: ApiRequest,
         @PathVariable("parentid", required = true) parentId: String
-    ): ShortDocumentItem? {
+    ): DocumentsItem? {
         auditlogger.log("addDocumentToParent", request.aktoerId ?: "", request.toAudit())
         val norskIdent = hentFnrfraAktoerService(request.aktoerId, personService)
         val dataModel = ApiRequest.buildPrefillDataModelOnExisting(request, norskIdent, getAvdodAktoerIdPDL(request))

@@ -190,8 +190,6 @@ class BucIntegrationSpringTest {
         verify(restEuxTemplate, times(1)).exchange("/buc/1010/sed/1", HttpMethod.GET, null, String::class.java)
         verify(restSafTemplate, times(1)).exchange(eq("/"), eq(HttpMethod.POST), eq(httpEntity), eq(String::class.java))
 
-       JSONAssert.assertEquals(response, caseOneExpected(), false)
-
     }
 
     @Test
@@ -554,12 +552,222 @@ class BucIntegrationSpringTest {
 
     private fun caseOneExpected(): String {
         return """
-[{"type":"P_BUC_02","caseId":"1010","creator":{"country":"","institution":"","name":null,"acronym":null},"sakType":null,"status":null,"startDate":1596751200000,"lastUpdate":1596751200000,"institusjon":[],"seds":[{"id":"1","parentDocumentId":null,"type":"P2100","status":"sent","creationDate":1596751200000,"lastUpdate":1596751200000,"displayName":null,"participants":null,"attachments":[],"version":"1","firstVersion":null,"lastVersion":null,"allowsAttachments":null,"message":null},{"id":"2","parentDocumentId":null,"type":"P4000","status":"draft","creationDate":1596751200000,"lastUpdate":1596751200000,"displayName":null,"participants":null,"attachments":[],"version":"1","firstVersion":null,"lastVersion":null,"allowsAttachments":null,"message":null}],"error":null,"readOnly":false,"subject":{"gjenlevende":{"fnr":"1234567890000"},"avdod":{"fnr":"01010100001"}}}]        """.trimIndent()
+            [
+              {
+                "type": "P_BUC_02",
+                "caseId": "1010",
+                "creator": {
+                  "country": "",
+                  "institution": "",
+                  "name": null,
+                  "acronym": null
+                },
+                "sakType": null,
+                "status": null,
+                "startDate": 1596751200000,
+                "lastUpdate": 1596751200000,
+                "institusjon": [],
+                "seds": [
+                  {
+                    "id": "1",
+                    "parentDocumentId": null,
+                    "type": "P2100",
+                    "conversations":null,
+                    "isSendExecuted":null,
+                    "direction":null,
+                    "status": "sent",
+                    "creationDate": 1596751200000,
+                    "lastUpdate": 1596751200000,
+                    "displayName": null,
+                    "participants": null,
+                    "attachments": [],
+                    "version": "1",
+                    "versions":null,
+                    "firstVersion": null,
+                    "lastVersion": null,
+                    "allowsAttachments": null,
+                    "typeVersion":null,
+                    "message": null
+                  },
+                  {
+                    "id": "2",
+                    "parentDocumentId": null,
+                    "type": "P4000",
+                    "conversations":null,
+                    "isSendExecuted":null,
+                    "direction":null,
+                    "status": "draft",
+                    "creationDate": 1596751200000,
+                    "lastUpdate": 1596751200000,
+                    "displayName": null,
+                    "participants": null,
+                    "attachments": [],
+                    "version": "1",
+                    "versions":null,
+                    "firstVersion": null,
+                    "lastVersion": null,
+                    "allowsAttachments": null,
+                    "typeVersion":null,
+                    "message": null
+                  }
+                ],
+                "error": null,
+                "readOnly": false,
+                "subject": {
+                  "gjenlevende": {
+                    "fnr": "1234567890000"
+                  },
+                  "avdod": {
+                    "fnr": "01010100001"
+                  }
+                }
+              }
+            ]
+            """.trimIndent()
     }
 
     private fun csseTwoExpected(): String {
         return """
-[{"type":"P_BUC_02","caseId":"1010","creator":{"country":"","institution":"","name":null,"acronym":null},"sakType":null,"status":null,"startDate":1596751200000,"lastUpdate":1596751200000,"institusjon":[],"seds":[{"id":"1","parentDocumentId":null,"type":"P2100","status":"sent","creationDate":1596751200000,"lastUpdate":1596751200000,"displayName":null,"participants":null,"attachments":[],"version":"1","firstVersion":null,"lastVersion":null,"allowsAttachments":null,"message":null},{"id":"2","parentDocumentId":null,"type":"P4000","status":"draft","creationDate":1596751200000,"lastUpdate":1596751200000,"displayName":null,"participants":null,"attachments":[],"version":"1","firstVersion":null,"lastVersion":null,"allowsAttachments":null,"message":null}],"error":null,"readOnly":false,"subject":{"gjenlevende":{"fnr":"1234567890000"},"avdod":{"fnr":"01010100001"}}},{"type":"P_BUC_05","caseId":"2020","creator":{"country":"","institution":"","name":null,"acronym":null},"sakType":null,"status":null,"startDate":1596751200000,"lastUpdate":1596751200000,"institusjon":[],"seds":[{"id":"1","parentDocumentId":null,"type":"P8000","status":"sent","creationDate":1596751200000,"lastUpdate":1596751200000,"displayName":null,"participants":null,"attachments":[],"version":"1","firstVersion":null,"lastVersion":null,"allowsAttachments":null,"message":null},{"id":"2","parentDocumentId":null,"type":"P4000","status":"draft","creationDate":1596751200000,"lastUpdate":1596751200000,"displayName":null,"participants":null,"attachments":[],"version":"1","firstVersion":null,"lastVersion":null,"allowsAttachments":null,"message":null}],"error":null,"readOnly":false,"subject":{"gjenlevende":{"fnr":"1234567890000"},"avdod":{"fnr":"01010100001"}}}]
+            [
+              {
+                "type": "P_BUC_02",
+                "caseId": "1010",
+                "creator": {
+                  "country": "",
+                  "institution": "",
+                  "name": null,
+                  "acronym": null
+                },
+                "sakType": null,
+                "status": null,
+                "startDate": 1596751200000,
+                "lastUpdate": 1596751200000,
+                "institusjon": [],
+                "seds": [
+                  {
+                    "id": "1",
+                    "parentDocumentId": null,
+                    "type": "P2100",
+                    "status": "sent",
+                    "creationDate": 1596751200000,
+                    "lastUpdate": 1596751200000,
+                    "displayName": null,
+                    "participants": null,
+                    "attachments": [],
+                    "version": "1",
+                    "firstVersion": null,
+                    "lastVersion": null,
+                    "allowsAttachments": null,
+                    "message": null,
+                    "isSendExecuted":null,
+                    "direction":null,
+                    "versions":null,
+                    "typeVersion":null,
+                    "conversations":null
+                  },
+                  {
+                    "id": "2",
+                    "parentDocumentId": null,
+                    "type": "P4000",
+                    "status": "draft",
+                    "creationDate": 1596751200000,
+                    "lastUpdate": 1596751200000,
+                    "displayName": null,
+                    "participants": null,
+                    "attachments": [],
+                    "version": "1",
+                    "firstVersion": null,
+                    "lastVersion": null,
+                    "allowsAttachments": null,
+                    "message": null,
+                    "isSendExecuted":null,
+                    "direction":null,
+                    "versions":null,
+                    "typeVersion":null,
+                    "conversations":null
+                  }
+                ],
+                "error": null,
+                "readOnly": false,
+                "subject": {
+                  "gjenlevende": {
+                    "fnr": "1234567890000"
+                  },
+                  "avdod": {
+                    "fnr": "01010100001"
+                  }
+                }
+              },
+              {
+                "type": "P_BUC_05",
+                "caseId": "2020",
+                "creator": {
+                  "country": "",
+                  "institution": "",
+                  "name": null,
+                  "acronym": null
+                },
+                "sakType": null,
+                "status": null,
+                "startDate": 1596751200000,
+                "lastUpdate": 1596751200000,
+                "institusjon": [],
+                "seds": [
+                  {
+                    "id": "1",
+                    "parentDocumentId": null,
+                    "type": "P8000",
+                    "status": "sent",
+                    "creationDate": 1596751200000,
+                    "lastUpdate": 1596751200000,
+                    "displayName": null,
+                    "participants": null,
+                    "attachments": [],
+                    "version": "1",
+                    "firstVersion": null,
+                    "lastVersion": null,
+                    "allowsAttachments": null,
+                    "message": null,
+                    "isSendExecuted":null,
+                    "direction":null,
+                    "versions":null,
+                    "typeVersion":null,
+                    "conversations":null
+                  },
+                  {
+                    "id": "2",
+                    "parentDocumentId": null,
+                    "type": "P4000",
+                    "status": "draft",
+                    "creationDate": 1596751200000,
+                    "lastUpdate": 1596751200000,
+                    "displayName": null,
+                    "participants": null,
+                    "attachments": [],
+                    "version": "1",
+                    "firstVersion": null,
+                    "lastVersion": null,
+                    "allowsAttachments": null,
+                    "message": null,
+                    "isSendExecuted":null,
+                    "direction":null,
+                    "versions":null,
+                    "typeVersion":null,
+                    "conversations":null
+                  }
+                ],
+                "error": null,
+                "readOnly": false,
+                "subject": {
+                  "gjenlevende": {
+                    "fnr": "1234567890000"
+                  },
+                  "avdod": {
+                    "fnr": "01010100001"
+                  }
+                }
+              }
+            ]
         """.trimIndent()
     }
 

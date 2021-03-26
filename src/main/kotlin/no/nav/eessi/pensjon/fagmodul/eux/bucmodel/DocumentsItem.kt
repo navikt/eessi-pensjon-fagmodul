@@ -14,27 +14,12 @@ class DocumentsItem(
         val typeVersion: String? = null,
         val allowsAttachments: Boolean? = null,
         val versions: List<VersionsItem>? = null,
-
         val lastUpdate: Any? = null,
         val parentDocumentId: String? = null,
         val status: String? = null,
-)
-
-class ShortDocumentItem(
-        val id: String? = null,
-        val parentDocumentId: String? = null,
-        val type: SEDType? = null,
-        val status: String? = null,
-        val creationDate: Long? = null,
-        val lastUpdate: Long? = null,
-        val displayName: String? = null,
         val participants: List<ParticipantsItem?>? = null,
-        val attachments: List<ShortAttachment>? = null,
+        val firstVersion: VersionsItemNoUser? = null,         // I bruk av frontend
+        val lastVersion: VersionsItemNoUser? = null,         // I bruk av frontend
         val version: String? = null,
-        // I bruk av frontend
-        val firstVersion: VersionsItemNoUser? = null,
-        // I bruk av frontend
-        val lastVersion: VersionsItemNoUser? = null,
-        val allowsAttachments: Boolean? = null,
         var message: String? = null
 )
