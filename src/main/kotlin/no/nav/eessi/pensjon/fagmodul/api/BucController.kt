@@ -210,18 +210,6 @@ class BucController(
         }
     }
 
-
-    @ApiOperation("Henter ut enkel Buc meny struktur i json format for UI på valgt euxcaseid")
-    @GetMapping("/enkeldetalj/{euxcaseid}")
-    fun getSingleBucogSedView(@PathVariable("euxcaseid", required = true) euxcaseid: String): BucAndSedView {
-        auditlogger.log("getSingleBucogSedView")
-
-        return bucDetaljerEnkel.measure {
-            logger.debug(" prøver å hente ut en enkel buc med euxCaseId: $euxcaseid")
-            return@measure euxService.getSingleBucAndSedView(euxcaseid)
-        }
-    }
-
     @ApiOperation("Oppretter ny tom BUC i RINA via eux-api. ny api kall til eux")
     @PostMapping("/{buctype}")
     fun createBuc(@PathVariable("buctype", required = true) buctype: String): BucAndSedView {

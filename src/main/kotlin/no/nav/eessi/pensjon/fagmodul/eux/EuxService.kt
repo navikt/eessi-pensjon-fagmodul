@@ -100,14 +100,6 @@ class EuxService (private val euxKlient: EuxKlient,
     fun getFnrMedLandkodeNO(pinlist: List<PinItem>?): String? =
             pinlist?.firstOrNull { it.land == "NO" }?.identifikator
 
-    fun getSingleBucAndSedView(euxCaseId: String): BucAndSedView {
-        return try {
-            BucAndSedView.from(getBuc(euxCaseId))
-        } catch (ex: Exception) {
-            logger.error("Feiler ved utlevering av enkel bucandsedview ${ex.message}", ex)
-            BucAndSedView.fromErr(ex.message)
-        }
-    }
 
     fun getBucAndSedViewWithBuc(bucs: List<Buc>, gjenlevndeFnr: String, avdodFnr: String): List<BucAndSedView> {
         return bucs
