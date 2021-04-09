@@ -26,8 +26,6 @@ import org.springframework.web.util.UriComponentsBuilder
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
-import java.time.Instant
-import java.time.ZoneId
 
 @ExtendWith(MockitoExtension::class)
 class EuxPrefillServiceTest {
@@ -106,25 +104,6 @@ class EuxPrefillServiceTest {
 
         val firstBucAndSedView = result.first()
         assertEquals("158123", firstBucAndSedView.caseId)
-    }
-
-    @Test
-    fun callingEuxServiceForSinglemenuUI_AllOK() {
-        val bucjson = "src/test/resources/json/buc/buc-158123_2_v4.1.json"
-        val bucStr = String(Files.readAllBytes(Paths.get(bucjson)))
-        assertTrue(validateJson(bucStr))
-
-        doReturn(bucStr)
-                .whenever(euxKlient)
-                .getBucJson(any())
-
-        val firstJson = euxinnhentingService.getSingleBucAndSedView("158123")
-
-        assertEquals("158123", firstJson.caseId)
-        var lastUpdate: Long = 0
-        firstJson.lastUpdate?.let { lastUpdate = it }
-        assertEquals("2019-05-20T16:35:34",  Instant.ofEpochMilli(lastUpdate).atZone(ZoneId.systemDefault()).toLocalDateTime().toString())
-        assertEquals(18, firstJson.seds?.size)
     }
 
     @Test

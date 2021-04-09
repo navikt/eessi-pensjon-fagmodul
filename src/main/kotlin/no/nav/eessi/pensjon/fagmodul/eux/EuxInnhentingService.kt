@@ -52,15 +52,6 @@ class EuxInnhentingService (private val euxKlient: EuxKlient,
         }
     }
 
-    fun getSingleBucAndSedView(euxCaseId: String): BucAndSedView {
-        return try {
-            BucAndSedView.from(getBuc(euxCaseId))
-        } catch (ex: Exception) {
-            logger.error("Feiler ved utlevering av enkel bucandsedview ${ex.message}", ex)
-            BucAndSedView.fromErr(ex.message)
-        }
-    }
-
     fun getBucAndSedViewWithBuc(bucs: List<Buc>, gjenlevndeFnr: String, avdodFnr: String): List<BucAndSedView> {
         return bucs
                 .map { buc ->
