@@ -1,5 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.models
 
+import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.utils.eessiRequire
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -7,22 +8,22 @@ import org.junit.jupiter.api.assertThrows
 import org.springframework.web.server.ResponseStatusException
 import kotlin.test.assertFalse
 
-class SEDTypeTest {
+class SedTypeTest {
     @Test
-    fun `check for value on SEDtype`() {
+    fun `check for value on SedType`() {
         val px = "P3000_SE"
-        val result = SEDType.isValidSEDType(px)
+        val result = SedType.isValidSEDType(px)
         assertTrue(result)
     }
 
     @Test
-    fun `check for uvalid SEDtype to prefill`() {
+    fun `check for uvalid SedType to prefill`() {
         val px = "P3000"
-        val result = SEDType.isValidSEDType(px)
+        val result = SedType.isValidSEDType(px)
         assertFalse(result)
 
         assertThrows<ResponseStatusException> {
-            eessiRequire(SEDType.isValidSEDType(px)) { "Kaste en tull melding under test"}
+            eessiRequire(SedType.isValidSEDType(px)) { "Kaste en tull melding under test"}
         }
 
     }

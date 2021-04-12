@@ -1,12 +1,10 @@
 package no.nav.eessi.pensjon.fagmodul.prefill
 
+import no.nav.eessi.pensjon.eux.model.sed.SED
+import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
-import no.nav.eessi.pensjon.fagmodul.models.SEDType
-import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
 import no.nav.eessi.pensjon.utils.*
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -67,7 +65,7 @@ class ApiRequestTest {
                 "}"
         val datamodel = ApiRequest.buildPrefillDataModelOnExisting( mapJsonToAny(req, typeRefs<ApiRequest>()), "", "")
         assertNotNull(datamodel)
-        assertEquals(SEDType.P2000, datamodel.sedType)
+        assertEquals(SedType.P2000, datamodel.sedType)
         assertEquals("P_BUC_01", datamodel.buc)
     }
 
@@ -147,7 +145,7 @@ class ApiRequestTest {
         assertEquals("12345", model.bruker.norskIdent)
         assertEquals("12234", model.penSaksnummer)
         assertEquals("0105094340092", model.bruker.aktorId)
-        assertEquals(SEDType.P6000, model.sedType)
+        assertEquals(SedType.P6000, model.sedType)
     }
 
     @Test
@@ -167,7 +165,7 @@ class ApiRequestTest {
         assertEquals("12345", model.bruker.norskIdent)
         assertEquals("12234", model.penSaksnummer)
         assertEquals("0105094340092", model.bruker.aktorId)
-        assertEquals(SEDType.P2100, model.sedType)
+        assertEquals(SedType.P2100, model.sedType)
         assertEquals("2223312", model.avdod?.aktorId)
         assertEquals("010244212312", model.avdod?.norskIdent)
 
@@ -191,7 +189,7 @@ class ApiRequestTest {
         assertEquals("23123", model.bruker.norskIdent)
         assertEquals("12234", model.penSaksnummer)
         assertEquals("0105094340092", model.bruker.aktorId)
-        assertEquals(SEDType.P5000, model.sedType)
+        assertEquals(SedType.P5000, model.sedType)
         assertEquals("113123123123", model.avdod?.aktorId)
         assertEquals("576567567567", model.avdod?.norskIdent)
 

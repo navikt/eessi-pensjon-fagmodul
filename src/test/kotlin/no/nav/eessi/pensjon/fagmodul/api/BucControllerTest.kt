@@ -5,6 +5,7 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.doThrow
 import com.nhaarman.mockitokotlin2.whenever
+import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Properties
@@ -14,7 +15,6 @@ import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Organisation
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
-import no.nav.eessi.pensjon.fagmodul.models.SEDType
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.fagmodul.prefill.PersonDataService
 import no.nav.eessi.pensjon.fagmodul.prefill.PrefillService
@@ -153,7 +153,7 @@ class BucControllerTest {
 
         val actual = bucController.getMuligeAksjoner("279029")
         assertEquals(8, actual.size)
-        assertTrue(actual.containsAll(listOf(SEDType.H020, SEDType.P10000, SEDType.P6000)))
+        assertTrue(actual.containsAll(listOf(SedType.H020, SedType.P10000, SedType.P6000)))
     }
 
     @Test
@@ -227,14 +227,14 @@ class BucControllerTest {
 
         doReturn(fnrGjenlevende).whenever(personDataService).hentFnrfraAktoerService(any())
 
-        val documentsItem = listOf(DocumentsItem(type = SEDType.P2100))
+        val documentsItem = listOf(DocumentsItem(type = SedType.P2100))
         val avdodView = listOf(BucAndSedView.from(Buc(id = "123", processDefinitionName = "P_BUC_02", documents = documentsItem), fnrGjenlevende, avdodfnr ))
         doReturn(avdodView).whenever(mockEuxInnhentingService).getBucAndSedViewAvdod(fnrGjenlevende, avdodfnr)
 
         val rinaSaker = listOf(Rinasak(id = "123213", processDefinitionId = "P_BUC_03", status = "open"))
         doReturn(rinaSaker).whenever(mockEuxInnhentingService).getRinasaker(any(), any(), any())
 
-        val documentsItemP2200 = listOf(DocumentsItem(type = SEDType.P2200))
+        val documentsItemP2200 = listOf(DocumentsItem(type = SedType.P2200))
         val buc = Buc(id = "23321", processDefinitionName = "P_BUC_03", documents = documentsItemP2200)
         doReturn(buc).whenever(mockEuxInnhentingService).getBuc(any())
 
@@ -268,7 +268,7 @@ class BucControllerTest {
         val rinaSaker = listOf<Rinasak>()
         doReturn(rinaSaker).whenever(mockEuxInnhentingService).getRinasaker(any(), any(), any())
 
-        val documentsItem1 = listOf(DocumentsItem(type = SEDType.P2100))
+        val documentsItem1 = listOf(DocumentsItem(type = SedType.P2100))
 
         val buc1 = Buc(id = "123", processDefinitionName = "P_BUC_02", documents = documentsItem1)
         val avdodView1 = listOf(BucAndSedView.from(buc1, fnrGjenlevende, avdodMorfnr))
@@ -310,7 +310,7 @@ class BucControllerTest {
         val rinaSaker = listOf<Rinasak>(Rinasak("1234","P_BUC_01", Traits(), "", Properties(), "open"))
         doReturn(rinaSaker).whenever(mockEuxInnhentingService).getRinasaker(fnrGjenlevende, aktoerId, emptyList())
 
-        val documentsItem = listOf(DocumentsItem(type = SEDType.P2000))
+        val documentsItem = listOf(DocumentsItem(type = SedType.P2000))
         val buc = Buc(processDefinitionName = "P_BUC_01", documents = documentsItem)
 
         doReturn(buc).whenever(mockEuxInnhentingService).getBuc(any())

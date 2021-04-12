@@ -1,7 +1,11 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.sed.krav
 
 import com.nhaarman.mockitokotlin2.mock
-import no.nav.eessi.pensjon.fagmodul.models.*
+import no.nav.eessi.pensjon.eux.model.sed.SedType
+import no.nav.eessi.pensjon.fagmodul.models.PersonDataCollection
+import no.nav.eessi.pensjon.fagmodul.models.PersonId
+import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
+import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModelMother
 import no.nav.eessi.pensjon.fagmodul.prefill.PersonPDLMock
 import no.nav.eessi.pensjon.fagmodul.prefill.eessi.EessiInformasjon
 import no.nav.eessi.pensjon.fagmodul.prefill.pdl.FodselsnummerMother.generateRandomFnr
@@ -53,7 +57,7 @@ class PrefillP2100MedAlderSakTest {
         )
 
         prefillData = PrefillDataModelMother.initialPrefillDataModel(
-                sedType = SEDType.P2100,
+                sedType = SedType.P2100,
                 pinId = personFnr,
                 kravId = "3243243",
                 penSaksnummer = pesysSaksnummer,
@@ -62,7 +66,7 @@ class PrefillP2100MedAlderSakTest {
         prefillSEDService = PrefillSEDService(dataFromPEN, EessiInformasjon(), prefillNav)
         val p2100 = prefillSEDService.prefill(prefillData, persondataCollection)
 
-        assertEquals(SEDType.P2100, p2100.type)
+        assertEquals(SedType.P2100, p2100.type)
         assertEquals("BAMSE ULUR", p2100.pensjon?.gjenlevende?.person?.fornavn)
         assertEquals("BAMSE LUR", p2100.nav?.bruker?.person?.fornavn)
         assertEquals("2015-06-16", p2100.pensjon?.kravDato?.dato)

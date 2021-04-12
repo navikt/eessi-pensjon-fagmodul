@@ -5,16 +5,16 @@ package no.nav.eessi.pensjon.fagmodul.api
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.whenever
+import no.nav.eessi.pensjon.eux.model.sed.SED
+import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.eux.EuxPrefillService
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
-import no.nav.eessi.pensjon.fagmodul.models.SEDType
 import no.nav.eessi.pensjon.fagmodul.prefill.ApiRequest
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.fagmodul.prefill.PersonDataService
 import no.nav.eessi.pensjon.fagmodul.prefill.PrefillService
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillSEDService
-import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.utils.mapAnyToJson
 import no.nav.eessi.pensjon.utils.mapJsonToAny
@@ -88,7 +88,7 @@ class SedControllerTest {
     @Test
     fun getDocumentfromRina() {
 
-        val sed = SED(SEDType.P2000)
+        val sed = SED(SedType.P2000)
         doReturn(sed).`when`(mockEuxInnhentingService).getSedOnBucByDocumentId("2313", "23123123123")
 
         val result = sedController.getDocument("2313", "23123123123")
@@ -113,7 +113,7 @@ class SedControllerTest {
 
         val actualResponse = sedController.getSeds(buc, rinanr)
 
-        val expectedResponse = ResponseEntity.ok().body(mapAnyToJson( listOf(SEDType.P2000)))
+        val expectedResponse = ResponseEntity.ok().body(mapAnyToJson( listOf(SedType.P2000)))
 
         assertEquals(expectedResponse, actualResponse)
 
@@ -132,7 +132,7 @@ class SedControllerTest {
         val actualResponse = sedController.getSeds(buc, rinanr)
 
         val expectedResponse =
-            ResponseEntity.ok(mapAnyToJson(listOf(SEDType.P5000, SEDType.P6000, SEDType.P7000, SEDType.P10000)))
+            ResponseEntity.ok(mapAnyToJson(listOf(SedType.P5000, SedType.P6000, SedType.P7000, SedType.P10000)))
 
         assertEquals(expectedResponse, actualResponse)
 
@@ -150,7 +150,7 @@ class SedControllerTest {
 
         val actualResponse = sedController.getSeds(buc, rinanr)
 
-        val expectedResponse = ResponseEntity.ok().body(mapAnyToJson(listOf(SEDType.P10000, SEDType.P6000, SEDType.P7000)))
+        val expectedResponse = ResponseEntity.ok().body(mapAnyToJson(listOf(SedType.P10000, SedType.P6000, SedType.P7000)))
 
         assertEquals(expectedResponse, actualResponse)
 
@@ -168,7 +168,7 @@ class SedControllerTest {
 
         val actualResponse = sedController.getSeds(buc, rinanr)
 
-        val sedList = listOf(SEDType.H020, SEDType.H070, SEDType.H120, SEDType.P10000, SEDType.P3000_NO, SEDType.P4000, SEDType.P5000, SEDType.P6000, SEDType.P7000, SEDType.P8000 )
+        val sedList = listOf(SedType.H020, SedType.H070, SedType.H120, SedType.P10000, SedType.P3000_NO, SedType.P4000, SedType.P5000, SedType.P6000, SedType.P7000, SedType.P8000 )
         val expectedResponse = ResponseEntity.ok().body(mapAnyToJson(sedList))
 
         assertEquals(expectedResponse, actualResponse)

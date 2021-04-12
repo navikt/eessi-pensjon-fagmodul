@@ -1,7 +1,11 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.sed
 
 import com.nhaarman.mockitokotlin2.mock
-import no.nav.eessi.pensjon.fagmodul.models.*
+import no.nav.eessi.pensjon.eux.model.sed.SedType
+import no.nav.eessi.pensjon.fagmodul.models.PersonDataCollection
+import no.nav.eessi.pensjon.fagmodul.models.PersonId
+import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
+import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModelMother
 import no.nav.eessi.pensjon.fagmodul.prefill.PersonPDLMock
 import no.nav.eessi.pensjon.fagmodul.prefill.pdl.FodselsnummerMother.generateRandomFnr
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillPDLNav
@@ -29,7 +33,7 @@ class PrefillP10000Test {
 
         prefill = PrefillP10000(prefillNav)
         prefillData = PrefillDataModelMother.initialPrefillDataModel(
-            SEDType.P8000,
+            SedType.P8000,
             personFnr,
             penSaksnummer = pesysSaksnummer,
             avdod = PersonId("12345678910", "123456789"))

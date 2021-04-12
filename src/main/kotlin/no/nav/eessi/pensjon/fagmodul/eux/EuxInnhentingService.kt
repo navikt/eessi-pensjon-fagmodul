@@ -1,24 +1,24 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
+import no.nav.eessi.pensjon.eux.model.sed.*
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
-import no.nav.eessi.pensjon.fagmodul.models.SEDType
-import no.nav.eessi.pensjon.fagmodul.sedmodel.*
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.typeRefs
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
 
 @Service
-class EuxInnhentingService (private val euxKlient: EuxKlient,
-                  @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())) {
+class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlient: EuxKlient,
+                            @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())) {
 
     private val logger = LoggerFactory.getLogger(EuxPrefillService::class.java)
 
@@ -43,11 +43,11 @@ class EuxInnhentingService (private val euxKlient: EuxKlient,
         val genericSed = SED.fromJson(sedJson)
 
         return when(genericSed.type) {
-            SEDType.P4000 -> mapJsonToAny(sedJson, typeRefs<P4000>())
-            SEDType.P5000 -> mapJsonToAny(sedJson, typeRefs<P5000>())
-            SEDType.P6000 -> mapJsonToAny(sedJson, typeRefs<P6000>())
-            SEDType.P7000 -> mapJsonToAny(sedJson, typeRefs<P7000>())
-            SEDType.P8000 -> mapJsonToAny(sedJson, typeRefs<P8000>())
+            SedType.P4000 -> mapJsonToAny(sedJson, typeRefs<P4000>())
+            SedType.P5000 -> mapJsonToAny(sedJson, typeRefs<P5000>())
+            SedType.P6000 -> mapJsonToAny(sedJson, typeRefs<P6000>())
+            SedType.P7000 -> mapJsonToAny(sedJson, typeRefs<P7000>())
+            SedType.P8000 -> mapJsonToAny(sedJson, typeRefs<P8000>())
             else -> genericSed
         }
     }
@@ -165,10 +165,10 @@ class EuxInnhentingService (private val euxKlient: EuxKlient,
             logger.info("henter documentid fra buc: ${docs.rinaidAvdod} bucType: $bucType")
 
             val shortDoc = when (bucType) {
-                "P_BUC_02" -> bucutil.getDocumentByType(SEDType.P2100)
-                "P_BUC_10" -> bucutil.getDocumentByType(SEDType.P15000)
-                "P_BUC_05" -> bucutil.getDocumentByType(SEDType.P8000)
-                else -> bucutil.getDocumentByType(SEDType.P6000)
+                "P_BUC_02" -> bucutil.getDocumentByType(SedType.P2100)
+                "P_BUC_10" -> bucutil.getDocumentByType(SedType.P15000)
+                "P_BUC_05" -> bucutil.getDocumentByType(SedType.P8000)
+                else -> bucutil.getDocumentByType(SedType.P6000)
             }
             val sedJson = shortDoc?.let {
                 euxKlient.getSedOnBucByDocumentIdAsJson(docs.rinaidAvdod, it.id!!)
@@ -209,10 +209,10 @@ class EuxInnhentingService (private val euxKlient: EuxKlient,
         }
     }
 
-    private fun filterPinGjenlevendePin(gjenlevende: Person?, sedType: SEDType, rinaidAvdod: String): String? {
+    private fun filterPinGjenlevendePin(gjenlevende: Person?, SedType: SedType, rinaidAvdod: String): String? {
         val pin = gjenlevende?.pin?.firstOrNull { it.land == "NO" }
         return if (pin == null) {
-            logger.warn("Ingen fnr funnet på gjenlevende. ${sedType}, rinaid: $rinaidAvdod")
+            logger.warn("Ingen fnr funnet på gjenlevende. ${SedType}, rinaid: $rinaidAvdod")
             null
         } else {
             pin.identifikator

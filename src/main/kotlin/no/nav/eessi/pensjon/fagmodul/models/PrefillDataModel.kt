@@ -1,5 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.models
 
+import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.typeRefs
 
@@ -16,7 +17,7 @@ data class PrefillDataModel(
     val penSaksnummer: String,
     val bruker: PersonId,
     val avdod: PersonId?,
-    val sedType: SEDType,
+    val sedType: SedType,
     val buc: String,
     val vedtakId: String? = null,
     val kravDato: String? = null, // Brukes bare av P15000
@@ -30,7 +31,7 @@ data class PrefillDataModel(
     ) {
 
     override fun toString(): String {
-        return "DataModel: sedType: $sedType, bucType: $buc, penSakId: $penSaksnummer, vedtakId: $vedtakId, euxCaseId: $euxCaseID"
+        return "DataModel: SedType: $SedType, bucType: $buc, penSakId: $penSaksnummer, vedtakId: $vedtakId, euxCaseId: $euxCaseID"
     }
 
     fun getPartSEDasJson(key: String): String? {

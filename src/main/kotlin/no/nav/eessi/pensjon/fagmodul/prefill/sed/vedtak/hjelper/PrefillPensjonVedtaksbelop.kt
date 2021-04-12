@@ -1,10 +1,10 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.sed.vedtak.hjelper
 
 
-import no.nav.eessi.pensjon.fagmodul.sedmodel.BeloepBrutto
-import no.nav.eessi.pensjon.fagmodul.sedmodel.BeregningItem
-import no.nav.eessi.pensjon.fagmodul.sedmodel.Periode
-import no.nav.eessi.pensjon.fagmodul.sedmodel.Ukjent
+import no.nav.eessi.pensjon.eux.model.sed.BeloepBrutto
+import no.nav.eessi.pensjon.eux.model.sed.BeregningItem
+import no.nav.eessi.pensjon.eux.model.sed.Periode
+import no.nav.eessi.pensjon.eux.model.sed.Ukjent
 import no.nav.eessi.pensjon.utils.simpleFormat
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
 import no.nav.pensjon.v1.ytelsepermaaned.V1YtelsePerMaaned

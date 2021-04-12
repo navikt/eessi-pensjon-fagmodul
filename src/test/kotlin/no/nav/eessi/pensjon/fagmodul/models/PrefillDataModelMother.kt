@@ -1,8 +1,10 @@
 package no.nav.eessi.pensjon.fagmodul.models
 
+import no.nav.eessi.pensjon.eux.model.sed.SedType
+
 object PrefillDataModelMother {
 
-    fun initialPrefillDataModel(sedType: SEDType,
+    fun initialPrefillDataModel(sedType: SedType,
                                 pinId: String,
                                 vedtakId: String? = null,
                                 penSaksnummer: String = "12345",

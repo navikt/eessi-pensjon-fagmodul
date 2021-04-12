@@ -1,19 +1,20 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
 import io.swagger.annotations.ApiOperation
+import no.nav.eessi.pensjon.eux.model.sed.*
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
-import no.nav.eessi.pensjon.fagmodul.models.SEDType
-import no.nav.eessi.pensjon.fagmodul.prefill.*
-import no.nav.eessi.pensjon.fagmodul.sedmodel.*
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 
 @Protected
 @RestController
@@ -60,11 +61,11 @@ class SedController(
 
     private fun mapToConcreteSedJson(sedJson: SED): String {
         return when (sedJson.type) {
-            SEDType.P4000 -> (sedJson as P4000).toJson()
-            SEDType.P5000 -> (sedJson as P5000).toJson()
-            SEDType.P6000 -> (sedJson as P6000).toJson()
-            SEDType.P7000 -> (sedJson as P7000).toJson()
-            SEDType.P8000 -> (sedJson as P8000).toJson()
+            SedType.P4000 -> (sedJson as P4000).toJson()
+            SedType.P5000 -> (sedJson as P5000).toJson()
+            SedType.P6000 -> (sedJson as P6000).toJson()
+            SedType.P7000 -> (sedJson as P7000).toJson()
+            SedType.P8000 -> (sedJson as P8000).toJson()
             else -> sedJson.toJson()
         }
     }

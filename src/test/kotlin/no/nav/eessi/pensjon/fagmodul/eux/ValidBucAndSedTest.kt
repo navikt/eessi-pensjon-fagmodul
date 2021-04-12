@@ -1,6 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
-import no.nav.eessi.pensjon.fagmodul.models.SEDType
+import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.utils.toJson
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
@@ -19,12 +19,12 @@ class ValidBucAndSedTest {
     @Test
     fun `Calling euxService getAvailableSEDonBuc returns BuC lists`() {
         var buc = "P_BUC_01"
-        var expectedResponse = listOf(SEDType.P2000)
+        var expectedResponse = listOf(SedType.P2000)
         var generatedResponse = validBucAndSed.getAvailableSedOnBuc (buc)
         Assertions.assertEquals(generatedResponse, expectedResponse)
 
         buc = "P_BUC_06"
-        expectedResponse = listOf(SEDType.P5000, SEDType.P6000, SEDType.P7000, SEDType.P10000)
+        expectedResponse = listOf(SedType.P5000, SedType.P6000, SedType.P7000, SedType.P10000)
         generatedResponse = validBucAndSed.getAvailableSedOnBuc(buc)
         Assertions.assertEquals(generatedResponse, expectedResponse)
     }

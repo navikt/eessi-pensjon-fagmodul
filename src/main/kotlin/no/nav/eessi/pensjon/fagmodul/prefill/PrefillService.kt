@@ -1,13 +1,13 @@
 package no.nav.eessi.pensjon.fagmodul.prefill
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
+import no.nav.eessi.pensjon.eux.model.sed.SED
+import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.models.PersonDataCollection
 import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
-import no.nav.eessi.pensjon.fagmodul.models.SEDType
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillSEDService
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.krav.ValidationException
-import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.utils.eessiRequire
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
@@ -34,7 +34,7 @@ class PrefillService(private val prefillSedService: PrefillSEDService,
         return PrefillSed.measure {
             logger.info("******* Starter med preutfylling ******* $dataModel")
             try {
-                eessiRequire(dataModel.sedType.kanPrefilles() ) {"SedType $dataModel.sedType kan ikke prefilles!"}
+                eessiRequire(dataModel.sedType.kanPrefilles() ) {"SedType $dataModel.SedType kan ikke prefilles!"}
                 val sed = prefillSedService.prefill(dataModel, personDataCollection)
 
                 val sedType = sed.type
@@ -76,10 +76,10 @@ class PrefillService(private val prefillSedService: PrefillSEDService,
             nyeDeltakere.map {
                 logger.debug("Legger til Institusjon på X005 ${it.institution}")
                 // ID og Navn på X005 er påkrevd må hente innn navn fra UI.
-                val datax005 = data.copy(avdod = null, sedType = SEDType.X005, institution = listOf(it))
+                val datax005 = data.copy(avdod = null, sedType = SedType.X005, institution = listOf(it))
 
                 prefillSedService.prefill(datax005, personcollection)
             }
 }
 
-class SedAndType(val sedType: SEDType, val sed: String)
+class SedAndType(val sedType: SedType, val sed: String)

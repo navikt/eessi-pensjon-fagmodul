@@ -1,7 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.pen
 
+import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
-import no.nav.eessi.pensjon.fagmodul.models.SEDType
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjoninformasjonException
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonClient
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
@@ -97,8 +97,8 @@ class PensjonsinformasjonService(private val pensjonsinformasjonClient: Pensjons
             val sak = finnSak(penSaksnummer, it) ?: return null
 
             if (!akseptabelSakstypeForSed(sak.sakType)) {
-                logger.warn("Du kan ikke opprette ${sedTypeAsText(sedType)} i en ${sakTypeAsText(sak.sakType)} (PESYS-saksnr: $penSaksnummer har sakstype ${sak.sakType})")
-                throw FeilSakstypeForSedException("Du kan ikke opprette ${sedTypeAsText(sedType)} i en ${sakTypeAsText(sak.sakType)} (PESYS-saksnr: $penSaksnummer har sakstype ${sak.sakType})")
+                logger.warn("Du kan ikke opprette ${SedTypeAsText(sedType)} i en ${sakTypeAsText(sak.sakType)} (PESYS-saksnr: $penSaksnummer har sakstype ${sak.sakType})")
+                throw FeilSakstypeForSedException("Du kan ikke opprette ${SedTypeAsText(sedType)} i en ${sakTypeAsText(sak.sakType)} (PESYS-saksnr: $penSaksnummer har sakstype ${sak.sakType})")
             }
             sak
         }
@@ -119,11 +119,11 @@ class PensjonsinformasjonService(private val pensjonsinformasjonClient: Pensjons
                 else -> "$sakType-sak"
             }
 
-    private fun sedTypeAsText(sedType: SEDType) =
+    private fun SedTypeAsText(sedType: SedType) =
             when (sedType) {
-                SEDType.P2000 -> "alderspensjonskrav"
-                SEDType.P2100 -> "gjenlevende-krav"
-                SEDType.P2200 -> "uføretrygdkrav"
+                SedType.P2000 -> "alderspensjonskrav"
+                SedType.P2100 -> "gjenlevende-krav"
+                SedType.P2200 -> "uføretrygdkrav"
                 else -> sedType.name
             }
 

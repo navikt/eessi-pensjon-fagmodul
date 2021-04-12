@@ -1,9 +1,9 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.sed.krav
 
 import com.nhaarman.mockitokotlin2.mock
+import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
 import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModelMother.initialPrefillDataModel
-import no.nav.eessi.pensjon.fagmodul.models.SEDType
 import no.nav.eessi.pensjon.fagmodul.prefill.PersonPDLMock
 import no.nav.eessi.pensjon.fagmodul.prefill.eessi.EessiInformasjon
 import no.nav.eessi.pensjon.fagmodul.prefill.pdl.FodselsnummerMother.generateRandomFnr
@@ -43,7 +43,7 @@ class PrefillP2200UforpensjonTest {
 
         dataFromPEN = lesPensjonsdataFraFil("P2200-UP-INNV.xml")
 
-        prefillData = initialPrefillDataModel(SEDType.P2200, personFnr, penSaksnummer = "22874955").apply {
+        prefillData = initialPrefillDataModel(SedType.P2200, personFnr, penSaksnummer = "22874955").apply {
             partSedAsJson["PersonInfo"] = readJsonResponse("other/person_informasjon_selvb.json")
         }
         prefillSEDService = PrefillSEDService(dataFromPEN, EessiInformasjon(), prefillNav)
@@ -60,7 +60,7 @@ class PrefillP2200UforpensjonTest {
         val P2200 = prefillSEDService.prefill(prefillData, persondataCollection)
         val p2200Actual = P2200.toJsonSkipEmpty()
         assertNotNull(p2200Actual)
-        assertEquals(SEDType.P2200, P2200.type)
+        assertEquals(SedType.P2200, P2200.type)
         assertEquals("JESSINE TORDNU", P2200.nav?.bruker?.person?.fornavn)
         assertEquals("BOUWMANS", P2200.nav?.bruker?.person?.etternavn)
         assertEquals(2, P2200.nav?.barn?.size)

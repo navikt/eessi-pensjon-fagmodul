@@ -1,13 +1,13 @@
 package no.nav.eessi.pensjon.fagmodul.eux.basismodel
 
-import no.nav.eessi.pensjon.fagmodul.models.SEDType
+import no.nav.eessi.pensjon.eux.model.sed.SedType
 
 /**
  * data class model from EUX Basis
  */
 
 class RinaAksjon(
-        val dokumentType: SEDType? = null,
+        val dokumentType: SedType? = null,
         val navn: String? = null,
         val dokumentId: String? = null,
         val kategori: String? = null,

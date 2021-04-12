@@ -1,9 +1,9 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.sed
 
+import no.nav.eessi.pensjon.eux.model.sed.*
 import no.nav.eessi.pensjon.fagmodul.models.PersonDataCollection
 import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillSed
-import no.nav.eessi.pensjon.fagmodul.sedmodel.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -22,12 +22,14 @@ class PrefillP7000(private val prefillSed: PrefillSed) {
 
         val p7000 = P7000(
                 nav = Nav(
-                        eessisak = listOf(EessisakItem(
+                        eessisak = listOf(
+                            EessisakItem(
                                 land = eessielm?.land,
                                 saksnummer = eessielm?.saksnummer,
                                 institusjonsid = eessielm?.institusjonsid,
                                 institusjonsnavn = eessielm?.institusjonsnavn
-                        )),
+                        )
+                        ),
                         bruker = Bruker(
                                 person = Person(
                                         etternavn = person?.etternavn,

@@ -1,10 +1,9 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.sed.krav
 
+import no.nav.eessi.pensjon.eux.model.sed.*
 import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
-import no.nav.eessi.pensjon.fagmodul.models.SEDType
 import no.nav.eessi.pensjon.fagmodul.prefill.eessi.EessiInformasjon
 import no.nav.eessi.pensjon.fagmodul.prefill.pdl.NavFodselsnummer
-import no.nav.eessi.pensjon.fagmodul.sedmodel.*
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.EPSaktype
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.KravHistorikkHelper.finnKravHistorikk
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.KravHistorikkHelper.finnKravHistorikkForDato
@@ -124,7 +123,7 @@ object PrefillP2xxxPensjon {
      * F_BH_MED_UTL     Førstegangsbehandling Norge/utland ikke finnes sakl vi avslutte
      *
      */
-    private fun validerGyldigKravtypeOgArsak(sak: V1Sak?, sedType: SEDType, vedtak: V1Vedtak?) {
+    private fun validerGyldigKravtypeOgArsak(sak: V1Sak?, sedType: SedType, vedtak: V1Vedtak?) {
         logger.info("start på validering av $sedType")
 
         validerGyldigKravtypeOgArsakFelles(sak , sedType)
@@ -148,7 +147,7 @@ object PrefillP2xxxPensjon {
         logger.info("avslutt på validering av $sedType, fortsetter med preutfylling")
     }
 
-    fun validerGyldigVedtakEllerKravtypeOgArsak(sak:V1Sak?, sedType: SEDType, vedtak: V1Vedtak?) {
+    fun validerGyldigVedtakEllerKravtypeOgArsak(sak:V1Sak?, sedType: SedType, vedtak: V1Vedtak?) {
 
         vedtak?.let {
             logger.info("Validering på vedtak bosatt utland ${it.isBoddArbeidetUtland}")
@@ -169,25 +168,25 @@ object PrefillP2xxxPensjon {
      * TILST_DOD       Dødsfall tilstøtende                 hvis ikke finnes ved
      *
      */
-    fun validerGyldigKravtypeOgArsakGjenlevnde(sak: V1Sak?, sedType: SEDType) {
+    fun validerGyldigKravtypeOgArsakGjenlevnde(sak: V1Sak?, sedType: SedType) {
         logger.info("Start på validering av $sedType")
         val validSaktype = listOf(EPSaktype.ALDER.name, EPSaktype.UFOREP.name)
 
         validerGyldigKravtypeOgArsakFelles(sak, sedType)
 
-        if (sedType == SEDType.P2100 && (hentKravhistorikkForGjenlevende(sak?.kravHistorikkListe) == null && validSaktype.contains(sak?.sakType))  ) {
+        if (sedType == SedType.P2100 && (hentKravhistorikkForGjenlevende(sak?.kravHistorikkListe) == null && validSaktype.contains(sak?.sakType))  ) {
             logger.warn("Ikke korrkt kravårsak for P21000 (alder/uførep")
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ingen gyldig kravårsak funnet for ALDER eller UFØREP for utfylling av en krav SED P2100")
         }
-        logger.info("Avslutter på validering av $sedType, fortsetter med preutfylling")
+        logger.info("Avslutter på validering av $SedType, fortsetter med preutfylling")
     }
 
     //felles kode for validering av P2000, P2100 og P2200
-    private fun validerGyldigKravtypeOgArsakFelles(sak: V1Sak?, sedType: SEDType) {
+    private fun validerGyldigKravtypeOgArsakFelles(sak: V1Sak?, sedType: SedType) {
         val fortegBH = finnKravHistorikk("FORSTEG_BH", sak?.kravHistorikkListe)
         if (fortegBH != null && fortegBH.size == sak?.kravHistorikkListe?.kravHistorikkListe?.size)  {
             logger.warn("Det er ikke markert for bodd/arbeidet i utlandet. Krav SED $sedType blir ikke opprettet")
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Det er ikke markert for bodd/arbeidet i utlandet. Krav SED $sedType blir ikke opprettet")
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Det er ikke markert for bodd/arbeidet i utlandet. Krav SED $SedType blir ikke opprettet")
         }
     }
 
@@ -443,7 +442,7 @@ object PrefillP2xxxPensjon {
                 sak,
                 andreInstitusjondetaljer
             )
-            if (prefillData.sedType != SEDType.P6000) {
+            if (prefillData.sedType != SedType.P6000) {
                 //vi skal ha blank pensjon ved denne toggle, men vi må ha med kravdato
                 Pensjon(kravDato = meldingOmPensjon.pensjon.kravDato)
             } else {

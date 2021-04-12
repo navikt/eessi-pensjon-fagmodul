@@ -1,12 +1,12 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
+import no.nav.eessi.pensjon.eux.model.sed.SED
+import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucSedResponse
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
-import no.nav.eessi.pensjon.fagmodul.models.SEDType
-import no.nav.eessi.pensjon.fagmodul.sedmodel.*
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.services.statistikk.StatistikkHandler
 import no.nav.eessi.pensjon.utils.toJson
@@ -58,10 +58,10 @@ class EuxPrefillService (private val euxKlient: EuxKlient,
      * Ny SED på ekisterende type
      */
     @Throws(EuxGenericServerException::class, SedDokumentIkkeOpprettetException::class)
-    fun opprettJsonSedOnBuc(jsonNavSED: String, sedType: SEDType, euxCaseId: String, vedtakId: String?): BucSedResponse {
-        logger.info("Forsøker å opprette en $sedType på rinasakId: $euxCaseId")
+    fun opprettJsonSedOnBuc(jsonNavSED: String, SedType: SedType, euxCaseId: String, vedtakId: String?): BucSedResponse {
+        logger.info("Forsøker å opprette en $SedType på rinasakId: $euxCaseId")
         logger.debug("Logger ut $jsonNavSED")
-        val bucSedResponse  = euxKlient.opprettSed(jsonNavSED, euxCaseId, opprettSED, "Feil ved opprettSed: $sedType, med rinaId: $euxCaseId")
+        val bucSedResponse  = euxKlient.opprettSed(jsonNavSED, euxCaseId, opprettSED, "Feil ved opprettSed: $SedType, med rinaId: $euxCaseId")
         statistikk.produserSedOpprettetHendelse(euxCaseId, bucSedResponse.documentId, vedtakId)
 
         return bucSedResponse
@@ -91,7 +91,7 @@ class EuxPrefillService (private val euxKlient: EuxKlient,
         val nyeInstitusjoner = bucUtil.findNewParticipants(dataModel.getInstitutionsList())
 
         if (nyeInstitusjoner.isNotEmpty()) {
-            if (bucUtil.findFirstDocumentItemByType(SEDType.X005) == null) {
+            if (bucUtil.findFirstDocumentItemByType(SedType.X005) == null) {
                 addInstitution(dataModel.euxCaseID, nyeInstitusjoner.map { it.institution })
             } else {
 

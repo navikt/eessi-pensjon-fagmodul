@@ -1,9 +1,10 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.person
 
 import com.nhaarman.mockitokotlin2.mock
+import no.nav.eessi.pensjon.eux.model.sed.SED
+import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.fagmodul.models.PersonId
 import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModelMother.initialPrefillDataModel
-import no.nav.eessi.pensjon.fagmodul.models.SEDType
 import no.nav.eessi.pensjon.fagmodul.prefill.PersonPDLMock
 import no.nav.eessi.pensjon.fagmodul.prefill.eessi.EessiInformasjon
 import no.nav.eessi.pensjon.fagmodul.prefill.pdl.FodselsnummerMother.generateRandomFnr
@@ -12,7 +13,6 @@ import no.nav.eessi.pensjon.fagmodul.prefill.pdl.PrefillPDLAdresse
 import no.nav.eessi.pensjon.fagmodul.prefill.pen.PensjonsinformasjonService
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillSEDService
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillTestHelper
-import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -47,7 +47,7 @@ class PrefillSedEnkeTest {
     fun `forvent utfylling av person data av ENKE fra TPS P2100`() {
         val persondataCollection = PersonPDLMock.createEnkeWithBarn(fnr, b1fnr, b2fnr)
 
-        val prefillData = initialPrefillDataModel(sedType = SEDType.P2100, pinId = fnr, avdod = PersonId(norskIdent = fnr, aktorId = "212"), vedtakId = "", penSaksnummer = "22875355")
+        val prefillData = initialPrefillDataModel(sedType = SedType.P2100, pinId = fnr, avdod = PersonId(norskIdent = fnr, aktorId = "212"), vedtakId = "", penSaksnummer = "22875355")
 
         val response = prefillPDLNav.prefill(
             penSaksnummer = prefillData.penSaksnummer,
@@ -60,7 +60,7 @@ class PrefillSedEnkeTest {
         )
 
         val sed = SED(
-            type = SEDType.P2100,
+            type = SedType.P2100,
             nav = response
         )
 
@@ -91,12 +91,12 @@ class PrefillSedEnkeTest {
 
     @Test
     fun `forvent utfylling av person data av ENKE fra TPS P2200`() {
-        val prefillData = initialPrefillDataModel(sedType = SEDType.P2200, pinId = fnr, vedtakId = "", penSaksnummer = "14915730")
+        val prefillData = initialPrefillDataModel(sedType = SedType.P2200, pinId = fnr, vedtakId = "", penSaksnummer = "14915730")
         val personCollection = PersonPDLMock.createEnkeWithBarn(fnr, b2fnr)
 
         val sed = PrefillSEDService(pensjonsinformasjonService, EessiInformasjon(), prefillPDLNav).prefill(prefillData, personCollection)
 
-        assertEquals(SEDType.P2200, sed.type)
+        assertEquals(SedType.P2200, sed.type)
 
         assertEquals("JESSINE TORDNU", sed.nav?.bruker?.person?.fornavn)
         assertEquals("BOUWMANS", sed.nav?.bruker?.person?.etternavn)

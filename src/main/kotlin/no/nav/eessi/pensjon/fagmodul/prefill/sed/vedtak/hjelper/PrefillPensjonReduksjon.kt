@@ -1,9 +1,9 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.sed.vedtak.hjelper
 
+import no.nav.eessi.pensjon.eux.model.sed.ReduksjonItem
+import no.nav.eessi.pensjon.eux.model.sed.VirkningsdatoItem
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.vedtak.hjelper.VedtakPensjonDataHelper.hentGrunnPersjon
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.vedtak.hjelper.VedtakPensjonDataHelper.hentTilleggsPensjon
-import no.nav.eessi.pensjon.fagmodul.sedmodel.ReduksjonItem
-import no.nav.eessi.pensjon.fagmodul.sedmodel.VirkningsdatoItem
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

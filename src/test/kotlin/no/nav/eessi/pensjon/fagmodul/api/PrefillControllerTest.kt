@@ -2,15 +2,14 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
 import com.nhaarman.mockitokotlin2.*
+import no.nav.eessi.pensjon.eux.model.sed.*
 import no.nav.eessi.pensjon.fagmodul.eux.*
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucSedResponse
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.*
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.models.PersonDataCollection
-import no.nav.eessi.pensjon.fagmodul.models.SEDType
 import no.nav.eessi.pensjon.fagmodul.prefill.*
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillSEDService
-import no.nav.eessi.pensjon.fagmodul.sedmodel.*
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
 import no.nav.eessi.pensjon.utils.mapJsonToAny
@@ -139,7 +138,7 @@ class PrefillControllerTest {
 
         val sed = SED.fromJson(response)
 
-        assertEquals(SEDType.P6000, sed.type)
+        assertEquals(SedType.P6000, sed.type)
         assertEquals("Dummy", sed.nav?.bruker?.person?.fornavn)
         assertEquals("Dummy", sed.nav?.bruker?.person?.etternavn)
     }
@@ -153,7 +152,7 @@ class PrefillControllerTest {
 
         val mockParticipants = listOf(ParticipantsItem(role = "CaseOwner", organisation = Organisation(countryCode = "NO", name = "NAV", id = "NAV")))
         val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = mockParticipants)
-        mockBuc.documents = listOf(createDummyBucDocumentItem(), DocumentsItem(type = SEDType.X005))
+        mockBuc.documents = listOf(createDummyBucDocumentItem(), DocumentsItem(type = SedType.X005))
         mockBuc.actions = listOf(ActionsItem(name = "Send"))
 
         val dummyPrefillData = ApiRequest.buildPrefillDataModelOnExisting(apiRequestWith(euxCaseId), NorskIdent("12345").id, null)
@@ -178,7 +177,7 @@ class PrefillControllerTest {
 
         val mockParticipants = listOf(ParticipantsItem(role = "CaseOwner", organisation = Organisation(countryCode = "SE", name = "SE", id = "SE")))
         val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = mockParticipants)
-        mockBuc.documents = listOf(createDummyBucDocumentItem(), DocumentsItem(type = SEDType.X005))
+        mockBuc.documents = listOf(createDummyBucDocumentItem(), DocumentsItem(type = SedType.X005))
         mockBuc.actions = listOf(ActionsItem(name = "Send"))
 
         val newParticipants = listOf(
@@ -209,7 +208,7 @@ class PrefillControllerTest {
         mockBuc.documents = listOf(
             createDummyBucDocumentItem(),
             DocumentsItem(
-                type = SEDType.X007, status = "received" ,
+                type = SedType.X007, status = "received" ,
                 conversations = listOf(
                     ConversationsItem(
                         id = "1",
@@ -276,15 +275,15 @@ class PrefillControllerTest {
 
         val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = listOf(ParticipantsItem()), processDefinitionVersion = "4.2")
         mockBuc.documents = listOf(
-            DocumentsItem(id = "3123123", type = SEDType.P9000, status = "empty", allowsAttachments = true, lastUpdate = lastupdate, creationDate = lastupdate, parentDocumentId = parentDocumentId),
-            DocumentsItem(id = parentDocumentId, type = SEDType.P8000, status = "received", allowsAttachments = true,  lastUpdate = lastupdate, creationDate = lastupdate)
+            DocumentsItem(id = "3123123", type = SedType.P9000, status = "empty", allowsAttachments = true, lastUpdate = lastupdate, creationDate = lastupdate, parentDocumentId = parentDocumentId),
+            DocumentsItem(id = parentDocumentId, type = SedType.P8000, status = "received", allowsAttachments = true,  lastUpdate = lastupdate, creationDate = lastupdate)
         )
         mockBuc.actions = listOf(ActionsItem(id = "1000", name = "Received"))
 
         val api = apiRequestWith(euxCaseId, sed = "P9000", institutions = emptyList())
 
-        val sed = SED(SEDType.P9000)
-        val sedandtype = SedAndType(SEDType.P9000, sed.toJsonSkipEmpty())
+        val sed = SED(SedType.P9000)
+        val sedandtype = SedAndType(SedType.P9000, sed.toJsonSkipEmpty())
 
         doReturn(sed).whenever(mockPrefillSEDService).prefill(any(),any())
         doReturn(mockBuc).whenever(mockEuxInnhentingService).getBuc(euxCaseId)
@@ -337,7 +336,7 @@ class PrefillControllerTest {
 
         val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = listOf(ParticipantsItem()), processDefinitionVersion = "4.2")
         mockBuc.documents = listOf(
-            DocumentsItem(id = "3123123", type = SEDType.P9000, status = "draft", allowsAttachments = true, lastUpdate = lastupdate, creationDate = lastupdate, parentDocumentId = parentDocumentId)
+            DocumentsItem(id = "3123123", type = SedType.P9000, status = "draft", allowsAttachments = true, lastUpdate = lastupdate, creationDate = lastupdate, parentDocumentId = parentDocumentId)
         )
 
         val api = apiRequestWith(euxCaseId, sed = "P9000", institutions = emptyList())
@@ -370,7 +369,7 @@ class PrefillControllerTest {
 
         doReturn("12345").whenever(personDataService).hentFnrfraAktoerService(any())
         doReturn(PersonDataCollection(PersonPDLMock.createWith(), PersonPDLMock.createWith())).whenever(personDataService).hentPersonData(any())
-        doReturn(SED(SEDType.P10000)).whenever(mockPrefillSEDService).prefill(any(), any())
+        doReturn(SED(SedType.P10000)).whenever(mockPrefillSEDService).prefill(any(), any())
 
         val mockBucJson = javaClass.getResource("/json/buc/buc_P_BUC_06_4.2_tom.json").readText()
         val mockBucJson2 = javaClass.getResource("/json/buc/P_BUC_06_P10000.json").readText()
@@ -469,7 +468,7 @@ class PrefillControllerTest {
     private fun createDummyBucDocumentItem() : DocumentsItem {
         return DocumentsItem(
             id = "3123123",
-            type = SEDType.P6000,
+            type = SedType.P6000,
             status = "empty",
             allowsAttachments = true
         )

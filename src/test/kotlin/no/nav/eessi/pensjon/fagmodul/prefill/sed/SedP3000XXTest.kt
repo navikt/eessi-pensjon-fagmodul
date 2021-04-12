@@ -1,9 +1,9 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.sed
 
 import com.nhaarman.mockitokotlin2.mock
+import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.fagmodul.models.PersonDataCollection
 import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
-import no.nav.eessi.pensjon.fagmodul.models.SEDType
 import no.nav.eessi.pensjon.fagmodul.prefill.ApiRequest
 import no.nav.eessi.pensjon.fagmodul.prefill.LagPDLPerson
 import no.nav.eessi.pensjon.fagmodul.prefill.eessi.EessiInformasjon
@@ -52,7 +52,7 @@ class SedP3000XXTest {
         val datamodel = getMockDataModel("P3000_AT", personFnr)
 
         val sed = prefillSEDService.prefill(datamodel, personDataCollection)
-        Assertions.assertEquals(SEDType.P3000_AT, sed.type)
+        Assertions.assertEquals(SedType.P3000_AT, sed.type)
 
     }
 
@@ -62,7 +62,7 @@ class SedP3000XXTest {
         val datamodel = getMockDataModel("P3000_IT", personFnr)
 
         val sed = prefillSEDService.prefill(datamodel, personDataCollection)
-        Assertions.assertEquals(SEDType.P3000_IT, sed.type)
+        Assertions.assertEquals(SedType.P3000_IT, sed.type)
     }
 
     @Test
@@ -70,14 +70,14 @@ class SedP3000XXTest {
         val datamodel = getMockDataModel("P3000_SE", personFnr)
 
         val sed = prefillSEDService.prefill(datamodel, personDataCollection)
-        Assertions.assertEquals(SEDType.P3000_SE, sed.type)
+        Assertions.assertEquals(SedType.P3000_SE, sed.type)
     }
 
 
-    private fun getMockDataModel(sedType: String, fnr: String  = "someFnr"): PrefillDataModel {
+    private fun getMockDataModel(SedType: String, fnr: String  = "someFnr"): PrefillDataModel {
         val req = ApiRequest(
                 institutions = listOf(),
-                sed = sedType,
+                sed = SedType,
                 sakId = "12231231",
                 euxCaseId = "99191999911",
                 aktoerId = "00000",

@@ -1,17 +1,10 @@
 package no.nav.eessi.pensjon.fagmodul.pesys
 
+import no.nav.eessi.pensjon.eux.model.sed.*
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
-import no.nav.eessi.pensjon.fagmodul.models.SEDType
 import no.nav.eessi.pensjon.fagmodul.pesys.RinaTilPenMapper.parsePensjonsgrad
-import no.nav.eessi.pensjon.fagmodul.sedmodel.AnsattSelvstendigItem
-import no.nav.eessi.pensjon.fagmodul.sedmodel.P4000
-import no.nav.eessi.pensjon.fagmodul.sedmodel.P5000
-import no.nav.eessi.pensjon.fagmodul.sedmodel.Periode
-import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
-import no.nav.eessi.pensjon.fagmodul.sedmodel.StandardItem
-import no.nav.eessi.pensjon.fagmodul.sedmodel.TrygdeTidPeriode
 import no.nav.eessi.pensjon.services.kodeverk.KodeverkClient
 import no.nav.eessi.pensjon.utils.toJson
 import org.slf4j.LoggerFactory
@@ -32,7 +25,7 @@ class PensjonsinformasjonUtlandService(
     private val logger = LoggerFactory.getLogger(PensjonsinformasjonUtlandService::class.java)
 
     private final val validBuc = listOf("P_BUC_01", "P_BUC_03")
-    private final val kravSedBucmap = mapOf("P_BUC_01" to SEDType.P2000, "P_BUC_03" to SEDType.P2200)
+    private final val kravSedBucmap = mapOf("P_BUC_01" to SedType.P2000, "P_BUC_03" to SedType.P2200)
 
     /**
      * funksjon for å hente buc-metadata fra RINA (eux-rina-api)
@@ -87,12 +80,12 @@ class PensjonsinformasjonUtlandService(
         )
     }
 
-    fun getKravSedDocument(bucUtils: BucUtils, sedType: SEDType?) =
-        bucUtils.getAllDocuments().firstOrNull { it.status == "received" && it.type == sedType }
+    fun getKravSedDocument(bucUtils: BucUtils, SedType: SedType?) =
+        bucUtils.getAllDocuments().firstOrNull { it.status == "received" && it.type == SedType }
 
-    fun erAlderpensjon(sed: SED) = sed.type == SEDType.P2000
+    fun erAlderpensjon(sed: SED) = sed.type == SedType.P2000
 
-    fun erUforepensjon(sed: SED) = sed.type == SEDType.P2200
+    fun erUforepensjon(sed: SED) = sed.type == SedType.P2200
 
 
     fun finnStatsborgerskapsLandkode3(kravSed: SED): String? {
@@ -268,7 +261,7 @@ class PensjonsinformasjonUtlandService(
     }
 
     //P4000-P5000 logic
-    fun prosessUtlandsOpphold(seds: Map<SEDType, SED>? = null): List<Utlandsoppholditem> {
+    fun prosessUtlandsOpphold(seds: Map<SedType, SED>? = null): List<Utlandsoppholditem> {
 
         val p4000: P4000? = null
         val p5000: P5000? = null

@@ -3,9 +3,13 @@ package no.nav.eessi.pensjon.fagmodul.prefill
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.whenever
-import no.nav.eessi.pensjon.fagmodul.models.*
+import no.nav.eessi.pensjon.eux.model.SedMock
+import no.nav.eessi.pensjon.eux.model.sed.*
+import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
+import no.nav.eessi.pensjon.fagmodul.models.PersonDataCollection
+import no.nav.eessi.pensjon.fagmodul.models.PersonId
+import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillSEDService
-import no.nav.eessi.pensjon.fagmodul.sedmodel.*
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -51,13 +55,13 @@ class PrefillServiceTest {
 
         val de = InstitusjonItem(country = "DE", institution = "Tyskland", name="Tyskland test")
 
-        val sedtype = SEDType.X005
+        val SedType = SedType.X005
 //        val instX005 = InstitusjonX005(
 //            id = de.checkAndConvertInstituion(),
 //            navn = de.name ?: de.checkAndConvertInstituion()
 //        )
 
-        val datax005 = data.copy(avdod = null, sedType = sedtype, institution = listOf(de))
+        val datax005 = data.copy(avdod = null, sedType = SedType, institution = listOf(de))
         val x005sed = generateMockX005(datax005)
 
         doReturn(x005sed).whenever(mockPrefillSEDService).prefill(any(), any())
@@ -119,7 +123,7 @@ class PrefillServiceTest {
         )
 
         //val x005Datamodel = PrefillDataModel.fromJson(prefillModel.clone())
-        val x005 = SED(SEDType.X005)
+        val x005 = SED(SedType.X005)
         x005.nav = Nav(
                 sak = Navsak(
                         kontekst = Kontekst(
@@ -145,7 +149,7 @@ class PrefillServiceTest {
                 bruker = PersonId("12345678901", "dummy"),
                 avdod = null,
                 euxCaseID = "1000",
-                sedType = SEDType.P2000,
+                sedType = SedType.P2000,
                 buc  = "P_BUC_01",
                 institution = listOf(
                 InstitusjonItem(

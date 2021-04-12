@@ -1,8 +1,11 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.sed
 
-import no.nav.eessi.pensjon.fagmodul.models.*
+import no.nav.eessi.pensjon.eux.model.sed.*
+import no.nav.eessi.pensjon.fagmodul.models.BrukerInformasjon
+import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
+import no.nav.eessi.pensjon.fagmodul.models.PersonDataCollection
+import no.nav.eessi.pensjon.fagmodul.models.PersonId
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillPDLNav
-import no.nav.eessi.pensjon.fagmodul.sedmodel.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -34,7 +37,7 @@ class PrefillX005(private val prefillNav: PrefillPDLNav)  {
         val person = navsed.bruker?.person
 
         return X005(
-                type = SEDType.X005,
+                type = SedType.X005,
                 nav = Nav(
                         sak = Navsak(
                                 kontekst = Kontekst(
