@@ -3,8 +3,8 @@ package no.nav.eessi.pensjon.integrationtest.sed
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
+import no.nav.eessi.pensjon.eux.model.sed.P5000
 import no.nav.eessi.pensjon.fagmodul.eux.EuxKlient
-import no.nav.eessi.pensjon.fagmodul.sedmodel.P5000
 import no.nav.eessi.pensjon.security.sts.STSService
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.typeRefs

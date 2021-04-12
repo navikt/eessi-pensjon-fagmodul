@@ -1,12 +1,8 @@
 package no.nav.eessi.pensjon.fagmodul.prefill
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
-import no.nav.eessi.pensjon.fagmodul.models.KravType
-import no.nav.eessi.pensjon.fagmodul.models.PersonId
-import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
-import no.nav.eessi.pensjon.fagmodul.models.ReferanseTilPerson
-import no.nav.eessi.pensjon.fagmodul.models.SEDType
+import no.nav.eessi.pensjon.eux.model.sed.SedType
+import no.nav.eessi.pensjon.fagmodul.models.*
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
@@ -68,7 +64,7 @@ data class ApiRequest(
             val sedType = if (request.sed.isNullOrBlank())
                 throw MangelfulleInndataException("SedType mangler")
             else
-                SEDType.from(request.sed) ?: throw UgyldigInndataException("SedType ${request.sed} er ikke gyldig")
+                SedType.from(request.sed) ?: throw UgyldigInndataException("SedType ${request.sed} er ikke gyldig")
 
             return when {
                 request.buc == null -> throw MangelfulleInndataException("Mangler BUC")

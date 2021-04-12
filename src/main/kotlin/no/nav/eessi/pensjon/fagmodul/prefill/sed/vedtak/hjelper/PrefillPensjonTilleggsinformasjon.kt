@@ -1,10 +1,10 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.sed.vedtak.hjelper
 
+import no.nav.eessi.pensjon.eux.model.sed.AndreinstitusjonerItem
+import no.nav.eessi.pensjon.eux.model.sed.Opphoer
+import no.nav.eessi.pensjon.eux.model.sed.Tilleggsinformasjon
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.vedtak.hjelper.VedtakPensjonDataHelper.hentVilkarsResultatHovedytelse
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.vedtak.hjelper.VedtakPensjonDataHelper.hentYtelseBelop
-import no.nav.eessi.pensjon.fagmodul.sedmodel.AndreinstitusjonerItem
-import no.nav.eessi.pensjon.fagmodul.sedmodel.Opphoer
-import no.nav.eessi.pensjon.fagmodul.sedmodel.Tilleggsinformasjon
 import no.nav.eessi.pensjon.utils.simpleFormat
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
 import org.slf4j.Logger

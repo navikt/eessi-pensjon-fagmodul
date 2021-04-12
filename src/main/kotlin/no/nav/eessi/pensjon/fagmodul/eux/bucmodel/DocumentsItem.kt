@@ -1,11 +1,11 @@
 package no.nav.eessi.pensjon.fagmodul.eux.bucmodel
 
-import no.nav.eessi.pensjon.fagmodul.models.SEDType
+import no.nav.eessi.pensjon.eux.model.sed.SedType
 
 class DocumentsItem(
         val attachments: List<Attachment>? = null,
         val displayName: String? = null,
-        val type: SEDType? = null,
+        val type: SedType? = null,
         val conversations: List<ConversationsItem>? = null,
         val isSendExecuted: Boolean? = null,
         val id: String? = null,

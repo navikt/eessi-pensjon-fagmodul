@@ -1,14 +1,10 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.sed.krav
 
+import no.nav.eessi.pensjon.eux.model.sed.*
 import no.nav.eessi.pensjon.fagmodul.models.PersonDataCollection
 import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
-import no.nav.eessi.pensjon.fagmodul.models.SEDType
 import no.nav.eessi.pensjon.fagmodul.prefill.eessi.EessiInformasjon
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillPDLNav
-import no.nav.eessi.pensjon.fagmodul.sedmodel.Bruker
-import no.nav.eessi.pensjon.fagmodul.sedmodel.Nav
-import no.nav.eessi.pensjon.fagmodul.sedmodel.Pensjon
-import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Person
 import no.nav.pensjon.v1.sak.V1Sak
 import org.slf4j.Logger
@@ -67,7 +63,7 @@ class PrefillP2100(private val prefillNav: PrefillPDLNav) {
                     prefillData.kravId)
                 melding = meldingOmPensjon.melding
                 pensjon = meldingOmPensjon.pensjon
-                if (prefillData.sedType != SEDType.P6000) {
+                if (prefillData.sedType != SedType.P6000) {
                     pensjon = Pensjon(
                             kravDato = meldingOmPensjon.pensjon.kravDato,
                             gjenlevende = meldingOmPensjon.pensjon.gjenlevende
@@ -78,12 +74,12 @@ class PrefillP2100(private val prefillNav: PrefillPDLNav) {
         }
 
         val sed = SED(
-            SEDType.P2100,
+            SedType.P2100,
             nav = nav,
             pensjon = pensjon
         )
 
-        logger.debug("-------------------| Preutfylling [$sedType] END |------------------- ")
+        logger.debug("-------------------| Preutfylling [$SedType] END |------------------- ")
         return Pair(melding, sed)
     }
 

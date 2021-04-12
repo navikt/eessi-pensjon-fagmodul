@@ -1,17 +1,9 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
+import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.RinaAksjon
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Attachment
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ConversationsItem
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Receiver
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Sender
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.VersionsItem
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.VersionsItemNoUser
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.*
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
-import no.nav.eessi.pensjon.fagmodul.models.SEDType
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
@@ -88,7 +80,7 @@ class BucUtils(private val buc: Buc) {
 
     fun getProcessDefinitionVersion() = buc.processDefinitionVersion ?: ""
 
-    fun findFirstDocumentItemByType(sedType: SEDType) = getDocuments().find { sedType == it.type }?.let { createShortDocument(it) }
+    fun findFirstDocumentItemByType(SedType: SedType) = getDocuments().find { SedType == it.type }?.let { createShortDocument(it) }
 
     private fun createShortDocument(documentItem: DocumentsItem) =
             DocumentsItem(
@@ -108,7 +100,7 @@ class BucUtils(private val buc: Buc) {
         )
 
     private fun overrideAllowAttachemnts(documentItem: DocumentsItem): Boolean? {
-        return if (documentItem.type == SEDType.P5000) {
+        return if (documentItem.type == SedType.P5000) {
             false
         } else {
             documentItem.allowsAttachments
@@ -192,7 +184,7 @@ class BucUtils(private val buc: Buc) {
 
     fun getAllDocuments() = getDocuments().map { createShortDocument(it) }
 
-    fun getDocumentByType(sedType: SEDType): DocumentsItem? = getAllDocuments().firstOrNull { sedType == it.type && it.status != "empty" }
+    fun getDocumentByType(SedType: SedType): DocumentsItem? = getAllDocuments().firstOrNull { SedType == it.type && it.status != "empty" }
 
     fun getParticipants() = buc.participants ?: emptyList()
 
@@ -202,7 +194,7 @@ class BucUtils(private val buc: Buc) {
             val newlistId = list.map { it.institution }
             buc.documents
                 ?.asSequence()
-                ?.filter { doc -> doc.type == SEDType.X100 || doc.type == SEDType.X007 && doc.status == "received" }
+                ?.filter { doc -> doc.type == SedType.X100 || doc.type == SedType.X007 && doc.status == "received" }
                 ?.mapNotNull { doc -> doc.conversations }?.flatten()
                 ?.mapNotNull { con -> con.userMessages?.map { um -> um.sender?.id } }?.flatten()
                 ?.firstOrNull { senderId -> newlistId.contains(senderId) }
@@ -216,7 +208,7 @@ class BucUtils(private val buc: Buc) {
         return true
     }
 
-    private fun getGyldigeOpprettSedAksjonList() : List<SEDType> {
+    private fun getGyldigeOpprettSedAksjonList() : List<SedType> {
         val actions = buc.actions!!
         val keyWord = "Create"
         return actions.asSequence()
@@ -227,11 +219,11 @@ class BucUtils(private val buc: Buc) {
                 .sorted()
     }
 
-    fun getFiltrerteGyldigSedAksjonListAsString(): List<SEDType> {
+    fun getFiltrerteGyldigSedAksjonListAsString(): List<SedType> {
         val gyldigeSedList = getSedsThatCanBeCreated()
         val aksjonsliste = getGyldigeOpprettSedAksjonList()
 
-        return if (SEDType.DummyChooseParts in gyldigeSedList && gyldigeSedList.size == 1) {
+        return if (SedType.DummyChooseParts in gyldigeSedList && gyldigeSedList.size == 1) {
             validbucsed.getAvailableSedOnBuc(buc.processDefinitionName)
                 .also { logger.debug("benytter backupList : ${it.toJsonSkipEmpty()}") }
         } else if (aksjonsliste.isNotEmpty()) {
@@ -243,7 +235,7 @@ class BucUtils(private val buc: Buc) {
         }
     }
 
-    fun getSedsThatCanBeCreated(): List<SEDType> {
+    fun getSedsThatCanBeCreated(): List<SedType> {
         val keyWord = "empty"
         val docs = getAllDocuments()
         return docs.asSequence()
@@ -254,23 +246,23 @@ class BucUtils(private val buc: Buc) {
                 .sortedBy { it.name }
     }
 
-    fun checkIfSedCanBeCreated(sedType: SEDType?, sakNr: String): Boolean {
-        if (getFiltrerteGyldigSedAksjonListAsString().none { it == sedType }) {
-            logger.warn("SED $sedType kan ikke opprettes, sjekk om den allerede finnes, sakNr: $sakNr ")
-            throw SedDokumentKanIkkeOpprettesException("SED $sedType kan ikke opprettes i RINA (mulig det allerede finnes et utkast)")
+    fun checkIfSedCanBeCreated(SedType: SedType?, sakNr: String): Boolean {
+        if (getFiltrerteGyldigSedAksjonListAsString().none { it == SedType }) {
+            logger.warn("SED $SedType kan ikke opprettes, sjekk om den allerede finnes, sakNr: $sakNr ")
+            throw SedDokumentKanIkkeOpprettesException("SED $SedType kan ikke opprettes i RINA (mulig det allerede finnes et utkast)")
         }
         return true
     }
 
-    fun checkIfSedCanBeCreatedEmptyStatus(sedType: SEDType, parentId: String) : Boolean{
-        if(getAllDocuments().any { it.parentDocumentId == parentId && it.type == sedType && it.status == "empty" }){
+    fun checkIfSedCanBeCreatedEmptyStatus(SedType: SedType, parentId: String) : Boolean{
+        if(getAllDocuments().any { it.parentDocumentId == parentId && it.type == SedType && it.status == "empty" }){
             return true
         }
-        throw SedDokumentKanIkkeOpprettesException("SvarSED $sedType kan ikke opaprettes i RINA (mulig det allerede finnes et utkast)")
+        throw SedDokumentKanIkkeOpprettesException("SvarSED $SedType kan ikke opaprettes i RINA (mulig det allerede finnes et utkast)")
     }
 
-    fun filterSektorPandRelevantHorizontalSeds(list: List<SEDType>): List<SEDType> {
-        val gyldigSektorOgHSed: (SEDType) -> Boolean = { type ->
+    fun filterSektorPandRelevantHorizontalSeds(list: List<SedType>): List<SedType> {
+        val gyldigSektorOgHSed: (SedType) -> Boolean = { type ->
             type.name.startsWith("P")
                 .or(type.name.startsWith("H12"))
                 .or(type.name.startsWith("H07"))

@@ -1,7 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.sed.vedtak.hjelper
 
-import no.nav.eessi.pensjon.fagmodul.sedmodel.KravtypeItem
-import no.nav.eessi.pensjon.fagmodul.sedmodel.Sak
+import no.nav.eessi.pensjon.eux.model.sed.KravtypeItem
+import no.nav.eessi.pensjon.eux.model.sed.Sak
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

@@ -2,13 +2,13 @@ package no.nav.eessi.pensjon.fagmodul.prefill.sed
 
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.whenever
+import no.nav.eessi.pensjon.eux.model.NavMock
+import no.nav.eessi.pensjon.eux.model.sed.*
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.models.PersonDataCollection
-import no.nav.eessi.pensjon.fagmodul.models.SEDType
 import no.nav.eessi.pensjon.fagmodul.prefill.ApiRequest
 import no.nav.eessi.pensjon.fagmodul.prefill.PersonPDLMock
 import no.nav.eessi.pensjon.fagmodul.prefill.person.PrefillSed
-import no.nav.eessi.pensjon.fagmodul.sedmodel.*
 import no.nav.eessi.pensjon.utils.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
@@ -41,7 +41,7 @@ class SedP4000Test {
 
         val nav = NavMock().genererNavMock()
         val p4000 = P4000(
-                type = SEDType.P4000,
+                type = SedType.P4000,
                 nav = nav,
                 trygdetid = result
         )
@@ -175,7 +175,7 @@ class SedP4000Test {
 
         val personData = PersonDataCollection(forsikretPerson = PersonPDLMock.createWith(), gjenlevendeEllerAvdod = PersonPDLMock.createWith())
 
-        whenever(prefillSed.prefill(any(), any())).thenReturn(SED(type = SEDType.P4000))
+        whenever(prefillSed.prefill(any(), any())).thenReturn(SED(type = SedType.P4000))
 
         val sed = pre4000.prefill(data, personData)
         assertNotNull(sed)

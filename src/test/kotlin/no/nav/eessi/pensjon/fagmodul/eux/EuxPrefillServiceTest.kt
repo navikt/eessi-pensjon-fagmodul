@@ -1,13 +1,13 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
 import com.nhaarman.mockitokotlin2.*
+import no.nav.eessi.pensjon.eux.model.sed.SED
+import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Properties
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Traits
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
-import no.nav.eessi.pensjon.fagmodul.models.SEDType
-import no.nav.eessi.pensjon.fagmodul.sedmodel.SED
 import no.nav.eessi.pensjon.services.statistikk.StatistikkHandler
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
@@ -71,7 +71,7 @@ class EuxPrefillServiceTest {
 
         val result = euxinnhentingService.getSedOnBucByDocumentId("12345678900", "0bb1ad15987741f1bbf45eba4f955e80")
 
-        assertEquals(SEDType.P6000, result.type)
+        assertEquals(SedType.P6000, result.type)
     }
 
     @Test
@@ -320,7 +320,7 @@ class EuxPrefillServiceTest {
         val rinaid = "12344"
         val dokumentid = "3423432453255"
 
-        val documentsItem = listOf(DocumentsItem(type = SEDType.P2100, id = dokumentid))
+        val documentsItem = listOf(DocumentsItem(type = SedType.P2100, id = dokumentid))
         val buc = Buc(processDefinitionName = "P_BUC_02", documents = documentsItem)
 
         val docs = listOf(BucOgDocumentAvdod(rinaid, buc, dokumentid))
@@ -330,7 +330,7 @@ class EuxPrefillServiceTest {
         val actual = euxinnhentingService.hentDocumentJsonAvdod(docs)
 
         assertEquals(1, actual.size)
-        assertEquals(SEDType.P2100.name, actual.single().dokumentJson)
+        assertEquals(SedType.P2100.name, actual.single().dokumentJson)
         assertEquals(rinaid, actual.single().rinaidAvdod)
   }
 
@@ -339,7 +339,7 @@ class EuxPrefillServiceTest {
         val rinaid = "12344"
         val dokumentid = "3423432453255"
 
-        val documentsItem = listOf(DocumentsItem(type = SEDType.P2100, id = dokumentid))
+        val documentsItem = listOf(DocumentsItem(type = SedType.P2100, id = dokumentid))
         val buc = Buc(processDefinitionName = "P_BUC_02", documents = documentsItem)
 
         val docs = listOf(BucOgDocumentAvdod(rinaid, buc, dokumentid))
@@ -448,11 +448,11 @@ class EuxPrefillServiceTest {
         doReturn(rinaSakerBuc02).whenever(euxKlient).getRinasaker(avdodFnr, null, "P_BUC_02", "\"open\"")
 
 
-        val docItems = listOf(DocumentsItem(id = "1", type = SEDType.P2100), DocumentsItem(id = "2", type = SEDType.P4000))
+        val docItems = listOf(DocumentsItem(id = "1", type = SedType.P2100), DocumentsItem(id = "2", type = SedType.P4000))
         val buc = Buc(id = "1", processDefinitionName = "P_BUC_02", documents = docItems)
         doReturn(buc.toJson()).whenever(euxKlient).getBucJson(euxCaseId)
 
-        val docDKItems = listOf(DocumentsItem(id = "20", type = SEDType.P2100), DocumentsItem(id = "40", type = SEDType.P4000))
+        val docDKItems = listOf(DocumentsItem(id = "20", type = SedType.P2100), DocumentsItem(id = "40", type = SedType.P4000))
         val DKbuc = Buc(id = "10", processDefinitionName = "P_BUC_02", documents = docDKItems)
         doReturn(DKbuc.toJson()).whenever(euxKlient).getBucJson("10")
 
@@ -490,11 +490,11 @@ class EuxPrefillServiceTest {
         doReturn( rinaSakerBuc02).whenever(euxKlient).getRinasaker(avdodFnr, null, "P_BUC_02", "\"open\"")
 
 
-        val docItems = listOf(DocumentsItem(id = "1", type = SEDType.P2100), DocumentsItem(id = "2", type = SEDType.P4000))
+        val docItems = listOf(DocumentsItem(id = "1", type = SedType.P2100), DocumentsItem(id = "2", type = SedType.P4000))
         val buc = Buc(id = "1", processDefinitionName = "P_BUC_02", documents = docItems)
         doReturn(buc.toJson()).whenever(euxKlient).getBucJson(euxCaseId)
 
-        val docDKItems = listOf(DocumentsItem(id = "20", type = SEDType.P2100), DocumentsItem(id = "40", type = SEDType.P4000))
+        val docDKItems = listOf(DocumentsItem(id = "20", type = SedType.P2100), DocumentsItem(id = "40", type = SedType.P4000))
         val DKbuc = Buc(id = "10", processDefinitionName = "P_BUC_02", documents = docDKItems)
         doReturn(DKbuc.toJson()).whenever(euxKlient).getBucJson("10")
 
@@ -509,11 +509,11 @@ class EuxPrefillServiceTest {
         doReturn(rinaSakerBuc05).whenever(euxKlient).getRinasaker(avdodFnr, null, "P_BUC_05", "\"open\"")
 
         //buc05no
-        val docP8000Items = listOf(DocumentsItem(id = "2000", type = SEDType.P8000), DocumentsItem(id = "4000", type = SEDType.P6000))
+        val docP8000Items = listOf(DocumentsItem(id = "2000", type = SedType.P8000), DocumentsItem(id = "4000", type = SedType.P6000))
         val buc05 = Buc(id = "100", processDefinitionName = "P_BUC_05", documents = docP8000Items)
 
         //buc05dk
-        val docP8000DKItems = listOf(DocumentsItem(id = "2200", type = SEDType.P8000), DocumentsItem(id = "4200", type = SEDType.P6000))
+        val docP8000DKItems = listOf(DocumentsItem(id = "2200", type = SedType.P8000), DocumentsItem(id = "4200", type = SedType.P6000))
         val buc05DK = Buc(id = "200", processDefinitionName = "P_BUC_05", documents = docP8000DKItems)
 
         doReturn(buc05.toJson()).whenever(euxKlient).getBucJson("100")
@@ -545,7 +545,7 @@ class EuxPrefillServiceTest {
 
     @Test
     fun `update SED Version from old version to new version`() {
-        val sed = SED(SEDType.P2000)
+        val sed = SED(SedType.P2000)
         val bucVersion = "v4.2"
 
         euxPrefillService.updateSEDVersion(sed, bucVersion)
@@ -554,7 +554,7 @@ class EuxPrefillServiceTest {
 
     @Test
     fun `update SED Version from old version to same version`() {
-        val sed = SED(SEDType.P2000)
+        val sed = SED(SedType.P2000)
         val bucVersion = "v4.1"
 
         euxPrefillService.updateSEDVersion(sed, bucVersion)
@@ -564,7 +564,7 @@ class EuxPrefillServiceTest {
 
     @Test
     fun `update SED Version from old version to unknown new version`() {
-        val sed = SED(SEDType.P2000)
+        val sed = SED(SedType.P2000)
         val bucVersion = "v4.4"
 
         euxPrefillService.updateSEDVersion(sed, bucVersion)

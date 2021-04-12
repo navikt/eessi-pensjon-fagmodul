@@ -1,6 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.eessi
 
-import no.nav.eessi.pensjon.fagmodul.sedmodel.AndreinstitusjonerItem
+import no.nav.eessi.pensjon.eux.model.sed.AndreinstitusjonerItem
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 

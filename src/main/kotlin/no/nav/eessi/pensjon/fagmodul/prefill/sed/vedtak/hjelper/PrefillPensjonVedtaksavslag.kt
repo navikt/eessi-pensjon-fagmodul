@@ -1,6 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.sed.vedtak.hjelper
 
-import no.nav.eessi.pensjon.fagmodul.sedmodel.AvslagbegrunnelseItem
+import no.nav.eessi.pensjon.eux.model.sed.AvslagbegrunnelseItem
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -29,11 +29,13 @@ object PrefillPensjonVedtaksavslag {
 
         val avslagbegrunnelse = createAvlsagsBegrunnelse(pendata)
 
-        val item = listOf(AvslagbegrunnelseItem(
+        val item = listOf(
+            AvslagbegrunnelseItem(
 
             //4.1.13.1
             begrunnelse = avslagbegrunnelse,
-        ))
+        )
+        )
 
         if (avslagbegrunnelse == null)
             return null
