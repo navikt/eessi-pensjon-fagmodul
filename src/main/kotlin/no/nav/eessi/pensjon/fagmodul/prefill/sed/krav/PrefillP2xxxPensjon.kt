@@ -178,7 +178,7 @@ object PrefillP2xxxPensjon {
             logger.warn("Ikke korrkt kravårsak for P21000 (alder/uførep")
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ingen gyldig kravårsak funnet for ALDER eller UFØREP for utfylling av en krav SED P2100")
         }
-        logger.info("Avslutter på validering av $SedType, fortsetter med preutfylling")
+        logger.info("Avslutter på validering av $sedType, fortsetter med preutfylling")
     }
 
     //felles kode for validering av P2000, P2100 og P2200
@@ -186,7 +186,7 @@ object PrefillP2xxxPensjon {
         val fortegBH = finnKravHistorikk("FORSTEG_BH", sak?.kravHistorikkListe)
         if (fortegBH != null && fortegBH.size == sak?.kravHistorikkListe?.kravHistorikkListe?.size)  {
             logger.warn("Det er ikke markert for bodd/arbeidet i utlandet. Krav SED $sedType blir ikke opprettet")
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Det er ikke markert for bodd/arbeidet i utlandet. Krav SED $SedType blir ikke opprettet")
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Det er ikke markert for bodd/arbeidet i utlandet. Krav SED $sedType blir ikke opprettet")
         }
     }
 
