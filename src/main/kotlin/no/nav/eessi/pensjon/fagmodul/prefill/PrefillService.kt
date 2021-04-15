@@ -34,7 +34,7 @@ class PrefillService(private val prefillSedService: PrefillSEDService,
         return PrefillSed.measure {
             logger.info("******* Starter med preutfylling ******* $dataModel")
             try {
-                eessiRequire(dataModel.sedType.kanPrefilles() ) {"SedType $dataModel.SedType kan ikke prefilles!"}
+                eessiRequire(dataModel.sedType.kanPrefilles() ) {"SedType ${dataModel.sedType} kan ikke prefilles!"}
                 val sed = prefillSedService.prefill(dataModel, personDataCollection)
 
                 val sedType = sed.type
