@@ -24,6 +24,10 @@ buildscript {
 }
 
 plugins {
+    id "org.jetbrains.kotlin.jvm" version "$kotlinVersion"
+    id "org.jetbrains.kotlin.plugin.spring" version "$kotlinVersion"
+    id "org.jetbrains.kotlin.plugin.allopen" version "$kotlinVersion"
+    id "org.springframework.boot" version "$springBootVersion"
     id "io.spring.dependency-management" version "1.0.11.RELEASE"
     id "org.openrepose.gradle.plugins.jaxb" version "2.5.0"
     id 'com.github.ben-manes.versions' version '0.36.0'
@@ -34,11 +38,6 @@ plugins {
     id "org.sonarqube" version "2.7.1"
     id 'jacoco'
 }
-
-apply plugin: "org.jetbrains.kotlin.jvm"
-apply plugin: "org.jetbrains.kotlin.plugin.spring"
-apply plugin: "org.jetbrains.kotlin.plugin.allopen"
-apply plugin: "org.springframework.boot"
 
 assert JavaVersion.current().isJava11Compatible(): "Java 11 or newer is required"
 

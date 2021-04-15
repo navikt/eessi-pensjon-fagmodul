@@ -11,12 +11,14 @@
 .settings
 .springBeans
 .sts4-cache
+.java-version
 
 ### IntelliJ IDEA ###
 .idea
 *.iws
 *.iml
 *.ipr
+*.bin
 
 ### NetBeans ###
 nbproject/private/
