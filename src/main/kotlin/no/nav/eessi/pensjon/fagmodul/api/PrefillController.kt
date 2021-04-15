@@ -2,7 +2,10 @@ package no.nav.eessi.pensjon.fagmodul.api
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import io.swagger.annotations.ApiOperation
-import no.nav.eessi.pensjon.fagmodul.eux.*
+import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
+import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
+import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
+import no.nav.eessi.pensjon.fagmodul.eux.EuxPrefillService
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucSedResponse
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.fagmodul.prefill.ApiRequest
@@ -16,7 +19,10 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RestController
 import java.util.concurrent.TimeUnit
 import javax.annotation.PostConstruct
 
@@ -78,13 +84,15 @@ class PrefillController(
 
         //wait 5 sec before getBuc metadata to UI
         try {
-            TimeUnit.SECONDS.sleep(14)
+            TimeUnit.SECONDS.sleep(12)
         } catch (ie: InterruptedException) {
             Thread.currentThread().interrupt()
         }
 
         //create bucDetail back from newly created buc call eux-rina-api to get data.
         val buc = euxInnhentingService.getBuc(euxCaseId)
+
+        logger.info("Føgende bucdetalj er hentet: ${buc.processDefinitionName}, id: ${buc.id}")
 
         return BucAndSedView.from(buc)
     }
