@@ -5,9 +5,12 @@ import no.nav.eessi.pensjon.fagmodul.prefill.PersonPDLMock.medBeskyttelse
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AdressebeskyttelseGradering
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Bostedsadresse
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Folkeregistermetadata
+import no.nav.eessi.pensjon.personoppslag.pdl.model.Kontaktadresse
+import no.nav.eessi.pensjon.personoppslag.pdl.model.KontaktadresseType
 import no.nav.eessi.pensjon.personoppslag.pdl.model.KontaktinformasjonForDoedsbo
 import no.nav.eessi.pensjon.personoppslag.pdl.model.KontaktinformasjonForDoedsboAdresse
 import no.nav.eessi.pensjon.personoppslag.pdl.model.KontaktinformasjonForDoedsboSkifteform
+import no.nav.eessi.pensjon.personoppslag.pdl.model.PostadresseIFrittFormat
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Vegadresse
 import no.nav.eessi.pensjon.services.geo.PostnummerService
 import no.nav.eessi.pensjon.services.kodeverk.KodeverkClient
@@ -116,5 +119,40 @@ class PrefillPDLAdresseTest{
         assertEquals("osloby", actual?.by)
         assertEquals("1231", actual?.postnummer)
 
+    }
+
+    @Test
+    fun `create Adresse med BostedAdresse og adresseIFrittFormat`() {
+        val person = PersonPDLMock.createWith()
+            .copy(bostedsadresse = Bostedsadresse(
+                LocalDateTime.of(2000, 9, 2, 4,3),
+                LocalDateTime.of(2300, 9, 2, 4,3),
+                Vegadresse(
+                    "Kirkeveien",
+                    "12",
+                    null,
+                    "0123",
+                    null,
+                    null
+                ),
+                utenlandskAdresse = null,
+                metadata = no.nav.eessi.pensjon.personoppslag.pdl.model.Metadata(emptyList(), false, "DOLLY", "Doll")
+            ), kontaktadresse = Kontaktadresse(
+                    coAdressenavn = null,
+                    type = KontaktadresseType.Innland,
+                    postadresseIFrittFormat = PostadresseIFrittFormat(
+                        adresselinje1 = "Kirkeveien",
+                    ),
+                    metadata = no.nav.eessi.pensjon.personoppslag.pdl.model.Metadata(emptyList(), false, "DOLLY", "Doll")
+                )
+            )
+
+        val result = prefillAdresse.createPersonAdresse(person)!!
+
+        assertNotNull(result)
+        assertEquals("NO", result.land)
+        assertEquals("Kirkeveien 12", result.gate)
+        assertEquals("0123", result.postnummer)
+        assertEquals("OSLO", result.by)
     }
 }
