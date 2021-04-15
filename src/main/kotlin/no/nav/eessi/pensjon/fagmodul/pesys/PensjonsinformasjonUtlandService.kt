@@ -1,6 +1,13 @@
 package no.nav.eessi.pensjon.fagmodul.pesys
 
-import no.nav.eessi.pensjon.eux.model.sed.*
+import no.nav.eessi.pensjon.eux.model.sed.AnsattSelvstendigItem
+import no.nav.eessi.pensjon.eux.model.sed.P4000
+import no.nav.eessi.pensjon.eux.model.sed.P5000
+import no.nav.eessi.pensjon.eux.model.sed.Periode
+import no.nav.eessi.pensjon.eux.model.sed.SED
+import no.nav.eessi.pensjon.eux.model.sed.SedType
+import no.nav.eessi.pensjon.eux.model.sed.StandardItem
+import no.nav.eessi.pensjon.eux.model.sed.TrygdeTidPeriode
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
@@ -34,8 +41,9 @@ class PensjonsinformasjonUtlandService(
      */
     fun hentKravUtland(bucId: Int): KravUtland {
         //bucUtils
-        val buc = euxInnhentingService.getBuc(bucId.toString())
+        val buc = euxInnhentingService.getBucAsSystemuser(bucId.toString())
         val bucUtils = BucUtils(buc)
+
 
         logger.debug("Starter prosess for henting av krav fra utland (P2000, P2100?, P2200)")
         logger.debug("BucType : ${bucUtils.getProcessDefinitionName()}")
@@ -47,7 +55,7 @@ class PensjonsinformasjonUtlandService(
         val sedDoc = getKravSedDocument(bucUtils, kravSedBucmap[bucUtils.getProcessDefinitionName()])
             ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ingen dokument metadata funnet i BUC med id: $bucId.")
 
-        val kravSed = sedDoc.id?.let { sedDocId -> euxInnhentingService.getSedOnBucByDocumentId(bucId.toString(), sedDocId) }
+        val kravSed = sedDoc.id?.let { sedDocId -> euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(bucId.toString(), sedDocId) }
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Ingen gyldig kravSed i BUC med id: $bucId funnet.")
 
         //finner rette hjelep metode for utfylling av KravUtland

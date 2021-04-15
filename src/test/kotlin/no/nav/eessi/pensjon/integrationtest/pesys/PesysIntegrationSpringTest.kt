@@ -32,7 +32,7 @@ class PesysIntegrationSpringTest {
     @MockBean
     private lateinit var stsService: STSService
 
-    @MockBean(name = "euxOidcRestTemplate")
+    @MockBean(name = "euxUsernameOidcRestTemplate")
     private lateinit var restTemplate: RestTemplate
 
     @MockBean

@@ -1,7 +1,14 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
-import no.nav.eessi.pensjon.eux.model.sed.*
+import no.nav.eessi.pensjon.eux.model.sed.P4000
+import no.nav.eessi.pensjon.eux.model.sed.P5000
+import no.nav.eessi.pensjon.eux.model.sed.P6000
+import no.nav.eessi.pensjon.eux.model.sed.P7000
+import no.nav.eessi.pensjon.eux.model.sed.P8000
+import no.nav.eessi.pensjon.eux.model.sed.Person
+import no.nav.eessi.pensjon.eux.model.sed.SED
+import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
@@ -25,7 +32,7 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
     private val validbucsed = ValidBucAndSed()
 
     // Vi trenger denne no arg konstruktøren for å kunne bruke @Spy med mockito
-    constructor() : this(EuxKlient(RestTemplate()))
+    constructor() : this(EuxKlient(RestTemplate(), RestTemplate(),))
 
     fun getBuc(euxCaseId: String): Buc {
         val body = euxKlient.getBucJson(euxCaseId)
@@ -33,9 +40,19 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
         return mapJsonToAny(body, typeRefs())
     }
 
-    @Throws(EuxServerException::class, SedDokumentIkkeLestException::class)
+    fun getBucAsSystemuser(euxCaseId: String): Buc {
+        val body = euxKlient.getBucJsonAsSystemuser(euxCaseId)
+        logger.debug("mapper buc om til BUC objekt-model")
+        return mapJsonToAny(body, typeRefs())
+    }
+
     fun getSedOnBucByDocumentId(euxCaseId: String, documentId: String): SED {
         val json = euxKlient.getSedOnBucByDocumentIdAsJson(euxCaseId, documentId)
+        return mapToConcreteSedClass(json)
+    }
+
+    fun getSedOnBucByDocumentIdAsSystemuser(euxCaseId: String, documentId: String): SED {
+        val json = euxKlient.getSedOnBucByDocumentIdAsJsonAndAsSystemuser(euxCaseId, documentId)
         return mapToConcreteSedClass(json)
     }
 

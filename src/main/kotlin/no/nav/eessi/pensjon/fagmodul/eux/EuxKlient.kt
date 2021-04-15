@@ -33,12 +33,15 @@ import javax.annotation.PostConstruct
 @Component("fagmodulEuxKlient")
 @Description("Service class for EuxBasis - eux-cpi-service-controller")
 @CacheConfig(cacheNames = ["euxService"])
-class EuxKlient(private val euxOidcRestTemplate: RestTemplate,
-                @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry()),
-                private val overrideWaitTimes: Long? = null) {
+class EuxKlient(
+    private val euxOidcRestTemplate: RestTemplate,
+    private val euxUsernameOidcRestTemplate: RestTemplate,
+    @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry()),
+    private val overrideWaitTimes: Long? = null
+) {
 
     // Vi trenger denne no arg konstruktøren for å kunne bruke @Spy med mockito
-    constructor() : this(RestTemplate(), MetricsHelper(SimpleMeterRegistry()))
+    constructor() : this(RestTemplate(), RestTemplate(), MetricsHelper(SimpleMeterRegistry()))
 
     private val logger = LoggerFactory.getLogger(EuxKlient::class.java)
 
@@ -116,10 +119,13 @@ class EuxKlient(private val euxOidcRestTemplate: RestTemplate,
         return HttpEntity(navSEDjson, headers)
     }
 
+    fun getSedOnBucByDocumentIdAsJsonAndAsSystemuser(euxCaseId: String, documentId: String): String =
+        getSedOnBucByDocumentIdWithRest(euxCaseId, documentId, euxUsernameOidcRestTemplate)
 
-    //henter ut sed fra rina med bucid og documentid
-    @Throws(EuxServerException::class, SedDokumentIkkeLestException::class)
-    fun getSedOnBucByDocumentIdAsJson(euxCaseId: String, documentId: String): String {
+    fun getSedOnBucByDocumentIdAsJson(euxCaseId: String, documentId: String): String =
+            getSedOnBucByDocumentIdWithRest(euxCaseId, documentId, euxOidcRestTemplate)
+
+    private fun getSedOnBucByDocumentIdWithRest(euxCaseId: String, documentId: String, restTemplate: RestTemplate): String {
         val path = "/buc/{RinaSakId}/sed/{DokumentId}"
         val uriParams = mapOf("RinaSakId" to euxCaseId, "DokumentId" to documentId)
         val builder = UriComponentsBuilder.fromUriString(path).buildAndExpand(uriParams)
@@ -127,7 +133,7 @@ class EuxKlient(private val euxOidcRestTemplate: RestTemplate,
 
         val response = restTemplateErrorhandler(
                 {
-                    euxOidcRestTemplate.exchange(builder.toUriString(),
+                    restTemplate.exchange(builder.toUriString(),
                             HttpMethod.GET,
                             null,
                             String::class.java)
@@ -142,7 +148,11 @@ class EuxKlient(private val euxOidcRestTemplate: RestTemplate,
         }
     }
 
-    fun getBucJson(euxCaseId: String): String {
+    fun getBucJsonAsSystemuser(euxCaseId: String): String = getBucJsonWithRest(euxCaseId, euxUsernameOidcRestTemplate)
+
+    fun getBucJson(euxCaseId: String): String = getBucJsonWithRest(euxCaseId, euxOidcRestTemplate)
+
+    private fun getBucJsonWithRest(euxCaseId: String, restTemplate: RestTemplate): String {
         logger.info("euxCaseId: $euxCaseId")
 
         val path = "/buc/{RinaSakId}"
@@ -152,7 +162,7 @@ class EuxKlient(private val euxOidcRestTemplate: RestTemplate,
 
         val response = restTemplateErrorhandler(
                 restTemplateFunction = {
-                    euxOidcRestTemplate.exchange(
+                    restTemplate.exchange(
                             builder.toUriString(),
                             HttpMethod.GET,
                             null,

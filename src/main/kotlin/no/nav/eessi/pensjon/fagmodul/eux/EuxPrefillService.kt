@@ -29,7 +29,7 @@ class EuxPrefillService (private val euxKlient: EuxKlient,
     private val logger = LoggerFactory.getLogger(EuxPrefillService::class.java)
 
     // Vi trenger denne no arg konstruktøren for å kunne bruke @Spy med mockito
-    constructor() : this(EuxKlient(RestTemplate()),
+    constructor() : this(EuxKlient(RestTemplate(),RestTemplate(),),
         StatistikkHandler("Q2", KafkaTemplate(DefaultKafkaProducerFactory(emptyMap())), ""))
 
     private lateinit var opprettSvarSED: MetricsHelper.Metric
