@@ -125,7 +125,7 @@ class EuxKlientTest {
             klient.getBucJson(bucid)
         }
 
-        verify(mockEuxrestTemplate, times(1)).exchange("/buc/$bucid", HttpMethod.GET, null, String::class.java)
+        verify(mockEuxrestTemplate, times(4)).exchange("/buc/$bucid", HttpMethod.GET, null, String::class.java)
 
     }
 

@@ -179,8 +179,6 @@ class EuxKlient(
                 , prefixErrorMessage = "Feiler ved metode GetBuc. "
                 , maxAttempts = 4
                 , waitTimes = 10000L
-                , skipError = listOf(HttpStatus.NOT_FOUND)
-
         )
         return response.body ?: throw ServerException("Feil ved henting av BUCdata ingen data, euxCaseId $euxCaseId")
     }

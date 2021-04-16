@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
-import java.util.concurrent.TimeUnit
 import javax.annotation.PostConstruct
 
 @Protected
@@ -81,13 +80,6 @@ class PrefillController(
         //rinaid
         val euxCaseId = euxPrefillService.createBuc(buctype)
         logger.info("Mottatt følgende euxCaseId(RinaID): $euxCaseId")
-
-        //wait 5 sec before getBuc metadata to UI
-        try {
-            TimeUnit.SECONDS.sleep(12)
-        } catch (ie: InterruptedException) {
-            Thread.currentThread().interrupt()
-        }
 
         //create bucDetail back from newly created buc call eux-rina-api to get data.
         val buc = euxInnhentingService.getBuc(euxCaseId)
