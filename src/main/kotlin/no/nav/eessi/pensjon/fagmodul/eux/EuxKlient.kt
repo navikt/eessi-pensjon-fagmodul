@@ -52,6 +52,7 @@ class EuxKlient(
     private lateinit var CreateBUC: MetricsHelper.Metric
     private lateinit var HentRinasaker: MetricsHelper.Metric
     private lateinit var PutMottaker: MetricsHelper.Metric
+    private lateinit var PutDocument: MetricsHelper.Metric
     private lateinit var PingEux: MetricsHelper.Metric
 
     @PostConstruct
@@ -63,6 +64,7 @@ class EuxKlient(
         CreateBUC = metricsHelper.init("CreateBUC", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         HentRinasaker = metricsHelper.init("HentRinasaker", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         PutMottaker = metricsHelper.init("PutMottaker", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
+        PutDocument = metricsHelper.init("PutDocument", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         PingEux = metricsHelper.init("PingEux")
     }
 
@@ -108,7 +110,11 @@ class EuxKlient(
                         "/buc/$euxCaseId/sed?ventePaAksjon=$ventePaAksjonVerdi",
                             httpEntity,
                             String::class.java)
-                }, euxCaseId, metric, errorMessage, waitTimes = 20000L
+                }
+                , euxCaseId
+                , metric
+                , errorMessage
+                , waitTimes = 20000L
         )
         return BucSedResponse(euxCaseId, response.body!!)
     }
@@ -345,6 +351,29 @@ class EuxKlient(
 
     }
 
+
+    fun updateSedOnBuc(euxCaseId: String, dokumentId: String, sedPayload: String): Boolean {
+        ///cpi/buc/{RinaSakId}/sed/{DokumentId}
+        val ventePaAksjonVerdi = "false"
+        val builder = UriComponentsBuilder.fromPath("/buc/$euxCaseId/sed/$dokumentId?ventePaAksjon=$ventePaAksjonVerdi").build()
+        val url = builder.toUriString()
+
+        logger.info("Oppdaterer document med euxCaseId: $euxCaseId og documentid: $dokumentId")
+        val result = restTemplateErrorhandler(
+            {
+                euxOidcRestTemplate.exchange(
+                    url,
+                    HttpMethod.PUT,
+                    populerHttpEntity(sedPayload),
+                    String::class.java)
+            }
+            , euxCaseId
+            , PutDocument
+            , "Feiler ved behandling. Får ikke oppdatert document. "
+        )
+        return result.statusCode == HttpStatus.OK
+    }
+
     @Throws(Throwable::class)
     fun <T> retryHelper(func: () -> T, maxAttempts: Int = 3, waitTimes: Long = 1000L, skipError: List<HttpStatus>): T {
         var failException: Throwable? = null
@@ -387,7 +416,7 @@ class EuxKlient(
                 val errorBody = hcee.responseBodyAsString
                 logger.error("$prefixErrorMessage, HttpClientError med euxCaseID: $euxCaseId, body: $errorBody", hcee)
                 when (hcee.statusCode) {
-                    HttpStatus.UNAUTHORIZED -> throw RinaIkkeAutorisertBrukerException("Authorization token required for Rina,")
+                    HttpStatus.UNAUTHORIZED -> throw RinaIkkeAutorisertBrukerException("Authorization token required for Rina.")
                     HttpStatus.FORBIDDEN -> throw ForbiddenException("Forbidden, Ikke tilgang")
                     HttpStatus.NOT_FOUND -> throw IkkeFunnetException("Ikke funnet")
                     HttpStatus.CONFLICT -> throw EuxConflictException("En konflikt oppstod under kall til Rina")
@@ -411,6 +440,7 @@ class EuxKlient(
             }
         }
     }
+
 
 }
 

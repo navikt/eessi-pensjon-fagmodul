@@ -56,7 +56,7 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
         return mapToConcreteSedClass(json)
     }
 
-    private fun mapToConcreteSedClass(sedJson: String): SED {
+    fun mapToConcreteSedClass(sedJson: String): SED {
         val genericSed = SED.fromJson(sedJson)
 
         return when(genericSed.type) {
@@ -276,6 +276,12 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
             //gyldig sed kan opprettes
             bucUtil.checkIfSedCanBeCreated(dataModel.sedType, dataModel.penSaksnummer)
         }
+    }
+
+    fun updateSedOnBuc(euxcaseid: String, documentid: String, sedPayload: String): Boolean {
+        logger.info("Oppdaterer ekisternede sed på rina: $euxcaseid")
+
+        return euxKlient.updateSedOnBuc(euxcaseid, documentid, sedPayload)
     }
 
 }

@@ -1,7 +1,13 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
 import io.swagger.annotations.ApiOperation
-import no.nav.eessi.pensjon.eux.model.sed.*
+import no.nav.eessi.pensjon.eux.model.sed.P4000
+import no.nav.eessi.pensjon.eux.model.sed.P5000
+import no.nav.eessi.pensjon.eux.model.sed.P6000
+import no.nav.eessi.pensjon.eux.model.sed.P7000
+import no.nav.eessi.pensjon.eux.model.sed.P8000
+import no.nav.eessi.pensjon.eux.model.sed.SED
+import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
@@ -10,11 +16,15 @@ import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.server.ResponseStatusException
 
 @Protected
 @RestController
@@ -37,6 +47,24 @@ class SedController(
         val sed = euxInnhentingService.getSedOnBucByDocumentId(euxcaseid, documentid)
         return mapToConcreteSedJson(sed)
     }
+
+
+    @ApiOperation("Oppdaterer en SED i RINA med denne versjon av JSON. krever dokumentid, euxcaseid samt json")
+    @PutMapping("/put/{euxcaseid}/{documentid}")
+    fun putDocument(
+        @PathVariable("euxcaseid", required = true) euxcaseid: String,
+        @PathVariable("documentid", required = true) documentid: String,
+        @RequestBody sedPayload: String): Boolean {
+        try {
+            euxInnhentingService.mapToConcreteSedClass(sedPayload)
+        } catch (ex: Exception) {
+            logger.error(ex.message)
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Data er av ikke gyldig SED format")
+        }
+
+        return euxInnhentingService.updateSedOnBuc(euxcaseid, documentid, sedPayload)
+    }
+
 
     @ApiOperation("Henter ut en liste over registrerte institusjoner innenfor spesifiserte EU-land. ny api kall til eux")
     @GetMapping("/institutions/{buctype}", "/institutions/{buctype}/{countrycode}")
