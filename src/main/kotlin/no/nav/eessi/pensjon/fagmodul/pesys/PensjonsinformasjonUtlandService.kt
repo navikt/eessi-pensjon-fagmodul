@@ -40,23 +40,23 @@ class PensjonsinformasjonUtlandService(
      * returnere en KravUtland model
      */
     fun hentKravUtland(bucId: Int): KravUtland {
+        logger.info("** innhenting av kravdata for buc: $bucId **")
         //bucUtils
         val buc = euxInnhentingService.getBucAsSystemuser(bucId.toString())
         val bucUtils = BucUtils(buc)
 
-
-        logger.debug("Starter prosess for henting av krav fra utland (P2000, P2100?, P2200)")
-        logger.debug("BucType : ${bucUtils.getProcessDefinitionName()}")
-        logger.debug("Funnet KravTypeSED i buc: ${kravSedBucmap[bucUtils.getProcessDefinitionName()]}")
+        logger.debug("Starter prosess for henting av krav fra utland (P2000, P2200)")
+        logger.info("BucType : ${bucUtils.getProcessDefinitionName()}")
+        logger.info("Funnet KravTypeSED i buc: ${kravSedBucmap[bucUtils.getProcessDefinitionName()]}")
 
         if (!validBuc.contains(bucUtils.getProcessDefinitionName())) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ulydig BUC, ikke av rett type KRAV-om BUC.")
-        if (bucUtils.getCaseOwner() == null) throw ResponseStatusException(HttpStatus.NOT_FOUND, "Ingen CaseOwner funnet på BUC med id: $bucId")
+        if (bucUtils.getCaseOwner() == null) throw ResponseStatusException(HttpStatus.NOT_FOUND, "Ingen CaseOwner funnet på BUC med id: $bucId").also { logger.error(it.message) }
 
         val sedDoc = getKravSedDocument(bucUtils, kravSedBucmap[bucUtils.getProcessDefinitionName()])
-            ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ingen dokument metadata funnet i BUC med id: $bucId.")
+            ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ingen dokument metadata funnet i BUC med id: $bucId.").also { logger.error(it.message) }
 
         val kravSed = sedDoc.id?.let { sedDocId -> euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(bucId.toString(), sedDocId) }
-            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Ingen gyldig kravSed i BUC med id: $bucId funnet.")
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Ingen gyldig kravSed i BUC med id: $bucId funnet.").also { logger.error(it.message) }
 
         //finner rette hjelep metode for utfylling av KravUtland
         //ut ifra hvilke SED/saktype det gjelder.
@@ -78,6 +78,7 @@ class PensjonsinformasjonUtlandService(
             }
             else -> throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ikke støttet request")
         }
+
     }
 
     fun debugPrintout(kravUtland: KravUtland) {
@@ -192,7 +193,6 @@ class PensjonsinformasjonUtlandService(
 
     //P2200
     fun kravUforepensjonUtland(kravSed: SED, bucUtils: BucUtils, doc: DocumentsItem): KravUtland {
-
         val caseOwner = bucUtils.getCaseOwner()!!
         val caseOwnerCountryBuc = if (nameSpace == "q2" || nameSpace == "test") {
             "SE"
@@ -205,7 +205,7 @@ class PensjonsinformasjonUtlandService(
         logger.debug("CaseOwnerId     : ${caseOwner.institution}")
         logger.debug("CaseOwnerName   : ${caseOwner.name}")
 
-        val kravUforeUtland = KravUtland(
+        return KravUtland(
             mottattDato = fremsettKravDato(doc, bucUtils),                       // når SED ble mottatt i NAV-RINA
             iverksettelsesdato = iverksettDato(kravSed),                         // hentes fra kp. 9.1 kravdato - 3 mnd
             fremsattKravdato = LocalDate.parse(kravSed.nav?.krav?.dato) ?: null, // hentes fra kp. 9.1 kravdato
@@ -218,8 +218,10 @@ class PensjonsinformasjonUtlandService(
             sivilstand = sivilstand(kravSed),
             soknadFraLand = caseOwnerCountry
         )
-        return kravUforeUtland
+
     }
+
+
 
     //P2000
     fun utlandsOpphold(kravSed: SED): SkjemaUtland? {
