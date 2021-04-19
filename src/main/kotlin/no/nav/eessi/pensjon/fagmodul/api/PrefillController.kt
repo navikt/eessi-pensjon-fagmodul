@@ -2,6 +2,7 @@ package no.nav.eessi.pensjon.fagmodul.api
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import io.swagger.annotations.ApiOperation
+import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
@@ -13,12 +14,12 @@ import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.fagmodul.prefill.PrefillService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
+import no.nav.eessi.pensjon.utils.toJson
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -56,21 +57,6 @@ class PrefillController(
             metricsHelper.init("AddDocumentToParentBucUtils", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
     }
 
-    @ApiOperation("Generer en Nav-Sed (SED), viser en oppsumering av SED (json). Før evt. innsending til EUX/Rina")
-    @PostMapping("sed/prefill", consumes = ["application/json"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun prefillDocument(
-        @RequestBody request: ApiRequest,
-        @PathVariable("filter", required = false) filter: String? = null
-    ): String {
-        auditlogger.log("previewDocument", request.aktoerId ?: "", request.toAudit())
-        logger.info("Prefiller : ${request.sed}")
-        val norskIdent = innhentingService.hentFnrfraAktoerService(request.aktoerId)
-        val dataModel = ApiRequest.buildPrefillDataModelOnExisting(request, norskIdent, innhentingService.getAvdodAktoerIdPDL(request))
-
-        val personcollection = innhentingService.hentPersonData(dataModel)
-        return prefillService.prefillSedtoJson(dataModel, "4.2", personcollection).sed
-    }
-
     @ApiOperation("Oppretter ny tom BUC i RINA via eux-api. ny api kall til eux")
     @PostMapping("buc/{buctype}")
     fun createBuc(@PathVariable("buctype", required = true) buctype: String): BucAndSedView {
@@ -102,18 +88,12 @@ class PrefillController(
         val personData = innhentingService.hentPersonData(dataModel)
 
         //Preutfyll av SED, pensjon og personer samt oppdatering av versjon
-        val sedAndType = prefillService.prefillSedtoJson(
-            dataModel,
-            bucUtil.getProcessDefinitionVersion(),
-            personData
-        )
+        val sed = innhentingService.hentPreutyltSed(request)
+
 
         //Sjekk og opprette deltaker og legge sed på valgt BUC
         return addInstutionAndDocument.measure {
             logger.info("******* Legge til ny SED - start *******")
-
-            val sedType = sedAndType.sedType
-            val sedJson = sedAndType.sed
 
             val nyeInstitusjoner = bucUtil.findNewParticipants(dataModel.getInstitutionsList())
             val x005Liste = prefillService.prefillEnX005ForHverInstitusjon(nyeInstitusjoner, dataModel, personData)
@@ -122,7 +102,10 @@ class PrefillController(
             euxPrefillService.checkAndAddInstitution(dataModel, bucUtil, x005Liste)
 
             logger.info("Prøver å sende SED: ${dataModel.sedType} inn på BUC: ${dataModel.euxCaseID}")
-            val docresult = euxPrefillService.opprettJsonSedOnBuc(sedJson, sedType, dataModel.euxCaseID, request.vedtakId)
+            val docresult = euxPrefillService.opprettJsonSedOnBuc(sed,
+                SedType.from(request.sed!!)!!,
+                dataModel.euxCaseID,
+                request.vedtakId)
 
             logger.info("Opprettet ny SED med dokumentId: ${docresult.documentId}")
             val result = bucUtil.findDocument(docresult.documentId)
@@ -159,15 +142,13 @@ class PrefillController(
         }
 
         logger.info("Prøver å prefillSED (svarSED) parentId: $parentId")
-        val personcollection = innhentingService.hentPersonData(dataModel)
-        val sedAndType =
-            prefillService.prefillSedtoJson(dataModel, bucUtil.getProcessDefinitionVersion(), personcollection)
+        val sed = innhentingService.hentPreutyltSed(request)
 
         return addDocumentToParent.measure {
             logger.info("Prøver å sende SED: ${dataModel.sedType} inn på BUC: ${dataModel.euxCaseID}")
 
             val docresult =
-                euxPrefillService.opprettSvarJsonSedOnBuc(sedAndType.sed, dataModel.euxCaseID, parentId, request.vedtakId)
+                euxPrefillService.opprettSvarJsonSedOnBuc(sed.toJson(), dataModel.euxCaseID, parentId, request.vedtakId)
 
             val parent = bucUtil.findDocument(parentId)
             val result = bucUtil.findDocument(docresult.documentId)

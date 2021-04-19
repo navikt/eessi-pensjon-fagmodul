@@ -14,6 +14,7 @@ import no.nav.eessi.pensjon.fagmodul.prefill.ApiRequest
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.fagmodul.prefill.PersonDataService
 import no.nav.eessi.pensjon.fagmodul.prefill.PrefillService
+import no.nav.eessi.pensjon.fagmodul.prefill.klient.PrefillKlient
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillSEDService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.utils.mapAnyToJson
@@ -52,6 +53,9 @@ class SedControllerTest {
     @Mock
     lateinit var vedleggService: VedleggService
 
+    @Mock
+    lateinit var prefillKlient: PrefillKlient
+
     private lateinit var sedController: SedController
 
     @BeforeEach
@@ -62,7 +66,7 @@ class SedControllerTest {
         val prefillService = PrefillService(mockPrefillSEDService)
         prefillService.initMetrics()
 
-        val innhentingService = InnhentingService(personDataService, vedleggService)
+        val innhentingService = InnhentingService(personDataService, vedleggService, prefillKlient)
         innhentingService.initMetrics()
 
         this.sedController = SedController(

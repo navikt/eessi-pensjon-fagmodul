@@ -172,7 +172,17 @@ class ArchitectureTest {
 
                 .whereLayer(config).mayNotBeAccessedByAnyLayer()
                 .whereLayer(metrics).mayOnlyBeAccessedByLayers(config, health, euxService, vedlegg)
-                .whereLayer(security).mayOnlyBeAccessedByLayers(config, health, euxService, vedlegg, pensjonService, personDataLosning, personService, kodeverkService, pesys, integrationtest)
+                .whereLayer(security).mayOnlyBeAccessedByLayers(config,
+                health,
+                euxService,
+                vedlegg,
+                pensjonService,
+                personDataLosning,
+                personService,
+                kodeverkService,
+                pesys,
+                integrationtest,
+                prefill)
 
                 .check(allClasses)
     }
