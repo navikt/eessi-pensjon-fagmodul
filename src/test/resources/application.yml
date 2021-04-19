@@ -19,6 +19,8 @@ eessipen-eux-rina:
 pensjonsinformasjon:
   url: 'http://example.com:8099'
 
+eessipensjon_prefill_url: 'http://example.com:8099'
+
 srvusername: 'username'
 srvpassword: 'password'
 

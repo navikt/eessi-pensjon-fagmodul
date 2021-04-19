@@ -18,6 +18,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.fagmodul.prefill.PersonDataService
 import no.nav.eessi.pensjon.fagmodul.prefill.PrefillService
+import no.nav.eessi.pensjon.fagmodul.prefill.klient.PrefillKlient
 import no.nav.eessi.pensjon.fagmodul.prefill.pen.PensjonsinformasjonService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
@@ -62,12 +63,15 @@ class BucControllerTest {
     @Mock
     lateinit var vedleggService: VedleggService
 
+    @Mock
+    lateinit var prefillKlient: PrefillKlient
+
     private lateinit var bucController: BucController
 
     @BeforeEach
     fun before() {
 
-        val innhentingService = InnhentingService(personDataService, vedleggService)
+        val innhentingService = InnhentingService(personDataService, vedleggService, prefillKlient)
         innhentingService.initMetrics()
 
         bucController = BucController(

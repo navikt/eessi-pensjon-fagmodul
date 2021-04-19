@@ -3,6 +3,7 @@ package no.nav.eessi.pensjon.fagmodul.prefill
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import no.nav.eessi.pensjon.fagmodul.models.PersonDataCollection
 import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
+import no.nav.eessi.pensjon.fagmodul.prefill.klient.PrefillKlient
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentType
 import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
@@ -18,6 +19,7 @@ import javax.annotation.PostConstruct
 @Service
 class InnhentingService(private val personDataService: PersonDataService,
                         private val vedleggService: VedleggService,
+                        private val prefillKlient: PrefillKlient,
                         @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())) {
 
     private lateinit var HentPerson: MetricsHelper.Metric
@@ -75,4 +77,5 @@ class InnhentingService(private val personDataService: PersonDataService,
 
     fun hentRinaSakIderFraMetaData(aktoerid: String): List<String> = vedleggService.hentRinaSakIderFraMetaData(aktoerid)
 
+    fun hentPreutyltSed(apiRequest: ApiRequest): SedAndType = prefillKlient.hentPreutfyltSed(apiRequest)
 }

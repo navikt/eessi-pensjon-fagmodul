@@ -4,6 +4,7 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.whenever
+import no.nav.eessi.pensjon.fagmodul.prefill.klient.PrefillKlient
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Ident
 import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentType
@@ -28,11 +29,14 @@ class InnhentingServiceTest {
     @Mock
     private lateinit var vedleggService: VedleggService
 
+    @Mock
+    lateinit var prefillKlient: PrefillKlient
+
     private lateinit var innhentingService: InnhentingService
 
     @BeforeEach
     fun before() {
-        innhentingService = InnhentingService(personDataService, vedleggService)
+        innhentingService = InnhentingService(personDataService, vedleggService, prefillKlient)
         innhentingService.initMetrics()
     }
 
