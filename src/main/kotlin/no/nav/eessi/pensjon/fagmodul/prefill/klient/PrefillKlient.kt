@@ -1,6 +1,5 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.klient
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import no.nav.eessi.pensjon.fagmodul.prefill.ApiRequest
 import no.nav.eessi.pensjon.metrics.MetricsHelper
@@ -26,7 +25,6 @@ class PrefillKlient(
 ) {
 
     private val logger: Logger by lazy { LoggerFactory.getLogger(PrefillKlient::class.java) }
-    private val mapper = jacksonObjectMapper()
 
     private lateinit var prefillSed: MetricsHelper.Metric
 
