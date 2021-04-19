@@ -48,7 +48,7 @@ class PrefillKlient(
                 val response = prefillOidcRestTemplate.exchange(
                         path,
                         HttpMethod.POST,
-                        HttpEntity(request.toString(), headers),
+                        HttpEntity(request, headers),
                         String::class.java)
                 mapper.readValue(response.body, SedAndType::class.java)
 
