@@ -77,5 +77,5 @@ class InnhentingService(private val personDataService: PersonDataService,
 
     fun hentRinaSakIderFraMetaData(aktoerid: String): List<String> = vedleggService.hentRinaSakIderFraMetaData(aktoerid)
 
-    fun hentPreutyltSed(apiRequest: ApiRequest): SedAndType = prefillKlient.hentPreutfyltSed(apiRequest)
+    fun hentPreutyltSed(apiRequest: ApiRequest): String = prefillKlient.hentPreutfyltSed(apiRequest)
 }

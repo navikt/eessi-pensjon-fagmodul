@@ -3,7 +3,6 @@ package no.nav.eessi.pensjon.fagmodul.prefill.klient
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import no.nav.eessi.pensjon.fagmodul.prefill.ApiRequest
-import no.nav.eessi.pensjon.fagmodul.prefill.SedAndType
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -36,7 +35,7 @@ class PrefillKlient(
         prefillSed = metricsHelper.init("prefillSed")
     }
 
-    fun hentPreutfyltSed(request: ApiRequest): SedAndType {
+    fun hentPreutfyltSed(request: ApiRequest): String {
         val path = "/sed/prefill"
 
         return prefillSed.measure {
@@ -45,13 +44,11 @@ class PrefillKlient(
                 val headers = HttpHeaders()
                 headers.contentType = MediaType.APPLICATION_JSON
 
-                val response = prefillOidcRestTemplate.exchange(
+                prefillOidcRestTemplate.exchange(
                         path,
                         HttpMethod.POST,
                         HttpEntity(request, headers),
-                        String::class.java)
-                mapper.readValue(response.body, SedAndType::class.java)
-
+                        String::class.java).body!!
             } catch (ex: HttpStatusCodeException) {
                 logger.error("En feil oppstod under henting av preutfylt SED ex: ", ex)
                 throw RuntimeException("En feil oppstod under henting av preutfylt SED ex: ${ex.message} body: ${ex.responseBodyAsString}")
