@@ -6,7 +6,6 @@ import no.nav.eessi.pensjon.logging.RequestResponseLoggerInterceptor
 import no.nav.eessi.pensjon.metrics.RequestCountInterceptor
 import no.nav.eessi.pensjon.security.token.TokenAuthorizationHeaderInterceptor
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.http.client.BufferingClientHttpRequestFactory
@@ -22,13 +21,13 @@ class PrefillRestTemplate(
     private val registry: MeterRegistry,
 ) {
 
-    @Value("\${EESSIPENSJON_PREFILL_URL}")
-    lateinit var url: String
+//    @Value("\${EESSIPENSJON_PREFILL_URL}")
+//    lateinit var url: String
 
     @Bean
     fun prefillOidcRestTemplate(templateBuilder: RestTemplateBuilder): RestTemplate {
         return templateBuilder
-                .rootUri(url)
+                .rootUri("https://eessi-pensjon-prefill-q2.nais.preprod.local/")
                 .errorHandler(DefaultResponseErrorHandler())
                 .setReadTimeout(Duration.ofSeconds(120))
                 .setConnectTimeout(Duration.ofSeconds(120))
