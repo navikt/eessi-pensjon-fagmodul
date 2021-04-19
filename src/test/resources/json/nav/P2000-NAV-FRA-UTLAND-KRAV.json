@@ -1,0 +1,36 @@
+{
+  "nav": {
+    "bruker": {
+      "person": {
+        "sivilstand": [
+          {
+            "fradato": "2008-09-30",
+            "status": "01"
+          }
+        ],
+        "statsborgerskap": [
+          {
+            "land": "SE"
+          }
+        ],
+        "kjoenn": "M",
+        "etternavn": "KAMELEON",
+        "fornavn": "VAKKER",
+        "pin": [
+          {
+            "identifikator": "66086049776",
+            "land": "NO"
+          }
+        ],
+        "etternavnvedfoedsel": "26.03.2021/13:54",
+        "foedselsdato": "1960-08-26"
+      }
+    },
+    "krav": {
+      "dato": "2021-03-01"
+    }
+  },
+  "sed": "P2000",
+  "sedGVer": "4",
+  "sedVer": "2"
+}

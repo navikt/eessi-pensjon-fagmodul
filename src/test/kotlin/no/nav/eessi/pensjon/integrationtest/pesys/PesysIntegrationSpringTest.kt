@@ -7,6 +7,7 @@ import com.nhaarman.mockitokotlin2.whenever
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
 import no.nav.eessi.pensjon.security.sts.STSService
 import no.nav.eessi.pensjon.services.kodeverk.KodeverkClient
+import org.hamcrest.Matchers
 import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.beans.factory.annotation.Autowired
@@ -42,7 +43,7 @@ class PesysIntegrationSpringTest {
     private lateinit var mockMvc: MockMvc
 
     @Test
-    fun `henter kravPensjonutland fra P2200`() {
+    fun `Uføre utlandskrav returnerer json ut fra behandle P2200`() {
 
         val bucid = "998777"
         val sedid = "5a61468eb8cb4fd78c5c44d75b9bb890"
@@ -50,9 +51,9 @@ class PesysIntegrationSpringTest {
         doReturn("SWE").whenever(kodeverkClient).finnLandkode3(any())
 
         //euxrest kall buc
-        val buc05 = ResourceUtils.getFile("classpath:json/buc/buc-1297512-kravP2200_v4.2.json").readText()
+        val buc03 = ResourceUtils.getFile("classpath:json/buc/buc-1297512-kravP2200_v4.2.json").readText()
         val rinabucpath = "/buc/$bucid"
-        doReturn( ResponseEntity.ok().body( buc05 ) ).whenever(restTemplate).exchange( eq(rinabucpath), eq(HttpMethod.GET), eq(null), eq(String::class.java))
+        doReturn( ResponseEntity.ok().body( buc03 ) ).whenever(restTemplate).exchange( eq(rinabucpath), eq(HttpMethod.GET), eq(null), eq(String::class.java))
 
         //euxrest kall til p2200
         val sedurl = "/buc/$bucid/sed/$sedid"
@@ -92,6 +93,155 @@ class PesysIntegrationSpringTest {
 
     }
 
+    @Test
+    fun `Alderpensjon utlandskrav returnerer json ut fra behandle P2000`() {
 
+        val bucid = "998777"
+        val sedid = "5a61468eb8cb4fd78c5c44d75b9bb890"
+
+        doReturn("SWE").whenever(kodeverkClient).finnLandkode3(any())
+
+        //euxrest kall buc
+        val buc01 = ResourceUtils.getFile("classpath:json/buc/buc-1297512-kravP2000_v4.2.json").readText()
+        val rinabucpath = "/buc/$bucid"
+        doReturn( ResponseEntity.ok().body( buc01 ) ).whenever(restTemplate).exchange( eq(rinabucpath), eq(HttpMethod.GET), eq(null), eq(String::class.java))
+
+        //euxrest kall til p2000
+        val sedurl = "/buc/$bucid/sed/$sedid"
+        val sedP2000 = ResourceUtils.getFile("classpath:json/nav/P2000-NAV-FRA-UTLAND-KRAV.json").readText()
+        doReturn( ResponseEntity.ok().body( sedP2000 ) ).whenever(restTemplate).exchange( eq(sedurl), eq(HttpMethod.GET), eq(null), eq(String::class.java))
+
+        val result = mockMvc.perform(
+            MockMvcRequestBuilders.get("/pesys/hentKravUtland/$bucid")
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andReturn()
+
+        val response = result.response.getContentAsString(charset("UTF-8"))
+
+        print(response)
+
+        val validResponse = """
+            {
+                "errorMelding" : null,
+                "mottattDato" : "2021-03-26",
+                "iverksettelsesdato" : "2020-12-01",
+                "fremsattKravdato" : "2021-03-01",
+                "uttaksgrad" : "0",
+                "vurdereTrygdeavtale" : true,
+                "personopplysninger" : {
+                    "statsborgerskap" : "SWE"
+                },
+                "utland" : null,
+                "sivilstand" : {
+                    "valgtSivilstatus" : "UGIF",
+                    "sivilstatusDatoFom" : "2008-09-30"
+                },
+                "soknadFraLand" : "SWE",
+                "initiertAv" : "BRUKER"
+            }
+        """.trimIndent()
+
+        JSONAssert.assertEquals(response, validResponse, true)
+
+    }
+
+    @Test
+    fun `Ugydlig BUC medfører BAD_REQUEST`() {
+        val bucid = "998777"
+
+        val bucjson = """
+            {
+              "id": "$bucid",
+              "processDefinitionName": "P_BUC_02"
+            }
+            
+        """.trimIndent()
+
+        val rinabucpath = "/buc/$bucid"
+        doReturn( ResponseEntity.ok().body( bucjson ) ).whenever(restTemplate).exchange( eq(rinabucpath), eq(HttpMethod.GET), eq(null), eq(String::class.java))
+
+        val expectedError = """Ugyldig BUC, Ikke korrekt type KRAV."""
+
+        mockMvc.perform(
+            MockMvcRequestBuilders.get("/pesys/hentKravUtland/$bucid")
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isBadRequest)
+            .andExpect(MockMvcResultMatchers.status().reason(Matchers.equalTo(expectedError)))
+    }
+
+    @Test
+    fun `Ugydlig BUC ingen Caseowner medfører NOT_FOUND`() {
+        val bucid = "998777"
+
+        val bucjson = """
+            {
+              "id": "$bucid",
+              "processDefinitionName": "P_BUC_01"
+            }
+            
+        """.trimIndent()
+
+        val rinabucpath = "/buc/$bucid"
+        doReturn( ResponseEntity.ok().body( bucjson ) ).whenever(restTemplate).exchange( eq(rinabucpath), eq(HttpMethod.GET), eq(null), eq(String::class.java))
+
+        val expectedError = """Ingen CaseOwner funnet på BUC med id: 998777"""
+
+        mockMvc.perform(
+            MockMvcRequestBuilders.get("/pesys/hentKravUtland/$bucid")
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isNotFound)
+            .andExpect(MockMvcResultMatchers.status().reason(Matchers.equalTo(expectedError)))
+    }
+
+    @Test
+    fun `Ugyldig BUC ingen gyldige dokumenter funnet kaster en BAD_REQUEST`() {
+        val bucid = "998777"
+
+        val bucjson = """
+            {
+              "id": "$bucid",
+              "processDefinitionName": "P_BUC_01",
+                "participants": [
+                {
+                  "role": "CaseOwner",
+                  "organisation": {
+                    "id": "NO:NAVAT05",
+                    "address": {
+                      "street": null,
+                      "town": null,
+                      "postalCode": null,
+                      "region": null,
+                      "country": "NO"
+                    },
+                    "contactMethods": null,
+                    "registryNumber": null,
+                    "name": "NAV ACCEPTANCE TEST 05",
+                    "acronym": "NAV ACCT 05",
+                    "countryCode": "NO",
+                    "activeSince": "2018-08-26T22:00:00.000+0000",
+                    "accessPoint": null,
+                    "location": null,
+                    "assignedBUCs": null
+                  },
+                 "selected": false
+              }],
+              "documents": []
+            }
+            
+        """.trimIndent()
+
+        val rinabucpath = "/buc/$bucid"
+        doReturn( ResponseEntity.ok().body( bucjson ) ).whenever(restTemplate).exchange( eq(rinabucpath), eq(HttpMethod.GET), eq(null), eq(String::class.java))
+
+        val expectedError = """Ingen dokument metadata funnet i BUC med id: 998777."""
+
+        mockMvc.perform(
+            MockMvcRequestBuilders.get("/pesys/hentKravUtland/$bucid")
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isBadRequest)
+            .andExpect(MockMvcResultMatchers.status().reason(Matchers.equalTo(expectedError)))
+    }
 
 }

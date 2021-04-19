@@ -1,33 +1,22 @@
 package no.nav.eessi.pensjon.fagmodul.pesys
 
-import no.nav.eessi.pensjon.eux.model.sed.AnsattSelvstendigItem
-import no.nav.eessi.pensjon.eux.model.sed.P4000
-import no.nav.eessi.pensjon.eux.model.sed.P5000
-import no.nav.eessi.pensjon.eux.model.sed.Periode
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.SedType
-import no.nav.eessi.pensjon.eux.model.sed.StandardItem
-import no.nav.eessi.pensjon.eux.model.sed.TrygdeTidPeriode
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
-import no.nav.eessi.pensjon.fagmodul.pesys.RinaTilPenMapper.parsePensjonsgrad
-import no.nav.eessi.pensjon.services.kodeverk.KodeverkClient
+import no.nav.eessi.pensjon.fagmodul.pesys.krav.AlderpensjonUtlandKrav
+import no.nav.eessi.pensjon.fagmodul.pesys.krav.UforeUtlandKrav
 import no.nav.eessi.pensjon.utils.toJson
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
-import java.time.LocalDate
 
 @Service
 class PensjonsinformasjonUtlandService(
-    private val kodeverkClient: KodeverkClient,
-    private val euxInnhentingService: EuxInnhentingService,
-    @Value("\${NAIS_NAMESPACE}")
-    private val nameSpace: String
-) {
+    private val alderpensjonUtlandsKrav: AlderpensjonUtlandKrav,
+    private val uforeUtlandKrav: UforeUtlandKrav,
+    private val euxInnhentingService: EuxInnhentingService) {
 
     private val logger = LoggerFactory.getLogger(PensjonsinformasjonUtlandService::class.java)
 
@@ -49,7 +38,7 @@ class PensjonsinformasjonUtlandService(
         logger.info("BucType : ${bucUtils.getProcessDefinitionName()}")
         logger.info("Funnet KravTypeSED i buc: ${kravSedBucmap[bucUtils.getProcessDefinitionName()]}")
 
-        if (!validBuc.contains(bucUtils.getProcessDefinitionName())) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ulydig BUC, ikke av rett type KRAV-om BUC.")
+        if (!validBuc.contains(bucUtils.getProcessDefinitionName())) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ugyldig BUC, Ikke korrekt type KRAV.")
         if (bucUtils.getCaseOwner() == null) throw ResponseStatusException(HttpStatus.NOT_FOUND, "Ingen CaseOwner funnet på BUC med id: $bucId").also { logger.error(it.message) }
 
         val sedDoc = getKravSedDocument(bucUtils, kravSedBucmap[bucUtils.getProcessDefinitionName()])
@@ -65,14 +54,13 @@ class PensjonsinformasjonUtlandService(
         return when {
             erAlderpensjon(kravSed) -> {
                 logger.debug("Kravtype er alderpensjon")
-                kravAlderpensjonUtland(kravSed, bucUtils).also {
+                alderpensjonUtlandsKrav.kravAlderpensjonUtland(kravSed, bucUtils, sedDoc).also {
                     debugPrintout(it)
                 }
-
             }
             erUforepensjon(kravSed) -> {
                 logger.debug("Kravtype er uførepensjon")
-                kravUforepensjonUtland(kravSed, bucUtils, sedDoc).also {
+                uforeUtlandKrav.kravUforepensjonUtland(kravSed, bucUtils, sedDoc).also {
                     debugPrintout(it)
                 }
             }
@@ -95,365 +83,5 @@ class PensjonsinformasjonUtlandService(
     fun erAlderpensjon(sed: SED) = sed.type == SedType.P2000
 
     fun erUforepensjon(sed: SED) = sed.type == SedType.P2200
-
-
-    fun finnStatsborgerskapsLandkode3(kravSed: SED): String? {
-        val statsborgerskap = kravSed.nav?.bruker?.person?.statsborgerskap?.firstOrNull { it.land != null }
-        return statsborgerskap?.let { kodeverkClient.finnLandkode3(it.land!!) } ?: ""
-    }
-
-    //finnes verge ktp 7.1 og 7.2 settes VERGE hvis ikke BRUKER
-    fun hentInitiertAv(p2000: SED): String {
-        val vergeetter = p2000.nav?.verge?.person?.etternavn.orEmpty()
-        val vergenavn = p2000.nav?.verge?.person?.fornavn.orEmpty()
-        logger.debug("vergeetter: $vergeetter , vergenavn: $vergenavn")
-        val verge = vergeetter + vergenavn
-        logger.debug("verge: $verge")
-        if (verge.isEmpty()) {
-            return "BRUKER"
-        }
-        return "VERGE"
-    }
-
-    //iverksettelsesdato
-    //p2000 9.4.1 - 9.4.4
-    fun hentRettIverksettelsesdato(p2000: SED): LocalDate {
-        val startDatoUtbet = p2000.pensjon?.forespurtstartdato
-        return if (p2000.pensjon?.angitidligstdato == "1") {
-            LocalDate.parse(startDatoUtbet)
-        } else {
-            val kravdato = LocalDate.parse(p2000.nav?.krav?.dato) ?: LocalDate.now()
-            kravdato.withDayOfMonth(1).plusMonths(1)
-        }
-    }
-
-    //TODO: vil trenge en innhentSedFraRinaService..
-    //TODO: vil trenge en navSED->PESYS regel.
-    //funksjon for P2000
-    fun kravAlderpensjonUtland(kravSed: SED, bucUtils: BucUtils): KravUtland {
-
-        val p2000 = kravSed
-        val p3000no: SED? = null
-        logger.debug("oppretter KravUtland")
-
-        //https://confluence.adeo.no/pages/viewpage.action?pageId=203178268
-        //Kode om fra Alpha2 - Alpha3 teng i Avtaleland (eu, eøs og par andre)  og Statborgerskap (alle verdens land)
-        val landAlpha3 = finnStatsborgerskapsLandkode3(p2000)
-
-        return KravUtland(
-            //P2000 9.1
-            mottattDato = LocalDate.parse(p2000.nav?.krav?.dato) ?: null,
-
-            //P2000 ?? kravdatao?
-            iverksettelsesdato = hentRettIverksettelsesdato(p2000),
-
-            //P3000_NO 4.6.1. Forsikredes anmodede prosentdel av full pensjon
-            uttaksgrad = parsePensjonsgrad(p3000no?.pensjon?.landspesifikk?.norge?.alderspensjon?.pensjonsgrad),
-
-            //P2000 2.2.1.1
-            personopplysninger = SkjemaPersonopplysninger(
-                statsborgerskap = landAlpha3
-            ),
-
-            //P2000 - 2.2.2
-            sivilstand = SkjemaFamilieforhold(
-                valgtSivilstatus = hentFamilieStatus("01"),
-                sivilstatusDatoFom = LocalDate.now()
-            ),
-
-            //P4000 - P5000 opphold utland (norge filtrert bort)
-            utland = hentSkjemaUtland(null),
-
-            //denne må hentes utenfor SED finne orginal avsender-land for BUC/SED..
-            soknadFraLand = kodeverkClient.finnLandkode3("SE"),
-            //avtale mellom land? SED sendes kun fra EU/EØS? blir denne alltid true?
-            vurdereTrygdeavtale = true,
-
-            initiertAv = hentInitiertAv(p2000)
-        )
-    }
-
-    fun hentFamilieStatus(key: String?): String? {
-        val status = mapOf(
-            "01" to "UGIF",
-            "02" to "GIFT",
-            "03" to "SAMB",
-            "04" to "REPA",
-            "05" to "SKIL",
-            "06" to "SKPA",
-            "07" to "SEPA",
-            "08" to "ENKE"
-        )
-        //Sivilstand for søker. Må være en gyldig verdi fra T_K_SIVILSTATUS_T:
-        //ENKE, GIFT, GJES, GJPA, GJSA, GLAD, PLAD, REPA,SAMB, SEPA, SEPR, SKIL, SKPA, UGIF.
-        //Pkt p2000 - 2.2.2.1. Familiestatus
-        //var valgtSivilstatus: String? = null,
-        return status[key]
-    }
-
-    //P2200
-    fun kravUforepensjonUtland(kravSed: SED, bucUtils: BucUtils, doc: DocumentsItem): KravUtland {
-        val caseOwner = bucUtils.getCaseOwner()!!
-        val caseOwnerCountryBuc = if (nameSpace == "q2" || nameSpace == "test") {
-            "SE"
-        } else {
-            caseOwner.country
-        }
-        val caseOwnerCountry = kodeverkClient.finnLandkode3(caseOwnerCountryBuc)
-
-        logger.debug("CaseOwnerCountry: $caseOwnerCountry")
-        logger.debug("CaseOwnerId     : ${caseOwner.institution}")
-        logger.debug("CaseOwnerName   : ${caseOwner.name}")
-
-        return KravUtland(
-            mottattDato = fremsettKravDato(doc, bucUtils),                       // når SED ble mottatt i NAV-RINA
-            iverksettelsesdato = iverksettDato(kravSed),                         // hentes fra kp. 9.1 kravdato - 3 mnd
-            fremsattKravdato = LocalDate.parse(kravSed.nav?.krav?.dato) ?: null, // hentes fra kp. 9.1 kravdato
-
-            vurdereTrygdeavtale = true,
-
-            personopplysninger = SkjemaPersonopplysninger(
-                statsborgerskap = finnStatsborgerskapsLandkode3(kravSed)
-            ),
-            sivilstand = sivilstand(kravSed),
-            soknadFraLand = caseOwnerCountry
-        )
-
-    }
-
-
-
-    //P2000
-    fun utlandsOpphold(kravSed: SED): SkjemaUtland? {
-        return SkjemaUtland(
-            utlandsopphold = emptyList()
-        )
-    }
-
-    fun sivilstand(kravSed: SED): SkjemaFamilieforhold? {
-        val sivilstand = kravSed.nav?.bruker?.person?.sivilstand?.maxByOrNull { LocalDate.parse(it.fradato) }
-        val sivilstatus = hentFamilieStatus(sivilstand?.status)
-        logger.debug("Sivilstatus: $sivilstatus")
-        if (sivilstatus == null || sivilstand?.fradato == null) return null
-        return SkjemaFamilieforhold(
-            valgtSivilstatus = sivilstatus,
-            sivilstatusDatoFom = sivilstand.fradato.let { LocalDate.parse(it) }
-        )
-    }
-
-
-    fun iverksettDato(kravSed: SED): LocalDate? {
-//        Mottatt dato = P2200 felt 9.1. Dato for krav *
-//        Krav fremsatt dato = P2200 er sendt fra CO
-//        Antatt virkningsdato = 3 måneder før Mottatt dato
-//        Eks:
-//        Mottatt dato  Antatt virkningsdato
-//                02.04.2021  01.01.2021
-//                17.04.2021  01.02.2021
-
-        val kravdato = LocalDate.parse(kravSed.nav?.krav?.dato) ?: return null
-        return kravdato.withDayOfMonth(1).minusMonths(3)
-    }
-
-    fun fremsettKravDato(doc: DocumentsItem, bucUtils: BucUtils): LocalDate {
-        val local = bucUtils.getDateTime(doc.lastUpdate)
-        val date = local.toLocalDate()
-        return LocalDate.of(date.year, date.monthOfYear, date.dayOfMonth)
-    }
-
-    fun hentSkjemaUtland(seds: SED? = null): SkjemaUtland {
-        logger.debug("oppretter SkjemaUtland")
-        val list = prosessUtlandsOpphold(null)
-        logger.debug("liste Utlandsoppholditem er størrelse : ${list.size}")
-        return SkjemaUtland(
-            utlandsopphold = list
-        )
-    }
-
-    //P4000-P5000 logic
-    fun prosessUtlandsOpphold(seds: Map<SedType, SED>? = null): List<Utlandsoppholditem> {
-
-        val p4000: P4000? = null
-        val p5000: P5000? = null
-
-        val list = mutableListOf<Utlandsoppholditem>()
-        logger.debug("oppretter utlandopphold P4000")
-        list.addAll(hentUtlandsOppholdFraP4000(p4000))
-        logger.debug("oppretter utlandopphold P5000")
-        list.addAll(hentUtlandsOppholdFraP5000(p5000))
-
-        return list
-    }
-
-    //oppretter UtlandsOpphold fra P4000 (uten Norge)
-    fun hentUtlandsOppholdFraP4000(p4000: P4000?): List<Utlandsoppholditem> {
-        val list = mutableListOf<Utlandsoppholditem>()
-
-        if (p4000 == null) {
-            return listOf()
-        }
-
-        //P4000 -- arbeid
-        val arbeidList = p4000.trygdetid?.ansattSelvstendigPerioder
-        val filterArbeidUtenNorgeList = mutableListOf<AnsattSelvstendigItem>()
-        arbeidList?.forEach {
-            if ("NO" != it.adresseFirma?.land) {
-                filterArbeidUtenNorgeList.add(it)
-            }
-        }
-
-        filterArbeidUtenNorgeList.forEach {
-            val arbeid = it
-
-            val landAlpha2 = arbeid.adresseFirma?.land ?: "N/A"
-            val landAlpha3 = kodeverkClient.finnLandkode3(landAlpha2) ?: ""
-
-            val periode = hentFomEllerTomFraPeriode(arbeid.periode)
-            var fom: LocalDate? = null
-            var tom: LocalDate? = null
-
-            try {
-                fom = LocalDate.parse(periode.fom)
-            } catch (ex: Exception) {
-                logger.error(ex.message)
-            }
-            try {
-                tom = LocalDate.parse(periode.tom)
-            } catch (ex: Exception) {
-                logger.error(ex.message)
-            }
-
-            logger.debug("oppretter arbeid P4000")
-            list.add(
-                Utlandsoppholditem(
-                    land = landAlpha3,
-                    fom = fom,
-                    tom = tom,
-                    arbeidet = true,
-                    bodd = false,
-                    utlandPin = hentPinIdFraBoArbeidLand(p4000, landAlpha2),
-                    //kommer ut ifa avsenderLand (hvor orginal type kommer ifra)
-                    pensjonsordning = hentPensjonsOrdning(p4000, landAlpha2)
-                )
-            )
-
-        }
-
-        //P4000 - bo
-        val boList = p4000.trygdetid?.boPerioder
-        val filterBoUtenNorgeList = mutableListOf<StandardItem>()
-        boList?.forEach {
-            if ("NO" != it.land) {
-                filterBoUtenNorgeList.add(it)
-            }
-        }
-        filterBoUtenNorgeList.forEach {
-            val bo = it
-
-            val landA2 = bo.land ?: "N/A"
-            val landAlpha3 = kodeverkClient.finnLandkode3(bo.land ?: "N/A") ?: ""
-
-            val periode = hentFomEllerTomFraPeriode(bo.periode)
-            logger.debug("oppretter bo P4000")
-            var fom: LocalDate? = null
-            var tom: LocalDate? = null
-
-            try {
-                fom = LocalDate.parse(periode.fom)
-            } catch (ex: Exception) {
-                logger.error(ex.message)
-            }
-            try {
-                tom = LocalDate.parse(periode.tom)
-            } catch (ex: Exception) {
-                logger.error(ex.message)
-            }
-
-            list.add(
-                Utlandsoppholditem(
-                    land = landAlpha3,
-                    fom = fom,
-                    tom = tom,
-                    arbeidet = false,
-                    bodd = true,
-                    utlandPin = hentPinIdFraBoArbeidLand(p4000, landA2),
-                    pensjonsordning = hentPensjonsOrdning(p4000, landA2) // "Hva?"
-                )
-            )
-        }
-        return list
-    }
-
-    fun hentFomEllerTomFraPeriode(openLukketPeriode: TrygdeTidPeriode?): Periode {
-        val open = openLukketPeriode?.openPeriode
-        val lukket = openLukketPeriode?.lukketPeriode
-
-        if (open?.fom != null && lukket?.tom == null) {
-            return open
-        } else if (open?.fom == null && lukket?.tom != null) {
-            return lukket
-        }
-        return Periode()
-    }
-
-    fun hentPensjonsOrdning(psed: SED, land: String): String {
-        //prøvr å hente ut sektor (ytelse/pensjonordning)
-        psed.nav?.bruker?.person?.pin?.forEach {
-            if (land == it.land) {
-                return it.institusjon?.institusjonsnavn ?: ""
-            }
-        }
-        return ""
-
-    }
-
-    fun hentPinIdFraBoArbeidLand(psed: SED, land: String): String {
-        //p2000.nav?.bruker?.person?.pin?.get(0)?.land
-        //p2000 eller p4000?
-        psed.nav?.bruker?.person?.pin?.forEach {
-            if (land == it.land) {
-                return it.identifikator ?: ""
-            }
-        }
-        return ""
-    }
-
-    //oppretter UtlandsOpphold fra P5000 (trygdeland)
-    fun hentUtlandsOppholdFraP5000(p5000: P5000?): List<Utlandsoppholditem> {
-        val list = mutableListOf<Utlandsoppholditem>()
-        //P5000
-        val trygdetidList = p5000?.p5000Pensjon?.trygdetid
-
-        trygdetidList?.forEach {
-            var fom: LocalDate? = null
-            var tom: LocalDate? = null
-            try {
-                fom = LocalDate.parse(it.periode?.fom)
-            } catch (ex: Exception) {
-                logger.error(ex.message)
-            }
-            try {
-                tom = LocalDate.parse(it.periode?.tom)
-            } catch (ex: Exception) {
-                logger.error(ex.message)
-            }
-
-            val pin = hentPinIdFraBoArbeidLand(p5000, it.land ?: "N/A")
-
-            list.add(
-                Utlandsoppholditem(
-                    land = kodeverkClient.finnLandkode3(it.land ?: "N/A"),
-                    fom = fom,
-                    tom = tom,
-                    bodd = true,
-                    arbeidet = false,
-                    pensjonsordning = "???",
-                    utlandPin = pin
-                )
-            )
-        }
-
-        return list
-    }
 
 }
