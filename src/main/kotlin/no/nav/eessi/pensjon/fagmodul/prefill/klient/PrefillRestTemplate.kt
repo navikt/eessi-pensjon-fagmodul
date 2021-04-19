@@ -22,7 +22,7 @@ class PrefillRestTemplate(
     private val registry: MeterRegistry,
 ) {
 
-    @Value("\${eessipensjon_prefill_url}")
+    @Value("\${EESSIPENSJON_PREFILL_URL}")
     lateinit var url: String
 
     @Bean
