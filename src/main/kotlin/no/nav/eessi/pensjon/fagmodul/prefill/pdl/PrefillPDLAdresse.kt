@@ -69,10 +69,10 @@ class PrefillPDLAdresse (private val postnummerService: PostnummerService,
             doedsboadresse != null -> doedsboadresse
 
             //utland
-            pdlperson.kontaktadresse?.utenlandskAdresse != null -> preutfyllUtlandsAdresse(pdlperson.kontaktadresse?.utenlandskAdresse)
+            kanUtlandsadresseBenyttes(pdlperson.kontaktadresse?.utenlandskAdresse) -> preutfyllUtlandsAdresse(pdlperson.kontaktadresse?.utenlandskAdresse)
             pdlperson.kontaktadresse?.utenlandskAdresseIFrittFormat != null -> preutfyllUtenlandskAdresseIFrittFormat(pdlperson.kontaktadresse?.utenlandskAdresseIFrittFormat)
             //utland
-            pdlperson.oppholdsadresse?.utenlandskAdresse != null -> preutfyllUtlandsAdresse(pdlperson.oppholdsadresse?.utenlandskAdresse)
+            kanUtlandsadresseBenyttes(pdlperson.oppholdsadresse?.utenlandskAdresse) -> preutfyllUtlandsAdresse(pdlperson.oppholdsadresse?.utenlandskAdresse)
 
             //Norge
             kanNorskVegadresseBenyttes(pdlperson.kontaktadresse?.vegadresse) -> preutfullNorskBostedVegadresse(pdlperson.kontaktadresse?.vegadresse)
@@ -111,6 +111,16 @@ class PrefillPDLAdresse (private val postnummerService: PostnummerService,
                 land = hentLandkode(adresse.landkode)
             )
         } else null
+    }
+
+    fun kanUtlandsadresseBenyttes(utlandsAdresse: UtenlandskAdresse?): Boolean {
+        if (utlandsAdresse == null) return false
+        return  !utlandsAdresse.adressenavnNummer.isNullOrEmpty() and
+                !utlandsAdresse.bySted.isNullOrEmpty() and
+                !utlandsAdresse.postkode.isNullOrEmpty() and
+                (utlandsAdresse.postkode?.let {
+                    it.length <= 25
+                } == true)
     }
 
     private fun preutfyllUtlandsAdresse(utlandsAdresse: UtenlandskAdresse?): Adresse {

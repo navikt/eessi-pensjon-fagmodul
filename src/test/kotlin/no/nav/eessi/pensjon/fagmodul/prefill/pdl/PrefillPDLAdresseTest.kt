@@ -1,5 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.pdl
 
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.doReturn
 import no.nav.eessi.pensjon.fagmodul.prefill.PersonPDLMock
 import no.nav.eessi.pensjon.fagmodul.prefill.PersonPDLMock.medBeskyttelse
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AdressebeskyttelseGradering
@@ -11,6 +13,7 @@ import no.nav.eessi.pensjon.personoppslag.pdl.model.KontaktinformasjonForDoedsbo
 import no.nav.eessi.pensjon.personoppslag.pdl.model.KontaktinformasjonForDoedsboAdresse
 import no.nav.eessi.pensjon.personoppslag.pdl.model.KontaktinformasjonForDoedsboSkifteform
 import no.nav.eessi.pensjon.personoppslag.pdl.model.PostadresseIFrittFormat
+import no.nav.eessi.pensjon.personoppslag.pdl.model.UtenlandskAdresse
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Vegadresse
 import no.nav.eessi.pensjon.services.geo.PostnummerService
 import no.nav.eessi.pensjon.services.kodeverk.KodeverkClient
@@ -155,4 +158,57 @@ class PrefillPDLAdresseTest{
         assertEquals("0123", result.postnummer)
         assertEquals("OSLO", result.by)
     }
+
+    @Test
+    fun `create utenlandsadresse med feil format`() {
+        val person = PersonPDLMock.createWith()
+            .copy(bostedsadresse = null,
+                kontaktadresse = Kontaktadresse(
+                coAdressenavn = null,
+                type = KontaktadresseType.Innland,
+                postadresseIFrittFormat = null,
+                utenlandskAdresse = UtenlandskAdresse(
+                    adressenavnNummer = "adressenavnummer",
+                    bySted = "bysted",
+                    landkode = "SC",
+                    postkode = "Edinburg bladi bladi bladi bladi bladi"
+                ),
+                metadata = no.nav.eessi.pensjon.personoppslag.pdl.model.Metadata(emptyList(), false, "DOLLY", "Doll")
+            ))
+
+        val result = prefillAdresse.createPersonAdresse(person)!!
+
+        assertNotNull(result)
+
+    }
+
+    @Test
+    fun `create utenlandsadresse med riktig format`() {
+        val person = PersonPDLMock.createWith()
+            .copy(bostedsadresse = null,
+                kontaktadresse = Kontaktadresse(
+                    coAdressenavn = null,
+                    type = KontaktadresseType.Innland,
+                    postadresseIFrittFormat = null,
+                    utenlandskAdresse = UtenlandskAdresse(
+                        adressenavnNummer = "adressenavnummer",
+                        bySted = "bysted",
+                        landkode = "SCT",
+                        postkode = "EH99"
+                    ),
+                    metadata = no.nav.eessi.pensjon.personoppslag.pdl.model.Metadata(emptyList(), false, "DOLLY", "Doll")
+                ))
+
+        doReturn("SC").`when`(kodeverkClient).finnLandkode2(any())
+
+        val result = prefillAdresse.createPersonAdresse(person)!!
+
+        assertNotNull(result)
+        assertEquals("SC", result.land)
+        assertEquals("adressenavnummer", result.gate)
+        assertEquals("EH99", result.postnummer)
+        assertEquals("bysted", result.by)
+
+    }
+
 }
