@@ -29,9 +29,7 @@ import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.prefill.ApiRequest
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.fagmodul.prefill.PersonDataService
-import no.nav.eessi.pensjon.fagmodul.prefill.PrefillService
 import no.nav.eessi.pensjon.fagmodul.prefill.klient.PrefillKlient
-import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillSEDService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
 import no.nav.eessi.pensjon.utils.mapJsonToAny
@@ -62,8 +60,6 @@ class PrefillControllerTest {
     @Spy
     lateinit var mockEuxPrefillService: EuxPrefillService
 
-    @Mock
-    lateinit var mockPrefillSEDService: PrefillSEDService
 
     @Spy
     lateinit var mockEuxInnhentingService: EuxInnhentingService
@@ -87,9 +83,6 @@ class PrefillControllerTest {
 
         val innhentingService = InnhentingService(personDataService, vedleggService, prefillKlient)
         innhentingService.initMetrics()
-
-        val prefillService = PrefillService(mockPrefillSEDService)
-        prefillService.initMetrics()
 
         prefillController = PrefillController(
             "default",

@@ -1,10 +1,11 @@
 package no.nav.eessi.pensjon.fagmodul.prefill
 
-import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
-import no.nav.eessi.pensjon.utils.*
-import org.junit.jupiter.api.Assertions.*
+import no.nav.eessi.pensjon.utils.mapJsonToAny
+import no.nav.eessi.pensjon.utils.typeRefs
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -23,25 +24,8 @@ class ApiRequestTest {
         )
     }
 
-    private fun readJsonAndParseToSed(filename: String): String {
-        val p2200file = javaClass.getResource("/json/nav/$filename").readText()
-        assertTrue(validateJson(p2200file))
-        return p2200file
-    }
-
-    @Test
-    fun `generate request mock payload of SED P2000`() {
-        val payload = readJsonAndParseToSed("P2000-NAV.json")
-        val req = createMockApiRequest("P2000", "P_BUC_01", payload)
-        val sedjson = SED.fromJson(req.payload!!).toJson()
-        assertNotNull(sedjson)
-        val json = mapAnyToJson(req)
-        assertNotNull(json)
-    }
-
     @Test
     fun `check og valider request fra ui med institusion uten buc`() {
-
         val req = "{\n" +
                 "  \"sakId\" : \"01234567890\",\n" +
                 "  \"vedtakId\" : null,\n" +
@@ -69,37 +53,9 @@ class ApiRequestTest {
         assertEquals("P_BUC_01", datamodel.buc)
     }
 
-    @Test
-    fun `generate request mock payload of SED P2100`() {
-        val payload = readJsonAndParseToSed("P2100-NAV-unfin.json")
-        createMockApiRequest("P2100", "P_BUC_02", payload)
-    }
 
-    @Test
-    fun `generate request mock payload of SED P2200`() {
-        val payload = readJsonAndParseToSed("P2200-NAV.json")
-        createMockApiRequest("P2200", "P_BUC_03", payload)
-    }
 
-    @Test
-    fun `generate request mock payload of SED P4000`() {
-        val payload = readJsonAndParseToSed("P4000-NAV.json")
-        createMockApiRequest("P4000", "P_BUC_05", payload)
-    }
-
-    @Test
-    fun `generate request mock payload of SED P5000`() {
-        val payload = readJsonAndParseToSed("P5000-NAV.json")
-        createMockApiRequest("P5000", "P_BUC_05", payload)
-    }
-
-    @Test
-    fun `generate request mock payload of SED P6000`() {
-        val payload = readJsonAndParseToSed("P6000-NAV.json")
-        createMockApiRequest("vedtak", "P_BUC_06", payload)
-    }
-
-    @Test
+      @Test
     fun `confirm document when sed is not valid`() {
         val mockData = ApiRequest(
                 subjectArea = "Pensjon",

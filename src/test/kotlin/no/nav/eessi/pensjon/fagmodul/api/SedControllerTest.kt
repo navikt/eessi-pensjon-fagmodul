@@ -13,9 +13,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.prefill.ApiRequest
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.fagmodul.prefill.PersonDataService
-import no.nav.eessi.pensjon.fagmodul.prefill.PrefillService
 import no.nav.eessi.pensjon.fagmodul.prefill.klient.PrefillKlient
-import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillSEDService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.utils.mapAnyToJson
 import no.nav.eessi.pensjon.utils.mapJsonToAny
@@ -45,9 +43,6 @@ class SedControllerTest {
     lateinit var auditLogger: AuditLogger
 
     @Mock
-    lateinit var mockPrefillSEDService: PrefillSEDService
-
-    @Mock
     lateinit var personDataService: PersonDataService
 
     @Mock
@@ -62,9 +57,6 @@ class SedControllerTest {
     fun setUp() {
         mockEuxPrefillService.initMetrics()
         personDataService.initMetrics()
-
-        val prefillService = PrefillService(mockPrefillSEDService)
-        prefillService.initMetrics()
 
         val innhentingService = InnhentingService(personDataService, vedleggService, prefillKlient)
         innhentingService.initMetrics()

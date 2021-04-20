@@ -31,7 +31,7 @@ open class UtlandKrav {
         return LocalDate.of(date.year, date.monthOfYear, date.dayOfMonth)
     }
 
-    fun finnStatsborgerskapsLandkode3(kodeverkClient: KodeverkClient, kravSed: SED): String? {
+    fun finnStatsborgerskapsLandkode3(kodeverkClient: KodeverkClient, kravSed: SED): String {
         val statsborgerskap = kravSed.nav?.bruker?.person?.statsborgerskap?.firstOrNull { it.land != null }
         return statsborgerskap?.let { kodeverkClient.finnLandkode3(it.land!!) } ?: ""
     }
