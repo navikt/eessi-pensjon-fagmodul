@@ -2,6 +2,7 @@ package no.nav.eessi.pensjon.fagmodul.api
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import io.swagger.annotations.ApiOperation
+import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
@@ -11,9 +12,10 @@ import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucSedResponse
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.fagmodul.prefill.ApiRequest
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
-import no.nav.eessi.pensjon.fagmodul.prefill.PrefillService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
+import no.nav.eessi.pensjon.utils.mapJsonToAny
+import no.nav.eessi.pensjon.utils.typeRefs
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -32,7 +34,6 @@ class PrefillController(
     private val euxPrefillService: EuxPrefillService,
     private val euxInnhentingService: EuxInnhentingService,
     private val innhentingService: InnhentingService,
-    private val prefillService: PrefillService,
     private val auditlogger: AuditLogger,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())
 ) {
@@ -84,18 +85,21 @@ class PrefillController(
 
         //Hente metadata for valgt BUC
         val bucUtil = euxInnhentingService.kanSedOpprettes(dataModel)
-        val personData = innhentingService.hentPersonData(dataModel)
 
         //Preutfyll av SED, pensjon og personer samt oppdatering av versjon
         val sed = innhentingService.hentPreutyltSed(request)
-
 
         //Sjekk og opprette deltaker og legge sed på valgt BUC
         return addInstutionAndDocument.measure {
             logger.info("******* Legge til ny SED - start *******")
 
             val nyeInstitusjoner = bucUtil.findNewParticipants(dataModel.getInstitutionsList())
-            val x005Liste = prefillService.prefillEnX005ForHverInstitusjon(nyeInstitusjoner, dataModel, personData)
+            val x005Liste = nyeInstitusjoner.map {
+                logger.debug("Legger til Institusjon på X005 ${it.institution}")
+                // ID og Navn på X005 er påkrevd må hente innn navn fra UI.
+                val x005request = request.copy(avdodfnr = null, sed = SedType.X005.name, institutions = listOf(it))
+                mapJsonToAny(innhentingService.hentPreutyltSed(x005request), typeRefs<SED>())
+            }
 
             //sjekk og evt legger til deltakere
             euxPrefillService.checkAndAddInstitution(dataModel, bucUtil, x005Liste)

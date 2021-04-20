@@ -1,15 +1,35 @@
 
 package no.nav.eessi.pensjon.fagmodul.api
 
-import com.nhaarman.mockitokotlin2.*
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.doNothing
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.doThrow
+import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.times
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.whenever
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.SedType
-import no.nav.eessi.pensjon.fagmodul.eux.*
+import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
+import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
+import no.nav.eessi.pensjon.fagmodul.eux.EuxPrefillService
+import no.nav.eessi.pensjon.fagmodul.eux.SedDokumentIkkeOpprettetException
+import no.nav.eessi.pensjon.fagmodul.eux.SedDokumentKanIkkeOpprettesException
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucSedResponse
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.*
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ActionsItem
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ConversationsItem
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Organisation
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Sender
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.UserMessagesItem
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
-import no.nav.eessi.pensjon.fagmodul.models.PersonDataCollection
-import no.nav.eessi.pensjon.fagmodul.prefill.*
+import no.nav.eessi.pensjon.fagmodul.prefill.ApiRequest
+import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
+import no.nav.eessi.pensjon.fagmodul.prefill.PersonDataService
+import no.nav.eessi.pensjon.fagmodul.prefill.PrefillService
 import no.nav.eessi.pensjon.fagmodul.prefill.klient.PrefillKlient
 import no.nav.eessi.pensjon.fagmodul.prefill.sed.PrefillSEDService
 import no.nav.eessi.pensjon.logging.AuditLogger
@@ -76,7 +96,6 @@ class PrefillControllerTest {
             mockEuxPrefillService,
             mockEuxInnhentingService,
             innhentingService,
-            prefillService,
             auditLogger
         )
 
@@ -116,7 +135,6 @@ class PrefillControllerTest {
         val euxCaseId = "1234567890"
 
         doReturn("12345").whenever(personDataService).hentFnrfraAktoerService(any())
-        doReturn(PersonDataCollection(PersonPDLMock.createWith(), PersonPDLMock.createWith())).whenever(personDataService).hentPersonData(any())
 
         val mockParticipants = listOf(ParticipantsItem(role = "CaseOwner", organisation = Organisation(countryCode = "NO", name = "NAV", id = "NAV")))
         val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = mockParticipants)
@@ -126,7 +144,6 @@ class PrefillControllerTest {
         val dummyPrefillData = ApiRequest.buildPrefillDataModelOnExisting(apiRequestWith(euxCaseId), NorskIdent("12345").id, null)
 
         doReturn(mockBuc).whenever(mockEuxInnhentingService).getBuc(euxCaseId)
-        doReturn(SED(type = dummyPrefillData.sedType)).whenever(mockPrefillSEDService).prefill(any(), any())
         doReturn(BucSedResponse(euxCaseId,"1")).whenever(mockEuxPrefillService).opprettJsonSedOnBuc(any(), any(),eq(euxCaseId),eq(dummyPrefillData.vedtakId))
         doReturn(SED(type = dummyPrefillData.sedType).toJson()).whenever(prefillKlient).hentPreutfyltSed(any())
 
@@ -155,7 +172,6 @@ class PrefillControllerTest {
         )
 
         doReturn("12345").whenever(personDataService).hentFnrfraAktoerService(any())
-        doReturn(PersonDataCollection(PersonPDLMock.createWith(), PersonPDLMock.createWith())).whenever(personDataService).hentPersonData(any())
         doReturn(mockBuc).whenever(mockEuxInnhentingService).getBuc(euxCaseId)
 
         val apirequest = apiRequestWith(euxCaseId, newParticipants)
@@ -214,7 +230,6 @@ class PrefillControllerTest {
         val euxCaseId = "1234567890"
 
         doReturn("12345").whenever(personDataService).hentFnrfraAktoerService(any())
-        doReturn(PersonDataCollection(PersonPDLMock.createWith(), PersonPDLMock.createWith())).whenever(personDataService).hentPersonData(any())
 
         val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = listOf(ParticipantsItem()))
         mockBuc.documents = listOf(createDummyBucDocumentItem())
@@ -333,8 +348,7 @@ class PrefillControllerTest {
         val euxCaseId = "1234567890"
 
         doReturn("12345").whenever(personDataService).hentFnrfraAktoerService(any())
-        doReturn(PersonDataCollection(PersonPDLMock.createWith(), PersonPDLMock.createWith())).whenever(personDataService).hentPersonData(any())
-        doReturn(SED(SedType.P10000)).whenever(mockPrefillSEDService).prefill(any(), any())
+        doReturn(SED(SedType.P10000).toJson()).whenever(prefillKlient).hentPreutfyltSed(any())
 
         val mockBucJson = javaClass.getResource("/json/buc/buc_P_BUC_06_4.2_tom.json").readText()
         val mockBucJson2 = javaClass.getResource("/json/buc/P_BUC_06_P10000.json").readText()
@@ -350,7 +364,6 @@ class PrefillControllerTest {
 
         doReturn(BucSedResponse(euxCaseId, "58c26271b21f4feebcc36b949b4865fe")).whenever(mockEuxPrefillService).opprettJsonSedOnBuc(any(), any(),eq(euxCaseId),eq(apiRequest.vedtakId))
         doNothing().whenever(mockEuxPrefillService).addInstitution(any(), any())
-        doReturn(SED(SedType.P2000).toJson()).whenever(prefillKlient).hentPreutfyltSed(any())
 
         val result =  prefillController.addInstutionAndDocument(apiRequest)
 
@@ -365,7 +378,6 @@ class PrefillControllerTest {
     fun `call addInstutionAndDocument  to nye deltakere, men ingen X005`() {
         val euxCaseId = "1234567890"
         doReturn("12345").whenever(personDataService).hentFnrfraAktoerService(any())
-        doReturn(PersonDataCollection(PersonPDLMock.createWith(), PersonPDLMock.createWith())).whenever(personDataService).hentPersonData(any())
 
         val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = listOf(ParticipantsItem()))
         mockBuc.documents = listOf(createDummyBucDocumentItem())
@@ -374,8 +386,6 @@ class PrefillControllerTest {
         doReturn(mockBuc).whenever(mockEuxInnhentingService).getBuc(euxCaseId)
 
         val dummyPrefillData = ApiRequest.buildPrefillDataModelOnExisting(apiRequestWith(euxCaseId), NorskIdent("12345").id, null)
-
-        doReturn(SED(type = dummyPrefillData.sedType)).whenever(mockPrefillSEDService).prefill(any(), any() )
         doNothing().whenever(mockEuxPrefillService).addInstitution(any(), any())
 
         doReturn(BucSedResponse(euxCaseId,"1")).whenever(mockEuxPrefillService).opprettJsonSedOnBuc(any(), any(), eq(euxCaseId),eq(dummyPrefillData.vedtakId))
@@ -396,7 +406,6 @@ class PrefillControllerTest {
         val euxCaseId = "1234567890"
 
         doReturn("12345").whenever(personDataService).hentFnrfraAktoerService(any())
-        doReturn(PersonDataCollection(PersonPDLMock.createWith(), PersonPDLMock.createWith())).whenever(personDataService).hentPersonData(any())
 
         val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = listOf(ParticipantsItem()))
         mockBuc.documents = listOf(createDummyBucDocumentItem(), DocumentsItem())
