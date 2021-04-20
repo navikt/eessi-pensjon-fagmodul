@@ -14,7 +14,6 @@ import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.fagmodul.prefill.PrefillService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
-import no.nav.eessi.pensjon.utils.toJson
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -147,8 +146,11 @@ class PrefillController(
         return addDocumentToParent.measure {
             logger.info("Prøver å sende SED: ${dataModel.sedType} inn på BUC: ${dataModel.euxCaseID}")
 
-            val docresult =
-                euxPrefillService.opprettSvarJsonSedOnBuc(sed.toJson(), dataModel.euxCaseID, parentId, request.vedtakId)
+            val docresult = euxPrefillService.opprettSvarJsonSedOnBuc(
+                sed,
+                dataModel.euxCaseID,
+                parentId,
+                request.vedtakId)
 
             val parent = bucUtil.findDocument(parentId)
             val result = bucUtil.findDocument(docresult.documentId)
