@@ -15,6 +15,9 @@ data class KravUtland(
         val iverksettelsesdato: LocalDate? = null, // 9.1 + 1dag i mnd - 3mnd
 
         @JsonSerialize(using = LocalDateSerializer::class)
+        val virkningsDato: LocalDate? = null, // 9.1.4 + 1dag i mnd om dato er før 15, ellers 1 dag i mnd etter
+
+        @JsonSerialize(using = LocalDateSerializer::class)
         val fremsattKravdato: LocalDate? = null, //SED metadata dato
 
         val uttaksgrad: String? = "0",         //P3000

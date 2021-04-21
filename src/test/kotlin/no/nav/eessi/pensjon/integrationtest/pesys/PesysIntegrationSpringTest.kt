@@ -85,7 +85,8 @@ class PesysIntegrationSpringTest {
                 "utland" : null,
                 "sivilstand" : null,
                 "soknadFraLand" : "SWE",
-                "initiertAv" : "BRUKER"
+                "initiertAv" : "BRUKER",
+                "virkningsDato": null
             }
         """.trimIndent()
 
@@ -126,7 +127,7 @@ class PesysIntegrationSpringTest {
             {
                 "errorMelding" : null,
                 "mottattDato" : "2021-03-26",
-                "iverksettelsesdato" : "2020-12-01",
+                "iverksettelsesdato" : null,
                 "fremsattKravdato" : "2021-03-01",
                 "uttaksgrad" : "0",
                 "vurdereTrygdeavtale" : true,
@@ -139,7 +140,8 @@ class PesysIntegrationSpringTest {
                     "sivilstatusDatoFom" : "2008-09-30"
                 },
                 "soknadFraLand" : "SWE",
-                "initiertAv" : "BRUKER"
+                "initiertAv" : "BRUKER",
+                "virkningsDato": "2021-04-01"
             }
         """.trimIndent()
 
