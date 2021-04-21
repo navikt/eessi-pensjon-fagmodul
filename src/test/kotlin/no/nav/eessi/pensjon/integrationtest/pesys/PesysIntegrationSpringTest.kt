@@ -127,7 +127,7 @@ class PesysIntegrationSpringTest {
             {
                 "errorMelding" : null,
                 "mottattDato" : "2021-03-26",
-                "iverksettelsesdato" : null,
+                "iverksettelsesdato" : "2021-03-01",
                 "fremsattKravdato" : "2021-03-01",
                 "uttaksgrad" : "0",
                 "vurdereTrygdeavtale" : true,

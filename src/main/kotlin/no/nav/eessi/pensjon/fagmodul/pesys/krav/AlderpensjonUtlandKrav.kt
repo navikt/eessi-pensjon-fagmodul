@@ -33,12 +33,15 @@ class AlderpensjonUtlandKrav(
         logger.debug("CaseOwnerCountry: $caseOwnerCountry")
         logger.debug("CaseOwnerId     : ${caseOwner.institution}")
         logger.debug("CaseOwnerName   : ${caseOwner.name}")
+
         val mottattDato = fremsettKravDato(doc, bucUtils)
+        val kravdato = LocalDate.parse(kravSed.nav?.krav?.dato) ?: null
 
         return KravUtland(
             mottattDato = mottattDato,                       // når SED ble mottatt i NAV-RINA
+            iverksettelsesdato = kravdato,
             virkningsDato = virkningsDato(kravSed, mottattDato),
-            fremsattKravdato = LocalDate.parse(kravSed.nav?.krav?.dato) ?: null, // hentes fra kp. 9.1 kravdato
+            fremsattKravdato = kravdato, // hentes fra kp. 9.1 kravdato
 
             vurdereTrygdeavtale = true,
 
