@@ -28,9 +28,11 @@ import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.UserMessagesItem
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.prefill.ApiRequest
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
-import no.nav.eessi.pensjon.fagmodul.prefill.PersonDataService
 import no.nav.eessi.pensjon.fagmodul.prefill.klient.PrefillKlient
 import no.nav.eessi.pensjon.logging.AuditLogger
+import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
+import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
+import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentType
 import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
@@ -60,7 +62,6 @@ class PrefillControllerTest {
     @Spy
     lateinit var mockEuxPrefillService: EuxPrefillService
 
-
     @Spy
     lateinit var mockEuxInnhentingService: EuxInnhentingService
     
@@ -68,10 +69,10 @@ class PrefillControllerTest {
     lateinit var kafkaTemplate: KafkaTemplate<String, String>
 
     @Mock
-    private lateinit var personDataService: PersonDataService
-    
-    @Mock
     lateinit var vedleggService: VedleggService
+
+    @Mock
+    private lateinit var personService: PersonService
 
     @Mock
     lateinit var prefillKlient: PrefillKlient
@@ -81,7 +82,7 @@ class PrefillControllerTest {
     @BeforeEach
     fun before() {
 
-        val innhentingService = InnhentingService(personDataService, vedleggService, prefillKlient)
+        val innhentingService = InnhentingService(personService, vedleggService, prefillKlient)
         innhentingService.initMetrics()
 
         prefillController = PrefillController(
@@ -127,7 +128,7 @@ class PrefillControllerTest {
     fun `call addInstutionAndDocument mock adding two institusjon when X005 exists already`() {
         val euxCaseId = "1234567890"
 
-        doReturn("12345").whenever(personDataService).hentFnrfraAktoerService(any())
+        doReturn(NorskIdent("12345")).whenever(personService).hentIdent(eq(IdentType.NorskIdent), any<AktoerId>())
 
         val mockParticipants = listOf(ParticipantsItem(role = "CaseOwner", organisation = Organisation(countryCode = "NO", name = "NAV", id = "NAV")))
         val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = mockParticipants)
@@ -164,7 +165,8 @@ class PrefillControllerTest {
             InstitusjonItem(country = "DE", institution = "Tyskland", name="Tyskland test")
         )
 
-        doReturn("12345").whenever(personDataService).hentFnrfraAktoerService(any())
+        doReturn(NorskIdent("12345")).whenever(personService).hentIdent(eq(IdentType.NorskIdent), any<AktoerId>())
+
         doReturn(mockBuc).whenever(mockEuxInnhentingService).getBuc(euxCaseId)
 
         val apirequest = apiRequestWith(euxCaseId, newParticipants)
@@ -209,7 +211,7 @@ class PrefillControllerTest {
             InstitusjonItem(country = "DK", institution = "DK:213231", name="Tyskland test")
         )
 
-        doReturn("12345").whenever(personDataService).hentFnrfraAktoerService(any())
+        doReturn(NorskIdent("12345")).whenever(personService).hentIdent(eq(IdentType.NorskIdent), any<AktoerId>())
         doReturn(mockBuc).whenever(mockEuxInnhentingService).getBuc(euxCaseId)
         val apirequest = apiRequestWith(euxCaseId, newParticipants)
 
@@ -222,7 +224,7 @@ class PrefillControllerTest {
     fun `call addInstutionAndDocument  ingen ny Deltaker kun hovedsed`() {
         val euxCaseId = "1234567890"
 
-        doReturn("12345").whenever(personDataService).hentFnrfraAktoerService(any())
+        doReturn(NorskIdent("12345")).whenever(personService).hentIdent(eq(IdentType.NorskIdent), any<AktoerId>())
 
         val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = listOf(ParticipantsItem()))
         mockBuc.documents = listOf(createDummyBucDocumentItem())
@@ -246,7 +248,7 @@ class PrefillControllerTest {
         val parentDocumentId = "1122334455666"
         val lastupdate = LocalDate.of(2020, Month.AUGUST, 7).toString()
 
-        doReturn("12345").whenever(personDataService).hentFnrfraAktoerService(any())
+        doReturn(NorskIdent("12345")).whenever(personService).hentIdent(eq(IdentType.NorskIdent), any<AktoerId>())
 
         val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = listOf(ParticipantsItem()), processDefinitionVersion = "4.2")
         mockBuc.documents = listOf(
@@ -305,7 +307,7 @@ class PrefillControllerTest {
         val parentDocumentId = "1122334455666"
         val lastupdate = LocalDate.of(2020, Month.AUGUST, 7).toString()
 
-        doReturn("12345").whenever(personDataService).hentFnrfraAktoerService(any())
+        doReturn(NorskIdent("12345")).whenever(personService).hentIdent(eq(IdentType.NorskIdent), any<AktoerId>())
 
         val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = listOf(ParticipantsItem()), processDefinitionVersion = "4.2")
         mockBuc.documents = listOf(
@@ -325,7 +327,7 @@ class PrefillControllerTest {
     fun `call addInstutionAndDocument valider om SED alt finnes i BUC kaster Exception`() {
         val euxCaseId = "1234567890"
 
-        doReturn("12345").whenever(personDataService).hentFnrfraAktoerService(any())
+        doReturn(NorskIdent("12345")).whenever(personService).hentIdent(eq(IdentType.NorskIdent), any<AktoerId>())
         val mockBucJson = javaClass.getResource("/json/buc/buc-P_BUC_06-P6000_Sendt.json").readText()
         doReturn( mapJsonToAny(mockBucJson, typeRefs<Buc>())).whenever(mockEuxInnhentingService).getBuc(euxCaseId)
         val apiRequest = apiRequestWith(euxCaseId, emptyList())
@@ -340,7 +342,7 @@ class PrefillControllerTest {
     fun `Gitt det opprettes en SED P10000 på tom P_BUC_06 Så skal bucmodel hents på nyt og shortDocument returneres som response`() {
         val euxCaseId = "1234567890"
 
-        doReturn("12345").whenever(personDataService).hentFnrfraAktoerService(any())
+        doReturn(NorskIdent("12345")).whenever(personService).hentIdent(eq(IdentType.NorskIdent), any<AktoerId>())
         doReturn(SED(SedType.P10000).toJson()).whenever(prefillKlient).hentPreutfyltSed(any())
 
         val mockBucJson = javaClass.getResource("/json/buc/buc_P_BUC_06_4.2_tom.json").readText()
@@ -370,7 +372,8 @@ class PrefillControllerTest {
     @Test
     fun `call addInstutionAndDocument  to nye deltakere, men ingen X005`() {
         val euxCaseId = "1234567890"
-        doReturn("12345").whenever(personDataService).hentFnrfraAktoerService(any())
+
+        doReturn(NorskIdent("12345")).whenever(personService).hentIdent(eq(IdentType.NorskIdent), any<AktoerId>())
 
         val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = listOf(ParticipantsItem()))
         mockBuc.documents = listOf(createDummyBucDocumentItem())
@@ -398,7 +401,7 @@ class PrefillControllerTest {
     fun `call addInstutionAndDocument  Exception eller feiler ved oppretting av SED naar X005 ikke finnes`() {
         val euxCaseId = "1234567890"
 
-        doReturn("12345").whenever(personDataService).hentFnrfraAktoerService(any())
+        doReturn(NorskIdent("12345")).whenever(personService).hentIdent(eq(IdentType.NorskIdent), any<AktoerId>())
 
         val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = listOf(ParticipantsItem()))
         mockBuc.documents = listOf(createDummyBucDocumentItem(), DocumentsItem())
