@@ -14,6 +14,7 @@ import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.server.ResponseStatusException
 import javax.annotation.PostConstruct
 
 /**
@@ -49,11 +50,11 @@ class PrefillKlient(
                         HttpEntity(request, headers),
                         String::class.java).body!!
             } catch (ex: HttpStatusCodeException) {
-                logger.error("En feil oppstod under henting av preutfylt SED ex: ", ex)
-                throw RuntimeException("En feil oppstod under henting av preutfylt SED ex: ${ex.message} body: ${ex.responseBodyAsString}")
+                logger.error(ex.message, ex)
+                throw ex
             } catch (ex: Exception) {
                 logger.error("En feil oppstod under henting av preutfylt SED ex: ", ex)
-                throw RuntimeException("En feil oppstod under henting av preutfylt SED ex: ${ex.message}")
+                throw ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR,"En feil oppstod under henting av preutfylt SED ex: ${ex.message}")
             }
         }
     }
