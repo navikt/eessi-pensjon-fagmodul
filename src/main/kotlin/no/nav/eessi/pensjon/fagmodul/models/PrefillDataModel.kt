@@ -1,8 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.models
 
 import no.nav.eessi.pensjon.eux.model.sed.SedType
-import no.nav.eessi.pensjon.utils.mapJsonToAny
-import no.nav.eessi.pensjon.utils.typeRefs
 
 /**
  * Data class to store different required data to build any given sed, auto or semiauto.
@@ -32,15 +30,6 @@ data class PrefillDataModel(
 
     override fun toString(): String {
         return "DataModel: SedType: $SedType, bucType: $buc, penSakId: $penSaksnummer, vedtakId: $vedtakId, euxCaseId: $euxCaseID"
-    }
-
-    fun getPartSEDasJson(key: String): String? {
-        return partSedAsJson[key]
-    }
-
-    fun getPersonInfoFromRequestData(): BrukerInformasjon? {
-        val personInfo = getPartSEDasJson("PersonInfo") ?: return null
-        return mapJsonToAny(personInfo, typeRefs())
     }
 
     fun getInstitutionsList(): List<InstitusjonItem> = institution

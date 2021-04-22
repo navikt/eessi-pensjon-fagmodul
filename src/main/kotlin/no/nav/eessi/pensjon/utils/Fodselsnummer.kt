@@ -2,7 +2,6 @@ package no.nav.eessi.pensjon.utils
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonValue
-import java.time.LocalDate
 
 /**
  * Norwegian national identity number
@@ -32,52 +31,6 @@ class Fodselsnummer private constructor(@JsonValue val value: String) {
                 null
             }
         }
-    }
-
-    /**
-     * @return birthdate as [LocalDate]
-     */
-    fun getBirthDate(): LocalDate {
-        val month = value.slice(2 until 4).toInt()
-
-        val fnrDay = value.slice(0 until 2).toInt()
-        val day = if (isDNumber()) fnrDay - 40 else fnrDay
-
-        return LocalDate.of(getYearOfBirth(), month, day)
-    }
-
-    /**
-     * @return the birthdate as a ISO 8601 [String]
-     */
-    fun getBirthDateAsIso() = getBirthDate().toString()
-
-    /**
-     * Checks if the identity number is of type D-number.
-     *
-     * A D-number consists of 11 digits, of which the first six digits show the date of birth,
-     * but the first digit is increased by 4.
-     */
-    fun isDNumber(): Boolean = Character.getNumericValue(value[0]) in 4..7
-
-    /**
-     * Calculates year of birth using the individual number.
-     *
-     * @return 4 digit year of birth as [Int]
-     */
-    private fun getYearOfBirth(): Int {
-        val century: String = when (val individnummer = value.slice(6 until 9).toInt()) {
-            in 0..499,
-            in 900..999 -> "19"
-            in 500..749 -> "18"
-            in 500..999 -> "20"
-            else -> {
-                throw IllegalArgumentException("Ingen gyldig årstall funnet for individnummer $individnummer")
-            }
-        }
-
-        val year = value.slice(4 until 6)
-
-        return "$century$year".toInt()
     }
 
     /**

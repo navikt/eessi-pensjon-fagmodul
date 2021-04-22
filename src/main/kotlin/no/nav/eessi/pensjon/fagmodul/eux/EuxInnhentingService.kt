@@ -1,38 +1,27 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry
-import no.nav.eessi.pensjon.eux.model.sed.P4000
-import no.nav.eessi.pensjon.eux.model.sed.P5000
-import no.nav.eessi.pensjon.eux.model.sed.P6000
-import no.nav.eessi.pensjon.eux.model.sed.P7000
-import no.nav.eessi.pensjon.eux.model.sed.P8000
-import no.nav.eessi.pensjon.eux.model.sed.Person
-import no.nav.eessi.pensjon.eux.model.sed.SED
-import no.nav.eessi.pensjon.eux.model.sed.SedType
+import no.nav.eessi.pensjon.eux.model.sed.*
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
-import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.typeRefs
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
 
 @Service
-class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlient: EuxKlient,
-                            @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())) {
+class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlient: EuxKlient) {
 
     private val logger = LoggerFactory.getLogger(EuxPrefillService::class.java)
 
     private val validbucsed = ValidBucAndSed()
 
     // Vi trenger denne no arg konstruktøren for å kunne bruke @Spy med mockito
-    constructor() : this(EuxKlient(RestTemplate(), RestTemplate(),))
+    constructor() : this(EuxKlient(RestTemplate(), RestTemplate()))
 
     fun getBuc(euxCaseId: String): Buc {
         val body = euxKlient.getBucJson(euxCaseId)
@@ -226,10 +215,10 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
         }
     }
 
-    private fun filterPinGjenlevendePin(gjenlevende: Person?, SedType: SedType, rinaidAvdod: String): String? {
+    private fun filterPinGjenlevendePin(gjenlevende: Person?, sedType: SedType, rinaidAvdod: String): String? {
         val pin = gjenlevende?.pin?.firstOrNull { it.land == "NO" }
         return if (pin == null) {
-            logger.warn("Ingen fnr funnet på gjenlevende. ${SedType}, rinaid: $rinaidAvdod")
+            logger.warn("Ingen fnr funnet på gjenlevende. ${sedType}, rinaid: $rinaidAvdod")
             null
         } else {
             pin.identifikator
