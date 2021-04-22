@@ -127,7 +127,7 @@ class PesysIntegrationSpringTest {
             {
                 "errorMelding" : null,
                 "mottattDato" : "2021-03-26",
-                "iverksettelsesdato" : "2021-03-01",
+                "iverksettelsesdato" : "2021-05-01",
                 "fremsattKravdato" : "2021-03-01",
                 "uttaksgrad" : "0",
                 "vurdereTrygdeavtale" : true,
@@ -141,11 +141,11 @@ class PesysIntegrationSpringTest {
                 },
                 "soknadFraLand" : "SWE",
                 "initiertAv" : "BRUKER",
-                "virkningsDato": "2021-04-01"
+                "virkningsDato": null
             }
         """.trimIndent()
 
-        JSONAssert.assertEquals(response, validResponse, true)
+        JSONAssert.assertEquals(validResponse, response, true)
 
     }
 

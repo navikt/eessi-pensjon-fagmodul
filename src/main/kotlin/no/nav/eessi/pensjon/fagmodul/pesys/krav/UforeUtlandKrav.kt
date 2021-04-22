@@ -35,7 +35,7 @@ class UforeUtlandKrav(
 
         return KravUtland(
             mottattDato = fremsettKravDato(doc, bucUtils),                       // når SED ble mottatt i NAV-RINA
-            iverksettelsesdato = iverksettDato(kravSed),                         // hentes fra kp. 9.1 kravdato - 3 mnd
+            iverksettelsesdato = iverksettDatoUfore(kravSed),                         // hentes fra kp. 9.1 kravdato - 3 mnd
             fremsattKravdato = LocalDate.parse(kravSed.nav?.krav?.dato) ?: null, // hentes fra kp. 9.1 kravdato
 
             vurdereTrygdeavtale = true,

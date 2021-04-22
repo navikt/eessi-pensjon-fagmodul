@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
+@Suppress("SpringJavaInjectionPointsAutowiringInspection")
 @Service
 class AlderpensjonUtlandKrav(
     private val kodeverkClient: KodeverkClient,
@@ -39,8 +40,7 @@ class AlderpensjonUtlandKrav(
 
         return KravUtland(
             mottattDato = mottattDato,                       // når SED ble mottatt i NAV-RINA
-            iverksettelsesdato = kravdato,
-            virkningsDato = virkningsDato(kravSed, mottattDato),
+            iverksettelsesdato = iverksettDatoAlder(kravSed, mottattDato),
             fremsattKravdato = kravdato, // hentes fra kp. 9.1 kravdato
 
             vurdereTrygdeavtale = true,
