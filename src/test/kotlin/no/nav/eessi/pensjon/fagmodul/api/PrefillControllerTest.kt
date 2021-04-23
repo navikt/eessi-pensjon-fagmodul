@@ -70,7 +70,10 @@ class PrefillControllerTest {
     lateinit var vedleggService: VedleggService
 
     @MockK
-    lateinit var personService: PersonService
+    private lateinit var pensjonsinformasjonService: PensjonsinformasjonService
+
+    @MockK
+    private lateinit var personService: PersonService
 
     @MockK
     private lateinit var pensjonsinformasjonService: PensjonsinformasjonService

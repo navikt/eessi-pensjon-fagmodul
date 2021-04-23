@@ -38,7 +38,10 @@ class SedControllerTest {
     lateinit var vedleggService: VedleggService
 
     @MockK
-    lateinit var personService: PersonService
+    lateinit var pensjonsinformasjonService: PensjonsinformasjonService
+
+    @MockK
+    private lateinit var personService: PersonService
 
     @MockK
     lateinit var pensjonsinformasjonService: PensjonsinformasjonService
