@@ -1,14 +1,18 @@
 package no.nav.eessi.pensjon.fagmodul.prefill
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
+import no.nav.eessi.pensjon.fagmodul.models.ApiRequest
+import no.nav.eessi.pensjon.fagmodul.models.MangelfulleInndataException
 import no.nav.eessi.pensjon.fagmodul.prefill.klient.PrefillKlient
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
 import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentType
 import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonService
 import no.nav.eessi.pensjon.utils.Fodselsnummer
 import no.nav.eessi.pensjon.vedlegg.VedleggService
+import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
@@ -17,10 +21,13 @@ import org.springframework.web.server.ResponseStatusException
 import javax.annotation.PostConstruct
 
 @Service
-class InnhentingService(private val personService: PersonService,
-                        private val vedleggService: VedleggService,
-                        private val prefillKlient: PrefillKlient,
-                        @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())) {
+class InnhentingService(
+    private val personService: PersonService,
+    private val vedleggService: VedleggService,
+    private val prefillKlient: PrefillKlient,
+    private val pensjonsinformasjonService: PensjonsinformasjonService,
+    @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())
+) {
 
     private lateinit var HentPerson: MetricsHelper.Metric
     private lateinit var addInstutionAndDocumentBucUtils: MetricsHelper.Metric
@@ -81,4 +88,9 @@ class InnhentingService(private val personService: PersonService,
     fun hentRinaSakIderFraMetaData(aktoerid: String): List<String> = vedleggService.hentRinaSakIderFraMetaData(aktoerid)
 
     fun hentPreutyltSed(apiRequest: ApiRequest): String = prefillKlient.hentPreutfyltSed(apiRequest)
+
+    fun hentMedVedtak(vedtakId: String) = pensjonsinformasjonService.hentMedVedtak(vedtakId)
+
+    fun hentGyldigAvdod(pensjoninformasjon: Pensjonsinformasjon) = pensjonsinformasjonService.hentGyldigAvdod(pensjoninformasjon)
+
 }

@@ -1,4 +1,4 @@
-package no.nav.eessi.pensjon.fagmodul.prefill
+package no.nav.eessi.pensjon.fagmodul.models
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import no.nav.eessi.pensjon.eux.model.sed.SedType

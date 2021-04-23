@@ -3,13 +3,17 @@ package no.nav.eessi.pensjon.fagmodul.api
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import io.swagger.annotations.ApiOperation
 import no.nav.eessi.pensjon.eux.model.sed.SedType
-import no.nav.eessi.pensjon.fagmodul.eux.*
+import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedSubject
+import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
+import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
+import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
+import no.nav.eessi.pensjon.fagmodul.eux.SubjectFnr
+import no.nav.eessi.pensjon.fagmodul.eux.ValidBucAndSed
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Creator
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
-import no.nav.eessi.pensjon.fagmodul.prefill.pen.PensjonsinformasjonService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.utils.mapAnyToJson
@@ -34,12 +38,8 @@ class BucController(
     @Value("\${NAIS_NAMESPACE}") val nameSpace: String,
     private val euxInnhentingService: EuxInnhentingService,
     private val auditlogger: AuditLogger,
-    private val pensjonsinformasjonService: PensjonsinformasjonService,
     private val innhentingService: InnhentingService,
-    @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())
-) {
-
-
+    @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())) {
 
     private val logger = LoggerFactory.getLogger(BucController::class.java)
     private val validBucAndSed = ValidBucAndSed()
@@ -158,8 +158,8 @@ class BucController(
                               @PathVariable("vedtakid", required = true) vedtakid: String): List<BucAndSedView> {
         return bucDetaljerVedtak.measure {
             //Hente opp pesysservice. hente inn vedtak pensjoninformasjon..
-            val pensjonsinformasjon = pensjonsinformasjonService.hentMedVedtak(vedtakid)
-            val avdod = pensjonsinformasjonService.hentGyldigAvdod(pensjonsinformasjon)
+            val pensjonsinformasjon = innhentingService.hentMedVedtak(vedtakid)
+            val avdod = innhentingService.hentGyldigAvdod(pensjonsinformasjon)
 
             if (avdod != null && pensjonsinformasjon.person.aktorId == gjenlevendeAktoerid) {
                 logger.info("Henter buc for gjenlevende ved vedtakid: $vedtakid")
