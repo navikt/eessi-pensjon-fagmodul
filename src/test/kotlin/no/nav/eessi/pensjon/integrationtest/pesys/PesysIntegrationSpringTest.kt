@@ -141,7 +141,10 @@ class PesysIntegrationSpringTest {
                 },
                 "soknadFraLand" : "SWE",
                 "initiertAv" : "BRUKER",
-                "virkningsDato": null
+                "virkningsDato": null,
+                "utland": {
+                    "utlandsopphold": []
+                }
             }
         """.trimIndent()
 

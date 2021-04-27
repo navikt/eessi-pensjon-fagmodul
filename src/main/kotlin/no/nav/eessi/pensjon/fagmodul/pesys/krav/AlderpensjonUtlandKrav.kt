@@ -5,6 +5,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.fagmodul.pesys.KravUtland
 import no.nav.eessi.pensjon.fagmodul.pesys.SkjemaPersonopplysninger
+import no.nav.eessi.pensjon.fagmodul.pesys.SkjemaUtland
 import no.nav.eessi.pensjon.services.kodeverk.KodeverkClient
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -16,7 +17,8 @@ import java.time.LocalDate
 class AlderpensjonUtlandKrav(
     private val kodeverkClient: KodeverkClient,
     @Value("\${NAIS_NAMESPACE}")
-    private val nameSpace: String): UtlandKrav() {
+    private val nameSpace: String
+) : UtlandKrav() {
 
     private val logger = LoggerFactory.getLogger(AlderpensjonUtlandKrav::class.java)
 
@@ -46,15 +48,22 @@ class AlderpensjonUtlandKrav(
             vurdereTrygdeavtale = true,
 
             personopplysninger = SkjemaPersonopplysninger(
-                statsborgerskap = finnStatsborgerskapsLandkode3(kodeverkClient, kravSed)
+                statsborgerskap = finnStatsborgerskapAlderLandkode3(kravSed)
             ),
             sivilstand = sivilstand(kravSed),
-            soknadFraLand = caseOwnerCountry
+            soknadFraLand = caseOwnerCountry,
+            utland = SkjemaUtland(emptyList())
         )
 
+    }
 
-
-
+    fun finnStatsborgerskapAlderLandkode3(kravSed: SED): String? {
+        return if (nameSpace == "q2" || nameSpace == "test") {
+            kodeverkClient.finnLandkode3("SE")
+        } else {
+            val statsborgerskap = kravSed.nav?.bruker?.person?.statsborgerskap?.firstOrNull { it.land != null }
+            statsborgerskap?.let { kodeverkClient.finnLandkode3(it.land!!) }
+        }
     }
 
 
