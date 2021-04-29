@@ -1,6 +1,13 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
-import no.nav.eessi.pensjon.eux.model.sed.*
+import no.nav.eessi.pensjon.eux.model.sed.P4000
+import no.nav.eessi.pensjon.eux.model.sed.P5000
+import no.nav.eessi.pensjon.eux.model.sed.P6000
+import no.nav.eessi.pensjon.eux.model.sed.P7000
+import no.nav.eessi.pensjon.eux.model.sed.P8000
+import no.nav.eessi.pensjon.eux.model.sed.Person
+import no.nav.eessi.pensjon.eux.model.sed.SED
+import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
@@ -166,15 +173,15 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
      */
     fun hentDocumentJsonAvdod(bucdocumentidAvdod: List<BucOgDocumentAvdod>): List<BucOgDocumentAvdod> {
         return bucdocumentidAvdod.map { docs ->
-            val bucutil = BucUtils(docs.buc)
-            val bucType = bucutil.getProcessDefinitionName()
+            val bucutils = BucUtils(docs.buc)
+            val bucType = bucutils.getProcessDefinitionName()
             logger.info("henter documentid fra buc: ${docs.rinaidAvdod} bucType: $bucType")
 
             val shortDoc = when (bucType) {
-                "P_BUC_02" -> bucutil.getDocumentByType(SedType.P2100)
-                "P_BUC_10" -> bucutil.getDocumentByType(SedType.P15000)
-                "P_BUC_05" -> bucutil.getDocumentByType(SedType.P8000)
-                else -> bucutil.getDocumentByType(SedType.P6000)
+                "P_BUC_02" -> bucutils.getDocumentByType(SedType.P2100)
+                "P_BUC_10" -> bucutils.getDocumentByType(SedType.P15000)
+                "P_BUC_05" -> bucutils.getDocumentByType(SedType.P8000)
+                else -> korrektDokumentAvdodPbuc06(bucutils)
             }
             val sedJson = shortDoc?.let {
                 euxKlient.getSedOnBucByDocumentIdAsJson(docs.rinaidAvdod, it.id!!)
@@ -183,6 +190,10 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
             docs
         }
     }
+
+    private fun korrektDokumentAvdodPbuc06(bucUtils: BucUtils) = bucUtils.getAllDocuments()
+        .filter { it.type in listOf(SedType.P5000, SedType.P6000, SedType.P7000, SedType.P10000) }
+        .firstOrNull { it.status in listOf<String>("received", "draft", "sent") }
 
     /**
      * Henter buc og sedid på p2100 på avdøds fnr
