@@ -1,8 +1,17 @@
 package no.nav.eessi.pensjon.integrationtest.buc
 
-import com.nhaarman.mockitokotlin2.*
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.times
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.whenever
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
-import no.nav.eessi.pensjon.eux.model.sed.*
+import no.nav.eessi.pensjon.eux.model.sed.Bruker
+import no.nav.eessi.pensjon.eux.model.sed.Pensjon
+import no.nav.eessi.pensjon.eux.model.sed.Person
+import no.nav.eessi.pensjon.eux.model.sed.PinItem
+import no.nav.eessi.pensjon.eux.model.sed.SED
+import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Properties
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Traits
@@ -30,7 +39,11 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.http.*
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
@@ -485,7 +498,7 @@ class BucIntegrationSpringTest {
         doReturn( ResponseEntity.ok().body( buc05.toJson() ) ).whenever(restEuxTemplate).exchange( eq(rinabuc05path), eq(HttpMethod.GET), eq(null), eq(String::class.java))
 
         //buc06
-        val doc06Items = listOf(DocumentsItem(id = "6", creationDate = lastupdate, lastUpdate = lastupdate, status = "sent", type = SedType.P6000), DocumentsItem(id = "2", creationDate = lastupdate,  lastUpdate = lastupdate, status = "draft", type = SedType.P4000))
+        val doc06Items = listOf(DocumentsItem(id = "6", creationDate = lastupdate, lastUpdate = lastupdate, status = "sent", type = SedType.P7000), DocumentsItem(id = "2", creationDate = lastupdate,  lastUpdate = lastupdate, status = "draft", type = SedType.P4000))
         val buc06 = Buc(id = "3030", processDefinitionName = "P_BUC_06", startDate = lastupdate, lastUpdate = lastupdate,  documents = doc06Items)
 
         val rinabuc06path = "/buc/3030"
@@ -508,7 +521,7 @@ class BucIntegrationSpringTest {
 
         //buc06 sed
         val rinabuc06documentidpath = "/buc/3030/sed/6"
-        doReturn( ResponseEntity.ok().body( SED(SedType.P6000, pensjon = Pensjon(gjenlevende = Bruker(person = Person(pin = listOf(
+        doReturn( ResponseEntity.ok().body( SED(SedType.P7000, pensjon = Pensjon(gjenlevende = Bruker(person = Person(pin = listOf(
             PinItem(land = "NO", identifikator = gjenlevendeFnr)
         ), fornavn = "test", etternavn = "etter")))).toJsonSkipEmpty() )).whenever(restEuxTemplate).exchange( eq(rinabuc06documentidpath), eq(HttpMethod.GET), eq(null), eq(String::class.java))
 
@@ -533,7 +546,8 @@ class BucIntegrationSpringTest {
         verify(restEuxTemplate, times(1)).exchange("/buc/4040", HttpMethod.GET, null, String::class.java)
         verify(restEuxTemplate, times(1)).exchange("/buc/4040/sed/10", HttpMethod.GET, null, String::class.java)
         verify(restSafTemplate, times(1)).exchange(eq("/"), eq(HttpMethod.POST), eq(httpEntity), eq(String::class.java))
-    }
+
+   }
 
 
     private fun mockVedtak(avdofnr: String, gjenlevAktoerid: String): Pensjonsinformasjon {
