@@ -194,26 +194,17 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
         }
     }
 
-    private fun korrektDokumentAvdodPbuc06(bucUtils: BucUtils): DocumentsItem {
+    private fun korrektDokumentAvdodPbuc06(bucUtils: BucUtils): DocumentsItem? {
         logger.debug("henter ut korrekte SED fra P_BUC_06. ${bucUtils.getBuc().documents?.toJsonSkipEmpty()}")
         logger.debug("*".repeat(30))
 
-        bucUtils.getAllDocuments()
-            .onEach { logger.debug("Følgende docitem: ${it.type}, ${it.status}, ${it.version}, ${it.versions?.size}, ${it.participants?.size} " ) }
-
-        logger.debug("*".repeat(30))
-
         val docitem = bucUtils.getAllDocuments()
-        .onEach { logger.debug("Status: ${it.status}")}
-        .filter { it.status in  listOf<String>("received", "draft", "sent", "new") }
-        .onEach { logger.debug("${it.type}")}
+        .filter { it.status in  listOf("received", "sent", "new") }
         .filter { it.type in listOf(SedType.P5000, SedType.P6000, SedType.P7000, SedType.P10000) }
-//        .firstOrNull { it.status in listOf<String>("received", "draft", "sent") }
+        .firstOrNull { it.status in listOf<String>("received", "draft", "sent") }
 
-        logger.debug("*".repeat(30))
-        docitem.onEach { logger.debug("${it.type}, ${it.status}, ${it.id} ") }
-
-        return docitem.first()
+        logger.debug("Document: ${docitem?.type}, ${docitem?.status}, ${docitem?.id}")
+        return docitem
     }
 
     /**
