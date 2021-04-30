@@ -108,7 +108,7 @@ class UpdateSedOnBucIntegrationTest {
             }
         """.trimIndent()
 
-        val expectedError = """Data er av ikke gyldig SED format""".trimIndent()
+        val expectedError = """Data er ikke gyldig SEDformat""".trimIndent()
         mockMvc.perform(
             put("/sed/put/$euxCaseId/$documentId")
                 .contentType(MediaType.APPLICATION_JSON)
