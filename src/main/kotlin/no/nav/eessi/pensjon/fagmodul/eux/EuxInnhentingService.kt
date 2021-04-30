@@ -199,11 +199,9 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
         logger.debug("*".repeat(30))
 
         val docitem = bucUtils.getAllDocuments()
-        .filter { it.status in  listOf("received", "sent", "new") }
+        .filterNot { it.status in listOf("draft", "empty") }
         .filter { it.type in listOf(SedType.P5000, SedType.P6000, SedType.P7000, SedType.P10000) }
-        .firstOrNull { it.status in listOf<String>("received", "draft", "sent") }
-
-        logger.debug("Document: ${docitem?.type}, ${docitem?.status}, ${docitem?.id}")
+        .firstOrNull { it.status in listOf("received", "new", "sent") }
         return docitem
     }
 
