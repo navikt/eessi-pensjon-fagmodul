@@ -279,8 +279,7 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
     }
 
     fun updateSedOnBuc(euxcaseid: String, documentid: String, sedPayload: String): Boolean {
-        logger.info("Oppdaterer ekisternede sed på rina: $euxcaseid")
-
+        logger.info("Oppdaterer ekisternede sed på rina: $euxcaseid. docid: $documentid")
         return euxKlient.updateSedOnBuc(euxcaseid, documentid, sedPayload)
     }
 
