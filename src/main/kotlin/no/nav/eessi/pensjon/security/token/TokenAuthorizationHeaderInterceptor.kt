@@ -17,7 +17,7 @@ class TokenAuthorizationHeaderInterceptor(private val tokenValidationContextHold
     private val logger = LoggerFactory.getLogger(TokenAuthorizationHeaderInterceptor::class.java)
 
     override fun intercept(request: HttpRequest, body: ByteArray, execution: ClientHttpRequestExecution): ClientHttpResponse {
-        logger.info("sjekker request header for AUTH")
+        logger.debug("sjekker request header for AUTH")
 
         if (request.headers[HttpHeaders.AUTHORIZATION] == null) {
             val token = getIdTokenFromIssuer(tokenValidationContextHolder)
@@ -39,7 +39,7 @@ class TokenAuthorizationHeaderInterceptor(private val tokenValidationContextHold
 
         //supportet token-support token-keys.:
         val tokenkeys = context.issuers
-        logger.info("Found : ${tokenkeys.size} valid issuers")
+        logger.debug("Found : ${tokenkeys.size} valid issuers")
 
         val foundListOfIssuers = tokenkeys.filter { key -> context.getJwtToken(key) != null }
                 .map { key -> context.getJwtToken(key) }
@@ -48,11 +48,11 @@ class TokenAuthorizationHeaderInterceptor(private val tokenValidationContextHold
 
         if (foundListOfIssuers.size == 1) {
             val tokenContext = foundListOfIssuers.first()
-            logger.info("Only one ISSUER found. Returning first! issuer-key: ${tokenContext.issuer}")
+            logger.debug("Only one ISSUER found. Returning first! issuer-key: ${tokenContext.issuer}")
             return tokenContext
         }
 
-        logger.info("More than one ISSUER found. Number of issuers found: ${foundListOfIssuers.size}")
+        logger.debug("More than one ISSUER found. Number of issuers found: ${foundListOfIssuers.size}")
 
         //hente ut første token med utløpstid
         var longestLivingToken = foundListOfIssuers.first()
@@ -73,7 +73,7 @@ class TokenAuthorizationHeaderInterceptor(private val tokenValidationContextHold
             }
 
         }
-        logger.info("Returning following issuer: ${longestLivingToken.issuer}, exp: $previousTokenExpirationTime")
+        logger.debug("Returning following issuer: ${longestLivingToken.issuer}, exp: $previousTokenExpirationTime")
         return longestLivingToken
     }
 
