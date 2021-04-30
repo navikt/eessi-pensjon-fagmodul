@@ -183,6 +183,7 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
                 "P_BUC_05" -> bucutils.getDocumentByType(SedType.P8000)
                 else -> korrektDokumentAvdodPbuc06(bucutils)
             }
+            logger.debug("Henter sedJson fra document: ${shortDoc?.type}, ${shortDoc?.status}, ${shortDoc?.id}")
             val sedJson = shortDoc?.let {
                 euxKlient.getSedOnBucByDocumentIdAsJson(docs.rinaidAvdod, it.id!!)
             }
@@ -192,7 +193,9 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
     }
 
     private fun korrektDokumentAvdodPbuc06(bucUtils: BucUtils) = bucUtils.getAllDocuments()
+        .onEach { logger.debug("${it.type}")}
         .filter { it.type in listOf(SedType.P5000, SedType.P6000, SedType.P7000, SedType.P10000) }
+        .onEach { logger.debug("${it.status}")}
         .firstOrNull { it.status in listOf<String>("received", "draft", "sent") }
 
     /**
