@@ -10,10 +10,12 @@ import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
 import no.nav.eessi.pensjon.utils.mapJsonToAny
+import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import no.nav.eessi.pensjon.utils.typeRefs
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
@@ -192,11 +194,27 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
         }
     }
 
-    private fun korrektDokumentAvdodPbuc06(bucUtils: BucUtils) = bucUtils.getAllDocuments()
+    private fun korrektDokumentAvdodPbuc06(bucUtils: BucUtils): DocumentsItem {
+        logger.debug("henter ut korrekte SED fra P_BUC_06. ${bucUtils.getBuc().documents?.toJsonSkipEmpty()}")
+        logger.debug("*".repeat(30))
+
+        bucUtils.getAllDocuments()
+            .onEach { logger.debug("Følgende docitem: ${it.type}, ${it.status}, ${it.version}, ${it.versions?.size}, ${it.participants?.size} " ) }
+
+        logger.debug("*".repeat(30))
+
+        val docitem = bucUtils.getAllDocuments()
+        .onEach { logger.debug("Status: ${it.status}")}
+        .filter { it.status in  listOf<String>("received", "draft", "sent", "new") }
         .onEach { logger.debug("${it.type}")}
         .filter { it.type in listOf(SedType.P5000, SedType.P6000, SedType.P7000, SedType.P10000) }
-        .onEach { logger.debug("${it.status}")}
-        .firstOrNull { it.status in listOf<String>("received", "draft", "sent") }
+//        .firstOrNull { it.status in listOf<String>("received", "draft", "sent") }
+
+        logger.debug("*".repeat(30))
+        docitem.onEach { logger.debug("${it.type}, ${it.status}, ${it.id} ") }
+
+        return docitem.first()
+    }
 
     /**
      * Henter buc og sedid på p2100 på avdøds fnr
