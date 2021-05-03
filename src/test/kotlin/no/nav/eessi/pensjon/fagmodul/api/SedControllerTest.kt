@@ -1,10 +1,9 @@
-
-
 package no.nav.eessi.pensjon.fagmodul.api
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.whenever
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.every
+import io.mockk.impl.annotations.SpyK
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
@@ -23,32 +22,28 @@ import no.nav.eessi.pensjon.vedlegg.VedleggService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.Mock
-import org.mockito.Spy
-import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.http.ResponseEntity
 import org.springframework.web.util.UriComponentsBuilder
 
-@ExtendWith(MockitoExtension::class)
+
 class SedControllerTest {
 
-    @Spy
+    @SpyK
     lateinit var mockEuxPrefillService: EuxPrefillService
 
-    @Spy
+    @SpyK
     lateinit var mockEuxInnhentingService: EuxInnhentingService
 
-    @Spy
+    @SpyK
     lateinit var auditLogger: AuditLogger
 
-    @Mock
+    @MockkBean
     lateinit var vedleggService: VedleggService
 
-    @Mock
+    @MockkBean
     private lateinit var personService: PersonService
 
-    @Mock
+    @MockkBean
     lateinit var prefillKlient: PrefillKlient
 
     private lateinit var sedController: SedController
@@ -68,7 +63,8 @@ class SedControllerTest {
 
     @Test
     fun `create frontend request`() {
-        val json = "{\"institutions\":[{\"country\":\"NO\",\"institution\":\"DUMMY\"}],\"buc\":\"P_BUC_06\",\"sed\":\"P6000\",\"sakId\":\"123456\",\"aktoerId\":\"0105094340092\"}"
+        val json =
+            "{\"institutions\":[{\"country\":\"NO\",\"institution\":\"DUMMY\"}],\"buc\":\"P_BUC_06\",\"sed\":\"P6000\",\"sakId\":\"123456\",\"aktoerId\":\"0105094340092\"}"
 
         //map json request back to FrontendRequest obj
         val map = jacksonObjectMapper()
@@ -84,7 +80,7 @@ class SedControllerTest {
     fun getDocumentfromRina() {
 
         val sed = SED(SedType.P2000)
-        doReturn(sed).`when`(mockEuxInnhentingService).getSedOnBucByDocumentId("2313", "23123123123")
+        every { mockEuxInnhentingService.getSedOnBucByDocumentId("2313", "23123123123") } returns sed
 
         val result = sedController.getDocument("2313", "23123123123")
         assertEquals(sed.toJson(), result)
@@ -104,11 +100,11 @@ class SedControllerTest {
         val buc = "P_BUC_01"
         val rinanr = "1000101"
 
-        doReturn(mockBuc).whenever(mockEuxInnhentingService).getBuc(rinanr)
+        every { mockEuxInnhentingService.getBuc(rinanr) } returns mockBuc
 
         val actualResponse = sedController.getSeds(buc, rinanr)
 
-        val expectedResponse = ResponseEntity.ok().body(mapAnyToJson( listOf(SedType.P2000)))
+        val expectedResponse = ResponseEntity.ok().body(mapAnyToJson(listOf(SedType.P2000)))
 
         assertEquals(expectedResponse, actualResponse)
 
@@ -118,11 +114,12 @@ class SedControllerTest {
 
     @Test
     fun `getFiltrerteGyldigSedAksjonListAsString   buc_06 returns 4 seds`() {
-        val mockBuc = mapJsonToAny(javaClass.getResource("/json/buc/buc_P_BUC_06_4.2_tom.json").readText(), typeRefs<Buc>())
+        val mockBuc =
+            mapJsonToAny(javaClass.getResource("/json/buc/buc_P_BUC_06_4.2_tom.json").readText(), typeRefs<Buc>())
         val buc = "P_BUC_06"
         val rinanr = "1000101"
 
-        doReturn(mockBuc).whenever(mockEuxInnhentingService).getBuc(rinanr)
+        every { mockEuxInnhentingService.getBuc(rinanr) } returns mockBuc
 
         val actualResponse = sedController.getSeds(buc, rinanr)
 
@@ -137,15 +134,17 @@ class SedControllerTest {
 
     @Test
     fun `getFiltrerteGyldigSedAksjonListAsString   buc_06 returns 3 seds if a sed already exists`() {
-        val mockBuc = mapJsonToAny(javaClass.getResource("/json/buc/buc-P_BUC_06_4.2_P5000.json").readText(), typeRefs<Buc>())
+        val mockBuc =
+            mapJsonToAny(javaClass.getResource("/json/buc/buc-P_BUC_06_4.2_P5000.json").readText(), typeRefs<Buc>())
         val buc = "P_BUC_06"
         val rinanr = "1000101"
 
-        doReturn(mockBuc).whenever(mockEuxInnhentingService).getBuc(rinanr)
+        every { mockEuxInnhentingService.getBuc(rinanr) } returns mockBuc
 
         val actualResponse = sedController.getSeds(buc, rinanr)
 
-        val expectedResponse = ResponseEntity.ok().body(mapAnyToJson(listOf(SedType.P10000, SedType.P6000, SedType.P7000)))
+        val expectedResponse =
+            ResponseEntity.ok().body(mapAnyToJson(listOf(SedType.P10000, SedType.P6000, SedType.P7000)))
 
         assertEquals(expectedResponse, actualResponse)
 
@@ -159,11 +158,22 @@ class SedControllerTest {
         val buc = "P_BUC_01"
         val rinanr = "1000101"
 
-        doReturn(mockBuc).whenever(mockEuxInnhentingService).getBuc(rinanr)
+        every { mockEuxInnhentingService.getBuc(rinanr) } returns mockBuc
 
         val actualResponse = sedController.getSeds(buc, rinanr)
 
-        val sedList = listOf(SedType.H020, SedType.H070, SedType.H120, SedType.P10000, SedType.P3000_NO, SedType.P4000, SedType.P5000, SedType.P6000, SedType.P7000, SedType.P8000 )
+        val sedList = listOf(
+            SedType.H020,
+            SedType.H070,
+            SedType.H120,
+            SedType.P10000,
+            SedType.P3000_NO,
+            SedType.P4000,
+            SedType.P5000,
+            SedType.P6000,
+            SedType.P7000,
+            SedType.P8000
+        )
         val expectedResponse = ResponseEntity.ok().body(mapAnyToJson(sedList))
 
         assertEquals(expectedResponse, actualResponse)
@@ -174,15 +184,16 @@ class SedControllerTest {
 
     @Test
     fun `getFiltrerteGyldigSedAksjonListAsString buc_06 returns 0 seds if a sed is sent`() {
-        val mockBuc = mapJsonToAny(javaClass.getResource("/json/buc/buc-P_BUC_06-P5000_Sendt.json").readText(), typeRefs<Buc>())
+        val mockBuc =
+            mapJsonToAny(javaClass.getResource("/json/buc/buc-P_BUC_06-P5000_Sendt.json").readText(), typeRefs<Buc>())
         val buc = "P_BUC_06"
         val rinanr = "1000101"
 
-        doReturn(mockBuc).whenever(mockEuxInnhentingService).getBuc(rinanr)
+        every { mockEuxInnhentingService.getBuc(rinanr) } returns mockBuc
 
         val actualResponse = sedController.getSeds(buc, rinanr)
 
-        val expectedResponse = ResponseEntity.ok().body(mapAnyToJson( listOf<String>()))
+        val expectedResponse = ResponseEntity.ok().body(mapAnyToJson(listOf<String>()))
 
         assertEquals(expectedResponse, actualResponse)
 

@@ -1,21 +1,24 @@
 package no.nav.eessi.pensjon.vedlegg
 
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.doReturn
+
+
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.every
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.typeRefs
-import no.nav.eessi.pensjon.vedlegg.client.*
+import no.nav.eessi.pensjon.vedlegg.client.Data
+import no.nav.eessi.pensjon.vedlegg.client.DokumentoversiktBruker
+import no.nav.eessi.pensjon.vedlegg.client.EuxVedleggClient
+import no.nav.eessi.pensjon.vedlegg.client.HentMetadataResponse
+import no.nav.eessi.pensjon.vedlegg.client.SafClient
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.Mock
-import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.web.client.RestTemplate
 
-@ExtendWith(MockitoExtension::class)
+
 internal class VedleggServiceTest  {
 
-    @Mock
+    @MockkBean
     lateinit var safClient : SafClient
 
     lateinit var vedleggService : VedleggService
@@ -33,7 +36,7 @@ internal class VedleggServiceTest  {
         val metadataJson = javaClass.getResource("/json/saf/hentMetadataResponse.json").readText()
         val metadata = mapJsonToAny(metadataJson, typeRefs<HentMetadataResponse>())
 
-        doReturn(metadata).`when`(safClient).hentDokumentMetadata(any())
+        every {safClient.hentDokumentMetadata(any())  } returns metadata
 
         assert(vedleggService.hentDokumentMetadata("12345678910", "439560100", "453743887")?.dokumentInfoId == "453743887")
     }
@@ -52,7 +55,7 @@ internal class VedleggServiceTest  {
         """.trimIndent()
         val metadata = mapJsonToAny(metadataJson, typeRefs<HentMetadataResponse>())
 
-        doReturn(metadata).`when`(safClient).hentDokumentMetadata(any())
+        every {safClient.hentDokumentMetadata(any())  } returns metadata
 
         assert(vedleggService.hentDokumentMetadata("12345678910", "123", "123") == null)
     }
@@ -100,7 +103,7 @@ internal class VedleggServiceTest  {
         """.trimIndent()
         val metadata = mapJsonToAny(metadataJson, typeRefs<HentMetadataResponse>())
 
-        doReturn(metadata).`when`(safClient).hentDokumentMetadata(any())
+        every {safClient.hentDokumentMetadata(any())  } returns metadata
 
         assert(vedleggService.hentDokumentMetadata("12345678910", "439532144", "453708906")?.tittel == "P2000 alderpensjon" )
     }
@@ -112,7 +115,7 @@ internal class VedleggServiceTest  {
         val metadataJson = javaClass.getResource("/json/saf/hentMetadataResponse.json").readText()
         val metadata = mapJsonToAny(metadataJson, typeRefs<HentMetadataResponse>())
 
-        doReturn(metadata).`when`(safClient).hentDokumentMetadata(any())
+        every {safClient.hentDokumentMetadata(any())  } returns metadata
 
         val result = vedleggService.hentRinaSakIderFraMetaData(aktoerId)
         assert(result.size == 1)
@@ -121,8 +124,8 @@ internal class VedleggServiceTest  {
     @Test
     fun `Skal return en tom liste ved ingen metadata i dokumenter på aktørid`() {
         val aktoerId = "12345"
-        doReturn(HentMetadataResponse(Data(DokumentoversiktBruker(emptyList()))))
-            .`when`(safClient).hentDokumentMetadata(any())
+
+        every {safClient.hentDokumentMetadata(any())  } returns HentMetadataResponse(Data(DokumentoversiktBruker(emptyList())))
 
         val result = vedleggService.hentRinaSakIderFraMetaData(aktoerId)
         assert(result.isEmpty())
