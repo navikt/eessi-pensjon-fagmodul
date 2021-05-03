@@ -1,6 +1,13 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
-import no.nav.eessi.pensjon.eux.model.sed.*
+import no.nav.eessi.pensjon.eux.model.sed.P4000
+import no.nav.eessi.pensjon.eux.model.sed.P5000
+import no.nav.eessi.pensjon.eux.model.sed.P6000
+import no.nav.eessi.pensjon.eux.model.sed.P7000
+import no.nav.eessi.pensjon.eux.model.sed.P8000
+import no.nav.eessi.pensjon.eux.model.sed.Person
+import no.nav.eessi.pensjon.eux.model.sed.SED
+import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
@@ -12,8 +19,10 @@ import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import no.nav.eessi.pensjon.utils.typeRefs
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.server.ResponseStatusException
 
 @Service
 class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlient: EuxKlient) {
@@ -44,11 +53,16 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
 
     fun getSedOnBucByDocumentIdAsSystemuser(euxCaseId: String, documentId: String): SED {
         val json = euxKlient.getSedOnBucByDocumentIdAsJsonAndAsSystemuser(euxCaseId, documentId)
-        return mapToConcreteSedClass(json)
+        return try {
+            mapToConcreteSedClass(json, false)
+        } catch (ex: Exception) {
+            logger.error("Feiler ved mapping av kravSED. Rina: $euxCaseId, documentid: $documentId")
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Feiler ved mapping av kravSED. Rina: $euxCaseId, documentid: $documentId")
+        }
     }
 
-    fun mapToConcreteSedClass(sedJson: String): SED {
-        val genericSed = SED.fromJson(sedJson)
+    fun mapToConcreteSedClass(sedJson: String, failJson: Boolean = true): SED {
+        val genericSed = mapJsonToAny(sedJson, typeRefs<SED>(), failJson)
 
         return when(genericSed.type) {
             SedType.P4000 -> mapJsonToAny(sedJson, typeRefs<P4000>())
@@ -222,7 +236,7 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
         val annenperson = sed.nav?.annenperson?.person
         val rolle = annenperson?.rolle
         val type = sed.pensjon?.kravDato?.type
-        return if (type == KravType.ETTERLATTE || rolle == "01") {
+        return if (type == "02" || rolle == "01") {
             filterPinGjenlevendePin(annenperson, sed.type, rinaidAvdod)
         } else {
             null
