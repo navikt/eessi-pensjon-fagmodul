@@ -56,14 +56,14 @@ class SedController(
         @PathVariable("documentid", required = true) documentid: String,
         @RequestBody sedPayload: String): Boolean {
 
-        try {
+        val validsed = try {
             euxInnhentingService.mapToConcreteSedClass(sedPayload)
         } catch (ex: Exception) {
             logger.error(ex.message)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Data er ikke gyldig SEDformat")
         }
         logger.debug("Følgende SED prøves å oppdateres til RINA: $sedPayload")
-        return euxInnhentingService.updateSedOnBuc(euxcaseid, documentid, sedPayload)
+        return euxInnhentingService.updateSedOnBuc(euxcaseid, documentid, validsed.toJsonSkipEmpty())
     }
 
 
