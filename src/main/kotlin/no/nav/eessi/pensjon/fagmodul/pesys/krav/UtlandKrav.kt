@@ -69,12 +69,12 @@ open class UtlandKrav {
 
 
     fun finnStatsborgerskapsLandkode3(kodeverkClient: KodeverkClient, kravSed: SED): String {
-        val statsborgerskap = kravSed.nav?.bruker?.person?.statsborgerskap?.firstOrNull { it.land != null }
+        val statsborgerskap = kravSed.nav?.bruker?.firstOrNull()?.person?.statsborgerskap?.firstOrNull { it.land != null }
         return statsborgerskap?.let { kodeverkClient.finnLandkode3(it.land!!) } ?: ""
     }
 
     fun sivilstand(kravSed: SED): SkjemaFamilieforhold? {
-        val sivilstand = kravSed.nav?.bruker?.person?.sivilstand?.maxByOrNull { LocalDate.parse(it.fradato) }
+        val sivilstand = kravSed.nav?.bruker?.firstOrNull()?.person?.sivilstand?.maxByOrNull { LocalDate.parse(it.fradato) }
         val sivilstatus = hentFamilieStatus(sivilstand?.status)
         logger.debug("Sivilstatus: $sivilstatus")
         if (sivilstatus == null || sivilstand?.fradato == null) return null

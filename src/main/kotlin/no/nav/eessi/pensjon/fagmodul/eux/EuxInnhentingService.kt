@@ -229,7 +229,7 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
         val annenperson = sed.nav?.annenperson?.person
         val rolle = annenperson?.rolle
         val type = sed.pensjon?.kravDato?.type
-        return if (type == "02" || rolle == "01") {
+        return if (type == KravType.ETTERLATTE || rolle == "01") {
             filterPinGjenlevendePin(annenperson, sed.type, rinaidAvdod)
         } else {
             null
