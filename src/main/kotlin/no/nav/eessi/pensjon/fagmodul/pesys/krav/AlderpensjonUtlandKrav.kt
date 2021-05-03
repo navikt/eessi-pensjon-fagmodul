@@ -61,7 +61,7 @@ class AlderpensjonUtlandKrav(
         return if (nameSpace == "q2" || nameSpace == "test") {
             kodeverkClient.finnLandkode3("SE")
         } else {
-            val statsborgerskap = kravSed.nav?.bruker?.firstOrNull()?.person?.statsborgerskap?.firstOrNull { it.land != null }
+            val statsborgerskap = kravSed.nav?.bruker?.person?.statsborgerskap?.firstOrNull { it.land != null }
             statsborgerskap?.let { kodeverkClient.finnLandkode3(it.land!!) }
         }
     }
