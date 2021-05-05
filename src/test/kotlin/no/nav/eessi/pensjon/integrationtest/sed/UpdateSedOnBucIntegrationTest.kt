@@ -6,9 +6,11 @@ import com.nhaarman.mockitokotlin2.doThrow
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.whenever
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
+import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.security.sts.STSService
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.Test
+import org.mockito.Spy
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
@@ -38,6 +40,9 @@ class UpdateSedOnBucIntegrationTest {
     @MockBean(name = "euxOidcRestTemplate")
     lateinit var restTemplate: RestTemplate
 
+    @Spy
+    private lateinit var euxInnhentingService: EuxInnhentingService
+
     @Autowired
     private lateinit var mockMvc: MockMvc
 
@@ -49,10 +54,9 @@ class UpdateSedOnBucIntegrationTest {
 
     @Test
     fun `oppdate sed P5000 on buc result in true when all OK`() {
-
         val jsonsed = javaClass.getResource("/json/nav/P5000-NAV.json").readText()
 
-        /////cpi/buc/{RinaSakId}/sed/{DokumentId}
+        //cpi/buc/{RinaSakId}/sed/{DokumentId}
         doReturn(ResponseEntity(null ,HttpStatus.OK))
             .whenever(restTemplate).exchange(
                 eq("/buc/$euxCaseId/sed/$documentId?ventePaAksjon=false"),
@@ -76,7 +80,6 @@ class UpdateSedOnBucIntegrationTest {
     fun `oppdate sed P5000 on buc results in false when eux throws an UNAUTHORIZED Exception`() {
 
         val jsonsed = javaClass.getResource("/json/nav/P5000-NAV.json").readText()
-
         //cpi/buc/{RinaSakId}/sed/{DokumentId}
 
         doThrow(createDummyClientRestExecption(HttpStatus.UNAUTHORIZED, "Unauthorized"))
