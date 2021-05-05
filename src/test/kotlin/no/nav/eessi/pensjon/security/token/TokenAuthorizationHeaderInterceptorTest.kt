@@ -7,10 +7,8 @@ import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.security.token.support.core.jwt.JwtToken
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.junit.jupiter.MockitoExtension
 
-@ExtendWith(MockitoExtension::class)
+
 class TokenAuthorizationHeaderInterceptorTest {
 
     private val allRequestContextHolders = generateMockContextHolder(listOf("isso","servicebruker","oidc"))

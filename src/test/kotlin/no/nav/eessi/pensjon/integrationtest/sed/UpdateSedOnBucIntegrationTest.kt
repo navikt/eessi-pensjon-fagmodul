@@ -1,10 +1,7 @@
 package no.nav.eessi.pensjon.integrationtest.sed
 
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.doThrow
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.whenever
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.every
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.security.sts.STSService
@@ -14,7 +11,6 @@ import org.mockito.Spy
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
@@ -34,10 +30,10 @@ import kotlin.test.assertEquals
 @AutoConfigureMockMvc
 class UpdateSedOnBucIntegrationTest {
 
-    @MockBean
+    @MockkBean
     lateinit var stsService: STSService
 
-    @MockBean(name = "euxOidcRestTemplate")
+    @MockkBean(name = "euxOidcRestTemplate")
     lateinit var restTemplate: RestTemplate
 
     @Spy
@@ -56,14 +52,12 @@ class UpdateSedOnBucIntegrationTest {
     fun `oppdate sed P5000 on buc result in true when all OK`() {
         val jsonsed = javaClass.getResource("/json/nav/P5000-NAV.json").readText()
 
-        //cpi/buc/{RinaSakId}/sed/{DokumentId}
-        doReturn(ResponseEntity(null ,HttpStatus.OK))
-            .whenever(restTemplate).exchange(
-                eq("/buc/$euxCaseId/sed/$documentId?ventePaAksjon=false"),
-                eq(HttpMethod.PUT),
-                any(),
-                eq(String::class.java)
-            )
+        /////cpi/buc/{RinaSakId}/sed/{DokumentId}
+        every { restTemplate.exchange(
+            eq("/buc/$euxCaseId/sed/$documentId?ventePaAksjon=false"),
+            eq(HttpMethod.PUT),
+            any(),
+            eq(String::class.java)) } returns ResponseEntity(null ,HttpStatus.OK)
 
         val result = mockMvc.perform(put("/sed/put/$euxCaseId/$documentId")
             .contentType(MediaType.APPLICATION_JSON)
@@ -82,13 +76,12 @@ class UpdateSedOnBucIntegrationTest {
         val jsonsed = javaClass.getResource("/json/nav/P5000-NAV.json").readText()
         //cpi/buc/{RinaSakId}/sed/{DokumentId}
 
-        doThrow(createDummyClientRestExecption(HttpStatus.UNAUTHORIZED, "Unauthorized"))
-            .whenever(restTemplate).exchange(
-                eq("/buc/$euxCaseId/sed/$documentId?ventePaAksjon=false"),
-                eq(HttpMethod.PUT),
-                any(),
-                eq(String::class.java)
-            )
+        every { restTemplate.exchange(
+            eq("/buc/$euxCaseId/sed/$documentId?ventePaAksjon=false"),
+            eq(HttpMethod.PUT),
+            any(),
+            eq(String::class.java)) } throws createDummyClientRestExecption(HttpStatus.UNAUTHORIZED, "Unauthorized")
+
         val expectedError = """Authorization token required for Rina.""".trimIndent()
 
         mockMvc.perform(

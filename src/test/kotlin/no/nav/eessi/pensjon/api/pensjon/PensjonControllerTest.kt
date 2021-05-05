@@ -1,11 +1,10 @@
 package no.nav.eessi.pensjon.api.pensjon
 
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.given
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.times
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.every
+import io.mockk.impl.annotations.InjectMockKs
+import io.mockk.impl.annotations.SpyK
+import io.mockk.mockk
+import io.mockk.verify
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.Pensjontype
@@ -16,24 +15,23 @@ import no.nav.pensjon.v1.sak.V1Sak
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 
-@ExtendWith(MockitoExtension::class)
 class PensjonControllerTest {
 
-    private val pensjonsinformasjonClient: PensjonsinformasjonClient = mock()
+    private var pensjonsinformasjonClient: PensjonsinformasjonClient = mockk()
 
-    private val auditLogger: AuditLogger = mock()
+    @SpyK
+    private var auditLogger: AuditLogger = AuditLogger()
 
+    @InjectMockKs
     private val controller = PensjonController(pensjonsinformasjonClient, auditLogger)
 
-    private var mockMvc = MockMvcBuilders.standaloneSetup(controller).build()
+    private val mockMvc = MockMvcBuilders.standaloneSetup(controller).build()
 
     @BeforeEach
     fun setup() {
@@ -45,22 +43,26 @@ class PensjonControllerTest {
         val aktoerId = "1234567890123" // 13 sifre
         val sakId = "Some sakId"
 
-        whenever(pensjonsinformasjonClient.hentKunSakType(sakId, aktoerId)).thenReturn(Pensjontype(sakId, "Type"))
+        every { pensjonsinformasjonClient.hentKunSakType(sakId, aktoerId) } returns Pensjontype(sakId, "Type")
 
         controller.hentPensjonSakType(sakId, aktoerId)
 
-        verify(pensjonsinformasjonClient).hentKunSakType(sakId, aktoerId)
+
+        verify { pensjonsinformasjonClient.hentKunSakType(eq(sakId), eq(aktoerId)) }
     }
+
 
     @Test
     fun `hentPensjonSakType gitt at det svar fra PESYS er tom`() {
         val aktoerId = "1234567890123" // 13 sifre
         val sakId = "Some sakId"
 
-        whenever(pensjonsinformasjonClient.hentKunSakType(sakId, aktoerId)).thenReturn( Pensjontype(sakId, "") )
+        every { pensjonsinformasjonClient.hentKunSakType(sakId, aktoerId) } returns Pensjontype(sakId, "")
         val response = controller.hentPensjonSakType(sakId, aktoerId)
 
-        verify(pensjonsinformasjonClient).hentKunSakType(sakId, aktoerId)
+
+        verify { pensjonsinformasjonClient.hentKunSakType(eq(sakId), eq(aktoerId)) }
+
         val expected = """
             {
               "sakId" : "Some sakId",
@@ -68,7 +70,7 @@ class PensjonControllerTest {
             }
         """.trimIndent()
 
-        assertEquals(expected , response?.body)
+        assertEquals(expected, response?.body)
 
     }
 
@@ -77,11 +79,12 @@ class PensjonControllerTest {
         val aktoerId = "1234567890123" // 13 sifre
         val sakId = "Some sakId"
 
-        doReturn(Pensjontype(sakId, "")).whenever(pensjonsinformasjonClient).hentKunSakType(sakId, aktoerId)
+        every { pensjonsinformasjonClient.hentKunSakType(sakId, aktoerId) } returns Pensjontype(sakId, "")
 
         val response = controller.hentPensjonSakType(sakId, aktoerId)
 
-        verify(pensjonsinformasjonClient).hentKunSakType(sakId, aktoerId)
+        verify { pensjonsinformasjonClient.hentKunSakType(eq(sakId), eq(aktoerId)) }
+
         val expected = """
             {
               "sakId" : "Some sakId",
@@ -110,11 +113,11 @@ class PensjonControllerTest {
         mocksak2.sakType = "UFOREP"
         mockpen.brukersSakerListe.brukersSakerListe.add(mocksak2)
 
-        whenever(pensjonsinformasjonClient.hentAltPaaAktoerId(aktoerId)).doReturn(mockpen)
+        every { pensjonsinformasjonClient.hentAltPaaAktoerId(aktoerId) } returns mockpen
 
         val result = controller.hentPensjonSakIder(aktoerId)
 
-        verify(pensjonsinformasjonClient).hentAltPaaAktoerId(aktoerId)
+        verify { pensjonsinformasjonClient.hentAltPaaAktoerId(eq(aktoerId)) }
 
         assertEquals(2, result.size)
         val expected1 = PensjonSak("1010", "ALDER", PensjonSakStatus.LOPENDE)
@@ -132,12 +135,14 @@ class PensjonControllerTest {
         val mockpen = Pensjonsinformasjon()
         mockpen.brukersSakerListe = V1BrukersSakerListe()
 
-        whenever(pensjonsinformasjonClient.hentAltPaaAktoerId(aktoerId)).doReturn(mockpen)
+        every { (pensjonsinformasjonClient.hentAltPaaAktoerId(aktoerId)) } returns mockpen
 
         val result = controller.hentPensjonSakIder(aktoerId)
-        verify(pensjonsinformasjonClient, times(1)).hentAltPaaAktoerId(aktoerId)
+        verify(exactly = 1) {
+            pensjonsinformasjonClient.hentAltPaaAktoerId(any())
 
-        assertEquals(0, result.size)
+            assertEquals(0, result.size)
+        }
     }
 
     @Test
@@ -164,11 +169,12 @@ class PensjonControllerTest {
         val saksId = "10000"
         val kravId = "12456"
 
-        given(pensjonsinformasjonClient.hentKravDatoFraAktor(aktoerId, saksId, kravId)).willReturn(kravDato)
+        every { pensjonsinformasjonClient.hentKravDatoFraAktor(aktoerId, saksId, kravId) } returns kravDato
 
         val result = mockMvc.perform(
             MockMvcRequestBuilders.get("/pensjon/kravdato/saker/$saksId/krav/$kravId/aktor/$aktoerId")
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+        )
             .andExpect(status().is2xxSuccessful)
             .andReturn()
 
@@ -185,9 +191,11 @@ class PensjonControllerTest {
 
         mockMvc.perform(
             MockMvcRequestBuilders.get("/pensjon/kravdato/saker/$saksId/krav/$kravId/aktor/$aktoerId")
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+        )
             .andDo(MockMvcResultHandlers.print())
             .andExpect(status().is4xxClientError)
             .andReturn()
     }
 }
+

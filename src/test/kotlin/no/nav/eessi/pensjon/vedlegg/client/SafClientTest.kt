@@ -1,18 +1,15 @@
 package no.nav.eessi.pensjon.vedlegg.client
 
+
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.doThrow
-import com.nhaarman.mockitokotlin2.whenever
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.fail
-import org.mockito.ArgumentMatchers
-import org.mockito.Mock
-import org.mockito.junit.jupiter.MockitoExtension
 import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -27,15 +24,13 @@ import java.io.FileInputStream
 import java.nio.charset.Charset
 import java.util.*
 
-@ExtendWith(MockitoExtension::class)
 class SafClientTest {
 
-    @Mock
-    private lateinit var safGraphQlOidcRestTemplate: RestTemplate
+    var safGraphQlOidcRestTemplate: RestTemplate = mockk()
 
-    @Mock
-    private lateinit var safRestOidcRestTemplate: RestTemplate
+    var safRestOidcRestTemplate: RestTemplate = mockk()
 
+    @MockkBean
     lateinit var safClient: SafClient
 
     @BeforeEach
@@ -48,8 +43,8 @@ class SafClientTest {
     fun `gitt en gyldig hentMetadata reponse når metadata hentes så map til HentMetadataResponse`() {
         val responseJson = javaClass.getResource("/json/saf/hentMetadataResponse.json").readText()
 
-        whenever(safGraphQlOidcRestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), ArgumentMatchers.eq(String::class.java)))
-                .thenReturn(ResponseEntity(responseJson, HttpStatus.OK))
+        every { safGraphQlOidcRestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), eq(String::class.java)) } returns ResponseEntity(responseJson, HttpStatus.OK)
+
         val resp = safClient.hentDokumentMetadata("1234567891000")
 
         val mapper = jacksonObjectMapper()
@@ -61,8 +56,8 @@ class SafClientTest {
         val responseJson = javaClass.getResource("/json/saf/hentMetadataResponse.json").readText()
                 .replace("\"JOURNALPOSTTITTEL\"", "null")
 
-        whenever(safGraphQlOidcRestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), ArgumentMatchers.eq(String::class.java)))
-                .thenReturn(ResponseEntity(responseJson, HttpStatus.OK))
+        every { safGraphQlOidcRestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), eq(String::class.java)) } returns ResponseEntity(responseJson, HttpStatus.OK)
+
         val resp = safClient.hentDokumentMetadata("1234567891000")
 
         assertEquals(null, resp.data.dokumentoversiktBruker.journalposter[0].tittel)
@@ -72,8 +67,7 @@ class SafClientTest {
     fun `gitt en mappingfeil når metadata hentes så kast en feil`() {
         val responseJson = javaClass.getResource("/json/saf/hentMetadataResponseMedError.json").readText()
 
-        whenever(safGraphQlOidcRestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), ArgumentMatchers.eq(String::class.java)))
-                .thenReturn(ResponseEntity(responseJson, HttpStatus.OK))
+        every { safGraphQlOidcRestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), eq(String::class.java)) } returns ResponseEntity(responseJson, HttpStatus.OK)
 
         try {
             safClient.hentDokumentMetadata("1234567891000")
@@ -86,8 +80,7 @@ class SafClientTest {
     @Test
     fun `gitt noe annet enn 200 httpCopde feil når metadata hentes så kast HttpClientErrorException med tilhørende httpCode`() {
 
-        doThrow(HttpClientErrorException.create (HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.reasonPhrase, HttpHeaders(), "".toByteArray(), Charset.defaultCharset()))
-                .whenever(safGraphQlOidcRestTemplate).exchange(any<String>(), any(), any<HttpEntity<Unit>>(), ArgumentMatchers.eq(String::class.java))
+        every { safGraphQlOidcRestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), eq(String::class.java)) } throws HttpClientErrorException.create (HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.reasonPhrase, HttpHeaders(), "".toByteArray(), Charset.defaultCharset())
 
         assertThrows<HttpClientErrorException> {
             safClient.hentDokumentMetadata("1234567891000")
@@ -97,8 +90,8 @@ class SafClientTest {
     @Test
     fun `gitt en feil når metadata hentes så kast HttpClientErrorException med tilhørende httpCode`() {
 
-        whenever(safGraphQlOidcRestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), ArgumentMatchers.eq(String::class.java)))
-                .thenThrow(RestClientException("some error"))
+        every { safGraphQlOidcRestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), eq(String::class.java)) } throws RestClientException("some error")
+
         assertThrows<HttpServerErrorException> {
             safClient.hentDokumentMetadata("1234567891000")
         }
@@ -107,8 +100,7 @@ class SafClientTest {
     @Test
     fun `gitt noe annet enn 200 httpCopde feil når dokumentinnhold hentes så kast HttpServerErrorException med tilhørende httpCode`() {
 
-        doThrow(HttpClientErrorException.create(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.reasonPhrase, HttpHeaders(), "".toByteArray(), Charset.defaultCharset()))
-                .whenever(safRestOidcRestTemplate).exchange(any<String>(), any(), any<HttpEntity<Unit>>(), ArgumentMatchers.eq(String::class.java))
+        every { safRestOidcRestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), eq(String::class.java)) } throws HttpClientErrorException.create(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.reasonPhrase, HttpHeaders(), "".toByteArray(), Charset.defaultCharset())
 
         assertThrows<HttpServerErrorException> {
             safClient.hentDokumentInnhold("123", "456", "ARKIV")
@@ -117,8 +109,8 @@ class SafClientTest {
 
     @Test
     fun `gitt en feil når dokumentinnhold hentes så kast HttpClientErrorException med tilhørende httpCode`() {
-        whenever(safRestOidcRestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), ArgumentMatchers.eq(String::class.java)))
-                .thenThrow(RestClientException("some error"))
+        every { safRestOidcRestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), eq(String::class.java)) } throws RestClientException("some error")
+
         assertThrows<HttpServerErrorException> {
             safClient.hentDokumentInnhold("123", "456", "ARKIV")
         }
