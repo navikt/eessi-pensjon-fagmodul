@@ -1,6 +1,9 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
-import com.nhaarman.mockitokotlin2.*
+import io.mockk.MockKAnnotations
+import io.mockk.every
+import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Properties
@@ -13,13 +16,12 @@ import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.typeRefs
 import no.nav.eessi.pensjon.utils.validateJson
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.Mock
-import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.http.HttpStatus
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.util.UriComponentsBuilder
@@ -29,21 +31,20 @@ import java.nio.file.Paths
 import java.time.Instant
 import java.time.ZoneId
 
-@ExtendWith(MockitoExtension::class)
 class EuxPrefillServiceTest {
 
     private lateinit var euxPrefillService: EuxPrefillService
     private lateinit var euxinnhentingService: EuxInnhentingService
 
-    @Mock
-    private lateinit var euxKlient: EuxKlient
+    @MockK(relaxed = true)
+    lateinit var euxKlient: EuxKlient
 
-    @Mock
-    private lateinit var statistikkHandler: StatistikkHandler
+    var statistikkHandler: StatistikkHandler = mockk()
 
 
     @BeforeEach
     fun setup() {
+        MockKAnnotations.init(this)
         euxPrefillService = EuxPrefillService(euxKlient, statistikkHandler)
         euxinnhentingService = EuxInnhentingService(euxKlient)
 
@@ -60,14 +61,13 @@ class EuxPrefillServiceTest {
         assertEquals("/type/12345/sed?KorrelasjonsId=c0b0c068-4f79-48fe-a640-b9a23bf7c920", str)
     }
 
-
     @Test
     fun `forventer et korrekt navsed P6000 ved kall til getSedOnBucByDocumentId`() {
         val filepath = "src/test/resources/json/nav/P6000-NAV.json"
         val json = String(Files.readAllBytes(Paths.get(filepath)))
         assertTrue(validateJson(json))
 
-        whenever(euxKlient.getSedOnBucByDocumentIdAsJson(any(), any())).thenReturn(json)
+        every { euxKlient.getSedOnBucByDocumentIdAsJson(any(), any()) } returns json
 
         val result = euxinnhentingService.getSedOnBucByDocumentId("12345678900", "0bb1ad15987741f1bbf45eba4f955e80")
 
@@ -81,9 +81,7 @@ class EuxPrefillServiceTest {
 
         val bucJson = File("src/test/resources/json/buc/buc-158123_2_v4.1.json").readText()
 
-        doReturn(bucJson)
-                .whenever(euxKlient)
-                .getBucJson(any())
+        every { euxKlient.getBucJson(any()) } returns bucJson
 
         val result = euxinnhentingService.getBucAndSedView(rinasaker.map{ it.id!! }.toList())
 
@@ -96,9 +94,7 @@ class EuxPrefillServiceTest {
 
         val bucJson = javaClass.getResource("/json/buc/buc-158123_2_v4.1.json").readText()
 
-        doReturn(bucJson)
-                .whenever(euxKlient)
-                .getBucJson(eq(rinasakid))
+        every { euxKlient.getBucJson(any()) } returns bucJson
 
         val result = euxinnhentingService.getBucAndSedView(listOf(rinasakid))
 
@@ -114,9 +110,7 @@ class EuxPrefillServiceTest {
         val bucStr = String(Files.readAllBytes(Paths.get(bucjson)))
         assertTrue(validateJson(bucStr))
 
-        doReturn(bucStr)
-                .whenever(euxKlient)
-                .getBucJson(any())
+        every { euxKlient.getBucJson(any()) } returns bucStr
 
         val firstJson = euxinnhentingService.getSingleBucAndSedView("158123")
 
@@ -182,14 +176,14 @@ class EuxPrefillServiceTest {
         assertTrue(validateJson(jsonRinasaker))
         val orgRinasaker = mapJsonToAny(jsonRinasaker, typeRefs<List<Rinasak>>())
 
-        doReturn(orgRinasaker).whenever(euxKlient).getRinasaker(eq("12345678900"), eq(null), eq(null), eq(null))
+        every { euxKlient.getRinasaker(eq("12345678900"), null,null, null) } returns orgRinasaker
 
         val filepathEnRinasak = "src/test/resources/json/rinasaker/rinasaker_ensak.json"
         val jsonEnRinasak = String(Files.readAllBytes(Paths.get(filepathEnRinasak)))
         assertTrue(validateJson(jsonEnRinasak))
         val enSak = mapJsonToAny(jsonEnRinasak, typeRefs<List<Rinasak>>())
 
-        doReturn(enSak).whenever(euxKlient).getRinasaker(eq(null), eq("8877665511"), eq(null), eq(null))
+        every { euxKlient.getRinasaker(null, "8877665511", null, null) } returns enSak
 
         val result = euxinnhentingService.getRinasaker("12345678900", "1111111111111", listOf("8877665511"))
 
@@ -200,8 +194,7 @@ class EuxPrefillServiceTest {
     @Test
     fun `henter rinaid fra saf og rina hvor begge er tomme`() {
 
-        doReturn( listOf<Rinasak>()) .whenever(euxKlient).getRinasaker(eq("12345678900"), eq(null), eq(null), eq(null))
-
+        every { euxKlient.getRinasaker(eq("12345678900"), null, null, null) } returns listOf<Rinasak>()
         val result = euxinnhentingService.getRinasaker("12345678900", "1111111111111", emptyList())
 
         assertEquals(0, result.size)
@@ -214,18 +207,17 @@ class EuxPrefillServiceTest {
         val rinasakid = "3893690"
 
         val rinaSaker = listOf<Rinasak>(Rinasak(rinasakid,"P_BUC_02", Traits(), "", Properties(), "open"))
-        doReturn(rinaSaker).whenever(euxKlient).getRinasaker(avdodFnr, null, "P_BUC_02", "\"open\"")
+        every { euxKlient.getRinasaker(avdodFnr, null, "P_BUC_02", "\"open\"") } returns rinaSaker
 
         val bucfilepath = "src/test/resources/json/buc/P_BUC_02_4.2_P2100.json"
         val json = String(Files.readAllBytes(Paths.get(bucfilepath)))
 
-        doReturn(json).whenever(euxKlient).getBucJson(any())
-
+        every { euxKlient.getBucJson(any()) } returns json
 
         val sedfilepath = "src/test/resources/json/nav/P2100-PinNO-NAV.json"
         val sedjson = String(Files.readAllBytes(Paths.get(sedfilepath)))
 
-        doReturn(sedjson).whenever(euxKlient).getSedOnBucByDocumentIdAsJson(eq(rinasakid), any())
+        every { euxKlient.getSedOnBucByDocumentIdAsJson(eq(rinasakid), any()) } returns sedjson
 
         val actual = euxinnhentingService.getBucAndSedViewAvdod(gjenlevendeFnr, avdodFnr)
 
@@ -241,18 +233,18 @@ class EuxPrefillServiceTest {
         val rinasakid = "3893690"
 
         val rinaSaker = listOf<Rinasak>(Rinasak(rinasakid, "P_BUC_02", Traits(), "", Properties(), "open"))
-        doReturn(rinaSaker).whenever(euxKlient).getRinasaker(avdodFnr, null, "P_BUC_02", "\"open\"")
+        every { euxKlient.getRinasaker(avdodFnr, null, "P_BUC_02", "\"open\"") } returns rinaSaker
 
         val bucfilepath = "src/test/resources/json/buc/P_BUC_02_4.2_P2100.json"
         val json = String(Files.readAllBytes(Paths.get(bucfilepath)))
 
-        doReturn(json).whenever(euxKlient).getBucJson(any())
+        every { euxKlient.getBucJson(any()) } returns json
 
 
         val sedfilepath = "src/test/resources/json/nav/P2100-PinNO-NAV.json"
         val sedjson = String(Files.readAllBytes(Paths.get(sedfilepath)))
 
-        doReturn(sedjson).whenever(euxKlient).getSedOnBucByDocumentIdAsJson(eq(rinasakid), any())
+        every { euxKlient.getSedOnBucByDocumentIdAsJson(eq(rinasakid), any()) } returns sedjson
 
         val actual = euxinnhentingService.getBucAndSedViewAvdod(gjenlevendeFnr, avdodFnr)
         assertEquals(0, actual.size)
@@ -265,19 +257,17 @@ class EuxPrefillServiceTest {
         val rinasakid = "3893690"
 
         val rinaSaker = listOf<Rinasak>(Rinasak(rinasakid,"P_BUC_02", Traits(), "", Properties(), "open"))
-        doReturn(rinaSaker).whenever(euxKlient).getRinasaker(avdodFnr, null, "P_BUC_02", "\"open\"")
+        every { euxKlient.getRinasaker(avdodFnr, null, "P_BUC_02", "\"open\"") } returns rinaSaker
 
         val bucfilepath = "src/test/resources/json/buc/P_BUC_02_4.2_P2100.json"
         val json = String(Files.readAllBytes(Paths.get(bucfilepath)))
 
-        doReturn(json).whenever(euxKlient).getBucJson(any())
-
-        doThrow(HttpClientErrorException(HttpStatus.BAD_GATEWAY, "bad error")).whenever(euxKlient).getSedOnBucByDocumentIdAsJson(any(), any())
+        every { euxKlient.getBucJson(any()) }  returns json
+        every { euxKlient.getSedOnBucByDocumentIdAsJson(any(), any()) } throws HttpClientErrorException(HttpStatus.BAD_GATEWAY, "bad error")
 
         assertThrows<Exception> {
             euxinnhentingService.getBucAndSedViewAvdod(gjenlevendeFnr, avdodFnr)
         }
-
     }
 
     @Test
@@ -286,7 +276,7 @@ class EuxPrefillServiceTest {
         val json = String(Files.readAllBytes(Paths.get(bucfilepath)))
         val buc = mapJsonToAny(json, typeRefs<Buc>())
 
-        doReturn(json).whenever(euxKlient).getBucJson(any())
+        every { euxKlient.getBucJson(any()) } returns json
 
         var actual = euxinnhentingService.hentBucOgDocumentIdAvdod(listOf("123"))
 
@@ -299,9 +289,7 @@ class EuxPrefillServiceTest {
         val bucfilepath = "src/test/resources/json/buc/P_BUC_02_4.2_P2100.json"
         val json = String(Files.readAllBytes(Paths.get(bucfilepath)))
 
-        doReturn(json)
-        .doReturn(json)
-         .whenever(euxKlient).getBucJson(any())
+        every { euxKlient.getBucJson(any()) } returns json andThen json
 
         var actual = euxinnhentingService.hentBucOgDocumentIdAvdod(listOf("123","321"))
         assertEquals(2, actual.size)
@@ -309,7 +297,8 @@ class EuxPrefillServiceTest {
 
     @Test
     fun `Henter buc og dokumentID feiler ved henting av buc fra eux` () {
-        doThrow(HttpClientErrorException::class).whenever(euxKlient).getBucJson(any())
+
+        every { euxKlient.getBucJson(any()) } throws HttpClientErrorException(HttpStatus.UNAUTHORIZED)
         assertThrows<Exception> {
             euxinnhentingService.hentBucOgDocumentIdAvdod(listOf("123"))
         }
@@ -325,7 +314,7 @@ class EuxPrefillServiceTest {
 
         val docs = listOf(BucOgDocumentAvdod(rinaid, buc, dokumentid))
 
-        doReturn("P2100").whenever(euxKlient).getSedOnBucByDocumentIdAsJson(rinaid, dokumentid)
+        every { euxKlient.getSedOnBucByDocumentIdAsJson(rinaid, dokumentid) } returns "P2100"
 
         val actual = euxinnhentingService.hentDocumentJsonAvdod(docs)
 
@@ -344,7 +333,7 @@ class EuxPrefillServiceTest {
 
         val docs = listOf(BucOgDocumentAvdod(rinaid, buc, dokumentid))
 
-        doThrow(HttpClientErrorException::class).whenever(euxKlient).getSedOnBucByDocumentIdAsJson(rinaid, dokumentid)
+        every {euxKlient.getSedOnBucByDocumentIdAsJson(rinaid, dokumentid)  } throws  HttpClientErrorException(HttpStatus.MULTI_STATUS)
 
         assertThrows<Exception> {
             euxinnhentingService.hentDocumentJsonAvdod(docs)
@@ -445,25 +434,22 @@ class EuxPrefillServiceTest {
         // 02
         val euxCaseId  = "1"
         val rinaSakerBuc02 = listOf(dummyRinasak(euxCaseId, "P_BUC_02"), dummyRinasak("10", "P_BUC_02"))
-        doReturn(rinaSakerBuc02).whenever(euxKlient).getRinasaker(avdodFnr, null, "P_BUC_02", "\"open\"")
 
+        every { euxKlient.getRinasaker(avdodFnr, null, "P_BUC_02", "\"open\"") } returns rinaSakerBuc02
 
         val docItems = listOf(DocumentsItem(id = "1", type = SedType.P2100), DocumentsItem(id = "2", type = SedType.P4000))
         val buc = Buc(id = "1", processDefinitionName = "P_BUC_02", documents = docItems)
-        doReturn(buc.toJson()).whenever(euxKlient).getBucJson(euxCaseId)
+        every { euxKlient.getBucJson(euxCaseId)} returns buc.toJson()
 
         val docDKItems = listOf(DocumentsItem(id = "20", type = SedType.P2100), DocumentsItem(id = "40", type = SedType.P4000))
         val DKbuc = Buc(id = "10", processDefinitionName = "P_BUC_02", documents = docDKItems)
-        doReturn(DKbuc.toJson()).whenever(euxKlient).getBucJson("10")
+        every { euxKlient.getBucJson("10") } returns DKbuc.toJson()
 
-
-        doReturn(sedjson).whenever(euxKlient).getSedOnBucByDocumentIdAsJson("1", "1")
-        doReturn(sedDKjson).whenever(euxKlient).getSedOnBucByDocumentIdAsJson("10", "20")
-
+        every { euxKlient.getSedOnBucByDocumentIdAsJson("1", "1") } returns sedjson
+        every { euxKlient.getSedOnBucByDocumentIdAsJson("10", "20") } returns sedDKjson
 
         // 05
-        doReturn(emptyList<Rinasak>()).whenever(euxKlient).getRinasaker(avdodFnr, null, "P_BUC_05", "\"open\"")
-
+        every { euxKlient.getRinasaker(avdodFnr, null, "P_BUC_05", "\"open\"") } returns emptyList<Rinasak>()
 
         val result = euxinnhentingService.getBucAndSedViewAvdod(gjenlevendeFnr, avdodFnr)
 
@@ -487,26 +473,24 @@ class EuxPrefillServiceTest {
         // 02
         val euxCaseId  = "1"
         val rinaSakerBuc02 = listOf(dummyRinasak(euxCaseId, "P_BUC_02"), dummyRinasak("10", "P_BUC_02"))
-        doReturn( rinaSakerBuc02).whenever(euxKlient).getRinasaker(avdodFnr, null, "P_BUC_02", "\"open\"")
-
+        every { euxKlient.getRinasaker(avdodFnr, null, "P_BUC_02", "\"open\"") } returns rinaSakerBuc02
 
         val docItems = listOf(DocumentsItem(id = "1", type = SedType.P2100), DocumentsItem(id = "2", type = SedType.P4000))
         val buc = Buc(id = "1", processDefinitionName = "P_BUC_02", documents = docItems)
-        doReturn(buc.toJson()).whenever(euxKlient).getBucJson(euxCaseId)
+        every { euxKlient.getBucJson(euxCaseId) } returns buc.toJson()
 
         val docDKItems = listOf(DocumentsItem(id = "20", type = SedType.P2100), DocumentsItem(id = "40", type = SedType.P4000))
         val DKbuc = Buc(id = "10", processDefinitionName = "P_BUC_02", documents = docDKItems)
-        doReturn(DKbuc.toJson()).whenever(euxKlient).getBucJson("10")
+        every { euxKlient.getBucJson("10") } returns DKbuc.toJson()
 
         //sed no P2100
-        doReturn(sedjson).whenever(euxKlient).getSedOnBucByDocumentIdAsJson("1", "1")
+        every { euxKlient.getSedOnBucByDocumentIdAsJson("1", "1") } returns sedjson
         //sed dk P2100
-        doReturn(sedDKjson).whenever(euxKlient).getSedOnBucByDocumentIdAsJson("10", "20")
-
+        every { euxKlient.getSedOnBucByDocumentIdAsJson("10", "20") } returns sedDKjson
 
         // 05
         val rinaSakerBuc05 = listOf(dummyRinasak("100", "P_BUC_05"),dummyRinasak("200", "P_BUC_05"))
-        doReturn(rinaSakerBuc05).whenever(euxKlient).getRinasaker(avdodFnr, null, "P_BUC_05", "\"open\"")
+        every { euxKlient.getRinasaker(avdodFnr, null, "P_BUC_05", "\"open\"") } returns rinaSakerBuc05
 
         //buc05no
         val docP8000Items = listOf(DocumentsItem(id = "2000", type = SedType.P8000), DocumentsItem(id = "4000", type = SedType.P6000))
@@ -516,13 +500,13 @@ class EuxPrefillServiceTest {
         val docP8000DKItems = listOf(DocumentsItem(id = "2200", type = SedType.P8000), DocumentsItem(id = "4200", type = SedType.P6000))
         val buc05DK = Buc(id = "200", processDefinitionName = "P_BUC_05", documents = docP8000DKItems)
 
-        doReturn(buc05.toJson()).whenever(euxKlient).getBucJson("100")
-        doReturn(buc05DK.toJson()).whenever(euxKlient).getBucJson("200")
+        every { euxKlient.getBucJson("100") } returns buc05.toJson()
+        every { euxKlient.getBucJson("200") } returns buc05DK.toJson()
 
         //sed no P8000
-        doReturn(sedP8000json).whenever(euxKlient).getSedOnBucByDocumentIdAsJson("100", "2000")
+        every { euxKlient.getSedOnBucByDocumentIdAsJson("100", "2000") } returns sedP8000json
         //sed dk P8000
-        doReturn(sedP8000DKjson).whenever(euxKlient).getSedOnBucByDocumentIdAsJson("200", "2200")
+        every { euxKlient.getSedOnBucByDocumentIdAsJson("200", "2200") } returns sedP8000DKjson
 
         val result = euxinnhentingService.getBucAndSedViewAvdod(gjenlevendeFnr, avdodFnr).sortedBy { it.caseId }
 
@@ -535,9 +519,6 @@ class EuxPrefillServiceTest {
         assertEquals(avdodFnr, result[0].subject?.avdod?.fnr)
         assertEquals(avdodFnr, result[1].subject?.avdod?.fnr)
     }
-
-
-
 
     private fun dummyRinasak(rinaSakId: String, bucType: String): Rinasak {
         return Rinasak(rinaSakId, bucType, Traits(), "", Properties(), "open")
@@ -561,7 +542,6 @@ class EuxPrefillServiceTest {
         assertEquals(bucVersion, "v${sed.sedGVer}.${sed.sedVer}")
     }
 
-
     @Test
     fun `update SED Version from old version to unknown new version`() {
         val sed = SED(SedType.P2000)
@@ -570,5 +550,4 @@ class EuxPrefillServiceTest {
         euxPrefillService.updateSEDVersion(sed, bucVersion)
         assertEquals("v4.1", "v${sed.sedGVer}.${sed.sedVer}")
     }
-
 }

@@ -82,11 +82,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-cache:$springBootVersion")
     implementation("org.springframework.boot:spring-boot-starter-actuator:$springBootVersion")
     implementation("org.springframework.boot:spring-boot-actuator:$springBootVersion")
-    testImplementation("org.springframework.boot:spring-boot-starter-test") {
-        exclude module: 'junit'
-        exclude module: "mockito-core"
-        exclude module: 'junit-vintage-engine'
-    }
+
 
     implementation("joda-time:joda-time:2.10.6")
 
@@ -100,19 +96,6 @@ dependencies {
     implementation("io.springfox:springfox-swagger-ui:${springfoxVersion}")
     implementation("io.springfox:springfox-data-rest:${springfoxVersion}")
 
-    //mock - test
-    testImplementation("org.junit.platform:junit-platform-suite-api:1.7.1")
-    testImplementation("org.mockito:mockito-core:3.8.0")
-    testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
-    testImplementation("org.skyscreamer:jsonassert:1.5.0")
-    testImplementation("org.jetbrains.kotlin:kotlin-test:${kotlinVersion}") {
-        exclude module: 'kotlin-test-js'
-        exclude module: 'kotlin-test-testng'
-    }
-    testImplementation("io.mockk:mockk:1.10.2")
-
-    // Architecture tests
-    testImplementation ("com.tngtech.archunit:archunit:0.11.0")
 
     // Logging
     implementation("net.logstash.logback:logstash-logback-encoder:${logstashLogbackVersion}")
@@ -146,12 +129,32 @@ dependencies {
     implementation("no.nav.eessi.pensjon:ep-metrics:0.4.2")
 
     implementation ("org.springframework.kafka:spring-kafka")
-    testImplementation ("org.springframework.kafka:spring-kafka-test")
 
     implementation("no.nav.eessi.pensjon:ep-logging:1.0.7")
     implementation("no.nav.eessi.pensjon:ep-personoppslag:8.0.1")
     implementation("no.nav.eessi.pensjon:ep-eux:1.0.20")
 
+    // Forenklere mocking av beans, benyttes som mockito mockbean
+    testImplementation ("org.springframework.kafka:spring-kafka-test")
+    testImplementation("com.ninja-squad:springmockk:3.0.1")
+
+    //mock - test
+    testImplementation("io.mockk:mockk:1.11.0")
+    testImplementation("org.junit.platform:junit-platform-suite-api:1.7.1")
+
+    testImplementation("org.skyscreamer:jsonassert:1.5.0")
+    testImplementation("org.jetbrains.kotlin:kotlin-test:${kotlinVersion}") {
+        exclude module: 'kotlin-test-js'
+        exclude module: 'kotlin-test-testng'
+    }
+
+    // Architecture tests
+    testImplementation ("com.tngtech.archunit:archunit:0.11.0")
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
+        exclude module: 'junit'
+        exclude module: "mockito-core"
+        exclude module: 'junit-vintage-engine'
+    }
 }
 
 

@@ -1,9 +1,9 @@
 package no.nav.eessi.pensjon.fagmodul.prefill
 
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.whenever
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.MockKAnnotations
+import io.mockk.every
+import io.mockk.impl.annotations.MockK
 import no.nav.eessi.pensjon.fagmodul.models.ApiRequest
 import no.nav.eessi.pensjon.fagmodul.models.ApiSubject
 import no.nav.eessi.pensjon.fagmodul.models.MangelfulleInndataException
@@ -19,32 +19,29 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.Mock
-import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.web.server.ResponseStatusException
 
 
-@ExtendWith(MockitoExtension::class)
-class InnhentingServiceTest {
+internal class InnhentingServiceTest {
 
-    @Mock
-    private lateinit var personService: PersonService
+    @MockK
+    lateinit var personService: PersonService
 
-    @Mock
-    private lateinit var vedleggService: VedleggService
+    @MockK
+    lateinit var vedleggService: VedleggService
 
-    @Mock
-    private lateinit var pensjonsinformasjonService: PensjonsinformasjonService
-
-
-    @Mock
+    @MockK
     lateinit var prefillKlient: PrefillKlient
 
+    @MockK
+    private lateinit var pensjonsinformasjonService: PensjonsinformasjonService
+
+    @MockkBean
     private lateinit var innhentingService: InnhentingService
 
     @BeforeEach
     fun before() {
+        MockKAnnotations.init(this)
         innhentingService = InnhentingService(personService, vedleggService, prefillKlient, pensjonsinformasjonService)
         innhentingService.initMetrics()
     }
@@ -58,9 +55,8 @@ class InnhentingServiceTest {
             buc = "P_BUC_02",
             aktoerId = "0105094340092",
             avdodfnr = "12345566"
-
         )
-        doReturn(AktoerId("1122334455")).whenever(personService).hentIdent(eq(IdentType.AktoerId), any<Ident<*>>())
+        every { personService.hentIdent(eq(IdentType.AktoerId), any<Ident<*>>()) } returns AktoerId("1122334455")
 
         val result = innhentingService.getAvdodAktoerIdPDL(apiRequest)
         assertEquals("1122334455", result)
@@ -79,7 +75,7 @@ class InnhentingServiceTest {
             subject = ApiSubject(gjenlevende = SubjectFnr("23123123"), avdod = SubjectFnr("46784678467"))
         )
 
-        doReturn(AktoerId("467846784671")).whenever(personService).hentIdent(eq(IdentType.AktoerId), any<Ident<*>>())
+        every { personService.hentIdent(eq(IdentType.AktoerId), any<Ident<*>>()) } returns AktoerId("467846784671")
 
         val result = innhentingService.getAvdodAktoerIdPDL(apiRequest)
         assertEquals("467846784671", result)
@@ -127,6 +123,4 @@ class InnhentingServiceTest {
         val result = innhentingService.getAvdodAktoerIdPDL(request = apireq)
         assertEquals(null, result)
     }
-
-
 }
