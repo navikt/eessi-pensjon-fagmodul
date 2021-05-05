@@ -1,8 +1,9 @@
 
 package no.nav.eessi.pensjon.fagmodul.api
 
-import com.ninjasquad.springmockk.MockkBean
+import io.mockk.MockKAnnotations
 import io.mockk.every
+import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.SpyK
 import io.mockk.justRun
 import io.mockk.verify
@@ -50,31 +51,31 @@ import java.time.Month
 class PrefillControllerTest {
 
     @SpyK
-    lateinit var auditLogger: AuditLogger
+    var auditLogger: AuditLogger = AuditLogger()
 
     @SpyK
-    lateinit var mockEuxPrefillService: EuxPrefillService
+    var mockEuxPrefillService: EuxPrefillService = EuxPrefillService()
 
     @SpyK
-    lateinit var mockEuxInnhentingService: EuxInnhentingService
+    var mockEuxInnhentingService: EuxInnhentingService = EuxInnhentingService()
 
-    @MockkBean
+    @MockK
     lateinit var kafkaTemplate: KafkaTemplate<String, String>
 
-    @MockkBean
+    @MockK
     lateinit var vedleggService: VedleggService
 
-    @MockkBean
-    private lateinit var personService: PersonService
+    @MockK
+    lateinit var personService: PersonService
 
-    @MockkBean
+    @MockK
     lateinit var prefillKlient: PrefillKlient
 
     private lateinit var prefillController: PrefillController
 
     @BeforeEach
     fun before() {
-
+        MockKAnnotations.init(this)
         val innhentingService = InnhentingService(personService, vedleggService, prefillKlient)
         innhentingService.initMetrics()
 
@@ -282,7 +283,7 @@ class PrefillControllerTest {
                 parentDocumentId,
                 api.vedtakId
             )
-        }
+        } returns BucSedResponse(euxCaseId, "3123123")
 
 
         val result = prefillController.addDocumentToParent(api, parentDocumentId)
@@ -357,7 +358,7 @@ class PrefillControllerTest {
     fun `Gitt det opprettes en SED P10000 på tom P_BUC_06 Så skal bucmodel hents på nyt og shortDocument returneres som response`() {
         val euxCaseId = "1234567890"
 
-        every { personService.hentIdent(eq(IdentType.NorskIdent), any<AktoerId>()) }
+        every { personService.hentIdent(eq(IdentType.NorskIdent), any<AktoerId>()) } returns NorskIdent("12345")
         every { prefillKlient.hentPreutfyltSed(any()) } returns SED(SedType.P10000).toJson()
 
         val mockBucJson = javaClass.getResource("/json/buc/buc_P_BUC_06_4.2_tom.json").readText()

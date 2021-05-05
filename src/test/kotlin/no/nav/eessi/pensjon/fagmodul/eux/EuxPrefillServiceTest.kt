@@ -1,7 +1,9 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
-import com.ninjasquad.springmockk.MockkBean
+import io.mockk.MockKAnnotations
 import io.mockk.every
+import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Properties
@@ -34,16 +36,18 @@ class EuxPrefillServiceTest {
     private lateinit var euxPrefillService: EuxPrefillService
     private lateinit var euxinnhentingService: EuxInnhentingService
 
-    @MockkBean
-    private lateinit var euxKlient: EuxKlient
+    @MockK(relaxed = true)
+    lateinit var euxKlient: EuxKlient
 
-    @MockkBean
-    private lateinit var statistikkHandler: StatistikkHandler
+    var statistikkHandler: StatistikkHandler = mockk()
+
 
     @BeforeEach
     fun setup() {
+        MockKAnnotations.init(this)
         euxPrefillService = EuxPrefillService(euxKlient, statistikkHandler)
         euxinnhentingService = EuxInnhentingService(euxKlient)
+
     }
 
     @Test
@@ -56,7 +60,6 @@ class EuxPrefillServiceTest {
         val str = builder.toUriString()
         assertEquals("/type/12345/sed?KorrelasjonsId=c0b0c068-4f79-48fe-a640-b9a23bf7c920", str)
     }
-
 
     @Test
     fun `forventer et korrekt navsed P6000 ved kall til getSedOnBucByDocumentId`() {
@@ -204,7 +207,6 @@ class EuxPrefillServiceTest {
         val rinasakid = "3893690"
 
         val rinaSaker = listOf<Rinasak>(Rinasak(rinasakid,"P_BUC_02", Traits(), "", Properties(), "open"))
-
         every { euxKlient.getRinasaker(avdodFnr, null, "P_BUC_02", "\"open\"") } returns rinaSaker
 
         val bucfilepath = "src/test/resources/json/buc/P_BUC_02_4.2_P2100.json"

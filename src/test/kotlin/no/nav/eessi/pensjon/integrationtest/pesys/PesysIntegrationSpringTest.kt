@@ -21,7 +21,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.util.ResourceUtils
 import org.springframework.web.client.RestTemplate
 
-
 @SpringBootTest(classes = [UnsecuredWebMvcTestLauncher::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(profiles = ["unsecured-webmvctest"])
 @AutoConfigureMockMvc
@@ -50,16 +49,13 @@ class PesysIntegrationSpringTest {
         //euxrest kall buc
         val buc03 = ResourceUtils.getFile("classpath:json/buc/buc-1297512-kravP2200_v4.2.json").readText()
         val rinabucpath = "/buc/$bucid"
-/*
-        doReturn( ResponseEntity.ok().body( buc03 ) ).whenever(restTemplate).exchange( eq(rinabucpath), eq(HttpMethod.GET), null, eq(String::class.java))
-*/
+
         every { restTemplate.exchange( eq(rinabucpath), eq(HttpMethod.GET), any(), eq(String::class.java)) } returns ResponseEntity.ok().body( buc03 )
 
         //euxrest kall til p2200
         val sedurl = "/buc/$bucid/sed/$sedid"
         val sedP2200 = ResourceUtils.getFile("classpath:json/nav/P2200-NAV-FRA-UTLAND-KRAV.json").readText()
 
-        //doReturn( ResponseEntity.ok().body( sedP2200 ) ).whenever(restTemplate).exchange( eq(sedurl), eq(HttpMethod.GET), null, eq(String::class.java))
         every { restTemplate.exchange( eq(sedurl), eq(HttpMethod.GET), any(), eq(String::class.java)) } returns ResponseEntity.ok().body( sedP2200 )
 
         val result = mockMvc.perform(
@@ -107,20 +103,14 @@ class PesysIntegrationSpringTest {
         //euxrest kall buc
         val buc01 = ResourceUtils.getFile("classpath:json/buc/buc-1297512-kravP2000_v4.2.json").readText()
         val rinabucpath = "/buc/$bucid"
-/*
-        doReturn( ResponseEntity.ok().body( buc01 ) ).whenever(restTemplate).exchange( eq(rinabucpath), eq(HttpMethod.GET), null, eq(String::class.java))
-*/
 
         every { restTemplate.exchange( eq(rinabucpath), eq(HttpMethod.GET), any(), eq(String::class.java)) } returns ResponseEntity.ok().body( buc01 )
 
         //euxrest kall til p2000
         val sedurl = "/buc/$bucid/sed/$sedid"
         val sedP2000 = ResourceUtils.getFile("classpath:json/nav/P2000-NAV-FRA-UTLAND-KRAV.json").readText()
-/*
-        doReturn( ResponseEntity.ok().body( sedP2000 ) ).whenever(restTemplate).exchange( eq(sedurl), eq(HttpMethod.GET), null, eq(String::class.java))
-*/
-        every { restTemplate.exchange( eq(sedurl), eq(HttpMethod.GET), any(), eq(String::class.java)) } returns ResponseEntity.ok().body( sedP2000 )
 
+        every { restTemplate.exchange( eq(sedurl), eq(HttpMethod.GET), any(), eq(String::class.java)) } returns ResponseEntity.ok().body( sedP2000 )
 
         val result = mockMvc.perform(
             MockMvcRequestBuilders.get("/pesys/hentKravUtland/$bucid")
@@ -201,9 +191,7 @@ class PesysIntegrationSpringTest {
         """.trimIndent()
 
         val rinabucpath = "/buc/$bucid"
-/*
-        doReturn( ResponseEntity.ok().body( bucjson ) ).whenever(restTemplate).exchange( eq(rinabucpath), eq(HttpMethod.GET), null, eq(String::class.java))
-*/
+
         every { restTemplate.exchange( eq(rinabucpath), eq(HttpMethod.GET), any(), eq(String::class.java)) } returns ResponseEntity.ok().body( bucjson )
 
 

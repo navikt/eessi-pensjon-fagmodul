@@ -1,9 +1,10 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.ninjasquad.springmockk.MockkBean
+import io.mockk.MockKAnnotations
 import io.mockk.every
-import io.mockk.impl.annotations.SpyK
+import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
@@ -12,7 +13,6 @@ import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.prefill.ApiRequest
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.fagmodul.prefill.klient.PrefillKlient
-import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.utils.mapAnyToJson
 import no.nav.eessi.pensjon.utils.mapJsonToAny
@@ -25,31 +25,28 @@ import org.junit.jupiter.api.Test
 import org.springframework.http.ResponseEntity
 import org.springframework.web.util.UriComponentsBuilder
 
-
 class SedControllerTest {
 
-    @SpyK
+    @MockK
     lateinit var mockEuxPrefillService: EuxPrefillService
 
-    @SpyK
+    @MockK
     lateinit var mockEuxInnhentingService: EuxInnhentingService
 
-    @SpyK
-    lateinit var auditLogger: AuditLogger
-
-    @MockkBean
+    @MockK
     lateinit var vedleggService: VedleggService
 
-    @MockkBean
-    private lateinit var personService: PersonService
+    @MockK
+    lateinit var personService: PersonService
 
-    @MockkBean
+    @MockK
     lateinit var prefillKlient: PrefillKlient
 
     private lateinit var sedController: SedController
 
     @BeforeEach
     fun setUp() {
+        MockKAnnotations.init(this, relaxed = true)
         mockEuxPrefillService.initMetrics()
 
         val innhentingService = InnhentingService(personService, vedleggService, prefillKlient)
@@ -57,7 +54,7 @@ class SedControllerTest {
 
         this.sedController = SedController(
             mockEuxInnhentingService,
-            auditLogger
+            mockk(relaxed = true)
         )
     }
 

@@ -1,11 +1,11 @@
 package no.nav.eessi.pensjon.vedlegg
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
+import io.mockk.impl.annotations.SpyK
 import io.mockk.justRun
+import io.mockk.mockk
 import io.mockk.verify
-
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.vedlegg.client.Dokument
 import no.nav.eessi.pensjon.vedlegg.client.HentMetadataResponse
@@ -25,14 +25,12 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.*
 
-
 class VedleggControllerMockTest {
 
-    @MockkBean
-    lateinit var vedleggService: VedleggService
+    var vedleggService: VedleggService = mockk()
 
-    @MockkBean
-    lateinit var auditLogger: AuditLogger
+    @SpyK
+    var auditLogger: AuditLogger = AuditLogger()
 
     private lateinit var vedleggController: VedleggController
 

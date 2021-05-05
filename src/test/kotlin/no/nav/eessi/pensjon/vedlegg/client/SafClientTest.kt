@@ -4,6 +4,7 @@ package no.nav.eessi.pensjon.vedlegg.client
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
+import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -23,15 +24,13 @@ import java.io.FileInputStream
 import java.nio.charset.Charset
 import java.util.*
 
-
 class SafClientTest {
 
-    @MockkBean
-    private lateinit var safGraphQlOidcRestTemplate: RestTemplate
+    var safGraphQlOidcRestTemplate: RestTemplate = mockk()
+
+    var safRestOidcRestTemplate: RestTemplate = mockk()
 
     @MockkBean
-    private lateinit var safRestOidcRestTemplate: RestTemplate
-
     lateinit var safClient: SafClient
 
     @BeforeEach
@@ -57,10 +56,6 @@ class SafClientTest {
         val responseJson = javaClass.getResource("/json/saf/hentMetadataResponse.json").readText()
                 .replace("\"JOURNALPOSTTITTEL\"", "null")
 
-/*
-        whenever(safGraphQlOidcRestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), ArgumentMatchers.eq(String::class.java)))
-                .thenReturn(ResponseEntity(responseJson, HttpStatus.OK))
-*/
         every { safGraphQlOidcRestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), eq(String::class.java)) } returns ResponseEntity(responseJson, HttpStatus.OK)
 
         val resp = safClient.hentDokumentMetadata("1234567891000")
@@ -72,8 +67,6 @@ class SafClientTest {
     fun `gitt en mappingfeil når metadata hentes så kast en feil`() {
         val responseJson = javaClass.getResource("/json/saf/hentMetadataResponseMedError.json").readText()
 
-/*        whenever(safGraphQlOidcRestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), ArgumentMatchers.eq(String::class.java)))
-                .thenReturn(ResponseEntity(responseJson, HttpStatus.OK))*/
         every { safGraphQlOidcRestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), eq(String::class.java)) } returns ResponseEntity(responseJson, HttpStatus.OK)
 
         try {

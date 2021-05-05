@@ -1,7 +1,7 @@
 package no.nav.eessi.pensjon.services.kodeverk
 
-import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
+import io.mockk.mockk
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.typeRefs
 import org.junit.jupiter.api.Assertions
@@ -17,10 +17,9 @@ import java.nio.file.Paths
 
 class KodeverkClientTest {
 
-    @MockkBean
-    private lateinit var mockrestTemplate: RestTemplate
+    var mockrestTemplate: RestTemplate = mockk()
 
-    private lateinit var kodeverkClient: KodeverkClient
+    lateinit var kodeverkClient: KodeverkClient
 
     @BeforeEach
     fun setup() {

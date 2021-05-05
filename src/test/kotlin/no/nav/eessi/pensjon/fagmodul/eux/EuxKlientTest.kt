@@ -1,9 +1,11 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
 
-import com.ninjasquad.springmockk.MockkBean
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
+import io.mockk.MockKAnnotations
+import io.mockk.clearAllMocks
 import io.mockk.every
+import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.SedType
@@ -40,26 +42,24 @@ import kotlin.String
 
 class EuxKlientTest {
 
-    private lateinit var klient: EuxKlient
+    lateinit var klient: EuxKlient
 
-    @MockkBean
-    private lateinit var mockEuxrestTemplate: RestTemplate
-
-    @MockkBean
-    private lateinit var mockUsernameEuxrestTemplate: RestTemplate
-
+    @MockK
+    lateinit var mockEuxrestTemplate: RestTemplate
+    @MockK
+    lateinit var euxUsernameOidcRestTemplate: RestTemplate
 
     @BeforeEach
     fun setup() {
+        MockKAnnotations.init(this, relaxUnitFun = true)
         mockEuxrestTemplate.errorHandler = DefaultResponseErrorHandler()
         mockEuxrestTemplate.interceptors = listOf( RequestResponseLoggerInterceptor() )
-        klient = EuxKlient(mockEuxrestTemplate, mockUsernameEuxrestTemplate, overrideWaitTimes = 0L)
+        klient = EuxKlient(mockEuxrestTemplate, euxUsernameOidcRestTemplate, overrideWaitTimes = 0L)
         klient.initMetrics()
     }
-
     @AfterEach
     fun takedown() {
-        //Mockito.reset(mockEuxrestTemplate)
+        clearAllMocks()
     }
 
     @Test
@@ -80,9 +80,6 @@ class EuxKlientTest {
         assertTrue(validateJson(json))
         val response: ResponseEntity<String> = ResponseEntity(json, HttpStatus.OK)
 
-/*
-        whenever(mockEuxrestTemplate.exchange(any<String>(), eq(HttpMethod.GET), null, eq(String::class.java))).thenReturn(response)
-*/
         every { mockEuxrestTemplate.exchange(any<String>(), HttpMethod.GET, null, String::class.java) } returns response
 
         val result = klient.getBucJson("P_BUC_99")
@@ -108,6 +105,7 @@ class EuxKlientTest {
 
     @Test
     fun `Calling EuxService feiler med NOT FOUND fra kall til getBuc`() {
+        every { mockEuxrestTemplate.exchange( any<String>(), eq(HttpMethod.GET), null, eq(String::class.java)) } throws HttpClientErrorException(HttpStatus.NOT_FOUND)
         val bucid = "123213123"
         assertThrows<ResponseStatusException> {
             klient.getBucJson(bucid)
@@ -134,11 +132,7 @@ class EuxKlientTest {
 
     @Test
     fun `Calling EuxService feiler med en NOT FOUND Exception fra kall til hentbuc`() {
-/*
-        doThrow(createDummyClientRestExecption(HttpStatus.NOT_FOUND, "Gateway body dummy timeout"))
-                .whenever(mockEuxrestTemplate).exchange( any<String>(), eq(HttpMethod.GET), null, eq(String::class.java))
-*/
-        every { mockEuxrestTemplate.exchange( any<String>(), HttpMethod.GET, null, String::class.java) } throws createDummyClientRestExecption(HttpStatus.FORBIDDEN, "Gateway body dummy timeout")
+        every { mockEuxrestTemplate.exchange( any<String>(), HttpMethod.GET, null, String::class.java) } throws createDummyClientRestExecption(HttpStatus.NOT_FOUND, "Gateway body dummy timeout")
 
         assertThrows<IkkeFunnetException> {
             klient.getBucJson("P_BUC_99")
@@ -147,12 +141,7 @@ class EuxKlientTest {
 
     @Test
     fun `Calling EuxService feiler med en UNPROCESSABLE ENTITY Exception fra kall til hentbuc`() {
-/*
-        doThrow(createDummyClientRestExecption(HttpStatus.UNPROCESSABLE_ENTITY, "unprocesable dummy timeout"))
-                .whenever(mockEuxrestTemplate).exchange( any<String>(), eq(HttpMethod.GET), null, eq(String::class.java))
-*/
-        every { mockEuxrestTemplate.exchange( any<String>(), HttpMethod.GET, null, String::class.java) } throws createDummyClientRestExecption(HttpStatus.FORBIDDEN, "unprocesable dummy timeout")
-
+        every { mockEuxrestTemplate.exchange( any<String>(), HttpMethod.GET, null, String::class.java) } throws createDummyClientRestExecption(HttpStatus.UNPROCESSABLE_ENTITY, "unprocesable dummy timeout")
 
         assertThrows<GenericUnprocessableEntity> {
             klient.getBucJson("P_BUC_99")
@@ -161,7 +150,7 @@ class EuxKlientTest {
 
     @Test
     fun `Calling EuxService kaster en GATEWAY_TIMEOUT Exception ved kall til hentbuc`() {
-        every { mockEuxrestTemplate.exchange( any<String>(), HttpMethod.GET, null, String::class.java) } throws createDummyClientRestExecption(HttpStatus.FORBIDDEN, "Gateway body dummy timeout")
+        every { mockEuxrestTemplate.exchange( any<String>(), HttpMethod.GET, null, String::class.java) } throws createDummyServerRestExecption(HttpStatus.GATEWAY_TIMEOUT, "Gateway body dummy timeout")
         assertThrows<GatewayTimeoutException> {
             klient.getBucJson("P_BUC_99")
         }
@@ -204,7 +193,7 @@ class EuxKlientTest {
 
     @Test
     fun callingEuxServiceListOfRinasaker_ClientError() {
-        every { mockEuxrestTemplate.exchange( any<String>(), HttpMethod.GET, null, String::class.java) } throws createDummyServerRestExecption(HttpStatus.UNAUTHORIZED,"UNAUTHORIZED")
+        every { mockEuxrestTemplate.exchange( any<String>(), HttpMethod.GET, null, String::class.java) } throws createDummyClientRestExecption(HttpStatus.UNAUTHORIZED,"UNAUTHORIZED")
 
         assertThrows<RinaIkkeAutorisertBrukerException> {
             klient.getRinasaker("12345678900", null, null, null)
@@ -485,13 +474,6 @@ class EuxKlientTest {
                 ParticipantsItem(organisation = Organisation(countryCode = "DK", id = "DK006")),
                 ParticipantsItem(organisation = Organisation(countryCode = "PL", id = "PolishAcc"))
         ))
-/*
-        doReturn(mockResponse).whenever(mockEuxrestTemplate).exchange(
-                any<String>(),
-                eq(HttpMethod.GET),
-                null,
-                eq(typeRef<List<ParticipantsItem>>()))
-*/
 
         every { mockEuxrestTemplate.exchange(any<String>(), HttpMethod.GET, null, typeRef<List<ParticipantsItem>>()) } returns mockResponse
 

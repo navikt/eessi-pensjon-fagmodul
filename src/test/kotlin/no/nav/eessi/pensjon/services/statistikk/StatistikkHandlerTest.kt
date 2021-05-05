@@ -1,7 +1,8 @@
 package no.nav.eessi.pensjon.services.statistikk
 
-import com.ninjasquad.springmockk.MockkBean
+import io.mockk.MockKAnnotations
 import io.mockk.every
+import io.mockk.impl.annotations.MockK
 import io.mockk.spyk
 import io.mockk.verify
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -16,20 +17,20 @@ import org.springframework.util.concurrent.SettableListenableFuture
 
 class StatistikkHandlerTest{
 
-    @MockkBean
+    @MockK
     lateinit var template : KafkaTemplate<String, String>
 
-    @MockkBean
+    @MockK
     lateinit var recordMetadata: RecordMetadata
 
     lateinit var statHandler : StatistikkHandler
 
     @BeforeEach
     fun setup(){
-        val key = "key"
+        MockKAnnotations.init(this, relaxed = true, relaxUnitFun = true)
 
         statHandler = spyk(StatistikkHandler("q2", template, "eessi-pensjon-statistikk"))
-        every { statHandler.populerMDC() } returns key
+        every { statHandler.populerMDC() } returns "key"
     }
 
     @Test

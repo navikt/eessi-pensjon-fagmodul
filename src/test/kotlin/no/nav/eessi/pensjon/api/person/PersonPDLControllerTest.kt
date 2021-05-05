@@ -1,7 +1,9 @@
 package no.nav.eessi.pensjon.api.person
 
 import com.ninjasquad.springmockk.MockkBean
+import io.mockk.MockKAnnotations
 import io.mockk.every
+import io.mockk.justRun
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonoppslagException
@@ -28,6 +30,7 @@ import no.nav.eessi.pensjon.utils.typeRefs
 import no.nav.pensjon.v1.avdod.V1Avdod
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
 import no.nav.pensjon.v1.person.V1Person
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.beans.factory.annotation.Autowired
@@ -62,16 +65,18 @@ class PersonPDLControllerTest {
 
     companion object {
         const val AKTOERID = "012345"
-
         const val FNR = "01010123456"
-
     }
+
+    @BeforeEach
+    fun before() {
+        MockKAnnotations.init(this, relaxed = true, relaxUnitFun = true)
+        justRun { auditLogger.log(any(), any()) }
+    }
+
 
     @Test
     fun `getPerson should return Person as json`() {
-
-/*        doNothing().whenever(auditLogger).log(any(), any())
-        every {  }*/
         every { pdlService.hentPerson(any<Ident<*>>()) } returns lagPerson(etternavn = "NORDMANN", fornavn = "OLA")
         val response = mvc.perform(
             get("/person/pdl/$AKTOERID")
@@ -84,10 +89,6 @@ class PersonPDLControllerTest {
 
     @Test
     fun `getNameOnly should return names as json`() {
-/*
-        doNothing().whenever(auditLogger).log(any(), any())
-*/
-//        doReturn(lagPerson(etternavn = "NORDMANN", fornavn = "OLA")).whenever(pdlService).hentPerson(any<Ident<*>>())
         every {pdlService.hentPerson(any<Ident<*>>())  } returns lagPerson(etternavn = "NORDMANN", fornavn = "OLA")
         val response = mvc.perform(
             get("/person/pdl/info/${Companion.AKTOERID}")
@@ -100,12 +101,6 @@ class PersonPDLControllerTest {
 
     @Test
     fun `should return NOT_FOUND hvis personen ikke finnes`() {
-/*
-        doNothing().whenever(auditLogger).log(any(), any())
-*/
-/*
-        doThrow(PersonoppslagException("not_found: Fant ikke person")).whenever(pdlService).hentPerson(any<Ident<*>>())
-*/
         every { pdlService.hentPerson(any<Ident<*>>()) } throws PersonoppslagException("not_found: Fant ikke person")
 
         mvc.perform(
@@ -148,11 +143,6 @@ class PersonPDLControllerTest {
                 Familierelasjon(avdodMorfnr, Familierelasjonsrolle.MOR, Familierelasjonsrolle.BARN, mockMeta())
             )
         )
-/*        doReturn(mockPensjoninfo).whenever(mockPensjonClient).hentAltPaaVedtak(vedtaksId)
-        doReturn(avdodMor).whenever(pdlService).hentPerson(NorskIdent(avdodMorfnr))
-        doReturn(avdodFar).whenever(pdlService).hentPerson(NorskIdent(avdodFarfnr))
-        doReturn(barn).whenever(pdlService).hentPerson(AktoerId(aktoerId))*/
-
         every { mockPensjonClient.hentAltPaaVedtak(vedtaksId) } returns mockPensjoninfo
         every { pdlService.hentPerson(NorskIdent(avdodMorfnr)) } returns avdodMor
         every { pdlService.hentPerson(NorskIdent(avdodFarfnr)) } returns avdodFar
@@ -192,9 +182,6 @@ class PersonPDLControllerTest {
         val barn = lagPerson(fnrGjenlevende, "Liten", "Blyant",
             listOf(Familierelasjon(avdodMorfnr, Familierelasjonsrolle.MOR, Familierelasjonsrolle.BARN, mockMeta())))
 
-/*        doReturn(mockPensjoninfo).whenever(mockPensjonClient).hentAltPaaVedtak(vedtaksId)
-        doReturn(avdodmor).whenever(pdlService).hentPerson(NorskIdent(avdodMorfnr))
-        doReturn(barn).whenever(pdlService).hentPerson(AktoerId(aktoerId)*/
         every {  mockPensjonClient.hentAltPaaVedtak(vedtaksId)} returns mockPensjoninfo
         every { pdlService.hentPerson(NorskIdent(avdodMorfnr)) } returns avdodmor
         every { pdlService.hentPerson(AktoerId(aktoerId)) } returns barn
@@ -224,16 +211,11 @@ class PersonPDLControllerTest {
         mockPensjoninfo.person = V1Person()
         mockPensjoninfo.person.aktorId = aktoerId
 
-/*
-        doReturn(mockPensjoninfo).whenever(mockPensjonClient).hentAltPaaVedtak(vedtaksId)
-*/
         every {mockPensjonClient.hentAltPaaVedtak(vedtaksId)  } returns mockPensjoninfo
 
         val barn = lagPerson(fnrGjenlevende, "Liten", "Blyant",
             listOf(Familierelasjon("231231231231", Familierelasjonsrolle.MOR, Familierelasjonsrolle.BARN, mockMeta())))
-/*
-        doReturn(barn).whenever(pdlService).hentPerson(any<Ident<*>>())
-*/
+
         every { pdlService.hentPerson(any<Ident<*>>()) } returns barn
 
         val response = mvc.perform(

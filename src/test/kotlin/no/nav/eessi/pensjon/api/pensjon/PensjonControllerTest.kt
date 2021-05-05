@@ -1,7 +1,9 @@
 package no.nav.eessi.pensjon.api.pensjon
 
-import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
+import io.mockk.impl.annotations.InjectMockKs
+import io.mockk.impl.annotations.SpyK
+import io.mockk.mockk
 import io.mockk.verify
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonClient
@@ -19,15 +21,14 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 
-
 class PensjonControllerTest {
 
-    @MockkBean
-    lateinit var pensjonsinformasjonClient: PensjonsinformasjonClient
+    var pensjonsinformasjonClient: PensjonsinformasjonClient = mockk()
 
-    @MockkBean
-    lateinit var auditLogger: AuditLogger
+    @SpyK
+    var auditLogger: AuditLogger = AuditLogger()
 
+    @InjectMockKs
     private val controller = PensjonController(pensjonsinformasjonClient, auditLogger)
 
     private var mockMvc = MockMvcBuilders.standaloneSetup(controller).build()

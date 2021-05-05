@@ -2,8 +2,8 @@ package no.nav.eessi.pensjon.vedlegg
 
 
 
-import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
+import io.mockk.mockk
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.typeRefs
 import no.nav.eessi.pensjon.vedlegg.client.Data
@@ -18,8 +18,7 @@ import org.springframework.web.client.RestTemplate
 
 internal class VedleggServiceTest  {
 
-    @MockkBean
-    lateinit var safClient : SafClient
+    var safClient : SafClient = mockk()
 
     lateinit var vedleggService : VedleggService
 

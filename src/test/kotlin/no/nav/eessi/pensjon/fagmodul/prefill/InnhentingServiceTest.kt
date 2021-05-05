@@ -1,7 +1,9 @@
 package no.nav.eessi.pensjon.fagmodul.prefill
 
 import com.ninjasquad.springmockk.MockkBean
+import io.mockk.MockKAnnotations
 import io.mockk.every
+import io.mockk.impl.annotations.MockK
 import no.nav.eessi.pensjon.fagmodul.prefill.klient.PrefillKlient
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
@@ -15,21 +17,23 @@ import org.junit.jupiter.api.assertThrows
 import org.springframework.web.server.ResponseStatusException
 
 
-class InnhentingServiceTest {
+internal class InnhentingServiceTest {
 
-    @MockkBean
-    private lateinit var personService: PersonService
+    @MockK
+    lateinit var personService: PersonService
 
-    @MockkBean
-    private lateinit var vedleggService: VedleggService
+    @MockK
+    lateinit var vedleggService: VedleggService
 
-    @MockkBean
+    @MockK
     lateinit var prefillKlient: PrefillKlient
 
+    @MockkBean
     private lateinit var innhentingService: InnhentingService
 
     @BeforeEach
     fun before() {
+        MockKAnnotations.init(this)
         innhentingService = InnhentingService(personService, vedleggService, prefillKlient)
         innhentingService.initMetrics()
     }
