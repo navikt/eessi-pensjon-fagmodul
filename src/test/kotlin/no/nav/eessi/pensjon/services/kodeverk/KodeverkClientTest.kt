@@ -17,9 +17,9 @@ import java.nio.file.Paths
 
 class KodeverkClientTest {
 
-    var mockrestTemplate: RestTemplate = mockk()
+    private val mockrestTemplate: RestTemplate = mockk()
 
-    lateinit var kodeverkClient: KodeverkClient
+    private lateinit var kodeverkClient: KodeverkClient
 
     @BeforeEach
     fun setup() {

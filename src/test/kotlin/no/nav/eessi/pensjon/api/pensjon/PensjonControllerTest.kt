@@ -23,15 +23,15 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders
 
 class PensjonControllerTest {
 
-    var pensjonsinformasjonClient: PensjonsinformasjonClient = mockk()
+    private var pensjonsinformasjonClient: PensjonsinformasjonClient = mockk()
 
     @SpyK
-    var auditLogger: AuditLogger = AuditLogger()
+    private var auditLogger: AuditLogger = AuditLogger()
 
     @InjectMockKs
     private val controller = PensjonController(pensjonsinformasjonClient, auditLogger)
 
-    private var mockMvc = MockMvcBuilders.standaloneSetup(controller).build()
+    private val mockMvc = MockMvcBuilders.standaloneSetup(controller).build()
 
     @BeforeEach
     fun setup() {
