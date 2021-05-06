@@ -45,7 +45,6 @@ class UpdateSedOnBucIntegrationTest {
 
     @Test
     fun `oppdate sed P5000 on buc result in true when all OK`() {
-
         val jsonsed = javaClass.getResource("/json/nav/P5000-NAV.json").readText()
 
         /////cpi/buc/{RinaSakId}/sed/{DokumentId}
@@ -70,7 +69,6 @@ class UpdateSedOnBucIntegrationTest {
     fun `oppdate sed P5000 on buc results in false when eux throws an UNAUTHORIZED Exception`() {
 
         val jsonsed = javaClass.getResource("/json/nav/P5000-NAV.json").readText()
-
         //cpi/buc/{RinaSakId}/sed/{DokumentId}
 
         every { restTemplate.exchange(
