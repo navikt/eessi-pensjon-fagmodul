@@ -3,11 +3,9 @@ package no.nav.eessi.pensjon.integrationtest.sed
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
-import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.security.sts.STSService
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.Test
-import org.mockito.Spy
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
@@ -35,9 +33,6 @@ class UpdateSedOnBucIntegrationTest {
 
     @MockkBean(name = "euxOidcRestTemplate")
     lateinit var restTemplate: RestTemplate
-
-    @Spy
-    private lateinit var euxInnhentingService: EuxInnhentingService
 
     @Autowired
     private lateinit var mockMvc: MockMvc
