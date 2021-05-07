@@ -38,9 +38,6 @@ class SafClient(private val safGraphQlOidcRestTemplate: RestTemplate,
         HentRinaSakIderFraDokumentMetadata = metricsHelper.init("HentRinaSakIderFraDokumentMetadata", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
     }
 
-/*    // Vi trenger denne konstruktøren for å kunne bruke @Spy med mockito
-    constructor() : this(RestTemplate(), RestTemplate())*/
-
     fun hentDokumentMetadata(aktoerId: String) : HentMetadataResponse {
         logger.info("Henter dokument metadata for aktørid: $aktoerId")
 
