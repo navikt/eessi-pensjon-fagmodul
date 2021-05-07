@@ -41,13 +41,11 @@ class EuxPrefillServiceTest {
 
     var statistikkHandler: StatistikkHandler = mockk()
 
-
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
         euxPrefillService = EuxPrefillService(euxKlient, statistikkHandler)
         euxinnhentingService = EuxInnhentingService(euxKlient)
-
     }
 
     @Test
