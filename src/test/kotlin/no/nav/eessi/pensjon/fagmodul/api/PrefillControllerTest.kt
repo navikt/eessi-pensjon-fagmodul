@@ -6,11 +6,13 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.SpyK
 import io.mockk.justRun
+import io.mockk.mockk
 import io.mockk.verify
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
+import no.nav.eessi.pensjon.fagmodul.eux.EuxKlient
 import no.nav.eessi.pensjon.fagmodul.eux.EuxPrefillService
 import no.nav.eessi.pensjon.fagmodul.eux.SedDokumentIkkeOpprettetException
 import no.nav.eessi.pensjon.fagmodul.eux.SedDokumentKanIkkeOpprettesException
@@ -32,6 +34,7 @@ import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
 import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentType
 import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
+import no.nav.eessi.pensjon.services.statistikk.StatistikkHandler
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonService
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
@@ -43,11 +46,11 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.springframework.kafka.core.DefaultKafkaProducerFactory
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDate
 import java.time.Month
-
 
 class PrefillControllerTest {
 
@@ -55,10 +58,10 @@ class PrefillControllerTest {
     var auditLogger: AuditLogger = AuditLogger()
 
     @SpyK
-    var mockEuxPrefillService: EuxPrefillService = EuxPrefillService()
+    lateinit var mockEuxPrefillService: EuxPrefillService
 
     @SpyK
-    var mockEuxInnhentingService: EuxInnhentingService = EuxInnhentingService()
+    var mockEuxInnhentingService: EuxInnhentingService = EuxInnhentingService(mockk())
 
     @MockK
     lateinit var kafkaTemplate: KafkaTemplate<String, String>
@@ -79,7 +82,11 @@ class PrefillControllerTest {
 
     @BeforeEach
     fun before() {
-        MockKAnnotations.init(this)
+        mockEuxPrefillService = EuxPrefillService(EuxKlient(mockk(), mockk()),
+            StatistikkHandler("test", KafkaTemplate(DefaultKafkaProducerFactory(emptyMap())), "")
+        )
+
+        MockKAnnotations.init(this, relaxed = true)
 
         val innhentingService = InnhentingService(personService, vedleggService, prefillKlient, pensjonsinformasjonService)
         innhentingService.initMetrics()
@@ -115,19 +122,11 @@ class PrefillControllerTest {
         val gyldigBuc = javaClass.getResource("/json/buc/buc-279020big.json").readText()
         val buc : Buc =  mapJsonToAny(gyldigBuc, typeRefs())
 
-/*
-        doReturn("1231231").whenever(mockEuxPrefillService).createBuc("P_BUC_03")
-*/
         every {  mockEuxPrefillService.createBuc("P_BUC_03")} returns "1231231"
-/*
-        doReturn(buc).whenever(mockEuxInnhentingService).getBuc(any())
-*/
         every { mockEuxInnhentingService.getBuc(any()) } returns buc
 
         prefillController.createBuc("P_BUC_03")
 
-        /*verify(kafkaTemplate, times(0)).sendDefault(any(), any())
-        */
         verify(exactly = 0) { kafkaTemplate.sendDefault(any(), any()) }
     }
 
@@ -143,12 +142,6 @@ class PrefillControllerTest {
         mockBuc.actions = listOf(ActionsItem(name = "Send"))
 
         val dummyPrefillData = ApiRequest.buildPrefillDataModelOnExisting(apiRequestWith(euxCaseId), NorskIdent("12345").id, null)
-
-/*
-        every{mockEuxInnhentingService).getBuc(euxCaseId)} returns mockBuc
-        doReturn(BucSedResponse(euxCaseId,"1")).whenever(mockEuxPrefillService).opprettJsonSedOnBuc(any(), any(),eq(euxCaseId),eq(dummyPrefillData.vedtakId))
-        doReturn(SED(type = dummyPrefillData.sedType).toJson()).whenever(prefillKlient).hentPreutfyltSed(any())
-*/
 
         every { mockEuxInnhentingService.getBuc(euxCaseId) } returns mockBuc
         every { mockEuxPrefillService.opprettJsonSedOnBuc(any(), any(), euxCaseId, dummyPrefillData.vedtakId) } returns BucSedResponse(euxCaseId,"1")
@@ -463,7 +456,5 @@ class PrefillControllerTest {
             allowsAttachments = true
         )
     }
-
-
 }
 

@@ -16,7 +16,12 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cache.annotation.CacheConfig
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.context.annotation.Description
-import org.springframework.http.*
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
@@ -39,9 +44,6 @@ class EuxKlient(
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry()),
     private val overrideWaitTimes: Long? = null
 ) {
-
-    // Vi trenger denne no arg konstruktøren for å kunne bruke @Spy med mockito
-    constructor() : this(RestTemplate(), RestTemplate(), MetricsHelper(SimpleMeterRegistry()))
 
     private val logger = LoggerFactory.getLogger(EuxKlient::class.java)
 

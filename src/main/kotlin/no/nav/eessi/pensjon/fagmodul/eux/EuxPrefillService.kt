@@ -14,10 +14,7 @@ import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
-import org.springframework.kafka.core.DefaultKafkaProducerFactory
-import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Service
-import org.springframework.web.client.RestTemplate
 import org.springframework.web.server.ResponseStatusException
 import javax.annotation.PostConstruct
 
@@ -27,10 +24,6 @@ class EuxPrefillService (private val euxKlient: EuxKlient,
                          @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())) {
 
     private val logger = LoggerFactory.getLogger(EuxPrefillService::class.java)
-
-    // Vi trenger denne no arg konstruktøren for å kunne bruke @Spy med mockito
-    constructor() : this(EuxKlient(RestTemplate(),RestTemplate(),),
-        StatistikkHandler("Q2", KafkaTemplate(DefaultKafkaProducerFactory(emptyMap())), ""))
 
     private lateinit var opprettSvarSED: MetricsHelper.Metric
     private lateinit var opprettSED: MetricsHelper.Metric
