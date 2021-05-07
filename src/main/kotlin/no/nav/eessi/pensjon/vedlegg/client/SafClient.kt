@@ -7,7 +7,11 @@ import no.nav.eessi.pensjon.metrics.MetricsHelper
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.io.Resource
-import org.springframework.http.*
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
@@ -34,8 +38,8 @@ class SafClient(private val safGraphQlOidcRestTemplate: RestTemplate,
         HentRinaSakIderFraDokumentMetadata = metricsHelper.init("HentRinaSakIderFraDokumentMetadata", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
     }
 
-    // Vi trenger denne konstruktøren for å kunne bruke @Spy med mockito
-    constructor() : this(RestTemplate(), RestTemplate())
+/*    // Vi trenger denne konstruktøren for å kunne bruke @Spy med mockito
+    constructor() : this(RestTemplate(), RestTemplate())*/
 
     fun hentDokumentMetadata(aktoerId: String) : HentMetadataResponse {
         logger.info("Henter dokument metadata for aktørid: $aktoerId")

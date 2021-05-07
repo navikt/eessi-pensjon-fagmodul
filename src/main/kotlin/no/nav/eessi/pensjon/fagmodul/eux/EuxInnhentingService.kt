@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
-import org.springframework.web.client.RestTemplate
 import org.springframework.web.server.ResponseStatusException
 
 @Service
@@ -30,9 +29,6 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
     private val logger = LoggerFactory.getLogger(EuxPrefillService::class.java)
 
     private val validbucsed = ValidBucAndSed()
-
-    // Vi trenger denne no arg konstruktøren for å kunne bruke @Spy med mockito
-    constructor() : this(EuxKlient(RestTemplate(), RestTemplate()))
 
     fun getBuc(euxCaseId: String): Buc {
         val body = euxKlient.getBucJson(euxCaseId)

@@ -8,6 +8,7 @@ import io.mockk.impl.annotations.SpyK
 import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
+import no.nav.eessi.pensjon.fagmodul.eux.EuxKlient
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Properties
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Traits
@@ -25,7 +26,6 @@ import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentType
 import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjoninformasjonException
 import no.nav.eessi.pensjon.utils.mapJsonToAny
-import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.typeRefs
 import no.nav.eessi.pensjon.vedlegg.VedleggService
 import no.nav.pensjon.v1.avdod.V1Avdod
@@ -40,8 +40,8 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.fail
 import org.springframework.http.HttpStatus
 import org.springframework.web.client.HttpClientErrorException
+import org.springframework.web.client.RestTemplate
 import org.springframework.web.server.ResponseStatusException
-
 
 class BucControllerTest {
 
@@ -49,7 +49,7 @@ class BucControllerTest {
     var auditLogger: AuditLogger = AuditLogger()
 
     @SpyK
-    var mockEuxInnhentingService: EuxInnhentingService = EuxInnhentingService()
+    lateinit var mockEuxInnhentingService: EuxInnhentingService
 
     @MockK
     lateinit var mockPensjonsinformasjonService: PensjonsinformasjonService
@@ -67,7 +67,10 @@ class BucControllerTest {
 
     @BeforeEach
     fun before() {
-        MockKAnnotations.init(this, relaxed = true, relaxUnitFun = true)
+        mockEuxInnhentingService = EuxInnhentingService(EuxKlient(RestTemplate(), RestTemplate()))
+
+        MockKAnnotations.init(this, relaxed = true)
+
         val innhentingService = InnhentingService(personService, vedleggService, prefillKlient)
         innhentingService.initMetrics()
 
@@ -109,7 +112,6 @@ class BucControllerTest {
         assertEquals(buc.creator, result)
     }
 
-
     @Test
     fun getProcessDefinitionName() {
         val gyldigBuc = javaClass.getResource("/json/buc/buc-279020big.json").readText()
@@ -137,7 +139,6 @@ class BucControllerTest {
         val buc : Buc =  mapJsonToAny(gyldigBuc, typeRefs())
 
         every { mockEuxInnhentingService.getBuc(any()) } returns buc
-
 
         val actual = bucController.getAllDocuments(mockEuxRinaid)
 
@@ -293,7 +294,6 @@ class BucControllerTest {
 
     }
 
-
     @Test
     fun `Gitt en gjenlevende med vedtak uten avdød Når BUC og SED forsøkes å hentes Så returner alle SED og BUC tilhørende gjenlevende uten P_BUC_02`() {
         val aktoerId = "1234568"
@@ -348,6 +348,5 @@ class BucControllerTest {
             bucController.getBucogSedViewGjenlevende(aktoerId, avdodfnr)
         }
     }
-
 }
 
