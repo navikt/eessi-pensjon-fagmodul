@@ -1,7 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.klient
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
-import no.nav.eessi.pensjon.fagmodul.prefill.ApiRequest
+import no.nav.eessi.pensjon.fagmodul.models.ApiRequest
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

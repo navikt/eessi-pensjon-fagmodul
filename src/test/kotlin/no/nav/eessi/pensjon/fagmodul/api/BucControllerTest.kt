@@ -18,13 +18,13 @@ import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Organisation
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.fagmodul.prefill.klient.PrefillKlient
-import no.nav.eessi.pensjon.fagmodul.prefill.pen.PensjonsinformasjonService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
 import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentType
 import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjoninformasjonException
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonService
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.typeRefs
@@ -70,16 +70,15 @@ class BucControllerTest {
     fun before() {
         mockEuxInnhentingService = EuxInnhentingService(EuxKlient(RestTemplate(), RestTemplate()))
 
-        MockKAnnotations.init(this, relaxed = true)
+        MockKAnnotations.init(this, relaxed = true, relaxUnitFun = true)
 
-        val innhentingService = InnhentingService(personService, vedleggService, prefillKlient)
+        val innhentingService = InnhentingService(personService, vedleggService, prefillKlient, mockPensjonsinformasjonService)
         innhentingService.initMetrics()
 
         bucController = BucController(
             "default",
             mockEuxInnhentingService,
             auditLogger,
-            mockPensjonsinformasjonService,
             innhentingService
         )
         bucController.initMetrics()

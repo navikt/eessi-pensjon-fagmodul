@@ -25,8 +25,8 @@ import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Organisation
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Sender
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.UserMessagesItem
+import no.nav.eessi.pensjon.fagmodul.models.ApiRequest
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
-import no.nav.eessi.pensjon.fagmodul.prefill.ApiRequest
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.fagmodul.prefill.klient.PrefillKlient
 import no.nav.eessi.pensjon.logging.AuditLogger
@@ -34,6 +34,8 @@ import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
 import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentType
 import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
+
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonService
 import no.nav.eessi.pensjon.services.statistikk.StatistikkHandler
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
@@ -69,7 +71,10 @@ class PrefillControllerTest {
     lateinit var vedleggService: VedleggService
 
     @MockK
-    lateinit var personService: PersonService
+    private lateinit var personService: PersonService
+
+    @MockK
+    private lateinit var pensjonsinformasjonService: PensjonsinformasjonService
 
     @MockK
     lateinit var prefillKlient: PrefillKlient
@@ -84,7 +89,7 @@ class PrefillControllerTest {
 
         MockKAnnotations.init(this, relaxed = true)
 
-        val innhentingService = InnhentingService(personService, vedleggService, prefillKlient)
+        val innhentingService = InnhentingService(personService, vedleggService, prefillKlient, pensjonsinformasjonService)
         innhentingService.initMetrics()
 
         prefillController = PrefillController(

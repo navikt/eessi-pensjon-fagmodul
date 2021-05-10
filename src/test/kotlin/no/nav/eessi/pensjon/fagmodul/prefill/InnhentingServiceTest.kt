@@ -1,14 +1,20 @@
 package no.nav.eessi.pensjon.fagmodul.prefill
 
+
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import no.nav.eessi.pensjon.fagmodul.models.ApiRequest
+import no.nav.eessi.pensjon.fagmodul.models.ApiSubject
+import no.nav.eessi.pensjon.fagmodul.models.MangelfulleInndataException
+import no.nav.eessi.pensjon.fagmodul.models.SubjectFnr
 import no.nav.eessi.pensjon.fagmodul.prefill.klient.PrefillKlient
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Ident
 import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentType
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonService
 import no.nav.eessi.pensjon.vedlegg.VedleggService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -26,6 +32,9 @@ internal class InnhentingServiceTest {
     lateinit var vedleggService: VedleggService
 
     @MockK
+    private lateinit var pensjonsinformasjonService: PensjonsinformasjonService
+
+    @MockK
     lateinit var prefillKlient: PrefillKlient
 
     @MockkBean
@@ -34,7 +43,7 @@ internal class InnhentingServiceTest {
     @BeforeEach
     fun before() {
         MockKAnnotations.init(this)
-        innhentingService = InnhentingService(personService, vedleggService, prefillKlient)
+        innhentingService = InnhentingService(personService, vedleggService, prefillKlient, pensjonsinformasjonService)
         innhentingService.initMetrics()
     }
 
