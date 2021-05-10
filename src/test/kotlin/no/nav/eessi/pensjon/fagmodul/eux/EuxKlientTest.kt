@@ -453,6 +453,16 @@ class EuxKlientTest {
         assertNotNull(actual)
     }
 
+    @Test
+    fun `gitt at eux kaster forbidden skal det avsluttes kall med en gang`() {
+        every { mockEuxrestTemplate.exchange(any<String>(), HttpMethod.GET, null, String::class.java) } throws
+                HttpClientErrorException(HttpStatus.FORBIDDEN, "This did not work only once")
+
+        assertThrows<ForbiddenException> {
+            klient.getBucJson("123456")
+        }
+         verify(exactly = 1) { mockEuxrestTemplate.exchange(any<String>(), HttpMethod.GET, null, String::class.java)  }
+    }
 
     @Test
     fun `gitt at det finnes en gydlig euxCaseid og Buc, ved feil skal det prøves noen ganger så exception til slutt`() {

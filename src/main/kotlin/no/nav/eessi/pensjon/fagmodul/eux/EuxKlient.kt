@@ -383,11 +383,12 @@ class EuxKlient(
                 return func.invoke()
             } catch (ex: Throwable) {
                 //magick sjekk...
-                if (ex is HttpClientErrorException && skipError.isNotEmpty()) {
-                    if (skipError.contains(ex.statusCode)) throw ex
+                if (ex is HttpClientErrorException && skipError.isNotEmpty() && skipError.contains(ex.statusCode)) {
+                    logger.warn("feilet å kontakte eux, feilmelding: ${ex.message}")
+                    throw ex
                 }
                 count++
-                logger.warn("feiled å kontakte eux prøver på nytt. nr.: $count, feilmelding: ${ex.message}")
+                logger.warn("feilet å kontakte eux prøver på nytt. nr.: $count, feilmelding: ${ex.message}")
                 failException = ex
                 Thread.sleep(waitTimes)
             }
@@ -402,7 +403,7 @@ class EuxKlient(
                                      prefixErrorMessage: String,
                                      maxAttempts: Int = 3,
                                      waitTimes: Long = 1000L,
-                                     skipError: List<HttpStatus> = emptyList()
+                                     skipError: List<HttpStatus> = listOf(HttpStatus.FORBIDDEN)
     ): ResponseEntity<T> {
         return metric.measure {
             return@measure try {
