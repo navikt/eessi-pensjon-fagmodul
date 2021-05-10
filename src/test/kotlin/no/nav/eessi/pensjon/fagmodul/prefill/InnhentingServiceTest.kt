@@ -1,5 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.prefill
 
+
+import com.ninjasquad.springmockk.MockkBean
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -35,6 +37,7 @@ internal class InnhentingServiceTest {
     @MockK
     lateinit var prefillKlient: PrefillKlient
 
+    @MockkBean
     private lateinit var innhentingService: InnhentingService
 
     @BeforeEach
