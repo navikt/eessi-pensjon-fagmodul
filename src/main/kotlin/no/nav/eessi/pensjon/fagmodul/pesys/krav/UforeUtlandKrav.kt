@@ -27,7 +27,7 @@ class UforeUtlandKrav(
         } else {
             caseOwner.country
         }
-        val caseOwnerCountry = kodeverkClient.finnLandkode3(caseOwnerCountryBuc)
+        val caseOwnerCountry = kodeverkClient.finnLandkode(caseOwnerCountryBuc)
 
         logger.debug("CaseOwnerCountry: $caseOwnerCountry")
         logger.debug("CaseOwnerId     : ${caseOwner.institution}")
@@ -46,8 +46,5 @@ class UforeUtlandKrav(
             sivilstand = sivilstand(kravSed),
             soknadFraLand = caseOwnerCountry
         )
-
     }
-
-
 }

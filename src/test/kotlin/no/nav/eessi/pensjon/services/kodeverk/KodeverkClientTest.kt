@@ -4,16 +4,20 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.typeRefs
-import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestTemplate
 import java.nio.file.Files
 import java.nio.file.Paths
-
+import java.util.stream.Stream
 
 class KodeverkClientTest {
 
@@ -36,41 +40,30 @@ class KodeverkClientTest {
                 eq(String::class.java)) } returns mockResponseEntityISO3
     }
 
-    @Test
-    fun hentingavIso2landkodevedbrukAvlandkode2() {
-        val expected = "SE"
-        val landkode3 = "SWE"
+    @ParameterizedTest(name = "Henter landkode: {0}. Forventet svar: {1}")
+    @MethodSource("landkoder")
+    fun `henting av landkode ved bruk av landkode `(expected: String, landkode: String) {
 
-        val actual = kodeverkClient.finnLandkode2(landkode3)
-        Assertions.assertEquals(expected, actual)
+        val actual = kodeverkClient.finnLandkode(landkode)
+
+        assertEquals(expected, actual)
     }
 
-    @Test
-    fun hentingavIso2landkodevedbrukAvlandkode3() {
-        val expected = "BMU"
-        val landkode2 = "BM"
-
-        val actual = kodeverkClient.finnLandkode3(landkode2)
-        Assertions.assertEquals(expected, actual)
+    private companion object {
+        @JvmStatic
+        fun landkoder() = Stream.of(
+            Arguments.of("SE", "SWE"), // landkode 2
+            Arguments.of("BMU", "BM"), // landkode 3
+            Arguments.of("ALB", "AL"), // landkode 3
+        )
     }
-
-    @Test
-    fun hentingavIso2landkodevedbrukAvlandkode3part2() {
-        val expected = "ALB"
-        val landkode2 = "AL"
-
-        val actual = kodeverkClient.finnLandkode3(landkode2)
-
-        Assertions.assertEquals(expected, actual)
-    }
-
 
     @Test
     fun testerLankodeMed2Siffer() {
         val actual = kodeverkClient.hentLandkoderAlpha2()
 
-        Assertions.assertEquals("ZW", actual.last())
-        Assertions.assertEquals(249, actual.size)
+        assertEquals("ZW", actual.last())
+        assertEquals(249, actual.size)
     }
 
     @Test
@@ -79,20 +72,21 @@ class KodeverkClientTest {
 
         val list = mapJsonToAny(json, typeRefs<List<Landkode>>())
 
-        Assertions.assertEquals(249, list.size)
+        assertEquals(249, list.size)
 
-        Assertions.assertEquals("AD", list.first().landkode2)
-        Assertions.assertEquals("AND", list.first().landkode3)
+        assertEquals("AD", list.first().landkode2)
+        assertEquals("AND", list.first().landkode3)
     }
 
     @Test
     fun hentingavIso2landkodevedbrukAvlandkode3FeilerMedNull() {
-        val expected = null
         val landkode2 = "BMUL"
 
-        val actual = kodeverkClient.finnLandkode3(landkode2)
+        val exception  = assertThrows<IllegalArgumentException> {
+                 kodeverkClient.finnLandkode(landkode2)
 
-        Assertions.assertEquals(expected, actual)
+        }
+        assertEquals("Ugyldig landkode: BMUL", exception.message)
     }
 
     private fun createResponseEntityFromJsonFile(filePath: String, httpStatus: HttpStatus = HttpStatus.OK): ResponseEntity<String> {

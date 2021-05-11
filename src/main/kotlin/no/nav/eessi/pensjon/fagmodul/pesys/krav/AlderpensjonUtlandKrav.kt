@@ -22,7 +22,6 @@ class AlderpensjonUtlandKrav(
 
     private val logger = LoggerFactory.getLogger(AlderpensjonUtlandKrav::class.java)
 
-
     fun kravAlderpensjonUtland(kravSed: SED, bucUtils: BucUtils, doc: DocumentsItem): KravUtland {
 
         val caseOwner = bucUtils.getCaseOwner()!!
@@ -31,7 +30,7 @@ class AlderpensjonUtlandKrav(
         } else {
             caseOwner.country
         }
-        val caseOwnerCountry = kodeverkClient.finnLandkode3(caseOwnerCountryBuc)
+        val caseOwnerCountry = kodeverkClient.finnLandkode(caseOwnerCountryBuc)
 
         logger.debug("CaseOwnerCountry: $caseOwnerCountry")
         logger.debug("CaseOwnerId     : ${caseOwner.institution}")
@@ -54,17 +53,15 @@ class AlderpensjonUtlandKrav(
             soknadFraLand = caseOwnerCountry,
             utland = SkjemaUtland(emptyList())
         )
-
     }
 
     fun finnStatsborgerskapAlderLandkode3(kravSed: SED): String? {
         return if (nameSpace == "q2" || nameSpace == "test") {
-            kodeverkClient.finnLandkode3("SE")
+            kodeverkClient.finnLandkode("SE")
         } else {
             val statsborgerskap = kravSed.nav?.bruker?.person?.statsborgerskap?.firstOrNull { it.land != null }
-            statsborgerskap?.let { kodeverkClient.finnLandkode3(it.land!!) }
+            statsborgerskap?.let { kodeverkClient.finnLandkode(it.land!!) }
         }
     }
-
 
 }

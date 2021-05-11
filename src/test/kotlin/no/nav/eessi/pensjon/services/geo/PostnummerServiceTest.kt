@@ -5,7 +5,10 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
+import java.util.stream.Stream
 
 class PostnummerServiceTest {
 
@@ -16,38 +19,27 @@ class PostnummerServiceTest {
         service = PostnummerService()
     }
 
-    @Test
-    fun `hente postnr med gyldig sted`() {
+    @ParameterizedTest(name = "Henter postkode: {0}, for poststed: {1}")
+    @MethodSource("poststedMedpostKode")
+    fun `hente postnr med gyldig sted `(postKode: String, poststed: String) {
 
-        val sted = service.finnPoststed("1430")
+        val sted = service.finnPoststed(postKode)
         assertNotNull(sted)
-        assertEquals("ÅS", sted)
+        assertEquals(poststed, sted)
     }
-
     @Test
     fun `hente postnr med ugyldig sted`() {
         val sted = service.finnPoststed("1439")
         assertNull(sted)
     }
 
-    @Test
-    fun `hente poststed for 1424`() {
-        val sted = service.finnPoststed("1424")
-        assertNotNull(sted)
-        assertEquals("SKI", sted)
-    }
-
-    @Test
-    fun `hente poststed for 9930`() {
-        val sted = service.finnPoststed("9930")
-        assertNotNull(sted)
-        assertEquals("NEIDEN", sted)
-    }
-
-    @Test
-    fun `hente poststed for 4198`() {
-        val sted = service.finnPoststed("4198")
-        assertNotNull(sted)
-        assertEquals("FOLDØY", sted)
+    private companion object {
+        @JvmStatic
+        fun poststedMedpostKode() = Stream.of(
+            Arguments.of("1430", "ÅS"),
+            Arguments.of("1424", "SKI"),
+            Arguments.of("9930", "NEIDEN"),
+            Arguments.of("4198", "FOLDØY"),
+        )
     }
 }

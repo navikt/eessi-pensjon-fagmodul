@@ -57,13 +57,18 @@ class KodeverkClient(private val kodeRestTemplate: RestTemplate,
         }
     }
 
-    @Cacheable("string")
-    fun finnLandkode2(alpha3: String): String? =
-            hentLandKoder().firstOrNull { it.landkode3 == alpha3 }?.landkode2
+    @Cacheable("landkoder")
+    fun finnLandkode(landkode: String): String? {
 
-    @Cacheable("string")
-    fun finnLandkode3(alpha2: String): String? =
-            hentLandKoder().firstOrNull { it.landkode2 == alpha2 }?.landkode3
+        if(landkode.isNullOrEmpty() || landkode.length !in 2..3){
+            throw IllegalArgumentException("Ugyldig landkode: $landkode")
+        }
+        return when(landkode.length){
+            2 -> hentLandKoder().firstOrNull { it.landkode2 ==  landkode }?.landkode3
+            3 -> hentLandKoder().firstOrNull { it.landkode3 ==  landkode }?.landkode2
+            else -> throw IllegalArgumentException("Ugyldig landkode: $landkode")
+        }
+    }
 
     private fun doRequest(builder: UriComponents) : String {
         try {

@@ -70,7 +70,7 @@ open class UtlandKrav {
 
     fun finnStatsborgerskapsLandkode3(kodeverkClient: KodeverkClient, kravSed: SED): String {
         val statsborgerskap = kravSed.nav?.bruker?.person?.statsborgerskap?.firstOrNull { it.land != null }
-        return statsborgerskap?.let { kodeverkClient.finnLandkode3(it.land!!) } ?: ""
+        return statsborgerskap?.let { kodeverkClient.finnLandkode(it.land!!) } ?: ""
     }
 
     fun sivilstand(kravSed: SED): SkjemaFamilieforhold? {
