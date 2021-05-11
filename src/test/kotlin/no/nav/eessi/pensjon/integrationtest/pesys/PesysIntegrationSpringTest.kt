@@ -44,7 +44,7 @@ class PesysIntegrationSpringTest {
         val bucid = "998777"
         val sedid = "5a61468eb8cb4fd78c5c44d75b9bb890"
 
-        every { kodeverkClient.finnLandkode3(any())  } returns "SWE"
+        every { kodeverkClient.finnLandkode(any())  } returns "SWE"
 
         //euxrest kall buc
         val buc03 = ResourceUtils.getFile("classpath:json/buc/buc-1297512-kravP2200_v4.2.json").readText()
@@ -98,7 +98,7 @@ class PesysIntegrationSpringTest {
         val bucid = "998777"
         val sedid = "5a61468eb8cb4fd78c5c44d75b9bb890"
 
-        every { kodeverkClient.finnLandkode3(any())  } returns "SWE"
+        every { kodeverkClient.finnLandkode(any())  } returns "SWE"
 
         //euxrest kall buc
         val buc01 = ResourceUtils.getFile("classpath:json/buc/buc-1297512-kravP2000_v4.2.json").readText()
