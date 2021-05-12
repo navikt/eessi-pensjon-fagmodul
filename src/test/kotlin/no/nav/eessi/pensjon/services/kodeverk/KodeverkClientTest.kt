@@ -82,11 +82,11 @@ class KodeverkClientTest {
     fun hentingavIso2landkodevedbrukAvlandkode3FeilerMedNull() {
         val landkode2 = "BMUL"
 
-        val exception  = assertThrows<IllegalArgumentException> {
+        val exception  = assertThrows<LandkodeException> {
                  kodeverkClient.finnLandkode(landkode2)
 
         }
-        assertEquals("Ugyldig landkode: BMUL", exception.message)
+        assertEquals("400 BAD_REQUEST \"Ugyldig landkode: BMUL\"", exception.message)
     }
 
     private fun createResponseEntityFromJsonFile(filePath: String, httpStatus: HttpStatus = HttpStatus.OK): ResponseEntity<String> {
