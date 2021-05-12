@@ -14,10 +14,10 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
-import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.server.ResponseStatusException
 import org.springframework.web.util.UriComponents
 import org.springframework.web.util.UriComponentsBuilder
 import java.util.*
@@ -61,12 +61,12 @@ class KodeverkClient(private val kodeRestTemplate: RestTemplate,
     fun finnLandkode(landkode: String): String? {
 
         if(landkode.isNullOrEmpty() || landkode.length !in 2..3){
-            throw IllegalArgumentException("Ugyldig landkode: $landkode")
+            throw LandkodeException("Ugyldig landkode: $landkode")
         }
         return when(landkode.length){
             2 -> hentLandKoder().firstOrNull { it.landkode2 ==  landkode }?.landkode3
             3 -> hentLandKoder().firstOrNull { it.landkode3 ==  landkode }?.landkode2
-            else -> throw IllegalArgumentException("Ugyldig landkode: $landkode")
+            else -> throw LandkodeException("Ugyldig landkode: $landkode")
         }
     }
 
@@ -115,5 +115,6 @@ data class Landkode (
         val landkode3: String // SWE
 )
 
-@ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
-class KodeverkException(message: String) : RuntimeException(message)
+class KodeverkException(message: String) : ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, message)
+class LandkodeException(message: String) : ResponseStatusException(HttpStatus.BAD_REQUEST, message)
+
