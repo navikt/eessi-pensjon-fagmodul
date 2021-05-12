@@ -56,7 +56,7 @@ class BucUtils(private val buc: Buc) {
     }
 
     private fun getDocuments(): List<DocumentsItem> {
-        return buc.documents ?: throw NoSuchFieldException("Fant ikke DocumentsItem")
+        return buc.documents ?: emptyList()
     }
 
     fun findDocument(documentId: String): DocumentsItem? =

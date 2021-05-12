@@ -7,6 +7,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Organisation
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.utils.mapJsonToAny
+import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import no.nav.eessi.pensjon.utils.typeRefs
 import no.nav.eessi.pensjon.utils.validateJson
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -739,4 +740,19 @@ class BucUtilsTest {
         assertEquals("NO:NAVAT08", participantsP22000?.filter { it?.role == "Sender" }?.first()?.organisation?.id)
         assertEquals("NO:NAVAT07", participantsP22000?.filter { it?.role == "Receiver" }?.first()?.organisation?.id)
     }
+
+    @Test
+    fun validateOneRina2020Buc() {
+
+
+        val bucjson = getTestJsonFile( "buc-id-rina2020new.json")
+        val buc = mapJsonToAny(bucjson, typeRefs<Buc>())
+
+        val view = BucAndSedView.from(buc)
+
+        println(view.toJsonSkipEmpty())
+
+    }
+
+
 }
