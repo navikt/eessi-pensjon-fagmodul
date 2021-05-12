@@ -180,21 +180,6 @@ class ApiRequestTest {
         }
     }
 
-    @Test
-    fun `check on values for toAduit`() {
-        val request = ApiRequest(
-            sakId = "01234567890",
-            vedtakId = "123",
-            avdodfnr = "456",
-            buc = "P_BUC_01",
-            sed = "P2000",
-            euxCaseId = "99191999911"
-        )
 
-        assertEquals(
-            "sakId: 01234567890 vedtakId: 123 avdodfnr: 456 buc: P_BUC_01 sed: P2000 euxCaseId: 99191999911",
-            request.toAudit()
-        )
-    }
 
 }

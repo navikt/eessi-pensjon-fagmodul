@@ -39,18 +39,6 @@ data class ApiRequest(
     val referanseTilPerson: ReferanseTilPerson? = null
 
 ) {
-    fun toAudit(): String {
-        return listOf(
-            "sakId" to sakId,
-            "vedtakId" to vedtakId,
-            "avdodfnr" to avdodfnr,
-            "buc" to buc,
-            "sed" to sed,
-            "euxCaseId" to euxCaseId
-        )
-            .filterNot { (_, value) -> value.isNullOrBlank() }
-            .joinToString(" ") { (key, value) -> "$key: $value" }
-    }
 
     fun riktigAvdod(): String? {
         return subject?.avdod?.fnr ?: avdodfnr

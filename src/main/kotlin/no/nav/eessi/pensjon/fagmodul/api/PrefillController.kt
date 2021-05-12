@@ -78,7 +78,6 @@ class PrefillController(
     @ApiOperation("Legge til Deltaker(e) og SED på et eksisterende Rina document. kjører preutfylling, ny api kall til eux")
     @PostMapping("sed/add")
     fun addInstutionAndDocument(@RequestBody request: ApiRequest): DocumentsItem? {
-        auditlogger.log("addInstutionAndDocument", request.aktoerId ?: "", request.toAudit())
         logger.info("Legger til institusjoner og SED for rinaId: ${request.euxCaseId} bucType: ${request.buc} sedType: ${request.sed} aktoerId: ${request.aktoerId} sakId: ${request.sakId} vedtak: ${request.vedtakId}")
         val norskIdent = innhentingService.hentFnrfraAktoerService(request.aktoerId)
         val dataModel = ApiRequest.buildPrefillDataModelOnExisting(request, norskIdent, innhentingService.getAvdodAktoerIdPDL(request))
@@ -129,7 +128,6 @@ class PrefillController(
         @RequestBody(required = true) request: ApiRequest,
         @PathVariable("parentid", required = true) parentId: String
     ): DocumentsItem? {
-        auditlogger.log("addDocumentToParent", request.aktoerId ?: "", request.toAudit())
         val norskIdent = innhentingService.hentFnrfraAktoerService(request.aktoerId)
         val dataModel = ApiRequest.buildPrefillDataModelOnExisting(request, norskIdent, innhentingService.getAvdodAktoerIdPDL(request))
 
