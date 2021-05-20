@@ -1,0 +1,79 @@
+{
+  "sed": "P5000",
+  "sedGVer": "4",
+  "sedVer": "2",
+  "nav": {
+    "eessisak": [
+      {
+        "institusjonsid": "NO:NAVAT07",
+        "institusjonsnavn": "NAV ACCEPTANCE TEST 07",
+        "saksnummer": "22935783",
+        "land": "NO"
+      }
+    ],
+    "bruker": {
+      "mor": null,
+      "far": null,
+      "person": {
+        "pin": [
+          {
+            "institusjonsnavn": "NAV ACCEPTANCE TEST 07",
+            "institusjonsid": "NO:NAVAT07",
+            "sektor": null,
+            "identifikator": "20066521894",
+            "land": "NO",
+            "institusjon": null
+          }
+        ],
+        "pinland": null,
+        "statsborgerskap": [
+          {
+            "land": "NO"
+          }
+        ],
+        "etternavn": "PENN",
+        "fornavn": "SMIDIG",
+        "kjoenn": "K",
+        "foedested": null,
+        "foedselsdato": "1965-06-20",
+        "sivilstand": null,
+        "relasjontilavdod": null,
+        "rolle": null
+      },
+      "adresse": {
+        "gate": "NORDBYLA 8",
+        "bygning": null,
+        "by": "AKSDAL",
+        "postnummer": "5570",
+        "region": null,
+        "land": "NO",
+        "kontaktpersonadresse": null,
+        "datoforadresseendring": null,
+        "postadresse": null,
+        "startdato": null
+      },
+      "arbeidsforhold": null,
+      "bank": null
+    },
+    "brukere": null,
+    "ektefelle": null,
+    "barn": null,
+    "verge": null,
+    "krav": null,
+    "sak": null,
+    "annenperson": null
+  },
+  "pensjon": {
+    "trygdetid": [],
+    "medlemskapAnnen": null,
+    "medlemskapTotal": [],
+    "medlemskap": null,
+    "medlemskapboarbeid": {
+      "enkeltkrav": {
+        "krav": "30"
+      },
+      "gyldigperiode": "0",
+      "medlemskap": []
+    }
+  }
+}

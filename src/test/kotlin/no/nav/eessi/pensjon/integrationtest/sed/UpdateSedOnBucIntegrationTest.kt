@@ -45,7 +45,7 @@ class UpdateSedOnBucIntegrationTest {
 
     @Test
     fun `oppdate sed P5000 on buc result in true when all OK`() {
-        val jsonsed = javaClass.getResource("/json/nav/P5000-NAV.json").readText()
+        val jsonsed = javaClass.getResource("/json/nav/P5000-NAV.json")?.readText()!!
 
         /////cpi/buc/{RinaSakId}/sed/{DokumentId}
         every { restTemplate.exchange(
@@ -68,7 +68,7 @@ class UpdateSedOnBucIntegrationTest {
     @Test
     fun `oppdate sed P5000 on buc results in false when eux throws an UNAUTHORIZED Exception`() {
 
-        val jsonsed = javaClass.getResource("/json/nav/P5000-NAV.json").readText()
+        val jsonsed = javaClass.getResource("/json/nav/P5000-NAV.json")?.readText()!!
         //cpi/buc/{RinaSakId}/sed/{DokumentId}
 
         every { restTemplate.exchange(
@@ -87,6 +87,31 @@ class UpdateSedOnBucIntegrationTest {
             .andExpect(status().reason(Matchers.containsString(expectedError)))
 
     }
+
+    @Test
+    fun `oppdate sed P5000 empty medlemskap and gydligperiode 0 true when all OK`() {
+        val jsonsed = javaClass.getResource("/json/nav/P5000-tomperioder-NAV.json").readText()
+
+        /////cpi/buc/{RinaSakId}/sed/{DokumentId}
+        every { restTemplate.exchange(
+            eq("/buc/$euxCaseId/sed/$documentId?ventePaAksjon=false"),
+            eq(HttpMethod.PUT),
+            any(),
+            eq(String::class.java)) } returns ResponseEntity(null ,HttpStatus.OK)
+
+        val result = mockMvc.perform(put("/sed/put/$euxCaseId/$documentId")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(jsonsed))
+            .andExpect(status().isOk)
+            .andReturn()
+        val response = result.response.getContentAsString(charset("UTF-8"))
+
+        assertEquals(true, response.toBoolean())
+
+    }
+
+
+
 
     @Test
     fun `oppdate sed P5000 on buc results in false when json is not a valid SED Exception`() {

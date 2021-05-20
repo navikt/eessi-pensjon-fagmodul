@@ -47,19 +47,17 @@ class PrefillController(
 
     @PostConstruct
     fun initMetrics() {
-        addInstutionAndDocument =
-            metricsHelper.init("AddInstutionAndDocument", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
-        addDocumentToParent =
-            metricsHelper.init("AddDocumentToParent", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
-        addInstutionAndDocumentBucUtils =
-            metricsHelper.init("AddInstutionAndDocumentBucUtils", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
-        addDocumentToParentBucUtils =
-            metricsHelper.init("AddDocumentToParentBucUtils", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
+        addInstutionAndDocument = metricsHelper.init("AddInstutionAndDocument", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
+        addDocumentToParent = metricsHelper.init("AddDocumentToParent", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
+        addInstutionAndDocumentBucUtils = metricsHelper.init("AddInstutionAndDocumentBucUtils", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
+        addDocumentToParentBucUtils = metricsHelper.init("AddDocumentToParentBucUtils", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
     }
 
     @ApiOperation("Oppretter ny tom BUC i RINA via eux-api. ny api kall til eux")
     @PostMapping("buc/{buctype}")
-    fun createBuc(@PathVariable("buctype", required = true) buctype: String): BucAndSedView {
+    fun createBuc(
+        @PathVariable("buctype", required = true) buctype: String
+    ): BucAndSedView {
         auditlogger.log("createBuc")
         logger.info("Prøver å opprette en ny BUC i RINA av type: $buctype")
 
@@ -77,8 +75,11 @@ class PrefillController(
 
     @ApiOperation("Legge til Deltaker(e) og SED på et eksisterende Rina document. kjører preutfylling, ny api kall til eux")
     @PostMapping("sed/add")
-    fun addInstutionAndDocument(@RequestBody request: ApiRequest): DocumentsItem? {
-        logger.info("Legger til institusjoner og SED for rinaId: ${request.euxCaseId} bucType: ${request.buc} sedType: ${request.sed} aktoerId: ${request.aktoerId} sakId: ${request.sakId} vedtak: ${request.vedtakId}")
+    fun addInstutionAndDocument(
+        @RequestBody request: ApiRequest
+    ): DocumentsItem? {
+        logger.info("Legger til institusjoner og SED for rinaId: ${request.euxCaseId} bucType: ${request.buc} sedType: ${request.sed} " +
+                "aktoerId: ${request.aktoerId} sakId: ${request.sakId} vedtak: ${request.vedtakId}")
         val norskIdent = innhentingService.hentFnrfraAktoerService(request.aktoerId)
         val dataModel = ApiRequest.buildPrefillDataModelOnExisting(request, norskIdent, innhentingService.getAvdodAktoerIdPDL(request))
 
@@ -104,10 +105,9 @@ class PrefillController(
             euxPrefillService.checkAndAddInstitution(dataModel, bucUtil, x005Liste)
 
             logger.info("Prøver å sende SED: ${dataModel.sedType} inn på BUC: ${dataModel.euxCaseID}")
-            val docresult = euxPrefillService.opprettJsonSedOnBuc(sed,
-                SedType.from(request.sed!!)!!,
-                dataModel.euxCaseID,
-                request.vedtakId)
+            val docresult = euxPrefillService.opprettJsonSedOnBuc(
+                sed, SedType.from(request.sed!!)!!, dataModel.euxCaseID, request.vedtakId
+            )
 
             logger.info("Opprettet ny SED med dokumentId: ${docresult.documentId}")
             val result = bucUtil.findDocument(docresult.documentId)
@@ -149,10 +149,8 @@ class PrefillController(
             logger.info("Prøver å sende SED: ${dataModel.sedType} inn på BUC: ${dataModel.euxCaseID}")
 
             val docresult = euxPrefillService.opprettSvarJsonSedOnBuc(
-                sed,
-                dataModel.euxCaseID,
-                parentId,
-                request.vedtakId)
+                sed, dataModel.euxCaseID, parentId, request.vedtakId
+            )
 
             val parent = bucUtil.findDocument(parentId)
             val result = bucUtil.findDocument(docresult.documentId)

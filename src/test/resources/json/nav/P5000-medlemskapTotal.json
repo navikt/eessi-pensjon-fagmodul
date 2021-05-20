@@ -1,0 +1,202 @@
+{
+  "pensjon": {
+    "medlemskapboarbeid": {
+      "medlemskap": [
+        {
+          "land": "NO",
+          "ordning": "00",
+          "sum": {
+            "dager": {
+              "nr": "0",
+              "type": "7"
+            },
+            "maaneder": "0",
+            "aar": "6"
+          },
+          "type": "45",
+          "periode": {
+            "tom": "2003-12-31",
+            "fom": "1998-01-01"
+          },
+          "beregning": "111"
+        },
+        {
+          "sum": {
+            "aar": "23",
+            "maaneder": "7",
+            "dager": {
+              "type": "7",
+              "nr": "15"
+            }
+          },
+          "ordning": "00",
+          "periode": {
+            "tom": "2020-11-30",
+            "fom": "1997-04-15"
+          },
+          "beregning": "111",
+          "relevans": "111",
+          "land": "NO",
+          "type": "30"
+        },
+        {
+          "type": "30",
+          "sum": {
+            "maaneder": "9",
+            "dager": {
+              "type": "7",
+              "nr": "28"
+            },
+            "aar": "7"
+          },
+          "periode": {
+            "fom": "1986-06-02",
+            "tom": "1994-03-30"
+          },
+          "land": "NO",
+          "relevans": "111",
+          "beregning": "111",
+          "ordning": "00"
+        },
+        {
+          "sum": {
+            "dager": {
+              "nr": "15",
+              "type": "7"
+            },
+            "aar": "23",
+            "maaneder": "6"
+          },
+          "land": "NO",
+          "periode": {
+            "fom": "1997-05-15",
+            "tom": "2020-11-30"
+          },
+          "ordning": "00",
+          "relevans": "111",
+          "type": "11",
+          "beregning": "111"
+        },
+        {
+          "periode": {
+            "tom": "1994-03-30",
+            "fom": "1990-03-03"
+          },
+          "relevans": "111",
+          "sum": {
+            "aar": "4",
+            "dager": {
+              "type": "7",
+              "nr": "27"
+            },
+            "maaneder": "0"
+          },
+          "ordning": "00",
+          "type": "11",
+          "land": "NO",
+          "beregning": "111"
+        }
+      ],
+      "gyldigperiode": "1",
+      "enkeltkrav": {
+        "krav": "20"
+      }
+    },
+    "trygdetid": [
+      {
+        "type": "11",
+        "sum": {
+          "maaneder": "7",
+          "dager": {
+            "type": "7",
+            "nr": "12"
+          },
+          "aar": "27"
+        }
+      },
+      {
+        "sum": {
+          "dager": {
+            "nr": "13",
+            "type": "7"
+          },
+          "maaneder": "5",
+          "aar": "31"
+        },
+        "type": "30"
+      },
+      {
+        "type": "45",
+        "sum": {
+          "aar": "6"
+        }
+      }
+    ],
+    "medlemskapTotal": [
+      {
+        "sum": {
+          "aar": "27",
+          "dager": {
+            "nr": "12",
+            "type": "7"
+          },
+          "maaneder": "7"
+        },
+        "type": "11",
+        "relevans": "111"
+      },
+      {
+        "sum": {
+          "aar": "31",
+          "maaneder": "5",
+          "dager": {
+            "nr": "13",
+            "type": "7"
+          }
+        },
+        "relevans": "111",
+        "type": "30"
+      }
+    ]
+  },
+  "nav": {
+    "bruker": {
+      "person": {
+        "fornavn": "SMEKKER",
+        "kjoenn": "M",
+        "etternavn": "POTET",
+        "foedselsdato": "1970-06-02",
+        "statsborgerskap": [
+          {
+            "land": "NO"
+          }
+        ],
+        "pin": [
+          {
+            "institusjonsnavn": "NAV ACCEPTANCE TEST 07",
+            "identifikator": "02067022990",
+            "land": "NO",
+            "institusjonsid": "NO:NAVAT07"
+          }
+        ]
+      },
+      "adresse": {
+        "land": "NO",
+        "gate": "REITVOLLVN. 6",
+        "postnummer": "5570",
+        "by": "AKSDAL"
+      }
+    },
+    "eessisak": [
+      {
+        "institusjonsid": "NO:NAVAT07",
+        "institusjonsnavn": "NAV ACCEPTANCE TEST 07",
+        "saksnummer": "22935188",
+        "land": "NO"
+      }
+    ]
+  },
+  "sedVer": "2",
+  "sedGVer": "4",
+  "sed": "P5000"
+}
