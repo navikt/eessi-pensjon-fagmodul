@@ -6,11 +6,7 @@ import no.nav.eessi.pensjon.metrics.MetricsHelper
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
-import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
+import org.springframework.http.*
 import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.client.RestTemplate
@@ -40,7 +36,7 @@ class PrefillKlient(
 
         return prefillSed.measure {
             return@measure try {
-                logger.info("Kaller Joark for å generere en journalpost: $path")
+                logger.info("Henter preutfylt SED")
                 val headers = HttpHeaders()
                 headers.contentType = MediaType.APPLICATION_JSON
 
