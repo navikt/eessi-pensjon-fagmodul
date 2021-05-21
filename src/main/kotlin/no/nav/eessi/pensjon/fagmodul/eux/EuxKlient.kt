@@ -6,6 +6,8 @@ import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonDetalj
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
+import no.nav.eessi.pensjon.fagmodul.models.Kodeverk
+import no.nav.eessi.pensjon.fagmodul.models.KodeverkResponse
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.security.sts.typeRef
 import no.nav.eessi.pensjon.utils.mapJsonToAny
@@ -35,6 +37,7 @@ import javax.annotation.PostConstruct
 /**
  *   https://eux-app.nais.preprod.local/swagger-ui.html#/eux-cpi-service-controller/
  */
+@Suppress("SpringJavaInjectionPointsAutowiringInspection")
 @Component("fagmodulEuxKlient")
 @Description("Service class for EuxBasis - eux-cpi-service-controller")
 @CacheConfig(cacheNames = ["euxService"])
@@ -50,6 +53,7 @@ class EuxKlient(
     private lateinit var SEDByDocumentId: MetricsHelper.Metric
     private lateinit var GetBUC: MetricsHelper.Metric
     private lateinit var BUCDeltakere: MetricsHelper.Metric
+    private lateinit var GetKodeverk: MetricsHelper.Metric
     private lateinit var Institusjoner: MetricsHelper.Metric
     private lateinit var CreateBUC: MetricsHelper.Metric
     private lateinit var HentRinasaker: MetricsHelper.Metric
@@ -68,6 +72,7 @@ class EuxKlient(
         PutMottaker = metricsHelper.init("PutMottaker", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         PutDocument = metricsHelper.init("PutDocument", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         PingEux = metricsHelper.init("PingEux")
+        GetKodeverk = metricsHelper.init("GetKodeverk", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
     }
 
 
@@ -183,6 +188,37 @@ class EuxKlient(
                 , waitTimes = 10000L
         )
         return response.body ?: throw ServerException("Feil ved henting av BUCdata ingen data, euxCaseId $euxCaseId")
+    }
+
+    @Cacheable
+    fun getKodeverk(kodeverk: Kodeverk) : List<KodeverkResponse> {
+        logger.info("eux Kodeverk: $kodeverk")
+        //https://eux-rina-api-q1.nais.preprod.local/cpi/kodeverk?Kodeverk=landkoder
+        val valueKey = kodeverk.value
+        val path = "/kodeverk?Kodeverk={valueKey}"
+        val uriParams = mapOf("valueKey" to valueKey)
+        val builder = UriComponentsBuilder.fromUriString(path).buildAndExpand(uriParams)
+        logger.debug("Kodeverk prøver å kontakte EUX /${builder.toUriString()}")
+
+        val starttid = System.currentTimeMillis()
+        val response = restTemplateErrorhandler(
+            restTemplateFunction = {
+                euxOidcRestTemplate.exchange(
+                    builder.toUriString(),
+                    HttpMethod.GET,
+                    null,
+                    String::class.java)
+            }
+            , euxCaseId = "n/a"
+            , metric = GetKodeverk
+            , prefixErrorMessage = "Feiler ved metode getKodeverk."
+        )
+        val body = response.body ?: throw ServerException("Feil ved henting av kodeverk: ingen data. kode: $valueKey")
+        val result = mapJsonToAny(body, typeRefs<List<KodeverkResponse>>())
+        val slutttid = System.currentTimeMillis()
+        val tidbrukt = slutttid - starttid
+        logger.debug("Tid brukt på Kodeverk map: $tidbrukt ms")
+        return result
     }
 
     fun getBucDeltakere(euxCaseId: String): List<ParticipantsItem> {

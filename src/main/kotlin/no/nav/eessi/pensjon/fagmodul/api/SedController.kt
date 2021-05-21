@@ -1,19 +1,18 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
 import io.swagger.annotations.ApiOperation
-import no.nav.eessi.pensjon.eux.model.sed.MedlemskapItem
 import no.nav.eessi.pensjon.eux.model.sed.P4000
 import no.nav.eessi.pensjon.eux.model.sed.P5000
-import no.nav.eessi.pensjon.eux.model.sed.P5000Pensjon
 import no.nav.eessi.pensjon.eux.model.sed.P6000
 import no.nav.eessi.pensjon.eux.model.sed.P7000
 import no.nav.eessi.pensjon.eux.model.sed.P8000
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.SedType
-import no.nav.eessi.pensjon.eux.model.sed.TotalSum
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
+import no.nav.eessi.pensjon.fagmodul.models.Kodeverk
+import no.nav.eessi.pensjon.fagmodul.models.KodeverkResponse
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
@@ -80,6 +79,19 @@ class SedController(
 
         return euxInnhentingService.updateSedOnBuc(euxcaseid, documentid, validsed.toJsonSkipEmpty())
     }
+
+    @ApiOperation("Henter ut en liste over landkoder ut fra kodeverktjenesten eux")
+    @GetMapping( "/landkoder")
+    fun getCountryCode(): List<String> {
+        return euxInnhentingService.getKodeverk(Kodeverk.LANDKODER).mapNotNull{ it.kode }.toList()
+    }
+
+    @ApiOperation("Henter ut en liste over kodeverk fra eux")
+    @GetMapping( "/kodeverk/{kodeverk}")
+    fun getCountryCode(@PathVariable("kodeverk", required = true) kodeverk: Kodeverk ): List<KodeverkResponse> {
+        return euxInnhentingService.getKodeverk(kodeverk)
+    }
+
 
     @ApiOperation("Henter ut en liste over registrerte institusjoner innenfor spesifiserte EU-land. ny api kall til eux")
     @GetMapping("/institutions/{buctype}", "/institutions/{buctype}/{countrycode}")
