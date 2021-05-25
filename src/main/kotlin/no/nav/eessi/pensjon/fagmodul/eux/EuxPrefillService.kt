@@ -3,6 +3,7 @@ package no.nav.eessi.pensjon.fagmodul.eux
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.SedType
+import no.nav.eessi.pensjon.eux.model.sed.X005
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucSedResponse
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
@@ -24,6 +25,8 @@ class EuxPrefillService (private val euxKlient: EuxKlient,
                          @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())) {
 
     private val logger = LoggerFactory.getLogger(EuxPrefillService::class.java)
+
+    private val validBucAndSed = ValidBucAndSed()
 
     private lateinit var opprettSvarSED: MetricsHelper.Metric
     private lateinit var opprettSED: MetricsHelper.Metric
@@ -73,49 +76,46 @@ class EuxPrefillService (private val euxKlient: EuxKlient,
         return euxCaseId
     }
 
-    fun checkAndAddInstitution(dataModel: PrefillDataModel, bucUtil: BucUtils, x005Liste: List<SED>) {
-        logger.info(
-            "Hvem er caseOwner: ${
-                bucUtil.getCaseOwner()?.toJson()
-            } på buc: ${bucUtil.getProcessDefinitionName()}"
-        )
+    //sjekk for ekisternede deltakere og nye fra UI. samt legge til deltakere på vanlig måte dersom buc er ny
+    //legger til evt. x005 dersom det finens.
+    fun checkAndAddInstitution(dataModel: PrefillDataModel, bucUtil: BucUtils, x005Liste: List<X005>, nyeInstitusjoner: List<InstitusjonItem>) {
         val navCaseOwner = bucUtil.getCaseOwner()?.country == "NO"
-
-        val nyeInstitusjoner = bucUtil.findNewParticipants(dataModel.getInstitutionsList())
+        logger.debug(
+            """
+            Hvem er caseOwner: ${bucUtil.getCaseOwner()?.toJson()} på buc: ${bucUtil.getProcessDefinitionName()}
+            Hvem er deltakere: ${bucUtil.getParticipants().filterNot { it.role == "CaseOwner" }.toJson()}
+            nyeInstitusjoner: ${nyeInstitusjoner.toJson()}
+            x005liste: ${ x005Liste.mapNotNull { it.nav?.sak }.map{ it.leggtilinstitusjon }.toList().toJson()}
+            x005 i buc null: ${bucUtil.findFirstDocumentItemByType(SedType.X005) == null}
+            """.trimIndent()
+        )
 
         if (nyeInstitusjoner.isNotEmpty()) {
             if (bucUtil.findFirstDocumentItemByType(SedType.X005) == null) {
+                logger.debug("legger til nyeInstitusjoner på vanlig måte. (ny buc)")
                 addInstitution(dataModel.euxCaseID, nyeInstitusjoner.map { it.institution })
             } else {
-
-                //--gjort noe. ..
+                //sjekk for caseowner
                 nyeInstitusjoner.forEach {
+                    logger.debug("" +( !navCaseOwner && it.country != "NO"))
+                    logger.debug("" +( navCaseOwner && it.country == "NO"))
                     if (!navCaseOwner && it.country != "NO") {
                         logger.error("NAV er ikke sakseier. Du kan ikke legge til deltakere utenfor Norge")
-                        throw ResponseStatusException(
-                            HttpStatus.BAD_REQUEST,
-                            "NAV er ikke sakseier. Du kan ikke legge til deltakere utenfor Norge"
-                        )
+                        throw ResponseStatusException(HttpStatus.BAD_REQUEST, "NAV er ikke sakseier. Du kan ikke legge til deltakere utenfor Norge")
                     }
                 }
-                addInstitutionMedX005(
-                    dataModel,
-                    nyeInstitusjoner,
-                    bucUtil.getProcessDefinitionVersion(),
-                    x005Liste
-                )
+                addInstitutionMedX005(dataModel, bucUtil.getProcessDefinitionVersion(), x005Liste)
             }
         }
     }
 
     private fun addInstitutionMedX005(
         dataModel: PrefillDataModel,
-        nyeInstitusjoner: List<InstitusjonItem>,
         bucVersion: String,
         x005Liste: List<SED>
     ) {
-        logger.info("X005 finnes på buc, Sed X005 prefills og sendes inn: ${nyeInstitusjoner.toJsonSkipEmpty()}")
 
+        logger.info("X005 finnes på buc, Sed X005 prefills og sendes inn: ${x005Liste.toJsonSkipEmpty()}")
         var execptionError: Exception? = null
 
         x005Liste.forEach { x005 ->
@@ -131,14 +131,8 @@ class EuxPrefillService (private val euxKlient: EuxKlient,
             }
         }
         if (execptionError != null) {
-            logger.error(
-                "Feiler ved oppretting av X005  (ny institusjon), euxCaseid: ${dataModel.euxCaseID}, sed: ${dataModel.sedType}",
-                execptionError
-            )
-            throw ResponseStatusException(
-                HttpStatus.BAD_REQUEST,
-                "Feiler ved oppretting av X005 (ny institusjon) for euxCaseId: ${dataModel.euxCaseID}"
-            )
+            logger.error("Feiler ved oppretting av X005  (ny institusjon), euxCaseid: ${dataModel.euxCaseID}, sed: ${dataModel.sedType}", execptionError)
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Feiler ved oppretting av X005 (ny institusjon) for euxCaseId: ${dataModel.euxCaseID}")
         }
 
     }

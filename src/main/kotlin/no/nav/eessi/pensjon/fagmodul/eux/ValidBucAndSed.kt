@@ -2,7 +2,7 @@ package no.nav.eessi.pensjon.fagmodul.eux
 
 import no.nav.eessi.pensjon.eux.model.sed.SedType
 
-class ValidBucAndSed {
+open class ValidBucAndSed {
 
     fun getAvailableSedOnBuc(bucType: String?): List<SedType> {
         val map = initSedOnBuc()

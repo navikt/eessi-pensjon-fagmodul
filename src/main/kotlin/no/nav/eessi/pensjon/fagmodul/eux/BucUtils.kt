@@ -68,6 +68,8 @@ class BucUtils(private val buc: Buc) {
             BucType.P_BUC_03.name -> createEmptyDocument(SedType.P2200)
             BucType.P_BUC_05.name -> createEmptyDocument(SedType.P8000)
             BucType.P_BUC_06.name -> createEmptyDocument(SedType.DummyChooseParts)
+            BucType.P_BUC_09.name -> createEmptyDocument(SedType.P14000)
+            BucType.P_BUC_10.name -> createEmptyDocument(SedType.P15000)
             else ->  emptyList()
         }
     }

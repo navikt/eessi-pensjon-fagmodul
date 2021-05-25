@@ -2,8 +2,8 @@ package no.nav.eessi.pensjon.fagmodul.api
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import io.swagger.annotations.ApiOperation
-import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.SedType
+import no.nav.eessi.pensjon.eux.model.sed.X005
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
@@ -94,15 +94,20 @@ class PrefillController(
             logger.info("******* Legge til ny SED - start *******")
 
             val nyeInstitusjoner = bucUtil.findNewParticipants(dataModel.getInstitutionsList())
-            val x005Liste = nyeInstitusjoner.map {
-                logger.debug("Legger til Institusjon på X005 ${it.institution}")
-                // ID og Navn på X005 er påkrevd må hente innn navn fra UI.
-                val x005request = request.copy(avdodfnr = null, sed = SedType.X005.name, institutions = listOf(it))
-                mapJsonToAny(innhentingService.hentPreutyltSed(x005request), typeRefs<SED>())
-            }
-
+            val x005Liste = if (bucUtil.findFirstDocumentItemByType(SedType.X005) != null) {
+                    logger.debug("X005 finnes i buc prefiller ut X005")
+                    nyeInstitusjoner.map {
+                        logger.debug("Legger til Institusjon på X005 ${it.institution}")
+                        // ID og Navn på X005 er påkrevd må hente innn navn fra UI.
+                        val x005request = request.copy(avdodfnr = null, sed = SedType.X005.name, institutions = listOf(it))
+                        mapJsonToAny(innhentingService.hentPreutyltSed(x005request), typeRefs<X005>())
+                    }
+                } else {
+                    logger.debug("X005 finnes ikke i buc tomliste")
+                    emptyList()
+                }
             //sjekk og evt legger til deltakere
-            euxPrefillService.checkAndAddInstitution(dataModel, bucUtil, x005Liste)
+            euxPrefillService.checkAndAddInstitution(dataModel, bucUtil, x005Liste, nyeInstitusjoner)
 
             logger.info("Prøver å sende SED: ${dataModel.sedType} inn på BUC: ${dataModel.euxCaseID}")
             val docresult = euxPrefillService.opprettJsonSedOnBuc(
