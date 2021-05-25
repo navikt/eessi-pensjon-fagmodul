@@ -10,6 +10,7 @@ import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import no.nav.eessi.pensjon.utils.typeRefs
 import no.nav.eessi.pensjon.utils.validateJson
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -752,6 +753,36 @@ class BucUtilsTest {
 
         println(view.toJsonSkipEmpty())
 
+    }
+
+    @Test
+    fun `sjekk for documentlist contains dummyparts on pbuc06 buc rina2020`() {
+        val bucjson = getTestJsonFile("buc-id-rina2020new.json")
+        val buc = mapJsonToAny(bucjson, typeRefs<Buc>())
+
+        val bucUtils = BucUtils(buc)
+
+        val result = bucUtils.getAllDocuments()
+
+        assertEquals(SedType.DummyChooseParts, result.first().type)
+
+        val seds = bucUtils.getFiltrerteGyldigSedAksjonListAsString()
+        val validsed = listOf("P5000", "P6000", "P7000", "P10000")
+
+        assertEquals(seds.toString(), validsed.toString())
+
+        assertThat(seds.containsAll(validsed))
+    }
+
+    @Test
+    fun `sjekk for documentlist contains p2000 on pbuc01 buc rina2020`() {
+        val buc = Buc(processDefinitionName = "P_BUC_01", processDefinitionVersion = "4.2")
+        val bucUtils = BucUtils(buc)
+        val result = bucUtils.getAllDocuments()
+
+        assertEquals(SedType.P2000, result.first().type)
+        val seds = bucUtils.getFiltrerteGyldigSedAksjonListAsString()
+        assertEquals(listOf(SedType.P2000).toString(), seds.toString())
     }
 
 

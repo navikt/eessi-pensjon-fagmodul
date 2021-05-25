@@ -88,7 +88,7 @@ class SedController(
 
     @ApiOperation("Henter ut en liste over kodeverk fra eux")
     @GetMapping( "/kodeverk/{kodeverk}")
-    fun getCountryCode(@PathVariable("kodeverk", required = true) kodeverk: Kodeverk ): List<KodeverkResponse> {
+    fun getKodeverk(@PathVariable("kodeverk", required = true) kodeverk: Kodeverk ): List<KodeverkResponse> {
         return euxInnhentingService.getKodeverk(kodeverk)
     }
 

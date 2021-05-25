@@ -1,5 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
+import no.nav.eessi.pensjon.eux.model.buc.BucType
 import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.RinaAksjon
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Attachment
@@ -56,7 +57,28 @@ class BucUtils(private val buc: Buc) {
     }
 
     private fun getDocuments(): List<DocumentsItem> {
-        return buc.documents ?: emptyList()
+        return buc.documents ?: createEmptyDocumentsForRina2020()
+    }
+
+    private fun createEmptyDocumentsForRina2020() : List<DocumentsItem> {
+        logger.debug("Kjører hjelpemetode for RINA2020")
+        return when(getProcessDefinitionName()) {
+            BucType.P_BUC_01.name -> createEmptyDocument(SedType.P2000)
+            BucType.P_BUC_02.name -> createEmptyDocument(SedType.P2100)
+            BucType.P_BUC_03.name -> createEmptyDocument(SedType.P2200)
+            BucType.P_BUC_05.name -> createEmptyDocument(SedType.P8000)
+            BucType.P_BUC_06.name -> createEmptyDocument(SedType.DummyChooseParts)
+            else ->  emptyList()
+        }
+    }
+
+    fun createEmptyDocument(sedType: SedType) : List<DocumentsItem> {
+        return listOf(
+            DocumentsItem(
+            displayName = sedType.name,
+            type = sedType,
+            status = "empty"
+        ))
     }
 
     fun findDocument(documentId: String): DocumentsItem? =
@@ -219,7 +241,7 @@ class BucUtils(private val buc: Buc) {
     }
 
     private fun getGyldigeOpprettSedAksjonList() : List<SedType> {
-        val actions = buc.actions!!
+        val actions = buc.actions ?: emptyList()
         val keyWord = "Create"
         return actions.asSequence()
                 .filter { item -> item.name == keyWord }
