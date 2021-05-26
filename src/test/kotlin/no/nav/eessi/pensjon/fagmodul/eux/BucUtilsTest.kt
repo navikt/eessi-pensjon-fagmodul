@@ -772,6 +772,8 @@ class BucUtilsTest {
         assertEquals(seds.toString(), validsed.toString())
 
         assertThat(seds.containsAll(validsed))
+
+        assertEquals(true, bucUtils.isNewRina2020Buc())
     }
 
     @Test

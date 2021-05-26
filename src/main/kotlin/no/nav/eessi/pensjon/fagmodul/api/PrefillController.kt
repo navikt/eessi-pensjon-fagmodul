@@ -110,17 +110,16 @@ class PrefillController(
             euxPrefillService.checkAndAddInstitution(dataModel, bucUtil, x005Liste, nyeInstitusjoner)
 
             logger.info("Prøver å sende SED: ${dataModel.sedType} inn på BUC: ${dataModel.euxCaseID}")
-            val docresult = euxPrefillService.opprettJsonSedOnBuc(
-                sed, SedType.from(request.sed!!)!!, dataModel.euxCaseID, request.vedtakId
-            )
+            val docresult = euxPrefillService.opprettJsonSedOnBuc( sed, SedType.from(request.sed!!)!!, dataModel.euxCaseID, request.vedtakId)
 
             logger.info("Opprettet ny SED med dokumentId: ${docresult.documentId}")
             val result = bucUtil.findDocument(docresult.documentId)
             if (dataModel.melding != null || dataModel.melding != "") {
                 result?.message = dataModel.melding
             }
+            logger.info("Har docuemntItem $result, er Rina2020 ny buc: ${bucUtil.isNewRina2020Buc()}")
 
-            val documentItem = fetchBucAgainBeforeReturnShortDocument(dataModel.buc, docresult, result)
+            val documentItem = fetchBucAgainBeforeReturnShortDocument(dataModel.buc, docresult, result, bucUtil.isNewRina2020Buc())
             logger.info("******* Legge til ny SED - slutt *******")
             documentItem
         }
@@ -160,7 +159,7 @@ class PrefillController(
             val parent = bucUtil.findDocument(parentId)
             val result = bucUtil.findDocument(docresult.documentId)
 
-            val documentItem = fetchBucAgainBeforeReturnShortDocument(dataModel.buc, docresult, result)
+            val documentItem = fetchBucAgainBeforeReturnShortDocument(dataModel.buc, docresult, result, bucUtil.isNewRina2020Buc())
 
             logger.info("Buc: (${dataModel.euxCaseID}, hovedSED type: ${parent?.type}, docId: ${parent?.id}, svarSED type: ${documentItem?.type} docID: ${documentItem?.id}")
             logger.info("******* Legge til svarSED - slutt *******")
@@ -169,12 +168,21 @@ class PrefillController(
     }
 
     fun fetchBucAgainBeforeReturnShortDocument(
-        bucType: String,
-        bucSedResponse: BucSedResponse,
-        orginal: DocumentsItem?
+        bucType: String, bucSedResponse: BucSedResponse, orginal: DocumentsItem?, isNewRina2020: Boolean = false
     ): DocumentsItem? {
         return if (bucType == "P_BUC_06") {
             logger.info("Henter BUC på nytt for buctype: $bucType")
+            Thread.sleep(1000)
+            val buc = euxInnhentingService.getBuc(bucSedResponse.caseId)
+            val bucUtil = BucUtils(buc)
+            bucUtil.findDocument(bucSedResponse.documentId)
+        } else if (orginal == null && isNewRina2020) {
+            logger.info("Henter BUC på nytt for buctype: $bucType")
+            try {
+                Thread.sleep(2000)
+            } catch (ex: Exception) {
+                //ikke noe
+            }
             val buc = euxInnhentingService.getBuc(bucSedResponse.caseId)
             val bucUtil = BucUtils(buc)
             bucUtil.findDocument(bucSedResponse.documentId)
