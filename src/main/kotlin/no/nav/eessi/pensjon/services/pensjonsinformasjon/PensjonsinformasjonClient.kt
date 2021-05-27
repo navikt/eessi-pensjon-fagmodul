@@ -9,7 +9,6 @@ import no.nav.pensjon.v1.sak.V1Sak
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cache.annotation.CacheConfig
-import org.springframework.cache.annotation.Cacheable
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
@@ -60,7 +59,6 @@ class PensjonsinformasjonClient(
         pensjoninformasjonAltPaaVedtakRequester = metricsHelper.init("PensjoninformasjonAltPaaVedtakRequester")
     }
 
-    @Cacheable
     fun hentKunSakType(sakId: String, aktoerid: String): Pensjontype {
             val sak = finnSak(sakId, hentAltPaaAktoerId(aktoerid)) ?: return Pensjontype(sakId, "")
             return Pensjontype(sakId, sak.sakType)
@@ -98,7 +96,6 @@ class PensjonsinformasjonClient(
         }
     }
 
-    @Cacheable
     fun hentKravDatoFraAktor(aktorId: String, saksId: String, kravId: String) : String? {
         val pensjonSak = hentAltPaaAktoerId(aktorId)
         return hentKravFraKravHistorikk(saksId, pensjonSak, kravId)
