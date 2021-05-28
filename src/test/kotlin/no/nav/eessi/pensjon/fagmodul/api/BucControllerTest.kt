@@ -190,7 +190,7 @@ class BucControllerTest {
 
         val result =  bucController.getBucogSedView(aktoerId)
 
-        assertEquals("403 FORBIDDEN \"En eller flere i familierelasjon i saken har diskresjonskode.\nBare saksbehandlere med diskresjonstilganger kan se de aktuelle BUC og SED i EESSI-Pensjon eller i RINA.\"", result.first().error)
+        assertEquals("403 FORBIDDEN. En eller flere i familierelasjon i saken har diskresjonskode.\nBare saksbehandlere med diskresjonstilganger kan se de aktuelle BUC og SED i EESSI-Pensjon eller i RINA.", result.first().error)
 
 
     }
