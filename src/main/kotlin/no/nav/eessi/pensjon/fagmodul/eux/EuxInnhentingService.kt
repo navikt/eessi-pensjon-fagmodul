@@ -100,8 +100,14 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
                     try {
                         BucAndSedView.from(getBuc(rinaid))
                     } catch (ex: Exception) {
+                        val errormsg = if (ex is ForbiddenException) {
+                            "${HttpStatus.FORBIDDEN} \"En eller flere i familierelasjon i saken har diskresjonskode.\n" + "Bare saksbehandlere med diskresjonstilganger kan se de aktuelle BUC og SED i EESSI-Pensjon eller i RINA.\""
+                        } else {
+                            ex.message
+                        }
+                        println ("error: ${ex.message}")
                         logger.error(ex.message, ex)
-                        BucAndSedView.fromErr(ex.message)
+                        BucAndSedView.fromErr(errormsg)
                     }
                 }
                 .sortedByDescending { it.startDate }

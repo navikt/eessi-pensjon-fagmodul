@@ -9,6 +9,7 @@ import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.eux.EuxKlient
+import no.nav.eessi.pensjon.fagmodul.eux.ForbiddenException
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Properties
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Traits
@@ -172,6 +173,26 @@ class BucControllerTest {
 
         val actual = bucController.getBucogSedView(aktoerId)
         assertEquals(1,actual.size)
+    }
+
+
+    @Test
+    fun `create BucSedAndView returns access forbidden da buc er låst til vip`() {
+        val aktoerId = "123456789"
+        val fnr = "10101835868"
+
+        every { personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerId)) } returns NorskIdent(fnr)
+
+        val rinaSaker = listOf(Rinasak("1234","P_BUC_01", Traits(), "", Properties(), "open"))
+
+        every { mockEuxInnhentingService.getRinasaker(fnr, aktoerId, emptyList())} returns rinaSaker
+        every { mockEuxInnhentingService.getBuc(any()) } throws ForbiddenException("Forbidden, Ikke tilgang")
+
+        val result =  bucController.getBucogSedView(aktoerId)
+
+        assertEquals("403 FORBIDDEN \"En eller flere i familierelasjon i saken har diskresjonskode.\nBare saksbehandlere med diskresjonstilganger kan se de aktuelle BUC og SED i EESSI-Pensjon eller i RINA.\"", result.first().error)
+
+
     }
 
     @Test

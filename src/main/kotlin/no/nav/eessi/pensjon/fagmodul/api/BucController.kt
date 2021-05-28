@@ -69,7 +69,7 @@ class BucController(
     }
 
     @ApiOperation("Viser prosessnavnet (f.eks P_BUC_01) på den valgte BUCen")
-    @GetMapping("/{rinanr}/name")
+    @GetMapping("/{rinanr}/name",  produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getProcessDefinitionName(@PathVariable(value = "rinanr", required = true) rinanr: String): String? {
 
         logger.debug("Henter ut definisjonsnavn (type type) på valgt Buc")
@@ -77,7 +77,7 @@ class BucController(
     }
 
     @ApiOperation("Henter opp den opprinelige inststusjon på valgt caseid (type)")
-    @GetMapping("/{rinanr}/creator")
+    @GetMapping("/{rinanr}/creator",  produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getCreator(@PathVariable(value = "rinanr", required = true) rinanr: String): Creator? {
 
         logger.debug("Henter ut Creator på valgt Buc")
@@ -85,7 +85,7 @@ class BucController(
     }
 
     @ApiOperation("Henter BUC deltakere")
-    @GetMapping("/{rinanr}/bucdeltakere")
+    @GetMapping("/{rinanr}/bucdeltakere",  produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getBucDeltakere(@PathVariable(value = "rinanr", required = true) rinanr: String): String {
         auditlogger.log("getBucDeltakere")
         logger.debug("Henter ut Buc deltakere data fra rina via eux-rina-api")
@@ -93,7 +93,7 @@ class BucController(
     }
 
     @ApiOperation("Henter alle gyldige sed på valgt rinanr")
-    @GetMapping("/{rinanr}/allDocuments")
+    @GetMapping("/{rinanr}/allDocuments",  produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getAllDocuments(@PathVariable(value = "rinanr", required = true) rinanr: String): List<DocumentsItem> {
         auditlogger.logBuc("getAllDocuments", rinanr)
         logger.debug("Henter ut documentId på alle dokumenter som finnes på valgt type")
@@ -122,7 +122,10 @@ class BucController(
     }
 
     @ApiOperation("Henter ut liste av Buc meny struktur i json format for UI på valgt aktoerid")
-    @GetMapping("/detaljer/{aktoerid}", "/detaljer/{aktoerid}/{sakid}", "/detaljer/{aktoerid}/{sakid}/{euxcaseid}")
+    @GetMapping("/detaljer/{aktoerid}",
+        "/detaljer/{aktoerid}/{sakid}",
+        "/detaljer/{aktoerid}/{sakid}/{euxcaseid}",
+        produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getBucogSedView(@PathVariable("aktoerid", required = true) aktoerid: String,
                         @PathVariable("sakid", required = false) sakid: String? = "",
                         @PathVariable("euxcaseid", required = false) euxcaseid: String? = ""): List<BucAndSedView> {
@@ -153,7 +156,7 @@ class BucController(
     }
 
     @ApiOperation("Henter ut liste av Buc meny struktur i json format for UI")
-    @GetMapping("/detaljer/{aktoerid}/vedtak/{vedtakid}")
+    @GetMapping("/detaljer/{aktoerid}/vedtak/{vedtakid}",  produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getBucogSedViewVedtak(@PathVariable("aktoerid", required = true) gjenlevendeAktoerid: String,
                               @PathVariable("vedtakid", required = true) vedtakid: String): List<BucAndSedView> {
         return bucDetaljerVedtak.measure {
@@ -172,7 +175,7 @@ class BucController(
     }
 
     @ApiOperation("Henter ut liste av Buc meny struktur i json format for UI på valgt aktoerid")
-    @GetMapping("/detaljer/{aktoerid}/avdod/{avdodfnr}")
+    @GetMapping("/detaljer/{aktoerid}/avdod/{avdodfnr}", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getBucogSedViewGjenlevende(@PathVariable("aktoerid", required = true) aktoerid: String,
                                    @PathVariable("avdodfnr", required = true) avdodfnr: String): List<BucAndSedView> {
 
