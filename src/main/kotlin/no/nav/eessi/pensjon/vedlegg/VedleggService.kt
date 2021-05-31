@@ -3,6 +3,7 @@ package no.nav.eessi.pensjon.vedlegg
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.vedlegg.client.*
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -14,6 +15,7 @@ class VedleggService(private val safClient: SafClient,
                      @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())) {
 
     private final val TILLEGGSOPPLYSNING_RINA_SAK_ID_KEY = "eessi_pensjon_bucid"
+    private val logger = LoggerFactory.getLogger(VedleggService::class.java)
 
     private lateinit var HentRinaSakIderFraDokumentMetadata: MetricsHelper.Metric
 
@@ -63,6 +65,7 @@ class VedleggService(private val safClient: SafClient,
                 journalpost.tilleggsopplysninger.forEach { tilleggsopplysning ->
                     if (tilleggsopplysning["nokkel"].equals(TILLEGGSOPPLYSNING_RINA_SAK_ID_KEY)) {
                         rinaSakIder.add(tilleggsopplysning["verdi"].toString())
+                        logger.info("Fant tilleggsinfo: ${tilleggsopplysning["verdi"].toString()} i ${journalpost.journalpostId}" )
                     }
                 }
             }
