@@ -1,0 +1,44 @@
+{
+  "sed" : "P5000",
+  "sedGVer" : "4",
+  "sedVer" : "2",
+  "nav" : {
+    "eessisak" : [ {
+      "institusjonsid" : "NO:NAVAT07",
+      "institusjonsnavn" : "NAV ACCEPTANCE TEST 07",
+      "saksnummer" : "22935783",
+      "land" : "NO"
+    } ],
+    "bruker" : {
+      "person" : {
+        "pin" : [ {
+          "institusjonsnavn" : "NAV ACCEPTANCE TEST 07",
+          "institusjonsid" : "NO:NAVAT07",
+          "identifikator" : "20066521894",
+          "land" : "NO"
+        } ],
+        "statsborgerskap" : [ {
+          "land" : "NO"
+        } ],
+        "etternavn" : "PENN",
+        "fornavn" : "SMIDIG",
+        "kjoenn" : "K",
+        "foedselsdato" : "1965-06-20"
+      },
+      "adresse" : {
+        "gate" : "NORDBYLA 8",
+        "by" : "AKSDAL",
+        "postnummer" : "5570",
+        "land" : "NO"
+      }
+    }
+  },
+  "pensjon" : {
+    "medlemskapboarbeid" : {
+      "enkeltkrav" : {
+        "krav" : "30"
+      },
+      "gyldigperiode" : "0"
+    }
+  }
+}

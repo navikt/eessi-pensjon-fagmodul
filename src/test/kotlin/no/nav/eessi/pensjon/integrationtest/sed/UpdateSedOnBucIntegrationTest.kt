@@ -110,6 +110,28 @@ class UpdateSedOnBucIntegrationTest {
 
     }
 
+    @Test
+    fun `oppdate sed P5000 empty medlemskap test2 and gydligperiode 0 true when all OK`() {
+        val jsonsed = javaClass.getResource("/json/nav/P5000-tomperioder2-NAV.json").readText()
+
+        /////cpi/buc/{RinaSakId}/sed/{DokumentId}
+        every { restTemplate.exchange(
+            eq("/buc/$euxCaseId/sed/$documentId?ventePaAksjon=false"),
+            eq(HttpMethod.PUT),
+            any(),
+            eq(String::class.java)) } returns ResponseEntity(null ,HttpStatus.OK)
+
+        val result = mockMvc.perform(put("/sed/put/$euxCaseId/$documentId")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(jsonsed))
+            .andExpect(status().isOk)
+            .andReturn()
+        val response = result.response.getContentAsString(charset("UTF-8"))
+
+        assertEquals(true, response.toBoolean())
+
+    }
+
 
 
 

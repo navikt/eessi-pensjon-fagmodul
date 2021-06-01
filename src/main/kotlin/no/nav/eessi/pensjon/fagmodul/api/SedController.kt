@@ -64,8 +64,10 @@ class SedController(
             val sed = euxInnhentingService.mapToConcreteSedClass(sedPayload)
             //hvis P5000.. .
             val validSed = if (sed is P5000)  {
+                logger.debug("SED er P5000 av type: ${sed.type}")
                 sed.updateFromUI() //må alltid kjøres. sjekk og oppdatert trydetid. punkt 5.2.1.3.1
             } else {
+                logger.debug("SED er ${sed.type}")
                 sed
             }
             validSed
