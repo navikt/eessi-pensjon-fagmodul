@@ -65,7 +65,6 @@ class VedleggService(private val safClient: SafClient,
                 journalpost.tilleggsopplysninger.forEach { tilleggsopplysning ->
                     if (tilleggsopplysning["nokkel"].equals(TILLEGGSOPPLYSNING_RINA_SAK_ID_KEY)) {
                         rinaSakIder.add(tilleggsopplysning["verdi"].toString())
-                        logger.info("Fant tilleggsinfo: ${tilleggsopplysning["verdi"].toString()} i ${journalpost.journalpostId}" )
                     }
                 }
             }
