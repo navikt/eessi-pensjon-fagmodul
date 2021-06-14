@@ -65,7 +65,8 @@
             <syslogHost>audit.nais</syslogHost>
             <port>6514</port>
             <maxMessageSize>128000</maxMessageSize>
-            <facility>eessi-fagmodul</facility>
+            <ident>eessi-fagmodul</ident>
+            <protocol>TCP</protocol>
         </appender>
 
         <logger level="INFO" name="auditLogger" additivity="false">
