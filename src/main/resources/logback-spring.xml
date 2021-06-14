@@ -67,6 +67,7 @@
             <maxMessageSize>128000</maxMessageSize>
             <ident>eessi-fagmodul</ident>
             <protocol>TCP</protocol>
+            <facility>LOCAL6</facility>
         </appender>
 
         <logger level="INFO" name="auditLogger" additivity="false">
