@@ -10,17 +10,17 @@
                 <includeCallerData>true</includeCallerData>
             </encoder>
         </appender>
-        <appender name="auditLogger" class="com.papertrailapp.logback.Syslog4jAppender">
-            <layout class="ch.qos.logback.classic.PatternLayout">
-                <pattern>[%d{"yyyy-MM-dd'T'HH:mm:ss,SSSXXX", UTC} %level] %logger{15} : %m%n%xEx</pattern>
-            </layout>
-            <syslogConfig class="org.productivity.java.syslog4j.impl.net.tcp.TCPNetSyslogConfig">
-                <host>audit.nais</host>
-                <port>6514</port>
-                <ident>eessi-fagmodul</ident>
-                <maxMessageLength>128000</maxMessageLength>
-            </syslogConfig>
-        </appender>
+<!--        <appender name="auditLogger" class="com.papertrailapp.logback.Syslog4jAppender">-->
+<!--            <layout class="ch.qos.logback.classic.PatternLayout">-->
+<!--                <pattern>[%d{"yyyy-MM-dd'T'HH:mm:ss,SSSXXX", UTC} %level] %logger{15} : %m%n%xEx</pattern>-->
+<!--            </layout>-->
+<!--            <syslogConfig class="org.productivity.java.syslog4j.impl.net.tcp.TCPNetSyslogConfig">-->
+<!--                <host>audit.nais</host>-->
+<!--                <port>6514</port>-->
+<!--                <ident>eessi-fagmodul</ident>-->
+<!--                <maxMessageLength>128000</maxMessageLength>-->
+<!--            </syslogConfig>-->
+<!--        </appender>-->
 <!--        <appender name="auditLogger" class="ch.qos.logback.classic.net.SyslogAppender">-->
 <!--            <layout class="ch.qos.logback.classic.PatternLayout">-->
 <!--                <pattern>[%d{"yyyy-MM-dd'T'HH:mm:ss,SSSXXX", UTC} %level] %logger{15} : %m%n%xEx</pattern>-->
@@ -31,21 +31,21 @@
 <!--            <facility>eessi-fagmodul</facility>-->
 <!--        </appender>-->
 
-        <logger level="INFO" name="auditLogger" additivity="false">
-            <appender-ref ref="auditLogger" />
-        </logger>
+<!--        <logger level="INFO" name="auditLogger" additivity="false">-->
+<!--            <appender-ref ref="auditLogger" />-->
+<!--        </logger>-->
 
-        <logger name="io" level="ERROR"/>
-        <logger name="org" level="ERROR"/>
-        <logger name="com" level="ERROR"/>
-        <logger name="no.nav" level="INFO"/>
-        <logger name="no.nav.security" level="ERROR"/>
-        <logger name="no.nav.eessi" level="INFO"/>
-        <logger name="no.nav.eessi.pensjon.logging.RequestResponseLoggerInterceptor" level="OFF"/>
-        <logger name="no.nav.eessi.pensjon.logging.AuditLogger" level="OFF"/>
-        <root level="info">
-            <appender-ref ref="stdout_json"/>
-        </root>
+<!--        <logger name="io" level="ERROR"/>-->
+<!--        <logger name="org" level="ERROR"/>-->
+<!--        <logger name="com" level="ERROR"/>-->
+<!--        <logger name="no.nav" level="INFO"/>-->
+<!--        <logger name="no.nav.security" level="ERROR"/>-->
+<!--        <logger name="no.nav.eessi" level="INFO"/>-->
+<!--        <logger name="no.nav.eessi.pensjon.logging.RequestResponseLoggerInterceptor" level="OFF"/>-->
+<!--        <logger name="no.nav.eessi.pensjon.logging.AuditLogger" level="OFF"/>-->
+<!--        <root level="info">-->
+<!--            <appender-ref ref="stdout_json"/>-->
+<!--        </root>-->
     </springProfile>
 
     <!--  For kjøring i kube/docker under miljø T,Q  -->
