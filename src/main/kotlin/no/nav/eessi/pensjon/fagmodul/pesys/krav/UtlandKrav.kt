@@ -94,6 +94,7 @@ open class UtlandKrav {
         val status = mapOf(
             "01" to "UGIF",
             "02" to "GIFT",
+            "gift" to "GIFT",
             "03" to "SAMB",
             "04" to "REPA",
             "05" to "SKIL",
