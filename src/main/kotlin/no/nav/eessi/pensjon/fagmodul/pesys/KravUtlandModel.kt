@@ -83,4 +83,12 @@ enum class Sivilstatus(val status: String) {
         SKPA ("skilt_fra_registrert_partnerskap"),
         SEPA ("separert"),
         ENKE ("enke_enkemann");
+
+        companion object {
+                fun getSivilStatusByStatus(status: String): Sivilstatus? {
+                        return values().firstOrNull { it.status == status }
+                }
+        }
+
+
 }

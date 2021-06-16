@@ -77,7 +77,7 @@ open class UtlandKrav {
     fun sivilstand(kravSed: SED): SkjemaFamilieforhold? {
 
         val sivilstand = kravSed.nav?.bruker?.person?.sivilstand?.maxByOrNull { LocalDate.parse(it.fradato) }
-        val sivilstatus = sivilstand?.status?.let { Sivilstatus.valueOf(it) }
+        val sivilstatus = sivilstand?.status?.let { Sivilstatus.getSivilStatusByStatus(it) }
 
         logger.debug("Sivilstatus: $sivilstatus")
         if (sivilstatus == null || sivilstand.fradato == null) return null
