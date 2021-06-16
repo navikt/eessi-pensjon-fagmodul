@@ -97,7 +97,7 @@ open class UtlandKrav {
             "02" to "GIFT",
             "gift" to "GIFT",
             "03" to "SAMB",
-            "" to "SAMB",
+            "samboer" to "SAMB",
             "04" to "REPA",
             "" to "REPA",
             "05" to "SKIL",
@@ -107,6 +107,23 @@ open class UtlandKrav {
         )
         return status[key]
     }
+
+    enum class Sivilstand(val sivilstand: String) {
+        UGIF ("01"),
+        GIFT ("02") ,
+        SAMB ("03"),
+        REPA ("03"),
+        SKIL ("04"),
+        SKPA ("05"),
+        "03" to "SAMB",
+        "samboer" to "SAMB",
+        "04" to "REPA",
+        "" to "REPA",
+        "05" to "SKIL",
+        "06" to "SKPA",
+        "07" to "SEPA",
+        "08" to "ENKE"
+    }    }
 /*
 enslig=01
 gift=02
