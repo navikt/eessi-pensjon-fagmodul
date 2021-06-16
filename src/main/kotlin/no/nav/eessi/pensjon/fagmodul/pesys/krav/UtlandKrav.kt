@@ -108,22 +108,25 @@ open class UtlandKrav {
         return status[key]
     }
 
-    enum class Sivilstand(val sivilstand: String) {
+    enum class Sivilstand(val sivilstand: List<String>) {
         UGIF ("01"),
-        GIFT ("02") ,
+        GIFT ("02"),
         SAMB ("03"),
-        REPA ("03"),
-        SKIL ("04"),
-        SKPA ("05"),
-        "03" to "SAMB",
-        "samboer" to "SAMB",
-        "04" to "REPA",
-        "" to "REPA",
-        "05" to "SKIL",
-        "06" to "SKPA",
-        "07" to "SEPA",
-        "08" to "ENKE"
-    }    }
+        REPA ("04"),
+        SKIL ("05"),
+        SKPA ("06"),
+        SEPA ("07"),
+        ENKE ("08");
+
+
+        val values = listOf<String>()
+
+        fun getValues : List<String>{
+            return values
+        }
+
+    }
+}
 /*
 enslig=01
 gift=02
