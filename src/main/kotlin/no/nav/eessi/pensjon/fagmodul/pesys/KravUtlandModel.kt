@@ -62,9 +62,20 @@ data class SkjemaFamilieforhold(
         //Sivilstand for søker. Må være en gyldig verdi fra T_K_SIVILSTATUS_T:
         //ENKE, GIFT, GJES, GJPA, GJSA, GLAD, PLAD, REPA,SAMB, SEPA, SEPR, SKIL, SKPA, UGIF.
         //Pkt p2000 - 2.2.2.1. Familiestatus
-        val valgtSivilstatus: String? = null,
+        val valgtSivilstatus: Sivilstand? = null,
         @JsonDeserialize(using = LocalDateDeserializer::class)
         @JsonSerialize(using = LocalDateSerializer::class)
         //format pattern yyyy-MM-dd
         val sivilstatusDatoFom: LocalDate? = null
 )
+
+enum class Sivilstand(val sivilstand: String) {
+        UGIF ("enslig"),
+        GIFT ("gift"),
+        SAMB ("samboer"),
+        REPA ("registrert_partnerskap"),
+        SKIL ("skilt"),
+        SKPA ("skilt_fra_registrert_partnerskap"),
+        SEPA ("separert"),
+        ENKE ("enke_enkemann");
+}

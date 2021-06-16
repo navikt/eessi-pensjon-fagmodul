@@ -4,6 +4,7 @@ import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.fagmodul.pesys.SkjemaFamilieforhold
+import no.nav.eessi.pensjon.personoppslag.pdl.model.Sivilstand
 import no.nav.eessi.pensjon.services.kodeverk.KodeverkClient
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
@@ -75,7 +76,8 @@ open class UtlandKrav {
 
     fun sivilstand(kravSed: SED): SkjemaFamilieforhold? {
         val sivilstand = kravSed.nav?.bruker?.person?.sivilstand?.maxByOrNull { LocalDate.parse(it.fradato) }
-        val sivilstatus = hentFamilieStatus(sivilstand?.status)
+        val sivilstatus = sivilstand?.status?.let { Sivilstand.valueOf(it) }
+
         logger.debug("Sivilstatus: $sivilstatus")
         if (sivilstatus == null || sivilstand?.fradato == null) return null
         return SkjemaFamilieforhold(
@@ -107,35 +109,4 @@ open class UtlandKrav {
         )
         return status[key]
     }
-
-    enum class Sivilstand(val sivilstand: List<String>) {
-        UGIF ("01"),
-        GIFT ("02"),
-        SAMB ("03"),
-        REPA ("04"),
-        SKIL ("05"),
-        SKPA ("06"),
-        SEPA ("07"),
-        ENKE ("08");
-
-
-        val values = listOf<String>()
-
-        fun getValues : List<String>{
-            return values
-        }
-
-    }
-}
-/*
-enslig=01
-gift=02
-samboer=03
-registrert_partnerskap=04
-skilt=05
-skilt_fra_registrert_partnerskap=06
-separert=07
-enke_enkemann=08
- */
-/*
 }
