@@ -93,10 +93,13 @@ open class UtlandKrav {
     fun hentFamilieStatus(key: String?): String? {
         val status = mapOf(
             "01" to "UGIF",
+            "enslig" to "UGIF",
             "02" to "GIFT",
             "gift" to "GIFT",
             "03" to "SAMB",
+            "" to "SAMB",
             "04" to "REPA",
+            "" to "REPA",
             "05" to "SKIL",
             "06" to "SKPA",
             "07" to "SEPA",
@@ -104,4 +107,15 @@ open class UtlandKrav {
         )
         return status[key]
     }
+/*
+enslig=01
+gift=02
+samboer=03
+registrert_partnerskap=04
+skilt=05
+skilt_fra_registrert_partnerskap=06
+separert=07
+enke_enkemann=08
+ */
+/*
 }
