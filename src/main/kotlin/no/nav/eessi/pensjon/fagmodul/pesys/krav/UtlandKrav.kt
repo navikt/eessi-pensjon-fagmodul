@@ -3,6 +3,7 @@ package no.nav.eessi.pensjon.fagmodul.pesys.krav
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
+import no.nav.eessi.pensjon.fagmodul.pesys.Sivilstatus
 import no.nav.eessi.pensjon.fagmodul.pesys.SkjemaFamilieforhold
 import no.nav.eessi.pensjon.services.kodeverk.KodeverkClient
 import org.slf4j.LoggerFactory
@@ -74,34 +75,16 @@ open class UtlandKrav {
     }
 
     fun sivilstand(kravSed: SED): SkjemaFamilieforhold? {
+
         val sivilstand = kravSed.nav?.bruker?.person?.sivilstand?.maxByOrNull { LocalDate.parse(it.fradato) }
-        val sivilstatus = hentFamilieStatus(sivilstand?.status)
+        val sivilstatus = sivilstand?.status?.let { Sivilstatus.getSivilStatusByStatus(it) }
+
         logger.debug("Sivilstatus: $sivilstatus")
-        if (sivilstatus == null || sivilstand?.fradato == null) return null
+        if (sivilstatus == null || sivilstand.fradato == null) return null
         return SkjemaFamilieforhold(
             valgtSivilstatus = sivilstatus,
             sivilstatusDatoFom = sivilstand.fradato.let { LocalDate.parse(it) }
         )
     }
 
-    /**
-     * Sivilstand for søker. Må være en gyldig verdi fra T_K_SIVILSTATUS_T:
-     * ENKE, GIFT, GJES, GJPA, GJSA, GLAD, PLAD, REPA,SAMB, SEPA, SEPR, SKIL, SKPA, UGIF.
-     * Pkt p2000 - 2.2.2.1. Familiestatus
-     * var valgtSivilstatus: String? = null,
-     */
-    fun hentFamilieStatus(key: String?): String? {
-        val status = mapOf(
-            "01" to "UGIF",
-            "02" to "GIFT",
-            "gift" to "GIFT",
-            "03" to "SAMB",
-            "04" to "REPA",
-            "05" to "SKIL",
-            "06" to "SKPA",
-            "07" to "SEPA",
-            "08" to "ENKE"
-        )
-        return status[key]
-    }
 }
