@@ -35,8 +35,7 @@ class PensjonsinformasjonUtlandService(
         val bucUtils = BucUtils(buc)
 
         logger.debug("Starter prosess for henting av krav fra utland (P2000, P2200)")
-        logger.info("BucType : ${bucUtils.getProcessDefinitionName()}")
-        logger.info("Funnet KravTypeSED i buc: ${kravSedBucmap[bucUtils.getProcessDefinitionName()]}")
+        //logger.info("Funnet KravTypeSED i buc: ${kravSedBucmap[bucUtils.getProcessDefinitionName()]}")
 
         if (!validBuc.contains(bucUtils.getProcessDefinitionName())) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ugyldig BUC, Ikke korrekt type KRAV.")
         if (bucUtils.getCaseOwner() == null) throw ResponseStatusException(HttpStatus.NOT_FOUND, "Ingen CaseOwner funnet på BUC med id: $bucId").also { logger.error(it.message) }
@@ -70,7 +69,7 @@ class PensjonsinformasjonUtlandService(
     }
 
     fun debugPrintout(kravUtland: KravUtland) {
-        logger.debug(
+        logger.info(
             """Følgende krav utland returneres:
             ${kravUtland.toJson()}
             """.trimIndent()

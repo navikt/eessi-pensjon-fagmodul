@@ -26,7 +26,7 @@ class AlderpensjonUtlandKrav(
 
         val caseOwner = bucUtils.getCaseOwner()!!
         val caseOwnerCountryBuc = if (nameSpace == "q2" || nameSpace == "test") {
-            "SE"
+            "SE" //settes til SE for test i Q2 fra utland
         } else {
             caseOwner.country
         }
@@ -36,17 +36,15 @@ class AlderpensjonUtlandKrav(
         logger.debug("CaseOwnerId     : ${caseOwner.institution}")
         logger.debug("CaseOwnerName   : ${caseOwner.name}")
 
-        val mottattDato = fremsettKravDato(doc, bucUtils)
+        val mottattDato = sistOppdatertDocumentDato(doc, bucUtils)
         val kravdato = LocalDate.parse(kravSed.nav?.krav?.dato) ?: null
 
         return KravUtland(
-            mottattDato = mottattDato,                       // når SED ble mottatt i NAV-RINA
-            iverksettelsesdato = iverksettDatoAlder(kravSed, mottattDato),
-            fremsattKravdato = kravdato,                    // hentes fra kp. 9.1 kravdato
-            uttaksgrad = "100",                             //saksbehandler retter på denne etter at vi setter den til 100%
-
+            mottattDato = mottattDato,                     // når SED ble mottatt i NAV-RINA
+            iverksettelsesdato = iverksettDatoAlder(kravSed, mottattDato),  //fremsattdato
+            fremsattKravdato = kravdato,                   // hentes fra kp. 9.1 kravdato
+            uttaksgrad = "100",                            //saksbehandler retter på denne etter at vi setter den til 100%
             vurdereTrygdeavtale = true,
-
             personopplysninger = SkjemaPersonopplysninger(
                 statsborgerskap = finnStatsborgerskapAlderLandkode3(kravSed)
             ),
@@ -57,12 +55,8 @@ class AlderpensjonUtlandKrav(
     }
 
     fun finnStatsborgerskapAlderLandkode3(kravSed: SED): String? {
-        return if (nameSpace == "q2" || nameSpace == "test") {
-            kodeverkClient.finnLandkode("SE")
-        } else {
-            val statsborgerskap = kravSed.nav?.bruker?.person?.statsborgerskap?.firstOrNull { it.land != null }
-            statsborgerskap?.let { kodeverkClient.finnLandkode(it.land!!) }
-        }
+        val statsborgerskap = kravSed.nav?.bruker?.person?.statsborgerskap?.firstOrNull { it.land != null }
+        return statsborgerskap?.let { kodeverkClient.finnLandkode(it.land!!) }
     }
 
 }

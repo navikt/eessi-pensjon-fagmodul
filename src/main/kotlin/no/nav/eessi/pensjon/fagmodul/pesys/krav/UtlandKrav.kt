@@ -62,7 +62,7 @@ open class UtlandKrav {
         return null
     }
 
-    fun fremsettKravDato(doc: DocumentsItem, bucUtils: BucUtils): LocalDate {
+    fun sistOppdatertDocumentDato(doc: DocumentsItem, bucUtils: BucUtils): LocalDate {
         val local = bucUtils.getDateTime(doc.lastUpdate)
         val date = local.toLocalDate()
         return LocalDate.of(date.year, date.monthOfYear, date.dayOfMonth)
