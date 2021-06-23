@@ -6,6 +6,8 @@ metadata:
   labels:
     team: eessipensjon
 spec:
+  kafka:
+    pool: nav-dev    # enum of nav-dev, nav-prod
   env:
     - name: SPRING_PROFILES_ACTIVE
       value: test
