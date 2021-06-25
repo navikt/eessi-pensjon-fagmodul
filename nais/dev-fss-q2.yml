@@ -41,8 +41,6 @@ spec:
       value: NAV ACCEPTANCE TEST 07
     - name: ENV
       value: q2
-    - name: KAFKA_BROKERS
-      value: { { kafka_brokers } }
   image: {{ image }}
   ingresses:
     - https://eessi-pensjon-fagmodul-q2.nais.preprod.local
