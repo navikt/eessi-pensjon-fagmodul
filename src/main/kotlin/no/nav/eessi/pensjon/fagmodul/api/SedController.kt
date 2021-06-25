@@ -1,13 +1,16 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
 import io.swagger.annotations.ApiOperation
+import no.nav.eessi.pensjon.eux.model.sed.MedlemskapItem
 import no.nav.eessi.pensjon.eux.model.sed.P4000
 import no.nav.eessi.pensjon.eux.model.sed.P5000
+import no.nav.eessi.pensjon.eux.model.sed.P5000Pensjon
 import no.nav.eessi.pensjon.eux.model.sed.P6000
 import no.nav.eessi.pensjon.eux.model.sed.P7000
 import no.nav.eessi.pensjon.eux.model.sed.P8000
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.SedType
+import no.nav.eessi.pensjon.eux.model.sed.TotalSum
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
@@ -114,6 +117,27 @@ class SedController(
         val resultListe = BucUtils(euxInnhentingService.getBuc(euxCaseId)).getFiltrerteGyldigSedAksjonListAsString()
         logger.info("Henter lite over SED som kan opprettes på buctype: $bucType seds: $resultListe")
         return ResponseEntity.ok().body(resultListe.toJsonSkipEmpty())
+    }
+
+    //punkt 5.2.1.3.1 i settes til "0" når gyldigperiode == "0"
+    fun P5000.updateFromUI(): P5000 {
+        val pensjon = this.p5000Pensjon
+        val medlemskapboarbeid = pensjon?.medlemskapboarbeid
+        val gyldigperiode = medlemskapboarbeid?.gyldigperiode
+        val erTom = medlemskapboarbeid?.medlemskap.let { it == null || it.isEmpty() }
+        if (gyldigperiode == "0" && erTom) {
+           logger.info("P5000 setter 5.2.1.3.1 til 0 ")
+            val newPensjon = P5000Pensjon(
+                trygdetid = listOf(
+                    MedlemskapItem(sum = TotalSum(aar = "0")
+                    )
+                ),
+                medlemskapboarbeid = medlemskapboarbeid,
+                separatP5000sendes = "0"
+            )
+            return this.copy(p5000Pensjon = newPensjon)
+        }
+        return this
     }
 
     private fun mapToConcreteSedJson(sedJson: SED): String {
