@@ -1,8 +1,8 @@
 kind: Application
 apiVersion: nais.io/v1alpha1
 metadata:
-  name: eessi-pensjon-fagmodul
-  namespace: q2
+  name: eessi-pensjon-fagmodul-q2
+  namespace: eessipensjon
   labels:
     team: eessipensjon
 spec:
