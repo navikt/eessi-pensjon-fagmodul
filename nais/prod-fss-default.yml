@@ -1,0 +1,86 @@
+kind: Application
+apiVersion: nais.io/v1alpha1
+metadata:
+  name: eessi-pensjon-fagmodul
+  namespace: default
+  labels:
+    team: eessipensjon
+spec:
+  env:
+    - name: SPRING_PROFILES_ACTIVE
+      value: prod
+    - name: PENSJONSINFORMASJON_URL
+      value: https://pensjon-pen.nais.adeo.no/pen/api/pensjonsinformasjon/v1
+    - name: EESSIPEN_EUX_RINA_URL
+      value: https://eux-rina-api.nais.adeo.no/cpi
+    - name: EESSIPENSJON_PREFILL_URL
+      value: https://eessi-pensjon-prefill.nais.adeo.no/
+    - name: SAF_GRAPHQL_URL
+      value: https://saf.nais.adeo.no/graphql
+    - name: SAF_HENTDOKUMENT_URL
+      value: https://saf.nais.adeo.no/rest/hentdokument
+    - name: PDL_URL
+      value: https://pdl-api.nais.adeo.no/graphql
+    - name: OPENIDCONNECT_URL
+      value: https://isso.adeo.no:443/isso
+    - name: SECURITY_TOKEN_SERVICE_OPENID_CONFIGURATION_URL
+      value: https://security-token-service.nais.adeo.no/rest/v1/sts/.well-known/openid-configuration
+    - name: SECURITYTOKENSERVICE_URL
+      value: https://sts.adeo.no/SecurityTokenServiceProvider/
+    - name: APPDYNAMICS_CONTROLLER_PORT
+      value: "443"
+    - name: APPDYNAMICS_CONTROLLER_SSL_ENABLED
+      value: "true"
+    - name: APPDYNAMICS_AGENT_ACCOUNT_NAME
+      value: PROD
+    - name: APPDYNAMICS_AGENT_ACCOUNT_ACCESS_KEY
+      value: a2aa3452-c3af-4436-9871-d7d203a8f79f
+    - name: APPDYNAMICS_CONTROLLER_HOST_NAME
+      value: appdynamics.adeo.no
+    - name: KAFKA_BOOTSTRAP_SERVERS_URL
+      value: SASL_SSL://a01apvl00145.adeo.no:8443,SASL_SSL://a01apvl00146.adeo.no:8443,SASL_SSL://a01apvl00147.adeo.no:8443,SASL_SSL://a01apvl00149.adeo.no:8443
+    - name: KAFKA_STATISTIKK_TOPICNAME
+      value: privat-eessipensjon-statistikk
+    - name: KODEVERK_REST_API_URL
+      value: https://kodeverk.nais.adeo.no
+    - name: EESSI_PENSJON_INSTITUSJON
+      value: NO:889640782
+    - name: EESSI_PENSJON_INSTITUSJON_NAVN
+      value: "The Norwegian Labour and Welfare Administration"
+    - name: ENV
+      value: p
+  image: {{ image }}
+  ingresses:
+    - https://eessi-pensjon-fagmodul.nais.adeo.no
+  liveness:
+    path: /internal/isalive
+    port: 8080
+    initialDelay: 40
+    failureThreshold: 10
+  port: 8080
+  prometheus:
+    enabled: true
+    path: /actuator/prometheus
+  readiness:
+    path: /internal/isready
+    port: 8080
+    initialDelay: 40
+    failureThreshold: 10
+  replicas:
+    min: 1
+    max: 1
+    cpuThresholdPercentage: 80
+  resources:
+    limits:
+      cpu: "4"
+      memory: 8096Mi
+    requests:
+      cpu: 400m
+      memory: 4024Mi
+  vault:
+    enabled: true
+    paths:
+      - kvPath: {{serviceuserkv}}
+        mountPath: /var/run/secrets/nais.io/srveessipensjon
+      - kvPath: /apikey/appdynamics/prod
+        mountPath: /var/run/secrets/nais.io/vault
