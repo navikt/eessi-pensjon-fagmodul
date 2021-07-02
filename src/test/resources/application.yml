@@ -79,3 +79,5 @@ requestsamlpolicy.path: "classpath:policy/requestSamlPolicy.xml"
 server:
   error:
     include-message: always
+
+ENV: p
