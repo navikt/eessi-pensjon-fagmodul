@@ -8,7 +8,7 @@ import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Service
 
 @Service
-class StatistikkHandler(@Value("\${NAIS_NAMESPACE}") val nameSpace : String,
+class StatistikkHandler(@Value("\${ENV}") val env : String,
                         private val kafkaTemplate: KafkaTemplate<String, String>,
                         @Value("\${kafka.statistikk.topic}") private val statistikkTopic: String) {
 
@@ -37,7 +37,7 @@ class StatistikkHandler(@Value("\${NAIS_NAMESPACE}") val nameSpace : String,
     }
 
     private fun produserKafkaMelding(melding: StatistikkMelding) {
-        if(nameSpace == "q2") {
+        if(env == "q2") {
             kafkaTemplate.defaultTopic = statistikkTopic
 
             val key = populerMDC()
