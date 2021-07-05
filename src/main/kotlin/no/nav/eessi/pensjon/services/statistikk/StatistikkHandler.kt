@@ -46,7 +46,7 @@ class StatistikkHandler(@Value("\${ENV}") val env : String,
 
             logger.info("Oppretter statistikk melding på kafka: ${kafkaTemplate.defaultTopic}  melding: $melding")
             try {
-          //      kafkaTemplate.sendDefault(key, payload).get()
+                kafkaTemplate.sendDefault(key, payload).get()
             } catch (exception: Exception) {
                 logger.error(exception.message)
             }
