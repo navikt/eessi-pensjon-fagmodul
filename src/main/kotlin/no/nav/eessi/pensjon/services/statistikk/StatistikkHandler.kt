@@ -49,6 +49,7 @@ class StatistikkHandler(@Value("\${ENV}") val env : String,
                 kafkaTemplate.sendDefault(key, payload).get()
             } catch (exception: Exception) {
                 logger.error(exception.message)
+                logger.error(exception.printStackTrace().toString())
             }
         }
     }
