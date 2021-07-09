@@ -121,6 +121,7 @@ class PrefillController(
         addInstitution(request, dataModel, bucUtil)
 
         //Preutfyll av SED, pensjon og personer samt oppdatering av versjon
+        //sjekk på P7000-- hente nødvendige P6000 sed fra eux.. legg til på request->prefilll
         val sed = innhentingService.hentPreutyltSed(request)
 
         //Sjekk og opprette deltaker og legge sed på valgt BUC

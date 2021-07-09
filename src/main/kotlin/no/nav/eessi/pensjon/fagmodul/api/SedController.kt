@@ -13,6 +13,7 @@ import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.eux.model.sed.TotalSum
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.models.Kodeverk
 import no.nav.eessi.pensjon.fagmodul.models.KodeverkResponse
@@ -41,6 +42,13 @@ class SedController(
 
     private val logger = LoggerFactory.getLogger(SedController::class.java)
 
+    @ApiOperation("Henter liste over P6000 som kan ingå i preutfyll for P7000")
+    @GetMapping("/get/{euxcaseid}")
+    fun getDocumentP6000list(@PathVariable("euxcaseid", required = true) euxcaseid: String): List<DocumentsItem>? {
+        val bucUtils = BucUtils(euxInnhentingService.getBuc(euxcaseid))
+        return bucUtils.getAllDocuments().filter { doc -> doc.type == SedType.P6000 }
+    }
+
     @ApiOperation("Henter ut en SED fra et eksisterende Rina document. krever unik dokumentid fra valgt SED, ny api kall til eux")
     @GetMapping("/get/{euxcaseid}/{documentid}")
     fun getDocument(
@@ -52,7 +60,6 @@ class SedController(
         val sed = euxInnhentingService.getSedOnBucByDocumentId(euxcaseid, documentid)
         return mapToConcreteSedJson(sed)
     }
-
 
     @ApiOperation("Oppdaterer en SED i RINA med denne versjon av JSON. krever dokumentid, euxcaseid samt json")
     @PutMapping("/put/{euxcaseid}/{documentid}")
