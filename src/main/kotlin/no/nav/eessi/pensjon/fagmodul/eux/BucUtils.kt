@@ -233,7 +233,7 @@ class BucUtils(private val buc: Buc) {
             val newlistId = list.map { it.institution }
             buc.documents
                 ?.asSequence()
-                ?.filter { doc -> doc.type == SedType.X100 || doc.type == SedType.X007 && doc.status == "received" }
+                ?.filter { doc -> (doc.type == SedType.X100 || doc.type == SedType.X007) && doc.status == "received" }
                 ?.mapNotNull { doc -> doc.conversations }?.flatten()
                 ?.mapNotNull { con -> con.userMessages?.map { um -> um.sender?.id } }?.flatten()
                 ?.firstOrNull { senderId -> newlistId.contains(senderId) }
@@ -293,7 +293,7 @@ class BucUtils(private val buc: Buc) {
         return true
     }
 
-    fun checkIfSedCanBeCreatedEmptyStatus(SedType: SedType, parentId: String) : Boolean{
+    fun sjekkOmSvarSedKanOpprettes(SedType: SedType, parentId: String) : Boolean{
         if(getAllDocuments().any { it.parentDocumentId == parentId && it.type == SedType && it.status == "empty" }){
             return true
         }

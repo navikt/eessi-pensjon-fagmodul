@@ -194,15 +194,15 @@ class PrefillControllerTest {
 
         every {  prefillKlient.hentPreutfyltSed(any())} returns
                 createDummyX005(newParticipants.first()) andThen
-                createDummyX005(newParticipants.last()) andThen
-                SED(type = dummyPrefillData.sedType).toJson()
+                createDummyX005(newParticipants.last())
+//                SED(type = dummyPrefillData.sedType).toJson()
 
         assertThrows<ResponseStatusException> {
             prefillController.addInstutionAndDocument(apirequest)
         }
         verify(exactly = 1 ) { personService.hentIdent(any<IdentType.NorskIdent>(), any<AktoerId>()) }
         verify(exactly = 1 ) { mockEuxInnhentingService.getBuc(any()) }
-        verify(exactly = 3 ) { prefillKlient.hentPreutfyltSed(any()) }
+        verify(exactly = 2 ) { prefillKlient.hentPreutfyltSed(any()) }
 
     }
 

@@ -11,6 +11,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.EuxPrefillService
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucSedResponse
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.fagmodul.models.ApiRequest
+import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
@@ -73,6 +74,28 @@ class PrefillController(
         return BucAndSedView.from(buc)
     }
 
+    fun addInstution(request: ApiRequest, dataModel: PrefillDataModel, bucUtil: BucUtils) {
+        val nyeInstitusjoner = bucUtil.findNewParticipants(dataModel.getInstitutionsList())
+        val x005Liste = if (bucUtil.findFirstDocumentItemByType(SedType.X005) != null) {
+            //må lagge en sjekk på om X005 finnes alt i buc og om den er som "draft"
+
+            //hvis finnes som draft.. kaste bad request til sb..
+
+            logger.debug("Prefiller ut X005")
+            nyeInstitusjoner.map {
+                logger.debug("Legger til Institusjon på X005 ${it.institution}")
+                // ID og Navn på X005 er påkrevd må hente innn navn fra UI.
+                val x005request = request.copy(avdodfnr = null, sed = SedType.X005.name, institutions = listOf(it))
+                mapJsonToAny(innhentingService.hentPreutyltSed(x005request), typeRefs<X005>())
+            }
+        } else {
+            logger.debug("X005 finnes ikke i buc tomliste")
+            emptyList()
+        }
+        //sjekk og evt legger til deltakere
+        euxPrefillService.checkAndAddInstitution(dataModel, bucUtil, x005Liste, nyeInstitusjoner)
+    }
+
     @ApiOperation("Legge til Deltaker(e) og SED på et eksisterende Rina document. kjører preutfylling, ny api kall til eux")
     @PostMapping("sed/add")
     fun addInstutionAndDocument(
@@ -86,28 +109,15 @@ class PrefillController(
         //Hente metadata for valgt BUC
         val bucUtil = euxInnhentingService.kanSedOpprettes(dataModel)
 
+        //AddInstitution
+        addInstution(request, dataModel, bucUtil)
+
         //Preutfyll av SED, pensjon og personer samt oppdatering av versjon
         val sed = innhentingService.hentPreutyltSed(request)
 
         //Sjekk og opprette deltaker og legge sed på valgt BUC
         return addInstutionAndDocument.measure {
             logger.info("******* Legge til ny SED - start *******")
-
-            val nyeInstitusjoner = bucUtil.findNewParticipants(dataModel.getInstitutionsList())
-            val x005Liste = if (bucUtil.findFirstDocumentItemByType(SedType.X005) != null) {
-                    logger.debug("X005 finnes i buc prefiller ut X005")
-                    nyeInstitusjoner.map {
-                        logger.debug("Legger til Institusjon på X005 ${it.institution}")
-                        // ID og Navn på X005 er påkrevd må hente innn navn fra UI.
-                        val x005request = request.copy(avdodfnr = null, sed = SedType.X005.name, institutions = listOf(it))
-                        mapJsonToAny(innhentingService.hentPreutyltSed(x005request), typeRefs<X005>())
-                    }
-                } else {
-                    logger.debug("X005 finnes ikke i buc tomliste")
-                    emptyList()
-                }
-            //sjekk og evt legger til deltakere
-            euxPrefillService.checkAndAddInstitution(dataModel, bucUtil, x005Liste, nyeInstitusjoner)
 
             logger.info("Prøver å sende SED: ${dataModel.sedType} inn på BUC: ${dataModel.euxCaseID}")
             val docresult = euxPrefillService.opprettJsonSedOnBuc( sed, SedType.from(request.sed!!)!!, dataModel.euxCaseID, request.vedtakId)
@@ -137,12 +147,12 @@ class PrefillController(
 
         //Hente metadata for valgt BUC
         val bucUtil = addDocumentToParentBucUtils.measure {
-            logger.info("******* Hent BUC sjekk om sed kan opprettes *******")
+            logger.info("******* Hent BUC sjekk om svarSed kan opprettes *******")
             BucUtils(euxInnhentingService.getBuc(dataModel.euxCaseID)).also { bucUtil ->
                 //sjekk for om deltakere alt er fjernet med x007 eller x100 sed
                 bucUtil.checkForParticipantsNoLongerActiveFromXSEDAsInstitusjonItem(dataModel.getInstitutionsList())
                 //sjekk om en svarsed kan opprettes eller om den alt finnes
-                bucUtil.checkIfSedCanBeCreatedEmptyStatus(dataModel.sedType, parentId)
+                bucUtil.sjekkOmSvarSedKanOpprettes(dataModel.sedType, parentId)
             }
         }
 
