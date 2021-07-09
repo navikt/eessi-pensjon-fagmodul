@@ -81,11 +81,13 @@ class PrefillController(
     fun addInstitution(request: ApiRequest, dataModel: PrefillDataModel, bucUtil: BucUtils) {
         addInstution.measure {
             val nyeInstitusjoner = bucUtil.findNewParticipants(dataModel.getInstitutionsList())
-            val x005Doc = bucUtil.findFirstDocumentItemByType(SedType.X005)
-            logger.debug("X005DOC: " + x005Doc?.toJson())
-            if (x005Doc == null) {
+            //val x005Doc = bucUtil.findFirstDocumentItemByType(SedType.X005)
+            val x005docs = bucUtil.findDocumentByTypeAndStatus(SedType.X005)
+
+            logger.debug("X005DOC: " + x005docs?.toJson())
+            if (x005docs.isEmpty()) {
                 euxPrefillService.checkAndAddInstitution(dataModel, bucUtil, emptyList(), nyeInstitusjoner)
-            } else if (x005Doc.status == "Empty") {
+            } else if (x005docs.firstOrNull { it.status == "empty"} != null ) {
                 //hvis finnes som draft.. kaste bad request til sb..
 
                 logger.debug("Prefiller ut X005")
@@ -95,11 +97,10 @@ class PrefillController(
                     val x005request = request.copy(avdodfnr = null, sed = SedType.X005.name, institutions = listOf(it))
                     mapJsonToAny(innhentingService.hentPreutyltSed(x005request), typeRefs<X005>())
                 }
-            euxPrefillService.checkAndAddInstitution(dataModel, bucUtil, x005Liste, nyeInstitusjoner)
-            } else {
+                euxPrefillService.checkAndAddInstitution(dataModel, bucUtil, x005Liste, nyeInstitusjoner)
+            } else if (x005docs.firstOrNull { it.status == "new"} != null) {
                 throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Utkast av X005 finnes fra før.")
             }
-            //sjekk og evt legger til deltakere
         }
     }
 
