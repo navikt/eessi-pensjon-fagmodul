@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.server.ResponseStatusException
 import javax.annotation.PostConstruct
 
 @Protected
@@ -41,6 +42,7 @@ class PrefillController(
 
     private val logger = LoggerFactory.getLogger(PrefillController::class.java)
 
+    private lateinit var addInstution: MetricsHelper.Metric
     private lateinit var addInstutionAndDocument: MetricsHelper.Metric
     private lateinit var addDocumentToParent: MetricsHelper.Metric
     private lateinit var addInstutionAndDocumentBucUtils: MetricsHelper.Metric
@@ -48,6 +50,7 @@ class PrefillController(
 
     @PostConstruct
     fun initMetrics() {
+        addInstution = metricsHelper.init("AddInstution", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
         addInstutionAndDocument = metricsHelper.init("AddInstutionAndDocument", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
         addDocumentToParent = metricsHelper.init("AddDocumentToParent", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
         addInstutionAndDocumentBucUtils = metricsHelper.init("AddInstutionAndDocumentBucUtils", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
@@ -75,25 +78,25 @@ class PrefillController(
     }
 
     fun addInstution(request: ApiRequest, dataModel: PrefillDataModel, bucUtil: BucUtils) {
-        val nyeInstitusjoner = bucUtil.findNewParticipants(dataModel.getInstitutionsList())
-        val x005Liste = if (bucUtil.findFirstDocumentItemByType(SedType.X005) != null) {
-            //må lagge en sjekk på om X005 finnes alt i buc og om den er som "draft"
+        addInstution.measure {
+            val nyeInstitusjoner = bucUtil.findNewParticipants(dataModel.getInstitutionsList())
+            val x005Doc = bucUtil.findFirstDocumentItemByType(SedType.X005)
+            val x005Liste = if (x005Doc != null || x005Doc?.status == "empty"){
+                //hvis finnes som draft.. kaste bad request til sb..
 
-            //hvis finnes som draft.. kaste bad request til sb..
-
-            logger.debug("Prefiller ut X005")
-            nyeInstitusjoner.map {
-                logger.debug("Legger til Institusjon på X005 ${it.institution}")
-                // ID og Navn på X005 er påkrevd må hente innn navn fra UI.
-                val x005request = request.copy(avdodfnr = null, sed = SedType.X005.name, institutions = listOf(it))
-                mapJsonToAny(innhentingService.hentPreutyltSed(x005request), typeRefs<X005>())
+                logger.debug("Prefiller ut X005")
+                nyeInstitusjoner.map {
+                    logger.debug("Legger til Institusjon på X005 ${it.institution}")
+                    // ID og Navn på X005 er påkrevd må hente innn navn fra UI.
+                    val x005request = request.copy(avdodfnr = null, sed = SedType.X005.name, institutions = listOf(it))
+                    mapJsonToAny(innhentingService.hentPreutyltSed(x005request), typeRefs<X005>())
+                }
+            } else {
+                throw ResponseStatusException(HttpStatus.BAD_REQUEST, "X005 finnes ikke i buc tomliste")
             }
-        } else {
-            logger.debug("X005 finnes ikke i buc tomliste")
-            emptyList()
+            //sjekk og evt legger til deltakere
+            euxPrefillService.checkAndAddInstitution(dataModel, bucUtil, x005Liste, nyeInstitusjoner)
         }
-        //sjekk og evt legger til deltakere
-        euxPrefillService.checkAndAddInstitution(dataModel, bucUtil, x005Liste, nyeInstitusjoner)
     }
 
     @ApiOperation("Legge til Deltaker(e) og SED på et eksisterende Rina document. kjører preutfylling, ny api kall til eux")
