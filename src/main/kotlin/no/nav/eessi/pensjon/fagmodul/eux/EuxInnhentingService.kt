@@ -59,6 +59,7 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
         }
     }
 
+    @Deprecated("Denne utgår til fordel for mapToConcreteSedClass i EP-EUX")
     fun mapToConcreteSedClass(sedJson: String, failJson: Boolean = true): SED {
         val genericSed = mapJsonToAny(sedJson, typeRefs<SED>(), failJson)
 

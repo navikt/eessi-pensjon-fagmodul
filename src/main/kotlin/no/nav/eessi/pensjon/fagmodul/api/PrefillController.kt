@@ -16,6 +16,7 @@ import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.utils.mapJsonToAny
+import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.typeRefs
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
@@ -77,25 +78,28 @@ class PrefillController(
         return BucAndSedView.from(buc)
     }
 
-    fun addInstution(request: ApiRequest, dataModel: PrefillDataModel, bucUtil: BucUtils) {
+    fun addInstitution(request: ApiRequest, dataModel: PrefillDataModel, bucUtil: BucUtils) {
         addInstution.measure {
             val nyeInstitusjoner = bucUtil.findNewParticipants(dataModel.getInstitutionsList())
             val x005Doc = bucUtil.findFirstDocumentItemByType(SedType.X005)
-            val x005Liste = if (x005Doc != null || x005Doc?.status == "empty"){
+            logger.debug("X005DOC: " + x005Doc?.toJson())
+            if (x005Doc == null) {
+                euxPrefillService.checkAndAddInstitution(dataModel, bucUtil, emptyList(), nyeInstitusjoner)
+            } else if (x005Doc.status == "Empty") {
                 //hvis finnes som draft.. kaste bad request til sb..
 
                 logger.debug("Prefiller ut X005")
-                nyeInstitusjoner.map {
+                val x005Liste = nyeInstitusjoner.map {
                     logger.debug("Legger til Institusjon på X005 ${it.institution}")
                     // ID og Navn på X005 er påkrevd må hente innn navn fra UI.
                     val x005request = request.copy(avdodfnr = null, sed = SedType.X005.name, institutions = listOf(it))
                     mapJsonToAny(innhentingService.hentPreutyltSed(x005request), typeRefs<X005>())
                 }
+            euxPrefillService.checkAndAddInstitution(dataModel, bucUtil, x005Liste, nyeInstitusjoner)
             } else {
-                throw ResponseStatusException(HttpStatus.BAD_REQUEST, "X005 finnes ikke i buc tomliste")
+                throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Utkast av X005 finnes fra før.")
             }
             //sjekk og evt legger til deltakere
-            euxPrefillService.checkAndAddInstitution(dataModel, bucUtil, x005Liste, nyeInstitusjoner)
         }
     }
 
@@ -113,7 +117,7 @@ class PrefillController(
         val bucUtil = euxInnhentingService.kanSedOpprettes(dataModel)
 
         //AddInstitution
-        addInstution(request, dataModel, bucUtil)
+        addInstitution(request, dataModel, bucUtil)
 
         //Preutfyll av SED, pensjon og personer samt oppdatering av versjon
         val sed = innhentingService.hentPreutyltSed(request)
