@@ -34,10 +34,10 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
 
     fun getBuc(euxCaseId: String): Buc {
         val body = euxKlient.getBucJson(euxCaseId)
-        logger.debug("mapper buc om til BUC objekt-model")
         return mapJsonToAny(body, typeRefs())
     }
 
+    //hent buc for Pesys/tjeneste kjør som systembruker
     fun getBucAsSystemuser(euxCaseId: String): Buc {
         val body = euxKlient.getBucJsonAsSystemuser(euxCaseId)
         logger.debug("mapper buc om til BUC objekt-model")

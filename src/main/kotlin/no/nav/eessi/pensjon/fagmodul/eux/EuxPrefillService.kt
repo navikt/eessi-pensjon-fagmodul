@@ -11,7 +11,6 @@ import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.services.statistikk.StatistikkHandler
 import no.nav.eessi.pensjon.utils.toJson
-import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
@@ -25,8 +24,6 @@ class EuxPrefillService (private val euxKlient: EuxKlient,
                          @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())) {
 
     private val logger = LoggerFactory.getLogger(EuxPrefillService::class.java)
-
-    private val validBucAndSed = ValidBucAndSed()
 
     private lateinit var opprettSvarSED: MetricsHelper.Metric
     private lateinit var opprettSED: MetricsHelper.Metric
@@ -58,14 +55,13 @@ class EuxPrefillService (private val euxKlient: EuxKlient,
         logger.info("Forsøker å opprette en $SedType på rinasakId: $euxCaseId")
         logger.debug("Logger ut $jsonNavSED")
         val bucSedResponse  = euxKlient.opprettSed(jsonNavSED, euxCaseId, opprettSED, "Feil ved opprettSed: $SedType, med rinaId: $euxCaseId")
-        statistikk.produserSedOpprettetHendelse(euxCaseId, bucSedResponse.documentId, vedtakId)
 
+        statistikk.produserSedOpprettetHendelse(euxCaseId, bucSedResponse.documentId, vedtakId)
         return bucSedResponse
     }
 
     fun addInstitution(euxCaseID: String, nyeInstitusjoner: List<String>) {
-        logger.debug("Prøver å legge til Deltaker/Institusions på buc samt prefillSed og sende inn til Rina ")
-        logger.info("X005 finnes ikke på buc, legger til Deltakere/Institusjon på vanlig måte")
+        logger.info("Legger til Deltakere/Institusjon på vanlig måte, ny Buc")
         euxKlient.putBucMottakere(euxCaseID, nyeInstitusjoner)
     }
 
@@ -82,23 +78,19 @@ class EuxPrefillService (private val euxKlient: EuxKlient,
         val navCaseOwner = bucUtil.getCaseOwner()?.country == "NO"
         logger.debug(
             """
-            Hvem er caseOwner: ${bucUtil.getCaseOwner()?.toJson()} på buc: ${bucUtil.getProcessDefinitionName()}
-            Hvem er deltakere: ${bucUtil.getParticipants().filterNot { it.role == "CaseOwner" }.toJson()}
-            nyeInstitusjoner: ${nyeInstitusjoner.toJson()}
+            Hvem er CaseOwner: ${bucUtil.getCaseOwner()?.toJson()} på buc: ${bucUtil.getProcessDefinitionName()}
+            Hvem er Deltakere: ${bucUtil.getParticipants().filterNot { it.role == "CaseOwner" }.toJson()}
             x005liste: ${ x005Liste.mapNotNull { it.nav?.sak }.map{ it.leggtilinstitusjon }.toList().toJson()}
             x005 i buc null: ${bucUtil.findFirstDocumentItemByType(SedType.X005) == null}
             """.trimIndent()
         )
 
-        if (nyeInstitusjoner.isNotEmpty()) {
-            if (bucUtil.findFirstDocumentItemByType(SedType.X005) == null) {
+            if (x005Liste.isEmpty()) {
                 logger.debug("legger til nyeInstitusjoner på vanlig måte. (ny buc)")
                 addInstitution(dataModel.euxCaseID, nyeInstitusjoner.map { it.institution })
             } else {
-                //sjekk for caseowner
+                //sjekk for CaseOwner
                 nyeInstitusjoner.forEach {
-                    logger.debug("" +( !navCaseOwner && it.country != "NO"))
-                    logger.debug("" +( navCaseOwner && it.country == "NO"))
                     if (!navCaseOwner && it.country != "NO") {
                         logger.error("NAV er ikke sakseier. Du kan ikke legge til deltakere utenfor Norge")
                         throw ResponseStatusException(HttpStatus.BAD_REQUEST, "NAV er ikke sakseier. Du kan ikke legge til deltakere utenfor Norge")
@@ -106,7 +98,6 @@ class EuxPrefillService (private val euxKlient: EuxKlient,
                 }
                 addInstitutionMedX005(dataModel, bucUtil.getProcessDefinitionVersion(), x005Liste)
             }
-        }
     }
 
     private fun addInstitutionMedX005(
@@ -115,7 +106,7 @@ class EuxPrefillService (private val euxKlient: EuxKlient,
         x005Liste: List<SED>
     ) {
 
-        logger.info("X005 finnes på buc, Sed X005 prefills og sendes inn: ${x005Liste.toJsonSkipEmpty()}")
+        logger.info("X005 finnes på BUC, Sed X005 prefills og sendes inn.")
         var execptionError: Exception? = null
 
         x005Liste.forEach { x005 ->

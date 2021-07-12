@@ -80,26 +80,30 @@ class PrefillController(
 
     fun addInstitution(request: ApiRequest, dataModel: PrefillDataModel, bucUtil: BucUtils) {
         addInstution.measure {
+            logger.info("*** Legger til Instiusjoner på BUC eller X005 ***")
             val nyeInstitusjoner = bucUtil.findNewParticipants(dataModel.getInstitutionsList())
-            //val x005Doc = bucUtil.findFirstDocumentItemByType(SedType.X005)
-            val x005docs = bucUtil.findDocumentByTypeAndStatus(SedType.X005)
+            val x005docs = bucUtil.findX005DocumentByTypeAndStatus()
 
-            logger.debug("X005DOC: " + x005docs?.toJson())
-            if (x005docs.isEmpty()) {
-                euxPrefillService.checkAndAddInstitution(dataModel, bucUtil, emptyList(), nyeInstitusjoner)
-            } else if (x005docs.firstOrNull { it.status == "empty"} != null ) {
-                //hvis finnes som draft.. kaste bad request til sb..
+            logger.info("""
+                nyeInstitusjoner: ${nyeInstitusjoner.toJson()}
+            """.trimIndent())
 
-                logger.debug("Prefiller ut X005")
-                val x005Liste = nyeInstitusjoner.map {
-                    logger.debug("Legger til Institusjon på X005 ${it.institution}")
-                    // ID og Navn på X005 er påkrevd må hente innn navn fra UI.
-                    val x005request = request.copy(avdodfnr = null, sed = SedType.X005.name, institutions = listOf(it))
-                    mapJsonToAny(innhentingService.hentPreutyltSed(x005request), typeRefs<X005>())
+            if (nyeInstitusjoner.isNotEmpty()) {
+                if (x005docs.isEmpty()) {
+                    euxPrefillService.checkAndAddInstitution(dataModel, bucUtil, emptyList(), nyeInstitusjoner)
+                } else if (x005docs.firstOrNull { it.status == "empty"} != null ) {
+                    //hvis finnes som draft.. kaste bad request til sb..
+
+                    val x005Liste = nyeInstitusjoner.map {
+                        logger.debug("Prefiller X005, legger til Institusjon på X005 ${it.institution}")
+                        // ID og Navn på X005 er påkrevd må hente innn navn fra UI.
+                        val x005request = request.copy(avdodfnr = null, sed = SedType.X005.name, institutions = listOf(it))
+                        mapJsonToAny(innhentingService.hentPreutyltSed(x005request), typeRefs<X005>())
+                    }
+                    euxPrefillService.checkAndAddInstitution(dataModel, bucUtil, x005Liste, nyeInstitusjoner)
+                } else if (x005docs.firstOrNull { it.status == "new"} != null) {
+                    throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Utkast av X005 finnes fra før.")
                 }
-                euxPrefillService.checkAndAddInstitution(dataModel, bucUtil, x005Liste, nyeInstitusjoner)
-            } else if (x005docs.firstOrNull { it.status == "new"} != null) {
-                throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Utkast av X005 finnes fra før.")
             }
         }
     }
@@ -191,17 +195,13 @@ class PrefillController(
     ): DocumentsItem? {
         return if (bucType == "P_BUC_06") {
             logger.info("Henter BUC på nytt for buctype: $bucType")
-            Thread.sleep(1000)
+            Thread.sleep(900)
             val buc = euxInnhentingService.getBuc(bucSedResponse.caseId)
             val bucUtil = BucUtils(buc)
             bucUtil.findDocument(bucSedResponse.documentId)
         } else if (orginal == null && isNewRina2020) {
             logger.info("Henter BUC på nytt for buctype: $bucType")
-            try {
-                Thread.sleep(2000)
-            } catch (ex: Exception) {
-                //ikke noe
-            }
+            Thread.sleep(1000)
             val buc = euxInnhentingService.getBuc(bucSedResponse.caseId)
             val bucUtil = BucUtils(buc)
             bucUtil.findDocument(bucSedResponse.documentId)

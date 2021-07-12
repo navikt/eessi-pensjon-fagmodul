@@ -166,7 +166,7 @@ class EuxKlient(
     fun getBucJson(euxCaseId: String): String = getBucJsonWithRest(euxCaseId, euxOidcRestTemplate)
 
     private fun getBucJsonWithRest(euxCaseId: String, restTemplate: RestTemplate): String {
-        logger.info("euxCaseId: $euxCaseId")
+        logger.info("get euxCaseId: $euxCaseId")
 
         val path = "/buc/{RinaSakId}"
         val uriParams = mapOf("RinaSakId" to euxCaseId)

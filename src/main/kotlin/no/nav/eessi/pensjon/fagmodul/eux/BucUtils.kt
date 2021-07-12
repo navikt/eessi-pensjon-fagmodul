@@ -119,23 +119,15 @@ class BucUtils(private val buc: Buc) {
 
     fun getProcessDefinitionVersion() = buc.processDefinitionVersion ?: ""
 
-//    enum class SedStatus(@JsonValue private val value: String) {
-//        NEW("new"),
-//        SENT("sent"),
-//        EMPTY("empty"),
-//        RECEIVED("received"),
-//        CANCELLED("cancelled"),
-//        ACTIVE("active");
-
-    fun findDocumentByTypeAndStatus(sedType: SedType) = getDocuments()
-        .filter { sedType == it.type && (it.status != "sent" || it.status != "received" || it.status != "cancelled" || it.status != "active") }
+    fun findX005DocumentByTypeAndStatus() = getDocuments()
+        .filter { SedType.X005 == it.type && (it.status != "sent" || it.status != "received" || it.status != "cancelled" || it.status != "active") }
 
     fun findFirstDocumentItemByType(SedType: SedType) = getDocuments().find { SedType == it.type }?.let { createShortDocument(it) }
 
     private fun createShortDocument(documentItem: DocumentsItem) =
             DocumentsItem(
                 id = documentItem.id,
-                parentDocumentId = documentItem.parentDocumentId,
+                parentDocumentId = checkParentDocumentId(documentItem.type, documentItem.parentDocumentId),
                 type = documentItem.type,
                 displayName = documentItem.displayName,
                 status = documentItem.status,
@@ -148,6 +140,9 @@ class BucUtils(private val buc: Buc) {
                 lastVersion = getLastVersion(documentItem.versions),
                 allowsAttachments = overrideAllowAttachemnts(documentItem)
         )
+
+    private fun checkParentDocumentId(type: SedType?, parentDocumentId: String?): String? = if (type == SedType.X009) null else parentDocumentId
+
 
     private fun overrideAllowAttachemnts(documentItem: DocumentsItem): Boolean? {
         return if (documentItem.type == SedType.P5000) {
