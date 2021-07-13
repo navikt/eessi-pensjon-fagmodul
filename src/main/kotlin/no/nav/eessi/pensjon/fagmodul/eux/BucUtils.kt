@@ -227,6 +227,27 @@ class BucUtils(private val buc: Buc) {
                 )
             }.orEmpty()
 
+    fun getAllP6000AsDocumentItem() : List<DocItem> {
+        val documents = getAllDocuments().filter { doc -> doc.type == SedType.P6000 }.filter { it.status == "sent" || it.status == "received" }
+        return documents.map {
+                DocItem(
+                    type = it.type!!,
+                    bucid = getBuc().id!!,
+                    documentID = it.id!!,
+                    fraLand = getDocumentSenderCountryCode(it.conversations),
+                    sisteVersjon = getLastVersion(it.versions)
+                )
+        }
+    }
+
+    fun getDocumentSenderCountryCode(conversations: List<ConversationsItem>?): String? {
+        val participants = conversations?.findLast { it.participants != null }?.participants
+        return participants
+            ?.filter { it?.role == "Sender" }
+            ?.map { it?.organisation?.countryCode }
+            ?.single()
+    }
+
     fun getAllDocuments() = getDocuments().map { createShortDocument(it) }
 
     fun getDocumentByType(SedType: SedType): DocumentsItem? = getAllDocuments().firstOrNull { SedType == it.type && it.status != "empty" }

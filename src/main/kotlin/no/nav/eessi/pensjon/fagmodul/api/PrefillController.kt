@@ -2,10 +2,12 @@ package no.nav.eessi.pensjon.fagmodul.api
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import io.swagger.annotations.ApiOperation
+import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.eux.model.sed.X005
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
+import no.nav.eessi.pensjon.fagmodul.eux.DocItem
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.eux.EuxPrefillService
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucSedResponse
@@ -15,6 +17,7 @@ import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
+import no.nav.eessi.pensjon.utils.mapAnyToJson
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.typeRefs
@@ -126,7 +129,7 @@ class PrefillController(
 
         //Preutfyll av SED, pensjon og personer samt oppdatering av versjon
         //sjekk på P7000-- hente nødvendige P6000 sed fra eux.. legg til på request->prefilll
-        val sed = innhentingService.hentPreutyltSed(request)
+        val sed = innhentingService.hentPreutyltSed( checkForP7000AndAddP6000(request) )
 
         //Sjekk og opprette deltaker og legge sed på valgt BUC
         return addInstutionAndDocument.measure {
@@ -147,6 +150,15 @@ class PrefillController(
             documentItem
         }
 
+    }
+
+    fun checkForP7000AndAddP6000(request: ApiRequest): ApiRequest {
+        if (request.sed != "P7000") return request
+
+        val docitems = request.payload?.let { mapJsonToAny(it, typeRefs<List<DocItem>>()) }
+        val seds = docitems?.map { Pair<DocItem, SED>(it, euxInnhentingService.getSedOnBucByDocumentId(it.bucid, it.documentID)) }
+        val json = seds?.let { mapAnyToJson(it) }
+        return request.copy(payload = json)
     }
 
     @ApiOperation("Oppretter en Sed som svar på en forespørsel-Sed")

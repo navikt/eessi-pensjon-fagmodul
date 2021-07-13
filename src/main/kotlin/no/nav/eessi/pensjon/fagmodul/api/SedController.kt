@@ -12,8 +12,8 @@ import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.eux.model.sed.TotalSum
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
+import no.nav.eessi.pensjon.fagmodul.eux.DocItem
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.models.Kodeverk
 import no.nav.eessi.pensjon.fagmodul.models.KodeverkResponse
@@ -43,10 +43,11 @@ class SedController(
     private val logger = LoggerFactory.getLogger(SedController::class.java)
 
     @ApiOperation("Henter liste over P6000 som kan ingå i preutfyll for P7000")
-    @GetMapping("/get/{euxcaseid}")
-    fun getDocumentP6000list(@PathVariable("euxcaseid", required = true) euxcaseid: String): List<DocumentsItem>? {
+    @GetMapping("/getP6000/{euxcaseid}")
+    fun getDocumentP6000list(@PathVariable("euxcaseid", required = true) euxcaseid: String): List<DocItem>? {
         val bucUtils = BucUtils(euxInnhentingService.getBuc(euxcaseid))
-        return bucUtils.getAllDocuments().filter { doc -> doc.type == SedType.P6000 }
+        return bucUtils.getAllP6000AsDocumentItem()
+
     }
 
     @ApiOperation("Henter ut en SED fra et eksisterende Rina document. krever unik dokumentid fra valgt SED, ny api kall til eux")
