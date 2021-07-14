@@ -89,8 +89,6 @@ class PrefillControllerTest {
 
     @BeforeEach
     fun before() {
-//        mockEuxKlient.initMetrics()
-
         mockEuxPrefillService = EuxPrefillService(mockEuxKlient,
             StatistikkHandler("test", KafkaTemplate(DefaultKafkaProducerFactory(emptyMap())), "")
         )

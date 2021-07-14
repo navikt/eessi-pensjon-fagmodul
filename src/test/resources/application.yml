@@ -1,7 +1,7 @@
-NAIS_NAMESPACE: 'test'
+NAIS_NAMESPACE: 'eessipensjon'
 NAIS_APP_NAME: 'eessi-pensjon-fagmodul'
 NAIS_APP_IMAGE: 'someimage'
-
+ENV: p
 PDL_URL: 'http://example.com:8090'
 
 eessi-pensjon-active-profiles: ${spring.profiles.active}
@@ -74,10 +74,8 @@ kafka:
   statistikk:
     topic: eessi-pensjon-statistikk
 
-requestsamlpolicy.path: "classpath:policy/requestSamlPolicy.xml"
+#requestsamlpolicy.path: "classpath:policy/requestSamlPolicy.xml"
 
 server:
   error:
     include-message: always
-
-ENV: p

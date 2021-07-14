@@ -2,12 +2,12 @@ package no.nav.eessi.pensjon.fagmodul.api
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import io.swagger.annotations.ApiOperation
+import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.eux.model.sed.X005
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
-import no.nav.eessi.pensjon.fagmodul.eux.DocItem
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.eux.EuxPrefillService
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucSedResponse
@@ -36,7 +36,7 @@ import javax.annotation.PostConstruct
 @Protected
 @RestController
 class PrefillController(
-    @Value("\${NAIS_NAMESPACE}") val nameSpace: String,
+    @Value("\${ENV}") val environment: String,
     private val euxPrefillService: EuxPrefillService,
     private val euxInnhentingService: EuxInnhentingService,
     private val innhentingService: InnhentingService,
@@ -154,11 +154,13 @@ class PrefillController(
 
     fun checkForP7000AndAddP6000(request: ApiRequest): ApiRequest {
         if (request.sed != "P7000") return request
-
-        val docitems = request.payload?.let { mapJsonToAny(it, typeRefs<List<DocItem>>()) }
-        val seds = docitems?.map { Pair<DocItem, SED>(it, euxInnhentingService.getSedOnBucByDocumentId(it.bucid, it.documentID)) }
-        val json = seds?.let { mapAnyToJson(it) }
-        return request.copy(payload = json)
+        if (environment == "q2") {
+            val docitems = request.payload?.let { mapJsonToAny(it, typeRefs<List<P6000Dokument>>()) }
+            val seds = docitems?.map { Pair<P6000Dokument, SED>(it, euxInnhentingService.getSedOnBucByDocumentId(it.bucid, it.documentID)) }
+            val json = seds?.let { mapAnyToJson(it) }
+            return request.copy(payload = json)
+        }
+        return request
     }
 
     @ApiOperation("Oppretter en Sed som svar på en forespørsel-Sed")
