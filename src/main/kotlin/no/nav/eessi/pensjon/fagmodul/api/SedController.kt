@@ -1,6 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
 import io.swagger.annotations.ApiOperation
+import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.sed.MedlemskapItem
 import no.nav.eessi.pensjon.eux.model.sed.P4000
 import no.nav.eessi.pensjon.eux.model.sed.P5000
@@ -12,7 +13,6 @@ import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.eux.model.sed.TotalSum
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
-import no.nav.eessi.pensjon.fagmodul.eux.DocItem
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.models.Kodeverk
@@ -44,7 +44,7 @@ class SedController(
 
     @ApiOperation("Henter liste over P6000 som kan ingå i preutfyll for P7000")
     @GetMapping("/getP6000/{euxcaseid}")
-    fun getDocumentP6000list(@PathVariable("euxcaseid", required = true) euxcaseid: String): List<DocItem>? {
+    fun getDocumentP6000list(@PathVariable("euxcaseid", required = true) euxcaseid: String): List<P6000Dokument>? {
         val bucUtils = BucUtils(euxInnhentingService.getBuc(euxcaseid))
         return bucUtils.getAllP6000AsDocumentItem()
 

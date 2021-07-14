@@ -1,6 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
 import no.nav.eessi.pensjon.eux.model.buc.BucType
+import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.RinaAksjon
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Attachment
@@ -227,15 +228,15 @@ class BucUtils(private val buc: Buc) {
                 )
             }.orEmpty()
 
-    fun getAllP6000AsDocumentItem() : List<DocItem> {
+    fun getAllP6000AsDocumentItem() : List<P6000Dokument> {
         val documents = getAllDocuments().filter { doc -> doc.type == SedType.P6000 }.filter { it.status == "sent" || it.status == "received" }
         return documents.map {
-                DocItem(
+                P6000Dokument(
                     type = it.type!!,
                     bucid = getBuc().id!!,
                     documentID = it.id!!,
                     fraLand = getDocumentSenderCountryCode(it.conversations),
-                    sisteVersjon = getLastVersion(it.versions)
+                    sisteVersjon = getLastVersion(it.versions)?.id
                 )
         }
     }
