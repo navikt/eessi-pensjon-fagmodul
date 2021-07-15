@@ -87,11 +87,11 @@ class PrefillController(
             val nyeInstitusjoner = bucUtil.findNewParticipants(dataModel.getInstitutionsList())
             val x005docs = bucUtil.findX005DocumentByTypeAndStatus()
 
-            logger.info("""
-                nyeInstitusjoner: ${nyeInstitusjoner.toJson()}
-            """.trimIndent())
-
             if (nyeInstitusjoner.isNotEmpty()) {
+                logger.info("""
+                nyeInstitusjoner: ${nyeInstitusjoner.toJson()}
+                """.trimIndent())
+
                 if (x005docs.isEmpty()) {
                     euxPrefillService.checkAndAddInstitution(dataModel, bucUtil, emptyList(), nyeInstitusjoner)
                 } else if (x005docs.firstOrNull { it.status == "empty"} != null ) {

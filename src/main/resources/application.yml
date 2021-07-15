@@ -74,5 +74,3 @@ spring:
       sasl:
         mechanism: PLAIN
         jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="${srvusername}" password="${srvpassword}";
-
-requestsamlpolicy.path: "classpath:policy/requestSamlPolicy.xml"

@@ -1,7 +1,7 @@
 NAIS_NAMESPACE: 'eessipensjon'
 NAIS_APP_NAME: 'eessi-pensjon-fagmodul'
 NAIS_APP_IMAGE: 'someimage'
-ENV: p
+ENV: test
 PDL_URL: 'http://example.com:8090'
 
 eessi-pensjon-active-profiles: ${spring.profiles.active}
@@ -73,8 +73,6 @@ kafka:
     groupid: eessi-pensjon-fagmodul-group
   statistikk:
     topic: eessi-pensjon-statistikk
-
-#requestsamlpolicy.path: "classpath:policy/requestSamlPolicy.xml"
 
 server:
   error:
