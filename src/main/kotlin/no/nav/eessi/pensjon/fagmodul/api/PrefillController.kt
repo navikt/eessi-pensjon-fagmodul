@@ -2,6 +2,8 @@ package no.nav.eessi.pensjon.fagmodul.api
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import io.swagger.annotations.ApiOperation
+import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
+import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.eux.model.sed.X005
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
@@ -11,10 +13,13 @@ import no.nav.eessi.pensjon.fagmodul.eux.EuxPrefillService
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucSedResponse
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.fagmodul.models.ApiRequest
+import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
+import no.nav.eessi.pensjon.utils.mapAnyToJson
 import no.nav.eessi.pensjon.utils.mapJsonToAny
+import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.typeRefs
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
@@ -25,12 +30,13 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.server.ResponseStatusException
 import javax.annotation.PostConstruct
 
 @Protected
 @RestController
 class PrefillController(
-    @Value("\${NAIS_NAMESPACE}") val nameSpace: String,
+    @Value("\${ENV}") val environment: String,
     private val euxPrefillService: EuxPrefillService,
     private val euxInnhentingService: EuxInnhentingService,
     private val innhentingService: InnhentingService,
@@ -40,6 +46,7 @@ class PrefillController(
 
     private val logger = LoggerFactory.getLogger(PrefillController::class.java)
 
+    private lateinit var addInstution: MetricsHelper.Metric
     private lateinit var addInstutionAndDocument: MetricsHelper.Metric
     private lateinit var addDocumentToParent: MetricsHelper.Metric
     private lateinit var addInstutionAndDocumentBucUtils: MetricsHelper.Metric
@@ -47,6 +54,7 @@ class PrefillController(
 
     @PostConstruct
     fun initMetrics() {
+        addInstution = metricsHelper.init("AddInstution", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
         addInstutionAndDocument = metricsHelper.init("AddInstutionAndDocument", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
         addDocumentToParent = metricsHelper.init("AddDocumentToParent", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
         addInstutionAndDocumentBucUtils = metricsHelper.init("AddInstutionAndDocumentBucUtils", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
@@ -73,6 +81,36 @@ class PrefillController(
         return BucAndSedView.from(buc)
     }
 
+    fun addInstitution(request: ApiRequest, dataModel: PrefillDataModel, bucUtil: BucUtils) {
+        addInstution.measure {
+            logger.info("*** Legger til Instiusjoner på BUC eller X005 ***")
+            val nyeInstitusjoner = bucUtil.findNewParticipants(dataModel.getInstitutionsList())
+            val x005docs = bucUtil.findX005DocumentByTypeAndStatus()
+
+            if (nyeInstitusjoner.isNotEmpty()) {
+                logger.info("""
+                nyeInstitusjoner: ${nyeInstitusjoner.toJson()}
+                """.trimIndent())
+
+                if (x005docs.isEmpty()) {
+                    euxPrefillService.checkAndAddInstitution(dataModel, bucUtil, emptyList(), nyeInstitusjoner)
+                } else if (x005docs.firstOrNull { it.status == "empty"} != null ) {
+                    //hvis finnes som draft.. kaste bad request til sb..
+
+                    val x005Liste = nyeInstitusjoner.map {
+                        logger.debug("Prefiller X005, legger til Institusjon på X005 ${it.institution}")
+                        // ID og Navn på X005 er påkrevd må hente innn navn fra UI.
+                        val x005request = request.copy(avdodfnr = null, sed = SedType.X005.name, institutions = listOf(it))
+                        mapJsonToAny(innhentingService.hentPreutyltSed(x005request), typeRefs<X005>())
+                    }
+                    euxPrefillService.checkAndAddInstitution(dataModel, bucUtil, x005Liste, nyeInstitusjoner)
+                } else if (x005docs.firstOrNull { it.status == "new"} != null) {
+                    throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Utkast av X005 finnes fra før.")
+                }
+            }
+        }
+    }
+
     @ApiOperation("Legge til Deltaker(e) og SED på et eksisterende Rina document. kjører preutfylling, ny api kall til eux")
     @PostMapping("sed/add")
     fun addInstutionAndDocument(
@@ -86,28 +124,16 @@ class PrefillController(
         //Hente metadata for valgt BUC
         val bucUtil = euxInnhentingService.kanSedOpprettes(dataModel)
 
+        //AddInstitution
+        addInstitution(request, dataModel, bucUtil)
+
         //Preutfyll av SED, pensjon og personer samt oppdatering av versjon
-        val sed = innhentingService.hentPreutyltSed(request)
+        //sjekk på P7000-- hente nødvendige P6000 sed fra eux.. legg til på request->prefilll
+        val sed = innhentingService.hentPreutyltSed( checkForP7000AndAddP6000(request) )
 
         //Sjekk og opprette deltaker og legge sed på valgt BUC
         return addInstutionAndDocument.measure {
             logger.info("******* Legge til ny SED - start *******")
-
-            val nyeInstitusjoner = bucUtil.findNewParticipants(dataModel.getInstitutionsList())
-            val x005Liste = if (bucUtil.findFirstDocumentItemByType(SedType.X005) != null) {
-                    logger.debug("X005 finnes i buc prefiller ut X005")
-                    nyeInstitusjoner.map {
-                        logger.debug("Legger til Institusjon på X005 ${it.institution}")
-                        // ID og Navn på X005 er påkrevd må hente innn navn fra UI.
-                        val x005request = request.copy(avdodfnr = null, sed = SedType.X005.name, institutions = listOf(it))
-                        mapJsonToAny(innhentingService.hentPreutyltSed(x005request), typeRefs<X005>())
-                    }
-                } else {
-                    logger.debug("X005 finnes ikke i buc tomliste")
-                    emptyList()
-                }
-            //sjekk og evt legger til deltakere
-            euxPrefillService.checkAndAddInstitution(dataModel, bucUtil, x005Liste, nyeInstitusjoner)
 
             logger.info("Prøver å sende SED: ${dataModel.sedType} inn på BUC: ${dataModel.euxCaseID}")
             val docresult = euxPrefillService.opprettJsonSedOnBuc( sed, SedType.from(request.sed!!)!!, dataModel.euxCaseID, request.vedtakId)
@@ -126,6 +152,17 @@ class PrefillController(
 
     }
 
+    fun checkForP7000AndAddP6000(request: ApiRequest): ApiRequest {
+        if (request.sed != "P7000") return request
+        if (environment == "q2") {
+            val docitems = request.payload?.let { mapJsonToAny(it, typeRefs<List<P6000Dokument>>()) }
+            val seds = docitems?.map { Pair<P6000Dokument, SED>(it, euxInnhentingService.getSedOnBucByDocumentId(it.bucid, it.documentID)) }
+            val json = seds?.let { mapAnyToJson(it) }
+            return request.copy(payload = json)
+        }
+        return request
+    }
+
     @ApiOperation("Oppretter en Sed som svar på en forespørsel-Sed")
     @PostMapping("sed/replysed/{parentid}")
     fun addDocumentToParent(
@@ -137,12 +174,12 @@ class PrefillController(
 
         //Hente metadata for valgt BUC
         val bucUtil = addDocumentToParentBucUtils.measure {
-            logger.info("******* Hent BUC sjekk om sed kan opprettes *******")
+            logger.info("******* Hent BUC sjekk om svarSed kan opprettes *******")
             BucUtils(euxInnhentingService.getBuc(dataModel.euxCaseID)).also { bucUtil ->
                 //sjekk for om deltakere alt er fjernet med x007 eller x100 sed
                 bucUtil.checkForParticipantsNoLongerActiveFromXSEDAsInstitusjonItem(dataModel.getInstitutionsList())
                 //sjekk om en svarsed kan opprettes eller om den alt finnes
-                bucUtil.checkIfSedCanBeCreatedEmptyStatus(dataModel.sedType, parentId)
+                bucUtil.sjekkOmSvarSedKanOpprettes(dataModel.sedType, parentId)
             }
         }
 
@@ -172,17 +209,13 @@ class PrefillController(
     ): DocumentsItem? {
         return if (bucType == "P_BUC_06") {
             logger.info("Henter BUC på nytt for buctype: $bucType")
-            Thread.sleep(1000)
+            Thread.sleep(900)
             val buc = euxInnhentingService.getBuc(bucSedResponse.caseId)
             val bucUtil = BucUtils(buc)
             bucUtil.findDocument(bucSedResponse.documentId)
         } else if (orginal == null && isNewRina2020) {
             logger.info("Henter BUC på nytt for buctype: $bucType")
-            try {
-                Thread.sleep(2000)
-            } catch (ex: Exception) {
-                //ikke noe
-            }
+            Thread.sleep(1000)
             val buc = euxInnhentingService.getBuc(bucSedResponse.caseId)
             val bucUtil = BucUtils(buc)
             bucUtil.findDocument(bucSedResponse.documentId)

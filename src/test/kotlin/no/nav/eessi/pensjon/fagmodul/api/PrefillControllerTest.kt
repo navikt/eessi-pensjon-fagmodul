@@ -10,11 +10,11 @@ import io.mockk.mockk
 import io.mockk.verify
 import no.nav.eessi.pensjon.eux.model.sed.InstitusjonX005
 import no.nav.eessi.pensjon.eux.model.sed.Leggtilinstitusjon
-import no.nav.eessi.pensjon.eux.model.sed.Nav
 import no.nav.eessi.pensjon.eux.model.sed.Navsak
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.eux.model.sed.X005
+import no.nav.eessi.pensjon.eux.model.sed.XNav
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.eux.EuxKlient
@@ -89,8 +89,6 @@ class PrefillControllerTest {
 
     @BeforeEach
     fun before() {
-//        mockEuxKlient.initMetrics()
-
         mockEuxPrefillService = EuxPrefillService(mockEuxKlient,
             StatistikkHandler("test", KafkaTemplate(DefaultKafkaProducerFactory(emptyMap())), "")
         )
@@ -140,17 +138,15 @@ class PrefillControllerTest {
     }
 
     @Test
-    fun `call addInstutionAndDocument mock adding two institusjon when X005 exists already`() {
+    fun `call addInstutionAndDocument mock adding two institusjon when X005 exists already as new will throw bad request`() {
         val euxCaseId = "1234567890"
 
         every { personService.hentIdent(eq(IdentType.NorskIdent), any<AktoerId>()) } returns NorskIdent("12345")
 
         val mockParticipants = listOf(ParticipantsItem(role = "CaseOwner", organisation = Organisation(countryCode = "NO", name = "NAV", id = "NAV")))
         val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = mockParticipants)
-        mockBuc.documents = listOf(createDummyBucDocumentItem(), DocumentsItem(type = SedType.X005))
+        mockBuc.documents = listOf(createDummyBucDocumentItem(), DocumentsItem(type = SedType.X005, status = "new"))
         mockBuc.actions = listOf(ActionsItem(name = "Send"))
-
-        val dummyPrefillData = ApiRequest.buildPrefillDataModelOnExisting(apiRequestWith(euxCaseId), NorskIdent("12345").id, null)
 
         val newParticipants = listOf(
             InstitusjonItem(country = "FI", institution = "Finland", name="Finland test"),
@@ -158,18 +154,17 @@ class PrefillControllerTest {
         )
 
         every { mockEuxInnhentingService.getBuc(euxCaseId) } returns mockBuc
-        every { mockEuxPrefillService.opprettJsonSedOnBuc(any(), any(), euxCaseId, dummyPrefillData.vedtakId) } returns BucSedResponse(euxCaseId,"1")
-        every { prefillKlient.hentPreutfyltSed(any()) } returns createDummyX005(newParticipants.first()) andThen createDummyX005(newParticipants.last()) andThen SED(type = dummyPrefillData.sedType).toJson()
 
-        prefillController.addInstutionAndDocument(apiRequestWith(euxCaseId, newParticipants))
+        assertThrows<ResponseStatusException> {
+            prefillController.addInstutionAndDocument(apiRequestWith(euxCaseId, newParticipants))
+        }
 
-        verify(exactly = newParticipants.size  + 1) { mockEuxPrefillService.opprettJsonSedOnBuc(any(), any(), eq(euxCaseId), dummyPrefillData.vedtakId)}
-        verify(exactly = 3) { prefillKlient.hentPreutfyltSed(any()) }
+        verify(exactly = 1) { mockEuxInnhentingService.getBuc(any()) }
 
     }
 
     private fun createDummyX005(newParticipants: InstitusjonItem): String {
-        return X005(nav = Nav(sak = Navsak(leggtilinstitusjon = Leggtilinstitusjon(institusjon = InstitusjonX005(id = newParticipants.institution, navn = newParticipants.name ?: "" ))))).toJson()
+        return X005(xnav = XNav(sak = Navsak(leggtilinstitusjon = Leggtilinstitusjon(institusjon = InstitusjonX005(id = newParticipants.institution, navn = newParticipants.name ?: "" ))))).toJson()
     }
 
 
@@ -179,7 +174,7 @@ class PrefillControllerTest {
 
         val mockParticipants = listOf(ParticipantsItem(role = "CaseOwner", organisation = Organisation(countryCode = "SE", name = "SE", id = "SE")))
         val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = mockParticipants)
-        mockBuc.documents = listOf(createDummyBucDocumentItem(), DocumentsItem(type = SedType.X005))
+        mockBuc.documents = listOf(createDummyBucDocumentItem(), DocumentsItem(type = SedType.X005, status = "empty"))
         mockBuc.actions = listOf(ActionsItem(name = "Send"))
 
         val newParticipants = listOf(
@@ -194,15 +189,14 @@ class PrefillControllerTest {
 
         every {  prefillKlient.hentPreutfyltSed(any())} returns
                 createDummyX005(newParticipants.first()) andThen
-                createDummyX005(newParticipants.last()) andThen
-                SED(type = dummyPrefillData.sedType).toJson()
+                createDummyX005(newParticipants.last())
 
         assertThrows<ResponseStatusException> {
             prefillController.addInstutionAndDocument(apirequest)
         }
         verify(exactly = 1 ) { personService.hentIdent(any<IdentType.NorskIdent>(), any<AktoerId>()) }
         verify(exactly = 1 ) { mockEuxInnhentingService.getBuc(any()) }
-        verify(exactly = 3 ) { prefillKlient.hentPreutfyltSed(any()) }
+        verify(exactly = 2 ) { prefillKlient.hentPreutfyltSed(any()) }
 
     }
 

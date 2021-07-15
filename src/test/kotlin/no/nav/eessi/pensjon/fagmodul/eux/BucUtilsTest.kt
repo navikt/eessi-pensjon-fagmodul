@@ -69,12 +69,12 @@ class BucUtilsTest {
         val bucjson = getTestJsonFile("buc-285268-answerid.json")
         val bucUtil = BucUtils(mapJsonToAny(bucjson, typeRefs()))
 
-        assertTrue(bucUtil.checkIfSedCanBeCreatedEmptyStatus(SedType, parentId))
+        assertTrue(bucUtil.sjekkOmSvarSedKanOpprettes(SedType, parentId))
 
         val parentIdStatusSendt = "fd9fd9ee97ee46d0a3f5c58d1b245268"
 
         assertThrows<SedDokumentKanIkkeOpprettesException> {
-            bucUtil.checkIfSedCanBeCreatedEmptyStatus(SedType, parentIdStatusSendt)
+            bucUtil.sjekkOmSvarSedKanOpprettes(SedType, parentIdStatusSendt)
         }
     }
 

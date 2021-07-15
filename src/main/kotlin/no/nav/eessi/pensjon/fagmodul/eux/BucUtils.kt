@@ -1,6 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
 import no.nav.eessi.pensjon.eux.model.buc.BucType
+import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.RinaAksjon
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Attachment
@@ -119,12 +120,15 @@ class BucUtils(private val buc: Buc) {
 
     fun getProcessDefinitionVersion() = buc.processDefinitionVersion ?: ""
 
+    fun findX005DocumentByTypeAndStatus() = getDocuments()
+        .filter { SedType.X005 == it.type && (it.status != "sent" || it.status != "received" || it.status != "cancelled" || it.status != "active") }
+
     fun findFirstDocumentItemByType(SedType: SedType) = getDocuments().find { SedType == it.type }?.let { createShortDocument(it) }
 
     private fun createShortDocument(documentItem: DocumentsItem) =
             DocumentsItem(
                 id = documentItem.id,
-                parentDocumentId = documentItem.parentDocumentId,
+                parentDocumentId = checkParentDocumentId(documentItem.type, documentItem.parentDocumentId),
                 type = documentItem.type,
                 displayName = documentItem.displayName,
                 status = documentItem.status,
@@ -137,6 +141,9 @@ class BucUtils(private val buc: Buc) {
                 lastVersion = getLastVersion(documentItem.versions),
                 allowsAttachments = overrideAllowAttachemnts(documentItem)
         )
+
+    private fun checkParentDocumentId(type: SedType?, parentDocumentId: String?): String? = if (type == SedType.X009) null else parentDocumentId
+
 
     private fun overrideAllowAttachemnts(documentItem: DocumentsItem): Boolean? {
         return if (documentItem.type == SedType.P5000) {
@@ -221,6 +228,27 @@ class BucUtils(private val buc: Buc) {
                 )
             }.orEmpty()
 
+    fun getAllP6000AsDocumentItem() : List<P6000Dokument> {
+        val documents = getAllDocuments().filter { doc -> doc.type == SedType.P6000 }.filter { it.status == "sent" || it.status == "received" }
+        return documents.map {
+                P6000Dokument(
+                    type = it.type!!,
+                    bucid = getBuc().id!!,
+                    documentID = it.id!!,
+                    fraLand = getDocumentSenderCountryCode(it.conversations),
+                    sisteVersjon = getLastVersion(it.versions)?.id
+                )
+        }
+    }
+
+    fun getDocumentSenderCountryCode(conversations: List<ConversationsItem>?): String? {
+        val participants = conversations?.findLast { it.participants != null }?.participants
+        return participants
+            ?.filter { it?.role == "Sender" }
+            ?.map { it?.organisation?.countryCode }
+            ?.single()
+    }
+
     fun getAllDocuments() = getDocuments().map { createShortDocument(it) }
 
     fun getDocumentByType(SedType: SedType): DocumentsItem? = getAllDocuments().firstOrNull { SedType == it.type && it.status != "empty" }
@@ -233,7 +261,7 @@ class BucUtils(private val buc: Buc) {
             val newlistId = list.map { it.institution }
             buc.documents
                 ?.asSequence()
-                ?.filter { doc -> doc.type == SedType.X100 || doc.type == SedType.X007 && doc.status == "received" }
+                ?.filter { doc -> (doc.type == SedType.X100 || doc.type == SedType.X007) && doc.status == "received" }
                 ?.mapNotNull { doc -> doc.conversations }?.flatten()
                 ?.mapNotNull { con -> con.userMessages?.map { um -> um.sender?.id } }?.flatten()
                 ?.firstOrNull { senderId -> newlistId.contains(senderId) }
@@ -293,7 +321,7 @@ class BucUtils(private val buc: Buc) {
         return true
     }
 
-    fun checkIfSedCanBeCreatedEmptyStatus(SedType: SedType, parentId: String) : Boolean{
+    fun sjekkOmSvarSedKanOpprettes(SedType: SedType, parentId: String) : Boolean{
         if(getAllDocuments().any { it.parentDocumentId == parentId && it.type == SedType && it.status == "empty" }){
             return true
         }

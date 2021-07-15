@@ -9,7 +9,7 @@ buildscript {
         tokenSupportVersion = '1.1.6'
         logstashLogbackVersion = '6.6'
         pensjonInformasjonVersion = '9.4.10'
-        eessiEux = '1.0.50'
+        eessiEux = '1.1.1'
     }
 
     repositories {

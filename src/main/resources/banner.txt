@@ -4,13 +4,14 @@
     |  _)|  _) \__ \\__ \| | (__) |  _/|  _)|    |    \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
     \ ___)\___)|___/|___/|_|      |_|  \ ___)_|\_|     '  |____| .__|_| |_|_| |_\__, | / / / /
 ===============================================================|_|==============|___/=/_/_/_/=======
-    EESSI-APP : ${NAIS_APP_NAME}:${NAIS_APP_IMAGE}                          :: Spring Boot ::      (${spring-boot.version})
+    EESSI-APP : ${NAIS_APP_NAME}:${NAIS_APP_IMAGE}                      :: Spring Boot ::      (${spring-boot.version})
 
              -=<>=- Electronic Exchange of Social Security Information  -=<>=-
 
     Pensjoninformasjon              : ${pensjonsinformasjon.url}
-    EUXBasis                        : ${eessipen-eux-rina.url}
+    EUXBasis                        : ${EESSIPEN_EUX_RINA.URL}
     PersonDataLøsning(PDL)          : ${PDL_URL}
+    Prefill service URL             : ${EESSIPENSJON_PREFILL_URL}
 
     ISSO Tokensupport OIDC          : ${no.nav.security.jwt.issuer.oidc.discoveryurl}
     ISSO Tokensupport accept        : ${no.nav.security.jwt.issuer.oidc.accepted_audience}
@@ -20,7 +21,7 @@
 
     securityTokenService            : ${securityTokenService.url}
 
-    fasit env                       : ${NAIS_NAMESPACE}
+    namespace                       : ${NAIS_NAMESPACE}
     active-profiles                 : ${spring.profiles.active}
 
 =====================================================================================================

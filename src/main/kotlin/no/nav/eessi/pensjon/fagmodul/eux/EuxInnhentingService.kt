@@ -1,10 +1,5 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
-import no.nav.eessi.pensjon.eux.model.sed.P4000
-import no.nav.eessi.pensjon.eux.model.sed.P5000
-import no.nav.eessi.pensjon.eux.model.sed.P6000
-import no.nav.eessi.pensjon.eux.model.sed.P7000
-import no.nav.eessi.pensjon.eux.model.sed.P8000
 import no.nav.eessi.pensjon.eux.model.sed.Person
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.SedType
@@ -34,10 +29,10 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
 
     fun getBuc(euxCaseId: String): Buc {
         val body = euxKlient.getBucJson(euxCaseId)
-        logger.debug("mapper buc om til BUC objekt-model")
         return mapJsonToAny(body, typeRefs())
     }
 
+    //hent buc for Pesys/tjeneste kjør som systembruker
     fun getBucAsSystemuser(euxCaseId: String): Buc {
         val body = euxKlient.getBucJsonAsSystemuser(euxCaseId)
         logger.debug("mapper buc om til BUC objekt-model")
@@ -46,29 +41,16 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
 
     fun getSedOnBucByDocumentId(euxCaseId: String, documentId: String): SED {
         val json = euxKlient.getSedOnBucByDocumentIdAsJson(euxCaseId, documentId)
-        return mapToConcreteSedClass(json)
+        return SED.fromJsonToConcrete(json)
     }
 
     fun getSedOnBucByDocumentIdAsSystemuser(euxCaseId: String, documentId: String): SED {
         val json = euxKlient.getSedOnBucByDocumentIdAsJsonAndAsSystemuser(euxCaseId, documentId)
         return try {
-            mapToConcreteSedClass(json, false)
+            SED.fromJsonToConcrete(json)
         } catch (ex: Exception) {
             logger.error("Feiler ved mapping av kravSED. Rina: $euxCaseId, documentid: $documentId")
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Feiler ved mapping av kravSED. Rina: $euxCaseId, documentid: $documentId")
-        }
-    }
-
-    fun mapToConcreteSedClass(sedJson: String, failJson: Boolean = true): SED {
-        val genericSed = mapJsonToAny(sedJson, typeRefs<SED>(), failJson)
-
-        return when(genericSed.type) {
-            SedType.P4000 -> mapJsonToAny(sedJson, typeRefs<P4000>())
-            SedType.P5000 -> mapJsonToAny(sedJson, typeRefs<P5000>())
-            SedType.P6000 -> mapJsonToAny(sedJson, typeRefs<P6000>())
-            SedType.P7000 -> mapJsonToAny(sedJson, typeRefs<P7000>())
-            SedType.P8000 -> mapJsonToAny(sedJson, typeRefs<P8000>())
-            else -> genericSed
         }
     }
 
