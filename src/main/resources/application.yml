@@ -11,7 +11,7 @@ no.nav.security.jwt:
    accepted_audience: 'eessi-pensjon-frontend-api-fss-${ENV}'
  issuer.oidc:
    discoveryurl: '${OPENIDCONNECT_URL}/oauth2/.well-known/openid-configuration'
-   accepted_audience: 'eessi-fagmodul-${ENV},eessi-pensjon-frontend-api-fss-${ENV},ida-t,ida-q'
+   accepted_audience: 'eessi-fagmodul-${ENV},eessi-pensjon-frontend-api-fss-${ENV},ida-q'
  issuer.servicebruker:
    discoveryurl: '${security-token-service-openid-configuration_url}'
    accepted_audience: 'srvpensjon,srveessipensjon,srveessi-pensjon-j,srveessi-pensjon-b'

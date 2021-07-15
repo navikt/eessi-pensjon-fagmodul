@@ -3,14 +3,9 @@ package no.nav.eessi.pensjon.fagmodul.api
 import io.swagger.annotations.ApiOperation
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.sed.MedlemskapItem
-import no.nav.eessi.pensjon.eux.model.sed.P4000
 import no.nav.eessi.pensjon.eux.model.sed.P5000
 import no.nav.eessi.pensjon.eux.model.sed.P5000Pensjon
-import no.nav.eessi.pensjon.eux.model.sed.P6000
-import no.nav.eessi.pensjon.eux.model.sed.P7000
-import no.nav.eessi.pensjon.eux.model.sed.P8000
 import no.nav.eessi.pensjon.eux.model.sed.SED
-import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.eux.model.sed.TotalSum
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
@@ -59,7 +54,7 @@ class SedController(
         auditlogger.logBuc("getDocument", " euxCaseId: $euxcaseid documentId: $documentid")
         logger.info("Hente SED innhold for /${euxcaseid}/${documentid} ")
         val sed = euxInnhentingService.getSedOnBucByDocumentId(euxcaseid, documentid)
-        return mapToConcreteSedJson(sed)
+        return sed.toJson()
     }
 
     @ApiOperation("Oppdaterer en SED i RINA med denne versjon av JSON. krever dokumentid, euxcaseid samt json")
@@ -72,7 +67,7 @@ class SedController(
 
         val validsed = try {
 
-            val sed = euxInnhentingService.mapToConcreteSedClass(sedPayload)
+            val sed = SED.fromJsonToConcrete(sedPayload)
             //hvis P5000.. .
             val validSed = if (sed is P5000)  {
                 logger.debug("SED er P5000 av type: ${sed.type}")
@@ -147,17 +142,5 @@ class SedController(
         }
         return this
     }
-
-    private fun mapToConcreteSedJson(sedJson: SED): String {
-        return when (sedJson.type) {
-            SedType.P4000 -> (sedJson as P4000).toJson()
-            SedType.P5000 -> (sedJson as P5000).toJson()
-            SedType.P6000 -> (sedJson as P6000).toJson()
-            SedType.P7000 -> (sedJson as P7000).toJson()
-            SedType.P8000 -> (sedJson as P8000).toJson()
-            else -> sedJson.toJson()
-        }
-    }
-
 
 }
