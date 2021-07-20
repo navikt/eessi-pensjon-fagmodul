@@ -58,7 +58,8 @@ class SedControllerTest {
 
         this.sedController = SedController(
             mockEuxInnhentingService,
-            mockk(relaxed = true)
+            mockk(relaxed = true),
+            "http://rinaurl/cpi"
         )
     }
 

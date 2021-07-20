@@ -9,7 +9,7 @@ buildscript {
         tokenSupportVersion = '1.1.6'
         logstashLogbackVersion = '6.6'
         pensjonInformasjonVersion = '9.4.10'
-        eessiEux = '1.1.1'
+        eessiEux = '1.1.2'
     }
 
     repositories {
@@ -132,7 +132,7 @@ dependencies {
     implementation ("org.springframework.kafka:spring-kafka")
 
     implementation("no.nav.eessi.pensjon:ep-logging:1.0.10")
-    implementation("no.nav.eessi.pensjon:ep-personoppslag:8.0.1")
+    implementation("no.nav.eessi.pensjon:ep-personoppslag:8.0.12")
     implementation("no.nav.eessi.pensjon:ep-eux:${eessiEux}")
 
     // Forenklere mocking av beans, benyttes som mockito mockbean

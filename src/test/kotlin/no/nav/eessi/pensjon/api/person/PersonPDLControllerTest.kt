@@ -10,9 +10,9 @@ import no.nav.eessi.pensjon.personoppslag.pdl.PersonoppslagException
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Endring
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Endringstype
-import no.nav.eessi.pensjon.personoppslag.pdl.model.Familierelasjon
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Familierelasjonsrolle
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Folkeregistermetadata
+import no.nav.eessi.pensjon.personoppslag.pdl.model.ForelderBarnRelasjon
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Ident
 import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentGruppe
 import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentInformasjon
@@ -127,20 +127,20 @@ class PersonPDLControllerTest {
 
         val avdodMor = lagPerson(
             avdodMorfnr, "Fru", "Blyant",
-            listOf(Familierelasjon(fnrGjenlevende, Familierelasjonsrolle.BARN, Familierelasjonsrolle.MOR, mockMeta())),
+            listOf(ForelderBarnRelasjon(fnrGjenlevende, Familierelasjonsrolle.BARN, Familierelasjonsrolle.MOR, mockMeta())),
             listOf(Sivilstand(Sivilstandstype.GIFT, LocalDate.of(2000, 10, 2), avdodFarfnr, mockMeta()))
         )
         val avdodFar = lagPerson(
             avdodFarfnr, "Hr", "Blyant",
-            listOf(Familierelasjon(fnrGjenlevende, Familierelasjonsrolle.BARN, Familierelasjonsrolle.FAR, mockMeta())),
+            listOf(ForelderBarnRelasjon(fnrGjenlevende, Familierelasjonsrolle.BARN, Familierelasjonsrolle.FAR, mockMeta())),
             listOf(Sivilstand(Sivilstandstype.GIFT, LocalDate.of(2000, 10, 2), avdodMorfnr, mockMeta()))
         )
 
         val barn = lagPerson(
             fnrGjenlevende, "Liten", "Blyant",
             listOf(
-                Familierelasjon(avdodFarfnr, Familierelasjonsrolle.FAR, Familierelasjonsrolle.BARN, mockMeta()),
-                Familierelasjon(avdodMorfnr, Familierelasjonsrolle.MOR, Familierelasjonsrolle.BARN, mockMeta())
+                ForelderBarnRelasjon(avdodFarfnr, Familierelasjonsrolle.FAR, Familierelasjonsrolle.BARN, mockMeta()),
+                ForelderBarnRelasjon(avdodMorfnr, Familierelasjonsrolle.MOR, Familierelasjonsrolle.BARN, mockMeta())
             )
         )
         every { mockPensjonClient.hentAltPaaVedtak(vedtaksId) } returns mockPensjoninfo
@@ -178,9 +178,9 @@ class PersonPDLControllerTest {
         mockPensjoninfo.person.aktorId = aktoerId
 
         val avdodmor = lagPerson(avdodMorfnr, "Stor", "Blyant",
-            listOf(Familierelasjon(fnrGjenlevende, Familierelasjonsrolle.BARN, Familierelasjonsrolle.MOR, mockMeta())))
+            listOf(ForelderBarnRelasjon(fnrGjenlevende, Familierelasjonsrolle.BARN, Familierelasjonsrolle.MOR, mockMeta())))
         val barn = lagPerson(fnrGjenlevende, "Liten", "Blyant",
-            listOf(Familierelasjon(avdodMorfnr, Familierelasjonsrolle.MOR, Familierelasjonsrolle.BARN, mockMeta())))
+            listOf(ForelderBarnRelasjon(avdodMorfnr, Familierelasjonsrolle.MOR, Familierelasjonsrolle.BARN, mockMeta())))
 
         every {  mockPensjonClient.hentAltPaaVedtak(vedtaksId)} returns mockPensjoninfo
         every { pdlService.hentPerson(NorskIdent(avdodMorfnr)) } returns avdodmor
@@ -214,7 +214,7 @@ class PersonPDLControllerTest {
         every {mockPensjonClient.hentAltPaaVedtak(vedtaksId)  } returns mockPensjoninfo
 
         val barn = lagPerson(fnrGjenlevende, "Liten", "Blyant",
-            listOf(Familierelasjon("231231231231", Familierelasjonsrolle.MOR, Familierelasjonsrolle.BARN, mockMeta())))
+            listOf(ForelderBarnRelasjon("231231231231", Familierelasjonsrolle.MOR, Familierelasjonsrolle.BARN, mockMeta())))
 
         every { pdlService.hentPerson(any<Ident<*>>()) } returns barn
 
@@ -309,7 +309,7 @@ class PersonPDLControllerTest {
             }
           },
           "doedsfall": null,
-          "familierelasjoner": [],
+          "forelderBarnRelasjon": [],
           "sivilstand": []
         }
           """.trimIndent()
@@ -335,7 +335,7 @@ class PersonPDLControllerTest {
         fnr: String = FNR ,
         fornavn: String = "Fornavn",
         etternavn: String = "Etternavn",
-        familierlasjon: List<Familierelasjon> = emptyList(),
+        familierlasjon: List<ForelderBarnRelasjon> = emptyList(),
         sivilstand: List<Sivilstand> = emptyList()
     ) = Person(
         listOf(IdentInformasjon(fnr, IdentGruppe.FOLKEREGISTERIDENT)),

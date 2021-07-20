@@ -167,7 +167,7 @@ class ArchitectureTest {
                 .whereLayer(euxBucModel).mayOnlyBeAccessedByLayers(euxService, bucSedApi, pesys, integrationtest, euxmodel)
                 .whereLayer(models).mayOnlyBeAccessedByLayers(prefill, euxService, euxBasisModel, euxBucModel, euxmodel, bucSedApi, pensjonApi, personApi, pesys, integrationtest)
                 .whereLayer(euxmodel).mayOnlyBeAccessedByLayers(prefill, euxService, bucSedApi, models, integrationtest, pesys, pensjonService, euxBasisModel, euxBucModel)
-                .whereLayer(personDataLosning).mayOnlyBeAccessedByLayers(health, personApi, bucSedApi, pensjonApi, prefill, models, integrationtest, innhentingService)
+                .whereLayer(personDataLosning).mayOnlyBeAccessedByLayers(config, health, personApi, bucSedApi, pensjonApi, prefill, models, integrationtest, innhentingService)
                 .whereLayer(vedlegg).mayOnlyBeAccessedByLayers(integrationtest, innhentingService, bucSedApi)
                 .whereLayer(geoService).mayOnlyBeAccessedByLayers(geoApi, prefill)
                 .whereLayer(pensjonService).mayOnlyBeAccessedByLayers(health, pensjonApi, prefill, bucSedApi, personApi, integrationtest)
@@ -185,7 +185,6 @@ class ArchitectureTest {
                 pesys,
                 integrationtest,
                 prefill)
-
                 .check(allClasses)
     }
 

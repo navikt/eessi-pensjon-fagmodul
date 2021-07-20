@@ -17,6 +17,7 @@ import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -33,6 +34,8 @@ import org.springframework.web.server.ResponseStatusException
 class SedController(
     private val euxInnhentingService: EuxInnhentingService,
     private val auditlogger: AuditLogger,
+    @Value("\${eessipen-eux-rina.url}")
+    private val euxrinaurl: String
 ) {
 
     private val logger = LoggerFactory.getLogger(SedController::class.java)
@@ -41,7 +44,7 @@ class SedController(
     @GetMapping("/getP6000/{euxcaseid}")
     fun getDocumentP6000list(@PathVariable("euxcaseid", required = true) euxcaseid: String): List<P6000Dokument>? {
         val bucUtils = BucUtils(euxInnhentingService.getBuc(euxcaseid))
-        return bucUtils.getAllP6000AsDocumentItem()
+        return bucUtils.getAllP6000AsDocumentItem(euxrinaurl)
 
     }
 

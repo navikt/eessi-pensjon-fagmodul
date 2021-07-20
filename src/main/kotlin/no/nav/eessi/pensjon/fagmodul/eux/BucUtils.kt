@@ -228,15 +228,17 @@ class BucUtils(private val buc: Buc) {
                 )
             }.orEmpty()
 
-    fun getAllP6000AsDocumentItem() : List<P6000Dokument> {
+    fun getAllP6000AsDocumentItem(pdfurl: String) : List<P6000Dokument> {
         val documents = getAllDocuments().filter { doc -> doc.type == SedType.P6000 }.filter { it.status == "sent" || it.status == "received" }
+        //cpi/buc/{RinaSakId}/sed/{DokumentId}/pdf  Henter en SED i PDF format.
         return documents.map {
                 P6000Dokument(
                     type = it.type!!,
                     bucid = getBuc().id!!,
                     documentID = it.id!!,
                     fraLand = getDocumentSenderCountryCode(it.conversations),
-                    sisteVersjon = getLastVersion(it.versions)?.id
+                    sisteVersjon = getLastVersion(it.versions)?.id,
+                    pdfUrl = "$pdfurl/buc/${getBuc().id}/sed/${it.id}/pdf"
                 )
         }
     }
