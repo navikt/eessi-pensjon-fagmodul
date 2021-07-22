@@ -231,20 +231,19 @@ class BucUtils(private val buc: Buc) {
     fun getAllP6000AsDocumentItem(pdfurl: String) : List<P6000Dokument> {
         val documents = getAllDocuments().filter { doc -> doc.type == SedType.P6000 }.filter { it.status == "sent" || it.status == "received" }
         //cpi/buc/{RinaSakId}/sed/{DokumentId}/pdf  Henter en SED i PDF format.
-        return documents.map {
+        return documents.map { doc ->
                 P6000Dokument(
-                    type = it.type!!,
+                    type = doc.type!!,
                     bucid = getBuc().id!!,
-                    documentID = it.id!!,
-                    fraLand = getDocumentSenderCountryCode(it.conversations),
-                    sisteVersjon = getLastVersion(it.versions)?.id,
-                    pdfUrl = "$pdfurl/buc/${getBuc().id}/sed/${it.id}/pdf"
+                    documentID = doc.id!!,
+                    fraLand = getDocumentSenderCountryCode(doc.participants),
+                    sisteVersjon = doc.version,
+                    pdfUrl = "$pdfurl/buc/${getBuc().id}/sed/${doc.id}/pdf"
                 )
         }
     }
 
-    fun getDocumentSenderCountryCode(conversations: List<ConversationsItem>?): String? {
-        val participants = conversations?.findLast { it.participants != null }?.participants
+    fun getDocumentSenderCountryCode(participants: List<ParticipantsItem?>?): String? {
         return participants
             ?.filter { it?.role == "Sender" }
             ?.map { it?.organisation?.countryCode }

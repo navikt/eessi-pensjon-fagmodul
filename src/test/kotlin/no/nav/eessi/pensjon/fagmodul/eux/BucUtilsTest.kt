@@ -1,5 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
+import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
@@ -82,6 +83,20 @@ class BucUtilsTest {
     fun getProcessDefinitionName() {
         val result = bucUtils.getProcessDefinitionName()
         assertEquals("P_BUC_01", result)
+    }
+
+    @Test
+    fun getAllP6000AsDocumentItemTest() {
+        val bucfile = getTestJsonFile("buc-2019-p6000.json")
+        val bucn : Buc = mapJsonToAny(bucfile, typeRefs())
+        val bucutils = BucUtils(bucn)
+
+        val expected = listOf(P6000Dokument(SedType.P6000, bucid = "1362305", documentID = "a550606682f24785adf0919a1147f7f2", fraLand = "NO", sisteVersjon = "1", "http://pdfurl/buc/1362305/sed/a550606682f24785adf0919a1147f7f2/pdf"))
+
+        val result = bucutils.getAllP6000AsDocumentItem("http://pdfurl")
+
+        assertEquals(expected.first(), result.first())
+
     }
 
     @Test
