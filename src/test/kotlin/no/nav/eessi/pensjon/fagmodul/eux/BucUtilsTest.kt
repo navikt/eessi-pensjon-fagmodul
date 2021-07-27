@@ -1,5 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
@@ -18,7 +19,10 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.web.server.ResponseStatusException
+import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.*
 
 
 class BucUtilsTest {
@@ -91,9 +95,17 @@ class BucUtilsTest {
         val bucn : Buc = mapJsonToAny(bucfile, typeRefs())
         val bucutils = BucUtils(bucn)
 
-        val expected = listOf(P6000Dokument(SedType.P6000, bucid = "1362305", documentID = "a550606682f24785adf0919a1147f7f2", fraLand = "NO", sisteVersjon = "1", "http://pdfurl/buc/1362305/sed/a550606682f24785adf0919a1147f7f2/pdf"))
+        val expected = listOf(
+            P6000Dokument(
+                type = SedType.P6000,
+                bucid = "1362305",
+                documentID = "a550606682f24785adf0919a1147f7f2",
+                fraLand = "NO",
+                sisteVersjon = "1",
+                pdfUrl = "https://pdfurl/buc/1362305/sed/a550606682f24785adf0919a1147f7f2/pdf",
+                sistMottatt = LocalDate.of(2021, 7,21)))
 
-        val result = bucutils.getAllP6000AsDocumentItem("http://pdfurl")
+        val result = bucutils.getAllP6000AsDocumentItem("https://pdfurl")
 
         assertEquals(expected.first(), result.first())
 
@@ -140,6 +152,20 @@ class BucUtilsTest {
         )
         listOfArgs.forEach { assertEquals(unixTimeStamp, BucUtils(Buc(lastUpdate= it)).getLastDateLong()) }
     }
+
+    @Test
+    fun `getEndDateLong parses dates correctly2`() {
+        val listOfArgs = listOf(Pair(1567150657318L, 1567150657318L),
+            Pair(1567154257318L, 1567154257318L),
+            Pair(1567154257318L, "2019-08-30T10:37:37.318"),
+                    Pair(1567154257318L, "2019-08-30T09:37:37.318+0100")
+        )
+
+        listOfArgs.forEach { assertEquals(it.first, BucUtils(Buc(lastUpdate= it.second) ).getLastDateLong()) }
+    }
+
+
+
 
     @Test
     fun getRinaAksjoner() {
@@ -802,5 +828,42 @@ class BucUtilsTest {
         assertEquals(listOf(SedType.P2000).toString(), seds.toString())
     }
 
+    @Test
+    fun mapDatoFraJsonTilKotlin() {
+//        val json = """
+//                {
+//                  "creationDate": "2021-07-21T11:30:16.000+0000",
+//                  "lastUpdate": "2021-07-21T11:30:16.000+0000"
+//                }
+//        """.trimIndent()
+////                                "2016-12-18@07:53:34.740+0000"
+//
+//        val result: TestDates = mapJsonToAny(json, typeRefs() )
+//
+//        println(result)
+//        println(result?.creationDate?.javaClass)
+//
+////       val milliSeconds = "1596751200000".toLong()
+
+
+        println(fromMils("1567154257318".toLong()))
+        println(fromMils("1567161457318".toLong()))
+        println(fromMils("1567150657318".toLong()))
+
+
+    }
+    private fun fromMils(milliSeconds: Long): LocalDateTime {
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = milliSeconds
+        return LocalDateTime.ofInstant(calendar.toInstant(), calendar.timeZone.toZoneId())
+    }
+
+
+    data class TestDates(
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", locale = "no_NO")
+        val creationDate: LocalDateTime,
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", locale = "no_NO")
+        val lastUpdate: LocalDateTime
+    )
 
 }

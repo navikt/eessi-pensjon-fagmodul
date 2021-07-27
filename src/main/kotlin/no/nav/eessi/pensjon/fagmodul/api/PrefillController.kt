@@ -154,13 +154,18 @@ class PrefillController(
 
     fun checkForP7000AndAddP6000(request: ApiRequest): ApiRequest {
         if (request.sed != "P7000") return request
-        if (environment == "q2") {
+
+        return if (environment == "q2") {
+            //hente payload from ui
             val docitems = request.payload?.let { mapJsonToAny(it, typeRefs<List<P6000Dokument>>()) }
+            logger.info("P6000 payload size: ${docitems?.size}")
+            //hente p6000sed fra rina legge på ny payload til prefill
             val seds = docitems?.map { Pair<P6000Dokument, SED>(it, euxInnhentingService.getSedOnBucByDocumentId(it.bucid, it.documentID)) }
-            val json = seds?.let { mapAnyToJson(it) }
-            return request.copy(payload = json)
-        }
-        return request
+            //ny json payload til prefull
+            request.copy(payload = seds?.let { mapAnyToJson(it) })
+
+        } else request
+
     }
 
     @ApiOperation("Oppretter en Sed som svar på en forespørsel-Sed")

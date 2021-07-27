@@ -63,9 +63,8 @@ open class UtlandKrav {
     }
 
     fun sistOppdatertDocumentDato(doc: DocumentsItem, bucUtils: BucUtils): LocalDate {
-        val local = bucUtils.getDateTime(doc.lastUpdate)
-        val date = local.toLocalDate()
-        return LocalDate.of(date.year, date.monthOfYear, date.dayOfMonth)
+        val date = bucUtils.getLocalDateTime(doc.lastUpdate)
+        return LocalDate.of(date.year, date.month, date.dayOfMonth)
     }
 
 

@@ -268,7 +268,6 @@ class BucIntegrationSpringTest {
         assertTrue { response.contains(avdodFnr) }
 
         JSONAssert.assertEquals(response, caseOneExpected(), false)
-
     }
 
     @Test

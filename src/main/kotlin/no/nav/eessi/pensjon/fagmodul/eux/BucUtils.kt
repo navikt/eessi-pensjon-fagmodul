@@ -20,6 +20,8 @@ import org.joda.time.DateTimeZone
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
+import java.time.Instant
+import java.time.LocalDateTime
 import java.time.ZoneId
 
 
@@ -103,18 +105,35 @@ class BucUtils(private val buc: Buc) {
     }
 
     private fun getDateTimeToLong(dateTime: Any?): Long {
-        return getDateTime(dateTime).millis
+//        return getLocalDateTime(dateTime).toEpochSecond(ZoneOffset.of(getId))
+        return getLocalDateTime(dateTime).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
     }
 
-    fun getDateTime(dateTime: Any?): DateTime  {
+    fun getLocalDateTime(dateTime: Any?): LocalDateTime {
+        return when (dateTime) {
+            is Long ->  Instant.ofEpochMilli(dateTime).atZone(ZoneId.systemDefault()).toLocalDateTime()
+            is String -> toLocalDatetimeFromString(dateTime)
+            else -> LocalDateTime.now().minusYears(1000)
+        }
+    }
+
+    private fun toLocalDatetimeFromString(dateTime: String): LocalDateTime {
         val zoneId = DateTimeZone.forID(ZoneId.systemDefault().id)
-
-            return when (dateTime) {
-                is Long -> DateTime(DateTime(dateTime).toInstant(),zoneId)
-                is String -> DateTime(DateTime.parse(dateTime).toInstant(),zoneId)
-                else -> DateTime.now().minusYears(1000)
-            }
+        val jodt = DateTime(DateTime.parse(dateTime).toInstant(),zoneId)
+        val ldt = jodt.toInstant().millis
+        return Instant.ofEpochMilli(ldt).atZone(ZoneId.systemDefault()).toLocalDateTime()
     }
+
+// OLD JODATIME .. faceout..
+//    fun getDateTime(dateTime: Any?): DateTime  {
+//        val zoneId = DateTimeZone.forID(ZoneId.systemDefault().id)
+//
+//            return when (dateTime) {
+//                is Long -> DateTime(DateTime(dateTime).toInstant(),zoneId)
+//                is String -> DateTime(DateTime.parse(dateTime).toInstant(),zoneId)
+//                else -> DateTime.now().minusYears(1000)
+//            }
+//    }
 
     fun getProcessDefinitionName() = buc.processDefinitionName
 
@@ -237,17 +256,18 @@ class BucUtils(private val buc: Buc) {
                     bucid = getBuc().id!!,
                     documentID = doc.id!!,
                     fraLand = getDocumentSenderCountryCode(doc.participants),
-                    sisteVersjon = doc.version,
-                    pdfUrl = "$pdfurl/buc/${getBuc().id}/sed/${doc.id}/pdf"
+                    sisteVersjon = doc.version ?: "1",
+                    pdfUrl = "$pdfurl/buc/${getBuc().id}/sed/${doc.id}/pdf",
+                    sistMottatt = getLocalDateTime(doc.lastUpdate).toLocalDate()
                 )
         }
     }
 
-    fun getDocumentSenderCountryCode(participants: List<ParticipantsItem?>?): String? {
+    fun getDocumentSenderCountryCode(participants: List<ParticipantsItem?>?): String {
         return participants
             ?.filter { it?.role == "Sender" }
             ?.map { it?.organisation?.countryCode }
-            ?.single()
+            ?.single()!!
     }
 
     fun getAllDocuments() = getDocuments().map { createShortDocument(it) }
