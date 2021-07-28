@@ -1,6 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
-import io.swagger.annotations.ApiOperation
+import io.swagger.v3.oas.annotations.Operation
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.sed.MedlemskapItem
 import no.nav.eessi.pensjon.eux.model.sed.P5000
@@ -41,7 +41,7 @@ class SedController(
 
     private val logger = LoggerFactory.getLogger(SedController::class.java)
 
-    @ApiOperation("Henter liste over P6000 som kan inngå i preutfyll for P7000")
+    @Operation(description = "Henter liste over P6000 som kan ingå i preutfyll for P7000")
     @GetMapping("/getP6000/{euxcaseid}")
     fun getDocumentP6000list(@PathVariable("euxcaseid", required = true) euxcaseid: String): List<P6000Dokument>? {
         val bucUtils = BucUtils(euxInnhentingService.getBuc(euxcaseid))
@@ -49,15 +49,7 @@ class SedController(
 
     }
 
-    @ApiOperation("Hent pdf fra Rina")
-    @GetMapping("/get/P6000pdf/{euxcaseid}/{documentid}")
-    fun getPdfFromRina(
-        @PathVariable("euxcaseid", required = true) euxcaseid: String,
-        @PathVariable("documentid", required = true) documentid: String): PreviewPdf {
-        return euxInnhentingService.getPdfContents(euxcaseid, documentid)
-    }
-
-    @ApiOperation("Henter ut en SED fra et eksisterende Rina document. krever unik dokumentid fra valgt SED, ny api kall til eux")
+    @Operation(description = "Henter ut en SED fra et eksisterende Rina document. krever unik dokumentid fra valgt SED, ny api kall til eux")
     @GetMapping("/get/{euxcaseid}/{documentid}")
     fun getDocument(
         @PathVariable("euxcaseid", required = true) euxcaseid: String,
@@ -69,7 +61,7 @@ class SedController(
         return sed.toJson()
     }
 
-    @ApiOperation("Oppdaterer en SED i RINA med denne versjon av JSON. krever dokumentid, euxcaseid samt json")
+    @Operation(description = "Oppdaterer en SED i RINA med denne versjon av JSON. krever dokumentid, euxcaseid samt json")
     @PutMapping("/put/{euxcaseid}/{documentid}")
     fun putDocument(
         @PathVariable("euxcaseid", required = true) euxcaseid: String,
@@ -100,20 +92,20 @@ class SedController(
         return euxInnhentingService.updateSedOnBuc(euxcaseid, documentid, validsed.toJsonSkipEmpty())
     }
 
-    @ApiOperation("Henter ut en liste over landkoder ut fra kodeverktjenesten eux")
+    @Operation(description = "Henter ut en liste over landkoder ut fra kodeverktjenesten eux")
     @GetMapping( "/landkoder")
     fun getCountryCode(): List<String> {
         return euxInnhentingService.getKodeverk(Kodeverk.LANDKODER).mapNotNull{ it.kode }.toList()
     }
 
-    @ApiOperation("Henter ut en liste over kodeverk fra eux")
+    @Operation(description = "Henter ut en liste over kodeverk fra eux")
     @GetMapping( "/kodeverk/{kodeverk}")
     fun getKodeverk(@PathVariable("kodeverk", required = true) kodeverk: Kodeverk ): List<KodeverkResponse> {
         return euxInnhentingService.getKodeverk(kodeverk)
     }
 
 
-    @ApiOperation("Henter ut en liste over registrerte institusjoner innenfor spesifiserte EU-land. ny api kall til eux")
+    @Operation(description = "Henter ut en liste over registrerte institusjoner innenfor spesifiserte EU-land. ny api kall til eux")
     @GetMapping("/institutions/{buctype}", "/institutions/{buctype}/{countrycode}")
     fun getEuxInstitusjoner(
         @PathVariable("buctype", required = true) buctype: String,
@@ -123,7 +115,7 @@ class SedController(
         return euxInnhentingService.getInstitutions(buctype, landkode)
     }
 
-    @ApiOperation("henter liste over seds som kan opprettes til valgt rinasak")
+    @Operation(description = "henter liste over seds som kan opprettes til valgt rinasak")
     @GetMapping("/seds/{buctype}/{rinanr}")
     fun getSeds(
         @PathVariable(value = "buctype", required = true) bucType: String,

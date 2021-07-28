@@ -22,6 +22,17 @@ http.proxy.parametername:
 securityTokenService:
   discoveryUrl: ${SECURITY_TOKEN_SERVICE_OPENID_CONFIGURATION_URL}
 
+
+#Sawgger-ui 3.0
+springdoc:
+  show-actuator: false
+  packagesToScan: 'no.nav.eessi.pensjon.fagmodul.api, no.nav.eessi.pensjon.api, no.nav.eessi.pensjon.vedlegg, no.nav.eessi.pensjon.fagmodul.pesys'
+  swagger-ui:
+    path=: '/swagger-ui.html'
+    enabled: true
+    tryItOutEnabled: false
+
+
 # TODO: These actuator-endpoints need to be secured before going to production. Also, enable only whats needed.
 management:
   endpoints:

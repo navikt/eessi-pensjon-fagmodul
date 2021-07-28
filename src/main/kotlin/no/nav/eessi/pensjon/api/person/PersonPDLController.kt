@@ -1,7 +1,7 @@
 package no.nav.eessi.pensjon.api.person
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
-import io.swagger.annotations.ApiOperation
+import io.swagger.v3.oas.annotations.Operation
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
@@ -30,6 +30,7 @@ const val PERSON_IKKE_FUNNET = "Person ikke funnet"
 /**
  * Controller for å kalle NAV interne registre
  */
+@Suppress("SpringJavaInjectionPointsAutowiringInspection")
 @Protected
 @RestController
 class PersonPDLController(
@@ -54,7 +55,7 @@ class PersonPDLController(
 
     }
 
-    @ApiOperation("henter ut personinformasjon for en aktørId")
+    @Operation(description = "henter ut personinformasjon for en aktørId")
     @GetMapping("/person/pdl/{aktoerid}", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getPerson(@PathVariable("aktoerid", required = true) aktoerid: String): ResponseEntity<Person> {
         auditLogger.log("getPerson", aktoerid)
@@ -65,7 +66,7 @@ class PersonPDLController(
         }
     }
 
-    @ApiOperation("henter ut alle avdøde for en aktørId og vedtaksId der aktør er gjenlevende")
+    @Operation(description = "henter ut alle avdøde for en aktørId og vedtaksId der aktør er gjenlevende")
     @GetMapping("/person/pdl/{aktoerId}/avdode/vedtak/{vedtaksId}", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getDeceased(
         @PathVariable("aktoerId", required = true) gjenlevendeAktoerId: String,
@@ -132,7 +133,7 @@ class PersonPDLController(
     private fun Navn.sammensattNavn() = listOfNotNull(etternavn, fornavn, mellomnavn)
         .joinToString(separator = " ")
 
-    @ApiOperation("henter ut navn for en aktørId")
+    @Operation(description = "henter ut navn for en aktørId")
     @GetMapping("/person/pdl/info/{aktoerid}", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getNameOnly(@PathVariable("aktoerid", required = true) aktoerid: String): ResponseEntity<Personinformasjon> {
         auditLogger.log("getNameOnly", aktoerid)

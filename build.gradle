@@ -1,9 +1,9 @@
 buildscript {
 
     ext {
-        kotlinVersion = '1.4.31'
-        springBootVersion = '2.5.1'
-        springfoxVersion = '2.10.5'
+        kotlinVersion = '1.5.21'
+        springBootVersion = '2.5.3'
+        springfoxVersion = '3.0.0'
         jacksonModuleKotlinVersion = '2.12.1'
         cxfVersion = '3.3.4'
         tokenSupportVersion = '1.1.6'
@@ -94,9 +94,11 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
 
     // Swagger
-    implementation("io.springfox:springfox-swagger2:${springfoxVersion}")
-    implementation("io.springfox:springfox-swagger-ui:${springfoxVersion}")
-    implementation("io.springfox:springfox-data-rest:${springfoxVersion}")
+    implementation("org.springdoc:springdoc-openapi-ui:1.5.10")
+    implementation("org.springdoc:springdoc-openapi-kotlin:1.5.10")
+//    implementation("io.springfox:springfox-swagger2:${springfoxVersion}")
+//    implementation("io.springfox:springfox-swagger-ui:${springfoxVersion}")
+//    implementation("io.springfox:springfox-data-rest:${springfoxVersion}")
 
 
     // Logging
@@ -116,18 +118,18 @@ dependencies {
     implementation("no.nav.security:token-validation-test-support:${tokenSupportVersion}")
 
     implementation("no.nav.eessi.pensjon:ep-security-sts:0.0.17")
-    testImplementation("org.pac4j:spring-webmvc-pac4j:3.2.0")
+    testImplementation("org.pac4j:spring-webmvc-pac4j:5.0.0")
 
     // Tjenestespesifikasjoner
     xsd("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:1.2021.01.21-11.34-02f5eb27bb76")
 
-    implementation("com.sun.xml.ws:jaxws-ri:2.3.2")
+    implementation("com.sun.xml.ws:jaxws-ri:3.0.1")
 
-    jaxb ('org.glassfish.jaxb:jaxb-xjc:2.3.2')
-    jaxb ('org.glassfish.jaxb:jaxb-runtime:2.3.2')
+    jaxb ('org.glassfish.jaxb:jaxb-xjc:3.0.1')
+    jaxb ('org.glassfish.jaxb:jaxb-runtime:3.0.1')
 
     // Micrometer
-    implementation("io.micrometer:micrometer-registry-prometheus:1.5.1")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.7.2")
     implementation("no.nav.eessi.pensjon:ep-metrics:0.4.2")
 
     implementation ("org.springframework.kafka:spring-kafka")
@@ -141,8 +143,8 @@ dependencies {
     testImplementation("com.ninja-squad:springmockk:3.0.1")
 
     //mock - test
-    testImplementation("io.mockk:mockk:1.11.0")
-    testImplementation("org.junit.platform:junit-platform-suite-api:1.7.1")
+    testImplementation("io.mockk:mockk:1.12.0")
+    testImplementation("org.junit.platform:junit-platform-suite-api:1.7.2")
 
     testImplementation("org.skyscreamer:jsonassert:1.5.0")
     testImplementation("org.jetbrains.kotlin:kotlin-test:${kotlinVersion}") {
@@ -151,7 +153,8 @@ dependencies {
     }
 
     // Architecture tests
-    testImplementation ("com.tngtech.archunit:archunit:0.11.0")
+    testImplementation ("com.tngtech.archunit:archunit:0.20.1")
+    testImplementation ("com.tngtech.archunit:archunit-junit5:0.20.1")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude module: 'junit'
         exclude module: "mockito-core"

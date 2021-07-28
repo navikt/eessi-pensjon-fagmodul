@@ -1,7 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
-import io.swagger.annotations.ApiOperation
+import io.swagger.v3.oas.annotations.Operation
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.SedType
@@ -61,7 +61,7 @@ class PrefillController(
         addDocumentToParentBucUtils = metricsHelper.init("AddDocumentToParentBucUtils", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
     }
 
-    @ApiOperation("Oppretter ny tom BUC i RINA via eux-api. ny api kall til eux")
+    @Operation(description = "Oppretter ny tom BUC i RINA via eux-api. ny api kall til eux")
     @PostMapping("buc/{buctype}")
     fun createBuc(
         @PathVariable("buctype", required = true) buctype: String
@@ -111,7 +111,7 @@ class PrefillController(
         }
     }
 
-    @ApiOperation("Legge til Deltaker(e) og SED på et eksisterende Rina document. kjører preutfylling, ny api kall til eux")
+    @Operation(description = "Legge til Deltaker(e) og SED på et eksisterende Rina document. kjører preutfylling, ny api kall til eux")
     @PostMapping("sed/add")
     fun addInstutionAndDocument(
         @RequestBody request: ApiRequest
@@ -168,7 +168,7 @@ class PrefillController(
 
     }
 
-    @ApiOperation("Oppretter en Sed som svar på en forespørsel-Sed")
+    @Operation(description = "Oppretter en Sed som svar på en forespørsel-Sed")
     @PostMapping("sed/replysed/{parentid}")
     fun addDocumentToParent(
         @RequestBody(required = true) request: ApiRequest,

@@ -4,6 +4,8 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
 import no.nav.eessi.pensjon.security.sts.STSService
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -35,6 +37,34 @@ class EuxServiceKallItegrationTest {
     private val responsejson = """
             [{"kode":"AT","term":"Østerrike"},{"kode":"BE","term":"Belgium"},{"kode":"BG","term":"Bulgaria"},{"kode":"HR","term":"Kroatia"},{"kode":"CY","term":"Kypros"},{"kode":"CZ","term":"Tsjekkia"},{"kode":"DK","term":"Danmark"},{"kode":"EE","term":"Estland"},{"kode":"FI","term":"Finland"},{"kode":"FR","term":"Frankrike"},{"kode":"GR","term":"Hellas"},{"kode":"IE","term":"Irland"},{"kode":"IS","term":"Island"},{"kode":"IT","term":"Italia"},{"kode":"LV","term":"Latvia"},{"kode":"NO","term":"Norge"},{"kode":"SE","term":"Sverige"}]
         """.trimIndent()
+
+    @Nested
+    @DisplayName("Swagger and v3-api-docs")
+    inner class swaggerapi {
+
+        @Test
+        fun `sjekk v3 api-docs saver korrekt`() {
+
+            val result = mockMvc.perform(
+                MockMvcRequestBuilders.get("/v3/api-docs/").contentType(MediaType.APPLICATION_JSON)
+            ).andExpect(MockMvcResultMatchers.status().isOk).andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE)).andReturn()
+
+            val response = result.response.getContentAsString(charset("UTF-8"))
+            println(response)
+        }
+
+        @Test
+        fun `sjekk swagger-ui v3 svarer korrekt`() {
+
+            val result = mockMvc.perform(
+                MockMvcRequestBuilders.get("/swagger-ui/index.html?configUrl=/v3/api-docs/swagger-config").contentType(MediaType.APPLICATION_JSON)
+            ).andExpect(MockMvcResultMatchers.status().isOk).andExpect(MockMvcResultMatchers.content().contentType(MediaType.TEXT_HTML)).andReturn()
+
+            val response = result.response.getContentAsString(charset("UTF-8"))
+            println(response)
+        }
+
+    }
 
     @Test
     fun `sjekk for landkoder med bruk av kodever for eux`() {

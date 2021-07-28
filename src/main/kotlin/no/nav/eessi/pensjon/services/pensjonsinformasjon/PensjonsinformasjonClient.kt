@@ -29,9 +29,9 @@ import javax.xml.transform.stream.StreamSource
 @Component
 @CacheConfig(cacheNames = ["PensjonsinformasjonClient"])
 class PensjonsinformasjonClient(
-        private val pensjonsinformasjonOidcRestTemplate: RestTemplate,
-        private val requestBuilder: RequestBuilder,
-        @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())) {
+    private val pensjonsinformasjonOidcRestTemplate: RestTemplate,
+    private val pensjonRequestBuilder: PensjonRequestBuilder,
+    @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())) {
 
     companion object {
         private val logger = LoggerFactory.getLogger(PensjonsinformasjonClient::class.java)
@@ -70,7 +70,7 @@ class PensjonsinformasjonClient(
 
         return pensjoninformasjonHentAltPaaIdent.measure {
 
-            val requestBody = requestBuilder.requestBodyForSakslisteFromAString()
+            val requestBody = pensjonRequestBuilder.requestBodyForSakslisteFromAString()
 
             logger.debug("Requestbody:\n$requestBody")
             logger.info("Henter pensjonsinformasjon for aktor: $aktoerId")
@@ -87,7 +87,7 @@ class PensjonsinformasjonClient(
 
         return pensjoninformasjonAltPaaVedtak.measure {
 
-            val requestBody = requestBuilder.requestBodyForVedtakFromAString()
+            val requestBody = pensjonRequestBuilder.requestBodyForVedtakFromAString()
             logger.debug("Requestbody:\n$requestBody")
             logger.info("Henter pensjonsinformasjon for vedtaksid: $vedtaksId")
 

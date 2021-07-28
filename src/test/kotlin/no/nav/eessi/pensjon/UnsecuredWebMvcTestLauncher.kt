@@ -7,7 +7,7 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import org.springframework.context.annotation.Profile
 import org.springframework.test.annotation.DirtiesContext
 
-@EnableJwtTokenValidation(ignore = ["org.springframework", "springfox.documentation", "no.nav.eessi"])
+@EnableJwtTokenValidation(ignore = ["org.springframework", "org.springdoc", "no.nav.eessi"])
 @SpringBootApplication
 @Profile("unsecured-webmvctest")
 @DirtiesContext

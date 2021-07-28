@@ -1,7 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
-import io.swagger.annotations.ApiOperation
+import io.swagger.v3.oas.annotations.Operation
 import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedSubject
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
@@ -56,11 +56,11 @@ class BucController(
         bucDetaljerGjenlev  = metricsHelper.init("BucDetaljerGjenlev", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
     }
 
-    @ApiOperation("henter liste av alle tilgjengelige BuC-typer")
+    @Operation(description = "henter liste av alle tilgjengelige BuC-typer")
     @GetMapping("/bucs/{sakId}", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getBucs(@PathVariable(value = "sakId", required = false) sakId: String? = "") = validBucAndSed.initSedOnBuc().keys.map { it }.toList()
 
-    @ApiOperation("Henter opp hele BUC på valgt caseid")
+    @Operation(description = "Henter opp hele BUC på valgt caseid")
     @GetMapping("/{rinanr}")
     fun getBuc(@PathVariable(value = "rinanr", required = true) rinanr: String): Buc {
         auditlogger.log("getBuc")
@@ -68,7 +68,7 @@ class BucController(
         return euxInnhentingService.getBuc(rinanr)
     }
 
-    @ApiOperation("Viser prosessnavnet (f.eks P_BUC_01) på den valgte BUCen")
+    @Operation(description = "Viser prosessnavnet (f.eks P_BUC_01) på den valgte BUCen")
     @GetMapping("/{rinanr}/name",  produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getProcessDefinitionName(@PathVariable(value = "rinanr", required = true) rinanr: String): String? {
 
@@ -76,7 +76,7 @@ class BucController(
         return euxInnhentingService.getBuc(rinanr).processDefinitionName
     }
 
-    @ApiOperation("Henter opp den opprinelige inststusjon på valgt caseid (type)")
+    @Operation(description = "Henter opp den opprinelige inststusjon på valgt caseid (type)")
     @GetMapping("/{rinanr}/creator",  produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getCreator(@PathVariable(value = "rinanr", required = true) rinanr: String): Creator? {
 
@@ -84,7 +84,7 @@ class BucController(
         return euxInnhentingService.getBuc(rinanr).creator
     }
 
-    @ApiOperation("Henter BUC deltakere")
+    @Operation(description = "Henter BUC deltakere")
     @GetMapping("/{rinanr}/bucdeltakere",  produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getBucDeltakere(@PathVariable(value = "rinanr", required = true) rinanr: String): String {
         auditlogger.log("getBucDeltakere")
@@ -92,7 +92,7 @@ class BucController(
         return mapAnyToJson(euxInnhentingService.getBucDeltakere(rinanr))
     }
 
-    @ApiOperation("Henter alle gyldige sed på valgt rinanr")
+    @Operation(description = "Henter alle gyldige sed på valgt rinanr")
     @GetMapping("/{rinanr}/allDocuments",  produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getAllDocuments(@PathVariable(value = "rinanr", required = true) rinanr: String): List<DocumentsItem> {
         auditlogger.logBuc("getAllDocuments", rinanr)
@@ -101,7 +101,7 @@ class BucController(
         return BucUtils(buc).getAllDocuments()
     }
 
-    @ApiOperation("Henter opp mulige aksjon(er) som kan utføres på valgt buc")
+    @Operation(description = "Henter opp mulige aksjon(er) som kan utføres på valgt buc")
     @GetMapping("/{rinanr}/aksjoner")
     fun getMuligeAksjoner(@PathVariable(value = "rinanr", required = true) rinanr: String): List<SedType> {
         logger.debug("Henter ut muligeaksjoner på valgt buc med rinanummer: $rinanr")
@@ -109,7 +109,7 @@ class BucController(
         return bucUtil.filterSektorPandRelevantHorizontalSeds(bucUtil.getSedsThatCanBeCreated())
     }
 
-    @ApiOperation("Henter ut en liste over saker på valgt aktoerid. ny api kall til eux")
+    @Operation(description = "Henter ut en liste over saker på valgt aktoerid. ny api kall til eux")
     @GetMapping("/rinasaker/{aktoerId}")
     fun getRinasaker(@PathVariable("aktoerId", required = true) aktoerId: String): List<Rinasak> {
         auditlogger.log("getRinasaker", aktoerId)
@@ -121,7 +121,7 @@ class BucController(
         return euxInnhentingService.getRinasaker(norskIdent, aktoerId, rinaSakIderFraJoark)
     }
 
-    @ApiOperation("Henter ut liste av Buc meny struktur i json format for UI på valgt aktoerid")
+    @Operation(description = "Henter ut liste av Buc meny struktur i json format for UI på valgt aktoerid")
     @GetMapping("/detaljer/{aktoerid}",
         "/detaljer/{aktoerid}/{sakid}",
         "/detaljer/{aktoerid}/{sakid}/{euxcaseid}",
@@ -155,7 +155,7 @@ class BucController(
         }
     }
 
-    @ApiOperation("Henter ut liste av Buc meny struktur i json format for UI")
+    @Operation(description = "Henter ut liste av Buc meny struktur i json format for UI")
     @GetMapping("/detaljer/{aktoerid}/vedtak/{vedtakid}",  produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getBucogSedViewVedtak(@PathVariable("aktoerid", required = true) gjenlevendeAktoerid: String,
                               @PathVariable("vedtakid", required = true) vedtakid: String): List<BucAndSedView> {
@@ -174,7 +174,7 @@ class BucController(
         }
     }
 
-    @ApiOperation("Henter ut liste av Buc meny struktur i json format for UI på valgt aktoerid")
+    @Operation(description = "Henter ut liste av Buc meny struktur i json format for UI på valgt aktoerid")
     @GetMapping("/detaljer/{aktoerid}/avdod/{avdodfnr}", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getBucogSedViewGjenlevende(@PathVariable("aktoerid", required = true) aktoerid: String,
                                    @PathVariable("avdodfnr", required = true) avdodfnr: String): List<BucAndSedView> {
@@ -216,7 +216,7 @@ class BucController(
     }
 
 
-    @ApiOperation("Henter ut enkel Buc meny struktur i json format for UI på valgt euxcaseid")
+    @Operation(description = "Henter ut enkel Buc meny struktur i json format for UI på valgt euxcaseid")
     @GetMapping("/enkeldetalj/{euxcaseid}")
     fun getSingleBucogSedView(@PathVariable("euxcaseid", required = true) euxcaseid: String): BucAndSedView {
         auditlogger.log("getSingleBucogSedView")
