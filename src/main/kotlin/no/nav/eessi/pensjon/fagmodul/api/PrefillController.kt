@@ -113,9 +113,8 @@ class PrefillController(
 
     @Operation(description = "Legge til Deltaker(e) og SED på et eksisterende Rina document. kjører preutfylling, ny api kall til eux")
     @PostMapping("sed/add")
-    fun addInstutionAndDocument(
-        @RequestBody request: ApiRequest
-    ): DocumentsItem? {
+    fun addInstutionAndDocument(@RequestBody request: ApiRequest ): DocumentsItem? {
+
         logger.info("Legger til institusjoner og SED for rinaId: ${request.euxCaseId} bucType: ${request.buc} sedType: ${request.sed} " +
                 "aktoerId: ${request.aktoerId} sakId: ${request.sakId} vedtak: ${request.vedtakId}")
         val norskIdent = innhentingService.hentFnrfraAktoerService(request.aktoerId)
@@ -123,6 +122,9 @@ class PrefillController(
 
         //Hente metadata for valgt BUC
         val bucUtil = euxInnhentingService.kanSedOpprettes(dataModel)
+
+        if (bucUtil.getProcessDefinitionName() != request.buc) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Rina Buctype og request buctype må være samme")
+        logger.debug("bucUtil BucType: ${bucUtil.getBuc().processDefinitionName} apiRequest Buc: ${request.buc}")
 
         //AddInstitution
         addInstitution(request, dataModel, bucUtil)
@@ -143,7 +145,7 @@ class PrefillController(
             if (dataModel.melding != null || dataModel.melding != "") {
                 result?.message = dataModel.melding
             }
-            logger.info("Har docuemntItem $result, er Rina2020 ny buc: ${bucUtil.isNewRina2020Buc()}")
+            logger.info("Har docuemntItem ${result?.id}, er Rina2020 ny buc: ${bucUtil.isNewRina2020Buc()}")
 
             val documentItem = fetchBucAgainBeforeReturnShortDocument(dataModel.buc, docresult, result, bucUtil.isNewRina2020Buc())
             logger.info("******* Legge til ny SED - slutt *******")
@@ -217,7 +219,8 @@ class PrefillController(
             Thread.sleep(900)
             val buc = euxInnhentingService.getBuc(bucSedResponse.caseId)
             val bucUtil = BucUtils(buc)
-            bucUtil.findDocument(bucSedResponse.documentId)
+            val document = bucUtil.findDocument(bucSedResponse.documentId)
+            document
         } else if (orginal == null && isNewRina2020) {
             logger.info("Henter BUC på nytt for buctype: $bucType")
             Thread.sleep(1000)
