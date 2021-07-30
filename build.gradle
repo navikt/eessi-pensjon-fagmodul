@@ -122,7 +122,7 @@ dependencies {
     // Tjenestespesifikasjoner
     xsd("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:1.2021.01.21-11.34-02f5eb27bb76")
 
-    implementation("com.sun.xml.ws:jaxws-ri:2.3.2")
+    compileOnly("com.sun.xml.ws:jaxws-ri:2.3.2")
     jaxb ('org.glassfish.jaxb:jaxb-xjc:2.3.2')
     jaxb ('org.glassfish.jaxb:jaxb-runtime:2.3.2')
 
@@ -137,7 +137,7 @@ dependencies {
     implementation("no.nav.eessi.pensjon:ep-eux:${epeuxVersion}")
 
     // Forenklere mocking av beans, benyttes som mockito mockbean
-    testImplementation ("org.springframework.kafka:spring-kafka-test")
+    testImplementation("org.springframework.kafka:spring-kafka-test")
     testImplementation("com.ninja-squad:springmockk:3.0.1")
 
     //mock - test
