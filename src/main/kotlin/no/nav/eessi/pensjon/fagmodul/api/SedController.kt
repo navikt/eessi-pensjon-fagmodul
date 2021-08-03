@@ -15,6 +15,7 @@ import no.nav.eessi.pensjon.fagmodul.models.KodeverkResponse
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
+import no.nav.eessi.pensjon.vedlegg.client.HentdokumentInnholdResponse
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -40,12 +41,20 @@ class SedController(
 
     private val logger = LoggerFactory.getLogger(SedController::class.java)
 
-    @ApiOperation("Henter liste over P6000 som kan ingå i preutfyll for P7000")
+    @ApiOperation("Henter liste over P6000 som kan inngå i preutfyll for P7000")
     @GetMapping("/getP6000/{euxcaseid}")
     fun getDocumentP6000list(@PathVariable("euxcaseid", required = true) euxcaseid: String): List<P6000Dokument>? {
         val bucUtils = BucUtils(euxInnhentingService.getBuc(euxcaseid))
         return bucUtils.getAllP6000AsDocumentItem(euxrinaurl)
 
+    }
+
+    @ApiOperation("Hent pdf fra Rina")
+    @GetMapping("/get/P6000pdf/{euxcaseid}/{documentid}")
+    fun getPdfFromRina(
+        @PathVariable("euxcaseid", required = true) euxcaseid: String,
+        @PathVariable("documentid", required = true) documentid: String): HentdokumentInnholdResponse {
+        return euxInnhentingService.getPdfContents(euxcaseid, documentid)
     }
 
     @ApiOperation("Henter ut en SED fra et eksisterende Rina document. krever unik dokumentid fra valgt SED, ny api kall til eux")

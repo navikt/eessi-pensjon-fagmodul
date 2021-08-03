@@ -14,6 +14,7 @@ import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import no.nav.eessi.pensjon.utils.typeRefs
+import no.nav.eessi.pensjon.vedlegg.client.HentdokumentInnholdResponse
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.HttpStatus
@@ -125,6 +126,11 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
     fun getBucDeltakere(euxCaseId: String): List<ParticipantsItem> {
         return euxKlient.getBucDeltakere(euxCaseId)
     }
+
+    fun getPdfContents(euxCaseId: String, documentId: String): HentdokumentInnholdResponse {
+        return euxKlient.getPdfJsonWithRest(euxCaseId, documentId)
+    }
+
 
     fun getBucAndSedViewAvdod(gjenlevendeFnr: String, avdodFnr: String): List<BucAndSedView> {
         // Henter rina saker basert på gjenlevendes fnr

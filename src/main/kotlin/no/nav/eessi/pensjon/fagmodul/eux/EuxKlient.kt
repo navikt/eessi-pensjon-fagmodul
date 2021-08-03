@@ -12,12 +12,14 @@ import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.security.sts.typeRef
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.typeRefs
+import no.nav.eessi.pensjon.vedlegg.client.HentdokumentInnholdResponse
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cache.annotation.CacheConfig
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.context.annotation.Description
+import org.springframework.core.io.Resource
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
@@ -188,6 +190,39 @@ class EuxKlient(
                 , waitTimes = 10000L
         )
         return response.body ?: throw ServerException("Feil ved henting av BUCdata ingen data, euxCaseId $euxCaseId")
+    }
+
+    fun getPdfJsonWithRest(euxCaseId: String, documentId: String): HentdokumentInnholdResponse {
+        logger.info("get euxCaseId: $euxCaseId")
+
+        val path = "/buc/${euxCaseId}/sed/${documentId}/pdf"
+        val uriParams = mapOf("euxCaseId" to euxCaseId, "documentId" to documentId)
+        val builder = UriComponentsBuilder.fromUriString(path).buildAndExpand(uriParams)
+        logger.debug("BucJson prøver å kontakte EUX ${builder.toUriString()}")
+
+        val headers = HttpHeaders()
+        headers.contentType = MediaType.APPLICATION_PDF
+
+        val response = restTemplateErrorhandler(
+            restTemplateFunction = {
+                euxOidcRestTemplate.exchange(
+                    builder.toUriString(),
+                    HttpMethod.GET,
+                    HttpEntity("/", headers),
+                    Resource::class.java)
+            }
+            , euxCaseId = euxCaseId
+            , metric = GetBUC
+            , prefixErrorMessage = "Feiler ved metode GetPdf. "
+            , maxAttempts = 4
+            , waitTimes = 10000L
+        )
+        val filnavn = response.headers.contentDisposition.filename
+        val contentType = response.headers.contentType!!.toString()
+
+        val dokumentInnholdBase64 = String(Base64.getEncoder().encode(response.body!!.inputStream.readBytes()))
+        return HentdokumentInnholdResponse(dokumentInnholdBase64, filnavn!!, contentType)
+
     }
 
     @Cacheable
