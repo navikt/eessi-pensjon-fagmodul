@@ -9,13 +9,13 @@ import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.TotalSum
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.PreviewPdf
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.models.Kodeverk
 import no.nav.eessi.pensjon.fagmodul.models.KodeverkResponse
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
-import no.nav.eessi.pensjon.vedlegg.client.HentdokumentInnholdResponse
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -53,7 +53,7 @@ class SedController(
     @GetMapping("/get/P6000pdf/{euxcaseid}/{documentid}")
     fun getPdfFromRina(
         @PathVariable("euxcaseid", required = true) euxcaseid: String,
-        @PathVariable("documentid", required = true) documentid: String): HentdokumentInnholdResponse {
+        @PathVariable("documentid", required = true) documentid: String): PreviewPdf {
         return euxInnhentingService.getPdfContents(euxcaseid, documentid)
     }
 

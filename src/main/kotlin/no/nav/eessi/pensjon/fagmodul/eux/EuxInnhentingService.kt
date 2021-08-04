@@ -7,6 +7,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.PreviewPdf
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.models.Kodeverk
 import no.nav.eessi.pensjon.fagmodul.models.KodeverkResponse
@@ -14,7 +15,6 @@ import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import no.nav.eessi.pensjon.utils.typeRefs
-import no.nav.eessi.pensjon.vedlegg.client.HentdokumentInnholdResponse
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.HttpStatus
@@ -127,7 +127,7 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
         return euxKlient.getBucDeltakere(euxCaseId)
     }
 
-    fun getPdfContents(euxCaseId: String, documentId: String): HentdokumentInnholdResponse {
+    fun getPdfContents(euxCaseId: String, documentId: String): PreviewPdf {
         return euxKlient.getPdfJsonWithRest(euxCaseId, documentId)
     }
 

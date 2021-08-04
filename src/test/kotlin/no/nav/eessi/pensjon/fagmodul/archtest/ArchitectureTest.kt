@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test
 import org.springframework.context.annotation.Scope
 import org.springframework.web.bind.annotation.RestController
 
-@Disabled
 class ArchitectureTest {
 
     companion object {

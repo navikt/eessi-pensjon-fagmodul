@@ -4,6 +4,7 @@ import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucSedResponse
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.PreviewPdf
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonDetalj
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.models.Kodeverk
@@ -12,7 +13,6 @@ import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.security.sts.typeRef
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.typeRefs
-import no.nav.eessi.pensjon.vedlegg.client.HentdokumentInnholdResponse
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 import org.springframework.beans.factory.annotation.Autowired
@@ -192,7 +192,7 @@ class EuxKlient(
         return response.body ?: throw ServerException("Feil ved henting av BUCdata ingen data, euxCaseId $euxCaseId")
     }
 
-    fun getPdfJsonWithRest(euxCaseId: String, documentId: String): HentdokumentInnholdResponse {
+    fun getPdfJsonWithRest(euxCaseId: String, documentId: String): PreviewPdf {
         logger.info("get euxCaseId: $euxCaseId")
 
         val path = "/buc/${euxCaseId}/sed/${documentId}/pdf"
@@ -221,7 +221,7 @@ class EuxKlient(
         val contentType = response.headers.contentType!!.toString()
 
         val dokumentInnholdBase64 = String(Base64.getEncoder().encode(response.body!!.inputStream.readBytes()))
-        return HentdokumentInnholdResponse(dokumentInnholdBase64, filnavn!!, contentType)
+        return PreviewPdf(dokumentInnholdBase64, filnavn!!, contentType)
 
     }
 
