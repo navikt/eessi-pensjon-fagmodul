@@ -20,7 +20,7 @@ spec:
     - name: SAF_HENTDOKUMENT_URL
       value: https://saf-q1.nais.preprod.local/rest/hentdokument
     - name: PDL_URL
-      value: https://pdl-api.nais.preprod.local/graphql
+      value: https://pdl-api-q1.dev-fss.nais.io/graphql
     - name: OPENIDCONNECT_URL
       value: https://isso-q.adeo.no:443/isso
     - name: SECURITY_TOKEN_SERVICE_OPENID_CONFIGURATION_URL
