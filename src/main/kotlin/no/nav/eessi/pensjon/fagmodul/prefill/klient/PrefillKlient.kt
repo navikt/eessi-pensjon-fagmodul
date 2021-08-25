@@ -6,7 +6,11 @@ import no.nav.eessi.pensjon.metrics.MetricsHelper
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.*
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.client.RestTemplate
@@ -46,7 +50,7 @@ class PrefillKlient(
                         HttpEntity(request, headers),
                         String::class.java).body!!
             } catch (ex: HttpStatusCodeException) {
-                logger.error(ex.message, ex)
+                if (ex.statusCode == HttpStatus.BAD_REQUEST) logger.warn(ex.message, ex)  else logger.error(ex.message, ex)
                 throw ex
             } catch (ex: Exception) {
                 logger.error("En feil oppstod under henting av preutfylt SED ex: ", ex)
