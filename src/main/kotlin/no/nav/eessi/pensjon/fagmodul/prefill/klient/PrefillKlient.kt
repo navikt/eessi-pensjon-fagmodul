@@ -12,6 +12,7 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
+import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.server.ResponseStatusException
@@ -52,6 +53,9 @@ class PrefillKlient(
             } catch (ex: HttpStatusCodeException) {
                 if (ex.statusCode == HttpStatus.BAD_REQUEST) logger.warn(ex.message, ex)  else logger.error(ex.message, ex)
                 throw ex
+            } catch (ex: HttpClientErrorException) {
+                if (ex.statusCode == HttpStatus.BAD_REQUEST) logger.warn(ex.message, ex)  else logger.error(ex.message, ex)
+                throw ResponseStatusException(ex.statusCode, ex.message)
             } catch (ex: Exception) {
                 logger.error("En feil oppstod under henting av preutfylt SED ex: ", ex)
                 throw ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR,"En feil oppstod under henting av preutfylt SED ex: ${ex.message}")
