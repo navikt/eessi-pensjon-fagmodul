@@ -6,6 +6,8 @@ metadata:
   labels:
     team: eessipensjon
 spec:
+  kafka:
+    pool: nav-dev
   env:
     - name: SPRING_PROFILES_ACTIVE
       value: test
@@ -27,8 +29,6 @@ spec:
       value: https://security-token-service.nais.preprod.local/rest/v1/sts/.well-known/openid-configuration
     - name: SECURITYTOKENSERVICE_URL
       value: https://sts-q1.preprod.local/SecurityTokenServiceProvider/
-    - name: KAFKA_BOOTSTRAP_SERVERS_URL
-      value: SSL://b27apvl00045.preprod.local:8443,SSL://b27apvl00046.preprod.local:8443,SSL://b27apvl00047.preprod.local:8443
     - name: KAFKA_STATISTIKK_TOPICNAME
       value: privat-eessipensjon-statistikk-q1
     - name: KODEVERK_REST_API_URL
@@ -72,4 +72,6 @@ spec:
     paths:
       - kvPath: {{serviceuserkv}}
         mountPath: /var/run/secrets/nais.io/srveessipensjon
+      - kvPath: /apikey/appdynamics/dev
+        mountPath: /var/run/secrets/nais.io/vault
 
