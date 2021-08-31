@@ -16,9 +16,7 @@ import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.typeRefs
 import no.nav.eessi.pensjon.utils.validateJson
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -307,7 +305,7 @@ class EuxPrefillServiceTest {
         val rinaid = "12344"
         val dokumentid = "3423432453255"
 
-        val documentsItem = listOf(DocumentsItem(type = SedType.P2100, id = dokumentid))
+        val documentsItem = listOf(DocumentsItem(type = SedType.P2100, id = dokumentid, direction = "OUT"))
         val buc = Buc(processDefinitionName = "P_BUC_02", documents = documentsItem)
 
         val docs = listOf(BucOgDocumentAvdod(rinaid, buc, dokumentid))
@@ -326,7 +324,7 @@ class EuxPrefillServiceTest {
         val rinaid = "12344"
         val dokumentid = "3423432453255"
 
-        val documentsItem = listOf(DocumentsItem(type = SedType.P2100, id = dokumentid))
+        val documentsItem = listOf(DocumentsItem(type = SedType.P2100, id = dokumentid, direction = "OUT"))
         val buc = Buc(processDefinitionName = "P_BUC_02", documents = documentsItem)
 
         val docs = listOf(BucOgDocumentAvdod(rinaid, buc, dokumentid))
@@ -435,11 +433,11 @@ class EuxPrefillServiceTest {
 
         every { euxKlient.getRinasaker(avdodFnr, null, "P_BUC_02", "\"open\"") } returns rinaSakerBuc02
 
-        val docItems = listOf(DocumentsItem(id = "1", type = SedType.P2100), DocumentsItem(id = "2", type = SedType.P4000))
+        val docItems = listOf(DocumentsItem(id = "1", type = SedType.P2100, direction = "OUT"), DocumentsItem(id = "2", type = SedType.P4000, direction = "OUT"))
         val buc = Buc(id = "1", processDefinitionName = "P_BUC_02", documents = docItems)
         every { euxKlient.getBucJson(euxCaseId)} returns buc.toJson()
 
-        val docDKItems = listOf(DocumentsItem(id = "20", type = SedType.P2100), DocumentsItem(id = "40", type = SedType.P4000))
+        val docDKItems = listOf(DocumentsItem(id = "20", type = SedType.P2100, direction = "OUT"), DocumentsItem(id = "40", type = SedType.P4000, direction = "OUT"))
         val DKbuc = Buc(id = "10", processDefinitionName = "P_BUC_02", documents = docDKItems)
         every { euxKlient.getBucJson("10") } returns DKbuc.toJson()
 
@@ -473,11 +471,11 @@ class EuxPrefillServiceTest {
         val rinaSakerBuc02 = listOf(dummyRinasak(euxCaseId, "P_BUC_02"), dummyRinasak("10", "P_BUC_02"))
         every { euxKlient.getRinasaker(avdodFnr, null, "P_BUC_02", "\"open\"") } returns rinaSakerBuc02
 
-        val docItems = listOf(DocumentsItem(id = "1", type = SedType.P2100), DocumentsItem(id = "2", type = SedType.P4000))
+        val docItems = listOf(DocumentsItem(id = "1", type = SedType.P2100, direction = "OUT"), DocumentsItem(id = "2", type = SedType.P4000, direction = "OUT"))
         val buc = Buc(id = "1", processDefinitionName = "P_BUC_02", documents = docItems)
         every { euxKlient.getBucJson(euxCaseId) } returns buc.toJson()
 
-        val docDKItems = listOf(DocumentsItem(id = "20", type = SedType.P2100), DocumentsItem(id = "40", type = SedType.P4000))
+        val docDKItems = listOf(DocumentsItem(id = "20", type = SedType.P2100, direction = "OUT"), DocumentsItem(id = "40", type = SedType.P4000, direction = "OUT"))
         val DKbuc = Buc(id = "10", processDefinitionName = "P_BUC_02", documents = docDKItems)
         every { euxKlient.getBucJson("10") } returns DKbuc.toJson()
 
@@ -491,11 +489,11 @@ class EuxPrefillServiceTest {
         every { euxKlient.getRinasaker(avdodFnr, null, "P_BUC_05", "\"open\"") } returns rinaSakerBuc05
 
         //buc05no
-        val docP8000Items = listOf(DocumentsItem(id = "2000", type = SedType.P8000), DocumentsItem(id = "4000", type = SedType.P6000))
+        val docP8000Items = listOf(DocumentsItem(id = "2000", type = SedType.P8000, direction = "OUT"), DocumentsItem(id = "4000", type = SedType.P6000, direction = "OUT"))
         val buc05 = Buc(id = "100", processDefinitionName = "P_BUC_05", documents = docP8000Items)
 
         //buc05dk
-        val docP8000DKItems = listOf(DocumentsItem(id = "2200", type = SedType.P8000), DocumentsItem(id = "4200", type = SedType.P6000))
+        val docP8000DKItems = listOf(DocumentsItem(id = "2200", type = SedType.P8000, direction = "OUT"), DocumentsItem(id = "4200", type = SedType.P6000, direction = "OUT"))
         val buc05DK = Buc(id = "200", processDefinitionName = "P_BUC_05", documents = docP8000DKItems)
 
         every { euxKlient.getBucJson("100") } returns buc05.toJson()

@@ -4,12 +4,7 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
-import no.nav.eessi.pensjon.eux.model.sed.Bruker
-import no.nav.eessi.pensjon.eux.model.sed.Pensjon
-import no.nav.eessi.pensjon.eux.model.sed.Person
-import no.nav.eessi.pensjon.eux.model.sed.PinItem
-import no.nav.eessi.pensjon.eux.model.sed.SED
-import no.nav.eessi.pensjon.eux.model.sed.SedType
+import no.nav.eessi.pensjon.eux.model.sed.*
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Properties
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Traits
@@ -36,11 +31,7 @@ import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
-import org.springframework.http.MediaType
-import org.springframework.http.ResponseEntity
+import org.springframework.http.*
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
@@ -170,7 +161,8 @@ class BucIntegrationSpringTest {
         val lastupdate = LocalDate.of(2020, Month.AUGUST, 7).toString()
 
         //buc02
-        val docItems = listOf(DocumentsItem(id = "1", creationDate = lastupdate, lastUpdate = lastupdate, status = "sent", type = SedType.P2100), DocumentsItem(id = "2", creationDate = lastupdate,  lastUpdate = lastupdate, status = "draft", type = SedType.P4000))
+        val docItems = listOf(DocumentsItem(id = "1", creationDate = lastupdate, lastUpdate = lastupdate, status = "sent", type = SedType.P2100, direction = "OUT"),
+            DocumentsItem(id = "2", creationDate = lastupdate,  lastUpdate = lastupdate, status = "draft", type = SedType.P4000, direction = "OUT"))
         val buc02 = Buc(id = "1010", processDefinitionName = "P_BUC_02", startDate = lastupdate, lastUpdate = lastupdate,  documents = docItems)
 
         val rinabucpath = "/buc/1010"
@@ -235,7 +227,8 @@ class BucIntegrationSpringTest {
         val lastupdate = LocalDate.of(2020, Month.AUGUST, 7).toString()
 
         //buc02
-        val docItems = listOf(DocumentsItem(id = "1", creationDate = lastupdate, lastUpdate = lastupdate, status = "sent", type = SedType.P2100), DocumentsItem(id = "2", creationDate = lastupdate,  lastUpdate = lastupdate, status = "draft", type = SedType.P4000))
+        val docItems = listOf(DocumentsItem(id = "1", creationDate = lastupdate, lastUpdate = lastupdate, status = "sent", type = SedType.P2100, direction = "OUT"),
+            DocumentsItem(id = "2", creationDate = lastupdate,  lastUpdate = lastupdate, status = "draft", type = SedType.P4000, direction = "OUT"))
         val buc02 = Buc(id = "1010", processDefinitionName = "P_BUC_02", startDate = lastupdate, lastUpdate = lastupdate,  documents = docItems)
 
         val rinabucpath = "/buc/1010"
@@ -310,8 +303,8 @@ class BucIntegrationSpringTest {
 
         //buc02
         val docItems = listOf(
-            DocumentsItem(id = "1", creationDate = lastupdate, lastUpdate = lastupdate, status = "sent", type = SedType.P2100),
-            DocumentsItem(id = "2", creationDate = lastupdate,  lastUpdate = lastupdate, status = "draft", type = SedType.P4000)
+            DocumentsItem(id = "1", creationDate = lastupdate, lastUpdate = lastupdate, status = "sent", type = SedType.P2100, direction = "OUT"),
+            DocumentsItem(id = "2", creationDate = lastupdate,  lastUpdate = lastupdate, status = "draft", type = SedType.P4000, direction = "OUT")
         )
         val buc02 = Buc(id = "1010", processDefinitionName = "P_BUC_02", startDate = lastupdate, lastUpdate = lastupdate,  documents = docItems)
 
@@ -392,14 +385,16 @@ class BucIntegrationSpringTest {
         val lastupdate = LocalDate.of(2020, Month.AUGUST, 7).toString()
 
         //buc02
-        val docItems = listOf(DocumentsItem(id = "1", creationDate = lastupdate, lastUpdate = lastupdate, status = "sent", type = SedType.P2100), DocumentsItem(id = "2", creationDate = lastupdate,  lastUpdate = lastupdate, status = "draft", type = SedType.P4000))
+        val docItems = listOf(DocumentsItem(id = "1", creationDate = lastupdate, lastUpdate = lastupdate, status = "sent", type = SedType.P2100, direction = "OUT"),
+            DocumentsItem(id = "2", creationDate = lastupdate,  lastUpdate = lastupdate, status = "draft", type = SedType.P4000, direction = "OUT"))
         val buc02 = Buc(id = "1010", processDefinitionName = "P_BUC_02", startDate = lastupdate, lastUpdate = lastupdate,  documents = docItems)
 
         val rinabucpath = "/buc/1010"
         every { restEuxTemplate.exchange( rinabucpath, HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( buc02.toJson() )
 
         //buc05
-        val doc05Items = listOf(DocumentsItem(id = "1", creationDate = lastupdate, lastUpdate = lastupdate, status = "sent", type = SedType.P8000), DocumentsItem(id = "2", creationDate = lastupdate,  lastUpdate = lastupdate, status = "draft", type = SedType.P4000))
+        val doc05Items = listOf(DocumentsItem(id = "1", creationDate = lastupdate, lastUpdate = lastupdate, status = "sent", type = SedType.P8000, direction = "OUT"),
+            DocumentsItem(id = "2", creationDate = lastupdate,  lastUpdate = lastupdate, status = "draft", type = SedType.P4000, direction = "OUT"))
         val buc05 = Buc(id = "2020", processDefinitionName = "P_BUC_05", startDate = lastupdate, lastUpdate = lastupdate,  documents = doc05Items)
 
         val rinabuc05path = "/buc/2020"
@@ -480,21 +475,24 @@ class BucIntegrationSpringTest {
         val lastupdate = LocalDate.of(2020, Month.AUGUST, 7).toString()
 
         //buc05
-        val doc05Items = listOf(DocumentsItem(id = "5", creationDate = lastupdate, lastUpdate = lastupdate, status = "sent", type = SedType.P8000), DocumentsItem(id = "2", creationDate = lastupdate,  lastUpdate = lastupdate, status = "draft", type = SedType.P4000))
+        val doc05Items = listOf(DocumentsItem(id = "5", creationDate = lastupdate, lastUpdate = lastupdate, status = "sent", type = SedType.P8000, direction = "OUT"),
+            DocumentsItem(id = "2", creationDate = lastupdate,  lastUpdate = lastupdate, status = "draft", type = SedType.P4000, direction = "OUT"))
         val buc05 = Buc(id = "2020", processDefinitionName = "P_BUC_05", startDate = lastupdate, lastUpdate = lastupdate,  documents = doc05Items)
 
         val rinabuc05path = "/buc/2020"
         every { restEuxTemplate.exchange( eq(rinabuc05path), eq(HttpMethod.GET), null, eq(String::class.java)) } returns ResponseEntity.ok().body( buc05.toJson() )
 
         //buc06
-        val doc06Items = listOf(DocumentsItem(id = "6", creationDate = lastupdate, lastUpdate = lastupdate, status = "new", type = SedType.P7000), DocumentsItem(id = "2", creationDate = lastupdate,  lastUpdate = lastupdate, status = "draft", type = SedType.P4000))
+        val doc06Items = listOf(DocumentsItem(id = "6", creationDate = lastupdate, lastUpdate = lastupdate, status = "new", type = SedType.P7000, direction = "OUT"),
+            DocumentsItem(id = "2", creationDate = lastupdate,  lastUpdate = lastupdate, status = "draft", type = SedType.P4000, direction = "OUT"))
         val buc06 = Buc(id = "3030", processDefinitionName = "P_BUC_06", startDate = lastupdate, lastUpdate = lastupdate,  documents = doc06Items)
 
         val rinabuc06path = "/buc/3030"
         every { restEuxTemplate.exchange( eq(rinabuc06path), eq(HttpMethod.GET),null, eq(String::class.java)) } returns ResponseEntity.ok().body( buc06.toJson() )
 
         //buc10
-        val doc10Items = listOf(DocumentsItem(id = "10", creationDate = lastupdate, lastUpdate = lastupdate, status = "sent", type = SedType.P15000), DocumentsItem(id = "2", creationDate = lastupdate,  lastUpdate = lastupdate, status = "draft", type = SedType.P4000))
+        val doc10Items = listOf(DocumentsItem(id = "10", creationDate = lastupdate, lastUpdate = lastupdate, status = "sent", type = SedType.P15000, direction = "OUT"),
+            DocumentsItem(id = "2", creationDate = lastupdate,  lastUpdate = lastupdate, status = "draft", type = SedType.P4000, direction = "OUT"))
         val buc10 = Buc(id = "4040", processDefinitionName = "P_BUC_10", startDate = lastupdate, lastUpdate = lastupdate,  documents = doc10Items)
 
         val rinabuc10path = "/buc/4040"
@@ -574,7 +572,7 @@ class BucIntegrationSpringTest {
                     "type": "P2100",
                     "conversations":null,
                     "isSendExecuted":null,
-                    "direction":null,
+                    "direction": "OUT",
                     "status": "sent",
                     "creationDate": 1596751200000,
                     "lastUpdate": 1596751200000,
@@ -595,7 +593,7 @@ class BucIntegrationSpringTest {
                     "type": "P4000",
                     "conversations":null,
                     "isSendExecuted":null,
-                    "direction":null,
+                    "direction": "OUT",
                     "status": "draft",
                     "creationDate": 1596751200000,
                     "lastUpdate": 1596751200000,
@@ -660,7 +658,7 @@ class BucIntegrationSpringTest {
                     "allowsAttachments": null,
                     "message": null,
                     "isSendExecuted":null,
-                    "direction":null,
+                    "direction": "OUT",
                     "versions":null,
                     "typeVersion":null,
                     "conversations":null
@@ -681,7 +679,7 @@ class BucIntegrationSpringTest {
                     "allowsAttachments": null,
                     "message": null,
                     "isSendExecuted":null,
-                    "direction":null,
+                    "direction": "OUT",
                     "versions":null,
                     "typeVersion":null,
                     "conversations":null
@@ -729,7 +727,7 @@ class BucIntegrationSpringTest {
                     "allowsAttachments": null,
                     "message": null,
                     "isSendExecuted":null,
-                    "direction":null,
+                    "direction": "OUT",
                     "versions":null,
                     "typeVersion":null,
                     "conversations":null
@@ -750,7 +748,7 @@ class BucIntegrationSpringTest {
                     "allowsAttachments": null,
                     "message": null,
                     "isSendExecuted":null,
-                    "direction":null,
+                    "direction": "OUT",
                     "versions":null,
                     "typeVersion":null,
                     "conversations":null

@@ -2,6 +2,7 @@ package no.nav.eessi.pensjon.fagmodul.eux
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
+import no.nav.eessi.pensjon.eux.model.document.Retning
 import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.eux.model.sed.SedType.P5000
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
@@ -104,7 +105,8 @@ class BucUtilsTest {
                 fraLand = "NO",
                 sisteVersjon = "1",
                 pdfUrl = "https://pdfurl/buc/1362305/sed/a550606682f24785adf0919a1147f7f2/pdf",
-                sistMottatt = LocalDate.of(2021, 7,21)))
+                sistMottatt = LocalDate.of(2021, 7,21),
+                retning = Retning.IN))
 
         val result = bucutils.getAllP6000AsDocumentItem("https://pdfurl")
 

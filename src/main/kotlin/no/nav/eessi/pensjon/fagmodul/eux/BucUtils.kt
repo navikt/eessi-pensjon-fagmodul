@@ -2,17 +2,10 @@ package no.nav.eessi.pensjon.fagmodul.eux
 
 import no.nav.eessi.pensjon.eux.model.buc.BucType
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
+import no.nav.eessi.pensjon.eux.model.document.Retning
 import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.RinaAksjon
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Attachment
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ConversationsItem
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Receiver
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Sender
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.VersionsItem
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.VersionsItemNoUser
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.*
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import org.joda.time.DateTime
@@ -87,7 +80,8 @@ class BucUtils(private val buc: Buc) {
             DocumentsItem(
             displayName = sedType.name,
             type = sedType,
-            status = "empty"
+            status = "empty",
+            direction = "OUT" // DUMMY verdi
         ))
     }
 
@@ -158,7 +152,8 @@ class BucUtils(private val buc: Buc) {
                 version = getLatestDocumentVersion(documentItem.versions),
                 firstVersion = getFirstVersion(documentItem.versions),
                 lastVersion = getLastVersion(documentItem.versions),
-                allowsAttachments = overrideAllowAttachemnts(documentItem)
+                allowsAttachments = overrideAllowAttachemnts(documentItem),
+                direction = documentItem.direction
         )
 
     private fun checkParentDocumentId(type: SedType?, parentDocumentId: String?): String? = if (type == SedType.X009) null else parentDocumentId
@@ -258,7 +253,8 @@ class BucUtils(private val buc: Buc) {
                     fraLand = getDocumentSenderCountryCode(doc.participants),
                     sisteVersjon = doc.version ?: "1",
                     pdfUrl = "$pdfurl/buc/${getBuc().id}/sed/${doc.id}/pdf",
-                    sistMottatt = getLocalDateTime(doc.lastUpdate).toLocalDate()
+                    sistMottatt = getLocalDateTime(doc.lastUpdate).toLocalDate(),
+                    retning = Retning.valueOf(doc.direction)
                 )
         }
     }

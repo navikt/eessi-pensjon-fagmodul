@@ -33,13 +33,9 @@ import no.nav.eessi.pensjon.vedlegg.VedleggService
 import no.nav.pensjon.v1.avdod.V1Avdod
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
 import no.nav.pensjon.v1.person.V1Person
-import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.fail
 import org.springframework.http.HttpStatus
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
@@ -251,7 +247,7 @@ class BucControllerTest {
         every { mockPensjonsinformasjonService.hentGyldigAvdod(any())} returns listOf(avdodfnr)
         every { personService.hentIdent(eq(IdentType.NorskIdent), eq(AktoerId(gjenlevendeAktoerid))) } returns NorskIdent(fnrGjenlevende)
 
-        val documentsItem = listOf(DocumentsItem(type = SedType.P2100))
+        val documentsItem = listOf(DocumentsItem(type = SedType.P2100, direction = "OUT"))
         val avdodView = listOf(BucAndSedView.from(Buc(id = "123", processDefinitionName = "P_BUC_02", documents = documentsItem), fnrGjenlevende, avdodfnr ))
 
         every { mockEuxInnhentingService.getBucAndSedViewAvdod(fnrGjenlevende, avdodfnr) } returns avdodView
@@ -259,7 +255,7 @@ class BucControllerTest {
         val rinaSaker = listOf(Rinasak(id = "123213", processDefinitionId = "P_BUC_03", status = "open"))
         every { mockEuxInnhentingService.getRinasaker(any(), any(), any()) } returns rinaSaker
 
-        val documentsItemP2200 = listOf(DocumentsItem(type = SedType.P2200))
+        val documentsItemP2200 = listOf(DocumentsItem(type = SedType.P2200, direction = "OUT"))
         val buc = Buc(id = "23321", processDefinitionName = "P_BUC_03", documents = documentsItemP2200)
 
         every { mockEuxInnhentingService.getBuc(any())} returns buc
@@ -293,7 +289,7 @@ class BucControllerTest {
         val rinaSaker = listOf<Rinasak>()
 
         every {  mockEuxInnhentingService.getRinasaker(any(), any(), any()) } returns rinaSaker
-        val documentsItem1 = listOf(DocumentsItem(type = SedType.P2100))
+        val documentsItem1 = listOf(DocumentsItem(type = SedType.P2100, direction = "OUT"))
 
         val buc1 = Buc(id = "123", processDefinitionName = "P_BUC_02", documents = documentsItem1)
         val avdodView1 = listOf(BucAndSedView.from(buc1, fnrGjenlevende, avdodMorfnr))
@@ -333,7 +329,7 @@ class BucControllerTest {
         val rinaSaker = listOf<Rinasak>(Rinasak("1234","P_BUC_01", Traits(), "", Properties(), "open"))
         every { mockEuxInnhentingService.getRinasaker(fnrGjenlevende, aktoerId, emptyList()) } returns rinaSaker
 
-        val documentsItem = listOf(DocumentsItem(type = SedType.P2000))
+        val documentsItem = listOf(DocumentsItem(type = SedType.P2000, direction = "OUT"))
         val buc = Buc(processDefinitionName = "P_BUC_01", documents = documentsItem)
 
         every { mockEuxInnhentingService.getBuc(any()) } returns buc

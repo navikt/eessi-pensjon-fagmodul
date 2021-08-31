@@ -9,7 +9,7 @@ class DocumentsItem(
         val conversations: List<ConversationsItem>? = null,
         val isSendExecuted: Boolean? = null,
         val id: String? = null,
-        val direction: String? = null,
+        val direction: String,
         val creationDate: Any? = null,
         val typeVersion: String? = null,
         val allowsAttachments: Boolean? = null,
