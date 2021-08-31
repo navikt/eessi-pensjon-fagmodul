@@ -1,22 +1,22 @@
 package no.nav.eessi.pensjon.fagmodul.config
 
-import org.springdoc.core.GroupedOpenApi
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
+//import org.springdoc.core.GroupedOpenApi
+//import org.springframework.context.annotation.Bean
+//import org.springframework.context.annotation.Configuration
 
 
-@Configuration
-class SwaggerConfig {
-
-    @Bean
-    fun publicApi(): GroupedOpenApi? {
-        return GroupedOpenApi
-            .builder()
-            .group("EESSI-Pensjon - Spring Boot REST API")
-            .pathsToMatch("/**").build()
-    }
-
-}
+//@Configuration
+//class SwaggerConfig {
+//
+//    @Bean
+//    fun publicApi(): GroupedOpenApi? {
+//        return GroupedOpenApi
+//            .builder()
+//            .group("EESSI-Pensjon - Spring Boot REST API")
+//            .pathsToMatch("/**").build()
+//    }
+//
+//}
 
 //@Configuration
 //EnableS
