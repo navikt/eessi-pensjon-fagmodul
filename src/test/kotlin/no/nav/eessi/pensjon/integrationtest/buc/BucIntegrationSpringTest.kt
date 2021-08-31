@@ -118,6 +118,7 @@ class BucIntegrationSpringTest {
         val httpEntity = dummyHeader(dummySafReqeust(gjenlevendeAktoerId))
 
         every { restSafTemplate.exchange(eq("/"), HttpMethod.POST, httpEntity, String::class.java) } returns ResponseEntity.ok().body(  dummySafMetaResponse() )
+
         val result = mockMvc.perform(get("/buc/detaljer/$gjenlevendeAktoerId/avdod/$avdodFnr")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)

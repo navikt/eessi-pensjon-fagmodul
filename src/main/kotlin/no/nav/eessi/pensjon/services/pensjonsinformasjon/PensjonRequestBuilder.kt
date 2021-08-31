@@ -6,7 +6,7 @@ import org.w3c.dom.Document
 import javax.xml.parsers.DocumentBuilderFactory
 
 @Component
-class RequestBuilder {
+class PensjonRequestBuilder {
 
     private final val documentBuilderFactory = DocumentBuilderFactory.newInstance().apply { isNamespaceAware = true }
     private final val documentBuilder = documentBuilderFactory.newDocumentBuilder()

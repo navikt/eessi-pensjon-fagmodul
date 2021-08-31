@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonValue
  *
  * @see <a href="https://www.skatteetaten.no/person/folkeregister/fodsel-og-navnevalg/barn-fodt-i-norge/fodselsnummer">Skatteetaten om fødselsnummer</a>
  */
+@Deprecated("Utgår i fordel for klasse i Personoppsalg", replaceWith = ReplaceWith("no.nav.eessi.pensjon.personoppslag.Fodselsnummer"))
 class Fodselsnummer private constructor(@JsonValue val value: String) {
     private val controlDigits1 = intArrayOf(3, 7, 6, 1, 8, 9, 4, 5, 2)
     private val controlDigits2 = intArrayOf(5, 4, 3, 2, 7, 6, 5, 4, 3, 2)

@@ -14,7 +14,6 @@ import org.springframework.web.server.ResponseStatusException
 
 inline fun <reified T : Any> typeRefs(): TypeReference<T> = object : TypeReference<T>() {}
 
-
 inline fun <reified T : Any> mapJsonToAny(json: String, typeRef: TypeReference<T>, failonunknown: Boolean = false): T {
     return try {
          jacksonObjectMapper()

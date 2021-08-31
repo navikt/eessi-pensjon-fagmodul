@@ -1,7 +1,7 @@
 package no.nav.eessi.pensjon.api.pensjon
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
-import io.swagger.annotations.ApiOperation
+import io.swagger.v3.oas.annotations.Operation
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjoninformasjonException
@@ -44,7 +44,7 @@ class PensjonController(private val pensjonsinformasjonClient: Pensjonsinformasj
         PensjonControllerKravDato = metricsHelper.init("PensjonControllerKravDato")
     }
 
-    @ApiOperation("Henter ut saktype knyttet til den valgte sakId og aktoerId")
+    @Operation(description = "Henter ut saktype knyttet til den valgte sakId og aktoerId")
     @GetMapping("/saktype/{sakId}/{aktoerId}")
     fun hentPensjonSakType(@PathVariable("sakId", required = true) sakId: String, @PathVariable("aktoerId", required = true) aktoerId: String): ResponseEntity<String>? {
         auditlogger.log("hentPensjonSakType", aktoerId)
@@ -56,7 +56,7 @@ class PensjonController(private val pensjonsinformasjonClient: Pensjonsinformasj
         }
     }
 
-    @ApiOperation("Henter ut kravdato der det ikke eksisterer et vedtak")
+    @Operation(description = "Henter ut kravdato der det ikke eksisterer et vedtak")
     @GetMapping("/kravdato/saker/{saksId}/krav/{kravId}/aktor/{aktoerId}")
     fun hentKravDatoFraAktor(@PathVariable("saksId", required = true) sakId: String, @PathVariable("kravId", required = true) kravId: String, @PathVariable("aktoerId", required = true) aktoerId: String) : ResponseEntity<String>? {
         return PensjonControllerKravDato.measure {
@@ -79,7 +79,7 @@ class PensjonController(private val pensjonsinformasjonClient: Pensjonsinformasj
     }
 
 
-    @ApiOperation("Validerer pensjonssaker for å forhindre feil under prefill")
+    @Operation(description = "Validerer pensjonssaker for å forhindre feil under prefill")
     @GetMapping("/validate/{aktoerId}/sakId/{sakId}/buctype/{buctype}")
     fun validerKravPensjon(@PathVariable("aktoerId", required = true) aktoerId: String, @PathVariable("sakId", required = true) sakId: String, @PathVariable("buctype", required = true) bucType: String): Boolean {
         return PensjonControllerValidateSak.measure {
@@ -106,7 +106,7 @@ class PensjonController(private val pensjonsinformasjonClient: Pensjonsinformasj
         }
     }
 
-    @ApiOperation("Henter ut en liste over alle saker på valgt aktoerId")
+    @Operation(description = "Henter ut en liste over alle saker på valgt aktoerId")
     @GetMapping("/sakliste/{aktoerId}")
     fun hentPensjonSakIder(@PathVariable("aktoerId", required = true) aktoerId: String): List<PensjonSak> {
         return PensjonControllerHentSakListe.measure {

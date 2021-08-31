@@ -1,6 +1,6 @@
 package no.nav.eessi.pensjon.api.geo
 
-import io.swagger.annotations.ApiOperation
+import io.swagger.v3.oas.annotations.Operation
 import no.nav.eessi.pensjon.services.geo.PostnummerService
 import no.nav.security.token.support.core.api.Unprotected
 import org.slf4j.LoggerFactory
@@ -16,7 +16,7 @@ class PostkodeController(private val postnummerService: PostnummerService) {
 
     private val logger = LoggerFactory.getLogger(PostkodeController::class.java)
 
-    @ApiOperation("Henter ut Poststed med postnr som nøkkel")
+    @Operation(description = "Henter ut Poststed med postnr som nøkkel")
     @GetMapping("/{postnr}/sted")
     fun getPostSted(@PathVariable("postnr", required = true) postnr: String): String? {
 
