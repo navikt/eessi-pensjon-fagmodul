@@ -1,13 +1,35 @@
 
 package no.nav.eessi.pensjon.fagmodul.api
 
-import io.mockk.*
+import io.mockk.MockKAnnotations
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.SpyK
-import no.nav.eessi.pensjon.eux.model.sed.*
-import no.nav.eessi.pensjon.fagmodul.eux.*
+import io.mockk.justRun
+import io.mockk.mockk
+import io.mockk.verify
+import no.nav.eessi.pensjon.eux.model.sed.InstitusjonX005
+import no.nav.eessi.pensjon.eux.model.sed.Leggtilinstitusjon
+import no.nav.eessi.pensjon.eux.model.sed.Navsak
+import no.nav.eessi.pensjon.eux.model.sed.SED
+import no.nav.eessi.pensjon.eux.model.sed.SedType
+import no.nav.eessi.pensjon.eux.model.sed.X005
+import no.nav.eessi.pensjon.eux.model.sed.XNav
+import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
+import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
+import no.nav.eessi.pensjon.fagmodul.eux.EuxKlient
+import no.nav.eessi.pensjon.fagmodul.eux.EuxPrefillService
+import no.nav.eessi.pensjon.fagmodul.eux.SedDokumentIkkeOpprettetException
+import no.nav.eessi.pensjon.fagmodul.eux.SedDokumentKanIkkeOpprettesException
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucSedResponse
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.*
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ActionsItem
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ConversationsItem
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Organisation
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Sender
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.UserMessagesItem
 import no.nav.eessi.pensjon.fagmodul.models.ApiRequest
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
@@ -229,7 +251,7 @@ class PrefillControllerTest {
             id = "23123",
             processDefinitionName = "P_BUC_01",
             participants = listOf(ParticipantsItem(role = "CaseOwner", organisation = Organisation(countryCode = "SE", name = "SE", id = "SE"))),
-            documents = listOf(DocumentsItem(type = SedType.P2000, status = "empty", direction = "OUT") ),
+            documents = listOf(DocumentsItem(type = SedType.P2000, status = "empty", direction = "OUT", id = "1") ),
             actions = listOf(ActionsItem(name = "Create"))
         )
 
