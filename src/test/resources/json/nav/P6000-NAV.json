@@ -156,9 +156,7 @@
               "fom": "2020-10-01"
             },
             "valuta": "HUF",
-            "beloepNetto": {
-              "beloep": "344"
-            },
+
             "utbetalingshyppighetAnnen": "13213",
             "utbetalingshyppighet": "maaned_12_per_aar"
           },
@@ -173,25 +171,13 @@
               "fom": "2020-10-01",
               "tom": "2025-10-01"
             },
-            "beloepNetto": {
-              "beloep": "12"
-            },
             "utbetalingshyppighet": "annet",
             "valuta": "ISK"
           }
         ],
         "basertPaa": "02",
-        "delvisstans": {
-          "utbetaling": {
-            "begrunnelse": "sfdgsdf\nfdg\ns",
-            "beloepBrutto": "24234",
-            "valuta": "SEK"
-          },
-          "indikator": "1"
-        },
         "virkningsdato": "2020-10-01",
         "artikkel": "02",
-        "kjoeringsdato": "2020-12-01",
         "type": "02",
         "basertPaaAnnen": "sadfsdf",
         "ukjent": {
@@ -209,8 +195,7 @@
             "begrunnelse": "02",
             "annenbegrunnelse": "tet\nertert\nretret"
           }
-        ],
-        "begrunnelseAnnen": "afsdaf\nsdafsfasd\nsadfsd"
+        ]
       },
       {
         "beregning": [
@@ -221,9 +206,6 @@
               "ytelseskomponentTilleggspensjon": "12",
               "ytelseskomponentGrunnpensjon": "122",
               "beloep": "234"
-            },
-            "beloepNetto": {
-              "beloep": "23"
             },
             "periode": {
               "tom": "2043-10-01",
@@ -251,18 +233,8 @@
         },
         "artikkel": "03",
         "basertPaaAnnen": "wertwertwert",
-        "delvisstans": {
-          "utbetaling": {
-            "begrunnelse": "sdfsdf\nsdfsdf\nsdf\nfsd",
-            "beloepBrutto": "234",
-            "valuta": "NZD"
-          },
-          "indikator": "0"
-        },
         "type": "03",
-        "begrunnelseAnnen": "sdfsdf\nsd\nfsd",
         "resultat": "03",
-        "kjoeringsdato": "2022-10-01",
         "ukjent": {
           "beloepBrutto": {
             "ytelseskomponentAnnen": "dsfsdf\ns\ndf\nsdf"
@@ -273,35 +245,20 @@
       }
     ],
     "tilleggsinformasjon": {
-      "person": {
-        "pinannen": {
-          "identifikator": "retertret",
-          "sektor": "alle"
-        }
-      },
       "andreinstitusjoner": [
         {
           "institusjonsadresse": "asdfsdf",
           "region": "sadfasdf",
           "postnummer": "asdfsdf",
-          "bygningsnr": "sdafsadf",
           "poststed": "safsd",
           "land": "HR"
         }
       ],
       "dato": "2019-10-01",
-      "anneninformation": "werwer\nwer\nwer",
-      "annen": {
-        "institusjonsadresse": {
-          "land": "BE"
-        }
-      },
       "opphoer": {
         "dato": "2022-10-01",
         "annulleringdato": "2024-10-01"
       },
-      "saksnummerAnnen": "werwer",
-      "saksnummer": "werwer",
       "artikkel48": "0"
     },
     "sak": {
