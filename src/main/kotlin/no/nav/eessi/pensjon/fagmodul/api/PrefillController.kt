@@ -208,9 +208,7 @@ class PrefillController(
         }
     }
 
-    fun fetchBucAgainBeforeReturnShortDocument(
-        bucType: String, bucSedResponse: BucSedResponse, orginal: DocumentsItem?, isNewRina2020: Boolean = false
-    ): DocumentsItem? {
+    fun fetchBucAgainBeforeReturnShortDocument(bucType: String, bucSedResponse: BucSedResponse, orginal: DocumentsItem?, isNewRina2020: Boolean = false): DocumentsItem? {
         return if (bucType == "P_BUC_06") {
             logger.info("Henter BUC på nytt for buctype: $bucType")
             Thread.sleep(900)

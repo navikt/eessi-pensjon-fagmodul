@@ -5,7 +5,16 @@ import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.document.Retning
 import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.RinaAksjon
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.*
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Attachment
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ConversationsItem
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Organisation
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Receiver
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Sender
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.VersionsItem
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.VersionsItemNoUser
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import org.joda.time.DateTime
@@ -244,7 +253,6 @@ class BucUtils(private val buc: Buc) {
 
     fun getAllP6000AsDocumentItem(pdfurl: String) : List<P6000Dokument> {
         val documents = getAllDocuments().filter { doc -> doc.type == SedType.P6000 }.filter { it.status == "sent" || it.status == "received" }
-        //cpi/buc/{RinaSakId}/sed/{DokumentId}/pdf  Henter en SED i PDF format.
         return documents.map { doc ->
                 P6000Dokument(
                     type = doc.type!!,
@@ -264,6 +272,15 @@ class BucUtils(private val buc: Buc) {
             ?.filter { it?.role == "Sender" }
             ?.map { it?.organisation?.countryCode }
             ?.single()!!
+    }
+
+
+    fun getDocumentSenderOrganisation(participants: List<ParticipantsItem?>?): Organisation {
+        val res =  participants
+            ?.filter { it?.role == "Sender" }
+            ?.mapNotNull { it?.organisation }
+            ?.single()
+        return res ?: Organisation(name = "Empty", id = "", countryCode = "")
     }
 
     fun getAllDocuments() = getDocuments().map { createShortDocument(it) }

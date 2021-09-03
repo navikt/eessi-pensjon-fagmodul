@@ -49,6 +49,22 @@ class SedController(
 
     }
 
+    @Operation(description= "Hent pdf fra Rina")
+    @GetMapping("/get/P6000pdf/{euxcaseid}/{documentid}")
+    fun getPdfP6000FromRina(
+        @PathVariable("euxcaseid", required = true) euxcaseid: String,
+        @PathVariable("documentid", required = true) documentid: String): PreviewPdf {
+        return euxInnhentingService.getPdfContents(euxcaseid, documentid)
+    }
+
+    @Operation(description= "Hent pdf fra Rina")
+    @GetMapping("/get/{euxcaseid}/{documentid}/pdf")
+    fun getPdfFromRina(
+        @PathVariable("euxcaseid", required = true) euxcaseid: String,
+        @PathVariable("documentid", required = true) documentid: String): PreviewPdf {
+        return euxInnhentingService.getPdfContents(euxcaseid, documentid)
+    }
+
     @Operation(description = "Henter ut en SED fra et eksisterende Rina document. krever unik dokumentid fra valgt SED, ny api kall til eux")
     @GetMapping("/get/{euxcaseid}/{documentid}")
     fun getDocument(
@@ -126,6 +142,7 @@ class SedController(
         return ResponseEntity.ok().body(resultListe.toJsonSkipEmpty())
     }
 
+    //Ektend P5000 updateFromUI før den sendes og oppdateres i Rina.
     //punkt 5.2.1.3.1 i settes til "0" når gyldigperiode == "0"
     fun P5000.updateFromUI(): P5000 {
         val pensjon = this.p5000Pensjon
@@ -134,15 +151,11 @@ class SedController(
         val erTom = medlemskapboarbeid?.medlemskap.let { it == null || it.isEmpty() }
         if (gyldigperiode == "0" && erTom) {
            logger.info("P5000 setter 5.2.1.3.1 til 0 ")
-            val newPensjon = P5000Pensjon(
-                trygdetid = listOf(
-                    MedlemskapItem(sum = TotalSum(aar = "0")
-                    )
-                ),
+            return this.copy(p5000Pensjon = P5000Pensjon(
+                trygdetid = listOf(MedlemskapItem(sum = TotalSum(aar = "0"))),
                 medlemskapboarbeid = medlemskapboarbeid,
                 separatP5000sendes = "0"
-            )
-            return this.copy(p5000Pensjon = newPensjon)
+            ))
         }
         return this
     }
