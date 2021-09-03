@@ -2,7 +2,11 @@ package no.nav.eessi.pensjon.vedlegg
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import no.nav.eessi.pensjon.metrics.MetricsHelper
-import no.nav.eessi.pensjon.vedlegg.client.*
+import no.nav.eessi.pensjon.vedlegg.client.Dokument
+import no.nav.eessi.pensjon.vedlegg.client.EuxVedleggClient
+import no.nav.eessi.pensjon.vedlegg.client.HentMetadataResponse
+import no.nav.eessi.pensjon.vedlegg.client.HentdokumentInnholdResponse
+import no.nav.eessi.pensjon.vedlegg.client.SafClient
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
@@ -69,6 +73,7 @@ class VedleggService(private val safClient: SafClient,
                 }
             }
             rinaSakIder.distinct()
+                .also { logger.info("Fant følgende RINAID fra dokument Metadata: ${it.map { str -> str }}") }
         }
     }
 }
