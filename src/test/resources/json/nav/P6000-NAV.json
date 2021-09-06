@@ -137,6 +137,14 @@
     },
     "vedtak": [
       {
+        "delvisstans": {
+          "utbetaling": {
+            "begrunnelse": "sdfsdf\nsdfsdf\nsdf\nfsd",
+            "beloepBrutto": "234",
+            "valuta": "NZD"
+          },
+          "indikator": "0"
+        },
         "grunnlag": {
           "framtidigtrygdetid": "0",
           "medlemskap": "02",
@@ -245,6 +253,11 @@
       }
     ],
     "tilleggsinformasjon": {
+      "annen": {
+        "institusjonsadresse": {
+          "land": "BE"
+        }
+      },
       "andreinstitusjoner": [
         {
           "institusjonsadresse": "asdfsdf",
