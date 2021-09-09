@@ -10,7 +10,7 @@ buildscript {
         logstashLogbackVersion = '6.6'
         pensjonInformasjonVersion = '9.4.10'
         eppersonoppslagVersion = '8.0.16'
-        epeuxVersion = '1.1.47'
+        epeuxVersion = '1.1.48'
     }
 
     repositories {
