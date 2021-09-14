@@ -33,9 +33,13 @@ import no.nav.eessi.pensjon.vedlegg.VedleggService
 import no.nav.pensjon.v1.avdod.V1Avdod
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
 import no.nav.pensjon.v1.person.V1Person
-import org.junit.jupiter.api.*
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.api.fail
 import org.springframework.http.HttpStatus
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
@@ -344,11 +348,24 @@ class BucControllerTest {
     fun `Gitt en gjenlevende med feil på vedtak Når BUC og SED forsøkes å hentes Så kastes det en Exception`() {
         val aktoerId = "1234568"
         val vedtaksId = "22455454"
+        val fnr = "10101835868"
+
 
         every { mockPensjonsinformasjonService.hentMedVedtak(vedtaksId) } throws PensjoninformasjonException("Error, Error")
-        assertThrows<PensjoninformasjonException> {
-            bucController.getBucogSedViewVedtak(aktoerId, vedtaksId)
-        }
+
+        every { personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerId)) } returns NorskIdent(fnr)
+
+        val rinaSaker = listOf(Rinasak("1234","P_BUC_01", Traits(), "", Properties(), "open"))
+        every { mockEuxInnhentingService.getRinasaker(fnr, aktoerId, emptyList())} returns rinaSaker
+        every { mockEuxInnhentingService.getBuc(any()) } returns Buc()
+
+        val actual = bucController.getBucogSedViewVedtak(aktoerId, vedtaksId)
+        assertEquals(1,actual.size)
+
+//        assertThrows<PensjoninformasjonException> {
+//            bucController.getBucogSedViewVedtak(aktoerId, vedtaksId)
+//        }
+
     }
 
     @Test

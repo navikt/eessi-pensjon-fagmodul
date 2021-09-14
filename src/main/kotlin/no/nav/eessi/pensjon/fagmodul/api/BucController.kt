@@ -161,15 +161,22 @@ class BucController(
                               @PathVariable("vedtakid", required = true) vedtakid: String): List<BucAndSedView> {
         return bucDetaljerVedtak.measure {
             //Hente opp pesysservice. hente inn vedtak pensjoninformasjon..
-            val pensjonsinformasjon = innhentingService.hentMedVedtak(vedtakid)
-            val avdod = innhentingService.hentGyldigAvdod(pensjonsinformasjon)
 
-            if (avdod != null && pensjonsinformasjon.person.aktorId == gjenlevendeAktoerid) {
+            val pensjonsinformasjon = try {
+                innhentingService.hentMedVedtak(vedtakid)
+            } catch (ex: Exception) {
+                logger.warn("Feiler ved henting av pensjoninformasjon, forsetter uten.")
+                null
+            }
+
+            val avdod = pensjonsinformasjon?.let { peninfo -> innhentingService.hentGyldigAvdod(peninfo) }
+
+            return@measure if (avdod != null && (pensjonsinformasjon.person.aktorId == gjenlevendeAktoerid)) {
                 logger.info("Henter buc for gjenlevende ved vedtakid: $vedtakid")
-                return@measure avdod.map { avdodFnr -> getBucogSedViewGjenlevende(gjenlevendeAktoerid, avdodFnr) }.flatten()
+                avdod.map { avdodFnr -> getBucogSedViewGjenlevende(gjenlevendeAktoerid, avdodFnr) }.flatten()
             } else {
                 logger.info("Henter buc for bruker: $gjenlevendeAktoerid")
-                return@measure getBucogSedView(gjenlevendeAktoerid)
+                getBucogSedView(gjenlevendeAktoerid)
             }
         }
     }
