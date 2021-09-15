@@ -84,9 +84,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator:$springBootVersion")
     implementation("org.springframework.boot:spring-boot-actuator:$springBootVersion")
 
-
-    implementation("joda-time:joda-time:2.10.6")
-
     // Kotlin
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:${jacksonModuleKotlinVersion}")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonModuleKotlinVersion}")
@@ -97,11 +94,6 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-ui:1.5.10")
     implementation("org.springdoc:springdoc-openapi-kotlin:1.5.10")
     implementation('org.springdoc:springdoc-openapi-webmvc-core:1.5.10')
-
-//    implementation("io.springfox:springfox-swagger2:${springfoxVersion}")
-//    implementation("io.springfox:springfox-swagger-ui:${springfoxVersion}")
-//    implementation("io.springfox:springfox-data-rest:${springfoxVersion}")
-
 
     // Logging
     implementation("net.logstash.logback:logstash-logback-encoder:${logstashLogbackVersion}")

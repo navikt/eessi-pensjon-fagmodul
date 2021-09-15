@@ -158,17 +158,15 @@ class BucUtilsTest {
 
     @Test
     fun `getEndDateLong parses dates correctly2`() {
-        val listOfArgs = listOf(Pair(1567150657318L, 1567150657318L),
+        val listOfArgs = listOf(
+            Pair(1567150657318L, 1567150657318L),
             Pair(1567154257318L, 1567154257318L),
             Pair(1567154257318L, "2019-08-30T10:37:37.318"),
-                    Pair(1567154257318L, "2019-08-30T09:37:37.318+0100")
+            Pair(1567154257318L, "2019-08-30T09:37:37.318+0100")
         )
 
         listOfArgs.forEach { assertEquals(it.first, BucUtils(Buc(lastUpdate= it.second) ).getLastDateLong()) }
     }
-
-
-
 
     @Test
     fun getRinaAksjoner() {
