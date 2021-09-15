@@ -17,14 +17,19 @@ import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.VersionsItem
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.VersionsItemNoUser
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
-import org.joda.time.DateTime
-import org.joda.time.DateTimeZone
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
 import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
+
+
+
 
 
 class BucUtils(private val buc: Buc) {
@@ -108,7 +113,6 @@ class BucUtils(private val buc: Buc) {
     }
 
     private fun getDateTimeToLong(dateTime: Any?): Long {
-//        return getLocalDateTime(dateTime).toEpochSecond(ZoneOffset.of(getId))
         return getLocalDateTime(dateTime).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
     }
 
@@ -121,22 +125,32 @@ class BucUtils(private val buc: Buc) {
     }
 
     private fun toLocalDatetimeFromString(dateTime: String): LocalDateTime {
-        val zoneId = DateTimeZone.forID(ZoneId.systemDefault().id)
-        val jodt = DateTime(DateTime.parse(dateTime).toInstant(),zoneId)
-        val ldt = jodt.toInstant().millis
-        return Instant.ofEpochMilli(ldt).atZone(ZoneId.systemDefault()).toLocalDateTime()
+
+        //offse & zone
+        if(dateTime.contains("+")){
+            if(dateTime.substringAfter("+").contains(":")){
+                return ZonedDateTime.parse(dateTime, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+                    .withZoneSameInstant(ZoneId.of("Europe/Paris")).toLocalDateTime()
+            }
+            return ZonedDateTime.parse(dateTime, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ"))
+                .withZoneSameInstant(ZoneId.of("Europe/Paris"))
+                .toLocalDateTime()
+        }
+        if(isValidLocalDate(dateTime)){
+            return LocalDate.parse(dateTime, DateTimeFormatter.ofPattern("yyyy-MM-dd")).atStartOfDay()
+        }
+        return LocalDateTime.parse(dateTime, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"))
     }
 
-// OLD JODATIME .. faceout..
-//    fun getDateTime(dateTime: Any?): DateTime  {
-//        val zoneId = DateTimeZone.forID(ZoneId.systemDefault().id)
-//
-//            return when (dateTime) {
-//                is Long -> DateTime(DateTime(dateTime).toInstant(),zoneId)
-//                is String -> DateTime(DateTime.parse(dateTime).toInstant(),zoneId)
-//                else -> DateTime.now().minusYears(1000)
-//            }
-//    }
+    private fun isValidLocalDate(dateStr: String?): Boolean {
+        try {
+            LocalDate.parse(dateStr,  DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+        } catch (e: DateTimeParseException) {
+            return false
+        }
+        return true
+    }
+
 
     fun getProcessDefinitionName() = buc.processDefinitionName
 
