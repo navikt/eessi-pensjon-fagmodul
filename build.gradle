@@ -6,7 +6,7 @@ buildscript {
         springfoxVersion = '3.0.0'
         jacksonModuleKotlinVersion = '2.12.1'
         cxfVersion = '3.3.4'
-        tokenSupportVersion = '1.1.6'
+        tokenSupportVersion = '1.3.8'
         logstashLogbackVersion = '6.6'
         pensjonInformasjonVersion = '9.4.10'
         eppersonoppslagVersion = '8.0.16'
