@@ -16,8 +16,8 @@ import java.time.LocalDate
 @Service
 class AlderpensjonUtlandKrav(
     private val kodeverkClient: KodeverkClient,
-    @Value("\${NAIS_NAMESPACE}")
-    private val nameSpace: String
+    @Value("\${ENV}")
+    private val environment: String
 ) : UtlandKrav() {
 
     private val logger = LoggerFactory.getLogger(AlderpensjonUtlandKrav::class.java)
@@ -25,7 +25,7 @@ class AlderpensjonUtlandKrav(
     fun kravAlderpensjonUtland(kravSed: SED, bucUtils: BucUtils, doc: DocumentsItem): KravUtland {
 
         val caseOwner = bucUtils.getCaseOwner()!!
-        val caseOwnerCountryBuc = if (nameSpace == "q2" || nameSpace == "test") {
+        val caseOwnerCountryBuc = if (environment == "q2" || environment == "test") {
             "SE" //settes til SE for test i Q2 fra utland
         } else {
             caseOwner.country
