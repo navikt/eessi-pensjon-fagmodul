@@ -51,10 +51,12 @@ open class UtlandKrav {
 //        SÅ "iverksettelsesdato" : "2021-03-01",
 
         val dato = if (utsettelseDato != null) {
-            LocalDate.parse(utsettelseDato)
+            val utsettelse = LocalDate.parse(utsettelseDato)
+            logger.debug("utsettelse dato: $utsettelse")
+            utsettelse.withDayOfMonth(1)
         } else if (kravDato != null) {
-            val virkningsDato = kravDato.withDayOfMonth(1)
-            virkningsDato.plusMonths(1)
+            logger.debug("kravdato: $kravDato")
+            kravDato.withDayOfMonth(1).plusMonths(1)
         } else {
             null
         }
