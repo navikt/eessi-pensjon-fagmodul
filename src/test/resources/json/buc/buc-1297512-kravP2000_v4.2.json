@@ -2499,19 +2499,19 @@
     {
       "role": "CaseOwner",
       "organisation": {
-        "id": "NO:NAVAT05",
+        "id": "SE:NAVAT05",
         "address": {
           "street": null,
           "town": null,
           "postalCode": null,
           "region": null,
-          "country": "NO"
+          "country": "SE"
         },
         "contactMethods": null,
         "registryNumber": null,
         "name": "NAV ACCEPTANCE TEST 05",
-        "acronym": "NAV ACCT 05",
-        "countryCode": "NO",
+        "acronym": "SEWEDISH DISH",
+        "countryCode": "SE",
         "activeSince": "2018-08-26T22:00:00.000+0000",
         "accessPoint": null,
         "location": null,

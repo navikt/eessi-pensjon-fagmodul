@@ -41,7 +41,7 @@ class AlderpensjonUtlandKrav(
 
         return KravUtland(
             mottattDato = mottattDato,                     // når SED ble mottatt i NAV-RINA
-            iverksettelsesdato = iverksettDatoAlder(kravSed, mottattDato),  //fremsattdato
+            iverksettelsesdato = iverksettDatoAlder(kravSed, kravdato),  //fremsattdato
             fremsattKravdato = kravdato,                   // hentes fra kp. 9.1 kravdato
             uttaksgrad = "100",                            //saksbehandler retter på denne etter at vi setter den til 100%
             vurdereTrygdeavtale = true,

@@ -46,6 +46,8 @@ class PensjonsinformasjonUtlandService(
         val kravSed = sedDoc.id?.let { sedDocId -> euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(bucId.toString(), sedDocId) }
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Ingen gyldig kravSed i BUC med id: $bucId funnet.").also { logger.error(it.message) }
 
+        if (bucUtils.getCaseOwner()!!.country == "NO") throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Kravutland fra Norge ikke gyldig")
+
         //finner rette hjelep metode for utfylling av KravUtland
         //ut ifra hvilke SED/saktype det gjelder.
         logger.info("*** Starter kravUtlandpensjon: ${kravSed.type} bucId: $bucId bucType: ${bucUtils.getProcessDefinitionName()} ***")

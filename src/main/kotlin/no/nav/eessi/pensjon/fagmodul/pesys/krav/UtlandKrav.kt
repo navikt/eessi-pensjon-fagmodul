@@ -27,11 +27,11 @@ open class UtlandKrav {
         return kravdato.withDayOfMonth(1).minusMonths(3)
     }
 
-    fun iverksettDatoAlder(kravSed: SED, mottattDato: LocalDate?): LocalDate? {
-        val virkningsDato = virkningsDato(kravSed, mottattDato)
-        if (virkningsDato != null && virkningsDato.isBefore(LocalDate.now()))
-            return virkningsDato.plusMonths(1)
-        return virkningsDato
+    fun iverksettDatoAlder(kravSed: SED, kravDato: LocalDate?): LocalDate? {
+        return virkningsDato(kravSed, kravDato)
+//        if (virkningsDato != null && virkningsDato.isBefore(LocalDate.now()))
+//            return virkningsDato.plusMonths(1)
+//        return virkningsDato
     }
 
 
@@ -41,25 +41,25 @@ open class UtlandKrav {
      * 2. Ved utsettelsesdato mellom 16-siste dag i mnd, skal virkningsDato bli første dag i neste mnd
      * 3. Dersom ingenting er angitt, så sett Antatt virkningsdato til den første i måneden etter Mottatt dato.
      */
-    fun virkningsDato(kravSed: SED, mottattDato: LocalDate?): LocalDate? {
+    fun virkningsDato(kravSed: SED, kravDato: LocalDate?): LocalDate? {
         val utsettelseDato = kravSed.pensjon?.utsettelse?.firstOrNull()?.tildato
 
-        if (utsettelseDato != null) {
-            return utsettelseDato.let {
-                var virkningsDato = LocalDate.parse(it)
+//        Opprettelse av automatisk krav i PESYS ved mottatt av SED P2000/P2200:
+//        HVIS "soknadFraLand" : "SWE"
+//        OG "fremsattKravdato" : "2021-02-12",
+//        OG "mottattDato" : "2021-05-14",
+//        SÅ "iverksettelsesdato" : "2021-03-01",
 
-                if (virkningsDato.dayOfMonth > 15) {
-                    virkningsDato = virkningsDato.plusMonths(1)
-                }
-                virkningsDato = virkningsDato.withDayOfMonth(1)
-                virkningsDato
-            }
-        } else if (mottattDato != null) {
-            var virkningsDato = mottattDato.withDayOfMonth(1)
-            virkningsDato = virkningsDato.plusMonths(1)
-            return virkningsDato
+        val dato = if (utsettelseDato != null) {
+            LocalDate.parse(utsettelseDato)
+        } else if (kravDato != null) {
+            val virkningsDato = kravDato.withDayOfMonth(1)
+            virkningsDato.plusMonths(1)
+        } else {
+            null
         }
-        return null
+        logger.debug("Hva er DATOEN: $dato")
+        return dato
     }
 
     fun sistOppdatertDocumentDato(doc: DocumentsItem, bucUtils: BucUtils): LocalDate {
