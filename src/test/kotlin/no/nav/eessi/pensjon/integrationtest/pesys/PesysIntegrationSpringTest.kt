@@ -153,6 +153,67 @@ class PesysIntegrationSpringTest {
     }
 
     @Test
+    fun `Alderpensjon utlandskrav returnerer json ut fra behandle P2000 fra SE`() {
+
+        val bucid = "998777"
+        val sedid = "5a61468eb8cb4fd78c5c44d75b9bb890"
+
+        every { kodeverkClient.finnLandkode(any())  } returns "SWE"
+
+        //euxrest kall buc
+        val p2000json = """{"nav":{"bruker":{"person":{"sivilstand":[{"status":"gift","fradato":"2006-01-03"}],"kjoenn":"K","etternavn":"MASKIN","fornavn":"LITEN\t","foedselsdato":"1953-09-24","pin":[{"land":"NO","identifikator":"64095349631"}],"statsborgerskap":[{"land":"NO"}]}},"krav":{"dato":"2021-02-10"}},"sedGVer":"4","sedVer":"2","sed":"P2000"}        """.trimIndent()
+
+        val buc01 = ResourceUtils.getFile("classpath:json/buc/buc-1297512-kravP2000_v4.2.json").readText()
+        val rinabucpath = "/buc/$bucid"
+
+        every { restTemplate.exchange( eq(rinabucpath), eq(HttpMethod.GET), any(), eq(String::class.java)) } returns ResponseEntity.ok().body( buc01 )
+
+        //euxrest kall til p2000
+        val sedurl = "/buc/$bucid/sed/$sedid"
+        every { restTemplate.exchange( eq(sedurl), eq(HttpMethod.GET), any(), eq(String::class.java)) } returns ResponseEntity.ok().body( p2000json )
+
+        val result = mockMvc.perform(
+            MockMvcRequestBuilders.get("/pesys/hentKravUtland/$bucid")
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andReturn()
+
+        val response = result.response.getContentAsString(charset("UTF-8"))
+
+        print(response)
+
+        val validResponse = """
+            {
+                "errorMelding" : null,
+                "mottattDato" : "2021-03-26",
+                "iverksettelsesdato" : "2021-03-01",
+                "fremsattKravdato" : "2021-02-10",
+                "uttaksgrad" : "100",
+                "vurdereTrygdeavtale" : true,
+                "personopplysninger" : {
+                    "statsborgerskap" : "SWE"
+                },
+                "utland" : null,
+                "sivilstand" : {
+                    "valgtSivilstatus" : "GIFT",
+                    "sivilstatusDatoFom" : "2006-01-03"
+                },
+                "soknadFraLand" : "SWE",
+                "initiertAv" : "BRUKER",
+                "virkningsDato": null,
+                "utland": {
+                    "utlandsopphold": []
+                }
+            }
+        """.trimIndent()
+
+        JSONAssert.assertEquals(validResponse, response, true)
+
+    }
+
+
+    @Test
     fun `Ugydlig BUC medfører BAD_REQUEST`() {
         val bucid = "998777"
 
