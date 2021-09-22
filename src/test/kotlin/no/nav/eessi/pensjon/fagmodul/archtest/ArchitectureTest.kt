@@ -1,7 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.archtest
 
 import com.tngtech.archunit.base.DescribedPredicate
-import com.tngtech.archunit.base.HasDescription
 import com.tngtech.archunit.core.domain.JavaAnnotation
 import com.tngtech.archunit.core.domain.JavaClass
 import com.tngtech.archunit.core.domain.JavaClasses
@@ -233,30 +232,6 @@ class ArchitectureTest {
                 .check(allClasses)
     }
 
-//    @Test
-//    fun `prefill structure test`() {
-//        val prefillRoot = "$root.prefill"
-//        val sedModel = "$root.sedModel"
-//        val prefillClasses = ClassFileImporter()
-//                .importPackages(prefillRoot, sedModel)
-//
-//        layeredArchitecture()
-//                .layer("service").definedBy(prefillRoot)
-//                .layer("sed").definedBy("$prefillRoot.sed..")
-//                .layer("person").definedBy("$prefillRoot.person..")
-//                .layer("pen").definedBy("$prefillRoot.pen..")
-//                .layer("pdl").definedBy("$prefillRoot.pdl..")
-//                .layer("eessi").definedBy("$prefillRoot.eessi..")
-//                .layer("model").definedBy("$prefillRoot.model..")
-//                .whereLayer("service").mayNotBeAccessedByAnyLayer()
-//                .whereLayer("sed").mayOnlyBeAccessedByLayers("service")
-//                .whereLayer("person").mayOnlyBeAccessedByLayers("sed")
-//                .whereLayer("pen").mayOnlyBeAccessedByLayers("sed")
-//                .whereLayer("pdl").mayOnlyBeAccessedByLayers("sed")
-//                .whereLayer("eessi").mayOnlyBeAccessedByLayers("sed", "pdl")
-//                .check(prefillClasses)
-//    }
-
     @Test
     fun `no cycles on top level`() {
         slices()
@@ -304,11 +279,11 @@ class ArchitectureTest {
     @Test
     fun `Spring singleton components should not have mutable instance fields`() {
 
-        class SpringStereotypeAnnotation:DescribedPredicate<JavaAnnotation<HasDescription>>("Spring component annotation") {
-            override fun apply(input: JavaAnnotation<HasDescription>?): Boolean = input != null &&
+        class SpringStereotypeAnnotation:DescribedPredicate<JavaAnnotation<*>>("Spring component annotation") {
+            override fun getDescription(): String = "Desc"
+            override fun apply(input: JavaAnnotation<*>?): Boolean = input != null &&
                     (input.rawType.packageName.startsWith("org.springframework.stereotype") ||
                             input.rawType.isEquivalentTo(RestController::class.java))
-            override fun getDescription(): String = "Desc"
         }
 
         val springStereotype = SpringStereotypeAnnotation()
@@ -318,20 +293,20 @@ class ArchitectureTest {
                 .and().doNotHaveRawParameterTypes(MetricsHelper.Metric::class.java)
                 .and().areDeclaredInClassesThat().areNotAnnotatedWith(Scope::class.java) // If scope is not singleton it might be ok
                 .and().areDeclaredInClassesThat().haveNameNotMatching(".*(STSService|Template|Config)") // these use setter injection
-//                .should().beDeclaredInClassesThat().areAnnotatedWith(springStereotype)
-//                .because("Spring-components (usually singletons) must not have mutable instance fields " +
-//                        "as they can easily be misused and create 'race conditions'")
-//                .check(productionClasses)
+                .should().beDeclaredInClassesThat().areAnnotatedWith(springStereotype)
+                .because("Spring-components (usually singletons) must not have mutable instance fields " +
+                        "as they can easily be misused and create 'race conditions'")
+                .check(productionClasses)
 
         noFields().that()
                 .areNotFinal()
                 .and().doNotHaveRawType(MetricsHelper.Metric::class.java)
                 .and().areDeclaredInClassesThat().areNotAnnotatedWith(Scope::class.java)// If scope is not singleton it might be ok
                 .and().areDeclaredInClassesThat().haveNameNotMatching(".*(STSService|Template|Config)") // these use setter injection
-//                .should().beDeclaredInClassesThat().areAnnotatedWith(springStereotype)
-//                .because("Spring-components (usually singletons) must not have mutable instance fields " +
-//                        "as they can easily be misused and create 'race conditions'")
-//                .check(productionClasses)
+                .should().beDeclaredInClassesThat().areAnnotatedWith(springStereotype)
+                .because("Spring-components (usually singletons) must not have mutable instance fields " +
+                        "as they can easily be misused and create 'race conditions'")
+                .check(productionClasses)
     }
 
     @Test

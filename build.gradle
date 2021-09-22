@@ -11,6 +11,7 @@ buildscript {
         pensjonInformasjonVersion = '9.4.10'
         eppersonoppslagVersion = '8.0.16'
         epeuxVersion = '1.1.48'
+        archunitVersion = '0.21.0'
     }
 
     repositories {
@@ -145,8 +146,8 @@ dependencies {
     }
 
     // Architecture tests
-    testImplementation ("com.tngtech.archunit:archunit:0.20.1")
-    testImplementation ("com.tngtech.archunit:archunit-junit5:0.20.1")
+    testImplementation ("com.tngtech.archunit:archunit:${archunitVersion}")
+    testImplementation ("com.tngtech.archunit:archunit-junit5:${archunitVersion}")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude module: 'junit'
         exclude module: "mockito-core"
