@@ -35,11 +35,13 @@ import javax.annotation.PostConstruct
 @RestController
 @RequestMapping("/buc")
 class BucController(
-    @Value("\${NAIS_NAMESPACE}") val nameSpace: String,
+    @Value("\${ENV}") val environment: String,
     private val euxInnhentingService: EuxInnhentingService,
     private val auditlogger: AuditLogger,
     private val innhentingService: InnhentingService,
-    @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())) {
+    @Value("\${eessipen-eux-rina.url}") private val rinaUrl: String,
+    @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())
+) {
 
     private val logger = LoggerFactory.getLogger(BucController::class.java)
     private val validBucAndSed = ValidBucAndSed()
@@ -55,6 +57,8 @@ class BucController(
         bucDetaljerEnkel = metricsHelper.init("BucDetaljerEnkel", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         bucDetaljerGjenlev  = metricsHelper.init("BucDetaljerGjenlev", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
     }
+
+
 
     @Operation(description = "henter liste av alle tilgjengelige BuC-typer")
     @GetMapping("/bucs/{sakId}", produces = [MediaType.APPLICATION_JSON_VALUE])

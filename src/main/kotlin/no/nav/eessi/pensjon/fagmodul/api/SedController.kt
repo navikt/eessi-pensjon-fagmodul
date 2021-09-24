@@ -49,6 +49,7 @@ class SedController(
 
     }
 
+    @Deprecated("Benytt getPdfFromRina", ReplaceWith("getPdfFromRina"))
     @Operation(description= "Hent pdf fra Rina")
     @GetMapping("/get/P6000pdf/{euxcaseid}/{documentid}")
     fun getPdfP6000FromRina(
@@ -108,19 +109,21 @@ class SedController(
         return euxInnhentingService.updateSedOnBuc(euxcaseid, documentid, validsed.toJsonSkipEmpty())
     }
 
+    @Deprecated("Benytt tjenesten i EuxController", ReplaceWith("EuxController"))
     @Operation(description = "Henter ut en liste over landkoder ut fra kodeverktjenesten eux")
     @GetMapping( "/landkoder")
     fun getCountryCode(): List<String> {
         return euxInnhentingService.getKodeverk(Kodeverk.LANDKODER).mapNotNull{ it.kode }.toList()
     }
 
+    @Deprecated("Benytt tjenesten i EuxController", ReplaceWith("EuxController"))
     @Operation(description = "Henter ut en liste over kodeverk fra eux")
     @GetMapping( "/kodeverk/{kodeverk}")
     fun getKodeverk(@PathVariable("kodeverk", required = true) kodeverk: Kodeverk ): List<KodeverkResponse> {
         return euxInnhentingService.getKodeverk(kodeverk)
     }
 
-
+    @Deprecated("Benytt tjenesten i EuxController", ReplaceWith("EuxController"))
     @Operation(description = "Henter ut en liste over registrerte institusjoner innenfor spesifiserte EU-land. ny api kall til eux")
     @GetMapping("/institutions/{buctype}", "/institutions/{buctype}/{countrycode}")
     fun getEuxInstitusjoner(
