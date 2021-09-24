@@ -65,13 +65,13 @@ object PensjoninformasjonValiderKrav {
     //felles kode for validering av P2000, P2100 og P2200
     private fun validerGyldigKravtypeOgArsakFelles(sak: V1Sak) {
         val finnesKunUtland = finnKravHistorikk("F_BH_KUN_UTL", sak.kravHistorikkListe)
-        if (finnesKunUtland != null && finnesKunUtland.size == sak.kravHistorikkListe.kravHistorikkListe.size)  {
+        if (finnesKunUtland.size == sak.kravHistorikkListe.kravHistorikkListe.size)  {
             logger.warn("Søknad gjelder Førstegangsbehandling kun utland. Se egen rutine på navet")
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Søknad gjelder Førstegangsbehandling kun utland. Se egen rutine på navet")
         }
 
         val fortegBH = finnKravHistorikk("FORSTEG_BH", sak.kravHistorikkListe)
-        if (fortegBH != null && fortegBH.size == sak.kravHistorikkListe.kravHistorikkListe.size)  {
+        if (fortegBH.size == sak.kravHistorikkListe.kravHistorikkListe.size)  {
             logger.warn("Det er ikke markert for bodd/arbeidet i utlandet. Krav SED kan ikke opprettet")
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Det er ikke markert for bodd/arbeidet i utlandet. Krav SED kan ikke opprettet")
         }

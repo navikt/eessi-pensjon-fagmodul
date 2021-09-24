@@ -10,7 +10,6 @@ import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
 import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentType
 import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonService
-import no.nav.eessi.pensjon.utils.Fodselsnummer
 import no.nav.eessi.pensjon.vedlegg.VedleggService
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
 import org.slf4j.LoggerFactory
@@ -72,7 +71,7 @@ class InnhentingService(
                     throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ident har tom input-verdi")
                 }
 
-                val gyldigNorskIdent = Fodselsnummer.fra(norskIdent)
+                val gyldigNorskIdent = no.nav.eessi.pensjon.personoppslag.Fodselsnummer.fra(norskIdent)
                 return try {
                     personService.hentIdent(IdentType.AktoerId, NorskIdent(norskIdent)).id
                 } catch (ex: Exception) {
