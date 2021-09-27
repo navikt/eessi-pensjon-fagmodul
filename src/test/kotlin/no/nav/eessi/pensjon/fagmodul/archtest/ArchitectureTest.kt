@@ -84,7 +84,6 @@ class ArchitectureTest {
         val vedlegg           = "vedlegg"
         val security          = "security"
         val personDataLosning = "personoppslag pdl"
-
         val integrationtest   = "integrationtest"
 
         val packages: Map<String, String> = mapOf(
@@ -97,6 +96,7 @@ class ArchitectureTest {
                 "$root.fagmodul.eux.bucmodel.." to euxBucModel,
                 "$root.fagmodul.config.." to config,
                 "$root.fagmodul.pesys.." to pesys,
+                "$root.fagmodul.prefill.." to innhentingService,
                 "$root.api.geo.." to geoApi,
                 "$root.api.person.." to personApi,
                 "$root.api.pensjon.." to pensjonApi,
@@ -111,7 +111,6 @@ class ArchitectureTest {
                 "$root.logging.." to utils,
                 "$root.vedlegg.." to vedlegg,
                 "$root.personoppslag.pdl" to personDataLosning,
-                "$root.fagmodul.prefill.." to innhentingService,
                 "$root.integrationtest.." to integrationtest
             )
 
