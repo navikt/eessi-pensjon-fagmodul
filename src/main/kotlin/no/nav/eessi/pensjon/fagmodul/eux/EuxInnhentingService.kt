@@ -113,11 +113,12 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
      * filtert kun gyldige buc-type for visning, returnerer liste av rinaid
      */
     fun getFilteredArchivedaRinasaker(list: List<Rinasak>): List<String> {
-        val gyldigBucs = mutableListOf("H_BUC_07", "R_BUC_01", "R_BUC_02", "M_BUC_02", "M_BUC_03a", "M_BUC_03b")
-        gyldigBucs.addAll(validbucsed.initSedOnBuc().keys.map { it }.toList())
+        val spesialExtraBucs = mutableListOf("H_BUC_07", "R_BUC_01", "R_BUC_02", "M_BUC_02", "M_BUC_03a", "M_BUC_03b")
+        val pensjonNormaleBucs = validbucsed.initSedOnBuc().map { it.key }
+        val gyldigeBucs = pensjonNormaleBucs + spesialExtraBucs
         return list.asSequence()
                 .filterNot { rinasak -> rinasak.status == "archived" }
-                .filter { rinasak -> gyldigBucs.contains(rinasak.processDefinitionId) }
+                .filter { rinasak -> gyldigeBucs.contains(rinasak.processDefinitionId) }
                 .sortedBy { rinasak -> rinasak.id }
                 .map { rinasak -> rinasak.id!! }
                 .toList()

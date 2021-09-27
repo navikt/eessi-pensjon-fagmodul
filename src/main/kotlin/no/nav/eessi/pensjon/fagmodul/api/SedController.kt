@@ -58,7 +58,7 @@ class SedController(
         return euxInnhentingService.getPdfContents(euxcaseid, documentid)
     }
 
-    @Operation(description= "Hent pdf fra Rina")
+    @Operation(description =  "Hent pdf fra Rina")
     @GetMapping("/get/{euxcaseid}/{documentid}/pdf")
     fun getPdfFromRina(
         @PathVariable("euxcaseid", required = true) euxcaseid: String,
