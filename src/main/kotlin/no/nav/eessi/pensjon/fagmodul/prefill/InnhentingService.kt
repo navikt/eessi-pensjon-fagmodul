@@ -72,7 +72,7 @@ class InnhentingService(
                     throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ident har tom input-verdi")
                 }
 
-                val gyldigNorskIdent = Fodselsnummer.fra(norskIdent)
+                val gyldigNorskIdent = no.nav.eessi.pensjon.personoppslag.Fodselsnummer.fra(norskIdent)
                 return try {
                     personService.hentIdent(IdentType.AktoerId, NorskIdent(norskIdent)).id
                 } catch (ex: Exception) {

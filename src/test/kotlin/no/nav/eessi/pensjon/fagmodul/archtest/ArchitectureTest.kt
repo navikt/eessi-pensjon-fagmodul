@@ -63,55 +63,55 @@ class ArchitectureTest {
     fun `check architecture in detail`() {
 
         // components
-        val health = "fagmodul.health"
-        val bucSedApi = "fagmodul.api"
-        val prefill = "fagmodul.prefill"
-        val models = "fagmodul.models"
-        val euxmodel = "fagmodul.sedmodel"
-        val geoApi = "api.geo"
-        val personApi = "api.person"
-        val pensjonApi = "api.pensjon"
-        val pesys = "fagmodul.pesys"
-        val config = "fagmodul.config"
-        val euxService = "fagmodul.euxservice"
-        val euxBasisModel = "fagmodul.euxBasisModel"
-        val euxBucModel = "fagmodul.euxBucModel"
-        val kodeverkService = "services.kodeverk"
-        val geoService = "services.geo"
-        val pensjonService = "services.pensjon"
-        val integrationtest = "integrationtest"
-        val utils = "utils"
-        val vedlegg = "vedlegg"
-        val security = "security"
-        val personDataLosning = "personoppslag.pdl"
-        val innhentingService = "fagmodul.prefill"
+        val health            = "fagmodul health"
+        val bucSedApi         = "fagmodul api"
+        val prefill           = "fagmodul prefill"
+        val models            = "fagmodul models"
+        val euxmodel          = "fagmodul sedmodel"
+        val pesys             = "fagmodul pesys"
+        val euxService        = "fagmodul euxservice"
+        val euxBasisModel     = "fagmodul euxBasisModel"
+        val euxBucModel       = "fagmodul euxBucModel"
+        val config            = "fagmodul config"
+        val innhentingService = "fagmodul prefill"
+        val geoApi            = "api geo"
+        val personApi         = "api person"
+        val pensjonApi        = "api pensjon"
+        val kodeverkService   = "services kodeverk"
+        val geoService        = "services geo"
+        val pensjonService    = "services pensjon"
+        val utils             = "utils"
+        val vedlegg           = "vedlegg"
+        val security          = "security"
+        val personDataLosning = "personoppslag pdl"
+        val integrationtest   = "integrationtest"
 
         val packages: Map<String, String> = mapOf(
                 "$root.fagmodul.health.." to health,
-                "$root.api.geo.." to geoApi,
-                "$root.api.person.." to personApi,
-                "$root.api.pensjon.." to pensjonApi,
                 "$root.fagmodul.api.." to bucSedApi,
                 "$root.fagmodul.prefill.." to prefill,
                 "$root.fagmodul.models.." to models,
-                "$root.eux.model.." to euxmodel,
                 "$root.fagmodul.eux" to euxService,
                 "$root.fagmodul.eux.basismodel.." to euxBasisModel,
                 "$root.fagmodul.eux.bucmodel.." to euxBucModel,
                 "$root.fagmodul.config.." to config,
                 "$root.fagmodul.pesys.." to pesys,
+                "$root.fagmodul.prefill.." to innhentingService,
+                "$root.api.geo.." to geoApi,
+                "$root.api.person.." to personApi,
+                "$root.api.pensjon.." to pensjonApi,
+                "$root.eux.model.." to euxmodel,
                 "$root.config.." to config,
                 "$root.services.kodeverk" to kodeverkService,
                 "$root.services.geo" to geoService,
                 "$root.services.pensjonsinformasjon" to pensjonService,
                 "$root.security.." to security,
-                "$root.integrationtest.." to integrationtest,
                 "$root.metrics.." to utils,
                 "$root.utils.." to utils,
                 "$root.logging.." to utils,
                 "$root.vedlegg.." to vedlegg,
                 "$root.personoppslag.pdl" to personDataLosning,
-                "$root.fagmodul.prefill.." to innhentingService
+                "$root.integrationtest.." to integrationtest
             )
 
         // packages in each component - default is the package with the component name
@@ -161,16 +161,17 @@ class ArchitectureTest {
                 .whereLayer(pensjonService).mayOnlyBeAccessedByLayers(health, pensjonApi, prefill, bucSedApi, personApi, integrationtest)
 
                 .whereLayer(config).mayNotBeAccessedByAnyLayer()
-                .whereLayer(security).mayOnlyBeAccessedByLayers(config,
-                health,
-                euxService,
-                vedlegg,
-                pensjonService,
-                personDataLosning,
-                kodeverkService,
-                pesys,
-                integrationtest,
-                prefill)
+                .whereLayer(security).mayOnlyBeAccessedByLayers(
+                    config,
+                    health,
+                    euxService,
+                    vedlegg,
+                    pensjonService,
+                    personDataLosning,
+                    kodeverkService,
+                    pesys,
+                    integrationtest,
+                    prefill)
                 .check(allClasses)
     }
 
@@ -186,14 +187,14 @@ class ArchitectureTest {
         val euxmodel = "euxmodel"
         val models = "models"
         layeredArchitecture()
-                .layer(frontendAPI).definedBy("$root.api..")
-                .layer(fagmodulCore).definedBy("$root.fagmodul..")
-                .layer(models).definedBy("$root.fagmodul.models..")
-                .layer(integrationtest).definedBy("$root.integrationtest..")
-                .layer(services).definedBy("$root.services..")
-                .layer(personoppslag).definedBy("$root.personoppslag..")
-                .layer(vedlegg).definedBy("$root.vedlegg..")
-                .layer(euxmodel).definedBy("$root.eux.model..")
+                .layer(frontendAPI).definedBy(      "$root.api..")
+                .layer(fagmodulCore).definedBy(     "$root.fagmodul..")
+                .layer(models).definedBy(           "$root.fagmodul.models..")
+                .layer(integrationtest).definedBy(  "$root.integrationtest..")
+                .layer(services).definedBy(         "$root.services..")
+                .layer(personoppslag).definedBy(    "$root.personoppslag..")
+                .layer(vedlegg).definedBy(          "$root.vedlegg..")
+                .layer(euxmodel).definedBy(         "$root.eux.model..")
                 .layer(support).definedBy(
                         "$root.metrics..",
                         "$root.security..",
@@ -211,7 +212,6 @@ class ArchitectureTest {
                         fagmodulCore,
                         frontendAPI,
                         integrationtest,
-                        euxmodel,
                         services,
                         vedlegg,
                         euxmodel
