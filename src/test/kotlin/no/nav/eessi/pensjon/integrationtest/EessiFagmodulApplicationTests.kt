@@ -11,7 +11,7 @@ import org.springframework.test.context.ActiveProfiles
 private const val SED_SENDT_TOPIC = "eessi-basis-sedSendt-v1"
 
 @SpringBootTest
-@ActiveProfiles("test")
+@ActiveProfiles("integrationtest")
 @DirtiesContext
 @EmbeddedKafka(count = 1, controlledShutdown = true, topics = [SED_SENDT_TOPIC])
 class EessiFagmodulApplicationTests {
