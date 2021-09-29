@@ -127,8 +127,8 @@ class BucController(
 
     @Operation(description = "Henter ut liste av Buc meny struktur i json format for UI på valgt aktoerid")
     @GetMapping("/detaljer/{aktoerid}",
-        "/detaljer/{aktoerid}/{sakid}",
-        "/detaljer/{aktoerid}/{sakid}/{euxcaseid}",
+        "/detaljer/{aktoerid}/saknr/{saksnr}",
+        "/detaljer/{aktoerid}/saknr/{sakid}/{euxcaseid}",
         produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getBucogSedView(@PathVariable("aktoerid", required = true) aktoerid: String,
                         @PathVariable("sakid", required = false) sakid: String? = "",
@@ -136,12 +136,11 @@ class BucController(
         auditlogger.log("getBucogSedView", aktoerid)
 
         return bucDetaljer.measure {
-            logger.debug("Prøver å dekode aktoerid: $aktoerid til fnr.")
-
+            logger.info("henter opp bucview for aktoerid: $aktoerid, saknr: $sakid")
             val fnr = innhentingService.hentFnrfraAktoerService(aktoerid)
-            val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraMetaData(aktoerid)
 
             val rinasakIdList = try {
+                val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraMetaData(aktoerid)
                 val rinasaker = euxInnhentingService.getRinasaker(fnr, aktoerid, rinaSakIderFraJoark)
                 val rinasakIdList = euxInnhentingService.getFilteredArchivedaRinasaker(rinasaker)
                 rinasakIdList
@@ -160,50 +159,51 @@ class BucController(
     }
 
     @Operation(description = "Henter ut liste av Buc meny struktur i json format for UI")
-    @GetMapping("/detaljer/{aktoerid}/vedtak/{vedtakid}",  produces = [MediaType.APPLICATION_JSON_VALUE])
+    @GetMapping(
+        "/detaljer/{aktoerid}/vedtak/{vedtakid}",
+        "/detaljer/{aktoerid}/saknr/{saksnr}/vedtak/{vedtakid}",
+        produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getBucogSedViewVedtak(@PathVariable("aktoerid", required = true) gjenlevendeAktoerid: String,
-                              @PathVariable("vedtakid", required = true) vedtakid: String): List<BucAndSedView> {
+                    @PathVariable("vedtakid", required = true) vedtakid: String,
+                    @PathVariable("saksnr", required = false) saksnr: String? = null): List<BucAndSedView> {
         return bucDetaljerVedtak.measure {
-            //Hente opp pesysservice. hente inn vedtak pensjoninformasjon..
 
             val pensjonsinformasjon = try {
                 innhentingService.hentMedVedtak(vedtakid)
             } catch (ex: Exception) {
-                logger.warn("Feiler ved henting av pensjoninformasjon, forsetter uten.")
+                logger.warn("Feiler ved henting av pensjoninformasjon (saknr: $saksnr, vedtak: $vedtakid), forsetter uten.")
                 null
             }
 
             val avdod = pensjonsinformasjon?.let { peninfo -> innhentingService.hentGyldigAvdod(peninfo) }
-
             return@measure if (avdod != null && (pensjonsinformasjon.person.aktorId == gjenlevendeAktoerid)) {
-                logger.info("Henter buc for gjenlevende ved vedtakid: $vedtakid")
+                logger.info("Henter bucview for gjenlevende med aktoerid: $gjenlevendeAktoerid, saksnr: $saksnr og vedtakid: $vedtakid")
                 avdod.map { avdodFnr -> getBucogSedViewGjenlevende(gjenlevendeAktoerid, avdodFnr) }.flatten()
             } else {
-                logger.info("Henter buc for bruker: $gjenlevendeAktoerid")
-                getBucogSedView(gjenlevendeAktoerid)
+                getBucogSedView(gjenlevendeAktoerid, saksnr)
             }
         }
     }
 
     @Operation(description = "Henter ut liste av Buc meny struktur i json format for UI på valgt aktoerid")
-    @GetMapping("/detaljer/{aktoerid}/avdod/{avdodfnr}", produces = [MediaType.APPLICATION_JSON_VALUE])
+    @GetMapping(
+            "/detaljer/{aktoerid}/avdod/{avdodfnr}",
+            "/detaljer/{aktoerid}/avdod/{avdodfnr}/saknr/{saknr}",  produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getBucogSedViewGjenlevende(@PathVariable("aktoerid", required = true) aktoerid: String,
-                                   @PathVariable("avdodfnr", required = true) avdodfnr: String): List<BucAndSedView> {
-
+                                   @PathVariable("avdodfnr", required = true) avdodfnr: String,
+                                   @PathVariable("saknr", required = false) saknr: String? = null): List<BucAndSedView> {
         return bucDetaljerGjenlev.measure {
-            logger.info("Prøver å dekode aktoerid: $aktoerid til gjenlevende fnr.")
             val fnrGjenlevende = innhentingService.hentFnrfraAktoerService(aktoerid)
-            logger.debug("gjenlevendeFnr: $fnrGjenlevende samt avdødfnr: $avdodfnr")
 
             //hente BucAndSedView på avdød
             val avdodBucAndSedView = try {
-                // Henter rina saker basert på fnr
-                logger.debug("henter avdod BucAndSedView fra avdød (P_BUC_02)")
+                logger.debug("henter avdod BucAndSedView fra avdød")
                 euxInnhentingService.getBucAndSedViewAvdod(fnrGjenlevende, avdodfnr)
             } catch (ex: Exception) {
                 logger.error("Feiler ved henting av Rinasaker for gjenlevende og avdod", ex)
                 throw ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, "Feil ved henting av Rinasaker for gjenlevende")
             }
+
             val normalBuc = getBucogSedView(aktoerid)
             val normalbucAndSedView = normalBuc.map { bucview ->
                 if ( bucview.type == "P_BUC_02" || bucview.type == "P_BUC_05" || bucview.type == "P_BUC_10" || bucview.type == "P_BUC_06" ) {
@@ -219,8 +219,7 @@ class BucController(
             logger.debug("buclist avdød: ${avdodBucAndSedView.size} buclist normal: ${normalbucAndSedView.size}")
             val list = avdodBucAndSedView.plus(normalbucAndSedView).distinctBy { it.caseId }
 
-            logger.debug("buclist size: ${list.size}")
-            logger.debug("----------------------- slutt buclist ----------------------")
+            logger.debug("bucview size: ${list.size} ------------------ bucview slutt --------------------")
             return@measure list
 
         }

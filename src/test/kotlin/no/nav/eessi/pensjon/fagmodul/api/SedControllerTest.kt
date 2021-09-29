@@ -80,7 +80,6 @@ class SedControllerTest {
 
     @Test
     fun getDocumentfromRina() {
-
         val sed = SED(SedType.P2000)
         every { mockEuxInnhentingService.getSedOnBucByDocumentId("2313", "23123123123") } returns sed
 

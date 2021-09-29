@@ -84,26 +84,25 @@ class SedController(
         @PathVariable("euxcaseid", required = true) euxcaseid: String,
         @PathVariable("documentid", required = true) documentid: String,
         @RequestBody sedPayload: String): Boolean {
-        logger.debug("Følgende SED prøves å oppdateres: $sedPayload")
 
         val validsed = try {
+            logger.debug("Følgende SED payload: $sedPayload")
 
             val sed = SED.fromJsonToConcrete(sedPayload)
+            logger.info("Følgende SED prøves å oppdateres: ${sed.type}, rinaid: $euxcaseid")
+
             //hvis P5000.. .
             val validSed = if (sed is P5000)  {
-                logger.debug("SED er P5000 av type: ${sed.type}")
                 sed.updateFromUI() //må alltid kjøres. sjekk og oppdatert trydetid. punkt 5.2.1.3.1
             } else {
-                logger.debug("SED er ${sed.type}")
                 sed
             }
             validSed
 
         } catch (ex: Exception) {
-            logger.error(ex.message)
+            logger.error("Feil ved oppdatering av SED", ex)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Data er ikke gyldig SEDformat")
         }
-
         logger.debug("Følgende SED prøves å oppdateres til RINA: ${validsed.toJsonSkipEmpty()}")
 
         return euxInnhentingService.updateSedOnBuc(euxcaseid, documentid, validsed.toJsonSkipEmpty())

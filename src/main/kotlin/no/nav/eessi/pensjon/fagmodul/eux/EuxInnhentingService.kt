@@ -78,8 +78,7 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
 
     fun getBucAndSedView(rinasaker: List<String>): List<BucAndSedView> {
         val startTime = System.currentTimeMillis()
-        val list = rinasaker
-                .map { rinaid ->
+        val list = rinasaker.map { rinaid ->
                     try {
                         BucAndSedView.from(getBuc(rinaid))
                     } catch (ex: Exception) {
@@ -113,6 +112,15 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
      * filtert kun gyldige buc-type for visning, returnerer liste av rinaid
      */
     fun getFilteredArchivedaRinasaker(list: List<Rinasak>): List<String> {
+        val ugyldigeRinasaker = listOf("6006777")
+        fun filterUfyldigeRinasaker(rinaid: String) : Boolean {
+            return if (rinaid in ugyldigeRinasaker) {
+                true.also { logger.warn("Fjerner ugydlig rinasak: $rinaid") }
+            } else {
+                false
+            }
+        }
+
         val spesialExtraBucs = mutableListOf("H_BUC_07", "R_BUC_01", "R_BUC_02", "M_BUC_02", "M_BUC_03a", "M_BUC_03b")
         val pensjonNormaleBucs = validbucsed.initSedOnBuc().map { it.key }
         val gyldigeBucs = pensjonNormaleBucs + spesialExtraBucs
@@ -121,6 +129,7 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
                 .filter { rinasak -> gyldigeBucs.contains(rinasak.processDefinitionId) }
                 .sortedBy { rinasak -> rinasak.id }
                 .map { rinasak -> rinasak.id!! }
+                .filterNot { rinaid -> filterUfyldigeRinasaker(rinaid) }
                 .toList()
     }
 
@@ -136,7 +145,8 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
     fun getBucAndSedViewAvdod(gjenlevendeFnr: String, avdodFnr: String): List<BucAndSedView> {
         // Henter rina saker basert på gjenlevendes fnr
         val validAvdodBucs = listOf("P_BUC_02","P_BUC_05","P_BUC_06","P_BUC_10")
-        val rinaSakerMedFnr = validAvdodBucs.map { euxKlient.getRinasaker(avdodFnr, null, it, "\"open\"") }
+        val rinaSakerMedFnr = validAvdodBucs.map {
+            euxKlient.getRinasaker(avdodFnr, null, it, "\"open\"") }
            .flatten()
 
         logger.info("rinaSaker total: ${rinaSakerMedFnr.size}")
@@ -265,8 +275,7 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
 
         // Henter rina saker som ikke har fnr
         val rinaSakerUtenFnr = rinaSakIderUtenFnr
-                .map { euxCaseId ->
-                    euxKlient.getRinasaker( euxCaseId =  euxCaseId ) }
+                .map { euxCaseId -> euxKlient.getRinasaker( euxCaseId =  euxCaseId ) }
                 .flatten()
                 .distinctBy { it.id }
         logger.debug("henter rinasaker ut i fra saf documentMetadata")

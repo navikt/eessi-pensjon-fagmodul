@@ -138,7 +138,7 @@ class EuxKlient(
         getSedOnBucByDocumentIdWithRest(euxCaseId, documentId, euxUsernameOidcRestTemplate)
 
     fun getSedOnBucByDocumentIdAsJson(euxCaseId: String, documentId: String): String =
-            getSedOnBucByDocumentIdWithRest(euxCaseId, documentId, euxOidcRestTemplate)
+        getSedOnBucByDocumentIdWithRest(euxCaseId, documentId, euxOidcRestTemplate)
 
     private fun getSedOnBucByDocumentIdWithRest(euxCaseId: String, documentId: String, restTemplate: RestTemplate): String {
         val path = "/buc/{RinaSakId}/sed/{DokumentId}"

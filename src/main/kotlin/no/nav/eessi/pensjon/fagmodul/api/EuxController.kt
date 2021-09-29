@@ -48,6 +48,7 @@ class EuxController(
         euxInstitusjoner  = metricsHelper.init("euxInstitusjoner", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
     }
 
+
     @GetMapping("/rinaurl")
     @Operation(description = "direkte URL til RINA")
     fun getRinaURL(): ResponseEntity<Map<String, String>> {
@@ -105,7 +106,6 @@ class EuxController(
             return@measure euxInnhentingService.getKodeverk(kodeverk)
         }
     }
-
 
     @Operation(description = "Henter ut en liste over registrerte institusjoner innenfor spesifiserte EU-land. ny api kall til eux")
     @GetMapping("/institutions/{buctype}", "/institutions/{buctype}/{countrycode}")
