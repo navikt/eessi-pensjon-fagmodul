@@ -34,7 +34,7 @@ spec:
     - name: ONPREM_KAFKA_BOOTSTRAP_SERVERS_URL
       value: SSL://b27apvl00045.preprod.local:8443,SSL://b27apvl00046.preprod.local:8443,SSL://b27apvl00047.preprod.local:8443
     - name: KAFKA_STATISTIKK_TOPICNAME
-      value: privat-eessipensjon-statistikk-q1
+      value: eessipensjon.privat-statistikk-q1
     - name: KAFKA_AUTOMATISERING_TOPIC
       value: eessipensjon.privat-automatisering-q1
     - name: KODEVERK_REST_API_URL
