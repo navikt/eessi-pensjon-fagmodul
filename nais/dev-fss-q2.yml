@@ -31,6 +31,8 @@ spec:
       value: https://sts-q2.preprod.local/SecurityTokenServiceProvider/
     - name: KAFKA_STATISTIKK_TOPICNAME
       value: eessipensjon.privat-statistikk-q2
+    - name: KAFKA_AUTOMATISERING_TOPIC
+      value: eessipensjon.privat-automatisering-q2
     - name: KODEVERK_REST_API_URL
       value: https://kodeverk.nais.adeo.no
     - name: EESSI_PENSJON_INSTITUSJON
