@@ -15,6 +15,7 @@ import no.nav.pensjon.v1.sak.V1Sak
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.slf4j.MDC
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
@@ -206,6 +207,7 @@ class PensjonControllerTest {
         val saksId = "10000"
         val kravId = "345345"
 
+        MDC.put("x_request_id","AAA-BBB")
         every { pensjonsinformasjonClient.hentKravDatoFraAktor(any(), any(), any()) } returns null
 
         val result = controller.hentKravDatoFraAktor(saksId, kravId, aktoerId)
