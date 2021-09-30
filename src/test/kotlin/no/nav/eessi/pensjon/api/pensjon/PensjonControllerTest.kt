@@ -180,6 +180,8 @@ class PensjonControllerTest {
 
         val response = result.response.getContentAsString(charset("UTF-8"))
 
+        print(response)
+
         assertEquals("""{ "kravDato": "$kravDato" }""", response)
     }
 
@@ -196,6 +198,19 @@ class PensjonControllerTest {
             .andDo(MockMvcResultHandlers.print())
             .andExpect(status().is4xxClientError)
             .andReturn()
+    }
+
+    @Test
+    fun `Sjekke for hentKravDatoFraAktor ikke kaster en unormal feil`() {
+        val aktoerId = "123"
+        val saksId = "10000"
+        val kravId = "345345"
+
+        every { pensjonsinformasjonClient.hentKravDatoFraAktor(any(), any(), any()) } returns null
+
+        val result = controller.hentKravDatoFraAktor(saksId, kravId, aktoerId)
+        assertEquals("{\"success\": false, \n" + " \"error\": \"Feiler å hente kravDato\", \"uuid\": \"AAA-BBB\"}", result?.body)
+
     }
 }
 
