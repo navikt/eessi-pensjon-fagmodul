@@ -56,7 +56,8 @@ class EuxPrefillService (private val euxKlient: EuxKlient,
         logger.debug("Logger ut $jsonNavSED")
         val bucSedResponse  = euxKlient.opprettSed(jsonNavSED, euxCaseId, opprettSED, "Feil ved opprettSed: $SedType, med rinaId: $euxCaseId")
 
-        statistikk.produserSedOpprettetHendelse(euxCaseId, bucSedResponse.documentId, vedtakId)
+//        TODO: Fix this
+//        statistikk.produserSedOpprettetHendelse(euxCaseId, bucSedResponse.documentId, vedtakId)
         return bucSedResponse
     }
 
@@ -67,8 +68,8 @@ class EuxPrefillService (private val euxKlient: EuxKlient,
 
     fun createBuc(buctype: String): String {
         val euxCaseId = euxKlient.createBuc(buctype)
-
-        statistikk.produserBucOpprettetHendelse(euxCaseId, null)
+//        TODO: Fix this
+//        statistikk.produserBucOpprettetHendelse(euxCaseId, null)
         return euxCaseId
     }
 
