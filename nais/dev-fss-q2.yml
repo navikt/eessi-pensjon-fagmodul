@@ -17,6 +17,8 @@ spec:
       value: https://eux-rina-api-q2.nais.preprod.local/cpi
     - name: EESSIPENSJON_PREFILL_URL
       value: https://eessi-pensjon-prefill-q2.nais.preprod.local/
+    - name: RINA_HOST_URL
+      value: rina-ss1-q.adeo.no
     - name: SAF_GRAPHQL_URL
       value: https://saf-q2.nais.preprod.local/graphql
     - name: SAF_HENTDOKUMENT_URL

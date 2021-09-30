@@ -13,6 +13,8 @@ spec:
       value: https://pensjon-pen.nais.adeo.no/pen/api/pensjonsinformasjon/v1
     - name: EESSIPEN_EUX_RINA_URL
       value: https://eux-rina-api.nais.adeo.no/cpi
+    - name: RINA_HOST_URL
+      value: rina-ss1.adeo.no
     - name: EESSIPENSJON_PREFILL_URL
       value: https://eessi-pensjon-prefill.nais.adeo.no/
     - name: SAF_GRAPHQL_URL
