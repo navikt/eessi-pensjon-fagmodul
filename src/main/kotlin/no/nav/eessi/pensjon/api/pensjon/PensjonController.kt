@@ -60,17 +60,16 @@ class PensjonController(private val pensjonsinformasjonClient: Pensjonsinformasj
     @GetMapping("/kravdato/saker/{saksId}/krav/{kravId}/aktor/{aktoerId}")
     fun hentKravDatoFraAktor(@PathVariable("saksId", required = true) sakId: String, @PathVariable("kravId", required = true) kravId: String, @PathVariable("aktoerId", required = true) aktoerId: String) : ResponseEntity<String>? {
         return PensjonControllerKravDato.measure {
-
             if (sakId.isEmpty() || kravId.isEmpty() || aktoerId.isEmpty()) {
                 logger.warn("Det mangler verdier: saksId $sakId, kravId: $kravId, aktørId: $aktoerId")
                 ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                     errorBody("Mangler gyldige verdier for å hente kravdato, prøv heller fra vedtakskonteks", UUID.randomUUID().toString()))
             }
-
             try {
-                pensjonsinformasjonClient.hentKravDatoFraAktor(aktorId = aktoerId, kravId = kravId, saksId = sakId)?.let{
-                    ResponseEntity.ok("""{ "kravDato": "$it" }""")
-                }
+               pensjonsinformasjonClient.hentKravDatoFraAktor(aktorId = aktoerId, kravId = kravId, saksId = sakId)?.let {
+                   return@measure ResponseEntity.ok("""{ "kravDato": "$it" }""")
+               }
+               return@measure ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorBody("Feiler å hente kravDato", "AAA-BBB"))
             } catch (e: Exception) {
                 logger.warn("Feil ved henting av kravdato på saksid: $sakId")
                 ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorBody(e.message!!))
