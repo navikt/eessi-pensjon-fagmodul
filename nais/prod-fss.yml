@@ -42,9 +42,9 @@ spec:
     - name: ONPREM_KAFKA_BOOTSTRAP_SERVERS_URL
       value: SASL_SSL://a01apvl00145.adeo.no:8443,SASL_SSL://a01apvl00146.adeo.no:8443,SASL_SSL://a01apvl00147.adeo.no:8443,SASL_SSL://a01apvl00149.adeo.no:8443
     - name: KAFKA_STATISTIKK_TOPICNAME
-      value: eessipensjon.privat-statistikk
+      value: privat-eessipensjon-statistikk
     - name: KAFKA_AUTOMATISERING_TOPIC
-      value: eessipensjon.privat-automatisering
+      value: eessipensjon.public-automatisering
     - name: KODEVERK_REST_API_URL
       value: https://kodeverk.nais.adeo.no
     - name: EESSI_PENSJON_INSTITUSJON
