@@ -28,7 +28,7 @@ import javax.annotation.PostConstruct
 @RequestMapping("/eux")
 class EuxController(
     @Value("\${ENV}") val environment: String,
-    @Value("\${eessipen-eux-rina.url}") private val rinaUrl: String,
+    @Value("\${RINA_HOST_URL}") private val rinaUrl: String,
     private val euxInnhentingService: EuxInnhentingService,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())
 ) {
