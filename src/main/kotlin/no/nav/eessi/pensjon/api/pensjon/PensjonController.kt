@@ -11,6 +11,7 @@ import no.nav.eessi.pensjon.utils.errorBody
 import no.nav.eessi.pensjon.utils.mapAnyToJson
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
+import org.slf4j.MDC
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
-import java.util.*
 import javax.annotation.PostConstruct
 
 @Protected
@@ -59,20 +59,21 @@ class PensjonController(private val pensjonsinformasjonClient: Pensjonsinformasj
     @Operation(description = "Henter ut kravdato der det ikke eksisterer et vedtak")
     @GetMapping("/kravdato/saker/{saksId}/krav/{kravId}/aktor/{aktoerId}")
     fun hentKravDatoFraAktor(@PathVariable("saksId", required = true) sakId: String, @PathVariable("kravId", required = true) kravId: String, @PathVariable("aktoerId", required = true) aktoerId: String) : ResponseEntity<String>? {
+        val xid =  MDC.get("x_request_id").toString()
         return PensjonControllerKravDato.measure {
             if (sakId.isEmpty() || kravId.isEmpty() || aktoerId.isEmpty()) {
                 logger.warn("Det mangler verdier: saksId $sakId, kravId: $kravId, aktørId: $aktoerId")
                 ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                    errorBody("Mangler gyldige verdier for å hente kravdato, prøv heller fra vedtakskonteks", UUID.randomUUID().toString()))
+                    errorBody("Mangler gyldige verdier for å hente kravdato, prøv heller fra vedtakskonteks", xid))
             }
             try {
                pensjonsinformasjonClient.hentKravDatoFraAktor(aktorId = aktoerId, kravId = kravId, saksId = sakId)?.let {
                    return@measure ResponseEntity.ok("""{ "kravDato": "$it" }""")
                }
-               return@measure ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorBody("Feiler å hente kravDato", "AAA-BBB"))
+               return@measure ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorBody("Feiler å hente kravDato", xid))
             } catch (e: Exception) {
                 logger.warn("Feil ved henting av kravdato på saksid: $sakId")
-                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorBody(e.message!!))
+                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorBody(e.message!!, xid))
             }
         }
     }
