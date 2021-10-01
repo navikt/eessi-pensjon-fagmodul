@@ -123,7 +123,7 @@ class EuxKlient(
                 , euxCaseId
                 , metric
                 , errorMessage
-                , waitTimes = 20000L
+                , waitTimes = 9000L
         )
         return BucSedResponse(euxCaseId, response.body!!)
     }
