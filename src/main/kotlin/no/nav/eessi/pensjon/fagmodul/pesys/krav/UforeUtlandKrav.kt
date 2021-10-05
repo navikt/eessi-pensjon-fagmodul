@@ -14,15 +14,15 @@ import java.time.LocalDate
 @Service
 class UforeUtlandKrav(
     private val kodeverkClient: KodeverkClient,
-    @Value("\${NAIS_NAMESPACE}")
-    private val nameSpace: String): UtlandKrav() {
+    @Value("\${ENV}")
+    private val environment: String) : UtlandKrav() {
 
     private val logger = LoggerFactory.getLogger(UforeUtlandKrav::class.java)
 
     //P2200
     fun kravUforepensjonUtland(kravSed: SED, bucUtils: BucUtils, doc: DocumentsItem): KravUtland {
         val caseOwner = bucUtils.getCaseOwner()!!
-        val caseOwnerCountryBuc = if (nameSpace == "q2" || nameSpace == "test") {
+        val caseOwnerCountryBuc = if (environment == "q2" || environment == "test") {
             "SE"
         } else {
             caseOwner.country
