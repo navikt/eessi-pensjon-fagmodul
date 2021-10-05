@@ -5,6 +5,7 @@ import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import no.nav.eessi.pensjon.eux.model.sed.P5000
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
@@ -200,6 +201,44 @@ class SedControllerTest {
 
         val list = mapJsonToAny(actualResponse.body!!, typeRefs<List<String>>())
         assertEquals(0, list.size)
+    }
+
+    @Test
+    fun `sjekk for gyldig liste av beregninger i P5000oppdatering`() {
+
+        val mockP5000 = mapJsonToAny(javaClass.getResource("/json/nav/P5000OppdateringNAV.json").readText(), typeRefs<P5000>())
+
+        val mockP5000Rina = mapJsonToAny(javaClass.getResource("/json/nav/P5000OppdateringRinaNav.json").readText(), typeRefs<P5000>())
+
+        val trygdetidberegning = mockP5000.p5000Pensjon?.trygdetid?.map { it.beregning }
+        val medlemskapsberegning = mockP5000.p5000Pensjon?.medlemskapboarbeid?.medlemskap?.map { it.beregning }
+
+        val trygdetidberegningRina = mockP5000Rina.p5000Pensjon?.trygdetid?.map { it.beregning }
+        val medlemskapsberegningRina = mockP5000Rina.p5000Pensjon?.medlemskapboarbeid?.medlemskap?.map { it.beregning }
+
+        assertEquals(3, trygdetidberegning?.size)
+        assertEquals(6, medlemskapsberegning?.size)
+
+        assertEquals(3, trygdetidberegningRina?.size)
+        assertEquals(6, medlemskapsberegningRina?.size)
+
+//        JSONAssert.assertEquals(trygdetidberegning?.toJsonSkipEmpty(), trygdetidberegningRina?.toJsonSkipEmpty(), false)
+
+    }
+
+    @Test
+    fun `mockinnhenting`() {
+
+        val json = javaClass.getResource("/json/nav/P5000OppdateringNAV.json").readText()
+
+        val mockP5000 = SED.fromJsonToConcrete(json) as P5000
+
+        val trygdetidberegning = mockP5000.p5000Pensjon?.trygdetid?.map { it.beregning }
+        val medlemskapsberegning = mockP5000.p5000Pensjon?.medlemskapboarbeid?.medlemskap?.map { it.beregning }
+
+        assertEquals(3, trygdetidberegning?.size)
+        assertEquals(6, medlemskapsberegning?.size)
+
     }
 
 }

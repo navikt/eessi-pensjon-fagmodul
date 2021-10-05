@@ -1,0 +1,233 @@
+{
+  "pensjon": {
+    "medlemskapboarbeid": {
+      "medlemskap": [
+        {
+          "land": "NO",
+          "ordning": "00",
+          "sum": {
+            "dager": {
+              "nr": "01",
+              "type": "7"
+            },
+            "maaneder": "00",
+            "aar": "03"
+          },
+          "type": "30",
+          "periode": {
+            "tom": "2020-12-31",
+            "fom": "2018-01-01"
+          },
+          "yrke": null,
+          "beregning": "111",
+          "relevans": "111"
+        },
+        {
+          "sum": {
+            "aar": "06",
+            "maaneder": "00",
+            "dager": {
+              "type": "7",
+              "nr": "00"
+            }
+          },
+          "ordning": "00",
+          "periode": {
+            "tom": "2001-12-31",
+            "fom": "1996-01-01"
+          },
+          "beregning": "111",
+          "land": "NO",
+          "type": "45",
+          "yrke": null
+        },
+        {
+          "type": "30",
+          "sum": {
+            "maaneder": "09",
+            "dager": {
+              "type": "7",
+              "nr": "00"
+            },
+            "aar": "23"
+          },
+          "yrke": null,
+          "periode": {
+            "fom": "1994-04-01",
+            "tom": "2017-12-31"
+          },
+          "land": "NO",
+          "relevans": "111",
+          "beregning": "111",
+          "ordning": "00"
+        },
+        {
+          "sum": {
+            "dager": {
+              "nr": "03",
+              "type": "7"
+            },
+            "aar": "06",
+            "maaneder": "10"
+          },
+          "land": "NO",
+          "periode": {
+            "fom": "1984-03-01",
+            "tom": "1990-12-31"
+          },
+          "ordning": "00",
+          "relevans": "111",
+          "yrke": null,
+          "type": "30",
+          "beregning": "111"
+        },
+        {
+          "periode": {
+            "tom": "2017-12-31",
+            "fom": "1994-05-01"
+          },
+          "relevans": "111",
+          "sum": {
+            "aar": "23",
+            "dager": {
+              "type": "7",
+              "nr": "01"
+            },
+            "maaneder": "08"
+          },
+          "ordning": "00",
+          "yrke": null,
+          "type": "11",
+          "land": "NO",
+          "beregning": "111"
+        },
+        {
+          "yrke": null,
+          "type": "11",
+          "relevans": "111",
+          "periode": {
+            "tom": "1990-12-31",
+            "fom": "1984-05-01"
+          },
+          "sum": {
+            "dager": {
+              "type": "7",
+              "nr": "01"
+            },
+            "aar": "06",
+            "maaneder": "08"
+          },
+          "ordning": "00",
+          "land": "NO",
+          "beregning": "111"
+        }
+      ],
+      "gyldigperiode": "1",
+      "enkeltkrav": {
+        "krav": "30"
+      }
+    },
+    "trygdetid": [
+      {
+        "type": "30",
+        "sum": {
+          "maaneder": "07",
+          "dager": {
+            "type": "7",
+            "nr": "04"
+          },
+          "aar": "33"
+        }
+      },
+      {
+        "sum": {
+          "dager": {
+            "nr": "00",
+            "type": "7"
+          },
+          "maaneder": "00",
+          "aar": "06"
+        },
+        "type": "45"
+      },
+      {
+        "sum": {
+          "dager": {
+            "type": "7",
+            "nr": "02"
+          },
+          "maaneder": "04",
+          "aar": "30"
+        },
+        "type": "11"
+      }
+    ],
+    "medlemskapTotal": [
+      {
+        "sum": {
+          "aar": "33",
+          "dager": {
+            "nr": "04",
+            "type": "7"
+          },
+          "maaneder": "07"
+        },
+        "type": "30",
+        "relevans": "111"
+      },
+      {
+        "sum": {
+          "aar": "30",
+          "maaneder": "04",
+          "dager": {
+            "nr": "02",
+            "type": "7"
+          }
+        },
+        "relevans": "111",
+        "type": "11"
+      }
+    ],
+    "separatP5000sendes": "0"
+  },
+  "nav": {
+    "bruker": {
+      "person": {
+        "fornavn": "SMIDIG",
+        "kjoenn": "K",
+        "etternavn": "PENN",
+        "foedselsdato": "1965-06-20",
+        "statsborgerskap": [
+          {
+            "land": "NO"
+          }
+        ],
+        "pin": [
+          {
+            "institusjonsnavn": "NAV ACCEPTANCE TEST 07",
+            "identifikator": "20066521894",
+            "land": "NO",
+            "institusjonsid": "NO:NAVAT07"
+          }
+        ]
+      },
+      "adresse": {
+        "land": "NO",
+        "gate": "NORDBYLA 8",
+        "postnummer": "5570",
+        "by": "AKSDAL"
+      }
+    },
+    "eessisak": [
+      {
+        "institusjonsid": "NO:NAVAT07",
+        "institusjonsnavn": "NAV ACCEPTANCE TEST 07",
+        "saksnummer": "22935783",
+        "land": "NO"
+      }
+    ]
+  },
+  "sedVer": "2",
+  "sedGVer": "4",
+  "sed": "P5000"
+}

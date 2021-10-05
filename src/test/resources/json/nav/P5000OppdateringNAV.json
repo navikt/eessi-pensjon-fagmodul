@@ -1,0 +1,348 @@
+{
+  "sed": "P5000",
+  "nav": {
+    "eessisak": [
+      {
+        "institusjonsid": "NO:NAVAT07",
+        "institusjonsnavn": "NAV ACCEPTANCE TEST 07",
+        "saksnummer": "22935783",
+        "land": "NO"
+      }
+    ],
+    "bruker": {
+      "mor": null,
+      "far": null,
+      "person": {
+        "pin": [
+          {
+            "institusjonsnavn": "NAV ACCEPTANCE TEST 07",
+            "institusjonsid": "NO:NAVAT07",
+            "sektor": null,
+            "identifikator": "20066521894",
+            "land": "NO",
+            "institusjon": null
+          }
+        ],
+        "pinland": null,
+        "statsborgerskap": [
+          {
+            "land": "NO"
+          }
+        ],
+        "etternavn": "PENN",
+        "etternavnvedfoedsel": null,
+        "fornavn": "SMIDIG",
+        "fornavnvedfoedsel": null,
+        "tidligerefornavn": null,
+        "tidligereetternavn": null,
+        "kjoenn": "K",
+        "foedested": null,
+        "foedselsdato": "1965-06-20",
+        "sivilstand": null,
+        "relasjontilavdod": null,
+        "rolle": null
+      },
+      "adresse": {
+        "gate": "NORDBYLA 8",
+        "bygning": null,
+        "by": "AKSDAL",
+        "postnummer": "5570",
+        "postkode": null,
+        "region": null,
+        "land": "NO",
+        "kontaktpersonadresse": null,
+        "datoforadresseendring": null,
+        "postadresse": null,
+        "startdato": null,
+        "type": null,
+        "annen": null
+      },
+      "arbeidsforhold": null,
+      "bank": null
+    },
+    "ektefelle": null,
+    "barn": null,
+    "verge": null,
+    "krav": null,
+    "annenperson": null
+  },
+  "pensjon": {
+    "gjenlevende": null,
+    "separatP5000sendes": "0",
+    "trygdetid": [
+      {
+        "selected": false,
+        "relevans": "111",
+        "land": "NO",
+        "sum": {
+          "kvartal": null,
+          "aar": "33",
+          "uker": null,
+          "dager": {
+            "nr": "04",
+            "type": "7"
+          },
+          "maaneder": "07"
+        },
+        "yrke": null,
+        "gyldigperiode": null,
+        "type": "30",
+        "beregning": "111",
+        "ordning": "00",
+        "periode": {
+          "fom": "1984-03-01",
+          "tom": "2020-12-31"
+        }
+      },
+      {
+        "selected": false,
+        "relevans": "",
+        "land": "NO",
+        "sum": {
+          "kvartal": null,
+          "aar": "06",
+          "uker": null,
+          "dager": {
+            "nr": "00",
+            "type": "7"
+          },
+          "maaneder": "00"
+        },
+        "yrke": null,
+        "gyldigperiode": null,
+        "type": "45",
+        "beregning": "111",
+        "ordning": "00",
+        "periode": {
+          "fom": "1996-01-01",
+          "tom": "2001-12-31"
+        }
+      },
+      {
+        "selected": false,
+        "relevans": "111",
+        "land": "NO",
+        "sum": {
+          "kvartal": null,
+          "aar": "30",
+          "uker": null,
+          "dager": {
+            "nr": "02",
+            "type": "7"
+          },
+          "maaneder": "04"
+        },
+        "yrke": null,
+        "gyldigperiode": null,
+        "type": "11",
+        "beregning": "111",
+        "ordning": "00",
+        "periode": {
+          "fom": "1984-05-01",
+          "tom": "2017-12-31"
+        }
+      }
+    ],
+    "medlemskapAnnen": null,
+    "medlemskapTotal": [
+      {
+        "selected": false,
+        "relevans": "111",
+        "land": "NO",
+        "sum": {
+          "kvartal": null,
+          "aar": "33",
+          "uker": null,
+          "dager": {
+            "nr": "04",
+            "type": "7"
+          },
+          "maaneder": "07"
+        },
+        "yrke": null,
+        "gyldigperiode": null,
+        "type": "30",
+        "beregning": "111",
+        "ordning": "00",
+        "periode": {
+          "fom": "1984-03-01",
+          "tom": "2020-12-31"
+        }
+      },
+      {
+        "selected": false,
+        "relevans": "111",
+        "land": "NO",
+        "sum": {
+          "kvartal": null,
+          "aar": "30",
+          "uker": null,
+          "dager": {
+            "nr": "02",
+            "type": "7"
+          },
+          "maaneder": "04"
+        },
+        "yrke": null,
+        "gyldigperiode": null,
+        "type": "11",
+        "beregning": "111",
+        "ordning": "00",
+        "periode": {
+          "fom": "1984-05-01",
+          "tom": "2017-12-31"
+        }
+      }
+    ],
+    "medlemskap": null,
+    "medlemskapboarbeid": {
+      "enkeltkrav": {
+        "datoFrist": null,
+        "krav": "30"
+      },
+      "gyldigperiode": "1",
+      "medlemskap": [
+        {
+          "relevans": "111",
+          "land": "NO",
+          "sum": {
+            "kvartal": null,
+            "aar": "03",
+            "uker": null,
+            "dager": {
+              "nr": "01",
+              "type": "7"
+            },
+            "maaneder": "00"
+          },
+          "yrke": null,
+          "gyldigperiode": null,
+          "type": "30",
+          "beregning": "111",
+          "ordning": "00",
+          "periode": {
+            "fom": "2018-01-01",
+            "tom": "2020-12-31"
+          }
+        },
+        {
+          "relevans": "",
+          "land": "NO",
+          "sum": {
+            "kvartal": null,
+            "aar": "06",
+            "uker": null,
+            "dager": {
+              "nr": "00",
+              "type": "7"
+            },
+            "maaneder": "00"
+          },
+          "yrke": null,
+          "gyldigperiode": null,
+          "type": "45",
+          "beregning": "111",
+          "ordning": "00",
+          "periode": {
+            "fom": "1996-01-01",
+            "tom": "2001-12-31"
+          }
+        },
+        {
+          "relevans": "111",
+          "land": "NO",
+          "sum": {
+            "kvartal": null,
+            "aar": "23",
+            "uker": null,
+            "dager": {
+              "nr": "00",
+              "type": "7"
+            },
+            "maaneder": "09"
+          },
+          "yrke": null,
+          "gyldigperiode": null,
+          "type": "30",
+          "beregning": "111",
+          "ordning": "00",
+          "periode": {
+            "fom": "1994-04-01",
+            "tom": "2017-12-31"
+          }
+        },
+        {
+          "relevans": "111",
+          "land": "NO",
+          "sum": {
+            "kvartal": null,
+            "aar": "06",
+            "uker": null,
+            "dager": {
+              "nr": "03",
+              "type": "7"
+            },
+            "maaneder": "10"
+          },
+          "yrke": null,
+          "gyldigperiode": null,
+          "type": "30",
+          "beregning": "111",
+          "ordning": "00",
+          "periode": {
+            "fom": "1984-03-01",
+            "tom": "1990-12-31"
+          }
+        },
+        {
+          "relevans": "111",
+          "land": "NO",
+          "sum": {
+            "kvartal": null,
+            "aar": "23",
+            "uker": null,
+            "dager": {
+              "nr": "01",
+              "type": "7"
+            },
+            "maaneder": "08"
+          },
+          "yrke": null,
+          "gyldigperiode": null,
+          "type": "11",
+          "beregning": "111",
+          "ordning": "00",
+          "periode": {
+            "fom": "1994-05-01",
+            "tom": "2017-12-31"
+          }
+        },
+        {
+          "relevans": "111",
+          "land": "NO",
+          "sum": {
+            "kvartal": null,
+            "aar": "06",
+            "uker": null,
+            "dager": {
+              "nr": "01",
+              "type": "7"
+            },
+            "maaneder": "08"
+          },
+          "yrke": null,
+          "gyldigperiode": null,
+          "type": "11",
+          "beregning": "111",
+          "ordning": "00",
+          "periode": {
+            "fom": "1984-05-01",
+            "tom": "1990-12-31"
+          }
+        }
+      ]
+    }
+  },
+  "sedGVer": "4",
+  "sedVer": "2"
+}
