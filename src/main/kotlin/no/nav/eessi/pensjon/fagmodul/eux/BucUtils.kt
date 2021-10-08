@@ -28,10 +28,6 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
-
-
-
-
 class BucUtils(private val buc: Buc) {
 
     private val logger = LoggerFactory.getLogger(BucUtils::class.java)
@@ -41,7 +37,8 @@ class BucUtils(private val buc: Buc) {
         return InstitusjonItem(
                 country = buc.creator?.organisation?.countryCode ?: "",
                 institution = buc.creator?.organisation?.id ?: "",
-                name = buc.creator?.organisation?.name
+                name = buc.creator?.organisation?.name,
+                acronym = buc.creator?.organisation?.acronym
         )
     }
 
@@ -58,7 +55,8 @@ class BucUtils(private val buc: Buc) {
                         InstitusjonItem(
                                 country = it.organisation?.countryCode ?: "",
                                 institution = it.organisation?.id ?: "",  //kan hende må være id?!
-                                name = it.organisation?.name ?: "" //name optinal
+                                name = it.organisation?.name ?: "", //name optinal
+                                acronym = it.organisation?.acronym
                         )
                 }.first()
         } catch (ex: Exception) {
@@ -102,30 +100,29 @@ class BucUtils(private val buc: Buc) {
     fun findDocument(documentId: String): DocumentsItem? =
             getAllDocuments().firstOrNull { it.id == documentId }
 
-    fun getStartDateLong(): Long {
+    fun getStartDateLong(): Long? {
         val date = buc.startDate
         return getDateTimeToLong(date)
     }
 
-    fun getLastDateLong(): Long {
+    fun getLastDateLong(): Long? {
         val date = buc.lastUpdate
         return getDateTimeToLong(date)
     }
 
-    private fun getDateTimeToLong(dateTime: Any?): Long {
-        return getLocalDateTime(dateTime).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+    private fun getDateTimeToLong(dateTime: Any?): Long? {
+        return getLocalDateTime(dateTime)?.atZone(ZoneId.systemDefault())?.toInstant()?.toEpochMilli()
     }
 
-    fun getLocalDateTime(dateTime: Any?): LocalDateTime {
+    fun getLocalDateTime(dateTime: Any?): LocalDateTime? {
         return when (dateTime) {
             is Long ->  Instant.ofEpochMilli(dateTime).atZone(ZoneId.systemDefault()).toLocalDateTime()
             is String -> toLocalDatetimeFromString(dateTime)
-            else -> LocalDateTime.now().minusYears(1000)
+            else -> null
         }
     }
 
     private fun toLocalDatetimeFromString(dateTime: String): LocalDateTime {
-
         //offse & zone
         if(dateTime.contains("+")){
             if(dateTime.substringAfter("+").contains(":")){
@@ -170,6 +167,7 @@ class BucUtils(private val buc: Buc) {
                 status = documentItem.status,
                 creationDate = getDateTimeToLong(documentItem.creationDate),
                 lastUpdate = getDateTimeToLong(documentItem.lastUpdate),
+                receiveDate = getDateTimeToLong(documentItem.receiveDate),
                 participants = createParticipants(documentItem.conversations),
                 attachments = createShortAttachemnt(documentItem.attachments),
                 version = getLatestDocumentVersion(documentItem.versions),
@@ -275,7 +273,7 @@ class BucUtils(private val buc: Buc) {
                     fraLand = getDocumentSenderCountryCode(doc.participants),
                     sisteVersjon = doc.version ?: "1",
                     pdfUrl = "$pdfurl/buc/${getBuc().id}/sed/${doc.id}/pdf",
-                    sistMottatt = getLocalDateTime(doc.lastUpdate).toLocalDate(),
+                    sistMottatt = getLocalDateTime(doc.lastUpdate)?.toLocalDate()!!,
                     retning = Retning.valueOf(doc.direction)
                 )
         }
@@ -343,10 +341,10 @@ class BucUtils(private val buc: Buc) {
                 .also { logger.debug("benytter backupList : ${it.toJsonSkipEmpty()}") }
         } else if (aksjonsliste.isNotEmpty()) {
             logger.debug("benytter seg av aksjonliste: ${aksjonsliste.toJsonSkipEmpty()}")
-            filterSektorPandRelevantHorizontalSeds(aksjonsliste)
+            filterSektorPandRelevantHorizontalAndXSeds(aksjonsliste)
         } else {
             logger.debug("benytter seg av gyldigeSedList : ${gyldigeSedList.toJsonSkipEmpty()}")
-            filterSektorPandRelevantHorizontalSeds(gyldigeSedList)
+            filterSektorPandRelevantHorizontalAndXSeds(gyldigeSedList)
         }
     }
 
@@ -376,12 +374,14 @@ class BucUtils(private val buc: Buc) {
         throw SedDokumentKanIkkeOpprettesException("SvarSED $SedType kan ikke opaprettes i RINA (mulig det allerede finnes et utkast)")
     }
 
-    fun filterSektorPandRelevantHorizontalSeds(list: List<SedType>): List<SedType> {
+    fun filterSektorPandRelevantHorizontalAndXSeds(list: List<SedType>): List<SedType> {
         val gyldigSektorOgHSed: (SedType) -> Boolean = { type ->
             type.name.startsWith("P")
                 .or(type.name.startsWith("H12"))
                 .or(type.name.startsWith("H07"))
                 .or(type.name.startsWith("H02"))
+//                .or(type.name == "X010")
+//                .or(type.name == "X009")
         }
 
         return list

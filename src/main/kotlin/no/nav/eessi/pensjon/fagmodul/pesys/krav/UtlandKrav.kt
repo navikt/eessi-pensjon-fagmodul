@@ -7,7 +7,10 @@ import no.nav.eessi.pensjon.fagmodul.pesys.Sivilstatus
 import no.nav.eessi.pensjon.fagmodul.pesys.SkjemaFamilieforhold
 import no.nav.eessi.pensjon.services.kodeverk.KodeverkClient
 import org.slf4j.LoggerFactory
+import org.springframework.http.HttpStatus
+import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 open class UtlandKrav {
 
@@ -64,8 +67,9 @@ open class UtlandKrav {
         return dato
     }
 
-    fun sistOppdatertDocumentDato(doc: DocumentsItem, bucUtils: BucUtils): LocalDate {
-        val date = bucUtils.getLocalDateTime(doc.lastUpdate)
+    fun mottattDocumentDato(doc: DocumentsItem, bucUtils: BucUtils): LocalDate {
+        logger.debug("document receiveDate: ${doc.receiveDate}")
+        val date : LocalDateTime = bucUtils.getLocalDateTime(doc.receiveDate) ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ingen gylidg mottattDato funnet")
         return LocalDate.of(date.year, date.month, date.dayOfMonth)
     }
 

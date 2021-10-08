@@ -10,9 +10,6 @@ import no.nav.eessi.pensjon.eux.model.sed.TotalSum
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.PreviewPdf
-import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
-import no.nav.eessi.pensjon.fagmodul.models.Kodeverk
-import no.nav.eessi.pensjon.fagmodul.models.KodeverkResponse
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
@@ -108,30 +105,30 @@ class SedController(
         return euxInnhentingService.updateSedOnBuc(euxcaseid, documentid, validsed.toJsonSkipEmpty())
     }
 
-    @Deprecated("Benytt tjenesten i EuxController", ReplaceWith("EuxController"))
-    @Operation(description = "Henter ut en liste over landkoder ut fra kodeverktjenesten eux")
-    @GetMapping( "/landkoder")
-    fun getCountryCode(): List<String> {
-        return euxInnhentingService.getKodeverk(Kodeverk.LANDKODER).mapNotNull{ it.kode }.toList()
-    }
+//    @Deprecated("Benytt tjenesten i EuxController", ReplaceWith("EuxController"))
+//    @Operation(description = "Henter ut en liste over landkoder ut fra kodeverktjenesten eux")
+//    @GetMapping( "/landkoder")
+//    fun getCountryCode(): List<String> {
+//        return euxInnhentingService.getKodeverk(Kodeverk.LANDKODER).mapNotNull{ it.kode }.toList()
+//    }
 
-    @Deprecated("Benytt tjenesten i EuxController", ReplaceWith("EuxController"))
-    @Operation(description = "Henter ut en liste over kodeverk fra eux")
-    @GetMapping( "/kodeverk/{kodeverk}")
-    fun getKodeverk(@PathVariable("kodeverk", required = true) kodeverk: Kodeverk ): List<KodeverkResponse> {
-        return euxInnhentingService.getKodeverk(kodeverk)
-    }
+//    @Deprecated("Benytt tjenesten i EuxController", ReplaceWith("EuxController"))
+//    @Operation(description = "Henter ut en liste over kodeverk fra eux")
+//    @GetMapping( "/kodeverk/{kodeverk}")
+//    fun getKodeverk(@PathVariable("kodeverk", required = true) kodeverk: Kodeverk ): List<KodeverkResponse> {
+//        return euxInnhentingService.getKodeverk(kodeverk)
+//    }
 
-    @Deprecated("Benytt tjenesten i EuxController", ReplaceWith("EuxController"))
-    @Operation(description = "Henter ut en liste over registrerte institusjoner innenfor spesifiserte EU-land. ny api kall til eux")
-    @GetMapping("/institutions/{buctype}", "/institutions/{buctype}/{countrycode}")
-    fun getEuxInstitusjoner(
-        @PathVariable("buctype", required = true) buctype: String,
-        @PathVariable("countrycode", required = false) landkode: String? = ""
-    ): List<InstitusjonItem> {
-        logger.info("Henter ut liste over alle Institusjoner i Rina")
-        return euxInnhentingService.getInstitutions(buctype, landkode)
-    }
+//    @Deprecated("Benytt tjenesten i EuxController", ReplaceWith("EuxController"))
+//    @Operation(description = "Henter ut en liste over registrerte institusjoner innenfor spesifiserte EU-land. ny api kall til eux")
+//    @GetMapping("/institutions/{buctype}", "/institutions/{buctype}/{countrycode}")
+//    fun getEuxInstitusjoner(
+//        @PathVariable("buctype", required = true) buctype: String,
+//        @PathVariable("countrycode", required = false) landkode: String? = ""
+//    ): List<InstitusjonItem> {
+//        logger.info("Henter ut liste over alle Institusjoner i Rina")
+//        return euxInnhentingService.getInstitutions(buctype, landkode)
+//    }
 
     @Operation(description = "henter liste over seds som kan opprettes til valgt rinasak")
     @GetMapping("/seds/{buctype}/{rinanr}")

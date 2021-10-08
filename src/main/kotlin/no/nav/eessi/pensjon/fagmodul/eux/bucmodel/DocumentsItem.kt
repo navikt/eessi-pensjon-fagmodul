@@ -11,6 +11,7 @@ class DocumentsItem(
         val id: String? = null,
         val direction: String,
         val creationDate: Any? = null,
+        val receiveDate: Any? = null,
         val typeVersion: String? = null,
         val allowsAttachments: Boolean? = null,
         val versions: List<VersionsItem>? = null,

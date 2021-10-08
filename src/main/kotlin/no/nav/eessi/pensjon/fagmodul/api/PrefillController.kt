@@ -123,6 +123,10 @@ class PrefillController(
         //Hente metadata for valgt BUC
         val bucUtil = euxInnhentingService.kanSedOpprettes(dataModel)
 
+        val docs = bucUtil.getAllDocuments().map { "${it.type}, ${it.id} "}
+        logger.debug("List alle SED og Documentid: $docs  ")
+
+
         if (bucUtil.getProcessDefinitionName() != request.buc) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Rina Buctype og request buctype må være samme")
         logger.debug("bucUtil BucType: ${bucUtil.getBuc().processDefinitionName} apiRequest Buc: ${request.buc}")
 
