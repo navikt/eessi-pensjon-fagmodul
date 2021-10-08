@@ -17,6 +17,7 @@ class SubjectFnr(
 data class BucAndSedView(
         val type: String,
         val caseId: String,
+        val internationalId: String,
         val creator: InstitusjonItem? = null,
         val sakType: String? = null,
         val status: String? = null,
@@ -37,6 +38,7 @@ data class BucAndSedView(
             return BucAndSedView(
                     type = "",
                     caseId = "",
+                    internationalId = "",
                     error = error
             )
         }
@@ -61,6 +63,7 @@ data class BucAndSedView(
                     type = bucUtil.getProcessDefinitionName() ?: "",
                     creator = bucUtil.getCaseOwnerOrCreator(),
                     caseId = buc.id ?: "n/a",
+                    internationalId = buc.internationalId ?: "n/a",
                     startDate = bucUtil.getStartDateLong(),
                     lastUpdate = bucUtil.getLastDateLong(),
                     status = buc.status,

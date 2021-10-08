@@ -110,7 +110,7 @@ class BucController(
     fun getMuligeAksjoner(@PathVariable(value = "rinanr", required = true) rinanr: String): List<SedType> {
         logger.debug("Henter ut muligeaksjoner på valgt buc med rinanummer: $rinanr")
         val bucUtil = BucUtils(euxInnhentingService.getBuc(rinanr))
-        return bucUtil.filterSektorPandRelevantHorizontalSeds(bucUtil.getSedsThatCanBeCreated())
+        return bucUtil.filterSektorPandRelevantHorizontalAndXSeds(bucUtil.getSedsThatCanBeCreated())
     }
 
     @Operation(description = "Henter ut en liste over saker på valgt aktoerid. ny api kall til eux")

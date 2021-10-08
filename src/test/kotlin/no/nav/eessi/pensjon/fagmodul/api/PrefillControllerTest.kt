@@ -376,6 +376,7 @@ class PrefillControllerTest {
           "id" : "3123123",
           "direction" : "OUT",
           "creationDate" : 1596751200000,
+          "receiveDate" : null,
           "typeVersion" : null,
           "allowsAttachments" : true,
           "versions" : null,

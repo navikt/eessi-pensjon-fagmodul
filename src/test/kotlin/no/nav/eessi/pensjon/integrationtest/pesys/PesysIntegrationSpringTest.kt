@@ -67,8 +67,6 @@ class PesysIntegrationSpringTest {
 
         val response = result.response.getContentAsString(charset("UTF-8"))
 
-        print(response)
-
         val validResponse = """
             {
                 "errorMelding" : null,

@@ -151,9 +151,15 @@ class BucUtilsTest {
             "2019-08-30T10:37:37.318",
             "2019-08-30T09:37:37.318+0100",
             "2019-08-30T08:37:37.318+00:00",
-            "2019-08-30T09:37:37.318+01:00"
+            "2019-08-30T09:37:37.318+01:00",
         )
         listOfArgs.forEach { assertEquals(unixTimeStamp, BucUtils(Buc(lastUpdate= it)).getLastDateLong()) }
+    }
+
+    @Test
+    fun checkForValidReceiveDate() {
+        assertEquals(1616763505000, BucUtils(Buc(lastUpdate = "2021-03-26T12:58:25.000+0000")).getLastDateLong())
+
     }
 
     @Test
@@ -285,7 +291,7 @@ class BucUtilsTest {
     fun `Test liste med SED kun PensjonSED skal returneres`() {
         val list = listOf(SedType.X005, SedType.P2000, SedType.P4000, SedType.H021, SedType.P9000)
 
-        val result = bucUtils.filterSektorPandRelevantHorizontalSeds(list)
+        val result = bucUtils.filterSektorPandRelevantHorizontalAndXSeds(list)
         assertEquals(4, result.size)
 
         val expected = listOf(SedType.H021, SedType.P2000, SedType.P4000, SedType.P9000)
@@ -297,7 +303,7 @@ class BucUtilsTest {
         val list =
             listOf(SedType.X005, SedType.P2000, SedType.P4000, SedType.H020, SedType.H070, SedType.H121, SedType.P9000)
 
-        val result = bucUtils.filterSektorPandRelevantHorizontalSeds(list)
+        val result = bucUtils.filterSektorPandRelevantHorizontalAndXSeds(list)
         assertEquals(6, result.size)
 
         val expected = listOf(SedType.H020, SedType.H070, SedType.H121, SedType.P2000, SedType.P4000, SedType.P9000)
@@ -309,7 +315,7 @@ class BucUtilsTest {
     fun `Test av liste med SEDer der kun PensjonSEDer skal returneres`() {
         val list = listOf(SedType.X005, SedType.P2000, SedType.P4000, SedType.H020, SedType.P9000)
 
-        val result = bucUtils.filterSektorPandRelevantHorizontalSeds(list)
+        val result = bucUtils.filterSektorPandRelevantHorizontalAndXSeds(list)
         assertEquals(4, result.size)
 
         val expected = listOf(SedType.H020, SedType.P2000, SedType.P4000, SedType.P9000)

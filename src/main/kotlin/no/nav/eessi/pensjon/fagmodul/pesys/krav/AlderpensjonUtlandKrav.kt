@@ -36,7 +36,7 @@ class AlderpensjonUtlandKrav(
         logger.debug("CaseOwnerId     : ${caseOwner.institution}")
         logger.debug("CaseOwnerName   : ${caseOwner.name}")
 
-        val mottattDato = sistOppdatertDocumentDato(doc, bucUtils)
+        val mottattDato = mottattDocumentDato(doc, bucUtils)
         val kravdato = LocalDate.parse(kravSed.nav?.krav?.dato) ?: null
 
         return KravUtland(
