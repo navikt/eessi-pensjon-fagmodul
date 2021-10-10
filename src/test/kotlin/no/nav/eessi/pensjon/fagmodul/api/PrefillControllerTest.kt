@@ -8,11 +8,11 @@ import io.mockk.impl.annotations.SpyK
 import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
+import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.sed.InstitusjonX005
 import no.nav.eessi.pensjon.eux.model.sed.Leggtilinstitusjon
 import no.nav.eessi.pensjon.eux.model.sed.Navsak
 import no.nav.eessi.pensjon.eux.model.sed.SED
-import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.eux.model.sed.X005
 import no.nav.eessi.pensjon.eux.model.sed.XNav
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView

@@ -1,6 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.eux.bucmodel
 
-import no.nav.eessi.pensjon.eux.model.sed.SedType
+import no.nav.eessi.pensjon.eux.model.SedType
 
 class ActionsItem(
 

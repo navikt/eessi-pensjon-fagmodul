@@ -1,6 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.models
 
-import no.nav.eessi.pensjon.eux.model.sed.SedType
+import no.nav.eessi.pensjon.eux.model.SedType
 
 /**
  * Data class to store different required data to build any given sed, auto or semiauto.

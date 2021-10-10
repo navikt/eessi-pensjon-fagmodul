@@ -1,9 +1,9 @@
 package no.nav.eessi.pensjon.fagmodul.pesys.krav
 
+import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.sed.Krav
 import no.nav.eessi.pensjon.eux.model.sed.Pensjon
 import no.nav.eessi.pensjon.eux.model.sed.SED
-import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.eux.model.sed.Utsettelse
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
