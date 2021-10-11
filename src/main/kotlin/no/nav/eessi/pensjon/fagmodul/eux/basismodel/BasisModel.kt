@@ -1,6 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.eux.basismodel
 
-import no.nav.eessi.pensjon.eux.model.sed.SedType
+import no.nav.eessi.pensjon.eux.model.SedType
 
 /**
  * data class model from EUX Basis
