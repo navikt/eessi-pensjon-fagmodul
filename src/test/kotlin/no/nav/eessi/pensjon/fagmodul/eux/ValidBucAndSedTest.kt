@@ -1,6 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
-import no.nav.eessi.pensjon.eux.model.sed.SedType
+import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.utils.toJson
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach

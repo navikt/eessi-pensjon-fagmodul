@@ -1,9 +1,9 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
+import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.BucType
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.document.Retning
-import no.nav.eessi.pensjon.eux.model.sed.SedType
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.RinaAksjon
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Attachment
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc

@@ -16,7 +16,6 @@ import no.nav.eessi.pensjon.EessiFagmodulApplication
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.context.annotation.Scope
 import org.springframework.web.bind.annotation.RestController
@@ -46,6 +45,7 @@ class ArchitectureTest {
 
             productionClasses = ClassFileImporter()
                     .withImportOption(ImportOption.DoNotIncludeTests())
+                    .withImportOption(ImportOption.DoNotIncludeJars())
                     .importPackages(root)
 
             assertTrue(productionClasses.size > 200, "Sanity check on no. of classes to analyze")
@@ -241,10 +241,9 @@ class ArchitectureTest {
     }
 
     @Test
-    @Disabled
     fun `no cycles on any level for production classes`() {
         slices()
-                .matching("$root..(*)")
+                .matching("$root.(*)..")
                 .should().beFreeOfCycles()
                 .check(productionClasses)
     }
@@ -257,14 +256,13 @@ class ArchitectureTest {
                 .check(allClasses)
     }
 
-    @Disabled
     @Test
     fun `controllers should not call each other`() {
         classes().that()
-                .areAnnotatedWith(RestController::class.java)
-                .should().onlyBeAccessed().byClassesThat().areNotAnnotatedWith(RestController::class.java)
-                .because("Controllers should not call each other")
-                .check(allClasses)
+            .areAnnotatedWith(RestController::class.java)
+            .should().onlyBeAccessed().byClassesThat().areNotAnnotatedWith(RestController::class.java)
+            .because("Controllers should not call each other")
+            .check(allClasses)
     }
 
     @Test
@@ -279,9 +277,9 @@ class ArchitectureTest {
     @Test
     fun `Spring singleton components should not have mutable instance fields`() {
 
-        class SpringStereotypeAnnotation:DescribedPredicate<JavaAnnotation<*>>("Spring component annotation") {
+        class SpringStereotypeAnnotation:DescribedPredicate<JavaAnnotation>("Spring component annotation") {
             override fun getDescription(): String = "Desc"
-            override fun apply(input: JavaAnnotation<*>?): Boolean = input != null &&
+            override fun apply(input: JavaAnnotation?): Boolean = input != null &&
                     (input.rawType.packageName.startsWith("org.springframework.stereotype") ||
                             input.rawType.isEquivalentTo(RestController::class.java))
         }

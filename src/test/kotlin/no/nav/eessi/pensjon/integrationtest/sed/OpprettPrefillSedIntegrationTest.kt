@@ -3,7 +3,7 @@ package no.nav.eessi.pensjon.integrationtest.sed
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
-import no.nav.eessi.pensjon.eux.model.sed.SedType
+import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.fagmodul.models.ApiRequest
 import no.nav.eessi.pensjon.fagmodul.models.ApiSubject
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
