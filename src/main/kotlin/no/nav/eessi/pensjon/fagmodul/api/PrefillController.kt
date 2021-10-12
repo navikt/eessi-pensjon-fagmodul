@@ -159,7 +159,7 @@ class PrefillController(
     }
 
     fun checkForP7000AndAddP6000(request: ApiRequest): ApiRequest {
-        return if (request.sed == "P7000") {
+        return if (request.sed == SedType.P7000.name) {
             //hente payload from ui
             val docitems = request.payload?.let { mapJsonToAny(it, typeRefs<List<P6000Dokument>>()) }
             logger.info("P6000 payload size: ${docitems?.size}")
@@ -168,7 +168,15 @@ class PrefillController(
             //ny json payload til prefull
             request.copy(payload = seds?.let { mapAnyToJson(it) })
         } else request
+    }
 
+    //TODO fjern env for q2 når dette funker..
+    fun checkForX010AndAddX009(request: ApiRequest, parentId: String): ApiRequest {
+        return if (environment == "q2" &&  request.sed != SedType.X010.name && request.euxCaseId != null) {
+                logger.info("Legger ved X009 som payload for prefill X010")
+                val payloadData = Pair<String, SED>(parentId, euxInnhentingService.getSedOnBucByDocumentId(request.euxCaseId, parentId))
+                request.copy(payload = mapAnyToJson(payloadData))
+        } else request
     }
 
     @Operation(description = "Oppretter en Sed som svar på en forespørsel-Sed")
@@ -192,7 +200,7 @@ class PrefillController(
         }
 
         logger.info("Prøver å prefillSED (svarSED) parentId: $parentId")
-        val sed = innhentingService.hentPreutyltSed(request)
+        val sed = innhentingService.hentPreutyltSed( checkForX010AndAddX009(request, parentId ))
 
         return addDocumentToParent.measure {
             logger.info("Prøver å sende SED: ${dataModel.sedType} inn på BUC: ${dataModel.euxCaseID}")
