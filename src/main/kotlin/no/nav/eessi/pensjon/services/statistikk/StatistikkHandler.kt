@@ -9,11 +9,11 @@ import org.springframework.stereotype.Service
 
 @Service
 class StatistikkHandler(@Value("\${ENV}") val env : String,
-                        private val kafkaTemplate: KafkaTemplate<String, String>,
+                        private val aivenKafkaTemplate: KafkaTemplate<String, String>,
                         @Value("\${kafka.statistikk.topic}") private val statistikkTopic: String) {
 
     private val logger = LoggerFactory.getLogger(StatistikkHandler::class.java)
-    private val X_REQUEST_ID = "x_request_id"
+    private val XREQUESTID = "x_request_id"
 
     fun produserBucOpprettetHendelse(rinaid: String, dokumentId: String?) {
 
@@ -38,15 +38,15 @@ class StatistikkHandler(@Value("\${ENV}") val env : String,
 
     private fun produserKafkaMelding(melding: StatistikkMelding) {
         if(env == "q2") {
-            kafkaTemplate.defaultTopic = statistikkTopic
+            aivenKafkaTemplate.defaultTopic = statistikkTopic
 
             val key = populerMDC()
 
             val payload = melding.toJson()
 
-            logger.info("Oppretter statistikk melding på kafka: ${kafkaTemplate.defaultTopic}  melding: $melding")
+            logger.info("Oppretter statistikk melding på kafka: ${aivenKafkaTemplate.defaultTopic}  melding: $melding")
             try {
-                kafkaTemplate.sendDefault(key, payload).get()
+                aivenKafkaTemplate.sendDefault(key, payload).get()
             } catch (exception: Exception) {
                 logger.error(exception.message)
                 logger.error(exception.printStackTrace().toString())
@@ -54,7 +54,7 @@ class StatistikkHandler(@Value("\${ENV}") val env : String,
         }
     }
 
-    fun populerMDC(): String = MDC.get(X_REQUEST_ID)
+    fun populerMDC(): String = MDC.get(XREQUESTID)
 
 }
 
