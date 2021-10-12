@@ -6,6 +6,7 @@ import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.X005
+import no.nav.eessi.pensjon.eux.model.sed.X009
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
@@ -172,10 +173,10 @@ class PrefillController(
 
     //TODO fjern env for q2 når dette funker..
     fun checkForX010AndAddX009(request: ApiRequest, parentId: String): ApiRequest {
-        return if (environment == "q2" &&  request.sed != SedType.X010.name && request.euxCaseId != null) {
+        return if (environment == "q2" &&  request.sed == SedType.X010.name && request.euxCaseId != null) {
                 logger.info("Legger ved X009 som payload for prefill X010")
-                val payloadData = Pair<String, SED>(parentId, euxInnhentingService.getSedOnBucByDocumentId(request.euxCaseId, parentId))
-                request.copy(payload = mapAnyToJson(payloadData))
+                val x009 = euxInnhentingService.getSedOnBucByDocumentId(request.euxCaseId, parentId) as X009
+                request.copy(payload = x009.toJson())
         } else request
     }
 
