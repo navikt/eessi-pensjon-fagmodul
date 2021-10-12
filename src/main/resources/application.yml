@@ -72,4 +72,15 @@ server:
 kafka:
   statistikk:
     topic: ${KAFKA_STATISTIKK_TOPICNAME}
-  security.protocol: SSL
+
+#Spring
+spring:
+  kafka:
+    bootstrap-servers: ${ONPREM_KAFKA_BOOTSTRAP_SERVERS_URL}
+    properties:
+      security.protocol: SASL_SSL
+      key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value.deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      sasl:
+        mechanism: PLAIN
+        jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="${srvusername}" password="${srvpassword}";

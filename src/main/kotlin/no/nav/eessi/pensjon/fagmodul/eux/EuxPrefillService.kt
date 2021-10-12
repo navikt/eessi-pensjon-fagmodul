@@ -68,7 +68,8 @@ class EuxPrefillService (private val euxKlient: EuxKlient,
 
     fun createBuc(buctype: String): String {
         val euxCaseId = euxKlient.createBuc(buctype)
-        statistikk.produserBucOpprettetHendelse(euxCaseId, null)
+//        TODO: Fix this
+//        statistikk.produserBucOpprettetHendelse(euxCaseId, null)
         return euxCaseId
     }
 
