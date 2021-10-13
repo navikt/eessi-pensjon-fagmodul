@@ -56,8 +56,7 @@ class EuxPrefillService (private val euxKlient: EuxKlient,
         logger.debug("Logger ut $jsonNavSED")
         val bucSedResponse  = euxKlient.opprettSed(jsonNavSED, euxCaseId, opprettSED, "Feil ved opprettSed: $SedType, med rinaId: $euxCaseId")
 
-//        TODO: Fix this
-//        statistikk.produserSedOpprettetHendelse(euxCaseId, bucSedResponse.documentId, vedtakId)
+        statistikk.produserSedOpprettetHendelse(euxCaseId, bucSedResponse.documentId, vedtakId)
         return bucSedResponse
     }
 
