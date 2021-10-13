@@ -8,8 +8,7 @@ import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Service
 
 @Service
-class StatistikkHandler(@Value("\${ENV}") val env : String,
-                        private val aivenKafkaTemplate: KafkaTemplate<String, String>,
+class StatistikkHandler(private val aivenKafkaTemplate: KafkaTemplate<String, String>,
                         @Value("\${kafka.statistikk.topic}") private val statistikkTopic: String) {
 
     private val logger = LoggerFactory.getLogger(StatistikkHandler::class.java)
@@ -37,7 +36,6 @@ class StatistikkHandler(@Value("\${ENV}") val env : String,
     }
 
     private fun produserKafkaMelding(melding: StatistikkMelding) {
-        if(env == "q2") {
             aivenKafkaTemplate.defaultTopic = statistikkTopic
 
             val key = populerMDC()
@@ -52,7 +50,6 @@ class StatistikkHandler(@Value("\${ENV}") val env : String,
                 logger.error(exception.printStackTrace().toString())
             }
         }
-    }
 
     fun populerMDC(): String = MDC.get(XREQUESTID)
 

@@ -30,7 +30,7 @@ class StatistikkHandlerTest{
     fun setup(){
         MockKAnnotations.init(this, relaxed = true, relaxUnitFun = true)
 
-        statHandler = spyk(StatistikkHandler("q2", template, "eessi-pensjon-statistikk"))
+        statHandler = spyk(StatistikkHandler( template, "eessi-pensjon-statistikk"))
         every { statHandler.populerMDC() } returns "key"
     }
 
