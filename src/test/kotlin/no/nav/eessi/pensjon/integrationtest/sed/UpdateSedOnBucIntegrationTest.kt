@@ -3,6 +3,7 @@ package no.nav.eessi.pensjon.integrationtest.sed
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
+import no.nav.eessi.pensjon.fagmodul.integrationtest.IntegrasjonsTestConfig
 import no.nav.eessi.pensjon.security.sts.STSService
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.Test
@@ -14,6 +15,7 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
@@ -23,9 +25,10 @@ import org.springframework.web.client.RestTemplate
 import java.nio.charset.Charset
 import kotlin.test.assertEquals
 
-@SpringBootTest(classes = [UnsecuredWebMvcTestLauncher::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = [IntegrasjonsTestConfig::class, UnsecuredWebMvcTestLauncher::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(profiles = ["unsecured-webmvctest"])
 @AutoConfigureMockMvc
+@EmbeddedKafka
 class UpdateSedOnBucIntegrationTest {
 
     @MockkBean
