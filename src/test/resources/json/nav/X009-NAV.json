@@ -1,0 +1,48 @@
+{
+  "nav": {
+    "sak": {
+      "kontekst": {
+        "refusjonskrav": {
+          "antallkrav": "æøå",
+          "id": "æøå"
+        },
+        "arbeidsgiver": {
+          "adresse": {
+            "bygning": "æøå",
+            "gate": "æøå",
+            "region": "æøå",
+            "by": "æøå",
+            "postnummer": "æøå",
+            "land": "NO"
+          },
+          "identifikator": [
+            {
+              "type": "registrering",
+              "id": "æøå"
+            }
+          ],
+          "navn": "æøå"
+        },
+        "bruker": {
+          "person": {
+            "fornavn": "æøå",
+            "foedselsdato": "æøå",
+            "kjoenn": "M",
+            "etternavn": "æøå"
+          }
+        }
+      },
+      "paaminnelse": {
+        "sende": [
+          {
+            "type": "dokument",
+            "detaljer": "æøå"
+          }
+        ]
+      }
+    }
+  },
+  "sedGVer": "4",
+  "sedVer": "2",
+  "sed": "X009"
+}

@@ -8,7 +8,6 @@ import io.mockk.verify
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.clients.producer.RecordMetadata
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.support.SendResult
@@ -35,7 +34,6 @@ class StatistikkHandlerTest{
     }
 
     @Test
-    @Disabled
     fun `Det legges en buc melding på kakfa-kø`(){
         val future: SettableListenableFuture<SendResult<String, String>> = SettableListenableFuture()
         every { template.sendDefault(any(), any()) } returns future
