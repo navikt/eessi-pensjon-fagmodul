@@ -21,7 +21,6 @@ import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.core.ProducerFactory
 import org.springframework.kafka.listener.ContainerProperties
 import org.springframework.kafka.support.serializer.JsonDeserializer
-import org.springframework.kafka.support.serializer.JsonSerializer
 import java.time.Duration
 
 @EnableKafka
@@ -46,33 +45,16 @@ class KafkaConfigProd(
         populerAivenCommonConfig(configMap)
         configMap[ProducerConfig.CLIENT_ID_CONFIG] = "eessi-pensjon-fagmodul"
         configMap[ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG] = StringSerializer::class.java
-        configMap[ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG] = JsonSerializer::class.java
+        configMap[ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG] = StringSerializer::class.java
         configMap[ProducerConfig.BOOTSTRAP_SERVERS_CONFIG] = aivenBootstrapServers
         return DefaultKafkaProducerFactory(configMap)
     }
-
 
     @Bean
     fun aivenKafkaTemplate(): KafkaTemplate<String, String> {
         val kafkaTemplate = KafkaTemplate(aivenProducerFactory())
         kafkaTemplate.defaultTopic = automatiseringTopic
         return kafkaTemplate
-    }
-
-    @Bean
-    fun onpremProducerFactory(): ProducerFactory<String, String> {
-        val configMap: MutableMap<String, Any> = HashMap()
-        populerOnpremCommonConfig(configMap)
-        configMap[ProducerConfig.CLIENT_ID_CONFIG] = "eessi-pensjon-fagmodul"
-        configMap[ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG] = StringSerializer::class.java
-        configMap[ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG] = JsonSerializer::class.java
-        configMap[ProducerConfig.BOOTSTRAP_SERVERS_CONFIG] = onpremBootstrapServers
-        return DefaultKafkaProducerFactory(configMap)
-    }
-
-    @Bean
-    fun kafkaTemplate(): KafkaTemplate<String, String> {
-        return KafkaTemplate(onpremProducerFactory())
     }
 
     fun aivenKafkaConsumerFactory(): ConsumerFactory<String, String> {
@@ -89,23 +71,7 @@ class KafkaConfigProd(
         configMap[ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG] = aivenBootstrapServers
         configMap[ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG] = false
 
-
         return DefaultKafkaConsumerFactory(configMap, keyDeserializer, valueDeserializer)
-    }
-
-    fun onpremKafkaConsumerFactory(): ConsumerFactory<String, String> {
-        val keyDeserializer: JsonDeserializer<String> = JsonDeserializer(String::class.java)
-        keyDeserializer.setUseTypeHeaders(false)
-
-        val configMap: MutableMap<String, Any> = HashMap()
-        populerOnpremCommonConfig(configMap)
-        configMap[ConsumerConfig.CLIENT_ID_CONFIG] = "eessi-pensjon-fagmodul"
-        configMap[ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG] = onpremBootstrapServers
-        configMap[ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG] = false
-        configMap[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = "earliest"
-        configMap[ConsumerConfig.MAX_POLL_RECORDS_CONFIG] = 1
-
-        return DefaultKafkaConsumerFactory(configMap, StringDeserializer(), StringDeserializer())
     }
 
     @Bean
@@ -119,19 +85,6 @@ class KafkaConfigProd(
         }
         return factory
     }
-
-    @Bean
-    fun onpremKafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, String>? {
-        val factory = ConcurrentKafkaListenerContainerFactory<String, String>()
-        factory.consumerFactory = onpremKafkaConsumerFactory()
-        factory.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL
-        factory.containerProperties.authorizationExceptionRetryInterval =  Duration.ofSeconds(4L)
-        if (kafkaErrorHandler != null) {
-            factory.setErrorHandler(kafkaErrorHandler)
-        }
-        return factory
-    }
-
 
     private fun populerAivenCommonConfig(configMap: MutableMap<String, Any>) {
         configMap[SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG] = keystorePath
