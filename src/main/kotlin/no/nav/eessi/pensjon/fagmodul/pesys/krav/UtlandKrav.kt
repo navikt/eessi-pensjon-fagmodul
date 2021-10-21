@@ -92,4 +92,11 @@ open class UtlandKrav {
         )
     }
 
+    /**
+     * PESYS støtter kun GB
+     */
+    fun justerAvsenderLand(avsenderLand: String): String =
+        if (avsenderLand == "UK") "GB"
+        else avsenderLand
+
 }

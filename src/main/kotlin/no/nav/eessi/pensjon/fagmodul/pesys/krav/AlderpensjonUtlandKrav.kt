@@ -28,8 +28,9 @@ class AlderpensjonUtlandKrav(
         val caseOwnerCountryBuc = if (environment == "q2" || environment == "test") {
             "SE" //settes til SE for test i Q2 fra utland
         } else {
-            caseOwner.country
+            justerAvsenderLand(caseOwner.country)
         }
+
         val caseOwnerCountry = kodeverkClient.finnLandkode(caseOwnerCountryBuc)
 
         logger.debug("CaseOwnerCountry: $caseOwnerCountry")

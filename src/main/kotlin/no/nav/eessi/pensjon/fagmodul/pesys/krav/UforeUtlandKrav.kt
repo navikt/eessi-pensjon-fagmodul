@@ -25,7 +25,7 @@ class UforeUtlandKrav(
         val caseOwnerCountryBuc = if (environment == "q2" || environment == "test") {
             "SE"
         } else {
-            caseOwner.country
+            justerAvsenderLand(caseOwner.country)
         }
         val caseOwnerCountry = kodeverkClient.finnLandkode(caseOwnerCountryBuc)
 
