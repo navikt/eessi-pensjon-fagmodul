@@ -80,7 +80,7 @@ class BucUtilsTest {
 
         val parentIdStatusSendt = "fd9fd9ee97ee46d0a3f5c58d1b245268"
 
-        assertThrows<SedDokumentKanIkkeOpprettesException> {
+        assertThrows<ResponseStatusException> {
             bucUtil.sjekkOmSvarSedKanOpprettes(SedType, parentIdStatusSendt)
         }
     }

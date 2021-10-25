@@ -15,24 +15,33 @@ class StatistikkHandler(private val aivenKafkaTemplate: KafkaTemplate<String, St
     private val XREQUESTID = "x_request_id"
 
     fun produserBucOpprettetHendelse(rinaid: String, dokumentId: String?) {
+        try {
+            val melding = StatistikkMelding(
+                opprettelseType = HendelseType.BUC,
+                rinaId = rinaid,
+                dokumentId = dokumentId,
+                vedtaksId = null
+            )
+            produserKafkaMelding(melding)
+        } catch (ex: Exception) {
+            logger.warn("Klarte ikke å opprette melding på kafka: $rinaid, hendelse: BUC")
+        }
 
-        val melding = StatistikkMelding(
-            opprettelseType = HendelseType.BUC,
-            rinaId = rinaid,
-            dokumentId = dokumentId,
-            vedtaksId = null
-        )
-        produserKafkaMelding(melding)
     }
 
     fun produserSedOpprettetHendelse(rinaid: String, documentId: String?, vedtaksId: String?) {
-        val melding = StatistikkMelding(
-            opprettelseType = HendelseType.SED,
-            rinaId = rinaid,
-            dokumentId = documentId,
-            vedtaksId = vedtaksId
-        )
-        produserKafkaMelding(melding)
+        try {
+            val melding = StatistikkMelding(
+                opprettelseType = HendelseType.SED,
+                rinaId = rinaid,
+                dokumentId = documentId,
+                vedtaksId = vedtaksId
+            )
+            produserKafkaMelding(melding)
+
+        } catch (ex: Exception) {
+            logger.warn("Klarte ikke å opprette melding på kafka: $rinaid, hendelse: SED")
+        }
     }
 
     private fun produserKafkaMelding(melding: StatistikkMelding) {

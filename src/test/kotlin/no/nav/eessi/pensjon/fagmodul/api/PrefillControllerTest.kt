@@ -1,9 +1,13 @@
 
 package no.nav.eessi.pensjon.fagmodul.api
 
-import io.mockk.*
+import io.mockk.MockKAnnotations
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.SpyK
+import io.mockk.justRun
+import io.mockk.mockk
+import io.mockk.verify
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.sed.InstitusjonX005
 import no.nav.eessi.pensjon.eux.model.sed.Leggtilinstitusjon
@@ -19,7 +23,14 @@ import no.nav.eessi.pensjon.fagmodul.eux.EuxPrefillService
 import no.nav.eessi.pensjon.fagmodul.eux.SedDokumentIkkeOpprettetException
 import no.nav.eessi.pensjon.fagmodul.eux.SedDokumentKanIkkeOpprettesException
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucSedResponse
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.*
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ActionsItem
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ConversationsItem
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Organisation
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Sender
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.UserMessagesItem
 import no.nav.eessi.pensjon.fagmodul.models.ApiRequest
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
@@ -408,7 +419,7 @@ class PrefillControllerTest {
 
         every{mockEuxInnhentingService.getBuc(euxCaseId)} returns mockBuc
 
-        assertThrows<SedDokumentKanIkkeOpprettesException> {
+        assertThrows<ResponseStatusException> {
             prefillController.addDocumentToParent(api, parentDocumentId)
         }
     }
