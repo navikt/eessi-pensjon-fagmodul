@@ -371,7 +371,7 @@ class BucUtils(private val buc: Buc) {
         if(getAllDocuments().any { it.parentDocumentId == parentId && it.type == SedType && it.status == "empty" }){
             return true
         }
-        throw SedDokumentKanIkkeOpprettesException("SvarSED $SedType kan ikke opaprettes i RINA (mulig det allerede finnes et utkast)")
+        throw  ResponseStatusException(HttpStatus.BAD_REQUEST, "$SedType kan ikke opaprettes i RINA (mulig det allerede finnes et utkast)")
     }
 
     fun filterSektorPandRelevantHorizontalAndXSeds(list: List<SedType>): List<SedType> {
@@ -380,8 +380,6 @@ class BucUtils(private val buc: Buc) {
                 .or(type.name.startsWith("H12"))
                 .or(type.name.startsWith("H07"))
                 .or(type.name.startsWith("H02"))
-//                .or(type.name == "X010")
-//                .or(type.name == "X009")
         }
 
         return list

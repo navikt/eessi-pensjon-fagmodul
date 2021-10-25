@@ -85,10 +85,6 @@ class EuxController(
         }
     }
 
-    //TODO
-    //finnes også i SEDcontroller men skal slettes fra SedController når det er over i UI
-    /************************************************************************************/
-
     @Operation(description = "Henter ut en liste over landkoder ut fra kodeverktjenesten eux")
     @GetMapping( "/landkoder")
     fun getCountryCode(): List<String> {
