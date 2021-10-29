@@ -2,10 +2,8 @@ package no.nav.eessi.pensjon.fagmodul.prefill
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import no.nav.eessi.pensjon.fagmodul.models.ApiRequest
-import no.nav.eessi.pensjon.fagmodul.models.MangelfulleInndataException
 import no.nav.eessi.pensjon.fagmodul.prefill.klient.PrefillKlient
 import no.nav.eessi.pensjon.metrics.MetricsHelper
-import no.nav.eessi.pensjon.personoppslag.Fodselsnummer
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
 import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentType
@@ -54,12 +52,12 @@ class InnhentingService(
 
     //Hjelpe funksjon for å validere og hente aktoerid for evt. avdodfnr fra UI (P2100) - PDL
     fun getAvdodAktoerIdPDL(request: ApiRequest): String? {
-        val buc = request.buc ?: throw MangelfulleInndataException("Mangler Buc")
+        val buc = request.buc ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST,"Mangler Buc")
         return when (buc) {
             "P_BUC_02" -> {
                 val norskIdent = request.riktigAvdod() ?: run {
                     logger.error("Mangler fnr for avdød")
-                    throw MangelfulleInndataException("Mangler fnr for avdød")
+                    throw ResponseStatusException(HttpStatus.BAD_REQUEST,"Mangler fnr for avdød")
                 }
                 if (norskIdent.isBlank()) {
                     throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ident har tom input-verdi")

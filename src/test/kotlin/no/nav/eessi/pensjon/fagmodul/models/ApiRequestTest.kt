@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.springframework.web.server.ResponseStatusException
 
 class ApiRequestTest {
 
@@ -64,7 +65,7 @@ class ApiRequestTest {
                 buc = "P_BUC_06",
                 aktoerId = "0105094340092"
         )
-        assertThrows<UgyldigInndataException> {
+        assertThrows<ResponseStatusException> {
             ApiRequest.buildPrefillDataModelOnExisting(mockData, "12345", null)
         }
     }
@@ -79,7 +80,7 @@ class ApiRequestTest {
                 buc = "P_BUC_06",
                 aktoerId = "0105094340092"
         )
-        assertThrows<MangelfulleInndataException> {
+        assertThrows< ResponseStatusException> {
             ApiRequest.buildPrefillDataModelOnExisting(mockData, "12345", null)
         }
     }
@@ -161,7 +162,7 @@ class ApiRequestTest {
                 avdodfnr = null,
                 subject = null
         )
-        assertThrows<MangelfulleInndataException> {
+        assertThrows<ResponseStatusException> {
             ApiRequest.buildPrefillDataModelOnExisting(mockData, "23123", null)
         }
 
@@ -175,7 +176,7 @@ class ApiRequestTest {
                 sed = "P6000",
                 aktoerId = null
         )
-        assertThrows<MangelfulleInndataException> {
+        assertThrows<ResponseStatusException> {
             ApiRequest.buildPrefillDataModelOnExisting(mockData, "12345", null)
         }
     }

@@ -7,7 +7,6 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import no.nav.eessi.pensjon.fagmodul.models.ApiRequest
 import no.nav.eessi.pensjon.fagmodul.models.ApiSubject
-import no.nav.eessi.pensjon.fagmodul.models.MangelfulleInndataException
 import no.nav.eessi.pensjon.fagmodul.models.SubjectFnr
 import no.nav.eessi.pensjon.fagmodul.prefill.klient.PrefillKlient
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
@@ -91,7 +90,7 @@ internal class InnhentingServiceTest {
             buc = "P_BUC_02",
             aktoerId = "0105094340092"
         )
-        assertThrows<MangelfulleInndataException> {
+        assertThrows<ResponseStatusException> {
             innhentingService.getAvdodAktoerIdPDL(apiRequest)
         }
     }

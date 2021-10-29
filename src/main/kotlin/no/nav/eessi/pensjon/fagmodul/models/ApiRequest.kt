@@ -50,15 +50,15 @@ data class ApiRequest(
         //validatate request and convert to PrefillDataModel
         fun buildPrefillDataModelOnExisting(request: ApiRequest, fodselsnr: String, avdodaktoerID: String? = null): PrefillDataModel {
             val sedType = if (request.sed.isNullOrBlank())
-                throw MangelfulleInndataException("SedType mangler")
+                throw ResponseStatusException(HttpStatus.BAD_REQUEST,"SedType mangler")
             else
-                SedType.from(request.sed) ?: throw UgyldigInndataException("SedType ${request.sed} er ikke gyldig")
+                SedType.from(request.sed) ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST,"SedType ${request.sed} er ikke gyldig")
 
             return when {
-                request.buc == null -> throw MangelfulleInndataException("Mangler BUC")
-                request.aktoerId == null -> throw MangelfulleInndataException("Mangler AktoerID")
-                request.euxCaseId == null -> throw MangelfulleInndataException("Mangler euxCaseId (RINANR)")
-                request.institutions == null -> throw MangelfulleInndataException("Mangler Institusjoner")
+                request.buc == null -> throw ResponseStatusException(HttpStatus.BAD_REQUEST,"Mangler BUC")
+                request.aktoerId == null -> throw ResponseStatusException(HttpStatus.BAD_REQUEST,"Mangler AktoerID")
+                request.euxCaseId == null -> throw ResponseStatusException(HttpStatus.BAD_REQUEST,"Mangler euxCaseId (RINANR)")
+                request.institutions == null -> throw ResponseStatusException(HttpStatus.BAD_REQUEST,"Mangler Institusjoner")
                 else -> {
                     logger.info("ALL SED on existing Rina SED: ${request.sed} -> euxCaseId: ${request.euxCaseId} -> sakNr: ${request.sakId} ")
                     PrefillDataModel(
@@ -92,16 +92,13 @@ data class ApiRequest(
         private fun populerAvdodPersonId(request: ApiRequest, avdodaktoerID: String?, kreverAvdod: Boolean = false): PersonId? {
             if (kreverAvdod && avdodaktoerID == null) {
                logger.error("Mangler fnr for avdød")
-               throw MangelfulleInndataException("Mangler fnr for avdød")
+               throw ResponseStatusException(HttpStatus.BAD_REQUEST,"Mangler fnr for avdød")
             }
             request.riktigAvdod() ?: return null
-            val avdodNorskIdent1 = request.riktigAvdod() ?: throw MangelfulleInndataException("Mangler Personnr på Avdød")
-            val avdodAktorId1 = avdodaktoerID ?: throw MangelfulleInndataException("Mangler AktoerId på Avdød")
+            val avdodNorskIdent1 = request.riktigAvdod() ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST,"Mangler Personnr på Avdød")
+            val avdodAktorId1 = avdodaktoerID ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST,"Mangler AktoerId på Avdød")
             return  PersonId(avdodNorskIdent1, avdodAktorId1)
         }
 
     }
 }
-
-class MangelfulleInndataException(reason: String) : ResponseStatusException(HttpStatus.BAD_REQUEST, reason)
-class UgyldigInndataException(reason: String) : ResponseStatusException(HttpStatus.BAD_REQUEST, reason)
