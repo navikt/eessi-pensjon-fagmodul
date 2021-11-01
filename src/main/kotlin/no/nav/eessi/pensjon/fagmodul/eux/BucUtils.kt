@@ -167,18 +167,19 @@ class BucUtils(private val buc: Buc) {
                 status = documentItem.status,
                 creationDate = getDateTimeToLong(documentItem.creationDate),
                 lastUpdate = getDateTimeToLong(documentItem.lastUpdate),
-                receiveDate = getDateTimeToLong(documentItem.receiveDate),
                 participants = createParticipants(documentItem.conversations),
                 attachments = createShortAttachemnt(documentItem.attachments),
                 version = getLatestDocumentVersion(documentItem.versions),
                 firstVersion = getFirstVersion(documentItem.versions),
                 lastVersion = getLastVersion(documentItem.versions),
                 allowsAttachments = overrideAllowAttachemnts(documentItem),
-                direction = documentItem.direction
-        )
+                direction = documentItem.direction,
+                receiveDate = filterOutReceiveDateOnOut(documentItem.direction, getDateTimeToLong(documentItem.receiveDate))
+            )
+
+    fun filterOutReceiveDateOnOut(direction: String, receiveDate: Long?): Long? = if (direction == "OUT") null else receiveDate
 
     private fun checkParentDocumentId(type: SedType?, parentDocumentId: String?): String? = if (type == SedType.X009) null else parentDocumentId
-
 
     private fun overrideAllowAttachemnts(documentItem: DocumentsItem): Boolean? {
         return if (documentItem.type == SedType.P5000) {

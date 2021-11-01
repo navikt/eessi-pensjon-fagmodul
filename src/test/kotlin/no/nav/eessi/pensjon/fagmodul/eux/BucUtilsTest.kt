@@ -1,6 +1,5 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
-import com.fasterxml.jackson.annotation.JsonFormat
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.SedType.P5000
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
@@ -11,6 +10,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Organisation
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.utils.mapJsonToAny
+import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import no.nav.eessi.pensjon.utils.typeRefs
 import no.nav.eessi.pensjon.utils.validateJson
@@ -22,9 +22,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.*
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 
 class BucUtilsTest {
@@ -836,41 +836,87 @@ class BucUtilsTest {
     }
 
     @Test
-    fun mapDatoFraJsonTilKotlin() {
-//        val json = """
-//                {
-//                  "creationDate": "2021-07-21T11:30:16.000+0000",
-//                  "lastUpdate": "2021-07-21T11:30:16.000+0000"
-//                }
-//        """.trimIndent()
-////                                "2016-12-18@07:53:34.740+0000"
-//
-//        val result: TestDates = mapJsonToAny(json, typeRefs() )
-//
-//        println(result)
-//        println(result?.creationDate?.javaClass)
-//
-////       val milliSeconds = "1596751200000".toLong()
+    fun `Sjekk for recevdate skal være tom på utaaende sed`() {
+        val buc = mockBucNoRecevieDate()
+        val actual = BucAndSedView.from(buc).seds?.first()?.toJson()
 
+        val expected = """
+            {
+              "attachments" : [ ],
+              "displayName" : null,
+              "type" : "P8000",
+              "conversations" : null,
+              "isSendExecuted" : null,
+              "id" : "1",
+              "direction" : "OUT",
+              "creationDate" : null,
+              "receiveDate" : null,
+              "typeVersion" : null,
+              "allowsAttachments" : null,
+              "versions" : null,
+              "lastUpdate" : 1567178490000,
+              "parentDocumentId" : null,
+              "status" : null,
+              "participants" : null,
+              "firstVersion" : null,
+              "lastVersion" : null,
+              "version" : "1",
+              "message" : null
+            }
+        """.trimIndent()
 
-        println(fromMils("1567154257318".toLong()))
-        println(fromMils("1567161457318".toLong()))
-        println(fromMils("1567150657318".toLong()))
+        assertNull(bucUtils.filterOutReceiveDateOnOut("OUT", 1567178490000))
+        assertEquals(expected, actual)
+    }
 
+    @Test
+    fun `Sjekk for recevdate skal være finnes på innkommende sed`() {
+        val buc = mockBucNoRecevieDate("IN")
+        val actual = BucAndSedView.from(buc).seds?.first()?.toJson()
+
+        val expected = """
+            {
+              "attachments" : [ ],
+              "displayName" : null,
+              "type" : "P8000",
+              "conversations" : null,
+              "isSendExecuted" : null,
+              "id" : "1",
+              "direction" : "IN",
+              "creationDate" : null,
+              "receiveDate" : 1567178490000,
+              "typeVersion" : null,
+              "allowsAttachments" : null,
+              "versions" : null,
+              "lastUpdate" : 1567178490000,
+              "parentDocumentId" : null,
+              "status" : null,
+              "participants" : null,
+              "firstVersion" : null,
+              "lastVersion" : null,
+              "version" : "1",
+              "message" : null
+            }
+        """.trimIndent()
+
+        assertNotNull(bucUtils.filterOutReceiveDateOnOut("IN", 1567178490000))
+        assertEquals(expected, actual)
 
     }
-    private fun fromMils(milliSeconds: Long): LocalDateTime {
-        val calendar = Calendar.getInstance()
-        calendar.timeInMillis = milliSeconds
-        return LocalDateTime.ofInstant(calendar.toInstant(), calendar.timeZone.toZoneId())
+
+    fun mockBucNoRecevieDate(direction: String = "OUT") : Buc {
+        return Buc(
+            id = "1",
+            processDefinitionName = "P_BUC_01",
+            documents = listOf(
+                DocumentsItem(
+                    id = "1",
+                    direction = direction,
+                    receiveDate = 1567178490000,
+                    lastUpdate = 1567178490000,
+                    type = SedType.P8000
+                )
+            )
+        )
     }
-
-
-    data class TestDates(
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", locale = "no_NO")
-        val creationDate: LocalDateTime,
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", locale = "no_NO")
-        val lastUpdate: LocalDateTime
-    )
-
 }
