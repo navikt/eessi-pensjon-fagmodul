@@ -182,10 +182,10 @@ class BucUtils(private val buc: Buc) {
     private fun checkParentDocumentId(type: SedType?, parentDocumentId: String?): String? = if (type == SedType.X009) null else parentDocumentId
 
     private fun overrideAllowAttachemnts(documentItem: DocumentsItem): Boolean? {
-        return if (documentItem.type == SedType.P5000) {
-            false
-        } else {
-            documentItem.allowsAttachments
+        return when(documentItem.type) {
+            SedType.P5000 -> false // støtter ikke vedlegg
+            SedType.X010 -> false  // støtter ikke vedlegg
+            else -> documentItem.allowsAttachments
         }
     }
 
