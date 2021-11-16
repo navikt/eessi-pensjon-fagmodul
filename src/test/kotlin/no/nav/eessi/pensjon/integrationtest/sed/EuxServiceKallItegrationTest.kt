@@ -105,4 +105,47 @@ class EuxServiceKallItegrationTest {
 
     }
 
+    @Test
+    fun `test på gyldig rina2020 url fra eux`() {
+            val bucid = "1234567"
+            val mockRina2020url = "https://rina-q.adeo.no/portal_new/case-management/$bucid"
+
+            every { restTemplate.exchange(
+                eq("/url/buc/$bucid"),
+                eq(HttpMethod.GET),
+                any(),
+                eq(String::class.java)) } returns ResponseEntity.ok().body( mockRina2020url )
+
+            val response = mockMvc.perform(
+                MockMvcRequestBuilders.get("/eux/rinaurl/buc/$bucid"))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andReturn()
+
+            val result = response.response.contentAsString
+
+            assertEquals(mockRina2020url, result)
+    }
+
+    @Test
+    fun `test på gyldig rina2019 url fra eux`() {
+        val bucid = "1234567123123"
+        val mockRina2019url = "https://rina-q.adeo.no/portal/#/caseManagement/$bucid"
+
+        every { restTemplate.exchange(
+            eq("/url/buc/$bucid"),
+            eq(HttpMethod.GET),
+            any(),
+            eq(String::class.java)) } returns ResponseEntity.ok().body( mockRina2019url )
+
+        val response = mockMvc.perform(
+            MockMvcRequestBuilders.get("/eux/rinaurl/buc/$bucid"))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andReturn()
+
+        val result = response.response.contentAsString
+
+        assertEquals(mockRina2019url, result)
+    }
+
+
 }

@@ -49,6 +49,7 @@ class EuxController(
     }
 
 
+    @Deprecated("Utgåår benytt /rinaurl/buc/{rinanr}", ReplaceWith("getRinaUrl2020"))
     @GetMapping("/rinaurl")
     @Operation(description = "direkte URL til RINA")
     fun getRinaURL(): ResponseEntity<Map<String, String>> {
@@ -58,6 +59,12 @@ class EuxController(
         }
         //RINA2019
         return ResponseEntity.ok(mapOf("rinaUrl" to "https://$rinaUrl/portal/#/caseManagement/"))
+    }
+
+    @GetMapping("/rinaurl/buc/{rinanr}", "/rinaurl/buc/{rinanr}/sed/{sedid}")
+    @Operation(description = "direkte URL til RINA")
+    fun getRinaUrl2020(@PathVariable("rinanr", required = true) rinanr: String, @PathVariable("sedid", required = false) sedid: String? = null) : String {
+        return euxInnhentingService.getRinaUrl(rinanr, sedid)
     }
 
     @Operation(description = "henter liste over subject")

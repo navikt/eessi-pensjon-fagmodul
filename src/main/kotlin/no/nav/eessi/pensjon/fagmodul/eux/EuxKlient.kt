@@ -62,6 +62,7 @@ class EuxKlient(
     private lateinit var PutMottaker: MetricsHelper.Metric
     private lateinit var PutDocument: MetricsHelper.Metric
     private lateinit var PingEux: MetricsHelper.Metric
+    private lateinit var RinaUrl: MetricsHelper.Metric
 
     @PostConstruct
     fun initMetrics() {
@@ -75,6 +76,7 @@ class EuxKlient(
         PutDocument = metricsHelper.init("PutDocument", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         PingEux = metricsHelper.init("PingEux")
         GetKodeverk = metricsHelper.init("GetKodeverk", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
+        RinaUrl = metricsHelper.init("RinaUrl")
     }
 
 
@@ -132,6 +134,38 @@ class EuxKlient(
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
         return HttpEntity(navSEDjson, headers)
+    }
+
+    //henter korrekte RinaURL fra eux
+    fun getRinaUrl(euxCaseId: String, documentId: String? = null): String {
+        val path = if (documentId == null) {
+            "/url/buc/{RinaSakId}"
+        } else {
+            "/url/buc/{RinaSakId}?{sedId}"
+        }
+        val uriParams = if (documentId == null) {
+            mapOf("RinaSakId" to euxCaseId)
+        } else {
+            mapOf("RinaSakId" to euxCaseId, "sedId" to documentId)
+        }
+        val builder = UriComponentsBuilder.fromUriString(path).buildAndExpand(uriParams)
+        logger.debug("RinaUrl prøver å kontakte EUX ${builder.toUriString()}")
+
+        val response = restTemplateErrorhandler(
+            {
+                euxOidcRestTemplate.exchange(builder.toUriString(),
+                    HttpMethod.GET,
+                    null,
+                    String::class.java)
+            }
+            , euxCaseId
+            , RinaUrl
+            , "Feil ved henting av URL med RinaId: $euxCaseId, dokumentId : $documentId"
+        )
+        return response.body ?: run {
+            logger.error("Feiler ved lasting av navSed: ${builder.toUriString()}")
+            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Feiler ved response av RinaURL")
+        }
     }
 
     fun getSedOnBucByDocumentIdAsJsonAndAsSystemuser(euxCaseId: String, documentId: String): String =

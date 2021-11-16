@@ -45,6 +45,10 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
         return SED.fromJsonToConcrete(json)
     }
 
+    fun getRinaUrl(euxCaseId: String, documentId: String? = null): String {
+        return euxKlient.getRinaUrl(euxCaseId, documentId)
+    }
+
     fun getSedOnBucByDocumentIdAsSystemuser(euxCaseId: String, documentId: String): SED {
         val json = euxKlient.getSedOnBucByDocumentIdAsJsonAndAsSystemuser(euxCaseId, documentId)
         return try {
