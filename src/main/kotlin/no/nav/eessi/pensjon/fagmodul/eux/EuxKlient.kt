@@ -137,20 +137,13 @@ class EuxKlient(
     }
 
     //henter korrekte RinaURL fra eux
-    fun getRinaUrl(euxCaseId: String, documentId: String? = null): String {
-        val path = if (documentId == null) {
-            "/url/buc/{RinaSakId}"
-        } else {
-            "/url/buc/{RinaSakId}?{sedId}"
-        }
-        val uriParams = if (documentId == null) {
-            mapOf("RinaSakId" to euxCaseId)
-        } else {
-            mapOf("RinaSakId" to euxCaseId, "sedId" to documentId)
-        }
+    //@Cacheable
+    fun getRinaUrl(): String {
+        val rinaCallid = "-1-11-111" //hack rinaid/bucid for henting av rinaurl
+        val path = "/url/buc/{RinaSakId}" //path
+        val uriParams = mapOf("RinaSakId" to rinaCallid)
         val builder = UriComponentsBuilder.fromUriString(path).buildAndExpand(uriParams)
         logger.debug("RinaUrl prøver å kontakte EUX ${builder.toUriString()}")
-
         val response = restTemplateErrorhandler(
             {
                 euxOidcRestTemplate.exchange(builder.toUriString(),
@@ -158,14 +151,15 @@ class EuxKlient(
                     null,
                     String::class.java)
             }
-            , euxCaseId
+            , ""
             , RinaUrl
-            , "Feil ved henting av URL med RinaId: $euxCaseId, dokumentId : $documentId"
+            , "Feil ved henting av RinaURL"
         )
-        return response.body ?: run {
+        val url =  response.body ?: run {
             logger.error("Feiler ved lasting av navSed: ${builder.toUriString()}")
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Feiler ved response av RinaURL")
         }
+        return url.replace(rinaCallid, "").also { logger.debug("Url til Rina: $it") }
     }
 
     fun getSedOnBucByDocumentIdAsJsonAndAsSystemuser(euxCaseId: String, documentId: String): String =

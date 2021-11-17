@@ -49,22 +49,22 @@ class EuxController(
     }
 
 
-    @Deprecated("Utgåår benytt /rinaurl/buc/{rinanr}", ReplaceWith("getRinaUrl2020"))
+//    @Deprecated("Utgåår benytt /rinaurl/buc/{rinanr}", ReplaceWith("getRinaUrl2020"))
+//    @GetMapping("/rinaurl2")
+//    @Operation(description = "direkte URL til RINA")
+//    fun getRinaURL(): ResponseEntity<Map<String, String>> {
+//        if (environment == "q1") {
+//            //RINA2020
+//            return ResponseEntity.ok(mapOf("rinaUrl" to "https://$rinaUrl/portal_new/case-management/"))
+//        }
+//        //RINA2019
+//        return ResponseEntity.ok(mapOf("rinaUrl" to "https://$rinaUrl/portal/#/caseManagement/"))
+//    }
+
     @GetMapping("/rinaurl")
     @Operation(description = "direkte URL til RINA")
-    fun getRinaURL(): ResponseEntity<Map<String, String>> {
-        if (environment == "q1") {
-            //RINA2020
-            return ResponseEntity.ok(mapOf("rinaUrl" to "https://$rinaUrl/portal_new/case-management/"))
-        }
-        //RINA2019
-        return ResponseEntity.ok(mapOf("rinaUrl" to "https://$rinaUrl/portal/#/caseManagement/"))
-    }
-
-    @GetMapping("/rinaurl/buc/{rinanr}", "/rinaurl/buc/{rinanr}/sed/{sedid}")
-    @Operation(description = "direkte URL til RINA")
-    fun getRinaUrl2020(@PathVariable("rinanr", required = true) rinanr: String, @PathVariable("sedid", required = false) sedid: String? = null) : String {
-        return euxInnhentingService.getRinaUrl(rinanr, sedid)
+    fun getRinaUrl2020() : ResponseEntity<Map<String, String>> {
+        return ResponseEntity.ok(mapOf("rinaUrl" to euxInnhentingService.getRinaUrl()))
     }
 
     @Operation(description = "henter liste over subject")
@@ -72,7 +72,6 @@ class EuxController(
     fun getSubjectArea(): List<String> {
         return listOf("Pensjon")
     }
-
 
     @Operation(description = "henter liste over alle tilknyttete land i valgt BUC")
     @GetMapping("/countries/{buctype}")

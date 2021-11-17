@@ -3,10 +3,7 @@ package no.nav.eessi.pensjon.integrationtest.sed
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
-import no.nav.eessi.pensjon.fagmodul.integrationtest.IntegrasjonsTestConfig
 import no.nav.eessi.pensjon.security.sts.STSService
-import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -14,7 +11,6 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
@@ -22,10 +18,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.web.client.RestTemplate
 import kotlin.test.assertEquals
 
-@SpringBootTest(classes = [IntegrasjonsTestConfig::class, UnsecuredWebMvcTestLauncher::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = [UnsecuredWebMvcTestLauncher::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(profiles = ["unsecured-webmvctest"])
 @AutoConfigureMockMvc
-@EmbeddedKafka
 class EuxServiceKallItegrationTest {
 
     @MockkBean
@@ -41,33 +36,33 @@ class EuxServiceKallItegrationTest {
             [{"kode":"AT","term":"Østerrike"},{"kode":"BE","term":"Belgium"},{"kode":"BG","term":"Bulgaria"},{"kode":"HR","term":"Kroatia"},{"kode":"CY","term":"Kypros"},{"kode":"CZ","term":"Tsjekkia"},{"kode":"DK","term":"Danmark"},{"kode":"EE","term":"Estland"},{"kode":"FI","term":"Finland"},{"kode":"FR","term":"Frankrike"},{"kode":"GR","term":"Hellas"},{"kode":"IE","term":"Irland"},{"kode":"IS","term":"Island"},{"kode":"IT","term":"Italia"},{"kode":"LV","term":"Latvia"},{"kode":"NO","term":"Norge"},{"kode":"SE","term":"Sverige"}]
         """.trimIndent()
 
-    @Nested
-    @DisplayName("Swagger and v3-api-docs")
-    inner class swaggerapi {
-
-        @Test
-        fun `sjekk v3 api-docs saver korrekt`() {
-
-            val result = mockMvc.perform(
-                MockMvcRequestBuilders.get("/v3/api-docs/").contentType(MediaType.APPLICATION_JSON)
-            ).andExpect(MockMvcResultMatchers.status().isOk).andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE)).andReturn()
-
-            val response = result.response.getContentAsString(charset("UTF-8"))
-            println(response)
-        }
-
-        @Test
-        fun `sjekk swagger-ui v3 svarer korrekt`() {
-
-            val result = mockMvc.perform(
-                MockMvcRequestBuilders.get("/swagger-ui/index.html?configUrl=/v3/api-docs/swagger-config").contentType(MediaType.APPLICATION_JSON)
-            ).andExpect(MockMvcResultMatchers.status().isOk).andExpect(MockMvcResultMatchers.content().contentType(MediaType.TEXT_HTML)).andReturn()
-
-            val response = result.response.getContentAsString(charset("UTF-8"))
-            println(response)
-        }
-
-    }
+//    @Nested
+//    @DisplayName("Swagger and v3-api-docs")
+//    inner class swaggerapi {
+//
+//        @Test
+//        fun `sjekk v3 api-docs saver korrekt`() {
+//
+//            val result = mockMvc.perform(
+//                MockMvcRequestBuilders.get("/v3/api-docs/").contentType(MediaType.APPLICATION_JSON)
+//            ).andExpect(MockMvcResultMatchers.status().isOk).andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE)).andReturn()
+//
+//            val response = result.response.getContentAsString(charset("UTF-8"))
+//            println(response)
+//        }
+//
+//        @Test
+//        fun `sjekk swagger-ui v3 svarer korrekt`() {
+//
+//            val result = mockMvc.perform(
+//                MockMvcRequestBuilders.get("/swagger-ui/index.html?configUrl=/v3/api-docs/swagger-config").contentType(MediaType.APPLICATION_JSON)
+//            ).andExpect(MockMvcResultMatchers.status().isOk).andExpect(MockMvcResultMatchers.content().contentType(MediaType.TEXT_HTML)).andReturn()
+//
+//            val response = result.response.getContentAsString(charset("UTF-8"))
+//            println(response)
+//        }
+//
+//    }
 
     @Test
     fun `sjekk for landkoder med bruk av kodever for eux`() {
@@ -107,44 +102,62 @@ class EuxServiceKallItegrationTest {
 
     @Test
     fun `test på gyldig rina2020 url fra eux`() {
-            val bucid = "1234567"
-            val mockRina2020url = "https://rina-q.adeo.no/portal_new/case-management/$bucid"
+        val fakeid = "-1-11-111"
+        val mockRina2020url = "https://rina-q.adeo.no/portal_new/case-management/"
 
-            every { restTemplate.exchange(
-                eq("/url/buc/$bucid"),
-                eq(HttpMethod.GET),
-                any(),
-                eq(String::class.java)) } returns ResponseEntity.ok().body( mockRina2020url )
+        every { restTemplate.exchange(
+            eq("/url/buc/$fakeid"),
+            eq(HttpMethod.GET),
+            any(),
+            eq(String::class.java)) } returns ResponseEntity.ok().body( mockRina2020url+fakeid )
 
-            val response = mockMvc.perform(
-                MockMvcRequestBuilders.get("/eux/rinaurl/buc/$bucid"))
-                .andExpect(MockMvcResultMatchers.status().isOk)
-                .andReturn()
+        val response = mockMvc.perform(
+            MockMvcRequestBuilders.get("/eux/rinaurl"))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andReturn()
 
-            val result = response.response.contentAsString
+        val result = response.response.contentAsString
+        val expected = """{"rinaUrl":"https://rina-q.adeo.no/portal_new/case-management/"}""".trimIndent()
+        assertEquals(expected, result)
 
-            assertEquals(mockRina2020url, result)
+        val response2 = mockMvc.perform(
+            MockMvcRequestBuilders.get("/eux/rinaurl"))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andReturn()
+
+        val result2 = response2.response.contentAsString
+        assertEquals(expected, result2)
+
+        val response3 = mockMvc.perform(
+            MockMvcRequestBuilders.get("/eux/rinaurl"))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andReturn()
+
+        val result3 = response3.response.contentAsString
+        assertEquals(expected, result3)
+
     }
 
     @Test
     fun `test på gyldig rina2019 url fra eux`() {
-        val bucid = "1234567123123"
-        val mockRina2019url = "https://rina-q.adeo.no/portal/#/caseManagement/$bucid"
+        val mockRina2019url = "https://rina-q.adeo.no/portal/#/caseManagement/"
 
         every { restTemplate.exchange(
-            eq("/url/buc/$bucid"),
+            eq("/url/buc/-1-11-111"),
             eq(HttpMethod.GET),
             any(),
             eq(String::class.java)) } returns ResponseEntity.ok().body( mockRina2019url )
 
         val response = mockMvc.perform(
-            MockMvcRequestBuilders.get("/eux/rinaurl/buc/$bucid"))
+            MockMvcRequestBuilders.get("/eux/rinaurl"))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andReturn()
 
         val result = response.response.contentAsString
 
-        assertEquals(mockRina2019url, result)
+        val expected = """{"rinaUrl":"https://rina-q.adeo.no/portal/#/caseManagement/"}""".trimIndent()
+
+        assertEquals(expected, result)
     }
 
 

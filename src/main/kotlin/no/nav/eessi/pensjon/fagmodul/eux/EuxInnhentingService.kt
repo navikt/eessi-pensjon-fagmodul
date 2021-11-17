@@ -45,9 +45,8 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
         return SED.fromJsonToConcrete(json)
     }
 
-    fun getRinaUrl(euxCaseId: String, documentId: String? = null): String {
-        return euxKlient.getRinaUrl(euxCaseId, documentId)
-    }
+    //henter ut korrekt url til Rina fra eux-rina-api
+    fun getRinaUrl() = euxKlient.getRinaUrl()
 
     fun getSedOnBucByDocumentIdAsSystemuser(euxCaseId: String, documentId: String): SED {
         val json = euxKlient.getSedOnBucByDocumentIdAsJsonAndAsSystemuser(euxCaseId, documentId)
