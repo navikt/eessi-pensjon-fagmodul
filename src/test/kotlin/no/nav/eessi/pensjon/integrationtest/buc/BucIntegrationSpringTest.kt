@@ -10,6 +10,7 @@ import no.nav.eessi.pensjon.eux.model.sed.Pensjon
 import no.nav.eessi.pensjon.eux.model.sed.Person
 import no.nav.eessi.pensjon.eux.model.sed.PinItem
 import no.nav.eessi.pensjon.eux.model.sed.SED
+import no.nav.eessi.pensjon.fagmodul.eux.EuxKlient
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Properties
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Traits
@@ -50,7 +51,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.util.ResourceUtils
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponents
-import org.springframework.web.util.UriComponentsBuilder
 import java.time.LocalDate
 import java.time.Month
 import kotlin.test.assertEquals
@@ -110,7 +110,7 @@ class BucIntegrationSpringTest {
         every { restEuxTemplate.exchange( rinaBuc10url.toUriString(), HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( emptyList<Rinasak>().toJson())
 
         //gjenlevende rinasak
-        val rinaGjenlevUrl = dummyRinasakUrl(gjenlevendeFnr, null, null, null)
+        val rinaGjenlevUrl = dummyRinasakUrl(gjenlevendeFnr, status = "\"open\"")
         every { restEuxTemplate.exchange( rinaGjenlevUrl.toUriString(), HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( emptyList<Rinasak>().toJson())
 
         val buc05 = ResourceUtils.getFile("classpath:json/buc/buc-1190072-buc05_deletedP8000.json").readText()
@@ -169,7 +169,8 @@ class BucIntegrationSpringTest {
         every { restEuxTemplate.exchange(rinaBuc10url.toUriString(), HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( emptyList<Rinasak>().toJson())
 
         //gjenlevende rinasak
-        val rinaGjenlevUrl = dummyRinasakUrl(gjenlevendeFnr, null, null, null)
+        val rinaGjenlevUrl = dummyRinasakUrl(gjenlevendeFnr, status = "\"open\"")
+        println("***" + rinaGjenlevUrl.toUriString() + "***")
         every { restEuxTemplate.exchange(rinaGjenlevUrl.toUriString(), HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( emptyList<Rinasak>().toJson())
 
         //dummy date
@@ -196,11 +197,11 @@ class BucIntegrationSpringTest {
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andReturn()
 
-        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&rinasaksnummer=&buctype=P_BUC_02&status=\"open\"", HttpMethod.GET, null, String::class.java) }
-        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&rinasaksnummer=&buctype=P_BUC_05&status=\"open\"", HttpMethod.GET, null, String::class.java) }
-        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=1234567890000&rinasaksnummer=&buctype=&status=", HttpMethod.GET, null, String::class.java) }
-        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&rinasaksnummer=&buctype=P_BUC_06&status=\"open\"", HttpMethod.GET, null, String::class.java) }
-        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&rinasaksnummer=&buctype=P_BUC_10&status=\"open\"", HttpMethod.GET, null, String::class.java) }
+        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&buctype=P_BUC_02&status=\"open\"", HttpMethod.GET, null, String::class.java) }
+        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&buctype=P_BUC_05&status=\"open\"", HttpMethod.GET, null, String::class.java) }
+        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=1234567890000&status=\"open\"", HttpMethod.GET, null, String::class.java) }
+        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&buctype=P_BUC_06&status=\"open\"", HttpMethod.GET, null, String::class.java) }
+        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&buctype=P_BUC_10&status=\"open\"", HttpMethod.GET, null, String::class.java) }
 
         verify (exactly = 1) { restEuxTemplate.exchange("/buc/1010", HttpMethod.GET, null, String::class.java) }
         verify (exactly = 1) { restEuxTemplate.exchange("/buc/1010/sed/1", HttpMethod.GET, null, String::class.java) }
@@ -238,7 +239,7 @@ class BucIntegrationSpringTest {
         every { restEuxTemplate.exchange(rinaBuc10url.toUriString(), HttpMethod.GET, null, String::class.java ) } returns ResponseEntity.ok().body( emptyList<Rinasak>().toJson())
 
         //gjenlevende rinasak
-        val rinaGjenlevUrl = dummyRinasakUrl(gjenlevendeFnr, null, null, null)
+        val rinaGjenlevUrl = dummyRinasakUrl(gjenlevendeFnr, status = "\"open\"")
         every { restEuxTemplate.exchange(rinaGjenlevUrl.toUriString(), HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( emptyList<Rinasak>().toJson())
 
         //dummy date
@@ -255,7 +256,7 @@ class BucIntegrationSpringTest {
         //saf (vedlegg meta) gjenlevende
         val httpEntity = dummyHeader(dummySafReqeust(gjenlevendeAktoerId))
         every { restSafTemplate.exchange(eq("/"), eq(HttpMethod.POST), eq(httpEntity), eq(String::class.java)) } returns ResponseEntity.ok().body(  dummySafMetaResponseMedRina("1010"))
-        val rinaSafUrl = dummyRinasakUrl("", null, "1010", null)
+        val rinaSafUrl = dummyRinasakUrl(euxCaseId =  "1010", status = "\"open\"")
         every { restEuxTemplate.exchange( eq(rinaSafUrl.toUriString()), eq(HttpMethod.GET), null, eq(String::class.java)) } returns ResponseEntity.ok().body( rinaSakerBuc02.toJson())
 
         //buc02 sed
@@ -270,16 +271,14 @@ class BucIntegrationSpringTest {
 
         val response = result.response.getContentAsString(charset("UTF-8"))
 
-        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&rinasaksnummer=&buctype=P_BUC_02&status=\"open\"", HttpMethod.GET, null, String::class.java) }
-        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&rinasaksnummer=&buctype=P_BUC_05&status=\"open\"", HttpMethod.GET, null, String::class.java) }
-        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=1234567890000&rinasaksnummer=&buctype=&status=", HttpMethod.GET, null, String::class.java) }
+        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&buctype=P_BUC_02&status=\"open\"", HttpMethod.GET, null, String::class.java) }
+        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&buctype=P_BUC_05&status=\"open\"", HttpMethod.GET, null, String::class.java) }
+        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=1234567890000&status=\"open\"", HttpMethod.GET, null, String::class.java) }
         verify (exactly = 2) { restEuxTemplate.exchange("/buc/1010", HttpMethod.GET, null, String::class.java)  }
         verify (exactly = 1) { restEuxTemplate.exchange("/buc/1010/sed/1", HttpMethod.GET, null, String::class.java) }
         verify (exactly = 1) { restSafTemplate.exchange("/", HttpMethod.POST, httpEntity, String::class.java) }
 
         assertTrue { response.contains(avdodFnr) }
-
-
         JSONAssert.assertEquals(response, caseOneExpected(), false)
     }
 
@@ -314,7 +313,7 @@ class BucIntegrationSpringTest {
         every { restEuxTemplate.exchange( eq(rinaBuc10url.toUriString()), eq(HttpMethod.GET),null, eq(String::class.java )) } returns ResponseEntity.ok().body( emptyList<Rinasak>().toJson())
 
         //gjenlevende rinasak
-        val rinaGjenlevUrl = dummyRinasakUrl(gjenlevendeFnr, null, null, null)
+        val rinaGjenlevUrl = dummyRinasakUrl(gjenlevendeFnr, status = "\"open\"")
         every { restEuxTemplate.exchange(rinaGjenlevUrl.toUriString(), HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( emptyList<Rinasak>().toJson())
 
         //dummy date
@@ -334,7 +333,7 @@ class BucIntegrationSpringTest {
         val httpEntity = dummyHeader(dummySafReqeust(gjenlevendeAktoerId))
 
         every { restSafTemplate.exchange(eq("/"), eq(HttpMethod.POST), eq(httpEntity), eq(String::class.java)) } returns  ResponseEntity.ok().body(  dummySafMetaResponseMedRina("1010") )
-        val rinaSafUrl = dummyRinasakUrl("", null, "1010", null)
+        val rinaSafUrl = dummyRinasakUrl(euxCaseId =  "1010", status = "\"open\"")
         val rinaSakerBuc02 = listOf(dummyRinasak("1010", "P_BUC_02"))
         every { restEuxTemplate.exchange( eq(rinaSafUrl.toUriString()), eq(HttpMethod.GET), null, eq(String::class.java)) } returns ResponseEntity.ok().body( rinaSakerBuc02.toJson())
 
@@ -350,18 +349,13 @@ class BucIntegrationSpringTest {
 
         val response = result.response.getContentAsString(charset("UTF-8"))
 
-        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&rinasaksnummer=&buctype=P_BUC_02&status=\"open\"", HttpMethod.GET, null, String::class.java) }
-        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&rinasaksnummer=&buctype=P_BUC_05&status=\"open\"", HttpMethod.GET, null, String::class.java) }
-        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=1234567890000&rinasaksnummer=&buctype=&status=", HttpMethod.GET, null, String::class.java) }
+        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&buctype=P_BUC_02&status=\"open\"", HttpMethod.GET, null, String::class.java) }
+        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&buctype=P_BUC_05&status=\"open\"", HttpMethod.GET, null, String::class.java) }
+        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=1234567890000&status=\"open\"", HttpMethod.GET, null, String::class.java) }
+        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?rinasaksnummer=1010&status=\"open\"", HttpMethod.GET, null, String::class.java) }
         verify (exactly = 1) { restEuxTemplate.exchange("/buc/1010", HttpMethod.GET, null, String::class.java) }
         verify (exactly = 1) { restSafTemplate.exchange("/", HttpMethod.POST, httpEntity, String::class.java) }
-
         assertTrue { response.contains(avdodFnr) }
-
-        println("***************************************")
-        println(response)
-        println("***************************************")
-
         JSONAssert.assertEquals(response, caseOneExpected(), false)
     }
 
@@ -402,7 +396,7 @@ class BucIntegrationSpringTest {
         every { restEuxTemplate.exchange( eq(rinaBuc10url.toUriString()), eq(HttpMethod.GET), null, eq(String::class.java)) } returns  ResponseEntity.ok().body( emptyList<Rinasak>().toJson())
 
         //gjenlevende rinasak
-        val rinaGjenlevUrl = dummyRinasakUrl(gjenlevendeFnr, null, null, null)
+        val rinaGjenlevUrl = dummyRinasakUrl(gjenlevendeFnr, status = "\"open\"")
         every { restEuxTemplate.exchange(rinaGjenlevUrl.toUriString(), HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( emptyList<Rinasak>().toJson())
 
         //dummy date
@@ -443,9 +437,9 @@ class BucIntegrationSpringTest {
 
         val response = result.response.getContentAsString(charset("UTF-8"))
 
-        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&rinasaksnummer=&buctype=P_BUC_02&status=\"open\"", HttpMethod.GET, null, String::class.java) }
-        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&rinasaksnummer=&buctype=P_BUC_05&status=\"open\"", HttpMethod.GET, null, String::class.java) }
-        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=1234567890000&rinasaksnummer=&buctype=&status=", HttpMethod.GET, null, String::class.java) }
+        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&buctype=P_BUC_02&status=\"open\"", HttpMethod.GET, null, String::class.java) }
+        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&buctype=P_BUC_05&status=\"open\"", HttpMethod.GET, null, String::class.java) }
+        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=1234567890000&status=\"open\"", HttpMethod.GET, null, String::class.java) }
         verify (exactly = 1) { restEuxTemplate.exchange("/buc/1010", HttpMethod.GET, null, String::class.java) }
         verify (exactly = 1) { restEuxTemplate.exchange("/buc/1010/sed/1", HttpMethod.GET, null, String::class.java) }
         verify (exactly = 1) { restEuxTemplate.exchange("/buc/2020", HttpMethod.GET, null, String::class.java) }
@@ -492,7 +486,7 @@ class BucIntegrationSpringTest {
         every { restEuxTemplate.exchange( eq(rinaBuc10url.toUriString()), eq(HttpMethod.GET), null, eq(String::class.java)) } returns ResponseEntity.ok().body( rinaSakerBuc10.toJson())
 
         //gjenlevende rinasak
-        val rinaGjenlevUrl = dummyRinasakUrl(gjenlevendeFnr, null, null, null)
+        val rinaGjenlevUrl = dummyRinasakUrl(gjenlevendeFnr, status = "\"open\"")
         every { restEuxTemplate.exchange( eq(rinaGjenlevUrl.toUriString()), eq(HttpMethod.GET), null, eq(String::class.java)) } returns ResponseEntity.ok().body( emptyList<Rinasak>().toJson())
 
         //dummy date
@@ -546,10 +540,11 @@ class BucIntegrationSpringTest {
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andReturn()
 
-        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&rinasaksnummer=&buctype=P_BUC_05&status=\"open\"", HttpMethod.GET, null, String::class.java) }
-        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&rinasaksnummer=&buctype=P_BUC_06&status=\"open\"", HttpMethod.GET, null, String::class.java)}
-        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&rinasaksnummer=&buctype=P_BUC_10&status=\"open\"", HttpMethod.GET, null, String::class.java) }
-        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=1234567890000&rinasaksnummer=&buctype=&status=", HttpMethod.GET, null, String::class.java) }
+        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&buctype=P_BUC_02&status=\"open\"", HttpMethod.GET, null, String::class.java) }
+        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&buctype=P_BUC_05&status=\"open\"", HttpMethod.GET, null, String::class.java) }
+        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&buctype=P_BUC_06&status=\"open\"", HttpMethod.GET, null, String::class.java)}
+        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&buctype=P_BUC_10&status=\"open\"", HttpMethod.GET, null, String::class.java) }
+        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=1234567890000&status=\"open\"", HttpMethod.GET, null, String::class.java) }
         verify (exactly = 1) { restEuxTemplate.exchange("/buc/2020", HttpMethod.GET, null, String::class.java) }
         verify (exactly = 1) { restEuxTemplate.exchange("/buc/2020/sed/5", HttpMethod.GET, null, String::class.java) }
         verify (exactly = 1) { restEuxTemplate.exchange("/buc/3030", HttpMethod.GET, null, String::class.java) }
@@ -860,15 +855,39 @@ class BucIntegrationSpringTest {
         """.trimIndent()
     }
 
-    private fun dummyRinasakAvdodUrl(avod: String, bucType: String? = "P_BUC_02", status: String? =  "\"open\"") = dummyRinasakUrl(avod, bucType, null, status)
-    private fun dummyRinasakUrl(fnr: String, bucType: String? = null, euxCaseId: String? = null, status: String? = null) : UriComponents {
-        val uriComponent = UriComponentsBuilder.fromPath("/rinasaker")
-                .queryParam("fødselsnummer", fnr)
-                .queryParam("rinasaksnummer", euxCaseId ?: "")
-                .queryParam("buctype", bucType ?: "")
-                .queryParam("status", status ?: "")
-                .build()
-        return uriComponent
+    private fun dummyRinasakAvdodUrl(avod: String? = null, bucType: String? = "P_BUC_02", status: String? =  "\"open\"") = dummyRinasakUrl(avod, bucType, null, status)
+    private fun dummyRinasakUrl(fnr: String? = null, bucType: String? = null, euxCaseId: String? = null, status: String? = null) : UriComponents {
+        return EuxKlient.getRinasakerUri(fnr, euxCaseId, bucType, status)
+
+//
+//        println("** fnr: '$fnr', eux: '$euxCaseId', buc: '$bucType', status: '$status' **")
+//
+//        val uriComponent = if (euxCaseId != null && status != null && fnr == null) {
+//            UriComponentsBuilder.fromPath("/rinasaker")
+//                .queryParam("rinasaksnummer", euxCaseId)
+//                .queryParam("status", status)
+//                .build()
+//        } else if (fnr != null && bucType != null && status != null && euxCaseId == null) {
+//            UriComponentsBuilder.fromPath("/rinasaker")
+//                .queryParam("fødselsnummer", fnr)
+//                .queryParam("buctype", bucType)
+//                .queryParam("status", status)
+//                .build()
+//        } else if (fnr != null && status != null && bucType == null && euxCaseId == null) {
+//            UriComponentsBuilder.fromPath("/rinasaker")
+//                .queryParam("fødselsnummer", fnr)
+//                .queryParam("status", status)
+//                .build()
+//        } else {
+//            UriComponentsBuilder.fromPath("/rinasaker")
+//                .queryParam("fødselsnummer", fnr ?: "")
+//                .queryParam("rinasaksnummer", euxCaseId ?: "")
+//                .queryParam("buctype", bucType ?: "")
+//                .queryParam("status", status ?: "")
+//                .build()
+//        }
+//        return uriComponent
+
     }
 
     private fun dummyRinasak(rinaSakId: String, bucType: String): Rinasak {

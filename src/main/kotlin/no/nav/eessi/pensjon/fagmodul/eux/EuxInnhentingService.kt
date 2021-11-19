@@ -149,7 +149,7 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
         // Henter rina saker basert på gjenlevendes fnr
         val validAvdodBucs = listOf("P_BUC_02","P_BUC_05","P_BUC_06","P_BUC_10")
         val rinaSakerMedFnr = validAvdodBucs.map {
-            euxKlient.getRinasaker(avdodFnr, null, it, "\"open\"") }
+            euxKlient.getRinasaker(avdodFnr, bucType = it, status = "\"open\"") }
            .flatten()
 
         logger.info("rinaSaker total: ${rinaSakerMedFnr.size}")
@@ -269,7 +269,7 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
                      aktoerId: String,
                      rinaSakIderFraJoark: List<String>): List<Rinasak> {
         // Henter rina saker basert på fnr
-        val rinaSakerMedFnr = euxKlient.getRinasaker(fnr)
+        val rinaSakerMedFnr = euxKlient.getRinasaker(fnr, status = "\"open\"")
         logger.debug("hentet rinasaker fra eux-rina-api size: ${rinaSakerMedFnr.size}")
 
         // Filtrerer vekk saker som allerede er hentet som har fnr
@@ -278,7 +278,7 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
 
         // Henter rina saker som ikke har fnr
         val rinaSakerUtenFnr = rinaSakIderUtenFnr
-                .map { euxCaseId -> euxKlient.getRinasaker( euxCaseId =  euxCaseId ) }
+                .map { euxCaseId -> euxKlient.getRinasaker( euxCaseId =  euxCaseId, status = "\"open\"") }
                 .flatten()
                 .distinctBy { it.id }
         logger.debug("henter rinasaker ut i fra saf documentMetadata")
