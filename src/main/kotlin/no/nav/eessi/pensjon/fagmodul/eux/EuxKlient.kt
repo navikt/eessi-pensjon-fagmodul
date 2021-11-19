@@ -32,6 +32,7 @@ import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.UnknownHttpStatusCodeException
 import org.springframework.web.server.ResponseStatusException
+import org.springframework.web.util.UriComponents
 import org.springframework.web.util.UriComponentsBuilder
 import java.util.*
 import javax.annotation.PostConstruct
@@ -361,19 +362,11 @@ class EuxKlient(
      * @return List<Rinasak>
      */
     fun getRinasaker(fnr: String? = null, euxCaseId: String? = null, bucType: String? = null, status: String? = null): List<Rinasak> {
-        require(!(fnr == null && euxCaseId == null && bucType == null && status == null)) {
-            "Minst et søkekriterie må fylles ut for å få et resultat fra Rinasaker"
-        }
 
-        val uriComponent = UriComponentsBuilder.fromPath("/rinasaker")
-                .queryParam("fødselsnummer", fnr ?: "")
-                .queryParam("rinasaksnummer", euxCaseId ?: "")
-                .queryParam("buctype", bucType ?: "")
-                .queryParam("status", status ?: "")
-                .build()
+        val uriComponent = getRinasakerUri(fnr, euxCaseId, bucType, status)
 
-
-        logger.debug("rinaSaker Url: ${uriComponent.toUriString()}")
+        logger.debug("** fnr: $fnr, eux: $euxCaseId, buc: $bucType, status: $status **")
+        logger.debug("** rinaSaker Url: ${uriComponent.toUriString()} **")
 
         val response = restTemplateErrorhandler(
                 {
@@ -389,6 +382,43 @@ class EuxKlient(
 
         return mapJsonToAny(response.body!!, typeRefs())
     }
+
+    companion object {
+
+    fun getRinasakerUri(fnr: String? = null, euxCaseId: String? = null, bucType: String? = null, status: String? = null): UriComponents {
+        require(!(fnr == null && euxCaseId == null && bucType == null && status == null)) {
+            "Minst et søkekriterie må fylles ut for å få et resultat fra Rinasaker"
+        }
+        //logger.debug("** fnr: $fnr, eux: $euxCaseId, buc: $bucType, status: $status **")
+
+        val uriComponent = if (euxCaseId != null && status != null && fnr == null) {
+            UriComponentsBuilder.fromPath("/rinasaker")
+                .queryParam("rinasaksnummer", euxCaseId)
+                .queryParam("status", status)
+                .build()
+        } else if (fnr != null && bucType != null && status != null && euxCaseId == null) {
+            UriComponentsBuilder.fromPath("/rinasaker")
+                .queryParam("fødselsnummer", fnr)
+                .queryParam("buctype", bucType)
+                .queryParam("status", status)
+                .build()
+        } else if (fnr != null && status != null && bucType == null && euxCaseId == null) {
+            UriComponentsBuilder.fromPath("/rinasaker")
+                .queryParam("fødselsnummer", fnr)
+                .queryParam("status", status)
+                .build()
+        } else {
+            UriComponentsBuilder.fromPath("/rinasaker")
+                .queryParam("fødselsnummer", fnr ?: "")
+                .queryParam("rinasaksnummer", euxCaseId ?: "")
+                .queryParam("buctype", bucType ?: "")
+                .queryParam("status", status ?: "")
+                .build()
+        }
+        return uriComponent
+    }
+    }
+
 
     fun createBuc(bucType: String): String {
         val correlationId = correlationId()

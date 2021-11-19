@@ -179,14 +179,14 @@ class EuxPrefillServiceTest {
         assertTrue(validateJson(jsonRinasaker))
         val orgRinasaker = mapJsonToAny(jsonRinasaker, typeRefs<List<Rinasak>>())
 
-        every { euxKlient.getRinasaker(eq("12345678900"), null,null, null) } returns orgRinasaker
+        every { euxKlient.getRinasaker(eq("12345678900"), status = "\"open\"") } returns orgRinasaker
 
         val filepathEnRinasak = "src/test/resources/json/rinasaker/rinasaker_ensak.json"
         val jsonEnRinasak = String(Files.readAllBytes(Paths.get(filepathEnRinasak)))
         assertTrue(validateJson(jsonEnRinasak))
         val enSak = mapJsonToAny(jsonEnRinasak, typeRefs<List<Rinasak>>())
 
-        every { euxKlient.getRinasaker(null, "8877665511", null, null) } returns enSak
+        every { euxKlient.getRinasaker(euxCaseId = "8877665511", status = "\"open\"") } returns enSak
 
         val result = euxinnhentingService.getRinasaker("12345678900", "1111111111111", listOf("8877665511"))
 
