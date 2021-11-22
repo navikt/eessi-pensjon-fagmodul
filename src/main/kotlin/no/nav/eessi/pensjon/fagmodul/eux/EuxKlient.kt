@@ -160,7 +160,7 @@ class EuxKlient(
             logger.error("Feiler ved lasting av navSed: ${builder.toUriString()}")
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Feiler ved response av RinaURL")
         }
-        return url.replace(rinaCallid, "").also { logger.debug("Url til Rina: $it") }
+        return url.replace(rinaCallid, "").also { logger.info("Url til Rina: $it") }
     }
 
     fun getSedOnBucByDocumentIdAsJsonAndAsSystemuser(euxCaseId: String, documentId: String): String =
