@@ -281,7 +281,7 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
                 .map { euxCaseId -> euxKlient.getRinasaker( euxCaseId =  euxCaseId, status = "\"open\"") }
                 .flatten()
                 .distinctBy { it.id }
-        logger.debug("henter rinasaker ut i fra saf documentMetadata")
+        logger.info("henter rinasaker ut i fra saf documentMetadata, antall: ${rinaSakerUtenFnr.size}")
 
         return rinaSakerMedFnr.plus(rinaSakerUtenFnr).also {
             logger.info("Totalt antall rinasaker å hente: ${it.size}")

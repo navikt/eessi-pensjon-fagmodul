@@ -67,7 +67,11 @@ class EuxPrefillService (private val euxKlient: EuxKlient,
 
     fun createBuc(buctype: String): String {
         val euxCaseId = euxKlient.createBuc(buctype)
-        statistikk.produserBucOpprettetHendelse(euxCaseId, null)
+        try {
+            statistikk.produserBucOpprettetHendelse(euxCaseId, null)
+        } catch (ex: Exception) {
+            logger.warn("Feiler ved statistikk")
+        }
         return euxCaseId
     }
 

@@ -77,7 +77,7 @@ class PrefillController(
         //create bucDetail back from newly created buc call eux-rina-api to get data.
         val buc = euxInnhentingService.getBuc(euxCaseId)
 
-        logger.info("Føgende bucdetalj er hentet: ${buc.processDefinitionName}, id: ${buc.id}")
+        logger.info("Følgende bucdetalj er hentet: ${buc.processDefinitionName}, id: ${buc.id}")
 
         return BucAndSedView.from(buc)
     }

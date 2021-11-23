@@ -100,7 +100,7 @@ class EuxKlientTest {
         assertThrows<GenericUnprocessableEntity> {
             klient.getBucJson(bucid)
         }
-        verify(exactly = 4){ mockEuxrestTemplate.exchange("/buc/$bucid", HttpMethod.GET, null, String::class.java)  }
+        verify(exactly = 6){ mockEuxrestTemplate.exchange("/buc/$bucid", HttpMethod.GET, null, String::class.java)  }
     }
 
     @Test
@@ -110,7 +110,7 @@ class EuxKlientTest {
         assertThrows<ResponseStatusException> {
             klient.getBucJson(bucid)
         }
-        verify(exactly = 4){ mockEuxrestTemplate.exchange("/buc/$bucid", HttpMethod.GET, null, String::class.java)  }
+        verify(exactly = 6){ mockEuxrestTemplate.exchange("/buc/$bucid", HttpMethod.GET, null, String::class.java)  }
     }
 
     @Test
@@ -199,6 +199,42 @@ class EuxKlientTest {
             klient.getRinasaker("12345678900", null, null, null)
         }
     }
+
+    @Test
+    fun checkCallRinaSakerErOk() {
+        val datajson = """
+            [
+              {
+                "id": "9002480",
+                "traits": {
+                  "birthday": "1973-05-12",
+                  "localPin": "120573",
+                  "surname": "xxx",
+                  "caseId": "9002480",
+                  "name": "xxx",
+                  "flowType": "P_BUC_03",
+                  "status": "open"
+                },
+                "properties": {
+                  "importance": "1",
+                  "criticality": "1"
+                },
+                "processDefinitionId": "P_BUC_03",
+                "applicationRoleId": "PO",
+                "status": "open"
+              }
+            ]
+        """.trimIndent()
+
+        every { mockEuxrestTemplate.exchange( any<String>(), HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(datajson)
+
+        val data = klient.getRinasaker(euxCaseId = "123123", status = "open")
+
+        assertEquals("9002480", data.first().traits?.caseId)
+        assertEquals("P_BUC_03", data.first().traits?.flowType)
+
+    }
+
 
     @Test
     fun callingEuxServiceListOfRinasaker_ServerError() {
