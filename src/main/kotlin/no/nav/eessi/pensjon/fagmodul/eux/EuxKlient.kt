@@ -366,7 +366,7 @@ class EuxKlient(
         val uriComponent = getRinasakerUri(fnr, euxCaseId, bucType, status)
 
         logger.debug("** fnr: $fnr, eux: $euxCaseId, buc: $bucType, status: $status **")
-        logger.info("** rinaSaker Url: ${uriComponent.toUriString()} **")
+        logger.debug("** rinaSaker Url: ${uriComponent.toUriString()} **")
 
         val response = restTemplateErrorhandler(
                 {
