@@ -10,6 +10,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.eux.SubjectFnr
 import no.nav.eessi.pensjon.fagmodul.eux.ValidBucAndSed
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
+import no.nav.eessi.pensjon.fagmodul.eux.basismodel.SingleBucSedViewRequest
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Creator
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
@@ -48,6 +49,7 @@ class BucController(
     private lateinit var bucDetaljer: MetricsHelper.Metric
     private lateinit var bucDetaljerVedtak: MetricsHelper.Metric
     private lateinit var bucDetaljerEnkel: MetricsHelper.Metric
+    private lateinit var bucDetaljerEnkelAvod: MetricsHelper.Metric
     private lateinit var bucDetaljerGjenlev: MetricsHelper.Metric
 
     @PostConstruct
@@ -56,6 +58,7 @@ class BucController(
         bucDetaljerVedtak = metricsHelper.init("BucDetaljerVedtak", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         bucDetaljerEnkel = metricsHelper.init("BucDetaljerEnkel", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         bucDetaljerGjenlev  = metricsHelper.init("BucDetaljerGjenlev", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
+        bucDetaljerEnkelAvod = metricsHelper.init("BucDetalsjerEnkelAvdod", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
     }
 
 
@@ -122,7 +125,62 @@ class BucController(
         val norskIdent = innhentingService.hentFnrfraAktoerService(aktoerId)
         val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraMetaData(aktoerId)
 
-        return euxInnhentingService.getRinasaker(norskIdent, aktoerId, rinaSakIderFraJoark)
+        return euxInnhentingService.getRinasaker(norskIdent, rinaSakIderFraJoark)
+    }
+
+    @Operation(description = "Henter ut en liste over saker på valgt aktoerid. ny api kall til eux")
+    @GetMapping("/rinasaker/{aktoerId}/saknr/{saknr}",
+        "/rinasaker/{aktoerId}/saknr/{saknr}/vedtak/{vedtakid}")
+    fun getGjenlevendeRinasakerVedtak(
+        @PathVariable("aktoerId", required = true) aktoerId: String,
+        @PathVariable("saknr", required = false) sakNr: String,
+        @PathVariable("vedtakid", required = false) vedtakId: String? = null
+    ): List<SingleBucSedViewRequest> {
+        auditlogger.log("getRinasaker", aktoerId)
+        logger.debug("henter rinasaker på valgt aktoerid: $aktoerId, på saknr: $sakNr")
+
+        val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerId)
+        val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraMetaData(aktoerId)
+
+        //rinasaker på gjenlevdne
+        val gjenlevendeRequest: List<SingleBucSedViewRequest> = euxInnhentingService.getRinasaker(gjenlevendeFnr, rinaSakIderFraJoark)
+                .mapNotNull { rinasak ->
+                    SingleBucSedViewRequest(rinasak.id!!, aktoerId, sakNr, null)
+                }
+
+        //avdodsaker
+        val avdodresult: List<SingleBucSedViewRequest> = avdodRinasakerList(vedtakId, sakNr, aktoerId)
+
+        val gjenlevOgavdodRequest = gjenlevendeRequest + avdodresult
+        return gjenlevOgavdodRequest.sortedByDescending  { it.avodnr }.distinctBy { it.euxCaseId  }
+    }
+
+    private fun avdodRinasakerList(vedtakId: String?, sakNr: String, aktoerId: String): List<SingleBucSedViewRequest> {
+        return if (vedtakId != null) {
+            val pensjonsinformasjon = try {
+                innhentingService.hentMedVedtak(vedtakId)
+            } catch (ex: Exception) {
+                logger.warn("Feiler ved henting av pensjoninformasjon (saknr: $sakNr, vedtak: $vedtakId), forsetter uten.")
+                null
+            }
+            val avdod = pensjonsinformasjon?.let { peninfo -> innhentingService.hentGyldigAvdod(peninfo) }
+
+            //rinasaker på avdod
+            val avdodRequest = if (avdod != null && (pensjonsinformasjon.person.aktorId == aktoerId)) {
+                avdod.map { avdodfnr ->
+                    val rinasaker = euxInnhentingService.getRinasaker(avdodfnr, emptyList())
+                    rinasaker.map { rinasak ->
+                        SingleBucSedViewRequest(rinasak.id!!, aktoerId, sakNr, avdodfnr)
+                    }
+
+                }
+            } else {
+                emptyList()
+            }.flatten()
+            avdodRequest
+        } else {
+            emptyList()
+        }
     }
 
     @Operation(description = "Henter ut liste av Buc meny struktur i json format for UI på valgt aktoerid")
@@ -141,7 +199,7 @@ class BucController(
 
             val rinasakIdList = try {
                 val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraMetaData(aktoerid)
-                val rinasaker = euxInnhentingService.getRinasaker(fnr, aktoerid, rinaSakIderFraJoark)
+                val rinasaker = euxInnhentingService.getRinasaker(fnr, rinaSakIderFraJoark)
                 val rinasakIdList = euxInnhentingService.getFilteredArchivedaRinasaker(rinasaker)
                 rinasakIdList
             } catch (ex: Exception) {
@@ -226,14 +284,45 @@ class BucController(
     }
 
 
-    @Operation(description = "Henter ut enkel Buc meny struktur i json format for UI på valgt euxcaseid")
-    @GetMapping("/enkeldetalj/{euxcaseid}")
-    fun getSingleBucogSedView(@PathVariable("euxcaseid", required = true) euxcaseid: String): BucAndSedView {
-        auditlogger.log("getSingleBucogSedView")
+//    @Operation(description = "Henter ut enkel Buc meny struktur i json format for UI på valgt euxcaseid")
+//    @GetMapping("/enkeldetalj/{euxcaseid}")
+//    fun getSingleBucogSedView(@PathVariable("euxcaseid", required = true) euxcaseid: String): BucAndSedView {
+//        auditlogger.log("getSingleBucogSedView")
+//
+//        return bucDetaljerEnkel.measure {
+//            logger.debug(" prøver å hente ut en enkel buc med euxCaseId: $euxcaseid")
+//            return@measure euxInnhentingService.getSingleBucAndSedView(euxcaseid)
+//        }
+//    }
 
-        return bucDetaljerEnkel.measure {
-            logger.debug(" prøver å hente ut en enkel buc med euxCaseId: $euxcaseid")
-            return@measure euxInnhentingService.getSingleBucAndSedView(euxcaseid)
-        }
+    @Operation(description = "Henter ut enkel Buc meny struktur i json format for UI på valgt euxcaseid")
+    @GetMapping("/enkeldetalj/{euxcaseid}/aktoerid/{aktoerid}/saknr/{saknr}",
+        "/enkeldetalj/{euxcaseid}/aktoerid/{aktoerid}/saknr/{saknr}/avdodfnr/{avdodfnr}")
+    fun getSingleBucogSedView(
+                @PathVariable("euxcaseid", required = true) euxcaseid: String,
+                @PathVariable("aktoerid", required = true) aktoerid: String,
+                @PathVariable("saknr", required = true) saknr: String,
+                @PathVariable("avdodfnr", required = false) avdodFnr: String? = null
+    ): BucAndSedView {
+        auditlogger.log("Get BucAndSedView fra Single EuxId: $euxcaseid, aktoerid: $aktoerid, avdodfnr: $avdodFnr, saknr: $saknr")
+
+            return if (avdodFnr != null) {
+                bucDetaljerEnkelAvod.measure {
+                    val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerid)
+                    val bucOgDocAvdod = euxInnhentingService.hentBucOgDocumentIdAvdod(listOf(euxcaseid))
+                    val listeAvSedsPaaAvdod = euxInnhentingService.hentDocumentJsonAvdod(bucOgDocAvdod)
+                    val gyldigeBucs = euxInnhentingService.filterGyldigBucGjenlevendeAvdod(listeAvSedsPaaAvdod, gjenlevendeFnr)
+                    val gjenlevendeBucAndSedView = euxInnhentingService.getBucAndSedViewWithBuc(gyldigeBucs, gjenlevendeFnr, avdodFnr)
+                    gjenlevendeBucAndSedView.firstOrNull() ?: BucAndSedView.fromErr("Ingen Buc Funnet!")
+                }
+            } else {
+                bucDetaljerEnkel.measure {
+                    logger.debug(" prøver å hente ut en enkel buc med euxCaseId: $euxcaseid")
+                    euxInnhentingService.getSingleBucAndSedView(euxcaseid)
+                }
+            }
+
     }
+
+
 }

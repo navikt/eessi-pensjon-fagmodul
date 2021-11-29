@@ -169,7 +169,7 @@ class BucControllerTest {
 
         val rinaSaker = listOf(Rinasak("1234","P_BUC_01", Traits(), "", Properties(), "open"))
 
-        every { mockEuxInnhentingService.getRinasaker(fnr, aktoerId, emptyList())} returns rinaSaker
+        every { mockEuxInnhentingService.getRinasaker(fnr, emptyList())} returns rinaSaker
         every { mockEuxInnhentingService.getBuc(any()) } returns Buc()
 
         val actual = bucController.getBucogSedView(aktoerId)
@@ -186,7 +186,7 @@ class BucControllerTest {
 
         val rinaSaker = listOf(Rinasak("1234","P_BUC_01", Traits(), "", Properties(), "open"))
 
-        every { mockEuxInnhentingService.getRinasaker(fnr, aktoerId, emptyList())} returns rinaSaker
+        every { mockEuxInnhentingService.getRinasaker(fnr, emptyList())} returns rinaSaker
         every { mockEuxInnhentingService.getBuc(any()) } throws ForbiddenException("Forbidden, Ikke tilgang")
 
         val result =  bucController.getBucogSedView(aktoerId)
@@ -203,7 +203,7 @@ class BucControllerTest {
 
         every {  personService.hentIdent(eq(IdentType.NorskIdent), eq(AktoerId(aktoerId)))} returns  NorskIdent(fnr)
 
-        every { mockEuxInnhentingService.getRinasaker(fnr, aktoerId, emptyList()) } throws RuntimeException()
+        every { mockEuxInnhentingService.getRinasaker(fnr, emptyList()) } throws RuntimeException()
 
         assertThrows<ResponseStatusException> {
             bucController.getBucogSedView(aktoerId)
@@ -227,7 +227,7 @@ class BucControllerTest {
         every { mockEuxInnhentingService.getBuc(any()) } throws RuntimeException("Feiler ved BUC")
 
         val rinaSaker = listOf(Rinasak("1234","P_BUC_01", Traits(), "", Properties(), "open"))
-        every { mockEuxInnhentingService.getRinasaker(fnr, aktoerId, emptyList()) } returns rinaSaker
+        every { mockEuxInnhentingService.getRinasaker(fnr, emptyList()) } returns rinaSaker
 
         val actual =  bucController.getBucogSedView(aktoerId)
         assertTrue(actual.first().toJson().contains("Feiler ved BUC"))
@@ -258,7 +258,7 @@ class BucControllerTest {
         every { mockEuxInnhentingService.getBucAndSedViewAvdod(fnrGjenlevende, avdodfnr) } returns avdodView
 
         val rinaSaker = listOf(Rinasak(id = "123213", processDefinitionId = "P_BUC_03", status = "open"))
-        every { mockEuxInnhentingService.getRinasaker(any(), any(), any()) } returns rinaSaker
+        every { mockEuxInnhentingService.getRinasaker(any(), any()) } returns rinaSaker
 
         val documentsItemP2200 = listOf(DocumentsItem(type = SedType.P2200, direction = "OUT"))
         val buc = Buc(id = "23321", processDefinitionName = "P_BUC_03", documents = documentsItemP2200)
@@ -293,7 +293,7 @@ class BucControllerTest {
 
         val rinaSaker = listOf<Rinasak>()
 
-        every {  mockEuxInnhentingService.getRinasaker(any(), any(), any()) } returns rinaSaker
+        every {  mockEuxInnhentingService.getRinasaker(any(), any()) } returns rinaSaker
         val documentsItem1 = listOf(DocumentsItem(type = SedType.P2100, direction = "OUT"))
 
         val buc1 = Buc(id = "123", processDefinitionName = "P_BUC_02", documents = documentsItem1)
@@ -332,7 +332,7 @@ class BucControllerTest {
         every { personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerId)) } returns NorskIdent(fnrGjenlevende)
 
         val rinaSaker = listOf<Rinasak>(Rinasak("1234","P_BUC_01", Traits(), "", Properties(), "open"))
-        every { mockEuxInnhentingService.getRinasaker(fnrGjenlevende, aktoerId, emptyList()) } returns rinaSaker
+        every { mockEuxInnhentingService.getRinasaker(fnrGjenlevende, emptyList()) } returns rinaSaker
 
         val documentsItem = listOf(DocumentsItem(type = SedType.P2000, direction = "OUT"))
         val buc = Buc(processDefinitionName = "P_BUC_01", documents = documentsItem)
@@ -357,7 +357,7 @@ class BucControllerTest {
         every { personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerId)) } returns NorskIdent(fnr)
 
         val rinaSaker = listOf(Rinasak("1234","P_BUC_01", Traits(), "", Properties(), "open"))
-        every { mockEuxInnhentingService.getRinasaker(fnr, aktoerId, emptyList())} returns rinaSaker
+        every { mockEuxInnhentingService.getRinasaker(fnr, emptyList())} returns rinaSaker
         every { mockEuxInnhentingService.getBuc(any()) } returns Buc()
 
         val actual = bucController.getBucogSedViewVedtak(aktoerId, vedtaksId)

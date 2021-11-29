@@ -24,7 +24,7 @@ import org.springframework.web.server.ResponseStatusException
 @Service
 class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlient: EuxKlient) {
 
-    private val logger = LoggerFactory.getLogger(EuxPrefillService::class.java)
+    private val logger = LoggerFactory.getLogger(EuxInnhentingService::class.java)
 
     private val validbucsed = ValidBucAndSed()
 
@@ -265,9 +265,7 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
     }
 
     //** hente rinasaker fra RINA og SAF
-    fun getRinasaker(fnr: String,
-                     aktoerId: String,
-                     rinaSakIderFraJoark: List<String>): List<Rinasak> {
+    fun getRinasaker(fnr: String, rinaSakIderFraJoark: List<String>): List<Rinasak> {
         // Henter rina saker basert på fnr
         val rinaSakerMedFnr = euxKlient.getRinasaker(fnr, status = "\"open\"")
         logger.debug("hentet rinasaker fra eux-rina-api size: ${rinaSakerMedFnr.size}")

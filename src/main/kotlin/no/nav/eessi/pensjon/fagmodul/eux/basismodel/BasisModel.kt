@@ -42,3 +42,10 @@ class Traits(
         val flowType: String? = null,
         val status: String? = null
 )
+
+class SingleBucSedViewRequest(
+        val euxCaseId: String,
+        val aktoerId: String,
+        val saknr: String,
+        val avodnr: String? = null
+)
