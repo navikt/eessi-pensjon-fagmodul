@@ -284,16 +284,16 @@ class BucController(
     }
 
 
-//    @Operation(description = "Henter ut enkel Buc meny struktur i json format for UI på valgt euxcaseid")
-//    @GetMapping("/enkeldetalj/{euxcaseid}")
-//    fun getSingleBucogSedView(@PathVariable("euxcaseid", required = true) euxcaseid: String): BucAndSedView {
-//        auditlogger.log("getSingleBucogSedView")
-//
-//        return bucDetaljerEnkel.measure {
-//            logger.debug(" prøver å hente ut en enkel buc med euxCaseId: $euxcaseid")
-//            return@measure euxInnhentingService.getSingleBucAndSedView(euxcaseid)
-//        }
-//    }
+    @Operation(description = "Henter ut enkel Buc meny struktur i json format for UI på valgt euxcaseid")
+    @GetMapping("/enkeldetalj/{euxcaseid}")
+    fun getSingleBucogSedView(@PathVariable("euxcaseid", required = true) euxcaseid: String): BucAndSedView {
+        auditlogger.log("getSingleBucogSedView")
+
+        return bucDetaljerEnkel.measure {
+            logger.debug(" prøver å hente ut en enkel buc med euxCaseId: $euxcaseid")
+            return@measure euxInnhentingService.getSingleBucAndSedView(euxcaseid)
+        }
+    }
 
     @Operation(description = "Henter ut enkel Buc meny struktur i json format for UI på valgt euxcaseid")
     @GetMapping("/enkeldetalj/{euxcaseid}/aktoerid/{aktoerid}/saknr/{saknr}",
