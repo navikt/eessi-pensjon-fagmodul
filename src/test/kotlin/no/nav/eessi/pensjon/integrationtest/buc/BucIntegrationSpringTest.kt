@@ -12,9 +12,9 @@ import no.nav.eessi.pensjon.eux.model.sed.PinItem
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
 import no.nav.eessi.pensjon.fagmodul.eux.EuxKlient
+import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucView
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Properties
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
-import no.nav.eessi.pensjon.fagmodul.eux.basismodel.SingleBucSedViewRequest
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Traits
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
@@ -219,11 +219,11 @@ class BucIntegrationSpringTest {
         every { personService.hentIdent(IdentType.NorskIdent, AktoerId(gjenlevendeAktoerId)) } returns NorskIdent(gjenlevendeFnr)
 
         //buc02 - avdød rinasak
-        val rinaSakerBuc02 = listOf(dummyRinasak("5010", "P_BUC_01"))
+        val rinaSakerBuc02 = listOf(dummyRinasak("5010", "P_BUC_02"))
         val rinaBuc02url = dummyRinasakAvdodUrl(avdodFnr, bucType = null)
         every { restEuxTemplate.exchange( rinaBuc02url.toUriString(), HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(rinaSakerBuc02.toJson())
 
-        //saf (vedlegg meta) gjenlevende
+        //saf (sikker arkiv fasade) (vedlegg meta) gjenlevende
         val httpEntity = dummyHeader(dummySafReqeust(gjenlevendeAktoerId))
         every { restSafTemplate.exchange(eq("/"), eq(HttpMethod.POST), eq(httpEntity), eq(String::class.java)) } returns ResponseEntity.ok().body(  dummySafMetaResponseMedRina("1010"))
         val rinaSafUrl = dummyRinasakUrl(euxCaseId =  "1010", status = "\"open\"")
@@ -254,7 +254,7 @@ class BucIntegrationSpringTest {
 
         JSONAssert.assertEquals(expected, response, false)
 
-        val requestlist = mapJsonToAny(response, typeRefs<List<SingleBucSedViewRequest>>())
+        val requestlist = mapJsonToAny(response, typeRefs<List<BucView>>())
 
         assertEquals(3, requestlist.size)
         assertEquals("5010", requestlist.firstOrNull { it.avodnr == "01010100001" }?.euxCaseId)
@@ -262,6 +262,51 @@ class BucIntegrationSpringTest {
         println(requestlist.toJson())
 
     }
+
+    @Test
+    fun `Hent mulige rinasaker for aktoer uten vedtak og saf`() {
+        val fnr = "1234567890000"
+        val aktoerId = "1123123123123123"
+        val saknr = "100001000"
+
+        //gjenlevende aktoerid -> gjenlevendefnr
+        every { personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerId)) } returns NorskIdent(fnr)
+
+        //saf (sikker arkiv fasade) (vedlegg meta) gjenlevende
+        val httpEntity = dummyHeader(dummySafReqeust(aktoerId))
+        every { restSafTemplate.exchange(eq("/"), eq(HttpMethod.POST), eq(httpEntity), eq(String::class.java)) } returns ResponseEntity.ok().body( dummySafMetaResponse() )
+
+        //gjenlevende rinasak
+        val rinaSakerBuc = listOf(dummyRinasak("3010", "P_BUC_01"), dummyRinasak("75312", "P_BUC_03"))
+        val rinaGjenlevUrl = dummyRinasakUrl(fnr, status = "\"open\"")
+        every { restEuxTemplate.exchange(rinaGjenlevUrl.toUriString(), HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( rinaSakerBuc.toJson())
+
+        val result = mockMvc.perform(get("/buc/rinasaker/$aktoerId/saknr/$saknr")
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andReturn()
+
+        val response = result.response.getContentAsString(charset("UTF-8"))
+
+        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=1234567890000&status=\"open\"", HttpMethod.GET, null, String::class.java) }
+        verify (exactly = 1) { restSafTemplate.exchange("/", HttpMethod.POST, httpEntity, String::class.java) }
+
+        val expected = """
+            [{"euxCaseId":"3010","aktoerId":"1123123123123123","saknr":"100001000","avodnr":null},{"euxCaseId":"75312","aktoerId":"1123123123123123","saknr":"100001000","avodnr":null}]
+        """.trimIndent()
+
+        JSONAssert.assertEquals(expected, response, false)
+
+        val requestlist = mapJsonToAny(response, typeRefs<List<BucView>>())
+
+        assertEquals(2, requestlist.size)
+        assertEquals("3010", requestlist.first().euxCaseId)
+
+        println(requestlist.toJson())
+
+    }
+
 
 
     @Test

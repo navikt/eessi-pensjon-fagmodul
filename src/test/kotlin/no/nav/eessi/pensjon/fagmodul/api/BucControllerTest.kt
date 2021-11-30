@@ -248,7 +248,7 @@ class BucControllerTest {
         mockPensjoninfo.avdod.avdod = avdodfnr
         mockPensjoninfo.person.aktorId = gjenlevendeAktoerid
 
-        every { mockPensjonsinformasjonService.hentMedVedtak(vedtaksId) } returns mockPensjoninfo
+        every { mockPensjonsinformasjonService.hentVedtak(vedtaksId) } returns mockPensjoninfo
         every { mockPensjonsinformasjonService.hentGyldigAvdod(any())} returns listOf(avdodfnr)
         every { personService.hentIdent(eq(IdentType.NorskIdent), eq(AktoerId(gjenlevendeAktoerid))) } returns NorskIdent(fnrGjenlevende)
 
@@ -287,7 +287,7 @@ class BucControllerTest {
         mockPensjoninfo.avdod.avdodFar = avdodFarfnr
         mockPensjoninfo.person.aktorId = aktoerId
 
-        every { mockPensjonsinformasjonService.hentMedVedtak(vedtaksId) } returns mockPensjoninfo
+        every { mockPensjonsinformasjonService.hentVedtak(vedtaksId) } returns mockPensjoninfo
         every { mockPensjonsinformasjonService.hentGyldigAvdod(any())} returns listOf(avdodFarfnr, avdodMorfnr)
         every { personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerId)) } returns NorskIdent(fnrGjenlevende)
 
@@ -327,7 +327,7 @@ class BucControllerTest {
         mockPensjoninfo.person = V1Person()
         mockPensjoninfo.person.aktorId = aktoerId
 
-        every { mockPensjonsinformasjonService.hentMedVedtak(vedtaksId) } returns mockPensjoninfo
+        every { mockPensjonsinformasjonService.hentVedtak(vedtaksId) } returns mockPensjoninfo
         every { mockPensjonsinformasjonService.hentGyldigAvdod(any()) } returns null
         every { personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerId)) } returns NorskIdent(fnrGjenlevende)
 
@@ -352,7 +352,7 @@ class BucControllerTest {
         val fnr = "10101835868"
 
 
-        every { mockPensjonsinformasjonService.hentMedVedtak(vedtaksId) } throws PensjoninformasjonException("Error, Error")
+        every { mockPensjonsinformasjonService.hentVedtak(vedtaksId) } throws PensjoninformasjonException("Error, Error")
 
         every { personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerId)) } returns NorskIdent(fnr)
 
