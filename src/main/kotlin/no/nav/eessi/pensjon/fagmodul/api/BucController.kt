@@ -259,19 +259,14 @@ class BucController(
         //rinasaker på aktoerid (eller gjenlevende hvis vedtak finnes)
         val gjenlevendeRequest: List<BucView> = euxInnhentingService.getRinasaker(gjenlevendeFnr, rinaSakIderFraJoark)
             .mapNotNull { rinasak ->
-                BucView(
-                    rinasak.id!!,
-                    BucType.from(rinasak.processDefinitionId)!!,
-                    aktoerId,
-                    sakNr,
-                    null)
+                BucView(rinasak.id!!, BucType.from(rinasak.processDefinitionId)!!, aktoerId, sakNr)
             }
 
         //avdodsaker hvis vedtak finnes
         val avdodresult: List<BucView> = avdodRinasakerList(vedtakId, sakNr, aktoerId)
 
-        val gjenlevOgavdodRequest = gjenlevendeRequest + avdodresult
-        return gjenlevOgavdodRequest.sortedByDescending{ it.avodnr }.distinctBy { it.euxCaseId  }
+        val gjenlevOgavdodRequest = gjenlevendeRequest + avdodresult.filter { it.euxCaseId in gjenlevendeRequest.map { it.euxCaseId } }
+        return gjenlevOgavdodRequest.distinctBy { it.euxCaseId  }
     }
 
     private fun avdodRinasakerList(vedtakId: String?, sakNr: String, aktoerId: String): List<BucView> {

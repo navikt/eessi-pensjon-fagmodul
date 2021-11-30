@@ -5,6 +5,7 @@ import io.mockk.every
 import io.mockk.verify
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
 import no.nav.eessi.pensjon.eux.model.SedType
+import no.nav.eessi.pensjon.eux.model.buc.BucType
 import no.nav.eessi.pensjon.eux.model.sed.Bruker
 import no.nav.eessi.pensjon.eux.model.sed.Pensjon
 import no.nav.eessi.pensjon.eux.model.sed.Person
@@ -249,7 +250,7 @@ class BucIntegrationSpringTest {
         verify (exactly = 1) { restSafTemplate.exchange("/", HttpMethod.POST, httpEntity, String::class.java) }
 
         val expected = """
-            [{"euxCaseId":"5010","aktoerId":"1123123123123123","saknr":"100001000","avodnr":"01010100001"},{"euxCaseId":"3010","aktoerId":"1123123123123123","saknr":"100001000","avodnr":null},{"euxCaseId":"75312","aktoerId":"1123123123123123","saknr":"100001000","avodnr":null}]
+            [{"euxCaseId":"3010","buctype":"P_BUC_01","aktoerId":"1123123123123123","saknr":"100001000","avodnr":null},{"euxCaseId":"75312","buctype":"P_BUC_03","aktoerId":"1123123123123123","saknr":"100001000","avodnr":null},{"euxCaseId":"5010","buctype":"P_BUC_02","aktoerId":"1123123123123123","saknr":"100001000","avodnr":null}]
         """.trimIndent()
 
         JSONAssert.assertEquals(expected, response, false)
@@ -257,7 +258,11 @@ class BucIntegrationSpringTest {
         val requestlist = mapJsonToAny(response, typeRefs<List<BucView>>())
 
         assertEquals(3, requestlist.size)
-        assertEquals("5010", requestlist.firstOrNull { it.avodnr == "01010100001" }?.euxCaseId)
+        val bucVeiw = requestlist.first()
+        assertEquals("100001000", bucVeiw.saknr)
+        assertEquals( BucType.P_BUC_01, bucVeiw.buctype)
+        assertEquals( "3010", bucVeiw.euxCaseId)
+        assertEquals( "1123123123123123", bucVeiw.aktoerId)
 
         println(requestlist.toJson())
 
@@ -1083,36 +1088,6 @@ class BucIntegrationSpringTest {
     private fun dummyRinasakAvdodUrl(avod: String? = null, bucType: String? = "P_BUC_02", status: String? =  "\"open\"") = dummyRinasakUrl(avod, bucType, null, status)
     private fun dummyRinasakUrl(fnr: String? = null, bucType: String? = null, euxCaseId: String? = null, status: String? = null) : UriComponents {
         return EuxKlient.getRinasakerUri(fnr, euxCaseId, bucType, status)
-
-//
-//        println("** fnr: '$fnr', eux: '$euxCaseId', buc: '$bucType', status: '$status' **")
-//
-//        val uriComponent = if (euxCaseId != null && status != null && fnr == null) {
-//            UriComponentsBuilder.fromPath("/rinasaker")
-//                .queryParam("rinasaksnummer", euxCaseId)
-//                .queryParam("status", status)
-//                .build()
-//        } else if (fnr != null && bucType != null && status != null && euxCaseId == null) {
-//            UriComponentsBuilder.fromPath("/rinasaker")
-//                .queryParam("fødselsnummer", fnr)
-//                .queryParam("buctype", bucType)
-//                .queryParam("status", status)
-//                .build()
-//        } else if (fnr != null && status != null && bucType == null && euxCaseId == null) {
-//            UriComponentsBuilder.fromPath("/rinasaker")
-//                .queryParam("fødselsnummer", fnr)
-//                .queryParam("status", status)
-//                .build()
-//        } else {
-//            UriComponentsBuilder.fromPath("/rinasaker")
-//                .queryParam("fødselsnummer", fnr ?: "")
-//                .queryParam("rinasaksnummer", euxCaseId ?: "")
-//                .queryParam("buctype", bucType ?: "")
-//                .queryParam("status", status ?: "")
-//                .build()
-//        }
-//        return uriComponent
-
     }
 
     private fun dummyRinasak(rinaSakId: String, bucType: String): Rinasak {
