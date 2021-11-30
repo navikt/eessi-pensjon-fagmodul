@@ -17,7 +17,7 @@ class PensjonsinformasjonService(private val pensjonsinformasjonClient: Pensjons
     private val logger: Logger by lazy { LoggerFactory.getLogger(PensjonsinformasjonService::class.java) }
 
     //hjelemetode for Vedtak P6000 P5000
-    fun hentMedVedtak(vedtakId: String): Pensjonsinformasjon {
+    fun hentVedtak(vedtakId: String): Pensjonsinformasjon {
         if (vedtakId.isBlank()) throw IkkeGyldigKallException("Mangler vedtakID")
         return pensjonsinformasjonClient.hentAltPaaVedtak(vedtakId)
     }

@@ -188,7 +188,7 @@ class EuxPrefillServiceTest {
 
         every { euxKlient.getRinasaker(euxCaseId = "8877665511", status = "\"open\"") } returns enSak
 
-        val result = euxinnhentingService.getRinasaker("12345678900", "1111111111111", listOf("8877665511"))
+        val result = euxinnhentingService.getRinasaker("12345678900", listOf("8877665511"))
 
         assertEquals(154, orgRinasaker.size)
         assertEquals(orgRinasaker.size + 1, result.size)
@@ -198,7 +198,7 @@ class EuxPrefillServiceTest {
     fun `henter rinaid fra saf og rina hvor begge er tomme`() {
 
         every { euxKlient.getRinasaker(eq("12345678900"), null, null, null) } returns listOf<Rinasak>()
-        val result = euxinnhentingService.getRinasaker("12345678900", "1111111111111", emptyList())
+        val result = euxinnhentingService.getRinasaker("12345678900", emptyList())
 
         assertEquals(0, result.size)
     }

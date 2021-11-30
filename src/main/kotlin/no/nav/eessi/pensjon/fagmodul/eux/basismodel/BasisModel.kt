@@ -1,6 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.eux.basismodel
 
 import no.nav.eessi.pensjon.eux.model.SedType
+import no.nav.eessi.pensjon.eux.model.buc.BucType
 
 /**
  * data class model from EUX Basis
@@ -41,4 +42,13 @@ class Traits(
         val name: String? = null,
         val flowType: String? = null,
         val status: String? = null
+)
+
+//benyttes av UI
+class BucView(
+        val euxCaseId: String,
+        val buctype: BucType,
+        val aktoerId: String,
+        val saknr: String,
+        val avodnr: String? = null
 )
