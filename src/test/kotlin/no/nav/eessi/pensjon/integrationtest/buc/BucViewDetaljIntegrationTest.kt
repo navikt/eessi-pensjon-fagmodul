@@ -69,7 +69,7 @@ internal class BucViewDetaljIntegrationTest: BucBase() {
     private lateinit var mockMvc: MockMvc
 
     @Test
-    fun `Gitt Det er en SingleBucRequest med avdod skal det vises korrekt resulat`() {
+    fun `Gitt korrekt request med aktorid med avdod Så skal en BucAndSedView json vises`() {
         val saknr = "1203201322"
         val aktoerid = "1123123123123123"
         val gjenlevFnr = "1234567890000"
@@ -111,12 +111,9 @@ internal class BucViewDetaljIntegrationTest: BucBase() {
             {"type":"P_BUC_02","caseId":"$euxCaseId","internationalId":"n/a","creator":{"country":"","institution":"","name":null,"acronym":null},"sakType":null,"status":null,"startDate":1596751200000,"lastUpdate":1596751200000,"institusjon":[],"seds":[{"attachments":[],"displayName":null,"type":"P2100","conversations":null,"isSendExecuted":null,"id":"1","direction":"OUT","creationDate":1596751200000,"receiveDate":null,"typeVersion":null,"allowsAttachments":null,"versions":null,"lastUpdate":1596751200000,"parentDocumentId":null,"status":"sent","participants":null,"firstVersion":null,"lastVersion":null,"version":"1","message":null},{"attachments":[],"displayName":null,"type":"P4000","conversations":null,"isSendExecuted":null,"id":"2","direction":"OUT","creationDate":1596751200000,"receiveDate":null,"typeVersion":null,"allowsAttachments":null,"versions":null,"lastUpdate":1596751200000,"parentDocumentId":null,"status":"draft","participants":null,"firstVersion":null,"lastVersion":null,"version":"1","message":null}],"error":null,"readOnly":false,"subject":{"gjenlevende":{"fnr":"1234567890000"},"avdod":{"fnr":"01010100001"}}}
         """.trimIndent()
 
-
         JSONAssert.assertEquals(expected, response, false)
-
         verify (exactly = 1) { restEuxTemplate.exchange("/buc/$euxCaseId", HttpMethod.GET, null, String::class.java)  }
         verify (exactly = 1) { restEuxTemplate.exchange("/buc/$euxCaseId/sed/1", HttpMethod.GET, null, String::class.java) }
-
 
     }
 
@@ -236,7 +233,7 @@ internal class BucViewDetaljIntegrationTest: BucBase() {
         verify (exactly = 1) { restSafTemplate.exchange("/", HttpMethod.POST, httpEntity, String::class.java) }
 
         val expected = """
-            [{"euxCaseId":"3010","buctype":"P_BUC_01","aktoerId":"1123123123123123","saknr":"100001000","avodnr":null},{"euxCaseId":"75312","buctype":"P_BUC_03","aktoerId":"1123123123123123","saknr":"100001000","avodnr":null},{"euxCaseId":"5010","buctype":"P_BUC_02","aktoerId":"1123123123123123","saknr":"100001000","avodnr":null}]
+            [{"euxCaseId":"3010","buctype":"P_BUC_01","aktoerId":"1123123123123123","saknr":"100001000","avodfnr":null},{"euxCaseId":"75312","buctype":"P_BUC_03","aktoerId":"1123123123123123","saknr":"100001000","avodfnr":null},{"euxCaseId":"5010","buctype":"P_BUC_02","aktoerId":"1123123123123123","saknr":"100001000","avodfnr":null}]
         """.trimIndent()
 
         JSONAssert.assertEquals(expected, response, false)
@@ -285,7 +282,7 @@ internal class BucViewDetaljIntegrationTest: BucBase() {
         verify (exactly = 1) { restSafTemplate.exchange("/", HttpMethod.POST, httpEntity, String::class.java) }
 
         val expected = """
-            [{"euxCaseId":"3010","aktoerId":"1123123123123123","saknr":"100001000","avodnr":null},{"euxCaseId":"75312","aktoerId":"1123123123123123","saknr":"100001000","avodnr":null}]
+            [{"euxCaseId":"3010","aktoerId":"1123123123123123","saknr":"100001000","avodfnr":null},{"euxCaseId":"75312","aktoerId":"1123123123123123","saknr":"100001000","avodfnr":null}]
         """.trimIndent()
 
         JSONAssert.assertEquals(expected, response, false)
@@ -323,7 +320,7 @@ internal class BucViewDetaljIntegrationTest: BucBase() {
         verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&status=\"open\"", HttpMethod.GET, null, String::class.java) }
 
         val expected = """
-            [{"euxCaseId":"3010","buctype":"P_BUC_02","aktoerId":"1123123123123123","saknr":"100001000","avodnr":"01010100001"},{"euxCaseId":"75312","buctype":"P_BUC_03","aktoerId":"1123123123123123","saknr":"100001000","avodnr":"01010100001"}]
+            [{"euxCaseId":"3010","buctype":"P_BUC_02","aktoerId":"1123123123123123","saknr":"100001000","avodfnr":"01010100001"},{"euxCaseId":"75312","buctype":"P_BUC_03","aktoerId":"1123123123123123","saknr":"100001000","avodfnr":"01010100001"}]
         """.trimIndent()
 
         JSONAssert.assertEquals(expected, response, false)
