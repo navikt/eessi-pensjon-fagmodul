@@ -250,7 +250,6 @@ class BucController(
         @PathVariable("saknr", required = false) sakNr: String,
         @PathVariable("vedtakid", required = false) vedtakId: String? = null
     ): List<BucView> {
-        auditlogger.log("getRinasaker", aktoerId)
         logger.debug("henter rinasaker på valgt aktoerid: $aktoerId, på saknr: $sakNr")
 
         val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerId)
@@ -283,20 +282,29 @@ class BucController(
         //rinasaker på avdod
         return if (avdod != null && (pensjonsinformasjon.person.aktorId == aktoerId)) {
             avdod.map { avdodfnr ->
-                val rinasaker = euxInnhentingService.getRinasaker(avdodfnr, emptyList())
-                rinasaker.map { rinasak ->
-                    BucView(
-                        rinasak.id!!,
-                        BucType.from(rinasak.processDefinitionId)!!,
-                        aktoerId,
-                        sakNr,
-                        avdodfnr
-                    )
-                }
+                avdodRinaSak(aktoerId, sakNr, avdodfnr)
             }
         } else {
             emptyList()
         }.flatten()
+    }
+
+    @GetMapping("/rinasaker/{aktoerId}/saknr/{saknr}/avdod/{avdodfnr}")
+    fun avdodRinaSak(
+        @PathVariable("aktoerId", required = true) aktoerId: String,
+        @PathVariable("saknr", required = true) sakNr: String,
+        @PathVariable("avdodfnr", required = true) avdodfnr : String
+    ): List<BucView> {
+        return euxInnhentingService.getRinasaker(avdodfnr, emptyList())
+            .map { rinasak ->
+            BucView(
+                rinasak.id!!,
+                BucType.from(rinasak.processDefinitionId)!!,
+                aktoerId,
+                sakNr,
+                avdodfnr
+            )
+       }
     }
 
     @Operation(description = "Henter ut enkel Buc meny struktur i json format for UI på valgt euxcaseid")
