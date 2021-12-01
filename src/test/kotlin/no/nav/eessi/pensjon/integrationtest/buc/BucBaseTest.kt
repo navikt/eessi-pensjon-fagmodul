@@ -16,7 +16,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.web.util.UriComponents
 
-open class BucBase {
+open class BucBaseTest {
 
     fun dummyHeader(value: String?): HttpEntity<String> {
         val headers = HttpHeaders()

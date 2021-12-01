@@ -47,7 +47,7 @@ import kotlin.test.assertTrue
 @ActiveProfiles(profiles = ["unsecured-webmvctest"])
 @AutoConfigureMockMvc
 @EmbeddedKafka
-internal class BucIntegrationSpringTest: BucBase() {
+internal class BucIntegrationSpringTest: BucBaseTest() {
 
     @MockkBean
     lateinit var stsService: STSService
