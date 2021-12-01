@@ -313,6 +313,47 @@ class BucIntegrationSpringTest {
     }
 
 
+    @Test
+    fun `Hent mulige rinasaker for aktoer med avdodfnr Så skal korrekt resultat vises`() {
+        val fnr = "1234567890000"
+        val aktoerId = "1123123123123123"
+        val saknr = "100001000"
+        val avdodFnr = "01010100001"
+
+        //gjenlevende aktoerid -> gjenlevendefnr
+        //every { personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerId)) } returns NorskIdent(fnr)
+
+        //gjenlevende rinasak
+        val rinaSakerBuc = listOf(dummyRinasak("3010", "P_BUC_02"), dummyRinasak("75312", "P_BUC_03"))
+        val rinaGjenlevUrl = dummyRinasakUrl(fnr, status = "\"open\"")
+        every { restEuxTemplate.exchange(rinaGjenlevUrl.toUriString(), HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( rinaSakerBuc.toJson())
+
+        val result = mockMvc.perform(get("/buc/rinasaker/$aktoerId/saknr/$saknr/avdod/$avdodFnr")
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andReturn()
+
+        val response = result.response.getContentAsString(charset("UTF-8"))
+
+        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&status=\"open\"", HttpMethod.GET, null, String::class.java) }
+
+//        val expected = """
+//            [{"euxCaseId":"3010","aktoerId":"1123123123123123","saknr":"100001000","avodnr":null},{"euxCaseId":"75312","aktoerId":"1123123123123123","saknr":"100001000","avodnr":null}]
+//        """.trimIndent()
+//
+//        JSONAssert.assertEquals(expected, response, false)
+//
+//        val requestlist = mapJsonToAny(response, typeRefs<List<BucView>>())
+//
+//        assertEquals(2, requestlist.size)
+//        assertEquals("3010", requestlist.first().euxCaseId)
+
+        println(response.toJson())
+
+    }
+
+
 
     @Test
     fun `Gitt det ikke finnes noen SED i en buc med avdød så skal det vies et tomt resultat`() {
