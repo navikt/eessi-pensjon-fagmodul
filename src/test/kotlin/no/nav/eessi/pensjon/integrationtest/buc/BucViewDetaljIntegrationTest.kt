@@ -355,19 +355,8 @@ internal class BucViewDetaljIntegrationTest: BucBase() {
 
         verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&status=\"open\"", HttpMethod.GET, null, String::class.java) }
 
-        val expected = """
-            []
-        """.trimIndent()
-
-        JSONAssert.assertEquals(expected, response, false)
-
         val requestlist = mapJsonToAny(response, typeRefs<List<BucView>>())
-
         assertEquals(0, requestlist.size)
-//        assertEquals("3010", requestlist.first().euxCaseId)
-
-        println(response.toJson())
-
 
     }
 }
