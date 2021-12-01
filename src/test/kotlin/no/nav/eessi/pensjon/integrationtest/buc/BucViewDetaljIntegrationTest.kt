@@ -333,4 +333,41 @@ internal class BucViewDetaljIntegrationTest: BucBase() {
         println(response.toJson())
 
     }
+
+    @Test
+    fun `Gitt at saksbehandler går via brukerkontekst og har et avdød fnr når avdøds bucer søkes etter så returneres ingen saker `() {
+        val aktoerId = "1123123123123123"
+        val saknr = "100001000"
+        val avdodFnr = "01010100001"
+
+        //gjenlevende rinasak
+        val rinaGjenlevUrl = dummyRinasakUrl(avdodFnr, status = "\"open\"")
+        every { restEuxTemplate.exchange(rinaGjenlevUrl.toUriString(), HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body("[]")
+
+        val result = mockMvc.perform(
+            MockMvcRequestBuilders.get("/buc/rinasaker/$aktoerId/saknr/$saknr/avdod/$avdodFnr")
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andReturn()
+
+        val response = result.response.getContentAsString(charset("UTF-8"))
+
+        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&status=\"open\"", HttpMethod.GET, null, String::class.java) }
+
+        val expected = """
+            []
+        """.trimIndent()
+
+        JSONAssert.assertEquals(expected, response, false)
+
+        val requestlist = mapJsonToAny(response, typeRefs<List<BucView>>())
+
+        assertEquals(0, requestlist.size)
+//        assertEquals("3010", requestlist.first().euxCaseId)
+
+        println(response.toJson())
+
+
+    }
 }
