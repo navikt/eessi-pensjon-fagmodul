@@ -50,5 +50,5 @@ class BucView(
         val buctype: BucType,
         val aktoerId: String,
         val saknr: String,
-        val avodnr: String? = null
+        val avodfnr: String? = null
 )
