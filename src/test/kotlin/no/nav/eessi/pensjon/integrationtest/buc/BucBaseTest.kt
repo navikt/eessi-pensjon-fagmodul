@@ -76,7 +76,7 @@ open class BucBaseTest {
         """.trimIndent()
     }
 
-    fun dummyRinasakAvdodUrl(avod: String? = null, bucType: String? = "P_BUC_02", status: String? =  "\"open\"") = dummyRinasakUrl(avod, bucType, null, status)
+    fun dummyRinasakAvdodUrl(avdod: String? = null, bucType: String? = "P_BUC_02", status: String? =  "\"open\"") = dummyRinasakUrl(avdod, bucType, null, status)
     fun dummyRinasakUrl(fnr: String? = null, bucType: String? = null, euxCaseId: String? = null, status: String? = null) : UriComponents {
         return EuxKlient.getRinasakerUri(fnr, euxCaseId, bucType, status)
     }
@@ -87,11 +87,11 @@ open class BucBaseTest {
 
     fun mockVedtak(avdofnr: String, gjenlevAktoerid: String): Pensjonsinformasjon {
         val pen = Pensjonsinformasjon()
-        val avod = V1Avdod()
+        val avdod = V1Avdod()
         val person = V1Person()
-        avod.avdod = avdofnr
+        avdod.avdod = avdofnr
         person.aktorId = gjenlevAktoerid
-        pen.avdod = avod
+        pen.avdod = avdod
         pen.person = person
 
         return pen

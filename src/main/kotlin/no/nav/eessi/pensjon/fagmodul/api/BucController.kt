@@ -50,7 +50,7 @@ class BucController(
     private lateinit var bucDetaljer: MetricsHelper.Metric
     private lateinit var bucDetaljerVedtak: MetricsHelper.Metric
     private lateinit var bucDetaljerEnkel: MetricsHelper.Metric
-    private lateinit var bucDetaljerEnkelAvod: MetricsHelper.Metric
+    private lateinit var bucDetaljerEnkelavdod: MetricsHelper.Metric
     private lateinit var bucDetaljerGjenlev: MetricsHelper.Metric
 
     @PostConstruct
@@ -59,7 +59,7 @@ class BucController(
         bucDetaljerVedtak = metricsHelper.init("BucDetaljerVedtak", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         bucDetaljerEnkel = metricsHelper.init("BucDetaljerEnkel", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         bucDetaljerGjenlev  = metricsHelper.init("BucDetaljerGjenlev", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
-        bucDetaljerEnkelAvod = metricsHelper.init("BucDetalsjerEnkelAvdod", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
+        bucDetaljerEnkelavdod = metricsHelper.init("BucDetalsjerEnkelAvdod", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
     }
 
 
@@ -266,7 +266,7 @@ class BucController(
 
         //val gjenlevOgavdodRequest = gjenlevendeRequest + avdodresult.filter { it.euxCaseId in gjenlevendeRequest.map { it.euxCaseId } }
         val gjenlevOgavdodRequest = gjenlevendeRequest + avdodresult
-        return gjenlevOgavdodRequest.sortedByDescending { it.avodfnr }.distinctBy { it.euxCaseId }
+        return gjenlevOgavdodRequest.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
         //return gjenlevOgavdodRequest.distinctBy { it.euxCaseId  }
     }
 
@@ -332,7 +332,7 @@ class BucController(
         @PathVariable("avdodfnr", required = true) avdodFnr: String
     ): BucAndSedView {
         logger.info("Henter ut en enkel buc for gjenlevende med euxCaseId: $euxcaseid, saknr: $saknr")
-        return bucDetaljerEnkelAvod.measure {
+        return bucDetaljerEnkelavdod.measure {
             val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerid)
             val bucOgDocAvdod = euxInnhentingService.hentBucOgDocumentIdAvdod(listOf(euxcaseid))
             val listeAvSedsPaaAvdod = euxInnhentingService.hentDocumentJsonAvdod(bucOgDocAvdod)
