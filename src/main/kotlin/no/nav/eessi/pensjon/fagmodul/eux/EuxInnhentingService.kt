@@ -197,12 +197,20 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
             val bucType = bucutils.getProcessDefinitionName()
             logger.info("henter documentid fra buc: ${docs.rinaidAvdod} bucType: $bucType")
 
-            val shortDoc = when (bucType) {
+            val shortDoc: DocumentsItem? = when (bucType) {
                 "P_BUC_02" -> bucutils.getDocumentByType(SedType.P2100)
                 "P_BUC_10" -> bucutils.getDocumentByType(SedType.P15000)
-                "P_BUC_05" -> bucutils.getDocumentByType(SedType.P8000)
+                "P_BUC_05" -> {
+                    val docs = bucutils.getAllDocuments()
+                        .filterNot { it.status in listOf("draft", "empty") }
+                        .filter { it.type == SedType.P8000  }
+                    val docout = docs.firstOrNull { it.direction == "OUT" }
+                    val docin = docs.firstOrNull { it.direction == "IN" }
+                    docout ?: docin
+                }
                 else -> korrektDokumentAvdodPbuc06(bucutils)
             }
+
             logger.debug("Henter sedJson fra document: ${shortDoc?.type}, ${shortDoc?.status}, ${shortDoc?.id}")
             val sedJson = shortDoc?.let {
                 euxKlient.getSedOnBucByDocumentIdAsJson(docs.rinaidAvdod, it.id!!)
@@ -214,7 +222,6 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
 
     private fun korrektDokumentAvdodPbuc06(bucUtils: BucUtils): DocumentsItem? {
         logger.debug("henter ut korrekte SED fra P_BUC_06. ${bucUtils.getBuc().documents?.toJsonSkipEmpty()}")
-        logger.debug("*".repeat(30))
 
         val docitem = bucUtils.getAllDocuments()
         .filterNot { it.status in listOf("draft", "empty") }
