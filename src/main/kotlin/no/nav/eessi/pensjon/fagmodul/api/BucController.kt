@@ -250,7 +250,7 @@ class BucController(
         @PathVariable("saknr", required = false) sakNr: String,
         @PathVariable("vedtakid", required = false) vedtakId: String? = null
     ): List<BucView> {
-        logger.debug("henter rinasaker på valgt aktoerid: $aktoerId, på saknr: $sakNr")
+        logger.info("henter rinasaker på valgt aktoerid: $aktoerId, på saknr: $sakNr")
 
         val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerId)
         val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraMetaData(aktoerId)
@@ -264,8 +264,10 @@ class BucController(
         //avdodsaker hvis vedtak finnes
         val avdodresult: List<BucView> = avdodRinasakerList(vedtakId, sakNr, aktoerId)
 
-        val gjenlevOgavdodRequest = gjenlevendeRequest + avdodresult.filter { it.euxCaseId in gjenlevendeRequest.map { it.euxCaseId } }
-        return gjenlevOgavdodRequest.distinctBy { it.euxCaseId  }
+        //val gjenlevOgavdodRequest = gjenlevendeRequest + avdodresult.filter { it.euxCaseId in gjenlevendeRequest.map { it.euxCaseId } }
+        val gjenlevOgavdodRequest = gjenlevendeRequest + avdodresult
+        return gjenlevOgavdodRequest.sortedByDescending { it.avodfnr }.distinctBy { it.euxCaseId }
+        //return gjenlevOgavdodRequest.distinctBy { it.euxCaseId  }
     }
 
     private fun avdodRinasakerList(vedtakId: String?, sakNr: String, aktoerId: String): List<BucView> {
@@ -295,6 +297,7 @@ class BucController(
         @PathVariable("saknr", required = true) sakNr: String,
         @PathVariable("avdodfnr", required = true) avdodfnr : String
     ): List<BucView> {
+        logger.info("Henter rinasaker på avdod: $aktoerId, saknr: $sakNr")
         return euxInnhentingService.getRinasaker(avdodfnr, emptyList())
             .map { rinasak ->
             BucView(

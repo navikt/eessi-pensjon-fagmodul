@@ -233,7 +233,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         verify (exactly = 1) { restSafTemplate.exchange("/", HttpMethod.POST, httpEntity, String::class.java) }
 
         val expected = """
-            [{"euxCaseId":"3010","buctype":"P_BUC_01","aktoerId":"1123123123123123","saknr":"100001000","avodfnr":null},{"euxCaseId":"75312","buctype":"P_BUC_03","aktoerId":"1123123123123123","saknr":"100001000","avodfnr":null},{"euxCaseId":"5010","buctype":"P_BUC_02","aktoerId":"1123123123123123","saknr":"100001000","avodfnr":null}]
+            [{"euxCaseId":"5010","buctype":"P_BUC_02","aktoerId":"1123123123123123","saknr":"100001000","avodfnr":"01010100001"},{"euxCaseId":"3010","buctype":"P_BUC_01","aktoerId":"1123123123123123","saknr":"100001000","avodfnr":null},{"euxCaseId":"75312","buctype":"P_BUC_03","aktoerId":"1123123123123123","saknr":"100001000","avodfnr":null}]
         """.trimIndent()
 
         JSONAssert.assertEquals(expected, response, false)
@@ -243,8 +243,8 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         assertEquals(3, requestlist.size)
         val bucVeiw = requestlist.first()
         assertEquals("100001000", bucVeiw.saknr)
-        assertEquals( BucType.P_BUC_01, bucVeiw.buctype)
-        assertEquals( "3010", bucVeiw.euxCaseId)
+        assertEquals( BucType.P_BUC_02, bucVeiw.buctype)
+        assertEquals( "5010", bucVeiw.euxCaseId)
         assertEquals( "1123123123123123", bucVeiw.aktoerId)
 
         println(requestlist.toJson())
