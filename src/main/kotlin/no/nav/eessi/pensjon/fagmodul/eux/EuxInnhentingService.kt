@@ -1,8 +1,10 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
 import no.nav.eessi.pensjon.eux.model.SedType
+import no.nav.eessi.pensjon.eux.model.buc.BucType
 import no.nav.eessi.pensjon.eux.model.sed.Person
 import no.nav.eessi.pensjon.eux.model.sed.SED
+import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucView
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
@@ -123,7 +125,6 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
                 false
             }
         }
-
         val spesialExtraBucs = mutableListOf("H_BUC_07", "R_BUC_01", "R_BUC_02", "M_BUC_02", "M_BUC_03a", "M_BUC_03b")
         val pensjonNormaleBucs = validbucsed.initSedOnBuc().map { it.key }
         val gyldigeBucs = pensjonNormaleBucs + spesialExtraBucs
@@ -134,6 +135,26 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
                 .map { rinasak -> rinasak.id!! }
                 .filterNot { rinaid -> filterUfyldigeRinasaker(rinaid) }
                 .toList()
+    }
+
+    fun getFilteredArchivedaRinasakerSak(list: List<Rinasak>): List<Rinasak> {
+        val ugyldigeRinasaker = listOf("6006777")
+        fun filterUfyldigeRinasaker(rinaid: String) : Boolean {
+            return if (rinaid in ugyldigeRinasaker) {
+                true.also { logger.warn("Fjerner ugydlig rinasak: $rinaid") }
+            } else {
+                false
+            }
+        }
+        val spesialExtraBucs = mutableListOf("H_BUC_07", "R_BUC_01", "R_BUC_02", "M_BUC_02", "M_BUC_03a", "M_BUC_03b")
+        val pensjonNormaleBucs = validbucsed.initSedOnBuc().map { it.key }
+        val gyldigeBucs = pensjonNormaleBucs + spesialExtraBucs
+        return list.asSequence()
+            .filterNot { rinasak -> rinasak.status == "archived" }
+            .filter { rinasak -> rinasak.processDefinitionId in  gyldigeBucs }
+            .sortedBy { rinasak -> rinasak.id }
+            .filterNot { rinaid -> filterUfyldigeRinasaker(rinaid.id!!) }
+            .toList()
     }
 
     fun getBucDeltakere(euxCaseId: String): List<ParticipantsItem> {
@@ -268,6 +289,67 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
             null
         } else {
             pin.identifikator
+        }
+    }
+
+
+    fun getBucViewBruker(fnr: String, aktoerId: String, sakNr: String): List<BucView> {
+        val rinaSakerMedFnr = euxKlient.getRinasaker(fnr, status = "\"open\"")
+
+        val filteredRinaBruker = getFilteredArchivedaRinasakerSak(rinaSakerMedFnr)
+        logger.info("rinaSaker total: ${filteredRinaBruker.size}")
+
+        return filteredRinaBruker.map { rinasak ->
+            BucView(
+                rinasak.id!!,
+                BucType.from(rinasak.processDefinitionId)!!,
+                aktoerId,
+                sakNr,
+                null
+            )
+        }
+    }
+
+    fun getBucViewBrukerSaf(aktoerId: String, sakNr: String, safSaker: List<String>): List<BucView> {
+
+        val rinaSakerMedSaf = safSaker
+            .map { id ->
+                euxKlient.getRinasaker(euxCaseId = id , status = "\"open\"")
+            }
+            .flatten()
+
+        val filteredRinasakSaf = getFilteredArchivedaRinasakerSak(rinaSakerMedSaf)
+        logger.info("rinaSaker total: ${filteredRinasakSaf.size}")
+
+        return filteredRinasakSaf.map { rinasak ->
+            BucView(
+                rinasak.id!!,
+                BucType.from(rinasak.processDefinitionId)!!,
+                aktoerId,
+                sakNr,
+                null
+            )
+        }
+    }
+
+
+    fun getBucViewAvdod(avdodFnr: String, aktoerId: String, sakNr: String): List<BucView> {
+        val validAvdodBucs = listOf("P_BUC_02", "P_BUC_05", "P_BUC_06", "P_BUC_10")
+
+        val rinaSakerMedAvdodFnr =  euxKlient.getRinasaker(avdodFnr, status = "\"open\"")
+            .filter { rinasak -> rinasak.processDefinitionId in validAvdodBucs }
+
+        val filteredRinaIdAvdod = getFilteredArchivedaRinasakerSak(rinaSakerMedAvdodFnr)
+        logger.info("rinaSaker avdod total: ${filteredRinaIdAvdod.size}")
+
+        return filteredRinaIdAvdod.map { rinasak ->
+            BucView(
+                rinasak.id!!,
+                BucType.from(rinasak.processDefinitionId)!!,
+                aktoerId,
+                sakNr,
+                avdodFnr
+            )
         }
     }
 

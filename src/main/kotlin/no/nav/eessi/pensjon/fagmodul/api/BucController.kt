@@ -3,7 +3,6 @@ package no.nav.eessi.pensjon.fagmodul.api
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import io.swagger.v3.oas.annotations.Operation
 import no.nav.eessi.pensjon.eux.model.SedType
-import no.nav.eessi.pensjon.eux.model.buc.BucType
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedSubject
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
@@ -130,6 +129,7 @@ class BucController(
     }
 
     @Operation(description = "Henter ut liste av Buc meny struktur i json format for UI på valgt aktoerid")
+    @Deprecated("Utgaar snart", ReplaceWith("getGjenlevendeRinasakerVedtak"))
     @GetMapping("/detaljer/{aktoerid}",
         "/detaljer/{aktoerid}/saknr/{saksnr}",
         "/detaljer/{aktoerid}/saknr/{sakid}/{euxcaseid}",
@@ -255,19 +255,22 @@ class BucController(
         val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerId)
         val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraMetaData(aktoerId)
 
-        //rinasaker på aktoerid (eller gjenlevende hvis vedtak finnes)
-        val gjenlevendeRequest: List<BucView> = euxInnhentingService.getRinasaker(gjenlevendeFnr, rinaSakIderFraJoark)
-            .mapNotNull { rinasak ->
-                BucView(rinasak.id!!, BucType.from(rinasak.processDefinitionId)!!, aktoerId, sakNr)
-            }
+        //bruker saker fra eux/rina
+        val brukerView = euxInnhentingService.getBucViewBruker(gjenlevendeFnr, aktoerId, sakNr)
+
+        //saker fra saf og eux/rina
+        val safView = euxInnhentingService.getBucViewBrukerSaf(aktoerId, sakNr, rinaSakIderFraJoark)
 
         //avdodsaker hvis vedtak finnes
-        val avdodresult: List<BucView> = avdodRinasakerList(vedtakId, sakNr, aktoerId)
+        val avdodView: List<BucView> = avdodRinasakerList(vedtakId, sakNr, aktoerId)
 
-        //val gjenlevOgavdodRequest = gjenlevendeRequest + avdodresult.filter { it.euxCaseId in gjenlevendeRequest.map { it.euxCaseId } }
-        val gjenlevOgavdodRequest = gjenlevendeRequest + avdodresult
-        return gjenlevOgavdodRequest.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
-        //return gjenlevOgavdodRequest.distinctBy { it.euxCaseId  }
+        //samkjøre til megaview
+        val view = brukerView + safView + avdodView
+        logger.debug("view Size : ${view.size}")
+
+        //return med sort og distict (avdodfmr og caseid)
+        return view.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
+            .also { logger.info("Total view size: ${it.size}") }
     }
 
     private fun avdodRinasakerList(vedtakId: String?, sakNr: String, aktoerId: String): List<BucView> {
@@ -284,7 +287,7 @@ class BucController(
         //rinasaker på avdod
         return if (avdod != null && (pensjonsinformasjon.person.aktorId == aktoerId)) {
             avdod.map { avdodfnr ->
-                avdodRinaSak(aktoerId, sakNr, avdodfnr)
+                getAvdodRinaSak(aktoerId, sakNr, avdodfnr)
             }
         } else {
             emptyList()
@@ -292,22 +295,15 @@ class BucController(
     }
 
     @GetMapping("/rinasaker/{aktoerId}/saknr/{saknr}/avdod/{avdodfnr}")
-    fun avdodRinaSak(
+    fun getAvdodRinaSak(
         @PathVariable("aktoerId", required = true) aktoerId: String,
         @PathVariable("saknr", required = true) sakNr: String,
         @PathVariable("avdodfnr", required = true) avdodfnr : String
     ): List<BucView> {
         logger.info("Henter rinasaker på avdod: $aktoerId, saknr: $sakNr")
-        return euxInnhentingService.getRinasaker(avdodfnr, emptyList())
-            .map { rinasak ->
-            BucView(
-                rinasak.id!!,
-                BucType.from(rinasak.processDefinitionId)!!,
-                aktoerId,
-                sakNr,
-                avdodfnr
-            )
-       }
+
+        return euxInnhentingService.getBucViewAvdod(avdodfnr, aktoerId, sakNr)
+
     }
 
     @Operation(description = "Henter ut enkel Buc meny struktur i json format for UI på valgt euxcaseid")
