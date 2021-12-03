@@ -10,6 +10,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.eux.SubjectFnr
 import no.nav.eessi.pensjon.fagmodul.eux.ValidBucAndSed
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucView
+import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucViewKilde
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Creator
@@ -260,12 +261,17 @@ class BucController(
 
         //saker fra saf og eux/rina
         val safView = euxInnhentingService.getBucViewBrukerSaf(aktoerId, sakNr, rinaSakIderFraJoark)
-
+        val safmap = safView.map { view -> view.euxCaseId }
         //avdodsaker hvis vedtak finnes
         val avdodView: List<BucView> = avdodRinasakerList(vedtakId, sakNr, aktoerId)
+        val avdodViewSaf = avdodView.filter { view -> view.euxCaseId in safmap }
+            .map { view ->
+                view.copy(kilde = BucViewKilde.SAF)
+            }
+        val avdodViewUtenSaf = avdodView.filterNot { view -> view.euxCaseId in avdodViewSaf.map { it.euxCaseId  } }
 
         //samkjøre til megaview
-        val view = brukerView + safView + avdodView
+        val view = brukerView + safView + avdodViewSaf + avdodViewUtenSaf
         logger.debug("view Size : ${view.size}")
 
         //return med sort og distict (avdodfmr og caseid)
@@ -307,35 +313,48 @@ class BucController(
     }
 
     @Operation(description = "Henter ut enkel Buc meny struktur i json format for UI på valgt euxcaseid")
-    @GetMapping("/enkeldetalj/{euxcaseid}/aktoerid/{aktoerid}/saknr/{saknr}")
+    @GetMapping("/enkeldetalj/{euxcaseid}/aktoerid/{aktoerid}/saknr/{saknr}/kilde/{kilde}")
     fun getSingleBucogSedView(
         @PathVariable("euxcaseid", required = true) euxcaseid: String,
         @PathVariable("aktoerid", required = true) aktoerid: String,
-        @PathVariable("saknr", required = true) saknr: String
+        @PathVariable("saknr", required = true) saknr: String,
+        @PathVariable("kilde", required = true) kilde: BucViewKilde
     ): BucAndSedView {
         return bucDetaljerEnkel.measure {
-            logger.info("Henter ut en enkel buc med euxCaseId: $euxcaseid, saknr: $saknr")
+            logger.info("Henter ut en enkel buc med euxCaseId: $euxcaseid, saknr: $saknr, kilde: $kilde")
             euxInnhentingService.getSingleBucAndSedView(euxcaseid)
         }
     }
 
     @Operation(description = "Henter ut enkel Buc meny struktur i json format for UI på valgt euxcaseid")
-    @GetMapping("/enkeldetalj/{euxcaseid}/aktoerid/{aktoerid}/saknr/{saknr}/avdodfnr/{avdodfnr}")
+    @GetMapping("/enkeldetalj/{euxcaseid}/aktoerid/{aktoerid}/saknr/{saknr}/avdodfnr/{avdodfnr}/kilde/{kilde}")
     fun getSingleBucogSedViewMedAvdod(
         @PathVariable("euxcaseid", required = true) euxcaseid: String,
         @PathVariable("aktoerid", required = true) aktoerid: String,
         @PathVariable("saknr", required = true) saknr: String,
-        @PathVariable("avdodfnr", required = true) avdodFnr: String
-    ): BucAndSedView {
-        logger.info("Henter ut en enkel buc for gjenlevende med euxCaseId: $euxcaseid, saknr: $saknr")
-        return bucDetaljerEnkelavdod.measure {
-            val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerid)
-            val bucOgDocAvdod = euxInnhentingService.hentBucOgDocumentIdAvdod(listOf(euxcaseid))
-            val listeAvSedsPaaAvdod = euxInnhentingService.hentDocumentJsonAvdod(bucOgDocAvdod)
-            val gyldigeBucs = euxInnhentingService.filterGyldigBucGjenlevendeAvdod(listeAvSedsPaaAvdod, gjenlevendeFnr)
-            val gjenlevendeBucAndSedView = euxInnhentingService.getBucAndSedViewWithBuc(gyldigeBucs, gjenlevendeFnr, avdodFnr)
-            gjenlevendeBucAndSedView.firstOrNull() ?: BucAndSedView.fromErr("Ingen Buc Funnet!")
+        @PathVariable("avdodfnr", required = true) avdodFnr: String,
+        @PathVariable("kilde", required = true) kilde: BucViewKilde): BucAndSedView {
+        logger.info("Henter ut en enkel buc for gjenlevende")
+
+        return if (kilde == BucViewKilde.SAF) {
+            bucDetaljerEnkel.measure {
+                logger.info("saf euxCaseId: $euxcaseid, saknr: $saknr")
+                val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerid)
+                euxInnhentingService.getSingleBucAndSedView(euxcaseid)
+                .copy(subject = BucAndSedSubject(SubjectFnr(gjenlevendeFnr), SubjectFnr(avdodFnr)))
+            }
+        } else {
+            bucDetaljerEnkelavdod.measure {
+                logger.info("avdod med euxCaseId: $euxcaseid, saknr: $saknr")
+                val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerid)
+                val bucOgDocAvdod = euxInnhentingService.hentBucOgDocumentIdAvdod(listOf(euxcaseid))
+                val listeAvSedsPaaAvdod = euxInnhentingService.hentDocumentJsonAvdod(bucOgDocAvdod)
+                val gyldigeBucs = euxInnhentingService.filterGyldigBucGjenlevendeAvdod(listeAvSedsPaaAvdod, gjenlevendeFnr)
+                val gjenlevendeBucAndSedView = euxInnhentingService.getBucAndSedViewWithBuc(gyldigeBucs, gjenlevendeFnr, avdodFnr)
+                gjenlevendeBucAndSedView.firstOrNull() ?: BucAndSedView.fromErr("Ingen Buc Funnet!")
+            }
         }
+
     }
 
 }

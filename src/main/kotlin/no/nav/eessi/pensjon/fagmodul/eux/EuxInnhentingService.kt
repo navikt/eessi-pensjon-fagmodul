@@ -5,6 +5,7 @@ import no.nav.eessi.pensjon.eux.model.buc.BucType
 import no.nav.eessi.pensjon.eux.model.sed.Person
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucView
+import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucViewKilde
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
@@ -305,7 +306,8 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
                 BucType.from(rinasak.processDefinitionId)!!,
                 aktoerId,
                 sakNr,
-                null
+                null,
+                BucViewKilde.BRUKER
             )
         }
     }
@@ -327,7 +329,8 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
                 BucType.from(rinasak.processDefinitionId)!!,
                 aktoerId,
                 sakNr,
-                null
+                null,
+                BucViewKilde.SAF
             )
         }
     }
@@ -348,7 +351,8 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
                 BucType.from(rinasak.processDefinitionId)!!,
                 aktoerId,
                 sakNr,
-                avdodFnr
+                avdodFnr,
+                BucViewKilde.AVDOD
             )
         }
     }
