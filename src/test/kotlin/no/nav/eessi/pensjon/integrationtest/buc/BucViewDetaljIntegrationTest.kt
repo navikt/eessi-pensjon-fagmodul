@@ -8,6 +8,7 @@ import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.BucType
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucView
+import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucViewKilde
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.fagmodul.integrationtest.IntegrasjonsTestConfig
@@ -75,6 +76,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         val gjenlevFnr = "1234567890000"
         val avdodfnr = "01010100001"
         val euxCaseId = "80001"
+        val kilde = BucViewKilde.AVDOD
 
         //gjenlevende aktoerid -> gjenlevendefnr
         every { personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerid)) } returns NorskIdent(gjenlevFnr)
@@ -99,7 +101,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
 
         val result = mockMvc.perform(
-            MockMvcRequestBuilders.get("/buc/enkeldetalj/$euxCaseId/aktoerid/$aktoerid/saknr/$saknr/avdodfnr/$avdodfnr")
+            MockMvcRequestBuilders.get("/buc/enkeldetalj/$euxCaseId/aktoerid/$aktoerid/saknr/$saknr/avdodfnr/$avdodfnr/kilde/$kilde")
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
@@ -118,11 +120,56 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
     }
 
     @Test
-    fun `Gitt Det er en SingleBucRequest uten avdod skal det vises korrekt resulat`() {
+    fun `Gitt korrekt request med aktorid med avdod og kilde saf Så skal en BucAndSedView json vises`() {
+        val saknr = "1203201322"
+        val aktoerid = "1123123123123123"
+        val gjenlevFnr = "1234567890000"
+        val avdodfnr = "01010100001"
+        val euxCaseId = "80001"
+        val kilde = BucViewKilde.SAF
+
+        //gjenlevende aktoerid -> gjenlevendefnr
+        every { personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerid)) } returns NorskIdent(gjenlevFnr)
+
+        //dummy date
+        val lastupdate = LocalDate.of(2020, Month.AUGUST, 7).toString()
+
+        //buc02
+        val docItems = listOf(
+            DocumentsItem(id = "1", creationDate = lastupdate, lastUpdate = lastupdate, status = "sent", type = SedType.P15000, direction = "IN"),
+            DocumentsItem(id = "2", creationDate = lastupdate,  lastUpdate = lastupdate, status = "draft", type = SedType.P4000, direction = "OUT")
+        )
+        val buc10 = Buc(id = "$euxCaseId", processDefinitionName = "P_BUC_10", startDate = lastupdate, lastUpdate = lastupdate,  documents = docItems)
+
+        val rinabucpath = "/buc/$euxCaseId"
+        every { restEuxTemplate.exchange( rinabucpath, HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( buc10.toJson() )
+
+        val result = mockMvc.perform(
+            MockMvcRequestBuilders.get("/buc/enkeldetalj/$euxCaseId/aktoerid/$aktoerid/saknr/$saknr/avdodfnr/$avdodfnr/kilde/$kilde")
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andReturn()
+
+        val response = result.response.getContentAsString(charset("UTF-8"))
+
+        val expected = """
+            {"type":"P_BUC_10","caseId":"$euxCaseId","internationalId":"n/a","creator":{"country":"","institution":"","name":null,"acronym":null},"sakType":null,"status":null,"startDate":1596751200000,"lastUpdate":1596751200000,"institusjon":[],"seds":[{"attachments":[],"displayName":null,"type":"P15000","conversations":null,"isSendExecuted":null,"id":"1","direction":"IN","creationDate":1596751200000,"receiveDate":null,"typeVersion":null,"allowsAttachments":null,"versions":null,"lastUpdate":1596751200000,"parentDocumentId":null,"status":"sent","participants":null,"firstVersion":null,"lastVersion":null,"version":"1","message":null},{"attachments":[],"displayName":null,"type":"P4000","conversations":null,"isSendExecuted":null,"id":"2","direction":"OUT","creationDate":1596751200000,"receiveDate":null,"typeVersion":null,"allowsAttachments":null,"versions":null,"lastUpdate":1596751200000,"parentDocumentId":null,"status":"draft","participants":null,"firstVersion":null,"lastVersion":null,"version":"1","message":null}],"error":null,"readOnly":false,"subject":{"gjenlevende":{"fnr":"1234567890000"},"avdod":{"fnr":"01010100001"}}}
+        """.trimIndent()
+
+        JSONAssert.assertEquals(expected, response, false)
+        verify (exactly = 1) { restEuxTemplate.exchange("/buc/$euxCaseId", HttpMethod.GET, null, String::class.java)  }
+//        verify (exactly = 1) { restEuxTemplate.exchange("/buc/$euxCaseId/sed/1", HttpMethod.GET, null, String::class.java) }
+
+    }
+
+    @Test
+    fun `Gitt Det er en SingleBucRequest uten avdod skal det vises korrekt bucsedview resulat`() {
         val saknr = "1203201322"
         val aktoerid = "1123123123123123"
         val fnr = "1234567890000"
         val euxCaseId = "900001"
+        val kilde = BucViewKilde.BRUKER
 
         //aktoerid -> fnr
         every { personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerid)) } returns NorskIdent(fnr)
@@ -141,7 +188,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         every { restEuxTemplate.exchange( rinabucpath, HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( buc01.toJson() )
 
         val result = mockMvc.perform(
-            MockMvcRequestBuilders.get("/buc/enkeldetalj/$euxCaseId/aktoerid/$aktoerid/saknr/$saknr")
+            MockMvcRequestBuilders.get("/buc/enkeldetalj/$euxCaseId/aktoerid/$aktoerid/saknr/$saknr/kilde/$kilde")
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
@@ -163,6 +210,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         val aktoerid = "1123123123123123"
         val fnr = "1234567890000"
         val euxCaseId = "900001"
+        val kilde = BucViewKilde.SAF
 
         //aktoerid -> fnr
         every { personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerid)) } returns NorskIdent(fnr)
@@ -171,7 +219,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         every { restEuxTemplate.exchange( rinabucpath, HttpMethod.GET, null, String::class.java) } throws HttpClientErrorException(HttpStatus.NOT_FOUND)
 
         val result = mockMvc.perform(
-            MockMvcRequestBuilders.get("/buc/enkeldetalj/$euxCaseId/aktoerid/$aktoerid/saknr/$saknr")
+            MockMvcRequestBuilders.get("/buc/enkeldetalj/$euxCaseId/aktoerid/$aktoerid/saknr/$saknr/kilde/$kilde")
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().is2xxSuccessful)
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
@@ -201,7 +249,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         every { personService.hentIdent(IdentType.NorskIdent, AktoerId(gjenlevendeAktoerId)) } returns NorskIdent(gjenlevendeFnr)
 
         //buc02 - avdød rinasak
-        val rinaSakerBuc02 = listOf(dummyRinasak("5010", "P_BUC_02"), dummyRinasak("3202", BucType.P_BUC_03.name), dummyRinasak("5005", BucType.AD_BUC_01.name))
+        val rinaSakerBuc02 = listOf(dummyRinasak("5010", "P_BUC_02"), dummyRinasak("3202", BucType.P_BUC_03.name), dummyRinasak("5005", BucType.AD_BUC_01.name), dummyRinasak("15010", "P_BUC_10"))
         val rinaBuc02url = dummyRinasakAvdodUrl(avdodFnr, bucType = null)
         every { restEuxTemplate.exchange( rinaBuc02url.toUriString(), HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(rinaSakerBuc02.toJson())
 
@@ -235,19 +283,20 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         verify (exactly = 1) { restSafTemplate.exchange("/", HttpMethod.POST, httpEntity, String::class.java) }
 
         val expected = """
-            [{"euxCaseId":"5010","buctype":"P_BUC_02","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":"01010100001"},{"euxCaseId":"3010","buctype":"P_BUC_01","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":null},{"euxCaseId":"75312","buctype":"P_BUC_03","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":null}]
+            [{"euxCaseId":"5010","buctype":"P_BUC_02","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":"01010100001","kilde":"SAF"},{"euxCaseId":"15010","buctype":"P_BUC_10","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":"01010100001","kilde":"AVDOD"},{"euxCaseId":"3010","buctype":"P_BUC_01","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":null,"kilde":"BRUKER"},{"euxCaseId":"75312","buctype":"P_BUC_03","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":null,"kilde":"BRUKER"}]
         """.trimIndent()
 
-        JSONAssert.assertEquals(expected, response, false)
+        JSONAssert.assertEquals(expected, response, true)
 
         val requestlist = mapJsonToAny(response, typeRefs<List<BucView>>())
 
-        assertEquals(3, requestlist.size)
+        assertEquals(4, requestlist.size)
         val bucVeiw = requestlist.first()
         assertEquals("100001000", bucVeiw.saknr)
         assertEquals( BucType.P_BUC_02, bucVeiw.buctype)
         assertEquals( "5010", bucVeiw.euxCaseId)
         assertEquals( "1123123123123123", bucVeiw.aktoerId)
+        assertEquals(BucViewKilde.SAF, bucVeiw.kilde)
 
         println(requestlist.toJson())
 
