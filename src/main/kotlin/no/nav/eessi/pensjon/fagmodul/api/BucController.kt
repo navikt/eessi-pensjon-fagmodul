@@ -52,6 +52,7 @@ class BucController(
     private lateinit var bucDetaljerEnkel: MetricsHelper.Metric
     private lateinit var bucDetaljerEnkelavdod: MetricsHelper.Metric
     private lateinit var bucDetaljerGjenlev: MetricsHelper.Metric
+    private lateinit var bucView: MetricsHelper.Metric
 
     @PostConstruct
     fun initMetrics() {
@@ -60,8 +61,8 @@ class BucController(
         bucDetaljerEnkel = metricsHelper.init("BucDetaljerEnkel", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         bucDetaljerGjenlev  = metricsHelper.init("BucDetaljerGjenlev", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         bucDetaljerEnkelavdod = metricsHelper.init("BucDetalsjerEnkelAvdod", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
+        bucView = metricsHelper.init("BucView", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
     }
-
 
 
     @Operation(description = "henter liste av alle tilgjengelige BuC-typer")
@@ -242,7 +243,6 @@ class BucController(
         }
     }
 
-
     @Operation(description = "Henter ut en liste over saker på valgt aktoerid. ny api kall til eux")
     @GetMapping("/rinasaker/{aktoerId}/saknr/{saknr}",
         "/rinasaker/{aktoerId}/saknr/{saknr}/vedtak/{vedtakid}")
@@ -251,32 +251,43 @@ class BucController(
         @PathVariable("saknr", required = false) sakNr: String,
         @PathVariable("vedtakid", required = false) vedtakId: String? = null
     ): List<BucView> {
-        logger.info("henter rinasaker på valgt aktoerid: $aktoerId, på saknr: $sakNr")
+        return bucView.measure {
+            val start = System.currentTimeMillis()
+            logger.info("henter rinasaker på valgt aktoerid: $aktoerId, på saknr: $sakNr")
 
-        val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerId)
-        val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraMetaData(aktoerId)
+            val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerId)
 
-        //bruker saker fra eux/rina
-        val brukerView = euxInnhentingService.getBucViewBruker(gjenlevendeFnr, aktoerId, sakNr)
+            val joarkstart = System.currentTimeMillis()
+            val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraMetaData(aktoerId)
+            val joarkend = System.currentTimeMillis()
+            logger.info("hentRinaSakIderFraMetaData tid: ${joarkend-joarkstart} i ms")
 
-        //saker fra saf og eux/rina
-        val safView = euxInnhentingService.getBucViewBrukerSaf(aktoerId, sakNr, rinaSakIderFraJoark)
-        val safmap = safView.map { view -> view.euxCaseId }
-        //avdodsaker hvis vedtak finnes
-        val avdodView: List<BucView> = avdodRinasakerList(vedtakId, sakNr, aktoerId)
-        val avdodViewSaf = avdodView.filter { view -> view.euxCaseId in safmap }
-            .map { view ->
-                view.copy(kilde = BucViewKilde.SAF)
-            }
-        val avdodViewUtenSaf = avdodView.filterNot { view -> view.euxCaseId in avdodViewSaf.map { it.euxCaseId  } }
+            //bruker saker fra eux/rina
+            val brukerView = euxInnhentingService.getBucViewBruker(gjenlevendeFnr, aktoerId, sakNr)
 
-        //samkjøre til megaview
-        val view = brukerView + safView + avdodViewSaf + avdodViewUtenSaf
-        logger.debug("view Size : ${view.size}")
+            //saker fra saf og eux/rina
+            val safView = euxInnhentingService.getBucViewBrukerSaf(aktoerId, sakNr, rinaSakIderFraJoark)
+            val safmap = safView.map { view -> view.euxCaseId }
 
-        //return med sort og distict (avdodfmr og caseid)
-        return view.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
-            .also { logger.info("Total view size: ${it.size}") }
+            //avdodsaker hvis vedtak finnes
+            val avdodView: List<BucView> = avdodRinasakerList(vedtakId, sakNr, aktoerId)
+            val avdodViewSaf = avdodView.filter { view -> view.euxCaseId in safmap }
+                .map { view ->
+                    view.copy(kilde = BucViewKilde.SAF)
+                }
+            val avdodViewUtenSaf = avdodView.filterNot { view -> view.euxCaseId in avdodViewSaf.map { it.euxCaseId  } }
+
+            //samkjøre til megaview
+            val view = brukerView + safView + avdodViewSaf + avdodViewUtenSaf
+            logger.debug("view Size : ${view.size}")
+
+            //return med sort og distict (avdodfmr og caseid)
+            return@measure view.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
+                .also { logger.info("Total view size: ${it.size}") }
+                .also { val end = System.currentTimeMillis()
+                        logger.info("GjenlevendeRinasakerVedtak total tid: ${end-start} i ms")
+                }
+        }
     }
 
     private fun avdodRinasakerList(vedtakId: String?, sakNr: String, aktoerId: String): List<BucView> {

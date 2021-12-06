@@ -139,6 +139,7 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
     }
 
     fun getFilteredArchivedaRinasakerSak(list: List<Rinasak>): List<Rinasak> {
+        val start = System.currentTimeMillis()
         val ugyldigeRinasaker = listOf("6006777")
         fun filterUfyldigeRinasaker(rinaid: String) : Boolean {
             return if (rinaid in ugyldigeRinasaker) {
@@ -156,6 +157,9 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
             .sortedBy { rinasak -> rinasak.id }
             .filterNot { rinaid -> filterUfyldigeRinasaker(rinaid.id!!) }
             .toList()
+            .also { val end = System.currentTimeMillis()
+                logger.info("FilteredArchivedaRinasakerSak tid ${end-start} i ms")
+            }
     }
 
     fun getBucDeltakere(euxCaseId: String): List<ParticipantsItem> {
@@ -295,6 +299,7 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
 
 
     fun getBucViewBruker(fnr: String, aktoerId: String, sakNr: String): List<BucView> {
+        val start = System.currentTimeMillis()
         val rinaSakerMedFnr = euxKlient.getRinasaker(fnr, status = "\"open\"")
 
         val filteredRinaBruker = getFilteredArchivedaRinasakerSak(rinaSakerMedFnr)
@@ -309,11 +314,14 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
                 null,
                 BucViewKilde.BRUKER
             )
+        }.also {
+            val end = System.currentTimeMillis()
+            logger.info("BucViewBruker tid ${end-start} i ms")
         }
     }
 
     fun getBucViewBrukerSaf(aktoerId: String, sakNr: String, safSaker: List<String>): List<BucView> {
-
+        val start = System.currentTimeMillis()
         val rinaSakerMedSaf = safSaker
             .map { id ->
                 euxKlient.getRinasaker(euxCaseId = id , status = "\"open\"")
@@ -332,11 +340,16 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
                 null,
                 BucViewKilde.SAF
             )
+        }.also {
+            val end = System.currentTimeMillis()
+            logger.info("SafViewBruker tid ${end-start} i ms")
         }
+
     }
 
 
     fun getBucViewAvdod(avdodFnr: String, aktoerId: String, sakNr: String): List<BucView> {
+        val start = System.currentTimeMillis()
         val validAvdodBucs = listOf("P_BUC_02", "P_BUC_05", "P_BUC_06", "P_BUC_10")
 
         val rinaSakerMedAvdodFnr =  euxKlient.getRinasaker(avdodFnr, status = "\"open\"")
@@ -354,6 +367,9 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
                 avdodFnr,
                 BucViewKilde.AVDOD
             )
+        }.also {
+            val end = System.currentTimeMillis()
+            logger.info("AvdodViewBruker tid ${end-start} i ms")
         }
     }
 
