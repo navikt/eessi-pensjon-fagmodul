@@ -246,7 +246,8 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         val saknr = "100001000"
 
 
-        every { pensjonsinformasjonClient.hentAltPaaVedtak(vedtakid) } returns mockVedtak(avdodFnr, gjenlevendeAktoerId)
+        every { pensjonsinformasjonClient.hentAltPaaVedtak(vedtakid) } .answers( FunctionAnswer { Thread.sleep(56); mockVedtak(avdodFnr, gjenlevendeAktoerId) } )
+
         //gjenlevende aktoerid -> gjenlevendefnr
         every { personService.hentIdent(IdentType.NorskIdent, AktoerId(gjenlevendeAktoerId)) } returns NorskIdent(gjenlevendeFnr)
 
@@ -254,15 +255,12 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         val rinaSakerBuc02 = listOf(dummyRinasak("5010", "P_BUC_02"), dummyRinasak("3202", BucType.P_BUC_03.name), dummyRinasak("5005", BucType.AD_BUC_01.name), dummyRinasak("14675", BucType.P_BUC_06.name))
         val rinaBuc02url = dummyRinasakAvdodUrl(avdodFnr, bucType = null)
 
-        val answer = FunctionAnswer { Thread.sleep(570); ResponseEntity.ok().body(rinaSakerBuc02.toJson() ) }
+        val answer = FunctionAnswer { Thread.sleep(220); ResponseEntity.ok().body(rinaSakerBuc02.toJson() ) }
         every { restEuxTemplate.exchange( rinaBuc02url.toUriString(), HttpMethod.GET, null, String::class.java) } .answers(answer)
 
         //saf (sikker arkiv fasade) (vedlegg meta) gjenlevende
         val httpEntity = dummyHeader(dummySafReqeust(gjenlevendeAktoerId))
         every { restSafTemplate.exchange(eq("/"), eq(HttpMethod.POST), eq(httpEntity), eq(String::class.java)) } returns ResponseEntity.ok().body(  dummySafMetaResponseMedRina( "5010", "344000" ) )
-        val rinaSafUrl = dummyRinasakUrl(euxCaseId =  "5010", status = "\"open\"")
-        val rinasakSaf = listOf(dummyRinasak("5010", BucType.P_BUC_02.name), )
-        every { restEuxTemplate.exchange( eq(rinaSafUrl.toUriString()), eq(HttpMethod.GET), null, eq(String::class.java)) } .answers( FunctionAnswer { Thread.sleep(250); ResponseEntity.ok().body( rinasakSaf.toJson() ) })
 
         val rinaSafUrl2 = dummyRinasakUrl(euxCaseId =  "344000", status = "\"open\"")
         val rinasakSaf2 = listOf(dummyRinasak("344000", BucType.P_BUC_10.name), )
@@ -286,27 +284,37 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         //data og spurt eux
         verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&status=\"open\"", HttpMethod.GET, null, String::class.java) }
         verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=1234567890000&status=\"open\"", HttpMethod.GET, null, String::class.java) }
-        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?rinasaksnummer=5010&status=\"open\"", HttpMethod.GET, null, String::class.java) }
+//        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?rinasaksnummer=5010&status=\"open\"", HttpMethod.GET, null, String::class.java) }
         verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?rinasaksnummer=344000&status=\"open\"", HttpMethod.GET, null, String::class.java) }
         verify (exactly = 1) { restSafTemplate.exchange("/", HttpMethod.POST, httpEntity, String::class.java) }
 
+//        val expected = """
+//            [{"euxCaseId":"344000","buctype":"P_BUC_10","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":"01010100001","kilde":"SAF"},
+//            {"euxCaseId":"5010","buctype":"P_BUC_02","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":"01010100001","kilde":"SAF"},
+//            {"euxCaseId":"14675","buctype":"P_BUC_06","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":"01010100001","kilde":"AVDOD"},
+//            {"euxCaseId":"3010","buctype":"P_BUC_01","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":null,"kilde":"BRUKER"},
+//            {"euxCaseId":"75312","buctype":"P_BUC_03","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":null,"kilde":"BRUKER"}]
+//        """.trimIndent()
+
         val expected = """
-            [{"euxCaseId":"344000","buctype":"P_BUC_10","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":"01010100001","kilde":"SAF"},
-            {"euxCaseId":"5010","buctype":"P_BUC_02","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":"01010100001","kilde":"SAF"},
+            [{"euxCaseId":"5010","buctype":"P_BUC_02","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":"01010100001","kilde":"SAF"},
             {"euxCaseId":"14675","buctype":"P_BUC_06","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":"01010100001","kilde":"AVDOD"},
+            {"euxCaseId":"344000","buctype":"P_BUC_10","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":"01010100001","kilde":"SAF"},
             {"euxCaseId":"3010","buctype":"P_BUC_01","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":null,"kilde":"BRUKER"},
             {"euxCaseId":"75312","buctype":"P_BUC_03","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":null,"kilde":"BRUKER"}]
         """.trimIndent()
+
 
         JSONAssert.assertEquals(expected, response, true)
 
         val requestlist = mapJsonToAny(response, typeRefs<List<BucView>>())
 
         assertEquals(5, requestlist.size)
-        val bucVeiw = requestlist.first { it.euxCaseId == "5010"}
+        val bucVeiw = requestlist.first()
         assertEquals("100001000", bucVeiw.saknr)
         assertEquals( BucType.P_BUC_02, bucVeiw.buctype)
         assertEquals( "1123123123123123", bucVeiw.aktoerId)
+        assertEquals("5010", bucVeiw.euxCaseId)
         assertEquals(BucViewKilde.SAF, bucVeiw.kilde)
 
         println(requestlist.toJson())

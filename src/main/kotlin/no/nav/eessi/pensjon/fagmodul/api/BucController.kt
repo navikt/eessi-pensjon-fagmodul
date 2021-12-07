@@ -253,8 +253,10 @@ class BucController(
     ): List<BucView> {
         return bucView.measure {
             val start = System.currentTimeMillis()
-            logger.info("henter rinasaker på valgt aktoerid: $aktoerId, på saknr: $sakNr")
+            //buctyper fra saf som kobles til første avdodfnr
+            val safAvdodBucList = listOf(BucType.P_BUC_02, BucType.P_BUC_05, BucType.P_BUC_06, BucType.P_BUC_10)
 
+            logger.info("henter rinasaker på valgt aktoerid: $aktoerId, på saknr: $sakNr")
             val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerId)
 
             val joarkstart = System.currentTimeMillis()
@@ -265,34 +267,73 @@ class BucController(
             //bruker saker fra eux/rina
             val brukerView = euxInnhentingService.getBucViewBruker(gjenlevendeFnr, aktoerId, sakNr)
 
-            //saker fra saf og eux/rina
-            val safView = euxInnhentingService.getBucViewBrukerSaf(aktoerId, sakNr, rinaSakIderFraJoark)
-            val safmap = safView.map { view -> view.euxCaseId }
+            //filtert bort brukersaker fra saf
+            val filterBrukerRinaSakIderFraJoark = rinaSakIderFraJoark.filterNot { rinaid -> rinaid in brukerView.map { it.euxCaseId }  }
 
-            //avdodsaker hvis vedtak finnes
-            val avdodView: List<BucView> = avdodRinasakerList(vedtakId, sakNr, aktoerId, safView)
+            //liste over avdodfnr fra vedtak (pesys)
+            val avdodlist = avdodFraVedtak(vedtakId, sakNr)
 
+            //hent avdod saker fra eux/rina
+            val avdodView = avdodlist.map { avdodfnr ->
+                avdodRinasakerView(avdodfnr, aktoerId, sakNr)
+            }.flatten()
+
+            //filter avdodview for match på filterBrukersakerRina
             val avdodViewSaf = avdodView
-                .filterNot { view -> view.kilde == BucViewKilde.SAF && view.avdodFnr != null }
-                .filter { view -> view.euxCaseId in safmap }
+                //.filterNot { view -> view.kilde == BucViewKilde.SAF && view.avdodFnr != null }
+                .filter { view -> view.euxCaseId in filterBrukerRinaSakIderFraJoark }
                 .map { view ->
                     view.copy(kilde = BucViewKilde.SAF)
                 }
 
+            //avdod saker view uten saf
             val avdodViewUtenSaf = avdodView.filterNot { view -> view.euxCaseId in avdodViewSaf.map { it.euxCaseId  } }
 
+            //liste over saker fra saf som kan hentes
+            val filterAvodRinaSakIderFraJoark = filterBrukerRinaSakIderFraJoark.filterNot { rinaid -> rinaid in avdodView.map { it.euxCaseId }  }
+
+            //saker fra saf og eux/rina
+            val safView = euxInnhentingService.getBucViewBrukerSaf(aktoerId, sakNr, filterAvodRinaSakIderFraJoark)
+                .filter { view -> view.buctype in safAvdodBucList }
+                .map { view -> view.copy(avdodFnr = avdodlist.firstOrNull()) }
+                .also { if (avdodlist.size == 2) logger.warn("finnes 2 avdod men valgte første, ingen koblinger")}
+
             //samkjøre til megaview
-            val view = brukerView + safView + avdodViewSaf + avdodViewUtenSaf
-            logger.debug("view Size : ${view.size}")
+            //val view = brukerView + safView + avdodViewSaf + avdodViewUtenSaf
+            val view = brukerView + avdodViewSaf + avdodViewUtenSaf + safView
 
             //return med sort og distict (avdodfmr og caseid)
             return@measure view.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
                 .also { logger.info("Total view size: ${it.size}") }
                 .also { val end = System.currentTimeMillis()
-                        logger.info("GjenlevendeRinasakerVedtak total tid: ${end-start} i ms")
+                        if (avdodlist.isEmpty()) {
+                            logger.info("BrukerRinasaker total tid: ${end-start} i ms")
+                        } else {
+                            logger.info("GjenlevendeRinasakerVedtak total tid: ${end-start} i ms")
+                        }
                 }
         }
     }
+
+    private fun avdodFraVedtak(vedtakId: String?, sakNr: String): List<String> {
+        if (vedtakId == null) return emptyList()
+
+        val start = System.currentTimeMillis()
+        val pensjonsinformasjon = try {
+            innhentingService.hentPensjoninformasjonVedtak(vedtakId)
+        } catch (ex: Exception) {
+            logger.warn("Feiler ved henting av pensjoninformasjon (saknr: $sakNr, vedtak: $vedtakId), forsetter uten.")
+            null
+        }
+        val avdodlist = pensjonsinformasjon?.let { peninfo -> innhentingService.hentAvdodeFnrfraPensjoninformasjon(peninfo) } ?: emptyList()
+        return avdodlist.also {
+            val end = System.currentTimeMillis()
+            logger.debug("Hent avdod fra vedtak tid: ${end-start} i ms") }
+    }
+
+    private fun avdodRinasakerView(avdodfnr: String, aktoerid: String, sakNr: String) : List<BucView> =  euxInnhentingService.getBucViewAvdod(avdodfnr, aktoerid, sakNr)
+
+
 
     private fun avdodRinasakerList(vedtakId: String?, sakNr: String, aktoerId: String, safView: List<BucView>): List<BucView> {
         if (vedtakId == null) return emptyList()
