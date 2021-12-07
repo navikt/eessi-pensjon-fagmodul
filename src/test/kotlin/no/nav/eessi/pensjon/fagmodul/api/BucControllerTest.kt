@@ -81,7 +81,6 @@ class BucControllerTest {
             mockEuxInnhentingService,
             auditLogger,
             innhentingService,
-            "http://rinaurl.localhost"
         )
         bucController.initMetrics()
     }

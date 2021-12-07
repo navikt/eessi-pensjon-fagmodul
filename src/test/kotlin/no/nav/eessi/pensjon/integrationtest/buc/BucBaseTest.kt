@@ -76,6 +76,63 @@ open class BucBaseTest {
         """.trimIndent()
     }
 
+    fun dummySafMetaResponseMedRina(rinaid1: String, rinaid2: String): String {
+        return """
+            {
+              "data": {
+                "dokumentoversiktBruker": {
+                  "journalposter": [
+                    {
+                      "tilleggsopplysninger": [
+                          {
+                              "nokkel":"eessi_pensjon_bucid",
+                              "verdi":"$rinaid1"
+                            }  
+                      ],
+                      "journalpostId": "4395321441",
+                      "datoOpprettet": "2018-06-08T17:06:58",
+                      "tittel": "MASKERT_FELT",
+                      "tema": "PEN",
+                      "dokumenter": []
+                    },
+                    {
+                      "tilleggsopplysninger": [
+                          {
+                              "nokkel":"eessi_pensjon_bucid",
+                              "verdi":"$rinaid2"
+                            }  
+                      ],
+                      "journalpostId": "4395321440",
+                      "datoOpprettet": "2018-06-08T17:06:58",
+                      "tittel": "MASKERT_FELT",
+                      "tema": "PEN",
+                      "dokumenter": []
+                    }                    
+                  ]
+                }
+              }
+            }
+        """.trimIndent()
+    }
+
+    private fun journalfPortData(rinaid: String): String {
+        return """
+             {
+              "tilleggsopplysninger": [
+                  {
+                      "nokkel":"eessi_pensjon_bucid",
+                      "verdi":"$rinaid"
+                    }  
+              ],
+              "journalpostId": "$rinaid-144",
+              "datoOpprettet": "2018-06-08T17:06:58",
+              "tittel": "MASKERT_FELT",
+              "tema": "PEN",
+              "dokumenter": []
+            },
+        """.trimIndent()
+    }
+
     fun dummyRinasakAvdodUrl(avdod: String? = null, bucType: String? = "P_BUC_02", status: String? =  "\"open\"") = dummyRinasakUrl(avdod, bucType, null, status)
     fun dummyRinasakUrl(fnr: String? = null, bucType: String? = null, euxCaseId: String? = null, status: String? = null) : UriComponents {
         return EuxKlient.getRinasakerUri(fnr, euxCaseId, bucType, status)

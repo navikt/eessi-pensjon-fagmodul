@@ -3,6 +3,7 @@ package no.nav.eessi.pensjon.fagmodul.api
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import io.swagger.v3.oas.annotations.Operation
 import no.nav.eessi.pensjon.eux.model.SedType
+import no.nav.eessi.pensjon.eux.model.buc.BucType
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedSubject
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
@@ -41,7 +42,6 @@ class BucController(
     private val euxInnhentingService: EuxInnhentingService,
     private val auditlogger: AuditLogger,
     private val innhentingService: InnhentingService,
-    @Value("\${eessipen-eux-rina.url}") private val rinaUrl: String,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())
 ) {
 
@@ -270,11 +270,15 @@ class BucController(
             val safmap = safView.map { view -> view.euxCaseId }
 
             //avdodsaker hvis vedtak finnes
-            val avdodView: List<BucView> = avdodRinasakerList(vedtakId, sakNr, aktoerId)
-            val avdodViewSaf = avdodView.filter { view -> view.euxCaseId in safmap }
+            val avdodView: List<BucView> = avdodRinasakerList(vedtakId, sakNr, aktoerId, safView)
+
+            val avdodViewSaf = avdodView
+                .filterNot { view -> view.kilde == BucViewKilde.SAF && view.avdodFnr != null }
+                .filter { view -> view.euxCaseId in safmap }
                 .map { view ->
                     view.copy(kilde = BucViewKilde.SAF)
                 }
+
             val avdodViewUtenSaf = avdodView.filterNot { view -> view.euxCaseId in avdodViewSaf.map { it.euxCaseId  } }
 
             //samkjøre til megaview
@@ -290,7 +294,7 @@ class BucController(
         }
     }
 
-    private fun avdodRinasakerList(vedtakId: String?, sakNr: String, aktoerId: String): List<BucView> {
+    private fun avdodRinasakerList(vedtakId: String?, sakNr: String, aktoerId: String, safView: List<BucView>): List<BucView> {
         if (vedtakId == null) return emptyList()
 
         val pensjonsinformasjon = try {
@@ -303,12 +307,26 @@ class BucController(
 
         //rinasaker på avdod
         return if (avdod != null && (pensjonsinformasjon.person.aktorId == aktoerId)) {
-            avdod.map { avdodfnr ->
-                getAvdodRinaSak(aktoerId, sakNr, avdodfnr)
-            }
+            val safAvdodBucList = listOf(BucType.P_BUC_02, BucType.P_BUC_05, BucType.P_BUC_06, BucType.P_BUC_10)
+
+            val avdodview = avdod.map { avdodfnr ->
+                euxInnhentingService.getBucViewAvdod(avdodfnr, aktoerId, sakNr)
+            }.flatten()
+
+            val avdodFnrs = avdodview.map { view -> view.avdodFnr }
+
+            val safAvdodView = safView.filter { sview -> sview.buctype in safAvdodBucList }
+                        .map { view ->
+                             view.copy(avdodFnr = avdodFnrs.firstOrNull()  )
+                        }
+
+            val avdodSafView = avdodview + safAvdodView
+            avdodSafView.sortedBy { view -> view.kilde }.distinctBy { view -> view.euxCaseId }
+
         } else {
             emptyList()
-        }.flatten()
+        }
+
     }
 
     @GetMapping("/rinasaker/{aktoerId}/saknr/{saknr}/avdod/{avdodfnr}")
