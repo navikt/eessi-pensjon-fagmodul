@@ -321,6 +321,59 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
      }
 
+
+    @Test
+    fun `Hent mulige rinasaker for aktoer og saf`() {
+        val gjenlevendeFnr = "1234567890000"
+        val gjenlevendeAktoerId = "1123123123123123"
+        val saknr = "100001000"
+
+
+        //gjenlevende aktoerid -> gjenlevendefnr
+        every { personService.hentIdent(IdentType.NorskIdent, AktoerId(gjenlevendeAktoerId)) } returns NorskIdent(gjenlevendeFnr)
+
+        //saf (sikker arkiv fasade) (vedlegg meta) gjenlevende
+        val httpEntity = dummyHeader(dummySafReqeust(gjenlevendeAktoerId))
+        //,
+        every { restSafTemplate.exchange(eq("/"), eq(HttpMethod.POST), eq(httpEntity), eq(String::class.java)) } returns ResponseEntity.ok().body(  dummySafMetaResponseMedRina( "5195021", "5922554" ) )
+
+        val rinaSafUrl1 = dummyRinasakUrl(euxCaseId =  "5922554", status = "\"open\"")
+        every { restEuxTemplate.exchange( eq( rinaSafUrl1.toUriString() ), eq(HttpMethod.GET), null, eq(String::class.java)) } .answers( FunctionAnswer { Thread.sleep(250); ResponseEntity.ok().body( listOf(dummyRinasak("5922554", BucType.P_BUC_03.name)).toJson() ) } )
+
+        //gjenlevende rinasak
+        val rinaGjenlevUrl = dummyRinasakUrl(gjenlevendeFnr, status = "\"open\"")
+        every { restEuxTemplate.exchange(rinaGjenlevUrl.toUriString(), HttpMethod.GET, null, String::class.java) } .answers( FunctionAnswer { Thread.sleep(250); ResponseEntity.ok().body( listOf(dummyRinasak("5195021", "P_BUC_05") ).toJson() ) } )
+
+        val result = mockMvc.perform(
+            MockMvcRequestBuilders.get("/buc/rinasaker/$gjenlevendeAktoerId/saknr/$saknr")
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andReturn()
+
+        val response = result.response.getContentAsString(charset("UTF-8"))
+
+        //data og spurt eux
+        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=1234567890000&status=\"open\"", HttpMethod.GET, null, String::class.java) }
+        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?rinasaksnummer=5922554&status=\"open\"", HttpMethod.GET, null, String::class.java) }
+        verify (exactly = 1) { restSafTemplate.exchange("/", HttpMethod.POST, httpEntity, String::class.java) }
+
+        val expected = """
+                [{"euxCaseId":"5195021","buctype":"P_BUC_05","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":null,"kilde":"BRUKER"},
+                {"euxCaseId":"5922554","buctype":"P_BUC_03","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":null,"kilde":"SAF"}]
+        """.trimIndent()
+
+
+        JSONAssert.assertEquals(expected, response, true)
+
+        val requestlist = mapJsonToAny(response, typeRefs<List<BucView>>())
+        assertEquals(2, requestlist.size)
+
+        println(response)
+
+    }
+
+
     @Test
     fun `Hent mulige rinasaker for aktoer uten vedtak og saf`() {
         val fnr = "1234567890000"

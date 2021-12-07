@@ -294,13 +294,23 @@ class BucController(
 
             //saker fra saf og eux/rina
             val safView = euxInnhentingService.getBucViewBrukerSaf(aktoerId, sakNr, filterAvodRinaSakIderFraJoark)
+//            logger.debug("safView : ${safView.toJson()}")
+
+            //saf filter mot avdod
+            val safViewAvdod = safView
                 .filter { view -> view.buctype in safAvdodBucList }
                 .map { view -> view.copy(avdodFnr = avdodlist.firstOrNull()) }
                 .also { if (avdodlist.size == 2) logger.warn("finnes 2 avdod men valgte første, ingen koblinger")}
+//            logger.debug("safViewAvdod : ${safViewAvdod.toJson()}")
+
+            //saf filter mot bruker
+            val safViewBruker = safView
+                .filterNot { view -> view.euxCaseId in safViewAvdod.map { it.euxCaseId } }
+//            logger.debug("safView Bruker: ${safViewBruker.toJson()}")
 
             //samkjøre til megaview
             //val view = brukerView + safView + avdodViewSaf + avdodViewUtenSaf
-            val view = brukerView + avdodViewSaf + avdodViewUtenSaf + safView
+            val view = brukerView + avdodViewSaf + avdodViewUtenSaf + safViewAvdod + safViewBruker
 
             //return med sort og distict (avdodfmr og caseid)
             return@measure view.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
