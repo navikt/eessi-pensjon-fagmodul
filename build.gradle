@@ -11,6 +11,9 @@ buildscript {
         pensjonInformasjonVersion = '9.4.10'
         eppersonoppslagVersion = '8.0.19'
         epeuxVersion = '1.1.55'
+        epMetricsVersion="0.4.12"
+        epSecurityVersion="0.0.19"
+        epLoggingVersion="1.0.12"
         archunitVersion = '0.11.0'
     }
 
@@ -86,10 +89,10 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-actuator:$springBootVersion")
 
     // Kotlin
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:${jacksonModuleKotlinVersion}")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonModuleKotlinVersion}")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:${kotlinVersion}")
-    implementation("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonModuleKotlinVersion")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonModuleKotlinVersion")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
 
     // Swagger
     implementation("org.springdoc:springdoc-openapi-ui:1.5.10")
@@ -98,7 +101,7 @@ dependencies {
     implementation('org.springdoc:springdoc-openapi-data-rest:1.5.10')
 
     // Logging
-    implementation("net.logstash.logback:logstash-logback-encoder:${logstashLogbackVersion}")
+    implementation("net.logstash.logback:logstash-logback-encoder:$logstashLogbackVersion")
     configurations { all*.exclude group: 'commons-logging', module: 'commons-logging' }
     implementation group: 'org.slf4j', name: 'jcl-over-slf4j'
 
@@ -107,11 +110,11 @@ dependencies {
     implementation("org.syslog4j:syslog4j:0.9.30")
 
     // OIDC
-    implementation("no.nav.security:token-validation-spring:${tokenSupportVersion}")
-    implementation("no.nav.security:token-validation-jaxrs:${tokenSupportVersion}")
-    implementation("no.nav.security:token-client-spring:${tokenSupportVersion}")
+    implementation("no.nav.security:token-validation-spring:$tokenSupportVersion")
+    implementation("no.nav.security:token-validation-jaxrs:$tokenSupportVersion")
+    implementation("no.nav.security:token-client-spring:$tokenSupportVersion")
     // Only used for starting up locally
-    implementation("no.nav.security:token-validation-test-support:${tokenSupportVersion}")
+    implementation("no.nav.security:token-validation-test-support:$tokenSupportVersion")
 
     testImplementation("org.pac4j:spring-webmvc-pac4j:5.0.0")
 
@@ -126,14 +129,13 @@ dependencies {
     implementation("io.micrometer:micrometer-registry-prometheus:1.7.2")
     implementation ("org.springframework.kafka:spring-kafka")
 
-    implementation("no.nav.eessi.pensjon:ep-metrics:0.4.9")
-    implementation("no.nav.eessi.pensjon:ep-security-sts:0.0.19")
-    implementation("no.nav.eessi.pensjon:ep-logging:1.0.12")
-    implementation("no.nav.eessi.pensjon:ep-personoppslag:${eppersonoppslagVersion}")
-    implementation("no.nav.eessi.pensjon:ep-eux:${epeuxVersion}")
+    implementation("no.nav.eessi.pensjon:ep-metrics:$epMetricsVersion")
+    implementation("no.nav.eessi.pensjon:ep-security-sts:$epSecurityVersion")
+    implementation("no.nav.eessi.pensjon:ep-logging:$epLoggingVersion")
+    implementation("no.nav.eessi.pensjon:ep-personoppslag:$eppersonoppslagVersion")
+    implementation("no.nav.eessi.pensjon:ep-eux:$epeuxVersion")
 
     // Forenklere mocking av beans, benyttes som mockito mockbean
-    testImplementation("org.springframework.kafka:spring-kafka-test")
     testImplementation("com.ninja-squad:springmockk:3.0.1")
 
     //mock - test
@@ -141,13 +143,14 @@ dependencies {
     testImplementation("org.junit.platform:junit-platform-suite-api:1.7.2")
 
     testImplementation("org.skyscreamer:jsonassert:1.5.0")
-    testImplementation("org.jetbrains.kotlin:kotlin-test:${kotlinVersion}") {
+    testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlinVersion") {
         exclude module: 'kotlin-test-js'
         exclude module: 'kotlin-test-testng'
     }
 
     // Architecture tests
-    testImplementation ("com.tngtech.archunit:archunit:${archunitVersion}")
+    testImplementation ("com.tngtech.archunit:archunit:$archunitVersion")
+    testImplementation("org.springframework.kafka:spring-kafka-test")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude module: 'junit'
         exclude module: "mockito-core"
