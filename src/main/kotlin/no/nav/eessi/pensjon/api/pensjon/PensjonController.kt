@@ -9,6 +9,7 @@ import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjoninformasjonValid
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.utils.errorBody
 import no.nav.eessi.pensjon.utils.mapAnyToJson
+import no.nav.pensjon.v1.vilkarsvurdering.V1Vilkarsvurdering
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
@@ -105,6 +106,30 @@ class PensjonController(private val pensjonsinformasjonClient: Pensjonsinformasj
             }
         }
     }
+
+    @GetMapping("/vedtatk/{vedtakid}/vilkarsvurdering")
+    fun hentVedtakforVilkarsVurderingList(@PathVariable("vedtakid", required = true) vedtakId: String): List<V1Vilkarsvurdering> {
+        val pensjonsinformasjon = pensjonsinformasjonClient.hentAltPaaVedtak(vedtakId)
+
+        logger.debug("--".repeat(100))
+        logger.debug("vilkarsliste sizze : ${pensjonsinformasjon.vilkarsvurderingListe.vilkarsvurderingListe.size}")
+        val vilkarsvurderingListe = pensjonsinformasjon.vilkarsvurderingListe.vilkarsvurderingListe
+
+        val vilkarsvurderingUforetrygdListe = vilkarsvurderingListe.map { it.vilkarsvurderingUforetrygd }
+        logger.debug("vilkarsvurdering ufore: ${vilkarsvurderingUforetrygdListe.size}")
+
+        vilkarsvurderingUforetrygdListe.forEach { v1ufore ->
+            logger.debug("--".repeat(100))
+            logger.debug("Uforetidspunkt: ${v1ufore.uforetidspunkt}")
+
+            logger.debug("ungUfor: ${v1ufore.ungUfor}")
+            logger.debug("isYrkesskade: ${v1ufore.isYrkesskade}")
+            logger.debug("hensiktsmessigArbeidsrettedeTiltak: ${v1ufore.hensiktsmessigArbeidsrettedeTiltak}")
+        }
+
+        return vilkarsvurderingListe
+    }
+
 
     @Operation(description = "Henter ut en liste over alle saker på valgt aktoerId")
     @GetMapping("/sakliste/{aktoerId}")
