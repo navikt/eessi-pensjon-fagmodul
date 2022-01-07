@@ -113,9 +113,10 @@ class PensjonController(private val pensjonsinformasjonClient: Pensjonsinformasj
 
         logger.debug("--".repeat(100))
         logger.debug("vilkarsliste sizze : ${pensjonsinformasjon.vilkarsvurderingListe.vilkarsvurderingListe.size}")
+
         val vilkarsvurderingListe = pensjonsinformasjon.vilkarsvurderingListe.vilkarsvurderingListe
 
-        val vilkarsvurderingUforetrygdListe = vilkarsvurderingListe.map { it.vilkarsvurderingUforetrygd }
+        val vilkarsvurderingUforetrygdListe = vilkarsvurderingListe.mapNotNull { it.vilkarsvurderingUforetrygd }
         logger.debug("vilkarsvurdering ufore: ${vilkarsvurderingUforetrygdListe.size}")
 
         vilkarsvurderingUforetrygdListe.forEach { v1ufore ->
