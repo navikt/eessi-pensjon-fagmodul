@@ -40,6 +40,8 @@ class EuxController(
     private lateinit var euxKodeverkLand: MetricsHelper.Metric
     private lateinit var euxInstitusjoner: MetricsHelper.Metric
 
+    val backupList = listOf("AT", "BE", "BG", "CH", "CZ", "DE", "DK", "EE", "ES", "FI", "FR", "HR", "HU", "IE", "IS", "IT", "LI", "LT", "LU", "LV", "MT", "NL", "NO", "PL", "PT", "RO", "SE", "SI", "SK", "UK")
+
     @PostConstruct
     fun initMetrics() {
         paakobledeland = metricsHelper.init("paakobledeland", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
@@ -82,7 +84,11 @@ class EuxController(
                 val paakobledeLand = euxInnhentingService.getInstitutions(bucType.name)
                     .map { it.country }
                     .distinct()
-                ResponseEntity.ok(paakobledeLand.toJson())
+                val landlist = paakobledeLand.ifEmpty {
+                    logger.warn("Ingen svar fra /institusjoner?BuCType, kjører backupliste")
+                    backupList
+                }
+                ResponseEntity.ok(landlist.toJson())
             } catch (sce: HttpStatusCodeException) {
                 ResponseEntity.status(sce.statusCode).body(errorBody(sce.responseBodyAsString))
             } catch (ex: Exception) {

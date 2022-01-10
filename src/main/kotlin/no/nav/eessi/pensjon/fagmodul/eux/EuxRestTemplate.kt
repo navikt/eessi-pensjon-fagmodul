@@ -1,9 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
-import io.micrometer.core.instrument.MeterRegistry
 import no.nav.eessi.pensjon.logging.RequestIdHeaderInterceptor
 import no.nav.eessi.pensjon.logging.RequestResponseLoggerInterceptor
-import no.nav.eessi.pensjon.metrics.RequestCountInterceptor
 import no.nav.eessi.pensjon.security.sts.STSService
 import no.nav.eessi.pensjon.security.sts.UsernameToOidcInterceptor
 import no.nav.eessi.pensjon.security.token.TokenAuthorizationHeaderInterceptor
@@ -21,7 +19,6 @@ import java.time.Duration
 @Component
 class EuxRestTemplate(
     private val tokenValidationContextHolder: TokenValidationContextHolder,
-    private val registry: MeterRegistry,
     private val stsService: STSService
 ) {
 
@@ -37,7 +34,6 @@ class EuxRestTemplate(
                 .setConnectTimeout(Duration.ofSeconds(120))
                 .additionalInterceptors(
                     RequestIdHeaderInterceptor(),
-                    RequestCountInterceptor(registry),
                     RequestResponseLoggerInterceptor(),
                     TokenAuthorizationHeaderInterceptor(tokenValidationContextHolder))
                 .build().apply {
@@ -54,7 +50,6 @@ class EuxRestTemplate(
             .setConnectTimeout(Duration.ofSeconds(120))
             .additionalInterceptors(
                 RequestIdHeaderInterceptor(),
-                RequestCountInterceptor(registry),
                 RequestResponseLoggerInterceptor(),
                 UsernameToOidcInterceptor(stsService))
             .build().apply {

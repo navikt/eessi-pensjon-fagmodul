@@ -217,7 +217,7 @@ class OpprettPrefillSedIntegrationTest {
     fun responseMvcDecode(result: MvcResult): Pair<HttpStatus, String> {
         val status = HttpStatus.valueOf(result.response.status)
         return when(status) {
-            HttpStatus.OK, HttpStatus.ACCEPTED, HttpStatus.CREATED -> Pair(HttpStatus.OK, result.response.getContentAsString(charset("UTF-8")))
+            HttpStatus.OK, HttpStatus.ACCEPTED, HttpStatus.CREATED -> Pair(HttpStatus.OK, result.response.getContentAsString(charset("UTF-8"))).also { println("ResponseDecode: $it") }
             else ->  Pair(status, result.response.errorMessage!!)
         }
     }

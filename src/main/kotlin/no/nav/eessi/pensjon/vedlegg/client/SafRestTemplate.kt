@@ -3,7 +3,6 @@ package no.nav.eessi.pensjon.vedlegg.client
 import io.micrometer.core.instrument.MeterRegistry
 import no.nav.eessi.pensjon.logging.RequestIdHeaderInterceptor
 import no.nav.eessi.pensjon.logging.RequestResponseLoggerInterceptor
-import no.nav.eessi.pensjon.metrics.RequestCountInterceptor
 import no.nav.eessi.pensjon.security.token.TokenAuthorizationHeaderInterceptor
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import org.springframework.beans.factory.annotation.Value
@@ -32,7 +31,6 @@ class SafRestTemplate(private val tokenValidationContextHolder: TokenValidationC
                 .errorHandler(DefaultResponseErrorHandler())
                 .additionalInterceptors(
                         RequestIdHeaderInterceptor(),
-                        RequestCountInterceptor(registry),
                         RequestResponseLoggerInterceptor(),
                         TokenAuthorizationHeaderInterceptor(tokenValidationContextHolder))
                 .build().apply {
@@ -48,7 +46,6 @@ class SafRestTemplate(private val tokenValidationContextHolder: TokenValidationC
                 .errorHandler(DefaultResponseErrorHandler())
                 .additionalInterceptors(
                         RequestIdHeaderInterceptor(),
-                        RequestCountInterceptor(registry),
                         RequestResponseLoggerInterceptor(),
                         TokenAuthorizationHeaderInterceptor(tokenValidationContextHolder))
                 .build().apply {

@@ -1,9 +1,7 @@
 package no.nav.eessi.pensjon.services.kodeverk
 
-import io.micrometer.core.instrument.MeterRegistry
 import no.nav.eessi.pensjon.logging.RequestIdHeaderInterceptor
 import no.nav.eessi.pensjon.logging.RequestResponseLoggerInterceptor
-import no.nav.eessi.pensjon.metrics.RequestCountInterceptor
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
@@ -14,7 +12,7 @@ import org.springframework.web.client.DefaultResponseErrorHandler
 import org.springframework.web.client.RestTemplate
 
 @Component
-class KodeverkRestTemplate(private val registry: MeterRegistry) {
+class KodeverkRestTemplate {
 
     @Value("\${kodeverk.rest-api.url}")
     private lateinit var kodeverkUrl: String
@@ -26,7 +24,6 @@ class KodeverkRestTemplate(private val registry: MeterRegistry) {
                 .errorHandler(DefaultResponseErrorHandler())
                 .additionalInterceptors(
                         RequestIdHeaderInterceptor(),
-                        RequestCountInterceptor(registry),
                         RequestResponseLoggerInterceptor()
                 )
                 .build().apply {

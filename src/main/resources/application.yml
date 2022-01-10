@@ -22,17 +22,8 @@ http.proxy.parametername:
 securityTokenService:
   discoveryUrl: ${SECURITY_TOKEN_SERVICE_OPENID_CONFIGURATION_URL}
 
+METRICS_REQUESTFILTER_ENABLE: false
 
-#Sawgger-ui 3.0
-springdoc:
-  show-actuator: true
-  packagesToScan: 'no.nav.eessi.pensjon.fagmodul.api, no.nav.eessi.pensjon.api, no.nav.eessi.pensjon.vedlegg, no.nav.eessi.pensjon.fagmodul.pesys'
-  swagger-ui:
-    path=: '/swagger-ui.html'
-    enabled: true
-    tryItOutEnabled: false
-
-# TODO: These actuator-endpoints need to be secured before going to production. Also, enable only whats needed.
 management:
   endpoints:
     metrics:
@@ -45,12 +36,12 @@ management:
         enabled: true
     prometheus:
       enabled: true
+
+spring:
   metrics:
     web:
       server:
-        request:
-          autotime:
-            enabled: true
+        auto-time-requests: true
 
 eessi:
 #  pensjon_lokalnavn: 'NOINST002, NO INST002, NO'
