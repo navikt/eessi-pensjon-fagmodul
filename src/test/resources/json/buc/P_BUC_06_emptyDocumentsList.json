@@ -1,0 +1,173 @@
+{
+  "id": "434164",
+  "hashCode": 0,
+  "startDate": "2022-01-10T09:09:08.949+0000",
+  "lastUpdate": "2022-01-10T09:09:09.089+0000",
+  "status": "open",
+  "subject": null,
+  "sensitive": false,
+  "sensitiveCommitted": false,
+  "creator": {
+    "id": "AWtVPOtA4dVVmvUukzqj",
+    "address": null,
+    "contactMethods": null,
+    "type": "User",
+    "name": "Z992366",
+    "organisation": {
+      "id": "NO:NAVAT05",
+      "address": null,
+      "contactMethods": null,
+      "registryNumber": "",
+      "name": "NAV ACC 05",
+      "acronym": "NAVAT05",
+      "countryCode": "NO",
+      "activeSince": "2018-08-27T00:00:00.000+0000",
+      "accessPoint": null,
+      "location": null,
+      "assignedBUCs": null
+    }
+  },
+  "actions": [
+    {
+      "id": "cdc3d82a-243b-41a8-ab27-cc6ba193ec94",
+      "name": "Participants",
+      "displayName": "Choose Participants",
+      "type": "popup",
+      "template": "Create_Participants",
+      "typeVersion": "1.0",
+      "documentType": null,
+      "isCaseRelated": true,
+      "hasBusinessValidation": true,
+      "isBulk": false,
+      "requiresValidDocument": true,
+      "canClose": true,
+      "isDocumentRelated": false,
+      "documentId": null,
+      "subdocumentId": null,
+      "parentDocumentId": null,
+      "tempDocumentId": null,
+      "actor": "Authorized",
+      "caseId": "434164",
+      "operation": "SelectParticipants",
+      "status": "ACTIVE",
+      "actionGroup": {
+        "activityInstanceId": null,
+        "hasLocalClose": false,
+        "DMProcessId": null,
+        "DocumentId": null,
+        "Operation": "SelectParticipants",
+        "ParentDocId": null,
+        "ParentType": null,
+        "Type": null
+      },
+      "poolGroup": {
+        "activityInstanceId": null,
+        "hasLocalClose": false,
+        "DMProcessId": null,
+        "DocumentId": null,
+        "Operation": "SelectParticipants",
+        "ParentDocId": null,
+        "ParentType": null,
+        "Type": null
+      },
+      "hasSendValidationOnBulk": false,
+      "tags": {
+        "category": "Participants",
+        "type": "sectorial",
+        "DMProcessId": null,
+        "dmprocessId": null,
+        "Operation": null
+      },
+      "documentRelated": false,
+      "bulk": false,
+      "caseRelated": true
+    },
+    {
+      "id": "715cf21c-8b20-4a5d-90b9-66631f3e93ff",
+      "name": "DeleteCase",
+      "displayName": "Delete Case",
+      "type": "popup",
+      "template": "Delete_Case",
+      "typeVersion": "1.0",
+      "documentType": null,
+      "isCaseRelated": true,
+      "hasBusinessValidation": false,
+      "isBulk": false,
+      "requiresValidDocument": false,
+      "canClose": true,
+      "isDocumentRelated": false,
+      "documentId": null,
+      "subdocumentId": null,
+      "parentDocumentId": null,
+      "tempDocumentId": null,
+      "actor": "Authorized",
+      "caseId": "434164",
+      "operation": "DeleteCase",
+      "status": "ACTIVE",
+      "actionGroup": {
+        "activityInstanceId": null,
+        "hasLocalClose": true,
+        "DMProcessId": "434164",
+        "DocumentId": null,
+        "Operation": "DeleteCase",
+        "ParentDocId": null,
+        "ParentType": null,
+        "Type": null
+      },
+      "poolGroup": {
+        "activityInstanceId": null,
+        "hasLocalClose": true,
+        "DMProcessId": "434164",
+        "DocumentId": null,
+        "Operation": "DeleteCase",
+        "ParentDocId": null,
+        "ParentType": null,
+        "Type": null
+      },
+      "hasSendValidationOnBulk": false,
+      "tags": {
+        "category": "Case Actions",
+        "type": "admin",
+        "DMProcessId": null,
+        "dmprocessId": null,
+        "Operation": null
+      },
+      "documentRelated": false,
+      "bulk": false,
+      "caseRelated": true
+    }
+  ],
+  "documents": [],
+  "attachments": [],
+  "participants": [
+    {
+      "role": "CaseOwner",
+      "organisation": {
+        "id": "NO:NAVAT05",
+        "address": null,
+        "contactMethods": null,
+        "registryNumber": "",
+        "name": "NAV ACC 05",
+        "acronym": "NAVAT05",
+        "countryCode": "NO",
+        "activeSince": "2018-08-27T00:00:00.000+0000",
+        "accessPoint": null,
+        "location": null,
+        "assignedBUCs": null
+      },
+      "selected": false
+    }
+  ],
+  "processDefinitionName": "P_BUC_06",
+  "processDefinitionVersion": "4.2",
+  "applicationRoleId": "PO",
+  "comments": [],
+  "initialVariables": null,
+  "businessId": "434164",
+  "internationalId": "b39a05c4deb44e7184f984a1fa218e26",
+  "properties": {
+    "importance": "1",
+    "criticality": "1"
+  },
+  "caseType": null
+}

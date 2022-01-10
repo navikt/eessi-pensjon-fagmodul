@@ -65,10 +65,16 @@ class BucUtils(private val buc: Buc) {
     }
 
     private fun getDocuments(): List<DocumentsItem> {
-        return buc.documents ?: createEmptyDocumentsForRina2020()
+        return if (buc.documents != null && buc.documents!!.isNotEmpty()) {
+            buc.documents!!
+        } else {
+            createEmptyDocumentsForRina2020()
+        }
     }
 
-    fun isNewRina2020Buc() = buc.documents == null
+    fun isNewRina2020Buc() : Boolean {
+        return buc.documents == null || (buc.documents != null && buc.documents!!.isEmpty())
+    }
 
     private fun createEmptyDocumentsForRina2020() : List<DocumentsItem> {
         logger.debug("Kjører hjelpemetode for RINA2020")

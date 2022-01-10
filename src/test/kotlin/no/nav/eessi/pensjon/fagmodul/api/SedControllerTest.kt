@@ -135,6 +135,25 @@ class SedControllerTest {
     }
 
     @Test
+    fun `getFiltrerteGyldigSedAksjonListAsString buc_06 ingen documents skal retutnere 4 gyldige sedtyper`() {
+        val mockBuc = mapJsonToAny(javaClass.getResource("/json/buc/P_BUC_06_emptyDocumentsList.json").readText(), typeRefs<Buc>())
+        val buc = "P_BUC_06"
+        val rinanr = "434164"
+
+        every { mockEuxInnhentingService.getBuc(rinanr) } returns mockBuc
+
+        val actualResponse = sedController.getSeds(buc, rinanr)
+        val expectedResponse = ResponseEntity.ok(mapAnyToJson(listOf(SedType.P5000, SedType.P6000, SedType.P7000, SedType.P10000)))
+
+        assertEquals(expectedResponse, actualResponse)
+
+        val list = mapJsonToAny(actualResponse.body!!, typeRefs<List<String>>())
+        println(list.toJson())
+
+        assertEquals(4, list.size)
+    }
+
+    @Test
     fun `getFiltrerteGyldigSedAksjonListAsString   buc_06 returns 3 seds if a sed already exists`() {
         val mockBuc =
             mapJsonToAny(javaClass.getResource("/json/buc/buc-P_BUC_06_4.2_P5000.json").readText(), typeRefs<Buc>())

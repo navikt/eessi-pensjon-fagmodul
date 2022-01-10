@@ -793,7 +793,6 @@ class BucUtilsTest {
     @Test
     fun validateOneRina2020Buc() {
 
-
         val bucjson = getTestJsonFile( "buc-id-rina2020new.json")
         val buc = mapJsonToAny(bucjson, typeRefs<Buc>())
 
@@ -822,6 +821,27 @@ class BucUtilsTest {
         assertThat(seds.containsAll(validsed) )
 
         assertEquals(true, bucUtils.isNewRina2020Buc())
+    }
+
+    @Test
+    fun `sjekk for tom pbuc06 tom documentlist contains dummyparts on pbuc06 buc rina2020`() {
+        val buc = mapJsonToAny(javaClass.getResource("/json/buc/P_BUC_06_emptyDocumentsList.json").readText(), typeRefs<Buc>())
+
+        val bucUtils = BucUtils(buc)
+
+        val result = bucUtils.getAllDocuments()
+
+        assertEquals(SedType.DummyChooseParts, result.first().type)
+
+        val seds = bucUtils.getFiltrerteGyldigSedAksjonListAsString()
+        val validsed = listOf<SedType>(P5000, SedType.P6000, SedType.P7000, SedType.P10000)
+
+        assertEquals(seds.toString(), validsed.toString())
+
+        assertThat(seds.containsAll(validsed) )
+
+        assertEquals(true, bucUtils.isNewRina2020Buc())
+
     }
 
     @Test
