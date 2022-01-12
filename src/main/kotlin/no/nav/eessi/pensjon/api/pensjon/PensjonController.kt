@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
+import java.time.LocalDateTime
 import javax.annotation.PostConstruct
 
 @Protected
@@ -107,7 +108,7 @@ class PensjonController(private val pensjonsinformasjonClient: Pensjonsinformasj
         }
     }
 
-    @GetMapping("/vedtatk/{vedtakid}/vilkarsvurdering")
+    @GetMapping("/vedtak/{vedtakid}/vilkarsvurdering")
     fun hentVedtakforVilkarsVurderingList(@PathVariable("vedtakid", required = true) vedtakId: String): List<V1Vilkarsvurdering> {
         val pensjonsinformasjon = pensjonsinformasjonClient.hentAltPaaVedtak(vedtakId)
 
@@ -131,6 +132,43 @@ class PensjonController(private val pensjonsinformasjonClient: Pensjonsinformasj
         return vilkarsvurderingListe
     }
 
+    @GetMapping("/vedtak/{vedtakid}/uforetidspunkt")
+    fun hentVedtakforForUfor(@PathVariable("vedtakid", required = true) vedtakId: String): String? {
+        val pensjonsinformasjon = pensjonsinformasjonClient.hentAltPaaVedtak(vedtakId)
+        val vilkarsvurderingListe = pensjonsinformasjon.vilkarsvurderingListe.vilkarsvurderingListe
+        val vilkarsvurderingUforetrygdListe = vilkarsvurderingListe.mapNotNull { it.vilkarsvurderingUforetrygd }
+
+        logger.info("vilkarsvurderingUforetrygdListe size: ${vilkarsvurderingUforetrygdListe.size}")
+        val uforetidspunkt = vilkarsvurderingUforetrygdListe.mapNotNull { v1ufore ->
+            //"uforetidspunkt": "2020-02-29T23:00:00.000+00:00" - "2020-03-01"
+            logger.debug("Uforetidspunkt: ${v1ufore.uforetidspunkt}")
+            if (v1ufore.uforetidspunkt != null) {
+                val v1uforetidpunkt = v1ufore.uforetidspunkt
+                val xmltimezone = v1uforetidpunkt.timezone
+                 logger.debug("XmlTimeZone: $xmltimezone")
+
+                val uft = LocalDateTime.of(v1uforetidpunkt.year, v1uforetidpunkt.month, v1uforetidpunkt.day, v1uforetidpunkt.hour, v1uforetidpunkt.minute, v1uforetidpunkt.second)
+                logger.info("Uforetidspunkt: $uft")
+
+                val uforetidspunkt = if (xmltimezone == 0) {
+                    logger.info("Konverterer uføretidspunkt tidssone +1time")
+                    uft?.plusHours(1)?.toLocalDate()
+                } else {
+                    logger.info("Ingen konverterer av uføretidspunkt")
+                    uft?.toLocalDate()
+                }
+
+                if (uforetidspunkt?.dayOfMonth != 1) logger.error("Feiler ved uføretidspunkt: $uforetidspunkt, Dag er ikke første i mnd")
+
+                uforetidspunkt?.toString()
+            } else {
+                null
+            }
+        }.firstOrNull()
+
+        logger.info("Uforetidspunkt: $uforetidspunkt")
+        return uforetidspunkt
+    }
 
     @Operation(description = "Henter ut en liste over alle saker på valgt aktoerId")
     @GetMapping("/sakliste/{aktoerId}")

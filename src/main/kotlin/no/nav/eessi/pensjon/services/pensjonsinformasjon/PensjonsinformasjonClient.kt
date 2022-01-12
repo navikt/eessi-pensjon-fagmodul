@@ -92,6 +92,11 @@ class PensjonsinformasjonClient(
             logger.info("Henter pensjonsinformasjon for vedtaksid: $vedtaksId")
 
             val xmlResponse = doRequest("/vedtak", vedtaksId, requestBody, pensjoninformasjonAltPaaVedtakRequester)
+
+            logger.debug("**".repeat(50) + "\n"
+                + "XML Response: $xmlResponse\n"
+                + "**".repeat(50))
+
             transform(xmlResponse)
         }
     }

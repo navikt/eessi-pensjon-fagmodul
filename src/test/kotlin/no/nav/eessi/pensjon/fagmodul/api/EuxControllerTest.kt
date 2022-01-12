@@ -18,9 +18,9 @@ import org.springframework.web.client.RestTemplate
 class EuxControllerTest {
 
     @SpyK
-    lateinit var mockEuxInnhentingService: EuxInnhentingService
+    private lateinit var mockEuxInnhentingService: EuxInnhentingService
 
-    lateinit var euxController: EuxController
+    private lateinit var euxController: EuxController
 
     @BeforeEach
     fun before() {

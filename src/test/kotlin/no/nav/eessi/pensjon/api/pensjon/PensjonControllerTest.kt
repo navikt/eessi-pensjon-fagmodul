@@ -6,6 +6,7 @@ import io.mockk.impl.annotations.SpyK
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.eessi.pensjon.logging.AuditLogger
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonRequestBuilder
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.Pensjontype
 import no.nav.eessi.pensjon.utils.toJson
@@ -16,11 +17,16 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.slf4j.MDC
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
+import org.springframework.util.ResourceUtils
+import org.springframework.web.client.RestTemplate
 
 class PensjonControllerTest {
 
@@ -202,6 +208,61 @@ class PensjonControllerTest {
     }
 
     @Test
+    fun uthentingAvUforeTidspunkt() {
+        val mockVedtakid = "213123333"
+        val mockClient = fraFil("VEDTAK-UT-MUTP.xml")
+        val mockController = PensjonController(mockClient, auditLogger)
+        mockController.initMetrics()
+        val mockMvc2 = MockMvcBuilders.standaloneSetup(mockController).build()
+
+        val result = mockMvc2.perform(
+            MockMvcRequestBuilders.get("/pensjon/vedtak/$mockVedtakid/uforetidspunkt")
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andReturn()
+        val response = result.response.getContentAsString(charset("UTF-8"))
+        assertEquals("2020-02-29", response)
+
+    }
+
+    @Test
+    fun uthentingAvUforeTidspunktMedGMTZ() {
+        val mockVedtakid = "213123333"
+        val mockClient = fraFil("VEDTAK-UT-MUTP-GMTZ.xml")
+        val mockController = PensjonController(mockClient, auditLogger)
+        mockController.initMetrics()
+        val mockMvc2 = MockMvcBuilders.standaloneSetup(mockController).build()
+
+        val result = mockMvc2.perform(
+            MockMvcRequestBuilders.get("/pensjon/vedtak/$mockVedtakid/uforetidspunkt")
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+            .andReturn()
+        val response = result.response.getContentAsString(charset("UTF-8"))
+        assertEquals("2020-03-01", response)
+    }
+
+    @Test
+    fun uthentingAvUforeTidspunktSomErTom() {
+        val mockVedtakid = "213123333"
+        val mockClient = fraFil("VEDTAK-UT.xml")
+        val mockController = PensjonController(mockClient, auditLogger)
+        mockController.initMetrics()
+        val mockMvc2 = MockMvcBuilders.standaloneSetup(mockController).build()
+
+        val result = mockMvc2.perform(
+            MockMvcRequestBuilders.get("/pensjon/vedtak/$mockVedtakid/uforetidspunkt")
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+            .andReturn()
+        val response = result.response.getContentAsString(charset("UTF-8"))
+
+        assertEquals("", response)
+    }
+
+
+
+    @Test
     fun `Sjekke for hentKravDatoFraAktor ikke kaster en unormal feil`() {
         val aktoerId = "123"
         val saksId = "10000"
@@ -213,6 +274,19 @@ class PensjonControllerTest {
         val result = controller.hentKravDatoFraAktor(saksId, kravId, aktoerId)
         assertEquals("{\"success\": false, \n" + " \"error\": \"Feiler å hente kravDato\", \"uuid\": \"AAA-BBB\"}", result?.body)
 
+    }
+
+
+    fun fraFil(responseXMLfilename: String): PensjonsinformasjonClient {
+        val resource = ResourceUtils.getFile("classpath:pensjonsinformasjon/$responseXMLfilename").readText()
+        val readXMLresponse = ResponseEntity(resource, HttpStatus.OK)
+
+        val mockRestTemplate: RestTemplate = mockk()
+
+        every { mockRestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), eq(String::class.java)) } returns readXMLresponse
+        val pensjonsinformasjonClient = PensjonsinformasjonClient(mockRestTemplate, PensjonRequestBuilder())
+        pensjonsinformasjonClient.initMetrics()
+        return pensjonsinformasjonClient
     }
 }
 
