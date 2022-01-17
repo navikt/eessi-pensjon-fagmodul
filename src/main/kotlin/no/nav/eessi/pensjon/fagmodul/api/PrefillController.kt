@@ -93,6 +93,8 @@ class PrefillController(
                 nyeInstitusjoner: ${nyeInstitusjoner.toJson()}
                 """.trimIndent())
 
+                logger.info("Status på x005: ${x005docs.firstOrNull()?.status} ")
+
                 if (x005docs.isEmpty()) {
                     euxPrefillService.checkAndAddInstitution(dataModel, bucUtil, emptyList(), nyeInstitusjoner)
                 } else if (x005docs.firstOrNull { it.status == "empty"} != null ) {
