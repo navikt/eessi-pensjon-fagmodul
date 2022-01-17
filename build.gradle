@@ -11,7 +11,7 @@ buildscript {
         pensjonInformasjonVersion = '9.4.10'
         eppersonoppslagVersion = '8.2.5'
         epeuxVersion = '1.1.58'
-        epMetricsVersion = "0.4.12"
+        epMetricsVersion = "0.4.14"
         epSecurityVersion ="0.0.21"
         epLoggingVersion ="1.0.15"
         archunitVersion = '0.22.0'
@@ -21,11 +21,6 @@ buildscript {
         mavenCentral()
     }
 
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
-        classpath "org.jetbrains.kotlin:kotlin-allopen:$kotlinVersion"
-        classpath "org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion"
-    }
 }
 
 plugins {
@@ -40,7 +35,6 @@ plugins {
     id "org.owasp.dependencycheck" version "6.5.2.1"
     id "com.vanniktech.dependency.graph.generator" version "0.7.0"
     id 'com.adarshr.test-logger' version '2.1.1'
-    id "org.sonarqube" version "3.3"
     id 'jacoco'
 }
 
@@ -55,17 +49,10 @@ java {
 }
 
 compileKotlin {
-    kotlinOptions {
-        freeCompilerArgs = ["-Xjsr305=strict"]
-        jvmTarget = "11"
-    }
+    kotlinOptions.jvmTarget = "11"
 }
-
 compileTestKotlin {
-    kotlinOptions {
-        freeCompilerArgs = ["-Xjsr305=strict"]
-        jvmTarget = "11"
-    }
+    kotlinOptions.jvmTarget = "11"
 }
 
 jar {
@@ -201,19 +188,6 @@ sourceSets["main"].java.srcDir("${buildDir}/generated-sources/xjc")
 wrapper {
     distributionType = Wrapper.DistributionType.ALL
 }
-
-// https://docs.gradle.org/current/userguide/jacoco_plugin.html
-jacoco {
-    toolVersion = "0.8.4"
-}
-
-jacocoTestReport {
-    reports {
-        xml.enabled true
-    }
-}
-
-tasks.sonarqube.dependsOn tasks["jacocoTestReport"]
 
 repositories {
     mavenCentral()
