@@ -16,6 +16,8 @@ import no.nav.pensjon.v1.sak.V1Sak
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import org.slf4j.MDC
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpStatus
@@ -27,6 +29,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.util.ResourceUtils
 import org.springframework.web.client.RestTemplate
+import java.util.*
+import javax.xml.datatype.DatatypeFactory
+import javax.xml.datatype.XMLGregorianCalendar
 
 class PensjonControllerTest {
 
@@ -221,7 +226,12 @@ class PensjonControllerTest {
             )
             .andReturn()
         val response = result.response.getContentAsString(charset("UTF-8"))
-        assertEquals("2020-02-29", response)
+        val expected = """
+            {
+              "uforetidspunkt" : "2020-02-29"
+            }
+        """.trimIndent()
+        assertEquals(expected, response)
 
     }
 
@@ -239,7 +249,13 @@ class PensjonControllerTest {
         )
             .andReturn()
         val response = result.response.getContentAsString(charset("UTF-8"))
-        assertEquals("2020-03-01", response)
+        val expected = """
+            {
+              "uforetidspunkt" : "2020-03-01"
+            }
+        """.trimIndent()
+
+        assertEquals(expected, response)
     }
 
     @Test
@@ -256,10 +272,33 @@ class PensjonControllerTest {
         )
             .andReturn()
         val response = result.response.getContentAsString(charset("UTF-8"))
+        val expected = """
+            {
+              "uforetidspunkt" : null
+            }
+        """.trimIndent()
 
-        assertEquals("", response)
+        assertEquals(expected, response)
     }
 
+    @ParameterizedTest
+    @CsvSource(
+        "2020, 02, 29, 23,  60, 2020-02-29, false",
+        "2020, 02, 29, 23,  0, 2020-03-01, true",
+        "2020, 06, 01, 00, 120, 2020-06-01, true",
+        "2020, 05, 31, 23, 00, 2020-06-01, true",
+        "2020, 05, 31, 23, 120, 2020-05-31, false",
+        "2020, 06, 01, 00, 120, 2020-06-01, true")
+    fun `Sjekk for konvertering fra XMLgregorianCalendar til String med stotte for GMT`(xmlYear: Int, xmlMonth: Int, xmlDay: Int, xmlHour: Int, xmlTz: Int, resultat: String, check: Boolean) {
+        val calendar = GregorianCalendar()
+        calendar.set(xmlYear, xmlMonth-1, xmlDay, xmlHour, 0, 0)
+        val xmlDate: XMLGregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(calendar)
+        xmlDate.timezone = xmlTz
+
+        val verdi = controller.transformXMLGregorianCalendarToJson(xmlDate)
+        assertEquals(resultat, verdi.toString())
+        assert( verdi.dayOfMonth == 1 == check )
+    }
 
 
     @Test

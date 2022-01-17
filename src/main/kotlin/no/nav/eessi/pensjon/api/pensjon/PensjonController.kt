@@ -9,6 +9,7 @@ import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjoninformasjonValid
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.utils.errorBody
 import no.nav.eessi.pensjon.utils.mapAnyToJson
+import no.nav.eessi.pensjon.utils.toJson
 import no.nav.pensjon.v1.vilkarsvurdering.V1Vilkarsvurdering
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
@@ -21,8 +22,10 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
+import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.annotation.PostConstruct
+import javax.xml.datatype.XMLGregorianCalendar
 
 @Protected
 @RestController
@@ -137,36 +140,37 @@ class PensjonController(private val pensjonsinformasjonClient: Pensjonsinformasj
         val pensjonsinformasjon = pensjonsinformasjonClient.hentAltPaaVedtak(vedtakId)
         val vilkarsvurderingListe = pensjonsinformasjon.vilkarsvurderingListe.vilkarsvurderingListe
         val vilkarsvurderingUforetrygdListe = vilkarsvurderingListe.mapNotNull { it.vilkarsvurderingUforetrygd }
-
-        logger.info("vilkarsvurderingUforetrygdListe size: ${vilkarsvurderingUforetrygdListe.size}")
-        val uforetidspunkt = vilkarsvurderingUforetrygdListe.mapNotNull { v1ufore ->
-            //"uforetidspunkt": "2020-02-29T23:00:00.000+00:00" - "2020-03-01"
+        val uforetidspunkt = vilkarsvurderingUforetrygdListe.map { v1ufore ->
             logger.debug("Uforetidspunkt: ${v1ufore.uforetidspunkt}")
             if (v1ufore.uforetidspunkt != null) {
-                val v1uforetidpunkt = v1ufore.uforetidspunkt
-                val xmltimezone = v1uforetidpunkt.timezone
-                 logger.debug("XmlTimeZone: $xmltimezone")
-
-                val uft = LocalDateTime.of(v1uforetidpunkt.year, v1uforetidpunkt.month, v1uforetidpunkt.day, v1uforetidpunkt.hour, v1uforetidpunkt.minute, v1uforetidpunkt.second)
-                logger.info("Uforetidspunkt: $uft")
-
-                val uforetidspunkt = if (xmltimezone == 0) {
-                    logger.info("Konverterer uføretidspunkt tidssone +1time")
-                    uft?.plusHours(1)?.toLocalDate()
-                } else {
-                    logger.info("Ingen konverterer av uføretidspunkt")
-                    uft?.toLocalDate()
-                }
-
-                if (uforetidspunkt?.dayOfMonth != 1) logger.error("Feiler ved uføretidspunkt: $uforetidspunkt, Dag er ikke første i mnd")
-
-                uforetidspunkt?.toString()
-            } else {
-                null
+                val uftdato = transformXMLGregorianCalendarToJson(v1ufore.uforetidspunkt)
+                mapOf("uforetidspunkt" to uftdato.toString()).toJson()
+           } else {
+                mapOf("uforetidspunkt" to null).toJson()
             }
         }.firstOrNull()
 
         logger.info("Uforetidspunkt: $uforetidspunkt")
+        return uforetidspunkt
+    }
+
+    fun transformXMLGregorianCalendarToJson(v1uforetidpunkt: XMLGregorianCalendar): LocalDate {
+        val xmltimezone = v1uforetidpunkt.timezone
+        logger.debug("xmlTimeZone: $xmltimezone, xmlUforetidspunkt: $v1uforetidpunkt")
+
+        val uft = LocalDateTime.of(v1uforetidpunkt.year, v1uforetidpunkt.month, v1uforetidpunkt.day, v1uforetidpunkt.hour, v1uforetidpunkt.minute, v1uforetidpunkt.second)
+        logger.info("Uforetidspunkt: $uft")
+
+        val uforetidspunkt = if (xmltimezone == 0) {
+            logger.info("Konverterer uføretidspunkt tidssone +1time")
+            uft.plusHours(1).toLocalDate()
+        } else {
+            logger.info("Ingen konverterer av uføretidspunkt")
+            uft.toLocalDate()
+        }
+
+        if (uforetidspunkt?.dayOfMonth != 1) logger.error("Feiler ved uføretidspunkt: $uforetidspunkt, Dag er ikke første i mnd")
+        logger.debug("utføretidspunkt: ${uforetidspunkt.toString()}")
         return uforetidspunkt
     }
 
