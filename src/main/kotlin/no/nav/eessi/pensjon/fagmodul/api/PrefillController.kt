@@ -12,6 +12,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.eux.EuxPrefillService
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucSedResponse
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ActionOperation
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.fagmodul.models.ApiRequest
 import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
@@ -84,16 +85,15 @@ class PrefillController(
 
     fun addInstitution(request: ApiRequest, dataModel: PrefillDataModel, bucUtil: BucUtils) {
         addInstution.measure {
-            logger.info("*** Legger til Instiusjoner på BUC eller X005 ***")
+            logger.info("*** Sjekker og legger til Instiusjoner på BUC eller X005 ***")
             val nyeInstitusjoner = bucUtil.findNewParticipants(dataModel.getInstitutionsList())
             val x005docs = bucUtil.findX005DocumentByTypeAndStatus()
 
             if (nyeInstitusjoner.isNotEmpty()) {
                 logger.info("""
-                nyeInstitusjoner: ${nyeInstitusjoner.toJson()}
+                    eksiterendeInstiusjoner: ${bucUtil.getParticipantsAsInstitusjonItem().toJson()}
+                    nyeInstitusjoner: ${nyeInstitusjoner.toJson()}
                 """.trimIndent())
-
-                logger.info("Status på x005: ${x005docs.firstOrNull()?.status} ")
 
                 if (x005docs.isEmpty()) {
                     euxPrefillService.checkAndAddInstitution(dataModel, bucUtil, emptyList(), nyeInstitusjoner)
@@ -107,12 +107,15 @@ class PrefillController(
                         mapJsonToAny(innhentingService.hentPreutyltSed(x005request), typeRefs<X005>())
                     }
                     euxPrefillService.checkAndAddInstitution(dataModel, bucUtil, x005Liste, nyeInstitusjoner)
-                } else if (x005docs.firstOrNull { it.status == "new"} != null) {
-                    throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Utkast av X005 finnes fra før.")
-                }
+                //} else if (x005docs.firstOrNull { it.status == "new"} != null) {
+                 //   throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Utkast av X005 finnes fra før.")
+                } else if (!bucUtil.isValidSedtypeOperation(SedType.X005, ActionOperation.Create)) {   }
             }
         }
+
     }
+
+
 
     @Operation(description = "Legge til Deltaker(e) og SED på et eksisterende Rina document. kjører preutfylling, ny api kall til eux")
     @PostMapping("sed/add")
@@ -125,10 +128,7 @@ class PrefillController(
 
         //Hente metadata for valgt BUC
         val bucUtil = euxInnhentingService.kanSedOpprettes(dataModel)
-
-        val docs = bucUtil.getAllDocuments().map { "${it.type}, ${it.id} "}
-        logger.debug("List alle SED og Documentid: $docs  ")
-
+        //val docs = bucUtil.getAllDocuments().map { "${it.type}, ${it.id} "}
 
         if (bucUtil.getProcessDefinitionName() != request.buc) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Rina Buctype og request buctype må være samme")
         logger.debug("bucUtil BucType: ${bucUtil.getBuc().processDefinitionName} apiRequest Buc: ${request.buc}")

@@ -4,7 +4,8 @@ import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.BucType
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.document.Retning
-import no.nav.eessi.pensjon.fagmodul.eux.basismodel.RinaAksjon
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ActionOperation
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ActionsItem
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Attachment
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ConversationsItem
@@ -328,15 +329,12 @@ class BucUtils(private val buc: Buc) {
         return true
     }
 
-    private fun getGyldigeOpprettSedAksjonList() : List<SedType> {
-        val actions = buc.actions ?: emptyList()
-        val keyWord = "Create"
-        return actions.asSequence()
-                .filter { item -> item.name == keyWord }
-                .filterNot { item -> item.documentType == null }
-                .map { item -> item.documentType!! }
-                .toList()
-                .sorted()
+    fun getGyldigeOpprettSedAksjonList() : List<SedType> {
+        val action = getRinaAksjon()
+        return action.filter { it.operation == ActionOperation.Create }
+            .map { item -> item.documentType!! }
+            .toList()
+            .sorted()
     }
 
     fun getFiltrerteGyldigSedAksjonListAsString(): List<SedType> {
@@ -394,35 +392,49 @@ class BucUtils(private val buc: Buc) {
             .sortedBy { it.name }
     }
 
-    fun getRinaAksjon(): List<RinaAksjon> {
-        val aksjoner = mutableListOf<RinaAksjon>()
-        val actionitems = buc.actions
-        actionitems?.forEach {
-            if (it.documentType != null) {
-                aksjoner.add(
-                        RinaAksjon(
-                                dokumentType = it.documentType,
-                                navn = it.name,
-                                dokumentId = it.documentId,
-                                kategori = "Documents",
-                                id = buc.processDefinitionName
-                        )
+    fun getRinaAksjon(): List<ActionsItem> {
+        val actionlist = buc.actions ?: emptyList()
+        return actionlist.asSequence()
+            .filterNot { it.documentType == null }
+            .toList()
+            .sortedBy { it.documentType }
+    }
+
+    fun getRinaAksjonSedType(sedType: SedType) : List<ActionsItem> {
+        return getRinaAksjon().filter { acition -> acition.documentType == sedType }
+    }
+
+    fun getRinaAksjonOperationSedType(sedType: SedType, operation: ActionOperation? = null) : List<ActionOperation> {
+        return if (operation == null) {
+            getRinaAksjonSedType(sedType).mapNotNull { it.operation }.toList().ifEmpty { emptyList() }
+        } else {
+            getRinaAksjonSedType(sedType).filter { it.operation == operation }.mapNotNull { it.operation }.ifEmpty { emptyList() }
+        }
+    }
+
+    fun isValidSedtypeOperation(sedType: SedType, operation: ActionOperation) : Boolean {
+        if (operation == ActionOperation.Create && getRinaAksjonOperationSedType(sedType, operation).isEmpty()) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Utkast av type $sedType, finnes allerede i BUC")
+        } else if (getRinaAksjonOperationSedType(sedType, operation).isEmpty()) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Du kan ikke uføre action: $operation. for SED av type $sedType")
+        } else {
+            return true
+        }
+    }
+
+    fun getParticipantsAsInstitusjonItem(): List<InstitusjonItem> {
+        return getParticipants()
+            .map {
+                InstitusjonItem(
+                    country = it.organisation?.countryCode ?: "",
+                    institution = it.organisation?.id ?: "",  //kan hende må være id?!
+                    name = it.organisation?.name ?: "" //name optinal
                 )
             }
-        }
-        return aksjoner.sortedBy { it.dokumentType?.name }
     }
 
     fun findNewParticipants(potentialNewParticipants: List<InstitusjonItem>): List<InstitusjonItem> {
-        val currentParticipants =
-                getParticipants()
-                        .map {
-                            InstitusjonItem(
-                                    country = it.organisation?.countryCode ?: "",
-                                    institution = it.organisation?.id ?: "",  //kan hende må være id?!
-                                    name = it.organisation?.name ?: "" //name optinal
-                            )
-                        }
+        val currentParticipants = getParticipantsAsInstitusjonItem()
         if (currentParticipants.isEmpty() && potentialNewParticipants.isEmpty()) {
             throw ManglerDeltakereException("Ingen deltakere/Institusjon er tom")
         }

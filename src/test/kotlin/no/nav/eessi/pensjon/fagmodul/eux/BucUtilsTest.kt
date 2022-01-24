@@ -1,9 +1,13 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
 import no.nav.eessi.pensjon.eux.model.SedType
+import no.nav.eessi.pensjon.eux.model.SedType.P2100
 import no.nav.eessi.pensjon.eux.model.SedType.P5000
+import no.nav.eessi.pensjon.eux.model.SedType.P6000
+import no.nav.eessi.pensjon.eux.model.SedType.X005
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.document.Retning
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ActionOperation
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Organisation
@@ -25,6 +29,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.fail
 
 
 class BucUtilsTest {
@@ -178,28 +183,25 @@ class BucUtilsTest {
     fun getRinaAksjoner() {
         val result = bucUtils.getRinaAksjon()
         assertEquals(16, result.size)
-        val rinaaksjon = result[5]
-        assertEquals(SedType.P2000, rinaaksjon.dokumentType)
-        assertEquals("P_BUC_01", rinaaksjon.id)
-        assertEquals("Update", rinaaksjon.navn)
+        val rinaaksjon = result[1]
+        assertEquals(SedType.P2000, rinaaksjon.documentType)
+        assertEquals(ActionOperation.Update, rinaaksjon.operation)
     }
 
     @Test
     fun getRinaAksjonerFilteredOnP() {
+        bucUtils.getProcessDefinitionName()
+
         val result = bucUtils.getRinaAksjon()
         assertEquals(16, result.size)
-        val rinaaksjon = result[5]
-        assertEquals(SedType.P2000, rinaaksjon.dokumentType)
-        assertEquals("P_BUC_01", rinaaksjon.id)
-        assertEquals("Update", rinaaksjon.navn)
-
-        val filterlist = result.filter { it.dokumentType?.name?.startsWith("P")!! }
-
+        val rinaaksjon = result[1]
+        assertEquals(SedType.P2000, rinaaksjon.documentType)
+        assertEquals(ActionOperation.Update, rinaaksjon.operation)
+        val filterlist = result.filter { it.documentType?.name?.startsWith("P")!! }
         assertEquals(9, filterlist.size)
-        val rinaaksjon2 = filterlist[5]
-        assertEquals(P5000, rinaaksjon2.dokumentType)
-        assertEquals("P_BUC_01", rinaaksjon2.id)
-        assertEquals("Create", rinaaksjon2.navn)
+        val rinaaksjon2 = filterlist[4]
+        assertEquals(P5000, rinaaksjon2.documentType)
+        assertEquals(ActionOperation.Create, rinaaksjon2.operation)
     }
 
     @Test
@@ -289,7 +291,7 @@ class BucUtilsTest {
 
     @Test
     fun `Test liste med SED kun PensjonSED skal returneres`() {
-        val list = listOf(SedType.X005, SedType.P2000, SedType.P4000, SedType.H021, SedType.P9000)
+        val list = listOf(X005, SedType.P2000, SedType.P4000, SedType.H021, SedType.P9000)
 
         val result = bucUtils.filterSektorPandRelevantHorizontalAndXSeds(list)
         assertEquals(4, result.size)
@@ -301,7 +303,7 @@ class BucUtilsTest {
     @Test
     fun `Test liste med SED som skal returneres`() {
         val list =
-            listOf(SedType.X005, SedType.P2000, SedType.P4000, SedType.H020, SedType.H070, SedType.H121, SedType.P9000)
+            listOf(X005, SedType.P2000, SedType.P4000, SedType.H020, SedType.H070, SedType.H121, SedType.P9000)
 
         val result = bucUtils.filterSektorPandRelevantHorizontalAndXSeds(list)
         assertEquals(6, result.size)
@@ -313,7 +315,7 @@ class BucUtilsTest {
 
     @Test
     fun `Test av liste med SEDer der kun PensjonSEDer skal returneres`() {
-        val list = listOf(SedType.X005, SedType.P2000, SedType.P4000, SedType.H020, SedType.P9000)
+        val list = listOf(X005, SedType.P2000, SedType.P4000, SedType.H020, SedType.P9000)
 
         val result = bucUtils.filterSektorPandRelevantHorizontalAndXSeds(list)
         assertEquals(4, result.size)
@@ -921,8 +923,49 @@ class BucUtilsTest {
 
         assertNotNull(bucUtils.filterOutReceiveDateOnOut("IN", 1567178490000))
         assertEquals(expected, actual)
+    }
+
+    @Test
+    fun `test en rina2020 buc med sed og x005 statuser og rinaactions`() {
+        val buc = mapJsonToAny(javaClass.getResource("/json/buc/buc-rina2020-P2K-X005.json").readText(), typeRefs<Buc>())
+        val bucUtils = BucUtils(buc)
+
+//        println(bucUtils.getGyldigeOpprettSedAksjonList().toJson())
+//        val actions = bucUtils.getRinaAksjon().filter { it.documentType == P2100 || it.documentType == X005 || it.documentType == P6000 }
+//        println("***\n ${actions.toJson()} \n***")
+//        println("***".repeat(50) + "\n\n")
+//        val x005actions = bucUtils.getRinaAksjonSedType(X005)
+//        println(x005actions.toJson())
+//        println("***".repeat(50) + "\n\n")
+//        val x005operations = bucUtils.getRinaAksjonOperationSedType(P6000)
+//        println(x005operations.toJson())
+//        println()
+//        println()
+//        println(bucUtils.getRinaAksjonOperationSedType(P2100))
+//        println(bucUtils.getDocumentByType(P2100)?.participants?.toJson())
+//        println("***".repeat(50) + "\n\n")
+//        println(bucUtils.getRinaAksjonOperationSedType(X005, ActionOperation.Create))
+
+        try {
+            bucUtils.isValidSedtypeOperation(P2100, ActionOperation.Create)
+        } catch (ex: Exception) {
+            assertEquals("400 BAD_REQUEST \"Utkast av type P2100, finnes allerede i BUC\"", ex.message)
+        }
+
+        try {
+            bucUtils.isValidSedtypeOperation(P6000, ActionOperation.Send)
+        } catch (ex: Exception) {
+            assertEquals("400 BAD_REQUEST \"Du kan ikke uføre action: Send. for SED av type P6000\"", ex.message)
+        }
+
+        try {
+            assertEquals(true, bucUtils.isValidSedtypeOperation(P6000, ActionOperation.Create))
+        } catch (ex: Exception) {
+            fail("skal ikke komme hit!")
+        }
 
     }
+
 
     fun mockBucNoRecevieDate(direction: String = "OUT") : Buc {
         return Buc(

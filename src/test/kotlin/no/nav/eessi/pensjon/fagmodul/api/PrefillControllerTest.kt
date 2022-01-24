@@ -23,6 +23,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.EuxPrefillService
 import no.nav.eessi.pensjon.fagmodul.eux.SedDokumentIkkeOpprettetException
 import no.nav.eessi.pensjon.fagmodul.eux.SedDokumentKanIkkeOpprettesException
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucSedResponse
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ActionOperation
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ActionsItem
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ConversationsItem
@@ -147,7 +148,7 @@ class PrefillControllerTest {
         val mockParticipants = listOf(ParticipantsItem(role = "CaseOwner", organisation = Organisation(countryCode = "NO", name = "NAV", id = "NAV")))
         val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = mockParticipants)
         mockBuc.documents = listOf(createDummyBucDocumentItem(), DocumentsItem(type = SedType.X005, status = "new", direction = "OUT"))
-        mockBuc.actions = listOf(ActionsItem(name = "Send"))
+        mockBuc.actions = listOf(ActionsItem(operation = ActionOperation.Send))
 
         val newParticipants = listOf(
             InstitusjonItem(country = "FI", institution = "Finland", name="Finland test"),
@@ -176,7 +177,7 @@ class PrefillControllerTest {
         val mockParticipants = listOf(ParticipantsItem(role = "CaseOwner", organisation = Organisation(countryCode = "SE", name = "SE", id = "SE")))
         val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = mockParticipants)
         mockBuc.documents = listOf(createDummyBucDocumentItem(), DocumentsItem(type = SedType.X005, status = "empty", direction = "OUT"))
-        mockBuc.actions = listOf(ActionsItem(name = "Send"))
+        mockBuc.actions = listOf(ActionsItem(operation = ActionOperation.Send))
 
         val newParticipants = listOf(
             InstitusjonItem(country = "FI", institution = "Finland", name="Finland test"),
@@ -226,7 +227,7 @@ class PrefillControllerTest {
                 direction = "OUT"
             )
         )
-        mockBuc.actions = listOf(ActionsItem(name = "Send"))
+        mockBuc.actions = listOf(ActionsItem(operation = ActionOperation.Send))
 
         val newParticipants = listOf(
             InstitusjonItem(country = "FI", institution = "FI:213231", name="Finland test"),
@@ -254,7 +255,7 @@ class PrefillControllerTest {
             processDefinitionName = "P_BUC_01",
             participants = listOf(ParticipantsItem(role = "CaseOwner", organisation = Organisation(countryCode = "SE", name = "SE", id = "SE"))),
             documents = listOf(DocumentsItem(type = SedType.P2000, status = "empty", direction = "OUT", id = "1") ),
-            actions = listOf(ActionsItem(name = "Create"))
+            actions = listOf(ActionsItem(operation = ActionOperation.Create))
         )
 
         val newParticipants = listOf(
@@ -324,7 +325,7 @@ class PrefillControllerTest {
 
         val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = listOf(ParticipantsItem()))
         mockBuc.documents = listOf(createDummyBucDocumentItem())
-        mockBuc.actions = listOf(ActionsItem(name = "Send"))
+        mockBuc.actions = listOf(ActionsItem(operation = ActionOperation.Send))
 
         val noNewParticipants = listOf<InstitusjonItem>()
         val apiRequest = apiRequestWith(euxCaseId, institutions = noNewParticipants, buc = "P_BUC_01")
@@ -356,7 +357,7 @@ class PrefillControllerTest {
             participants = listOf(ParticipantsItem()), processDefinitionVersion = "4.2",
             documents = listOf(DocumentsItem(id = "3123123", type = SedType.P9000, status = "empty", allowsAttachments = true, lastUpdate = lastupdate, creationDate = lastupdate, parentDocumentId = parentDocumentId, direction = "OUT"),
             DocumentsItem(id = parentDocumentId, type = SedType.P8000, status = "received", allowsAttachments = true,  lastUpdate = lastupdate, creationDate = lastupdate, direction = "OUT")),
-           actions = listOf(ActionsItem(id = "1000", name = "Received"))
+           actions = listOf(ActionsItem(operation = ActionOperation.Read))
         )
 
         val api = apiRequestWith(euxCaseId, sed = "P9000", institutions = emptyList())
@@ -475,7 +476,7 @@ class PrefillControllerTest {
 
         val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = listOf(ParticipantsItem()))
         mockBuc.documents = listOf(createDummyBucDocumentItem())
-        mockBuc.actions = listOf(ActionsItem(name = "Send"))
+        mockBuc.actions = listOf(ActionsItem(operation = ActionOperation.Send))
 
         every{mockEuxInnhentingService.getBuc(euxCaseId)} returns mockBuc
 
@@ -505,7 +506,7 @@ class PrefillControllerTest {
 
         val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = listOf(ParticipantsItem()))
         mockBuc.documents = listOf(createDummyBucDocumentItem(), DocumentsItem(direction = "OUT"))
-        mockBuc.actions = listOf(ActionsItem(name = "Send"))
+        mockBuc.actions = listOf(ActionsItem(operation = ActionOperation.Send))
 
         every{mockEuxInnhentingService.getBuc(euxCaseId)} returns mockBuc
         justRun { mockEuxPrefillService.addInstitution(any(), any()) }

@@ -171,6 +171,50 @@ class OpprettPrefillSedIntegrationTest {
 
     }
 
+    @Test
+    fun `Gitt at det opprettes P6000 på existerende Buc med nye deltaker NÅR det alt finnes en X005 kladd SÅ skal det kastes en exceptipn`() {
+        val euxRinaid = "1000000001"
+
+        val nyDeltakere = listOf(
+            InstitusjonItem(country = "FI", institution = "FI:200032", name="Finland test"),
+            InstitusjonItem(country = "DK", institution = "DK:120030", name="Danmark test")
+        )
+
+        val apiRequest = dummyApijson(
+            "1212000",
+            "120012",
+            "$AKTOER_ID",
+            SedType.P6000,
+            "P_BUC_02",
+            FNR_VOKSEN_2,
+            KravType.GJENLEV,
+            euxRinaid = euxRinaid,
+            institutions = nyDeltakere)
+
+        every { personService.hentIdent(IdentType.NorskIdent, AktoerId(AKTOER_ID)) } returns NorskIdent(FNR_VOKSEN)
+        every { personService.hentIdent(IdentType.AktoerId, NorskIdent(FNR_VOKSEN_2)) } returns AktoerId("23423423423423423423423423423423423423423423423423")
+
+        val tomBucJson = javaClass.getResource("/json/buc/buc-rina2020-P2K-X005.json").readText()
+        every { restEuxTemplate.exchange( "/buc/$euxRinaid", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(tomBucJson)
+
+        val result = mockMvc.perform(
+            MockMvcRequestBuilders.post("/sed/add/")
+                .header("x-request-id", X_REQUEST_ID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(apiRequest.toJson()))
+            .andExpect(MockMvcResultMatchers.status().isBadRequest)
+            .andReturn()
+
+        val responsePair = responseMvcDecode(result)
+        val responseStatus = responsePair.first
+        val responseBody = responsePair.second
+
+        assertEquals(HttpStatus.BAD_REQUEST, responseStatus)
+        assertEquals("Utkast av type X005, finnes allerede i BUC", responseBody)
+
+    }
+
+
 
     @Test
     fun `opprette ny sed P5000 på buc med ekisterende mottaker prøver å legge til ny mottaker`() {}
