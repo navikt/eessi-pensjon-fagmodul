@@ -39,27 +39,26 @@ class PrefillKlient(
     fun hentPreutfyltSed(request: ApiRequest): String {
         val path = "/sed/prefill"
 
-        return prefillSed.measure {
-            return@measure try {
-                logger.info("Henter preutfylt SED")
-                val headers = HttpHeaders()
-                headers.contentType = MediaType.APPLICATION_JSON
+        return try {
+            logger.info("Henter preutfylt SED")
+            val headers = HttpHeaders()
+            headers.contentType = MediaType.APPLICATION_JSON
 
-                prefillOidcRestTemplate.exchange(
-                        path,
-                        HttpMethod.POST,
-                        HttpEntity(request, headers),
-                        String::class.java).body!!
-            } catch (ex: HttpStatusCodeException) {
-                if (ex.statusCode == HttpStatus.BAD_REQUEST) logger.warn(ex.message, ex)  else logger.error(ex.message, ex)
-                throw ex
-            } catch (ex: HttpClientErrorException) {
-                if (ex.statusCode == HttpStatus.BAD_REQUEST) logger.warn(ex.message, ex)  else logger.error(ex.message, ex)
-                throw ResponseStatusException(ex.statusCode, ex.message)
-            } catch (ex: Exception) {
-                logger.error("En feil oppstod under henting av preutfylt SED ex: ", ex)
-                throw ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR,"En feil oppstod under henting av preutfylt SED ex: ${ex.message}")
-            }
+            prefillOidcRestTemplate.exchange(
+                    path,
+                    HttpMethod.POST,
+                    HttpEntity(request, headers),
+                    String::class.java).body!!
+        } catch (ex: HttpStatusCodeException) {
+            if (ex.statusCode == HttpStatus.BAD_REQUEST) logger.warn(ex.message, ex)  else logger.error(ex.message, ex)
+            throw ResponseStatusException(ex.statusCode, ex.message)
+        } catch (ex: HttpClientErrorException) {
+            if (ex.statusCode == HttpStatus.BAD_REQUEST) logger.warn(ex.message, ex)  else logger.error(ex.message, ex)
+            throw ResponseStatusException(ex.statusCode, ex.message)
+        } catch (ex: Exception) {
+            logger.error("En feil oppstod under henting av preutfylt SED ex: ", ex)
+            throw ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR,"En feil oppstod under henting av preutfylt SED ex: ${ex.message}")
         }
+
     }
 }
