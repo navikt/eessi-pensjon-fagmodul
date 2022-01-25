@@ -54,6 +54,9 @@ class PrefillKlient(
             throw ResponseStatusException(ex.statusCode, ex.message)
         } catch (ex: HttpClientErrorException) {
             if (ex.statusCode == HttpStatus.BAD_REQUEST) logger.warn(ex.message, ex)  else logger.error(ex.message, ex)
+
+            logger.debug("statusText: ${ex.statusText}, responseBody: ${ex.getResponseBodyAsString()}, meeage: ${ex.message}")
+
             throw ResponseStatusException(ex.statusCode, ex.message)
         } catch (ex: Exception) {
             logger.error("En feil oppstod under henting av preutfylt SED ex: ", ex)
