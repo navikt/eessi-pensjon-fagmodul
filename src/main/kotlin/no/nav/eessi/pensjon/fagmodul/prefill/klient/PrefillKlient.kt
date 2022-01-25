@@ -3,6 +3,8 @@ package no.nav.eessi.pensjon.fagmodul.prefill.klient
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import no.nav.eessi.pensjon.fagmodul.models.ApiRequest
 import no.nav.eessi.pensjon.metrics.MetricsHelper
+import no.nav.eessi.pensjon.utils.mapJsonToAny
+import no.nav.eessi.pensjon.utils.typeRefs
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -14,7 +16,6 @@ import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpStatusCodeException
-import org.springframework.web.client.RestClientResponseException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.server.ResponseStatusException
 import javax.annotation.PostConstruct
@@ -50,35 +51,45 @@ class PrefillKlient(
                     HttpMethod.POST,
                     HttpEntity(request, headers),
                     String::class.java).body!!
-        } catch (ex: HttpStatusCodeException) {
-            if (ex.statusCode == HttpStatus.BAD_REQUEST) logger.warn(ex.message, ex)  else logger.error(ex.message, ex)
+        } catch (ex1: HttpStatusCodeException) {
 
-            val ex2 = ex as RestClientResponseException
-            logger.debug("HttpStatusCodeException: statusText: ${ex.statusText}, \n" +
-                    " responseBody: ${ex.getResponseBodyAsString()},\n" +
-                    " meeage: ${ex.message},\n" +
-                    " localizeMsg: ${ex.localizedMessage},\n" +
-                    " cause msg: ${ex.cause?.message}, \n" +
-                    " RestClientRespExc msg: ${ex2.message}")
+            val errorMessage = ResponseErrorData.from(ex1)
+            if (ex1.statusCode == HttpStatus.BAD_REQUEST) logger.warn(errorMessage.message, ex1)  else logger.error(errorMessage.message, ex1)
+            throw ResponseStatusException(ex1.statusCode, errorMessage.message)
 
-            throw ResponseStatusException(ex.statusCode, ex.message)
-        } catch (ex: HttpClientErrorException) {
-            if (ex.statusCode == HttpStatus.BAD_REQUEST) logger.warn(ex.message, ex)  else logger.error(ex.message, ex)
+        } catch (ex2: HttpClientErrorException) {
 
-            val ex2 = ex as RestClientResponseException
-            logger.debug("HttpStatusCodeException: statusText: ${ex.statusText}, \n" +
-                    " responseBody: ${ex.getResponseBodyAsString()},\n" +
-                    " meeage: ${ex.message},\n" +
-                    " localizeMsg: ${ex.localizedMessage},\n" +
-                    " cause msg: ${ex.cause?.message}, \n" +
-                    " RestClientRespExc msg: ${ex2.message}")
+            val errorMessage = ResponseErrorData.from(ex2)
+            if (ex2.statusCode == HttpStatus.BAD_REQUEST) logger.warn(errorMessage.message, ex2)  else logger.error(ex2.message, ex2)
+            throw ResponseStatusException(ex2.statusCode, errorMessage.message)
 
-            throw ResponseStatusException(ex.statusCode, ex.message)
-        } catch (ex: Exception) {
-            logger.error("En feil oppstod under henting av preutfylt SED ex: ", ex)
-            throw ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR,"En feil oppstod under henting av preutfylt SED ex: ${ex.message}")
+        } catch (ex3: Exception) {
+            logger.error("En feil oppstod under henting av preutfylt SED ex: ", ex3)
+            throw ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR,"En feil oppstod under henting av preutfylt SED ex: ${ex3.message}")
         }
 
     }
 
+    data class ResponseErrorData(
+        val timestamp: String,
+        val status: Int,
+        val error: String,
+        val message: String,
+        val path: String
+    ) {
+        companion object {
+            fun from(hsce: HttpStatusCodeException): ResponseErrorData {
+                return mapJsonToAny(hsce.getResponseBodyAsString(), typeRefs())
+            }
+            fun fromJson(json: String): ResponseErrorData {
+                return mapJsonToAny(json, typeRefs())
+            }
+        }
+
+        override fun toString(): String {
+            return message
+        }
+    }
+
 }
+

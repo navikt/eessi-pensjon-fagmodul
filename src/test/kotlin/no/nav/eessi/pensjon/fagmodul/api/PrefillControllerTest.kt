@@ -562,6 +562,7 @@ class PrefillControllerTest {
 
     }
 
+
     private fun apiRequestWith(euxCaseId: String, institutions: List<InstitusjonItem> = listOf(), sed: String? = "P6000", buc: String? = "P_BUC_06"): ApiRequest {
         return ApiRequest(
             subjectArea = "Pensjon",
