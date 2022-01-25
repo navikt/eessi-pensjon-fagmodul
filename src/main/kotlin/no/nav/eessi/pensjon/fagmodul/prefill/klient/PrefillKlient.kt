@@ -14,6 +14,7 @@ import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpStatusCodeException
+import org.springframework.web.client.RestClientResponseException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.server.ResponseStatusException
 import javax.annotation.PostConstruct
@@ -52,13 +53,25 @@ class PrefillKlient(
         } catch (ex: HttpStatusCodeException) {
             if (ex.statusCode == HttpStatus.BAD_REQUEST) logger.warn(ex.message, ex)  else logger.error(ex.message, ex)
 
-            logger.debug("HttpStatusCodeException: statusText: ${ex.statusText}, responseBody: ${ex.getResponseBodyAsString()}, meeage: ${ex.message}")
+            val ex2 = ex as RestClientResponseException
+            logger.debug("HttpStatusCodeException: statusText: ${ex.statusText}, \n" +
+                    " responseBody: ${ex.getResponseBodyAsString()},\n" +
+                    " meeage: ${ex.message},\n" +
+                    " localizeMsg: ${ex.localizedMessage},\n" +
+                    " cause msg: ${ex.cause?.message}, \n" +
+                    " RestClientRespExc msg: ${ex2.message}")
 
             throw ResponseStatusException(ex.statusCode, ex.message)
         } catch (ex: HttpClientErrorException) {
             if (ex.statusCode == HttpStatus.BAD_REQUEST) logger.warn(ex.message, ex)  else logger.error(ex.message, ex)
 
-            logger.debug("HttpClientErrorException: statusText: ${ex.statusText}, responseBody: ${ex.getResponseBodyAsString()}, meeage: ${ex.message}")
+            val ex2 = ex as RestClientResponseException
+            logger.debug("HttpStatusCodeException: statusText: ${ex.statusText}, \n" +
+                    " responseBody: ${ex.getResponseBodyAsString()},\n" +
+                    " meeage: ${ex.message},\n" +
+                    " localizeMsg: ${ex.localizedMessage},\n" +
+                    " cause msg: ${ex.cause?.message}, \n" +
+                    " RestClientRespExc msg: ${ex2.message}")
 
             throw ResponseStatusException(ex.statusCode, ex.message)
         } catch (ex: Exception) {
