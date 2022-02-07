@@ -29,7 +29,7 @@ class IntegrasjonsTestConfig(
         val configs = HashMap<String, Any>()
         configs[ProducerConfig.BOOTSTRAP_SERVERS_CONFIG] = this.brokerAddresses
         configs[ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG] = StringSerializer::class.java
-        configs[ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG] = JsonSerializer::class.java
+        configs[ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG] = StringSerializer::class.java
         return DefaultKafkaProducerFactory(configs)
     }
 

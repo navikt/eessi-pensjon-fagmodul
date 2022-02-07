@@ -19,7 +19,6 @@ import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.core.ProducerFactory
 import org.springframework.kafka.listener.ContainerProperties
 import org.springframework.kafka.support.serializer.JsonDeserializer
-import org.springframework.kafka.support.serializer.JsonSerializer
 import java.time.Duration
 
 @EnableKafka
@@ -43,7 +42,7 @@ class KafkaConfigTest(
         populerAivenCommonConfig(configMap)
         configMap[ProducerConfig.CLIENT_ID_CONFIG] = "eessi-pensjon-fagmodul"
         configMap[ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG] = StringSerializer::class.java
-        configMap[ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG] = JsonSerializer::class.java
+        configMap[ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG] = StringSerializer::class.java
         configMap[ProducerConfig.BOOTSTRAP_SERVERS_CONFIG] = aivenBootstrapServers
         return DefaultKafkaProducerFactory(configMap)
     }
