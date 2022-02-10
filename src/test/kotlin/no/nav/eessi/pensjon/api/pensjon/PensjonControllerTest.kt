@@ -315,6 +315,214 @@ class PensjonControllerTest {
 
     }
 
+    @Test
+    fun `sjekk om resultat er gyldig pensjoninfo`() {
+        val mockVedtakid = "213123333"
+        val mockClient = fraFil("BARNEP-PlukkBestOpptjening.xml")
+
+        val mockController = PensjonController(mockClient, auditLogger)
+        mockController.initMetrics()
+        val mockMvc2 = MockMvcBuilders.standaloneSetup(mockController).build()
+
+        val result = mockMvc2.perform(
+            MockMvcRequestBuilders.get("/pensjon/vedtak/$mockVedtakid/pensjoninfo")
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+            .andReturn()
+        val response = result.response.getContentAsString(charset("UTF-8"))
+        val expected = """
+{
+  "avdod" : {
+    "avdod" : null,
+    "avdodMor" : "19037019618",
+    "avdodFar" : "13127425838",
+    "avdodAktorId" : null,
+    "avdodMorAktorId" : "2794802022824",
+    "avdodFarAktorId" : "2552933419183",
+    "avdodBoddArbeidetUtland" : null,
+    "avdodFarBoddArbeidetUtland" : true,
+    "avdodMorBoddArbeidetUtland" : true,
+    "avdodVurdereTrygdeavtale" : null,
+    "avdodMorVurdereTrygdeavtale" : false,
+    "avdodFarVurdereTrygdeavtale" : false
+  },
+  "inngangOgEksport" : {
+    "unntakForutgaendeMedlemskap" : null,
+    "unntakForutgaendeMedlemskapAvdod" : null,
+    "unntakForutgaendeMedlemskapMor" : null,
+    "unntakForutgaendeMedlemskapFar" : null,
+    "minstTreArsFMNorgeAvdod" : null,
+    "minstTreArsFMNorge" : null,
+    "minstEtArFMNorge94Virk90Avdod" : null,
+    "minstEtArFMNorge94Virk90" : null,
+    "forutgaendeMedlemskapAvdod" : null,
+    "forutgaendeMedlemskap" : null,
+    "oppfyltEtterGamleReglerAvdod" : null,
+    "oppfyltEtterGamleRegler" : null,
+    "oppfyltVedSammenleggingAvdod" : null,
+    "oppfyltVedSammenlegging" : null,
+    "minstTreArTrygdetidNorgeKap19" : null,
+    "minstTreArTrygdetidNorgeKap19Avdod" : null,
+    "minstTreArTrygdetidNorgeKap20" : null,
+    "minstTreArTrygdetidNorgeKap20Avdod" : null,
+    "forutgaendeTrygdetid" : null
+  },
+  "person" : {
+    "pid" : "18050776456",
+    "aktorId" : "2304193180107"
+  },
+  "sakAlder" : {
+    "sakType" : "BARNEP",
+    "uttakFor67" : false
+  },
+  "trygdeavtale" : {
+    "erArt10BruktGP" : null,
+    "erArt10BruktTP" : null,
+    "erArt10BruktGPAvdod" : null,
+    "erArt10BruktTPAvdod" : null,
+    "erArt10BruktGPMor" : null,
+    "erArt10BruktTPMor" : null,
+    "erArt10BruktGPFar" : null,
+    "erArt10BruktTPFar" : null
+  },
+  "trygdetidAvdodFarListe" : {
+    "trygdetidAvdodFarListe" : [ {
+      "fom" : "1986-03-19",
+      "tom" : "1996-12-31",
+      "land" : "Norge",
+      "ikkeProrata" : false,
+      "poengIInnAr" : false,
+      "poengIUtAr" : false
+    }, {
+      "fom" : "2010-02-01",
+      "tom" : "2020-11-30",
+      "land" : "Norge",
+      "ikkeProrata" : false,
+      "poengIInnAr" : false,
+      "poengIUtAr" : false
+    } ]
+  },
+  "trygdetidAvdodListe" : {
+    "trygdetidAvdodListe" : [ ]
+  },
+  "trygdetidAvdodMorListe" : {
+    "trygdetidAvdodMorListe" : [ {
+      "fom" : "1990-12-13",
+      "tom" : "1998-12-31",
+      "land" : "Norge",
+      "ikkeProrata" : false,
+      "poengIInnAr" : false,
+      "poengIUtAr" : false
+    }, {
+      "fom" : "2010-03-01",
+      "tom" : "2014-11-30",
+      "land" : "Norge",
+      "ikkeProrata" : false,
+      "poengIInnAr" : false,
+      "poengIUtAr" : false
+    } ]
+  },
+  "trygdetidListe" : {
+    "trygdetidListe" : [ {
+      "fom" : "2007-05-18",
+      "tom" : "2022-02-10",
+      "land" : "Norge",
+      "ikkeProrata" : false,
+      "poengIInnAr" : false,
+      "poengIUtAr" : false
+    } ]
+  },
+  "vedtak" : {
+    "virkningstidspunkt" : "2021-01-01",
+    "kravGjelder" : "F_BH_MED_UTL",
+    "kravVelgType" : "FORELDRELOS",
+    "hovedytelseTrukket" : false,
+    "barnetilleggTrukket" : false,
+    "ektefelletilleggTrukket" : false,
+    "boddArbeidetUtland" : false,
+    "vurdereTrygdeAvtale" : false,
+    "datoFattetVedtak" : "2022-02-10",
+    "vedtakStatus" : "IVERKS",
+    "vedtaksDato" : "2022-02-10"
+  },
+  "vilkarsvurderingListe" : {
+    "vilkarsvurderingListe" : [ {
+      "fom" : "2021-01-01",
+      "tom" : null,
+      "vilkarsvurderingUforetrygd" : null,
+      "vilkarsvurderingMedlemstid" : null,
+      "resultatHovedytelse" : "INNV",
+      "resultatBarnetillegg" : null,
+      "resultatEktefelletillegg" : null,
+      "resultatFasteUtgifter" : null,
+      "resultatGjenlevendetillegg" : null,
+      "avslagHovedytelse" : null,
+      "avslagBarnetillegg" : null,
+      "avslagEktefelletillegg" : null,
+      "avslagFasteUtgifter" : null,
+      "avslagGjenlevendetillegg" : null
+    } ]
+  },
+  "ytelsePerMaanedListe" : {
+    "ytelsePerMaanedListe" : [ {
+      "fom" : "2021-01-01",
+      "tom" : "2021-04-30",
+      "mottarMinstePensjonsniva" : false,
+      "gjenlevendetilleggAnvendtAlderspensjon" : null,
+      "yrkesskadeAnvendtAlderspensjon" : null,
+      "vinnendeBeregningsmetode" : "FOLKETRYGD",
+      "vinnendeBeregningsmetodeKap20" : null,
+      "vurdertBeregningsmetodeFolketrygd" : true,
+      "vurdertBeregningsmetodeEOS" : false,
+      "vurdertBeregningsmetodeNordisk" : false,
+      "belop" : 14358,
+      "belopUtenAvkorting" : 14358,
+      "ytelseskomponentListe" : [ {
+        "ytelsesKomponentType" : "GP",
+        "belopTilUtbetaling" : 7179,
+        "belopUtenAvkorting" : 7179
+      }, {
+        "ytelsesKomponentType" : "ST",
+        "belopTilUtbetaling" : 7179,
+        "belopUtenAvkorting" : 7179
+      } ],
+      "benyttetSivilstand" : "ENSLIG",
+      "uforetidspunkt" : null
+    }, {
+      "fom" : "2021-05-01",
+      "tom" : null,
+      "mottarMinstePensjonsniva" : false,
+      "gjenlevendetilleggAnvendtAlderspensjon" : null,
+      "yrkesskadeAnvendtAlderspensjon" : null,
+      "vinnendeBeregningsmetode" : "FOLKETRYGD",
+      "vinnendeBeregningsmetodeKap20" : null,
+      "vurdertBeregningsmetodeFolketrygd" : true,
+      "vurdertBeregningsmetodeEOS" : false,
+      "vurdertBeregningsmetodeNordisk" : false,
+      "belop" : 15074,
+      "belopUtenAvkorting" : 15074,
+      "ytelseskomponentListe" : [ {
+        "ytelsesKomponentType" : "GP",
+        "belopTilUtbetaling" : 7537,
+        "belopUtenAvkorting" : 7537
+      }, {
+        "ytelsesKomponentType" : "ST",
+        "belopTilUtbetaling" : 7537,
+        "belopUtenAvkorting" : 7537
+      } ],
+      "benyttetSivilstand" : "ENSLIG",
+      "uforetidspunkt" : null
+    } ]
+  },
+  "brukersSakerListe" : null,
+  "brukersBarnListe" : null,
+  "kravHistorikkListe" : null,
+  "ektefellePartnerSamboerListe" : null
+}
+        """.trimIndent()
+        assertEquals(expected, response)
+    }
+
 
     fun fraFil(responseXMLfilename: String): PensjonsinformasjonClient {
         val resource = ResourceUtils.getFile("classpath:pensjonsinformasjon/$responseXMLfilename").readText()

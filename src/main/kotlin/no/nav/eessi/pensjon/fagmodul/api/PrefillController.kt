@@ -198,12 +198,12 @@ class PrefillController(
                 //sjekk for om deltakere alt er fjernet med x007 eller x100 sed
                 bucUtil.checkForParticipantsNoLongerActiveFromXSEDAsInstitusjonItem(dataModel.getInstitutionsList())
                 //sjekk om en svarsed kan opprettes eller om den alt finnes
-                bucUtil.sjekkOmSvarSedKanOpprettes(dataModel.sedType, parentId)
+                bucUtil.isChildDocumentByParentIdBeCreated(parentId, dataModel.sedType)
             }
         }
 
         logger.info("Prøver å prefillSED (svarSED) parentId: $parentId")
-        val sed = innhentingService.hentPreutyltSed( checkForX010AndAddX009(request, parentId ))
+        val sed = innhentingService.hentPreutyltSed( checkForX010AndAddX009(request, parentId ) )
 
         return addDocumentToParent.measure {
             logger.info("Prøver å sende SED: ${dataModel.sedType} inn på BUC: ${dataModel.euxCaseID}")

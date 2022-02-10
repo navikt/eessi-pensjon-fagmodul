@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<ns33:pensjonsinformasjon xmlns:ns33="http://nav.no/pensjon/v1/pensjonsinformasjon" xmlns:ns10="http://nav.no/pensjon/v1/trygdetid"
+                          xmlns:ns11="http://nav.no/pensjon/v1/trygdetidListe" xmlns:ns12="http://nav.no/pensjon/v1/inngangOgEksport"
+                          xmlns:ns14="http://nav.no/pensjon/v1/trygdeavtale"
+                          xmlns:ns15="http://nav.no/pensjon/v1/trygdetidAvdodFarListe" xmlns:ns16="http://nav.no/pensjon/v1/trygdetidAvdodMorListe"
+                          xmlns:ns17="http://nav.no/pensjon/v1/vilkarsvurdering"
+                          xmlns:ns2="http://nav.no/pensjon/v1/person"
+                          xmlns:ns20="http://nav.no/pensjon/v1/vilkarsvurderingListe" xmlns:ns21="http://nav.no/pensjon/v1/avdod"
+                          xmlns:ns5="http://nav.no/pensjon/v1/ytelsePerMaaned"
+                          xmlns:ns6="http://nav.no/pensjon/v1/ytelseskomponent" xmlns:ns7="http://nav.no/pensjon/v1/ytelsePerMaanedListe"
+                          xmlns:ns8="http://nav.no/pensjon/v1/vedtak" xmlns:ns9="http://nav.no/pensjon/v1/sakAlder">
+    <ns33:trygdeavtale xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns14:v1.Trygdeavtale"/>
+    <ns33:vedtak xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns8:v1.Vedtak">
+        <ns8:virkningstidspunkt>2021-01-01T00:00:00+01:00</ns8:virkningstidspunkt>
+        <ns8:kravGjelder>F_BH_MED_UTL</ns8:kravGjelder>
+        <ns8:kravVelgType>FORELDRELOS</ns8:kravVelgType>
+        <ns8:hovedytelseTrukket>false</ns8:hovedytelseTrukket>
+        <ns8:barnetilleggTrukket>false</ns8:barnetilleggTrukket>
+        <ns8:ektefelletilleggTrukket>false</ns8:ektefelletilleggTrukket>
+        <ns8:boddArbeidetUtland>false</ns8:boddArbeidetUtland>
+        <ns8:vurdereTrygdeAvtale>false</ns8:vurdereTrygdeAvtale>
+        <ns8:datoFattetVedtak>2022-02-10T00:00:00+01:00</ns8:datoFattetVedtak>
+        <ns8:vedtakStatus>IVERKS</ns8:vedtakStatus>
+        <ns8:vedtaksDato>2022-02-10T00:00:00+01:00</ns8:vedtaksDato>
+    </ns33:vedtak>
+    <ns33:person xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:v1.Person">
+        <ns2:pid>18050776456</ns2:pid>
+        <ns2:aktorId>2304193180107</ns2:aktorId>
+    </ns33:person>
+    <ns33:trygdetidAvdodFarListe xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns15:v1.TrygdetidAvdodFarListe">
+        <ns15:trygdetidAvdodFarListe>
+            <ns10:fom>1986-03-19T00:00:00+01:00</ns10:fom>
+            <ns10:tom>1996-12-31T00:00:00+01:00</ns10:tom>
+            <ns10:land>Norge</ns10:land>
+            <ns10:ikkeProrata>false</ns10:ikkeProrata>
+            <ns10:poengIInnAr>false</ns10:poengIInnAr>
+            <ns10:poengIUtAr>false</ns10:poengIUtAr>
+        </ns15:trygdetidAvdodFarListe>
+        <ns15:trygdetidAvdodFarListe>
+            <ns10:fom>2010-02-01T00:00:00+01:00</ns10:fom>
+            <ns10:tom>2020-11-30T00:00:00+01:00</ns10:tom>
+            <ns10:land>Norge</ns10:land>
+            <ns10:ikkeProrata>false</ns10:ikkeProrata>
+            <ns10:poengIInnAr>false</ns10:poengIInnAr>
+            <ns10:poengIUtAr>false</ns10:poengIUtAr>
+        </ns15:trygdetidAvdodFarListe>
+    </ns33:trygdetidAvdodFarListe>
+    <ns33:sakAlder xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns9:v1.SakAlder">
+        <ns9:sakType>BARNEP</ns9:sakType>
+    </ns33:sakAlder>
+    <ns33:trygdetidAvdodListe xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true"/>
+    <ns33:avdod xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns21:v1.Avdod">
+        <ns21:avdodMor>19037019618</ns21:avdodMor>
+        <ns21:avdodFar>13127425838</ns21:avdodFar>
+        <ns21:avdodMorAktorId>2794802022824</ns21:avdodMorAktorId>
+        <ns21:avdodFarAktorId>2552933419183</ns21:avdodFarAktorId>
+        <ns21:avdodFarBoddArbeidetUtland>true</ns21:avdodFarBoddArbeidetUtland>
+        <ns21:avdodMorBoddArbeidetUtland>true</ns21:avdodMorBoddArbeidetUtland>
+        <ns21:avdodMorVurdereTrygdeavtale>false</ns21:avdodMorVurdereTrygdeavtale>
+        <ns21:avdodFarVurdereTrygdeavtale>false</ns21:avdodFarVurdereTrygdeavtale>
+        <ns21:dodsfallMorSkyldesYrkeskade>false</ns21:dodsfallMorSkyldesYrkeskade>
+        <ns21:dodsfallFarSkyldesYrkeskade>false</ns21:dodsfallFarSkyldesYrkeskade>
+    </ns33:avdod>
+    <ns33:trygdetidAvdodMorListe xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns16:v1.TrygdetidAvdodMorListe">
+        <ns16:trygdetidAvdodMorListe>
+            <ns10:fom>1990-12-13T00:00:00+01:00</ns10:fom>
+            <ns10:tom>1998-12-31T00:00:00+01:00</ns10:tom>
+            <ns10:land>Norge</ns10:land>
+            <ns10:ikkeProrata>false</ns10:ikkeProrata>
+            <ns10:poengIInnAr>false</ns10:poengIInnAr>
+            <ns10:poengIUtAr>false</ns10:poengIUtAr>
+        </ns16:trygdetidAvdodMorListe>
+        <ns16:trygdetidAvdodMorListe>
+            <ns10:fom>2010-03-01T00:00:00+01:00</ns10:fom>
+            <ns10:tom>2014-11-30T00:00:00+01:00</ns10:tom>
+            <ns10:land>Norge</ns10:land>
+            <ns10:ikkeProrata>false</ns10:ikkeProrata>
+            <ns10:poengIInnAr>false</ns10:poengIInnAr>
+            <ns10:poengIUtAr>false</ns10:poengIUtAr>
+        </ns16:trygdetidAvdodMorListe>
+    </ns33:trygdetidAvdodMorListe>
+    <ns33:trygdetidListe xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns11:v1.TrygdetidListe">
+        <ns11:trygdetidListe>
+            <ns10:fom>2007-05-18T00:00:00+02:00</ns10:fom>
+            <ns10:tom>2022-02-10T00:00:00+01:00</ns10:tom>
+            <ns10:land>Norge</ns10:land>
+            <ns10:ikkeProrata>false</ns10:ikkeProrata>
+            <ns10:poengIInnAr>false</ns10:poengIInnAr>
+            <ns10:poengIUtAr>false</ns10:poengIUtAr>
+        </ns11:trygdetidListe>
+    </ns33:trygdetidListe>
+    <ns33:ytelsePerMaanedListe xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns7:v1.YtelsePerMaanedListe">
+        <ns7:ytelsePerMaanedListe>
+            <ns5:fom>2021-01-01T00:00:00+01:00</ns5:fom>
+            <ns5:tom>2021-04-30T00:00:00+02:00</ns5:tom>
+            <ns5:mottarMinstePensjonsniva>false</ns5:mottarMinstePensjonsniva>
+            <ns5:vinnendeBeregningsmetode>FOLKETRYGD</ns5:vinnendeBeregningsmetode>
+            <ns5:vurdertBeregningsmetodeFolketrygd>true</ns5:vurdertBeregningsmetodeFolketrygd>
+            <ns5:vurdertBeregningsmetodeEOS>false</ns5:vurdertBeregningsmetodeEOS>
+            <ns5:vurdertBeregningsmetodeNordisk>false</ns5:vurdertBeregningsmetodeNordisk>
+            <ns5:belop>14358</ns5:belop>
+            <ns5:belopUtenAvkorting>14358</ns5:belopUtenAvkorting>
+            <ns5:ytelseskomponentListe>
+                <ns6:ytelsesKomponentType>GP</ns6:ytelsesKomponentType>
+                <ns6:belopTilUtbetaling>7179</ns6:belopTilUtbetaling>
+                <ns6:belopUtenAvkorting>7179</ns6:belopUtenAvkorting>
+            </ns5:ytelseskomponentListe>
+            <ns5:ytelseskomponentListe>
+                <ns6:ytelsesKomponentType>ST</ns6:ytelsesKomponentType>
+                <ns6:belopTilUtbetaling>7179</ns6:belopTilUtbetaling>
+                <ns6:belopUtenAvkorting>7179</ns6:belopUtenAvkorting>
+            </ns5:ytelseskomponentListe>
+            <ns5:benyttetSivilstand>ENSLIG</ns5:benyttetSivilstand>
+        </ns7:ytelsePerMaanedListe>
+        <ns7:ytelsePerMaanedListe>
+            <ns5:fom>2021-05-01T00:00:00+02:00</ns5:fom>
+            <ns5:mottarMinstePensjonsniva>false</ns5:mottarMinstePensjonsniva>
+            <ns5:vinnendeBeregningsmetode>FOLKETRYGD</ns5:vinnendeBeregningsmetode>
+            <ns5:vurdertBeregningsmetodeFolketrygd>true</ns5:vurdertBeregningsmetodeFolketrygd>
+            <ns5:vurdertBeregningsmetodeEOS>false</ns5:vurdertBeregningsmetodeEOS>
+            <ns5:vurdertBeregningsmetodeNordisk>false</ns5:vurdertBeregningsmetodeNordisk>
+            <ns5:belop>15074</ns5:belop>
+            <ns5:belopUtenAvkorting>15074</ns5:belopUtenAvkorting>
+            <ns5:ytelseskomponentListe>
+                <ns6:ytelsesKomponentType>GP</ns6:ytelsesKomponentType>
+                <ns6:belopTilUtbetaling>7537</ns6:belopTilUtbetaling>
+                <ns6:belopUtenAvkorting>7537</ns6:belopUtenAvkorting>
+            </ns5:ytelseskomponentListe>
+            <ns5:ytelseskomponentListe>
+                <ns6:ytelsesKomponentType>ST</ns6:ytelsesKomponentType>
+                <ns6:belopTilUtbetaling>7537</ns6:belopTilUtbetaling>
+                <ns6:belopUtenAvkorting>7537</ns6:belopUtenAvkorting>
+            </ns5:ytelseskomponentListe>
+            <ns5:benyttetSivilstand>ENSLIG</ns5:benyttetSivilstand>
+        </ns7:ytelsePerMaanedListe>
+    </ns33:ytelsePerMaanedListe>
+    <ns33:vilkarsvurderingListe xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns20:v1.VilkarsvurderingListe">
+        <ns20:vilkarsvurderingListe>
+            <ns17:fom>2021-01-01T00:00:00+01:00</ns17:fom>
+            <ns17:resultatHovedytelse>INNV</ns17:resultatHovedytelse>
+        </ns20:vilkarsvurderingListe>
+    </ns33:vilkarsvurderingListe>
+    <ns33:inngangOgEksport xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns12:v1.InngangOgEksport"/>
+</ns33:pensjonsinformasjon>

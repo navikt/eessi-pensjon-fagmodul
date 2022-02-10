@@ -4,6 +4,7 @@ import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.SedType.P2100
 import no.nav.eessi.pensjon.eux.model.SedType.P5000
 import no.nav.eessi.pensjon.eux.model.SedType.P6000
+import no.nav.eessi.pensjon.eux.model.SedType.P9000
 import no.nav.eessi.pensjon.eux.model.SedType.X005
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.document.Retning
@@ -930,22 +931,6 @@ class BucUtilsTest {
         val buc = mapJsonToAny(javaClass.getResource("/json/buc/buc-rina2020-P2K-X005.json").readText(), typeRefs<Buc>())
         val bucUtils = BucUtils(buc)
 
-//        println(bucUtils.getGyldigeOpprettSedAksjonList().toJson())
-//        val actions = bucUtils.getRinaAksjon().filter { it.documentType == P2100 || it.documentType == X005 || it.documentType == P6000 }
-//        println("***\n ${actions.toJson()} \n***")
-//        println("***".repeat(50) + "\n\n")
-//        val x005actions = bucUtils.getRinaAksjonSedType(X005)
-//        println(x005actions.toJson())
-//        println("***".repeat(50) + "\n\n")
-//        val x005operations = bucUtils.getRinaAksjonOperationSedType(P6000)
-//        println(x005operations.toJson())
-//        println()
-//        println()
-//        println(bucUtils.getRinaAksjonOperationSedType(P2100))
-//        println(bucUtils.getDocumentByType(P2100)?.participants?.toJson())
-//        println("***".repeat(50) + "\n\n")
-//        println(bucUtils.getRinaAksjonOperationSedType(X005, ActionOperation.Create))
-
         try {
             bucUtils.isValidSedtypeOperation(P2100, ActionOperation.Create)
         } catch (ex: Exception) {
@@ -965,6 +950,19 @@ class BucUtilsTest {
         }
 
     }
+
+    @Test
+    fun testingIfP9000CanBeCreated() {
+        val buc = mapJsonToAny(javaClass.getResource("/json/buc/buc-3059699-x100.json").readText(), typeRefs<Buc>())
+        val bucUtils = BucUtils(buc)
+
+        assertTrue(bucUtils.isChildDocumentByParentIdBeCreated("aac5ac5d6a2b47019ea606114c96cf50", P9000))
+        assertThrows<ResponseStatusException> {
+            bucUtils.isChildDocumentByParentIdBeCreated("add6d09bdcf74f0e897ecdbe8a8420a4", P9000)
+        }
+
+    }
+
 
 
     fun mockBucNoRecevieDate(direction: String = "OUT") : Buc {

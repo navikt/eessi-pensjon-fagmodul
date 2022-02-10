@@ -356,8 +356,8 @@ class PrefillControllerTest {
         val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01",
             participants = listOf(ParticipantsItem()), processDefinitionVersion = "4.2",
             documents = listOf(DocumentsItem(id = "3123123", type = SedType.P9000, status = "empty", allowsAttachments = true, lastUpdate = lastupdate, creationDate = lastupdate, parentDocumentId = parentDocumentId, direction = "OUT"),
-            DocumentsItem(id = parentDocumentId, type = SedType.P8000, status = "received", allowsAttachments = true,  lastUpdate = lastupdate, creationDate = lastupdate, direction = "OUT")),
-           actions = listOf(ActionsItem(operation = ActionOperation.Read))
+            DocumentsItem(id = parentDocumentId, type = SedType.P8000, status = "received", allowsAttachments = true,  lastUpdate = lastupdate, creationDate = lastupdate, direction = "IN")),
+           actions = listOf(ActionsItem(documentType = SedType.P8000, documentId = parentDocumentId , operation = ActionOperation.Read), ActionsItem(documentType = SedType.P9000, documentId = "3123123", operation = ActionOperation.Create))
         )
 
         val api = apiRequestWith(euxCaseId, sed = "P9000", institutions = emptyList())

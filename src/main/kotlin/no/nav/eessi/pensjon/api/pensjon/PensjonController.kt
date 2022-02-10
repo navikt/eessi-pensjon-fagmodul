@@ -1,5 +1,11 @@
 package no.nav.eessi.pensjon.api.pensjon
 
+import com.fasterxml.jackson.core.JsonGenerator
+import com.fasterxml.jackson.databind.JsonSerializer
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializerProvider
+import com.fasterxml.jackson.databind.module.SimpleModule
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import io.swagger.v3.oas.annotations.Operation
 import no.nav.eessi.pensjon.logging.AuditLogger
@@ -114,7 +120,6 @@ class PensjonController(private val pensjonsinformasjonClient: Pensjonsinformasj
     @GetMapping("/vedtak/{vedtakid}/vilkarsvurdering")
     fun hentVedtakforVilkarsVurderingList(@PathVariable("vedtakid", required = true) vedtakId: String): List<V1Vilkarsvurdering> {
         val pensjonsinformasjon = pensjonsinformasjonClient.hentAltPaaVedtak(vedtakId)
-
         logger.debug("--".repeat(100))
         logger.debug("vilkarsliste sizze : ${pensjonsinformasjon.vilkarsvurderingListe.vilkarsvurderingListe.size}")
 
@@ -134,6 +139,40 @@ class PensjonController(private val pensjonsinformasjonClient: Pensjonsinformasj
 
         return vilkarsvurderingListe
     }
+
+    @GetMapping("/vedtak/{vedtakid}/pensjoninfo")
+    fun hentVedtakforPensjonsinformasjon(@PathVariable("vedtakid", required = true) vedtakId: String): String {
+        val vedtak = pensjonsinformasjonClient.hentAltPaaVedtak(vedtakId)
+        val mapper = ObjectMapper()
+            .registerModule(JavaTimeModule())
+            .registerModule(SimpleModule().addSerializer(XMLGregorianCalendar::class.java, LocalDateSerializer()))
+        val jsonobj: Any = mapper.readValue(mapper.writeValueAsString(vedtak), Any::class.java)
+        return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonobj)
+    }
+
+    private class LocalDateSerializer(): JsonSerializer<XMLGregorianCalendar>() {
+        override fun serialize(value: XMLGregorianCalendar?, gen: JsonGenerator?, serializers: SerializerProvider?) {
+            gen?.let { jGen ->
+                value?.let { xmldate ->
+                    val localDate = LocalDate.of(
+                        xmldate.getYear(),
+                        xmldate.getMonth(),
+                        xmldate.getDay());
+                    jGen.writeString(localDate.toString())
+                } ?: jGen.writeNull()
+            }
+        }
+    }
+
+//    @GetMapping("/vedtak/{vedtakid}/doedsdato")
+//    fun hentDoeadsDatoforBanrePmedBestYtelse(@PathVariable("vedtakid", required = true) vedtakId: String): String? {
+//        val pensjonsinformasjon = pensjonsinformasjonClient.hentAltPaaVedtak(vedtakId)
+//        val avdod = pensjonsinformasjon.avdod
+//        val asx = avdod.avdod
+//
+//        val mor = avdod.avdodMor
+//        val fat = avdod.avdodFar
+//    }
 
     @GetMapping("/vedtak/{vedtakid}/uforetidspunkt")
     fun hentVedtakforForUfor(@PathVariable("vedtakid", required = true) vedtakId: String): String? {

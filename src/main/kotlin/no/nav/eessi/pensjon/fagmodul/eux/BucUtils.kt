@@ -320,11 +320,11 @@ class BucUtils(private val buc: Buc) {
                 ?.mapNotNull { con -> con.userMessages?.map { um -> um.sender?.id } }?.flatten()
                 ?.firstOrNull { senderId -> newlistId.contains(senderId) }
         } catch (ex: Exception) {
-            logger.error("En feil under sjekk av Xsed", ex)
+            logger.error("En feil under sjekk av X100/X007", ex)
             return true
         }
         if (result != null) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Institusjon med id: $result, er ikke lenger i bruk. Da den er endret via en X-SED")
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Institusjon med id: $result, er ikke lenger i bruk. Da den er endret via en X100/X007")
         }
         return true
     }
@@ -372,6 +372,7 @@ class BucUtils(private val buc: Buc) {
         return true
     }
 
+    @Deprecated("Ikke benytt denne lenger", ReplaceWith("isChildDocumentByParentIdBeCreated(String, SedType)"))
     fun sjekkOmSvarSedKanOpprettes(SedType: SedType, parentId: String) : Boolean{
         if(getAllDocuments().any { it.parentDocumentId == parentId && it.type == SedType && it.status == "empty" }){
             return true
@@ -390,6 +391,16 @@ class BucUtils(private val buc: Buc) {
         return list
             .filter(gyldigSektorOgHSed)
             .sortedBy { it.name }
+    }
+
+    fun isChildDocumentByParentIdBeCreated(parentId: String, sedType: SedType): Boolean {
+        val possibleId = getAllDocuments().firstOrNull { docs-> docs.type == sedType && docs.parentDocumentId == parentId }?.id
+        when (getRinaAksjon().firstOrNull { it.documentId == possibleId }?.operation) {
+            ActionOperation.Create -> {
+                return true
+            }
+            else -> throw ResponseStatusException(HttpStatus.BAD_REQUEST, "$SedType kan ikke opaprettes i RINA (mulig det allerede finnes et utkast)")
+        }
     }
 
     fun getRinaAksjon(): List<ActionsItem> {
