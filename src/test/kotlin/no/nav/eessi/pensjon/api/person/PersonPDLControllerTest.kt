@@ -310,7 +310,10 @@ class PersonPDLControllerTest {
           },
           "doedsfall": null,
           "forelderBarnRelasjon": [],
-          "sivilstand": []
+          "sivilstand": [],
+          "kontaktadresse":null,
+          "kontaktinformasjonForDoedsbo":null,          
+          "utenlandskIdentifikasjonsnummer":[]
         }
           """.trimIndent()
 
@@ -361,7 +364,9 @@ class PersonPDLControllerTest {
         null,
         familierlasjon,
         sivilstand,
-        null
+        null,
+        null,
+        emptyList()
     )
 
 }

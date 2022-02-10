@@ -39,7 +39,6 @@ class PensjonsinformasjonClient(
         fun finnSak(sakId: String, pendata: Pensjonsinformasjon): V1Sak? {
             logger.info("Søker brukersSakerListe etter sakId: $sakId")
             val v1saklist = pendata.brukersSakerListe.brukersSakerListe
-
             return v1saklist.firstOrNull { sak -> "${sak.sakId}" == sakId  }
         }
     }

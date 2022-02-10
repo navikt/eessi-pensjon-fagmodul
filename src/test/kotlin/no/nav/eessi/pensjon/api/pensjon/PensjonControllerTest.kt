@@ -316,6 +316,311 @@ class PensjonControllerTest {
     }
 
     @Test
+    fun `sjekk om sak resultat er gyldig pensjoninfo`() {
+        val ident = "1234567890123"
+        val mockSakid = "21841174"
+        val mockClient = fraFil("ALDERP-INV-21841174.xml")
+
+        val mockController = PensjonController(mockClient, auditLogger)
+        mockController.initMetrics()
+        val mockMvc2 = MockMvcBuilders.standaloneSetup(mockController).build()
+
+        val result = mockMvc2.perform(
+            MockMvcRequestBuilders.get("/pensjon/sak/aktoer/$ident/sakid/$mockSakid/pensjonsak")
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+       .andReturn()
+        val response = result.response.getContentAsString(charset("UTF-8"))
+        val expected = """
+            {
+              "sakType" : "ALDER",
+              "sakId" : 21841174,
+              "forsteVirkningstidspunkt" : "2016-03-01",
+              "kravHistorikkListe" : {
+                "kravHistorikkListe" : [ {
+                  "kravId" : null,
+                  "kravType" : "F_BH_MED_UTL",
+                  "mottattDato" : "2015-11-25",
+                  "virkningstidspunkt" : "2016-03-01",
+                  "status" : "AVSL",
+                  "kravArsak" : null
+                }, {
+                  "kravId" : null,
+                  "kravType" : "MELLOMBH",
+                  "mottattDato" : "2015-11-25",
+                  "virkningstidspunkt" : "2016-03-01",
+                  "status" : "INNV",
+                  "kravArsak" : null
+                }, {
+                  "kravId" : null,
+                  "kravType" : "SLUTT_BH_UTL",
+                  "mottattDato" : "2016-06-07",
+                  "virkningstidspunkt" : "2017-08-01",
+                  "status" : "INNV",
+                  "kravArsak" : null
+                }, {
+                  "kravId" : null,
+                  "kravType" : "REVURD",
+                  "mottattDato" : "2016-12-10",
+                  "virkningstidspunkt" : "2017-01-01",
+                  "status" : "INNV",
+                  "kravArsak" : null
+                }, {
+                  "kravId" : null,
+                  "kravType" : "REVURD",
+                  "mottattDato" : "2017-12-16",
+                  "virkningstidspunkt" : "2018-01-01",
+                  "status" : "INNV",
+                  "kravArsak" : null
+                } ]
+              },
+              "ytelsePerMaanedListe" : {
+                "ytelsePerMaanedListe" : [ {
+                  "fom" : "2018-05-01",
+                  "tom" : null,
+                  "mottarMinstePensjonsniva" : false,
+                  "gjenlevendetilleggAnvendtAlderspensjon" : false,
+                  "yrkesskadeAnvendtAlderspensjon" : false,
+                  "vinnendeBeregningsmetode" : "FOLKETRYGD",
+                  "vinnendeBeregningsmetodeKap20" : "FOLKETRYGD",
+                  "vurdertBeregningsmetodeFolketrygd" : false,
+                  "vurdertBeregningsmetodeEOS" : false,
+                  "vurdertBeregningsmetodeNordisk" : false,
+                  "belop" : 16114,
+                  "belopUtenAvkorting" : 16114,
+                  "ytelseskomponentListe" : [ {
+                    "ytelsesKomponentType" : "GP",
+                    "belopTilUtbetaling" : 5328,
+                    "belopUtenAvkorting" : 5328
+                  }, {
+                    "ytelsesKomponentType" : "TP",
+                    "belopTilUtbetaling" : 9009,
+                    "belopUtenAvkorting" : 9009
+                  }, {
+                    "ytelsesKomponentType" : "MIN_NIVA_TILL_INDV",
+                    "belopTilUtbetaling" : 347,
+                    "belopUtenAvkorting" : 347
+                  }, {
+                    "ytelsesKomponentType" : "IP",
+                    "belopTilUtbetaling" : 1189,
+                    "belopUtenAvkorting" : 1189
+                  }, {
+                    "ytelsesKomponentType" : "GAP",
+                    "belopTilUtbetaling" : 241,
+                    "belopUtenAvkorting" : 241
+                  } ],
+                  "benyttetSivilstand" : "ENSLIG",
+                  "uforetidspunkt" : null
+                }, {
+                  "fom" : "2018-01-01",
+                  "tom" : null,
+                  "mottarMinstePensjonsniva" : false,
+                  "gjenlevendetilleggAnvendtAlderspensjon" : false,
+                  "yrkesskadeAnvendtAlderspensjon" : false,
+                  "vinnendeBeregningsmetode" : "FOLKETRYGD",
+                  "vinnendeBeregningsmetodeKap20" : "FOLKETRYGD",
+                  "vurdertBeregningsmetodeFolketrygd" : false,
+                  "vurdertBeregningsmetodeEOS" : false,
+                  "vurdertBeregningsmetodeNordisk" : false,
+                  "belop" : 15665,
+                  "belopUtenAvkorting" : 15665,
+                  "ytelseskomponentListe" : [ {
+                    "ytelsesKomponentType" : "MIN_NIVA_TILL_INDV",
+                    "belopTilUtbetaling" : 310,
+                    "belopUtenAvkorting" : 310
+                  }, {
+                    "ytelsesKomponentType" : "GAP",
+                    "belopTilUtbetaling" : 235,
+                    "belopUtenAvkorting" : 235
+                  }, {
+                    "ytelsesKomponentType" : "IP",
+                    "belopTilUtbetaling" : 1158,
+                    "belopUtenAvkorting" : 1158
+                  }, {
+                    "ytelsesKomponentType" : "GP",
+                    "belopTilUtbetaling" : 5189,
+                    "belopUtenAvkorting" : 5189
+                  }, {
+                    "ytelsesKomponentType" : "TP",
+                    "belopTilUtbetaling" : 8773,
+                    "belopUtenAvkorting" : 8773
+                  } ],
+                  "benyttetSivilstand" : "ENSLIG",
+                  "uforetidspunkt" : null
+                }, {
+                  "fom" : "2017-08-01",
+                  "tom" : null,
+                  "mottarMinstePensjonsniva" : false,
+                  "gjenlevendetilleggAnvendtAlderspensjon" : false,
+                  "yrkesskadeAnvendtAlderspensjon" : false,
+                  "vinnendeBeregningsmetode" : "FOLKETRYGD",
+                  "vinnendeBeregningsmetodeKap20" : "FOLKETRYGD",
+                  "vurdertBeregningsmetodeFolketrygd" : false,
+                  "vurdertBeregningsmetodeEOS" : false,
+                  "vurdertBeregningsmetodeNordisk" : false,
+                  "belop" : 15181,
+                  "belopUtenAvkorting" : 15181,
+                  "ytelseskomponentListe" : [ {
+                    "ytelsesKomponentType" : "GP",
+                    "belopTilUtbetaling" : 5047,
+                    "belopUtenAvkorting" : 5047
+                  }, {
+                    "ytelsesKomponentType" : "GAP",
+                    "belopTilUtbetaling" : 203,
+                    "belopUtenAvkorting" : 203
+                  }, {
+                    "ytelsesKomponentType" : "IP",
+                    "belopTilUtbetaling" : 1158,
+                    "belopUtenAvkorting" : 1158
+                  }, {
+                    "ytelsesKomponentType" : "TP",
+                    "belopTilUtbetaling" : 8773,
+                    "belopUtenAvkorting" : 8773
+                  } ],
+                  "benyttetSivilstand" : "ENSLIG",
+                  "uforetidspunkt" : null
+                }, {
+                  "fom" : "2017-05-01",
+                  "tom" : null,
+                  "mottarMinstePensjonsniva" : false,
+                  "gjenlevendetilleggAnvendtAlderspensjon" : false,
+                  "yrkesskadeAnvendtAlderspensjon" : false,
+                  "vinnendeBeregningsmetode" : "FOLKETRYGD",
+                  "vinnendeBeregningsmetodeKap20" : "FOLKETRYGD",
+                  "vurdertBeregningsmetodeFolketrygd" : false,
+                  "vurdertBeregningsmetodeEOS" : false,
+                  "vurdertBeregningsmetodeNordisk" : false,
+                  "belop" : 15181,
+                  "belopUtenAvkorting" : 15181,
+                  "ytelseskomponentListe" : [ {
+                    "ytelsesKomponentType" : "TP",
+                    "belopTilUtbetaling" : 8773,
+                    "belopUtenAvkorting" : 8773
+                  }, {
+                    "ytelsesKomponentType" : "IP",
+                    "belopTilUtbetaling" : 1158,
+                    "belopUtenAvkorting" : 1158
+                  }, {
+                    "ytelsesKomponentType" : "GAP",
+                    "belopTilUtbetaling" : 203,
+                    "belopUtenAvkorting" : 203
+                  }, {
+                    "ytelsesKomponentType" : "GP",
+                    "belopTilUtbetaling" : 5047,
+                    "belopUtenAvkorting" : 5047
+                  } ],
+                  "benyttetSivilstand" : "ENSLIG",
+                  "uforetidspunkt" : null
+                }, {
+                  "fom" : "2017-01-01",
+                  "tom" : null,
+                  "mottarMinstePensjonsniva" : false,
+                  "gjenlevendetilleggAnvendtAlderspensjon" : false,
+                  "yrkesskadeAnvendtAlderspensjon" : false,
+                  "vinnendeBeregningsmetode" : "FOLKETRYGD",
+                  "vinnendeBeregningsmetodeKap20" : "FOLKETRYGD",
+                  "vurdertBeregningsmetodeFolketrygd" : false,
+                  "vurdertBeregningsmetodeEOS" : false,
+                  "vurdertBeregningsmetodeNordisk" : false,
+                  "belop" : 15122,
+                  "belopUtenAvkorting" : 15122,
+                  "ytelseskomponentListe" : [ {
+                    "ytelsesKomponentType" : "IP",
+                    "belopTilUtbetaling" : 1153,
+                    "belopUtenAvkorting" : 1153
+                  }, {
+                    "ytelsesKomponentType" : "TP",
+                    "belopTilUtbetaling" : 8739,
+                    "belopUtenAvkorting" : 8739
+                  }, {
+                    "ytelsesKomponentType" : "GAP",
+                    "belopTilUtbetaling" : 202,
+                    "belopUtenAvkorting" : 202
+                  }, {
+                    "ytelsesKomponentType" : "GP",
+                    "belopTilUtbetaling" : 5028,
+                    "belopUtenAvkorting" : 5028
+                  } ],
+                  "benyttetSivilstand" : "ENSLIG",
+                  "uforetidspunkt" : null
+                }, {
+                  "fom" : "2016-05-01",
+                  "tom" : null,
+                  "mottarMinstePensjonsniva" : false,
+                  "gjenlevendetilleggAnvendtAlderspensjon" : false,
+                  "yrkesskadeAnvendtAlderspensjon" : false,
+                  "vinnendeBeregningsmetode" : "FOLKETRYGD",
+                  "vinnendeBeregningsmetodeKap20" : "FOLKETRYGD",
+                  "vurdertBeregningsmetodeFolketrygd" : false,
+                  "vurdertBeregningsmetodeEOS" : false,
+                  "vurdertBeregningsmetodeNordisk" : false,
+                  "belop" : 14958,
+                  "belopUtenAvkorting" : 14958,
+                  "ytelseskomponentListe" : [ {
+                    "ytelsesKomponentType" : "TP",
+                    "belopTilUtbetaling" : 8739,
+                    "belopUtenAvkorting" : 8739
+                  }, {
+                    "ytelsesKomponentType" : "GP",
+                    "belopTilUtbetaling" : 4894,
+                    "belopUtenAvkorting" : 4894
+                  }, {
+                    "ytelsesKomponentType" : "GAP",
+                    "belopTilUtbetaling" : 172,
+                    "belopUtenAvkorting" : 172
+                  }, {
+                    "ytelsesKomponentType" : "IP",
+                    "belopTilUtbetaling" : 1153,
+                    "belopUtenAvkorting" : 1153
+                  } ],
+                  "benyttetSivilstand" : "ENSLIG",
+                  "uforetidspunkt" : null
+                }, {
+                  "fom" : "2016-03-01",
+                  "tom" : null,
+                  "mottarMinstePensjonsniva" : false,
+                  "gjenlevendetilleggAnvendtAlderspensjon" : false,
+                  "yrkesskadeAnvendtAlderspensjon" : false,
+                  "vinnendeBeregningsmetode" : "FOLKETRYGD",
+                  "vinnendeBeregningsmetodeKap20" : "FOLKETRYGD",
+                  "vurdertBeregningsmetodeFolketrygd" : false,
+                  "vurdertBeregningsmetodeEOS" : false,
+                  "vurdertBeregningsmetodeNordisk" : false,
+                  "belop" : 14574,
+                  "belopUtenAvkorting" : 14574,
+                  "ytelseskomponentListe" : [ {
+                    "ytelsesKomponentType" : "IP",
+                    "belopTilUtbetaling" : 1124,
+                    "belopUtenAvkorting" : 1124
+                  }, {
+                    "ytelsesKomponentType" : "GAP",
+                    "belopTilUtbetaling" : 168,
+                    "belopUtenAvkorting" : 168
+                  }, {
+                    "ytelsesKomponentType" : "GP",
+                    "belopTilUtbetaling" : 4768,
+                    "belopUtenAvkorting" : 4768
+                  }, {
+                    "ytelsesKomponentType" : "TP",
+                    "belopTilUtbetaling" : 8514,
+                    "belopUtenAvkorting" : 8514
+                  } ],
+                  "benyttetSivilstand" : "ENSLIG",
+                  "uforetidspunkt" : null
+                } ]
+              },
+              "brukersBarnListe" : {
+                "brukersBarnListe" : [ ]
+              },
+              "status" : "INNV"
+            }
+        """.trimIndent()
+
+//        println(response)
+        assertEquals(expected, response)
+    }
+
+    @Test
     fun `sjekk om resultat er gyldig pensjoninfo`() {
         val mockVedtakid = "213123333"
         val mockClient = fraFil("BARNEP-PlukkBestOpptjening.xml")

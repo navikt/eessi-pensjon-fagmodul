@@ -150,6 +150,22 @@ class PensjonController(private val pensjonsinformasjonClient: Pensjonsinformasj
         return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonobj)
     }
 
+    @GetMapping("/sak/aktoer/{ident}/sakid/{sakid}/pensjonsak")
+    fun hentSakPensjonsinformasjon(@PathVariable("ident", required = true) ident: String, @PathVariable("sakid", required = true) sakid: String): String {
+        val saker = pensjonsinformasjonClient.hentAltPaaAktoerId(ident)
+        logger.info("saker: ${saker.brukersSakerListe.brukersSakerListe.size}")
+        val sak = saker?.let { PensjonsinformasjonClient.finnSak(sakid, it) }
+        logger.info("den fakiske sak: ${sak != null}")
+        sak?.let {
+            val mapper = ObjectMapper()
+                .registerModule(JavaTimeModule())
+                .registerModule(SimpleModule().addSerializer(XMLGregorianCalendar::class.java, LocalDateSerializer()))
+            val jsonobj: Any = mapper.readValue(mapper.writeValueAsString(it), Any::class.java)
+            return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonobj)
+        }
+        return "NA"
+    }
+
     private class LocalDateSerializer(): JsonSerializer<XMLGregorianCalendar>() {
         override fun serialize(value: XMLGregorianCalendar?, gen: JsonGenerator?, serializers: SerializerProvider?) {
             gen?.let { jGen ->
