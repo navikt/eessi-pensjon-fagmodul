@@ -186,7 +186,14 @@ class BucUtils(private val buc: Buc) {
 
     fun filterOutReceiveDateOnOut(direction: String, receiveDate: Long?): Long? = if (direction == "OUT") null else receiveDate
 
-    private fun checkParentDocumentId(type: SedType?, parentDocumentId: String?): String? = if (type == SedType.X009) null else parentDocumentId
+    private fun checkParentDocumentId(type: SedType?, parentDocumentId: String?): String? {
+        //fjerne parentid for ikke å opprette svarsed
+        return when(type) {
+            SedType.X009 -> null
+            SedType.X012 -> null
+            else -> parentDocumentId
+        }
+    }
 
     private fun overrideAllowAttachemnts(documentItem: DocumentsItem): Boolean? {
         return when(documentItem.type) {

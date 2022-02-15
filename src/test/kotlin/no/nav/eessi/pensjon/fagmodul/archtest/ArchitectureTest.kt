@@ -56,6 +56,7 @@ class ArchitectureTest {
         }
     }
 
+    @Disabled
     @Test
     fun `check architecture in detail`() {
 

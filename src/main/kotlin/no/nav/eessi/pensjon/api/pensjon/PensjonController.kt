@@ -36,9 +36,11 @@ import javax.xml.datatype.XMLGregorianCalendar
 @Protected
 @RestController
 @RequestMapping("/pensjon")
-class PensjonController(private val pensjonsinformasjonClient: PensjonsinformasjonClient,
-                        private val auditlogger: AuditLogger,
-                        @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())) {
+class PensjonController(
+    private val pensjonsinformasjonClient: PensjonsinformasjonClient,
+    private val auditlogger: AuditLogger,
+    @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())
+) {
 
     private val logger = LoggerFactory.getLogger(PensjonController::class.java)
 
@@ -179,16 +181,6 @@ class PensjonController(private val pensjonsinformasjonClient: Pensjonsinformasj
             }
         }
     }
-
-//    @GetMapping("/vedtak/{vedtakid}/doedsdato")
-//    fun hentDoeadsDatoforBanrePmedBestYtelse(@PathVariable("vedtakid", required = true) vedtakId: String): String? {
-//        val pensjonsinformasjon = pensjonsinformasjonClient.hentAltPaaVedtak(vedtakId)
-//        val avdod = pensjonsinformasjon.avdod
-//        val asx = avdod.avdod
-//
-//        val mor = avdod.avdodMor
-//        val fat = avdod.avdodFar
-//    }
 
     @GetMapping("/vedtak/{vedtakid}/uforetidspunkt")
     fun hentVedtakforForUfor(@PathVariable("vedtakid", required = true) vedtakId: String): String? {

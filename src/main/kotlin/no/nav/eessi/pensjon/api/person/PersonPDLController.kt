@@ -2,16 +2,22 @@ package no.nav.eessi.pensjon.api.person
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import io.swagger.v3.oas.annotations.Operation
+import no.nav.eessi.pensjon.eux.model.SedType
+import no.nav.eessi.pensjon.eux.model.buc.BucType
+import no.nav.eessi.pensjon.eux.model.sed.P2100
+import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
+import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonoppslagException
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Familierelasjonsrolle
-import no.nav.eessi.pensjon.personoppslag.pdl.model.Navn
 import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Person
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonClient
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonService
+import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
@@ -37,21 +43,22 @@ class PersonPDLController(
     private val pdlService: PersonService,
     private val auditLogger: AuditLogger,
     private val pensjonsinformasjonClient: PensjonsinformasjonClient,
+    private val euxInnhenting: EuxInnhentingService,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())
 ) {
 
     private val logger = LoggerFactory.getLogger(PersonPDLController::class.java)
 
-    private lateinit var PersonControllerHentPerson: MetricsHelper.Metric
-    private lateinit var PersonControllerHentPersonNavn: MetricsHelper.Metric
-    private lateinit var PersonControllerHentPersonAvdod: MetricsHelper.Metric
+    private lateinit var personControllerHentPerson: MetricsHelper.Metric
+    private lateinit var personControllerHentPersonNavn: MetricsHelper.Metric
+    private lateinit var personControllerHentPersonAvdod: MetricsHelper.Metric
 
 
     @PostConstruct
     fun initMetrics() {
-        PersonControllerHentPerson = metricsHelper.init("PersonControllerHentPerson")
-        PersonControllerHentPersonNavn = metricsHelper.init("PersonControllerHentPersonNavn")
-        PersonControllerHentPersonAvdod = metricsHelper.init("PersonControllerHentPersonAvdod")
+        personControllerHentPerson = metricsHelper.init("PersonControllerHentPerson")
+        personControllerHentPersonNavn = metricsHelper.init("PersonControllerHentPersonNavn")
+        personControllerHentPersonAvdod = metricsHelper.init("PersonControllerHentPersonAvdod")
 
     }
 
@@ -60,7 +67,7 @@ class PersonPDLController(
     fun getPerson(@PathVariable("aktoerid", required = true) aktoerid: String): ResponseEntity<Person> {
         auditLogger.log("getPerson", aktoerid)
 
-        return PersonControllerHentPerson.measure {
+        return personControllerHentPerson.measure {
             val person = hentPerson(aktoerid)
             ResponseEntity.ok(person)
         }
@@ -75,7 +82,7 @@ class PersonPDLController(
         logger.debug("Henter informasjon om avdøde $gjenlevendeAktoerId fra vedtak $vedtaksId")
         auditLogger.log("getDeceased", gjenlevendeAktoerId)
 
-        return PersonControllerHentPersonAvdod.measure {
+        return personControllerHentPersonAvdod.measure {
 
             val pensjonInfo = pensjonsinformasjonClient.hentAltPaaVedtak(vedtaksId)
             logger.debug("pensjonInfo: ${pensjonInfo.toJsonSkipEmpty()}")
@@ -130,19 +137,16 @@ class PersonPDLController(
         )
     }
 
-    private fun Navn.sammensattNavn() = listOfNotNull(etternavn, fornavn, mellomnavn)
-        .joinToString(separator = " ")
-
     @Operation(description = "henter ut navn for en aktørId")
     @GetMapping("/person/pdl/info/{aktoerid}", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getNameOnly(@PathVariable("aktoerid", required = true) aktoerid: String): ResponseEntity<Personinformasjon> {
         auditLogger.log("getNameOnly", aktoerid)
 
-        return PersonControllerHentPersonNavn.measure {
+        return personControllerHentPersonNavn.measure {
             val navn = hentPerson(aktoerid).navn
             ResponseEntity.ok(
                 Personinformasjon(
-                    navn?.sammensattNavn(),
+                    navn?.sammensattEtterNavn,
                     navn?.fornavn,
                     navn?.mellomnavn,
                     navn?.etternavn
@@ -150,6 +154,62 @@ class PersonPDLController(
             )
         }
     }
+
+    @GetMapping("/person/vedtak/{vedtakid}/buc/{rinanr}/avdodsdato")
+    fun getAvdodDateFromVedtakOrSed(
+        @PathVariable(value = "vedtakid", required = true) vedtakid: String,
+        @PathVariable(value = "rinanr", required = true) euxCaseId: String
+    ): String {
+        val vedtak = pensjonsinformasjonClient.hentAltPaaVedtak(vedtakid)
+
+        val avdodlist = PensjonsinformasjonService(pensjonsinformasjonClient).hentGyldigAvdod(vedtak) ?: return emptyList<String>().toString()
+
+        //hvis 2 avdøde..
+        val avdodDato = if (avdodlist.size >= 2) {
+            //henter ut ident på P2100 søker(kap 2.) ident
+            val buc = euxInnhenting.getBuc(euxCaseId)
+            //hvis p_buc_02
+            if (buc.processDefinitionName == BucType.P_BUC_02.name) {
+                logger.debug("2 avdøde fra vedtak, henter buc for å kunne velge ut den avdod som finnes i P2100")
+                val bucUtils = BucUtils(buc)
+                val p2100id = bucUtils.getAllDocuments().firstOrNull { doc -> doc.type == SedType.P2100 && doc.direction == "OUT" }?.id
+                val p2100 = p2100id?.let { euxInnhenting.getSedOnBucByDocumentId(euxCaseId, it) } as P2100
+                val sedavdoident = p2100.let { it.nav?.bruker?.person?.pin?.firstOrNull { pin -> pin.land == "NO" && pin.identifikator != null } }?.identifikator
+                //valider sedident mot vedtakident på avdøde
+                val korrektid = avdodlist.firstOrNull { it == sedavdoident }!!
+                //henter person for doeadsdato
+                avdodResult(korrektid)
+            } else {
+                //alle andre buc med banrep får liste av 2 avdode å velge mellom...
+                //henter person for doeadsdato
+                logger.debug("Ikke P_BUC_02 må hente ut begge avdøde..")
+                val result = avdodlist.map { avdod ->
+                    val avdodperson = pdlService.hentPerson(NorskIdent(avdod))
+                    val avdoddato = avdodperson?.doedsfall?.doedsdato
+                    mapOf("doedsdato" to avdoddato?.toString(), "sammensattNavn" to avdodperson?.navn?.sammensattNavn, "ident" to avdod)
+                }
+                logger.debug("result: ${result.toJson()}")
+                result.toJson()
+            }
+        //hvis 1 avdød
+        } else {
+            logger.debug("Kun 1 avdød fra vedtak så enkelt å hente ut metadata..")
+            val singeAvdodident = avdodlist.first()
+            //henter person for doeadsdato
+            avdodResult(singeAvdodident)
+        }
+        return avdodDato
+    }
+
+    private fun avdodResult(avdodIdent: String): String {
+        val avdodperson = pdlService.hentPerson(NorskIdent(avdodIdent))
+        val avdoddato = avdodperson?.doedsfall?.doedsdato
+        //returner litt metadata
+        val result = listOf(mapOf("doedsdato" to avdoddato?.toString(), "sammensattNavn" to avdodperson?.navn?.sammensattNavn, "ident" to avdodIdent)).toJson()
+        logger.debug("result: $result")
+        return result
+    }
+
 
     private fun hentPerson(aktoerid: String): Person {
         logger.info("Henter personinformasjon for aktørId: $aktoerid")

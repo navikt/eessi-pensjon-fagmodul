@@ -4,6 +4,7 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.justRun
+import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonoppslagException
@@ -62,6 +63,9 @@ class PersonPDLControllerTest {
 
     @MockkBean
     lateinit var pdlService: PersonService
+
+    @MockkBean
+    lateinit var euxService: EuxInnhentingService
 
     companion object {
         const val AKTOERID = "012345"
