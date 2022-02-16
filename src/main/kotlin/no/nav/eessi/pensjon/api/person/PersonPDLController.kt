@@ -4,7 +4,6 @@ import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import io.swagger.v3.oas.annotations.Operation
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.BucType
-import no.nav.eessi.pensjon.eux.model.sed.P2100
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.logging.AuditLogger
@@ -161,47 +160,57 @@ class PersonPDLController(
         @PathVariable(value = "rinanr", required = true) euxCaseId: String
     ): String {
         val vedtak = pensjonsinformasjonClient.hentAltPaaVedtak(vedtakid)
-
-        val avdodlist = PensjonsinformasjonService(pensjonsinformasjonClient).hentGyldigAvdod(vedtak) ?: return emptyList<String>().toString()
+        val avdodlist = PensjonsinformasjonService(pensjonsinformasjonClient).hentGyldigAvdod(vedtak) ?: return emptyList<String>().toJson()
 
         //hvis 2 avdøde..
         val avdodDato = if (avdodlist.size >= 2) {
             //henter ut ident på P2100 søker(kap 2.) ident
             val buc = euxInnhenting.getBuc(euxCaseId)
+            logger.debug("name: ${buc.processDefinitionName}, actions: ${buc.actions.toString()} ")
+
             //hvis p_buc_02
-            if (buc.processDefinitionName == BucType.P_BUC_02.name) {
-                logger.debug("2 avdøde fra vedtak, henter buc for å kunne velge ut den avdod som finnes i P2100")
-                val bucUtils = BucUtils(buc)
-                val p2100id = bucUtils.getAllDocuments().firstOrNull { doc -> doc.type == SedType.P2100 && doc.direction == "OUT" }?.id
-                val p2100 = p2100id?.let { euxInnhenting.getSedOnBucByDocumentId(euxCaseId, it) } as P2100
-                val sedavdoident = p2100.let { it.nav?.bruker?.person?.pin?.firstOrNull { pin -> pin.land == "NO" && pin.identifikator != null } }?.identifikator
-                //valider sedident mot vedtakident på avdøde
-                val korrektid = avdodlist.firstOrNull { it == sedavdoident }!!
-                //henter person for doeadsdato
-                avdodResult(korrektid)
-            } else {
-                //alle andre buc med banrep får liste av 2 avdode å velge mellom...
-                //henter person for doeadsdato
-                logger.debug("Ikke P_BUC_02 må hente ut begge avdøde..")
-                val result = avdodlist.map { avdod ->
-                    val avdodperson = pdlService.hentPerson(NorskIdent(avdod))
-                    val avdoddato = avdodperson?.doedsfall?.doedsdato
-                    mapOf("doedsdato" to avdoddato?.toString(), "sammensattNavn" to avdodperson?.navn?.sammensattNavn, "ident" to avdod)
+            when (buc.processDefinitionName) {
+                BucType.P_BUC_02.name -> {
+                    logger.debug("2 avdøde fra vedtak, henter buc for å kunne velge ut den avdod som finnes i P2100")
+                    val bucUtils = BucUtils(buc)
+                    val p2100id = bucUtils.getAllDocuments().firstOrNull { doc -> doc.type == SedType.P2100 && doc.direction == "OUT" }?.id
+                    val sedAvdodident = p2100id?.let { docid -> hentSedAvdodIdent(euxCaseId, docid ) }
+                    //valider sedident mot vedtakident på avdøde
+                    val korrektid = avdodlist.firstOrNull { it == sedAvdodident }
+                    //henter person for doeadsdato
+                    hentDoedsdatoFraPDL(korrektid)
                 }
-                logger.debug("result: ${result.toJson()}")
-                result.toJson()
+                BucType.P_BUC_06.name -> {
+                    val bucUtils = BucUtils(buc)
+                    val p5000id = bucUtils.getAllDocuments().firstOrNull { doc -> doc.type == SedType.P5000 && doc.direction == "OUT" }?.id
+                    logger.debug("2 avdøde fra vedtak, henter buc for å kunne velge ut den avdod som finnes i P5000")
+                    val sedAvdodident = p5000id?.let { docid -> hentSedAvdodIdent(euxCaseId, docid ) }
+                    val korrektid = avdodlist.firstOrNull { it == sedAvdodident }
+                    //henter person for doeadsdato
+                    hentDoedsdatoFraPDL(korrektid)
+                }
+                //alle andre BUC støttes ikke for tiden..
+                else -> emptyList<String>().toJson()
             }
+
         //hvis 1 avdød
         } else {
             logger.debug("Kun 1 avdød fra vedtak så enkelt å hente ut metadata..")
             val singeAvdodident = avdodlist.first()
             //henter person for doeadsdato
-            avdodResult(singeAvdodident)
+            hentDoedsdatoFraPDL(singeAvdodident)
         }
         return avdodDato
     }
 
-    private fun avdodResult(avdodIdent: String): String {
+    private fun hentSedAvdodIdent(euxCaseId: String, documentId: String): String? {
+        val sed = euxInnhenting.getSedOnBucByDocumentId(euxCaseId, documentId )
+        return sed.let { it.nav?.bruker?.person?.pin?.firstOrNull { pin -> pin.land == "NO" && pin.identifikator != null } }?.identifikator
+    }
+
+
+    private fun hentDoedsdatoFraPDL(avdodIdent: String?): String {
+        if (avdodIdent == null || avdodIdent.isEmpty()) return emptyList<String>().toJson()
         val avdodperson = pdlService.hentPerson(NorskIdent(avdodIdent))
         val avdoddato = avdodperson?.doedsfall?.doedsdato
         //returner litt metadata

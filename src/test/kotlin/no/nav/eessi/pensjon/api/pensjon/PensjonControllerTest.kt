@@ -109,7 +109,7 @@ class PensjonControllerTest {
     }
 
     @Test
-    fun `Gitt det finnes pensjonsak på aktoer så skal det returneres en liste over alle saker til aktierid`() {
+    fun `Gitt det finnes pensjonsak paa aktoer saa skal det returneres en liste over alle saker til aktierid`() {
         val aktoerId = "1234567890123" // 13 sifre
 
         val mockpen = Pensjonsinformasjon()
@@ -141,7 +141,7 @@ class PensjonControllerTest {
     }
 
     @Test
-    fun `Gitt det ikke finnes pensjonsak på aktoer så skal det returneres et tomt svar tom liste`() {
+    fun `Gitt det ikke finnes pensjonsak paa aktoer saa skal det returneres et tomt svar tom liste`() {
         val aktoerId = "1234567890123" // 13 sifre
 
         val mockpen = Pensjonsinformasjon()
@@ -158,7 +158,7 @@ class PensjonControllerTest {
     }
 
     @Test
-    fun `sjekk på forskjellige verdier av sakstatus fra pensjoninformasjon konvertere de til enum`() {
+    fun `sjekk paa forskjellige verdier av sakstatus fra pensjoninformasjon konvertere de til enum`() {
         val tilbeh = "TIL_BEHANDLING"
         val avsl = "AVSL"
         val lop = "INNV"
@@ -191,9 +191,6 @@ class PensjonControllerTest {
             .andReturn()
 
         val response = result.response.getContentAsString(charset("UTF-8"))
-
-        print(response)
-
         assertEquals("""{ "kravDato": "$kravDato" }""", response)
     }
 

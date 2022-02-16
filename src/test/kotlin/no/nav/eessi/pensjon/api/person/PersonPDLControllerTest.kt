@@ -4,11 +4,23 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.justRun
+import no.nav.eessi.pensjon.eux.model.SedType
+import no.nav.eessi.pensjon.eux.model.sed.Bruker
+import no.nav.eessi.pensjon.eux.model.sed.Nav
+import no.nav.eessi.pensjon.eux.model.sed.P2100
+import no.nav.eessi.pensjon.eux.model.sed.P5000
+import no.nav.eessi.pensjon.eux.model.sed.PinItem
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ActionOperation
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ActionsItem
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.logging.AuditLogger
+import no.nav.eessi.pensjon.personoppslag.FodselsnummerGenerator
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonoppslagException
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
+import no.nav.eessi.pensjon.personoppslag.pdl.model.Doedsfall
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Endring
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Endringstype
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Familierelasjonsrolle
@@ -95,7 +107,7 @@ class PersonPDLControllerTest {
     fun `getNameOnly should return names as json`() {
         every {pdlService.hentPerson(any<Ident<*>>())  } returns lagPerson(etternavn = "NORDMANN", fornavn = "OLA")
         val response = mvc.perform(
-            get("/person/pdl/info/${Companion.AKTOERID}")
+            get("/person/pdl/info/${AKTOERID}")
                 .accept(MediaType.APPLICATION_JSON)
         )
             .andReturn().response
@@ -231,6 +243,182 @@ class PersonPDLControllerTest {
         val list: List<PersonPDLController.PersoninformasjonAvdode?> = mapJsonToAny(response.contentAsString, typeRefs())
         assertEquals(emptyList(), list)
     }
+
+    @Test
+    fun `avdodsdato sjekk for vedtak inneholder avdod hvis null return tom liste`() {
+        val vedtakid = "1234567789"
+        val rinanr = "1002342345689"
+
+        val pen = Pensjonsinformasjon()
+        val penavdod = V1Avdod()
+        pen.avdod = penavdod
+
+        every { mockPensjonClient.hentAltPaaVedtak(any()) } returns pen
+
+        val result = mvc.perform(
+            get("/person/vedtak/$vedtakid/buc/$rinanr/avdodsdato")
+            .contentType(MediaType.APPLICATION_JSON)
+        )
+            .andExpect(status().is2xxSuccessful)
+            .andReturn()
+        val response = result.response.getContentAsString(charset("UTF-8"))
+        assertEquals("[ ]", response)
+    }
+
+    @Test
+    fun `avdodsdato sjekk for vedtak inneholder en avdod returneres den`() {
+        val vedtakid = "1234567789"
+        val rinanr = "1002342345689"
+        val avdodfnr = "18077443335"
+
+        val doedsPerson = lagPerson(avdodfnr).copy(doedsfall = Doedsfall(LocalDate.of(2020, 6, 20), null, mockMeta()))
+
+
+        val pen = Pensjonsinformasjon()
+        val penavdod = V1Avdod()
+        penavdod.avdod = avdodfnr
+        pen.avdod = penavdod
+
+        every { mockPensjonClient.hentAltPaaVedtak(any()) } returns pen
+        every { pdlService.hentPerson(any<Ident<*>>()) } returns doedsPerson
+
+        val result = mvc.perform(
+            get("/person/vedtak/$vedtakid/buc/$rinanr/avdodsdato")
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+            .andExpect(status().is2xxSuccessful)
+            .andReturn()
+        val response = result.response.getContentAsString(charset("UTF-8"))
+        val expected = """
+            [ {
+              "doedsdato" : "2020-06-20",
+              "sammensattNavn" : "Fornavn Etternavn",
+              "ident" : "18077443335"
+            } ]
+        """.trimIndent()
+        assertEquals(expected, response)
+    }
+
+    @Test
+    fun `avdodsdato sjekk for vedtak inneholder to avdod i pbuc02 returneres den tidligere valgte avdod ut fra p2100 og returneres`() {
+        val vedtakid = "1234567789"
+        val rinanr = "1002342345689"
+        val avdodfnr = "18077443335"
+        val avdodfnr2 = FodselsnummerGenerator.generateFnrForTest(49)
+        val documentid = "23242342a234vd423452asddf"
+
+        val doedsPerson = lagPerson(avdodfnr).copy(doedsfall = Doedsfall(LocalDate.of(2020, 6, 20), null, mockMeta()))
+        val sedP2100 = P2100(nav = Nav(bruker = Bruker(person = no.nav.eessi.pensjon.eux.model.sed.Person(pin = listOf(PinItem(land = "NO", identifikator = avdodfnr))))), pensjon = null)
+        val buc = Buc(id = rinanr, processDefinitionName = "P_BUC_02", documents = listOf(DocumentsItem(id = documentid, direction = "OUT", type = SedType.P2100)))
+
+        val pen = Pensjonsinformasjon()
+        val penavdod = V1Avdod()
+        penavdod.avdodMor = avdodfnr
+        penavdod.avdodFar = avdodfnr2
+        pen.avdod = penavdod
+
+        every { euxService.getBuc(any()) } returns buc
+        every { euxService.getSedOnBucByDocumentId(any(), any()) } returns sedP2100
+        every { mockPensjonClient.hentAltPaaVedtak(any()) } returns pen
+        every { pdlService.hentPerson(any<Ident<*>>()) } returns doedsPerson
+
+        val result = mvc.perform(
+            get("/person/vedtak/$vedtakid/buc/$rinanr/avdodsdato")
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+            .andExpect(status().is2xxSuccessful)
+            .andReturn()
+        val response = result.response.getContentAsString(charset("UTF-8"))
+        val expected = """
+            [ {
+              "doedsdato" : "2020-06-20",
+              "sammensattNavn" : "Fornavn Etternavn",
+              "ident" : "18077443335"
+            } ]
+        """.trimIndent()
+        assertEquals(expected, response)
+    }
+
+    @Test
+    fun `avdodsdato sjekk for vedtak inneholder to avdod i pbuc02 som ikke finnes i SED returneres tom liste`() {
+        val vedtakid = "1234567789"
+        val rinanr = "1002342345689"
+        val avdodfnr = FodselsnummerGenerator.generateFnrForTest(48)
+        val avdodfnr2 = FodselsnummerGenerator.generateFnrForTest(49)
+        val documentid = "23242342a234vd423452asddf"
+
+        val doedsPerson = lagPerson(avdodfnr).copy(doedsfall = Doedsfall(LocalDate.of(2010, 6, 20), null, mockMeta()))
+        val sedP2100 = P2100(nav = Nav(bruker = Bruker(person = no.nav.eessi.pensjon.eux.model.sed.Person(pin = listOf(PinItem(land = "NO", identifikator = "18077443335"))))), pensjon = null)
+        val buc = Buc(id = rinanr, processDefinitionName = "P_BUC_02", documents = listOf(DocumentsItem(id = documentid, direction = "OUT", type = SedType.P2100)))
+
+        val pen = Pensjonsinformasjon()
+        val penavdod = V1Avdod()
+        penavdod.avdodMor = avdodfnr
+        penavdod.avdodFar = avdodfnr2
+        pen.avdod = penavdod
+
+        every { euxService.getBuc(any()) } returns buc
+        every { euxService.getSedOnBucByDocumentId(any(), any()) } returns sedP2100
+        every { mockPensjonClient.hentAltPaaVedtak(any()) } returns pen
+        every { pdlService.hentPerson(any<Ident<*>>()) } returns doedsPerson
+
+        val result = mvc.perform(
+            get("/person/vedtak/$vedtakid/buc/$rinanr/avdodsdato")
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+            .andExpect(status().is2xxSuccessful)
+            .andReturn()
+        val response = result.response.getContentAsString(charset("UTF-8"))
+        assertEquals("[ ]", response)
+    }
+
+
+    @Test
+    fun `avdodsdato sjekk for vedtak inneholder to avdod i pbuc06 og P5000 returneres den tidligere valgte avdod ut fra P5000 og returneres`() {
+        val vedtakid = "1234567789"
+        val rinanr = "1002342345689"
+        val avdodfnr = "18077443335"
+        val avdodfnr2 = FodselsnummerGenerator.generateFnrForTest(49)
+        val documentid = "23242342a234vd423452asddf"
+
+        val doedsPerson = lagPerson(avdodfnr, fornavn = "AVDØD", etternavn = "HELTAVØD").copy(doedsfall = Doedsfall(LocalDate.of(2007, 6, 20), null, mockMeta()))
+        val sedP5000 = P5000(nav = Nav(bruker = Bruker(person = no.nav.eessi.pensjon.eux.model.sed.Person(pin = listOf(PinItem(land = "NO", identifikator = avdodfnr))))), p5000Pensjon = null)
+        val buc = Buc(id = rinanr, processDefinitionName = "P_BUC_06",
+            actions = listOf(
+                ActionsItem(SedType.P5000, documentId = documentid, operation = ActionOperation.Send),
+                ActionsItem(SedType.P5000, documentId = documentid, operation = ActionOperation.Update)
+            ),
+            documents = listOf(DocumentsItem(id = documentid, direction = "OUT", type = SedType.P5000)))
+
+        val pen = Pensjonsinformasjon()
+        val penavdod = V1Avdod()
+        penavdod.avdodMor = avdodfnr
+        penavdod.avdodFar = avdodfnr2
+        pen.avdod = penavdod
+
+        every { euxService.getBuc(any()) } returns buc
+        every { euxService.getSedOnBucByDocumentId(any(), any()) } returns sedP5000
+        every { mockPensjonClient.hentAltPaaVedtak(any()) } returns pen
+        every { pdlService.hentPerson(any<Ident<*>>()) } returns doedsPerson
+
+        val result = mvc.perform(
+            get("/person/vedtak/$vedtakid/buc/$rinanr/avdodsdato")
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+            .andExpect(status().is2xxSuccessful)
+            .andReturn()
+        val response = result.response.getContentAsString(charset("UTF-8"))
+        val expected = """
+            [ {
+              "doedsdato" : "2007-06-20",
+              "sammensattNavn" : "AVDØD HELTAVØD",
+              "ident" : "18077443335"
+            } ]
+        """.trimIndent()
+        assertEquals(expected, response)
+    }
+
+
 
     private val personResponseAsJson3 = """
         {

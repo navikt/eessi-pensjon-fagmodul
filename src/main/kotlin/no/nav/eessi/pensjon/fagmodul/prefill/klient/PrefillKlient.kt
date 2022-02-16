@@ -30,7 +30,6 @@ class PrefillKlient(
 ) {
 
     private val logger: Logger by lazy { LoggerFactory.getLogger(PrefillKlient::class.java) }
-
     private lateinit var prefillSed: MetricsHelper.Metric
 
     @PostConstruct
@@ -52,12 +51,14 @@ class PrefillKlient(
                     HttpEntity(request, headers),
                     String::class.java).body!!
         } catch (ex1: HttpStatusCodeException) {
+            logger.error("En HttpStatusCodeException oppstod under henting av preutfylt SED", ex1.cause)
 
             val errorMessage = ResponseErrorData.from(ex1)
             if (ex1.statusCode == HttpStatus.BAD_REQUEST) logger.warn(errorMessage.message, ex1)  else logger.error(errorMessage.message, ex1)
             throw ResponseStatusException(ex1.statusCode, errorMessage.message)
 
         } catch (ex2: HttpClientErrorException) {
+            logger.error("En HttpClientErrorException oppstod under henting av preutfylt SED", ex2.cause)
 
             val errorMessage = ResponseErrorData.from(ex2)
             if (ex2.statusCode == HttpStatus.BAD_REQUEST) logger.warn(errorMessage.message, ex2)  else logger.error(ex2.message, ex2)
