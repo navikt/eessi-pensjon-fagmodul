@@ -42,7 +42,7 @@ class OauthPrefillRestTemplate(
             .additionalInterceptors(
                 RequestIdHeaderInterceptor(),
                 RequestResponseLoggerInterceptor(),
-                bearerTokenInterceptor(clientProperties("prefill-creds"), oAuth2AccessTokenService!!)
+                bearerTokenInterceptor(clientProperties("prefill-credentials"), oAuth2AccessTokenService!!)
             )
             .build().apply {
                 requestFactory = BufferingClientHttpRequestFactory(SimpleClientHttpRequestFactory())
