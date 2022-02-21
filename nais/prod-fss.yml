@@ -8,6 +8,19 @@ metadata:
 spec:
   kafka:
     pool: nav-prod
+  azure:
+    application:
+      enabled: true
+    accessPolicy:
+      inbound:
+        rules:
+          - application: eessi-pensjon-prefill
+            namespace: eessipensjon
+            cluster: prod-gcp
+          - application: eessi-pensjon-journalforing
+            namespace: eessipensjon
+            cluster: prod-gcp
+  webproxy: true
   env:
     - name: SPRING_PROFILES_ACTIVE
       value: prod
@@ -53,6 +66,8 @@ spec:
       value: NO:889640782
     - name: EESSI_PENSJON_INSTITUSJON_NAVN
       value: "The Norwegian Labour and Welfare Administration"
+    - name: AZURE_APP_PREFILL_CLIENT_ID
+      value: placeholder
     - name: ENV
       value: p
   image: {{ image }}

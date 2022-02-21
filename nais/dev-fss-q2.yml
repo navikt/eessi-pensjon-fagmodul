@@ -8,6 +8,19 @@ metadata:
 spec:
   kafka:
     pool: nav-dev
+  azure:
+    application:
+      enabled: true
+    accessPolicy:
+      inbound:
+        rules:
+          - application: eessi-pensjon-prefill-q2
+            namespace: eessipensjon
+            cluster: dev-gcp
+          - application: eessi-pensjon-journalforing-q2
+            namespace: eessipensjon
+            cluster: dev-gcp
+  webproxy: true
   env:
     - name: SPRING_PROFILES_ACTIVE
       value: test
@@ -43,11 +56,14 @@ spec:
       value: NO:NAVAT07
     - name: EESSI_PENSJON_INSTITUSJON_NAVN
       value: NAV ACCEPTANCE TEST 07
+    - name: AZURE_APP_PREFILL_CLIENT_ID
+      value: dev-gcp.eessipensjon.eessipensjon-prefill-q2
     - name: ENV
       value: q2
   image: {{ image }}
   ingresses:
     - https://eessi-pensjon-fagmodul-q2.nais.preprod.local
+    - https://eessi-pensjon-fagmodul-q2.dev-fss-pub.nais.io
   liveness:
     path: /internal/isalive
     port: 8080
