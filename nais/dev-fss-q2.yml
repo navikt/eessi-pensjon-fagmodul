@@ -21,9 +21,6 @@ spec:
         - application: eessi-pensjon-prefill-q2
           namespace: eessipensjon
           cluster: dev-gcp
-        - application: eessi-pensjon-fagmodul-q2
-          namespace: eessipensjon
-          cluster: dev-fss
     inbound:
       rules:
         - application: eessi-pensjon-prefill-q2
