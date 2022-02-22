@@ -35,6 +35,8 @@ spec:
       value: rina-ss1.adeo.no
     - name: EESSIPENSJON_PREFILL_URL
       value: https://eessi-pensjon-prefill.nais.adeo.no/
+    - name: EESSIPENSJON_PREFILL_GCP_URL
+      value: https://eessi-pensjon-prefill.internal.nav.no
     - name: SAF_GRAPHQL_URL
       value: https://saf.nais.adeo.no/graphql
     - name: SAF_HENTDOKUMENT_URL
@@ -76,6 +78,7 @@ spec:
   image: {{ image }}
   ingresses:
     - https://eessi-pensjon-fagmodul.nais.adeo.no
+    - https://eessi-pensjon-fagmodul.prod-fss-pub.nais.io
   liveness:
     path: /internal/isalive
     port: 8080

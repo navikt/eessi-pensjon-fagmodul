@@ -28,7 +28,7 @@ class OauthPrefillRestTemplate(
 
     private val logger: Logger by lazy { LoggerFactory.getLogger(OauthPrefillRestTemplate::class.java) }
 
-    @Value("\${EESSIPENSJON_PREFILL_URL}")
+    @Value("\${EESSIPENSJON_PREFILL_GCP_URL}")
     lateinit var url: String
 
     fun oathTemplate(templateBuilder: RestTemplateBuilder) : RestTemplate {

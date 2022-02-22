@@ -24,6 +24,7 @@ pensjonsinformasjon:
 METRICS_REQUESTFILTER_ENABLE: false
 
 EESSIPENSJON_PREFILL_URL: 'http://example.com:8099'
+EESSIPENSJON_PREFILL_GCP_URL: 'http://example.com:8099'
 
 srvusername: 'username'
 srvpassword: 'password'
