@@ -24,5 +24,4 @@ class PostkodeController(private val postnummerService: PostnummerService) {
         return postnummerService.finnPoststed(postnr)
     }
 
-
 }
