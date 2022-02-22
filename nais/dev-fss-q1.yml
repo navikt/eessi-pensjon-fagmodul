@@ -14,15 +14,15 @@ spec:
       claims:
         extra:
           - NAVident
-    accessPolicy:
-      inbound:
-        rules:
-          - application: eessi-pensjon-prefill-q1
-            namespace: eessipensjon
-            cluster: dev-gcp
-          - application: eessi-pensjon-journalforing-q1
-            namespace: eessipensjon
-            cluster: dev-gcp
+  accessPolicy:
+    inbound:
+      rules:
+        - application: eessi-pensjon-prefill-q1
+          namespace: eessipensjon
+          cluster: dev-gcp
+        - application: eessi-pensjon-journalforing-q1
+          namespace: eessipensjon
+          cluster: dev-gcp
   webproxy: true
   env:
     - name: SPRING_PROFILES_ACTIVE
