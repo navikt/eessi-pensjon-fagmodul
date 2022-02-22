@@ -16,7 +16,9 @@ import java.time.Duration
 
 @Component
 class PrefillRestTemplate(
-    private val tokenValidationContextHolder: TokenValidationContextHolder) {
+    private val tokenValidationContextHolder: TokenValidationContextHolder,
+    private val oauthPrefillRestTemplate: OauthPrefillRestTemplate?
+    ) {
 
     @Value("\${EESSIPENSJON_PREFILL_URL}")
     lateinit var url: String
@@ -26,12 +28,12 @@ class PrefillRestTemplate(
 
     @Bean
     fun prefillOidcRestTemplate(templateBuilder: RestTemplateBuilder): RestTemplate {
-//        return if (env == "q2") {
-//            oauthPrefillRestTemplate?.oathTemplate(templateBuilder)!!
-//        } else {
-//            onPremTemplate(templateBuilder)
-//        }
-       return onPremTemplate(templateBuilder)
+        return if (env == "q2") {
+            oauthPrefillRestTemplate?.oathTemplate(templateBuilder)!!
+        } else {
+            onPremTemplate(templateBuilder)
+        }
+//       return onPremTemplate(templateBuilder)
 
     }
 

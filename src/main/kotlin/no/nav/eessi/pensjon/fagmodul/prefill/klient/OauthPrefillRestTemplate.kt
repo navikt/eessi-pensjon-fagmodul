@@ -10,18 +10,20 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
+import org.springframework.context.annotation.Profile
 import org.springframework.http.HttpRequest
 import org.springframework.http.client.BufferingClientHttpRequestFactory
 import org.springframework.http.client.ClientHttpRequestExecution
 import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.http.client.SimpleClientHttpRequestFactory
+import org.springframework.stereotype.Component
 import org.springframework.web.client.DefaultResponseErrorHandler
 import org.springframework.web.client.RestTemplate
 import java.time.Duration
 import java.util.*
 
-//@Component
-//@Profile("test")
+@Component
+@Profile("test")
 class OauthPrefillRestTemplate(
     private val clientConfigurationProperties: ClientConfigurationProperties,
     private val oAuth2AccessTokenService: OAuth2AccessTokenService?) {
@@ -47,12 +49,8 @@ class OauthPrefillRestTemplate(
             }
     }
 
-
-    private fun clientProperties(oAuthKey: String): ClientProperties {
-        val clientProperties = Optional.ofNullable(clientConfigurationProperties.registration[oAuthKey])
-                .orElseThrow { RuntimeException("could not find oauth2 client config for example-onbehalfof") }
-        return clientProperties
-    }
+    private fun clientProperties(oAuthKey: String): ClientProperties = clientConfigurationProperties.registration[oAuthKey]
+        ?: throw RuntimeException("could not find oauth2 client config for $oAuthKey")
 
     private fun bearerTokenInterceptor(clientProperties: ClientProperties, oAuth2AccessTokenService: OAuth2AccessTokenService
     ): ClientHttpRequestInterceptor? {
