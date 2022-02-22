@@ -18,9 +18,6 @@ spec:
     outbound:
       rules:
         - host: eessi-pensjon-prefill-q2.internal.nav.no
-        - application: eessi-pensjon-prefill-q2
-          namespace: eessipensjon
-          cluster: dev-gcp
     inbound:
       rules:
         - application: eessi-pensjon-prefill-q2
