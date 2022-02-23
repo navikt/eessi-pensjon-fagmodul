@@ -17,7 +17,7 @@ spec:
   accessPolicy:
     outbound:
       rules:
-#        - host: eessi-pensjon-prefill-q2.internal.nav.no
+        - host: eessi-pensjon-prefill-q2.dev.intern.nav.no
         - application: eessi-pensjon-prefill-q2
           namespace: eessipensjon
           cluster: dev-gcp
@@ -37,7 +37,7 @@ spec:
     - name: EESSIPENSJON_PREFILL_URL
       value: https://eessi-pensjon-prefill-q2.nais.preprod.local/
     - name: EESSIPENSJON_PREFILL_GCP_URL
-      value: https://eessi-pensjon-prefill-q2.internal.nav.no
+      value: https://eessi-pensjon-prefill-q2.dev.intern.nav.no
     - name: RINA_HOST_URL
       value: rina-ss1-q.adeo.no
     - name: SAF_GRAPHQL_URL
