@@ -65,7 +65,7 @@ spec:
     - name: EESSI_PENSJON_INSTITUSJON_NAVN
       value: NAV ACCEPTANCE TEST 07
     - name: AZURE_APP_PREFILL_CLIENT_ID
-      value: dev-gcp.eessipensjon.eessipensjon-prefill-q2
+      value: dev-gcp.eessipensjon.eessi-pensjon-prefill-q2
     - name: ENV
       value: q2
   image: {{ image }}
