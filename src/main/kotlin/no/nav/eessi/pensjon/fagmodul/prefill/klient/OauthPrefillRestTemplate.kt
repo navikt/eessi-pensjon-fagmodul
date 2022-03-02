@@ -45,7 +45,9 @@ class OauthPrefillRestTemplate(
                 bearerTokenInterceptor(clientProperties("prefill-credentials"), oAuth2AccessTokenService!!)
             )
             .build().apply {
-                requestFactory = BufferingClientHttpRequestFactory(SimpleClientHttpRequestFactory())
+                var simpleRequestFactory = SimpleClientHttpRequestFactory()
+                simpleRequestFactory.setOutputStreaming(false)
+                requestFactory = BufferingClientHttpRequestFactory(simpleRequestFactory)
             }
     }
 
