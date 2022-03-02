@@ -3,6 +3,7 @@ package no.nav.eessi.pensjon.fagmodul.prefill.klient
 import com.nimbusds.jwt.JWTClaimsSet
 import no.nav.eessi.pensjon.logging.RequestIdHeaderInterceptor
 import no.nav.eessi.pensjon.logging.RequestResponseLoggerInterceptor
+import no.nav.eessi.pensjon.utils.toJson
 import no.nav.security.token.support.client.core.ClientProperties
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService
 import no.nav.security.token.support.client.spring.ClientConfigurationProperties
@@ -33,8 +34,8 @@ class OauthPrefillRestTemplate(
     @Value("\${EESSIPENSJON_PREFILL_GCP_URL}")
     lateinit var url: String
 
-    fun oathTemplate(templateBuilder: RestTemplateBuilder) : RestTemplate {
-        return templateBuilder
+    fun oathTemplate() : RestTemplate {
+        return RestTemplateBuilder()
             .rootUri(url)
             .errorHandler(DefaultResponseErrorHandler())
             .setReadTimeout(Duration.ofSeconds(120))
@@ -45,9 +46,9 @@ class OauthPrefillRestTemplate(
                 bearerTokenInterceptor(clientProperties("prefill-credentials"), oAuth2AccessTokenService!!)
             )
             .build().apply {
-                var simpleRequestFactory = SimpleClientHttpRequestFactory()
-                simpleRequestFactory.setOutputStreaming(false)
-                requestFactory = BufferingClientHttpRequestFactory(simpleRequestFactory)
+                requestFactory = BufferingClientHttpRequestFactory(SimpleClientHttpRequestFactory().apply {
+                    setOutputStreaming(false)
+                })
             }
     }
 
@@ -62,6 +63,8 @@ class OauthPrefillRestTemplate(
             val tokenChunks = response.accessToken.split(".")
             val tokenBody =  tokenChunks[1]
             logger.info("subject: " + JWTClaimsSet.parse(Base64.getDecoder().decode(tokenBody).decodeToString()).subject)
+            logger.debug("response: " + response.toJson())
+
             execution.execute(request, body!!)
         }
     }

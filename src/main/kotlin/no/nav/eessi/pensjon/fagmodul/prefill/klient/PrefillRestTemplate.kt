@@ -4,6 +4,8 @@ import no.nav.eessi.pensjon.logging.RequestIdHeaderInterceptor
 import no.nav.eessi.pensjon.logging.RequestResponseLoggerInterceptor
 import no.nav.eessi.pensjon.security.token.TokenAuthorizationHeaderInterceptor
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
@@ -19,6 +21,7 @@ class PrefillRestTemplate(
     private val tokenValidationContextHolder: TokenValidationContextHolder,
     private val oauthPrefillRestTemplate: OauthPrefillRestTemplate?
     ) {
+    private val logger: Logger by lazy { LoggerFactory.getLogger(PrefillRestTemplate::class.java) }
 
     @Value("\${EESSIPENSJON_PREFILL_URL}")
     lateinit var url: String
@@ -27,18 +30,20 @@ class PrefillRestTemplate(
     lateinit var env: String
 
     @Bean
-    fun prefillOidcRestTemplate(templateBuilder: RestTemplateBuilder): RestTemplate {
+    fun prefillOidcRestTemplate(): RestTemplate {
         return if (env == "q2") {
-            oauthPrefillRestTemplate?.oathTemplate(templateBuilder)!!
+            logger.debug("oauthPrefillRestTemplate selected")
+            oauthPrefillRestTemplate?.oathTemplate()!!
         } else {
-            onPremTemplate(templateBuilder)
+            logger.debug("onPremTemplate selected")
+            onPremTemplate()
         }
 //       return onPremTemplate(templateBuilder)
 
     }
 
-    private fun onPremTemplate(templateBuilder: RestTemplateBuilder): RestTemplate {
-        return templateBuilder
+    private fun onPremTemplate(): RestTemplate {
+        return RestTemplateBuilder()
             .rootUri(url)
             .errorHandler(DefaultResponseErrorHandler())
             .setReadTimeout(Duration.ofSeconds(120))
