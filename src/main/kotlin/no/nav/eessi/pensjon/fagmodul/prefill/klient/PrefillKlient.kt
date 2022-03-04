@@ -8,6 +8,7 @@ import no.nav.eessi.pensjon.utils.typeRefs
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
@@ -26,8 +27,12 @@ import javax.annotation.PostConstruct
 @Component
 class PrefillKlient(
         private val prefillOidcRestTemplate: RestTemplate,
+        private val oathTemplate: RestTemplate,
         @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())
 ) {
+
+    @Value("\${ENV}")
+    lateinit var env: String
 
     private val logger: Logger by lazy { LoggerFactory.getLogger(PrefillKlient::class.java) }
     private lateinit var prefillSed: MetricsHelper.Metric
@@ -45,11 +50,17 @@ class PrefillKlient(
             val headers = HttpHeaders()
             headers.contentType = MediaType.APPLICATION_JSON
 
-            prefillOidcRestTemplate.exchange(
+            val restTemplate = if (env == "q2" || (env == "p" && request.sakId == "22476604"))  {
+                oathTemplate
+            } else {
+                prefillOidcRestTemplate
+            }
+            restTemplate.exchange(
                     path,
                     HttpMethod.POST,
                     HttpEntity(request, headers),
                     String::class.java).body!!
+
         } catch (ex1: HttpStatusCodeException) {
             logger.error("En HttpStatusCodeException oppstod under henting av preutfylt SED", ex1.cause)
 

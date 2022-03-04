@@ -11,6 +11,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
+import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Profile
 import org.springframework.http.HttpRequest
 import org.springframework.http.client.BufferingClientHttpRequestFactory
@@ -24,7 +25,7 @@ import java.time.Duration
 import java.util.*
 
 @Component
-@Profile("test")
+@Profile("prod", "test")
 class OauthPrefillRestTemplate(
     private val clientConfigurationProperties: ClientConfigurationProperties,
     private val oAuth2AccessTokenService: OAuth2AccessTokenService?) {
@@ -34,6 +35,7 @@ class OauthPrefillRestTemplate(
     @Value("\${EESSIPENSJON_PREFILL_GCP_URL}")
     lateinit var url: String
 
+    @Bean
     fun oathTemplate() : RestTemplate {
         return RestTemplateBuilder()
             .rootUri(url)
@@ -55,8 +57,7 @@ class OauthPrefillRestTemplate(
     private fun clientProperties(oAuthKey: String): ClientProperties = clientConfigurationProperties.registration[oAuthKey]
         ?: throw RuntimeException("could not find oauth2 client config for $oAuthKey")
 
-    private fun bearerTokenInterceptor(clientProperties: ClientProperties, oAuth2AccessTokenService: OAuth2AccessTokenService
-    ): ClientHttpRequestInterceptor? {
+    private fun bearerTokenInterceptor(clientProperties: ClientProperties, oAuth2AccessTokenService: OAuth2AccessTokenService): ClientHttpRequestInterceptor {
         return ClientHttpRequestInterceptor { request: HttpRequest, body: ByteArray?, execution: ClientHttpRequestExecution ->
             val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
             request.headers.setBearerAuth(response.accessToken)
