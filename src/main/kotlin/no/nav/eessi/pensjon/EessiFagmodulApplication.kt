@@ -8,7 +8,7 @@ import org.springframework.cache.annotation.EnableCaching
 import org.springframework.context.annotation.Profile
 
 @EnableJwtTokenValidation(ignore = ["org.springframework", "springfox.documentation", "no.nav.eessi.pensjon.fagmodul.health.DiagnosticsController"])
-@EnableOAuth2Client
+@EnableOAuth2Client(cacheEnabled = true)
 @SpringBootApplication
 @EnableCaching
 @Profile("!unsecured-webmvctest")
