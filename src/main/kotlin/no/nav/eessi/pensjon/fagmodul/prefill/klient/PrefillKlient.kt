@@ -50,11 +50,12 @@ class PrefillKlient(
             val headers = HttpHeaders()
             headers.contentType = MediaType.APPLICATION_JSON
 
-            val restTemplate = if (env == "q2" || (env == "p" && request.sakId == "22476604"))  {
-                oathTemplate
-            } else {
-                prefillOidcRestTemplate
-            }
+            val restTemplate =  oathTemplate
+//            val restTemplate = if (env == "q2")  {
+//            } else {
+//                prefillOidcRestTemplate
+//            }
+
             restTemplate.exchange(
                     path,
                     HttpMethod.POST,
