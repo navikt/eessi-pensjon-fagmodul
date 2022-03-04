@@ -36,7 +36,7 @@ spec:
     - name: EESSIPENSJON_PREFILL_URL
       value: https://eessi-pensjon-prefill.nais.adeo.no/
     - name: EESSIPENSJON_PREFILL_GCP_URL
-      value: https://eessi-pensjon-prefill.internal.nav.no
+      value: https://eessi-pensjon-prefill.intern.nav.no
     - name: SAF_GRAPHQL_URL
       value: https://saf.nais.adeo.no/graphql
     - name: SAF_HENTDOKUMENT_URL
