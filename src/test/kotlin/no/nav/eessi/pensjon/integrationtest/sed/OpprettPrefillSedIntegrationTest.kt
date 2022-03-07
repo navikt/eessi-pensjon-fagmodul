@@ -47,11 +47,12 @@ class OpprettPrefillSedIntegrationTest {
     @MockkBean
     private lateinit var stsService: STSService
 
+
     @MockkBean(name = "euxOidcRestTemplate")
     private lateinit var restEuxTemplate: RestTemplate
 
-    @MockkBean(name = "prefillOidcRestTemplate")
-    private lateinit var prefillTemplate: RestTemplate
+    @MockkBean(name = "prefillOAuthTemplate")
+    private lateinit var prefillOAuthTemplate: RestTemplate
 
     @MockkBean
     private lateinit var personService: PersonService
@@ -137,7 +138,7 @@ class OpprettPrefillSedIntegrationTest {
         prefillHeaders.contentType = MediaType.APPLICATION_JSON
 
         val prefillSEDjson = javaClass.getResource("/json/nav/P2000-NAV-FRA-UTLAND-KRAV.json").readText()
-        every { prefillTemplate.exchange(
+        every { prefillOAuthTemplate.exchange(
             "/sed/prefill",
             HttpMethod.POST,
             HttpEntity(apiRequest, prefillHeaders),

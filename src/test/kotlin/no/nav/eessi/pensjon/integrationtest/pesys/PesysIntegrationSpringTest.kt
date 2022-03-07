@@ -32,6 +32,9 @@ class PesysIntegrationSpringTest {
     @MockkBean
     private lateinit var stsService: STSService
 
+    @MockkBean(name = "prefillOAuthTemplate")
+    private lateinit var prefillOAuthTemplate: RestTemplate
+
     @MockkBean(name = "euxUsernameOidcRestTemplate")
     private lateinit var restTemplate: RestTemplate
 

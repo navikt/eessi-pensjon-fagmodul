@@ -34,6 +34,9 @@ class UpdateSedOnBucIntegrationTest {
     @MockkBean
     lateinit var stsService: STSService
 
+    @MockkBean(name = "prefillOAuthTemplate")
+    private lateinit var prefillOAuthTemplate: RestTemplate
+
     @MockkBean(name = "euxOidcRestTemplate")
     lateinit var restTemplate: RestTemplate
 

@@ -25,9 +25,7 @@ import javax.annotation.PostConstruct
  * @param metricsHelper Usually injected by Spring Boot, can be set manually in tests - no way to read metrics if not set.
  */
 @Component
-class PrefillKlient(
-        private val prefillOidcRestTemplate: RestTemplate,
-        private val oathTemplate: RestTemplate,
+class PrefillKlient(private val prefillOAuthTemplate: RestTemplate,
         @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())
 ) {
 
@@ -36,6 +34,7 @@ class PrefillKlient(
 
     private val logger: Logger by lazy { LoggerFactory.getLogger(PrefillKlient::class.java) }
     private lateinit var prefillSed: MetricsHelper.Metric
+//    private lateinit var prefillOidcRestTemplate: RestTemplate()
 
     @PostConstruct
     fun initMetrics() {
@@ -50,13 +49,7 @@ class PrefillKlient(
             val headers = HttpHeaders()
             headers.contentType = MediaType.APPLICATION_JSON
 
-            val restTemplate =  oathTemplate
-//            val restTemplate = if (env == "q2")  {
-//            } else {
-//                prefillOidcRestTemplate
-//            }
-
-            restTemplate.exchange(
+            prefillOAuthTemplate.exchange(
                     path,
                     HttpMethod.POST,
                     HttpEntity(request, headers),

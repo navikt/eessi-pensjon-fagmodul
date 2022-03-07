@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.web.client.RestTemplate
 
 
 @SpringBootTest(classes = [UnsecuredWebMvcTestLauncher::class] ,webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -30,6 +31,9 @@ class VedleggControllerSpringTest {
 
     @MockkBean
     lateinit var stsService: STSService
+
+    @MockkBean(name = "prefillOAuthTemplate")
+    private lateinit var prefillOAuthTemplate: RestTemplate
 
     @Autowired
     private val mockMvc: MockMvc? = null
