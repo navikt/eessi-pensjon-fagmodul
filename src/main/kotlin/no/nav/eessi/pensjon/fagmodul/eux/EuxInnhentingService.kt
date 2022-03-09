@@ -2,6 +2,7 @@ package no.nav.eessi.pensjon.fagmodul.eux
 
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.BucType
+import no.nav.eessi.pensjon.eux.model.buc.MissingBuc
 import no.nav.eessi.pensjon.eux.model.sed.Person
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucView
@@ -118,9 +119,8 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
      * filtert kun gyldige buc-type for visning, returnerer liste av rinaid
      */
     fun getFilteredArchivedaRinasaker(list: List<Rinasak>): List<String> {
-        val ugyldigeRinasaker = listOf("6006777")
-        fun filterUfyldigeRinasaker(rinaid: String) : Boolean {
-            return if (rinaid in ugyldigeRinasaker) {
+        fun filterUgyldigeRinasaker(rinaid: String) : Boolean {
+            return if (MissingBuc.checkForMissingBuc(rinaid) ) {
                 true.also { logger.warn("Fjerner ugydlig rinasak: $rinaid") }
             } else {
                 false
@@ -134,7 +134,7 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
                 .filter { rinasak -> gyldigeBucs.contains(rinasak.processDefinitionId) }
                 .sortedBy { rinasak -> rinasak.id }
                 .map { rinasak -> rinasak.id!! }
-                .filterNot { rinaid -> filterUfyldigeRinasaker(rinaid) }
+                .filterNot { rinaid -> filterUgyldigeRinasaker(rinaid) }
                 .toList()
     }
 

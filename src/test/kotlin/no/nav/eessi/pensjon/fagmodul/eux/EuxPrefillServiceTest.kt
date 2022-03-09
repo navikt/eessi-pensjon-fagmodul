@@ -163,7 +163,8 @@ class EuxPrefillServiceTest {
                 Rinasak("423","P_BUC_01",null,"PO",null,"archived"),
                 Rinasak("234","FF_BUC_01",null,"PO",null,"closed"),
                 Rinasak("8423","M_BUC_02",null,"PO",null,"archived"),
-                Rinasak("8223","M_BUC_03b",null,"PO",null,"open")
+                Rinasak("8223","M_BUC_03b",null,"PO",null,"open"),
+                Rinasak("6006777","P_BUC_01",null,"PO",null,"open")
         )
 
         val result = euxinnhentingService.getFilteredArchivedaRinasaker(dummyList)
