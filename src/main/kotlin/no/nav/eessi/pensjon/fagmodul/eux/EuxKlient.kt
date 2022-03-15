@@ -10,7 +10,6 @@ import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.models.Kodeverk
 import no.nav.eessi.pensjon.fagmodul.models.KodeverkResponse
 import no.nav.eessi.pensjon.metrics.MetricsHelper
-import no.nav.eessi.pensjon.security.sts.typeRef
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.typeRefs
 import org.slf4j.LoggerFactory
@@ -299,14 +298,18 @@ class EuxKlient(
                             builder.toUriString(),
                             HttpMethod.GET,
                             null,
-                            typeRef<List<ParticipantsItem>>())
+                            String::class.java
+                    )
                 }
                 , euxCaseId = euxCaseId
                 , metric = BUCDeltakere
                 , prefixErrorMessage = "Feiler ved metode getDeltakerer. "
         )
-        return response.body
-                ?: throw ServerException("Feil ved henting av BucDeltakere: ingen data, euxCaseId $euxCaseId")
+        return try {
+            mapJsonToAny(response.body, typeRefs())
+        } catch (ex: Exception) {
+            throw ServerException("Feil ved henting av BucDeltakere: ingen data, euxCaseId $euxCaseId")
+       }
     }
 
     /**

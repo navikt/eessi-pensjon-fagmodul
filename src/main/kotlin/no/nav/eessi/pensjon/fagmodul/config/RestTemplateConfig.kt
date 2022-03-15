@@ -1,14 +1,12 @@
 package no.nav.eessi.pensjon.fagmodul.config
 
+import io.micrometer.core.instrument.MeterRegistry
 import no.nav.eessi.pensjon.logging.RequestIdHeaderInterceptor
 import no.nav.eessi.pensjon.logging.RequestResponseLoggerInterceptor
-import no.nav.eessi.pensjon.security.sts.STSService
-import no.nav.eessi.pensjon.security.sts.UsernameToOidcInterceptor
-import no.nav.eessi.pensjon.security.token.TokenAuthorizationHeaderInterceptor
 import no.nav.security.token.support.client.core.ClientProperties
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService
 import no.nav.security.token.support.client.spring.ClientConfigurationProperties
-import no.nav.security.token.support.core.context.TokenValidationContextHolder
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
@@ -23,16 +21,28 @@ import org.springframework.web.client.DefaultResponseErrorHandler
 import org.springframework.web.client.RestTemplate
 import java.time.Duration
 
+
 @Configuration
+@Profile("prod", "test")
 class RestTemplateConfig(
-    private val tokenValidationContextHolder: TokenValidationContextHolder,
-    private val stsService: STSService,
     private val clientConfigurationProperties: ClientConfigurationProperties,
-    private val oAuth2AccessTokenService: OAuth2AccessTokenService?) {
+    private val oAuth2AccessTokenService: OAuth2AccessTokenService?,
+    private val meterRegistry: MeterRegistry,
+    ) {
 
+    private val logger = LoggerFactory.getLogger(RestTemplateConfig::class.java)
 
-    @Value("\${eessipen-eux-rina.url}")
+    @Value("\${EUX_RINA_API_V1_URL}")
     lateinit var euxUrl: String
+
+    @Value("\${NORG2_URL}")
+    lateinit var norg2Url: String
+
+    @Value("\${BESTEMSAK_URL}")
+    lateinit var bestemSakUrl: String
+
+    @Value("\${EESSI_PEN_ONPREM_PROXY_URL}")
+    lateinit var proxyUrl: String
 
     @Value("\${EESSIPENSJON_PREFILL_GCP_URL}")
     lateinit var prefillUrl: String
@@ -51,26 +61,29 @@ class RestTemplateConfig(
 
 
     @Bean
-    fun euxOidcRestTemplate() = restTemplate(euxUrl, TokenAuthorizationHeaderInterceptor(tokenValidationContextHolder))
+    fun euxOidcRestTemplate(): RestTemplate = restTemplate(euxUrl, bearerTokenInterceptor(clientProperties("eux-credentials"), oAuth2AccessTokenService!!))
 
     @Bean
-    fun euxUsernameOidcRestTemplate() = restTemplate(euxUrl, UsernameToOidcInterceptor(stsService))
+    fun euxUsernameOidcRestTemplate() = restTemplate(euxUrl, bearerTokenInterceptor(clientProperties("eux-credentials"), oAuth2AccessTokenService!!))
+
+    @Bean
+    fun proxyOAuthRestTemplate() = restTemplate(proxyUrl, bearerTokenInterceptor(clientProperties("proxy-credentials"), oAuth2AccessTokenService!!))
 
     @Bean
     @Profile("prod", "test")
     fun prefillOAuthTemplate() = restTemplate(prefillUrl, bearerTokenInterceptor(clientProperties("prefill-credentials"), oAuth2AccessTokenService!!))
 
     @Bean
-    fun kodeRestTemplate() = restTemplate(kodeverkUrl)
+    fun kodeRestTemplate() = restTemplate(kodeverkUrl, bearerTokenInterceptor(clientProperties("proxy-credentials"), oAuth2AccessTokenService!!))
 
     @Bean
-    fun pensjonsinformasjonOidcRestTemplate() = restTemplate(pensjonUrl, UsernameToOidcInterceptor(stsService))
+    fun pensjonsinformasjonOidcRestTemplate() = restTemplate(pensjonUrl, bearerTokenInterceptor(clientProperties("proxy-credentials"), oAuth2AccessTokenService!!))
 
     @Bean
-    fun safGraphQlOidcRestTemplate() = restTemplate(graphQlUrl, TokenAuthorizationHeaderInterceptor(tokenValidationContextHolder))
+    fun safGraphQlOidcRestTemplate() = restTemplate(graphQlUrl, bearerTokenInterceptor(clientProperties("proxy-credentials"), oAuth2AccessTokenService!!))
 
     @Bean
-    fun safRestOidcRestTemplate() = restTemplate(hentRestUrl, TokenAuthorizationHeaderInterceptor(tokenValidationContextHolder))
+    fun safRestOidcRestTemplate() = restTemplate(hentRestUrl, bearerTokenInterceptor(clientProperties("proxy-credentials"), oAuth2AccessTokenService!!))
 
 
     private fun restTemplate(url: String, tokenIntercetor: ClientHttpRequestInterceptor?) : RestTemplate {
@@ -88,39 +101,26 @@ class RestTemplateConfig(
                 requestFactory = BufferingClientHttpRequestFactory(SimpleClientHttpRequestFactory()
                     .apply { setOutputStreaming(false) }
                 )
-            }
-    }
-
-    private fun restTemplate(url: String) : RestTemplate {
-        return RestTemplateBuilder()
-            .rootUri(url)
-            .errorHandler(DefaultResponseErrorHandler())
-            .additionalInterceptors(
-                RequestIdHeaderInterceptor(),
-                RequestResponseLoggerInterceptor()
-            )
-            .build().apply {
-                requestFactory = BufferingClientHttpRequestFactory(SimpleClientHttpRequestFactory()
-                    .apply { setOutputStreaming(false) }
-                )
-            }
+       }
     }
 
 
     private fun clientProperties(oAuthKey: String): ClientProperties = clientConfigurationProperties.registration[oAuthKey]
         ?: throw RuntimeException("could not find oauth2 client config for $oAuthKey")
 
-    private fun bearerTokenInterceptor(clientProperties: ClientProperties, oAuth2AccessTokenService: OAuth2AccessTokenService): ClientHttpRequestInterceptor {
+    private fun bearerTokenInterceptor(
+        clientProperties: ClientProperties,
+        oAuth2AccessTokenService: OAuth2AccessTokenService
+    ): ClientHttpRequestInterceptor? {
         return ClientHttpRequestInterceptor { request: HttpRequest, body: ByteArray?, execution: ClientHttpRequestExecution ->
             val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
             request.headers.setBearerAuth(response.accessToken)
 //            val tokenChunks = response.accessToken.split(".")
 //            val tokenBody =  tokenChunks[1]
-//            logger.debug("subject: " + JWTClaimsSet.parse(Base64.getDecoder().decode(tokenBody).decodeToString()).subject)
-//            logger.debug("response: " + response.toJson())
+//            logger.info("subject: " + JWTClaimsSet.parse(Base64.getDecoder().decode(tokenBody).decodeToString()).subject)
             execution.execute(request, body!!)
         }
     }
 
-
 }
+
