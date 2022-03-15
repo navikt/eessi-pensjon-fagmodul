@@ -35,7 +35,9 @@ class EuxPrefillService (private val euxKlient: EuxKlient,
     }
 
     @Throws(EuxGenericServerException::class, SedDokumentIkkeOpprettetException::class)
-    fun opprettSvarJsonSedOnBuc(jsonSed: String, euxCaseId: String, parentDocumentId: String, vedtakId: String?): BucSedResponse {
+    fun opprettSvarJsonSedOnBuc(jsonSed: String, euxCaseId: String, parentDocumentId: String, vedtakId: String?, sedType: SedType): BucSedResponse {
+        logger.info("Forsøker å opprette (svarsed) en $sedType på rinasakId: $euxCaseId")
+        logger.debug("Logger ut $jsonSed")
         val bucSedResponse = euxKlient.opprettSvarSed(
             jsonSed,
             euxCaseId,
@@ -43,7 +45,8 @@ class EuxPrefillService (private val euxKlient: EuxKlient,
             "Feil ved opprettSvarSed", opprettSvarSED
         )
 
-        statistikk.produserSedOpprettetHendelse(euxCaseId, bucSedResponse.documentId, vedtakId)
+        statistikk.produserSedOpprettetHendelse(euxCaseId, bucSedResponse.documentId, vedtakId, sedType)
+
         return bucSedResponse
     }
 
@@ -51,12 +54,12 @@ class EuxPrefillService (private val euxKlient: EuxKlient,
      * Ny SED på ekisterende type
      */
     @Throws(EuxGenericServerException::class, SedDokumentIkkeOpprettetException::class)
-    fun opprettJsonSedOnBuc(jsonNavSED: String, SedType: SedType, euxCaseId: String, vedtakId: String?): BucSedResponse {
-        logger.info("Forsøker å opprette en $SedType på rinasakId: $euxCaseId")
+    fun opprettJsonSedOnBuc(jsonNavSED: String, sedType: SedType, euxCaseId: String, vedtakId: String?): BucSedResponse {
+        logger.info("Forsøker å opprette en $sedType på rinasakId: $euxCaseId")
         logger.debug("Logger ut $jsonNavSED")
-        val bucSedResponse  = euxKlient.opprettSed(jsonNavSED, euxCaseId, opprettSED, "Feil ved opprettSed: $SedType, med rinaId: $euxCaseId")
+        val bucSedResponse  = euxKlient.opprettSed(jsonNavSED, euxCaseId, opprettSED, "Feil ved opprettSed: $sedType, med rinaId: $euxCaseId")
 
-        statistikk.produserSedOpprettetHendelse(euxCaseId, bucSedResponse.documentId, vedtakId)
+        statistikk.produserSedOpprettetHendelse(euxCaseId, bucSedResponse.documentId, vedtakId, sedType)
         return bucSedResponse
     }
 

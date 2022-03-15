@@ -1,5 +1,6 @@
 package no.nav.eessi.pensjon.services.statistikk
 
+import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.utils.toJson
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
@@ -20,7 +21,8 @@ class StatistikkHandler(private val aivenKafkaTemplate: KafkaTemplate<String, St
                 opprettelseType = HendelseType.BUC,
                 rinaId = rinaid,
                 dokumentId = dokumentId,
-                vedtaksId = null
+                vedtaksId = null,
+                sedtype = null
             )
             produserKafkaMelding(melding)
         } catch (ex: Exception) {
@@ -29,13 +31,14 @@ class StatistikkHandler(private val aivenKafkaTemplate: KafkaTemplate<String, St
 
     }
 
-    fun produserSedOpprettetHendelse(rinaid: String, documentId: String?, vedtaksId: String?) {
+    fun produserSedOpprettetHendelse(rinaid: String, documentId: String?, vedtaksId: String?, sedtype: SedType? = null) {
         try {
             val melding = StatistikkMelding(
                 opprettelseType = HendelseType.SED,
                 rinaId = rinaid,
                 dokumentId = documentId,
-                vedtaksId = vedtaksId
+                vedtaksId = vedtaksId,
+                sedtype =  sedtype
             )
             produserKafkaMelding(melding)
 
@@ -68,7 +71,8 @@ data class StatistikkMelding(
     val opprettelseType: HendelseType,
     val rinaId: String,
     val dokumentId: String?,
-    val vedtaksId: String?
+    val vedtaksId: String?,
+    val sedtype: SedType?
 )
 
 enum class HendelseType {

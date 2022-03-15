@@ -366,7 +366,7 @@ class PrefillControllerTest {
         every { personService.hentIdent(eq(IdentType.NorskIdent), any<AktoerId>()) } returns NorskIdent("12345")
         every { mockEuxInnhentingService.getBuc(euxCaseId) } returns mockBuc
         every { prefillKlient.hentPreutfyltSed(any()) } returns sed.toJsonSkipEmpty()
-        every { mockEuxPrefillService.opprettSvarJsonSedOnBuc(any(), euxCaseId, parentDocumentId, api.vedtakId) } returns BucSedResponse(euxCaseId, "3123123")
+        every { mockEuxPrefillService.opprettSvarJsonSedOnBuc(any(), euxCaseId, parentDocumentId, api.vedtakId, SedType.P9000) } returns BucSedResponse(euxCaseId, "3123123")
 
         val result = prefillController.addDocumentToParent(api, parentDocumentId)
         val expected = """
@@ -397,7 +397,7 @@ class PrefillControllerTest {
         assertEquals(expected, result?.toJson())
 
         verify(exactly = 2) { mockEuxInnhentingService.getBuc(any()) }
-        verify(exactly = 1) { mockEuxPrefillService.opprettSvarJsonSedOnBuc(any(), any(), any(), any()) }
+        verify(exactly = 1) { mockEuxPrefillService.opprettSvarJsonSedOnBuc(any(), any(), any(), any(), any()) }
         verify(exactly = 1) { personService.hentIdent(any<IdentType.NorskIdent>(), any<AktoerId>()) }
         verify(exactly = 1) { prefillKlient.hentPreutfyltSed(any()) }
 

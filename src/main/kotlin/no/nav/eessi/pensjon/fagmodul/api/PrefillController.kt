@@ -107,9 +107,7 @@ class PrefillController(
                         mapJsonToAny(innhentingService.hentPreutyltSed(x005request), typeRefs<X005>())
                     }
                     euxPrefillService.checkAndAddInstitution(dataModel, bucUtil, x005Liste, nyeInstitusjoner)
-                //} else if (x005docs.firstOrNull { it.status == "new"} != null) {
-                 //   throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Utkast av X005 finnes fra før.")
-                } else if (!bucUtil.isValidSedtypeOperation(SedType.X005, ActionOperation.Create)) {   }
+                } else if (!bucUtil.isValidSedtypeOperation(SedType.X005, ActionOperation.Create)) { /* nada */  }
             }
         }
 
@@ -128,7 +126,6 @@ class PrefillController(
 
         //Hente metadata for valgt BUC
         val bucUtil = euxInnhentingService.kanSedOpprettes(dataModel)
-        //val docs = bucUtil.getAllDocuments().map { "${it.type}, ${it.id} "}
 
         if (bucUtil.getProcessDefinitionName() != request.buc) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Rina Buctype og request buctype må være samme")
         logger.debug("bucUtil BucType: ${bucUtil.getBuc().processDefinitionName} apiRequest Buc: ${request.buc}")
@@ -144,8 +141,9 @@ class PrefillController(
         return addInstutionAndDocument.measure {
             logger.info("******* Legge til ny SED - start *******")
 
-            logger.info("Prøver å sende SED: ${dataModel.sedType} inn på BUC: ${dataModel.euxCaseID}")
-            val docresult = euxPrefillService.opprettJsonSedOnBuc( sed, SedType.from(request.sed!!)!!, dataModel.euxCaseID, request.vedtakId)
+            val sedType = SedType.from(request.sed!!)!!
+            logger.info("Prøver å sende SED: $sedType inn på BUC: ${dataModel.euxCaseID}")
+            val docresult = euxPrefillService.opprettJsonSedOnBuc( sed, sedType, dataModel.euxCaseID, request.vedtakId)
 
             logger.info("Opprettet ny SED med dokumentId: ${docresult.documentId}")
             val result = bucUtil.findDocument(docresult.documentId)
@@ -208,9 +206,7 @@ class PrefillController(
         return addDocumentToParent.measure {
             logger.info("Prøver å sende SED: ${dataModel.sedType} inn på BUC: ${dataModel.euxCaseID}")
 
-            val docresult = euxPrefillService.opprettSvarJsonSedOnBuc(
-                sed, dataModel.euxCaseID, parentId, request.vedtakId
-            )
+            val docresult = euxPrefillService.opprettSvarJsonSedOnBuc(sed, dataModel.euxCaseID, parentId, request.vedtakId, dataModel.sedType)
 
             val parent = bucUtil.findDocument(parentId)
             val result = bucUtil.findDocument(docresult.documentId)
