@@ -3,17 +3,17 @@
 # issuer.oidc = bearer token from API (header)
 # issuer.pesys = bearer token from other places (servicebruker) (header)
 no.nav.security.jwt:
- issuer.isso:
-   proxyurl:
-   cookiename: 'eessipensjon-idtoken'
-   discoveryurl: '${OPENIDCONNECT_URL}/oauth2/.well-known/openid-configuration'
-   accepted_audience: 'eessi-pensjon-frontend-api-fss-${ENV}'
- issuer.oidc:
-   discoveryurl: '${OPENIDCONNECT_URL}/oauth2/.well-known/openid-configuration'
-   accepted_audience: 'eessi-fagmodul-${ENV},eessi-pensjon-frontend-api-fss-${ENV},ida-q'
- issuer.servicebruker:
-   discoveryurl: '${security-token-service-openid-configuration_url}'
-   accepted_audience: 'srvpensjon,srveessipensjon,srveessi-pensjon-j,srveessi-pensjon-b'
+# issuer.isso:
+#   proxyurl:
+#   cookiename: 'eessipensjon-idtoken'
+#   discoveryurl: '${OPENIDCONNECT_URL}/oauth2/.well-known/openid-configuration'
+#   accepted_audience: 'eessi-pensjon-frontend-api-fss-${ENV}'
+# issuer.oidc:
+#   discoveryurl: '${OPENIDCONNECT_URL}/oauth2/.well-known/openid-configuration'
+#   accepted_audience: 'eessi-fagmodul-${ENV},eessi-pensjon-frontend-api-fss-${ENV},ida-q'
+# issuer.servicebruker:
+#   discoveryurl: '${security-token-service-openid-configuration_url}'
+#   accepted_audience: 'srvpensjon,srveessipensjon,srveessi-pensjon-j,srveessi-pensjon-b'
  issuer.aad:
   discoveryurl: ${AZURE_APP_WELL_KNOWN_URL}
   accepted_audience: ${AZURE_APP_CLIENT_ID}
@@ -64,8 +64,8 @@ no.nav.security.jwt:
 # Empty on purpose so that oidc-spring-support doesn't use http.proxy
 http.proxy.parametername:
 
-securityTokenService:
-  discoveryUrl: ${SECURITY_TOKEN_SERVICE_OPENID_CONFIGURATION_URL}
+#securityTokenService:
+#  discoveryUrl: ${SECURITY_TOKEN_SERVICE_OPENID_CONFIGURATION_URL}
 
 METRICS_REQUESTFILTER_ENABLE: false
 
