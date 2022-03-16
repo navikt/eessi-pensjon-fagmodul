@@ -19,18 +19,17 @@ spec:
   accessPolicy:
     outbound:
       rules:
+        - application: eessi-pensjon-prefill-q2
+          namespace: eessipensjon
+          cluster: dev-gcp
+    inbound:
+      rules:
         - application: eessi-pensjon-frontend-ui-fss
           namespace: eessipensjon
           cluster: dev-fss
         - application: eessi-pensjon-frontend-api-fss
           namespace: eessipensjon
           cluster: dev-fss
-        - application: eessi-pensjon-prefill-q2
-          namespace: eessipensjon
-          cluster: dev-gcp
-    inbound:
-      rules:
-        - host: eessi-pensjon-fagmodul-q2.dev.intern.nav.no
         - application: eessi-pensjon-journalforing-q2
           namespace: eessipensjon
           cluster: dev-gcp
