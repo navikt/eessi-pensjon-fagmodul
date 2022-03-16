@@ -1,12 +1,10 @@
 package no.nav.eessi.pensjon.fagmodul.config
 
-import io.micrometer.core.instrument.MeterRegistry
 import no.nav.eessi.pensjon.logging.RequestIdHeaderInterceptor
 import no.nav.eessi.pensjon.logging.RequestResponseLoggerInterceptor
 import no.nav.security.token.support.client.core.ClientProperties
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService
 import no.nav.security.token.support.client.spring.ClientConfigurationProperties
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
@@ -26,20 +24,10 @@ import java.time.Duration
 @Profile("prod", "test")
 class RestTemplateConfig(
     private val clientConfigurationProperties: ClientConfigurationProperties,
-    private val oAuth2AccessTokenService: OAuth2AccessTokenService?,
-    private val meterRegistry: MeterRegistry,
-    ) {
+    private val oAuth2AccessTokenService: OAuth2AccessTokenService) {
 
-    private val logger = LoggerFactory.getLogger(RestTemplateConfig::class.java)
-
-    @Value("\${EUX_RINA_API_V1_URL}")
+    @Value("\${EESSIPEN_EUX_RINA_URL}")
     lateinit var euxUrl: String
-
-    @Value("\${NORG2_URL}")
-    lateinit var norg2Url: String
-
-    @Value("\${BESTEMSAK_URL}")
-    lateinit var bestemSakUrl: String
 
     @Value("\${EESSI_PEN_ONPREM_PROXY_URL}")
     lateinit var proxyUrl: String
@@ -47,16 +35,16 @@ class RestTemplateConfig(
     @Value("\${EESSIPENSJON_PREFILL_GCP_URL}")
     lateinit var prefillUrl: String
 
-    @Value("\${kodeverk.rest-api.url}")
+    @Value("\${KODEVERK_REST_API_URL}")
     private lateinit var kodeverkUrl: String
 
-    @Value("\${pensjonsinformasjon.url}")
+    @Value("\${PENSJONSINFORMASJON_URL}")
     lateinit var pensjonUrl: String
 
-    @Value("\${saf.graphql.url}")
+    @Value("\${SAF_GRAPHQL_URL}")
     lateinit var graphQlUrl: String
 
-    @Value("\${saf.hentdokument.url}")
+    @Value("\${SAF_HENTDOKUMENT_URL}")
     lateinit var hentRestUrl: String
 
 
