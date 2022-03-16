@@ -8,6 +8,8 @@ metadata:
 spec:
   kafka:
     pool: nav-dev
+  envFrom:
+    - secret: fagmodul-dev #secret name in Google Secret Manager
   azure:
     application:
       enabled: true
