@@ -69,8 +69,8 @@ class RestTemplateConfig(
     @Bean
     fun proxyOAuthRestTemplate() = restTemplate(proxyUrl, bearerTokenInterceptor(clientProperties("proxy-credentials"), oAuth2AccessTokenService!!))
 
+//    @Profile("prod", "test")
     @Bean
-    @Profile("prod", "test")
     fun prefillOAuthTemplate() = restTemplate(prefillUrl, bearerTokenInterceptor(clientProperties("prefill-credentials"), oAuth2AccessTokenService!!))
 
     @Bean

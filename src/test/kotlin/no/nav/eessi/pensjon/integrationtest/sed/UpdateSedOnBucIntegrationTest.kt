@@ -4,7 +4,7 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
 import no.nav.eessi.pensjon.fagmodul.integrationtest.IntegrasjonsTestConfig
-import no.nav.eessi.pensjon.security.sts.STSService
+import no.nav.eessi.pensjon.services.kodeverk.KodeverkClient
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -31,14 +31,26 @@ import kotlin.test.assertEquals
 @EmbeddedKafka
 class UpdateSedOnBucIntegrationTest {
 
-    @MockkBean
-    lateinit var stsService: STSService
-
     @MockkBean(name = "prefillOAuthTemplate")
     private lateinit var prefillOAuthTemplate: RestTemplate
 
     @MockkBean(name = "euxOidcRestTemplate")
-    lateinit var restTemplate: RestTemplate
+    private lateinit var restTemplate: RestTemplate
+
+    @MockkBean(name = "euxUsernameOidcRestTemplate")
+    private lateinit var euxUserNameRestTemplate: RestTemplate
+
+    @MockkBean(name = "safGraphQlOidcRestTemplate")
+    private lateinit var restSafTemplate: RestTemplate
+
+    @MockkBean(name = "safRestOidcRestTemplate")
+    private lateinit var safRestOidcRestTemplate: RestTemplate
+
+    @MockkBean(name = "pensjonsinformasjonOidcRestTemplate")
+    private lateinit var pensjonsinformasjonOidcRestTemplate: RestTemplate
+
+    @MockkBean
+    private lateinit var kodeverkClient: KodeverkClient
 
     @Autowired
     private lateinit var mockMvc: MockMvc

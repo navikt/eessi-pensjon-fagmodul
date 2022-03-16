@@ -18,7 +18,6 @@ import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
 import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentType
 import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
-import no.nav.eessi.pensjon.security.sts.STSService
 import no.nav.eessi.pensjon.services.kodeverk.KodeverkClient
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.utils.toJson
@@ -49,17 +48,20 @@ import kotlin.test.assertTrue
 @EmbeddedKafka
 internal class BucIntegrationSpringTest: BucBaseTest() {
 
-    @MockkBean
-    lateinit var stsService: STSService
-
     @MockkBean(name = "prefillOAuthTemplate")
     private lateinit var prefillOAuthTemplate: RestTemplate
 
     @MockkBean(name = "euxOidcRestTemplate")
     private lateinit var restEuxTemplate: RestTemplate
 
+    @MockkBean(name = "euxUsernameOidcRestTemplate")
+    private lateinit var euxUsernameOidcRestTemplate: RestTemplate
+
     @MockkBean(name = "safGraphQlOidcRestTemplate")
     private lateinit var restSafTemplate: RestTemplate
+
+    @MockkBean(name = "safRestOidcRestTemplate")
+    private lateinit var safRestOidcRestTemplate: RestTemplate
 
     @MockkBean
     private lateinit var kodeverkClient: KodeverkClient
