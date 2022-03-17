@@ -62,10 +62,7 @@ no.nav.security.jwt:
 
 
 # Empty on purpose so that oidc-spring-support doesn't use http.proxy
-http.proxy.parametername:
-
-#securityTokenService:
-#  discoveryUrl: ${SECURITY_TOKEN_SERVICE_OPENID_CONFIGURATION_URL}
+# http.proxy.parametername:
 
 METRICS_REQUESTFILTER_ENABLE: false
 
