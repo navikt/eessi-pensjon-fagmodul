@@ -3,6 +3,7 @@ NAIS_APP_NAME: 'eessi-pensjon-fagmodul'
 NAIS_APP_IMAGE: 'someimage'
 ENV: test
 PDL_URL: 'http://example.com:8090'
+AZURE_APP_WELL_KNOWN_URL: 'http://example.com:8090'
 
 eessi-pensjon-active-profiles: ${spring.profiles.active}
 
