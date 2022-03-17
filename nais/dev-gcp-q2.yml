@@ -11,10 +11,10 @@ spec:
   envFrom:
     - secret: fagmodul-dev #secret name in Google Secret Manager
   azure:
-  sidecar:
-    enabled: true
-    autoLogin: true
-    errorPath: "/errorlogon"
+    sidecar:
+      enabled: true
+      autoLogin: false
+      errorPath: "/errorlogon"
     application:
       enabled: true
       claims:
