@@ -26,6 +26,9 @@ spec:
         - application: eessi-pensjon-prefill-q2
           namespace: eessipensjon
           cluster: dev-gcp
+        - application: eessi-pensjon-onprem-proxy-q2
+          namespace: eessipensjon
+          cluster: dev-fss
     inbound:
       rules:
         - application: eessi-pensjon-frontend-ui-fss
@@ -69,8 +72,12 @@ spec:
       value: NO:NAVAT07
     - name: EESSI_PENSJON_INSTITUSJON_NAVN
       value: NAV ACCEPTANCE TEST 07
+    - name: AZURE_APP_PDL_CLIENT_ID
+      value: dev-fss.pdl.pdl-api
     - name: AZURE_APP_PREFILL_CLIENT_ID
       value: dev-gcp.eessipensjon.eessi-pensjon-prefill-q2
+    - name: AZURE_APP_EUX_CLIENT_ID
+      value: dev-fss.eessibasis.eux-rina-api-q2
     - name: AZURE_APP_PROXY_CLIENT_ID
       value: dev-fss.eessipensjon.eessi-pensjon-onprem-proxy-q2
     - name: ENV
