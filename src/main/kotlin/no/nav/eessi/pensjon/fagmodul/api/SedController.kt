@@ -1,6 +1,5 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
-import io.swagger.v3.oas.annotations.Operation
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.sed.MedlemskapItem
 import no.nav.eessi.pensjon.eux.model.sed.P5000
@@ -38,7 +37,6 @@ class SedController(
 
     private val logger = LoggerFactory.getLogger(SedController::class.java)
 
-    @Operation(description = "Henter liste over P6000 som kan ingå i preutfyll for P7000")
     @GetMapping("/getP6000/{euxcaseid}")
     fun getDocumentP6000list(@PathVariable("euxcaseid", required = true) euxcaseid: String): List<P6000Dokument>? {
         val bucUtils = BucUtils(euxInnhentingService.getBuc(euxcaseid))
@@ -46,7 +44,6 @@ class SedController(
 
     }
 
-    @Operation(description =  "Hent pdf fra Rina")
     @GetMapping("/get/{euxcaseid}/{documentid}/pdf")
     fun getPdfFromRina(
         @PathVariable("euxcaseid", required = true) euxcaseid: String,
@@ -54,7 +51,6 @@ class SedController(
         return euxInnhentingService.getPdfContents(euxcaseid, documentid)
     }
 
-    @Operation(description = "Henter ut en SED fra et eksisterende Rina document. krever unik dokumentid fra valgt SED, ny api kall til eux")
     @GetMapping("/get/{euxcaseid}/{documentid}")
     fun getDocument(
         @PathVariable("euxcaseid", required = true) euxcaseid: String,
@@ -66,7 +62,6 @@ class SedController(
         return sed.toJson()
     }
 
-    @Operation(description = "Oppdaterer en SED i RINA med denne versjon av JSON. krever dokumentid, euxcaseid samt json")
     @PutMapping("/put/{euxcaseid}/{documentid}")
     fun putDocument(
         @PathVariable("euxcaseid", required = true) euxcaseid: String,
@@ -96,7 +91,6 @@ class SedController(
         return euxInnhentingService.updateSedOnBuc(euxcaseid, documentid, validsed.toJsonSkipEmpty())
     }
 
-    @Operation(description = "henter liste over seds som kan opprettes til valgt rinasak")
     @GetMapping("/seds/{buctype}/{rinanr}")
     fun getSeds(
         @PathVariable(value = "buctype", required = true) bucType: String,

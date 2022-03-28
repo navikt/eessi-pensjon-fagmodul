@@ -1,7 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
-import io.swagger.v3.oas.annotations.Operation
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.sed.SED
@@ -63,7 +62,6 @@ class PrefillController(
         addDocumentToParentBucUtils = metricsHelper.init("AddDocumentToParentBucUtils", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
     }
 
-    @Operation(description = "Oppretter ny tom BUC i RINA via eux-api. ny api kall til eux")
     @PostMapping("buc/{buctype}")
     fun createBuc(
         @PathVariable("buctype", required = true) buctype: String
@@ -115,7 +113,6 @@ class PrefillController(
 
 
 
-    @Operation(description = "Legge til Deltaker(e) og SED på et eksisterende Rina document. kjører preutfylling, ny api kall til eux")
     @PostMapping("sed/add")
     fun addInstutionAndDocument(@RequestBody request: ApiRequest ): DocumentsItem? {
 
@@ -180,7 +177,6 @@ class PrefillController(
         } else request
     }
 
-    @Operation(description = "Oppretter en Sed som svar på en forespørsel-Sed")
     @PostMapping("sed/replysed/{parentid}")
     fun addDocumentToParent(
         @RequestBody(required = true) request: ApiRequest,

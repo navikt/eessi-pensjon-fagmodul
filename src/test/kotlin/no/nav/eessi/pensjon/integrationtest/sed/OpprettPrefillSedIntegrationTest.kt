@@ -16,7 +16,6 @@ import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentType
 import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
 import no.nav.eessi.pensjon.security.sts.STSService
 import no.nav.eessi.pensjon.utils.toJson
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.beans.factory.annotation.Autowired
@@ -106,7 +105,6 @@ class OpprettPrefillSedIntegrationTest {
     }
 
     @Test
-    @Disabled
     fun `Gitt at det opprettes ny SED P2000 på ny tom BUC Når deltaker er med SÅ skal SED opprettes og metadoc retureres`() {
         val euxRinaid = "1000000001"
 

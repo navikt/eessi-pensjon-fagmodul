@@ -81,7 +81,7 @@ class KafkaConfigProd(
         factory.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL
         factory.containerProperties.setAuthExceptionRetryInterval( Duration.ofSeconds(4L) )
         if (kafkaErrorHandler != null) {
-            factory.setErrorHandler(kafkaErrorHandler)
+            factory.setCommonErrorHandler(kafkaErrorHandler)
         }
         return factory
     }
