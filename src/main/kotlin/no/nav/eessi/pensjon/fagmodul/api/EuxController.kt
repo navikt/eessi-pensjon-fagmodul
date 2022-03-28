@@ -1,7 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
-import io.swagger.v3.oas.annotations.Operation
 import no.nav.eessi.pensjon.eux.model.buc.BucType
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
@@ -51,31 +50,16 @@ class EuxController(
     }
 
 
-//    @Deprecated("Utgåår benytt /rinaurl/buc/{rinanr}", ReplaceWith("getRinaUrl2020"))
-//    @GetMapping("/rinaurl2")
-//    @Operation(description = "direkte URL til RINA")
-//    fun getRinaURL(): ResponseEntity<Map<String, String>> {
-//        if (environment == "q1") {
-//            //RINA2020
-//            return ResponseEntity.ok(mapOf("rinaUrl" to "https://$rinaUrl/portal_new/case-management/"))
-//        }
-//        //RINA2019
-//        return ResponseEntity.ok(mapOf("rinaUrl" to "https://$rinaUrl/portal/#/caseManagement/"))
-//    }
-
     @GetMapping("/rinaurl")
-    @Operation(description = "direkte URL til RINA")
     fun getRinaUrl2020() : ResponseEntity<Map<String, String>> {
         return ResponseEntity.ok(mapOf("rinaUrl" to euxInnhentingService.getRinaUrl()))
     }
 
-    @Operation(description = "henter liste over subject")
     @GetMapping("/subjectarea")
     fun getSubjectArea(): List<String> {
         return listOf("Pensjon")
     }
 
-    @Operation(description = "henter liste over alle tilknyttete land i valgt BUC")
     @GetMapping("/countries/{buctype}")
     fun getPaakobledeland(@PathVariable(value = "buctype") bucType: BucType): ResponseEntity<String> {
         return paakobledeland.measure {
@@ -97,7 +81,6 @@ class EuxController(
         }
     }
 
-    @Operation(description = "Henter ut en liste over landkoder ut fra kodeverktjenesten eux")
     @GetMapping( "/landkoder")
     fun getCountryCode(): List<String> {
         return euxKodeverkLand.measure {
@@ -106,7 +89,6 @@ class EuxController(
         }
     }
 
-    @Operation(description = "Henter ut en liste over kodeverk fra eux")
     @GetMapping( "/kodeverk/{kodeverk}")
     fun getKodeverk(@PathVariable("kodeverk", required = true) kodeverk: Kodeverk): List<KodeverkResponse> {
         return euxKodeverk.measure {
@@ -115,7 +97,6 @@ class EuxController(
         }
     }
 
-    @Operation(description = "Henter ut en liste over registrerte institusjoner innenfor spesifiserte EU-land. ny api kall til eux")
     @GetMapping("/institutions/{buctype}", "/institutions/{buctype}/{countrycode}")
     fun getEuxInstitusjoner(
         @PathVariable("buctype", required = true) buctype: String,

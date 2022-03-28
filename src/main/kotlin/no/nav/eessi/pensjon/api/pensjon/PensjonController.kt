@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
-import io.swagger.v3.oas.annotations.Operation
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjoninformasjonException
@@ -57,7 +56,6 @@ class PensjonController(
         PensjonControllerKravDato = metricsHelper.init("PensjonControllerKravDato")
     }
 
-    @Operation(description = "Henter ut saktype knyttet til den valgte sakId og aktoerId")
     @GetMapping("/saktype/{sakId}/{aktoerId}")
     fun hentPensjonSakType(@PathVariable("sakId", required = true) sakId: String, @PathVariable("aktoerId", required = true) aktoerId: String): ResponseEntity<String>? {
         auditlogger.log("hentPensjonSakType", aktoerId)
@@ -69,7 +67,6 @@ class PensjonController(
         }
     }
 
-    @Operation(description = "Henter ut kravdato der det ikke eksisterer et vedtak")
     @GetMapping("/kravdato/saker/{saksId}/krav/{kravId}/aktor/{aktoerId}")
     fun hentKravDatoFraAktor(@PathVariable("saksId", required = true) sakId: String, @PathVariable("kravId", required = true) kravId: String, @PathVariable("aktoerId", required = true) aktoerId: String) : ResponseEntity<String>? {
         val xid =  MDC.get("x_request_id").toString()
@@ -92,7 +89,6 @@ class PensjonController(
     }
 
 
-    @Operation(description = "Validerer pensjonssaker for å forhindre feil under prefill")
     @GetMapping("/validate/{aktoerId}/sakId/{sakId}/buctype/{buctype}")
     fun validerKravPensjon(@PathVariable("aktoerId", required = true) aktoerId: String, @PathVariable("sakId", required = true) sakId: String, @PathVariable("buctype", required = true) bucType: String): Boolean {
         return PensjonControllerValidateSak.measure {
@@ -221,7 +217,6 @@ class PensjonController(
         return uforetidspunkt
     }
 
-    @Operation(description = "Henter ut en liste over alle saker på valgt aktoerId")
     @GetMapping("/sakliste/{aktoerId}")
     fun hentPensjonSakIder(@PathVariable("aktoerId", required = true) aktoerId: String): List<PensjonSak> {
         return PensjonControllerHentSakListe.measure {
