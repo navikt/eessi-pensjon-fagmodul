@@ -2,7 +2,7 @@ buildscript {
 
     ext {
         kotlinVersion = '1.6.10'
-        springBootVersion = '2.6.5'
+        springBootVersion = '2.6.6'
         springfoxVersion = '3.0.0'
         jacksonModuleKotlinVersion = '2.13.2'
         cxfVersion = '3.5.1'
