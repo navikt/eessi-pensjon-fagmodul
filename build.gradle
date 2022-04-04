@@ -2,7 +2,7 @@ buildscript {
 
     ext {
         kotlinVersion = '1.6.10'
-        springBootVersion = '2.6.2'
+        springBootVersion = '2.6.6'
         springfoxVersion = '3.0.0'
         jacksonModuleKotlinVersion = '2.13.1'
         cxfVersion = '3.3.4'
@@ -10,10 +10,10 @@ buildscript {
         logstashLogbackVersion = '7.0.1'
         pensjonInformasjonVersion = '9.4.10'
         eppersonoppslagVersion = '9.0.8'
-        epeuxVersion = '1.1.62'
-        epMetricsVersion = "0.4.14"
-        epSecurityVersion ="0.0.21"
-        epLoggingVersion ="1.0.15"
+        epeuxVersion = '1.1.+'
+        epMetricsVersion = "0.4.+"
+        epSecurityVersion ="0.0.+"
+        epLoggingVersion ="1.0.+"
         archunitVersion = '0.22.0'
     }
 
