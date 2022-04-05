@@ -70,9 +70,9 @@
         <logger name="org" level="ERROR"/>
         <logger name="com" level="ERROR"/>
         <logger name="no.nav" level="DEBUG"/>
-        <logger name="no.nav.security" level="ERROR"/>
+        <logger name="no.nav.security" level="DEBUG"/>
         <logger name="no.nav.eessi" level="DEBUG"/>
-        <logger name="no.nav.security.token.support.core.validation" level="ERROR"/>
+<!--        <logger name="no.nav.security.token.support.core.validation" level="ERROR"/>-->
         <root level="info">
             <appender-ref ref="stdout_json"/>
         </root>
