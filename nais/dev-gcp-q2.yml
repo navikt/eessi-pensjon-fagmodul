@@ -80,6 +80,9 @@ spec:
       value: dev-fss.eessibasis.eux-rina-api-q2
     - name: AZURE_APP_PROXY_CLIENT_ID
       value: dev-fss.eessipensjon.eessi-pensjon-onprem-proxy-q2
+    - name: AZURE_APP_API_CLIENT_ID
+      value: dev-gcp:eessipensjon:eessi-pensjon-frontend-api-fss-q2
+
     - name: ENV
       value: q2
   image: {{ image }}

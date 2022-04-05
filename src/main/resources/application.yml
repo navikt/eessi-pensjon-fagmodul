@@ -7,6 +7,9 @@ no.nav.security.jwt:
   issuer.aad:
     discoveryurl: ${AZURE_APP_WELL_KNOWN_URL}
     accepted_audience: ${AZURE_APP_CLIENT_ID}
+  issuer.api:
+    discoveryurl: ${AZURE_APP_WELL_KNOWN_URL}
+    accepted_audience: ${AZURE_APP_API_CLIENT_ID}
   client:
     registration:
       prefill-credentials:
