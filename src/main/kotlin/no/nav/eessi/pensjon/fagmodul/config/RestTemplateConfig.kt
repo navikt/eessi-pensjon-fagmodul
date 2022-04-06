@@ -68,10 +68,10 @@ class RestTemplateConfig(
     fun pensjonsinformasjonOidcRestTemplate() = restTemplate(pensjonUrl, bearerTokenInterceptor(clientProperties("proxy-credentials"), oAuth2AccessTokenService!!))
 
     @Bean
-    fun safGraphQlOidcRestTemplate() = restTemplate(graphQlUrl, bearerTokenInterceptor(clientProperties("proxy-credentials"), oAuth2AccessTokenService!!))
+    fun safGraphQlOidcRestTemplate() = restTemplate(graphQlUrl, bearerTokenInterceptor(clientProperties("saf-credentials"), oAuth2AccessTokenService!!))
 
     @Bean
-    fun safRestOidcRestTemplate() = restTemplate(hentRestUrl, bearerTokenInterceptor(clientProperties("proxy-credentials"), oAuth2AccessTokenService!!))
+    fun safRestOidcRestTemplate() = restTemplate(hentRestUrl, bearerTokenInterceptor(clientProperties("saf-credentials"), oAuth2AccessTokenService!!))
 
 
     private fun restTemplate(url: String, tokenIntercetor: ClientHttpRequestInterceptor?) : RestTemplate {
