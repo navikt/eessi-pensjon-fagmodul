@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.web.client.RestTemplate
 import kotlin.test.assertEquals
@@ -87,8 +88,46 @@ class EuxServiceKallItegrationTest {
 
     }
 
+//    @Test
+//    fun `test på gyldig rina2020 url fra eux`() {
+//        val fakeid = "-1-11-111"
+//        val mockRina2020url = "https://rina-q.adeo.no/portal_new/case-management/"
+//
+//        every { restTemplate.exchange(
+//            eq("/url/buc/$fakeid"),
+//            eq(HttpMethod.GET),
+//            any(),
+//            eq(String::class.java)) } returns ResponseEntity.ok().body( mockRina2020url+fakeid )
+
+//        val response = mockMvc.perform(
+//            MockMvcRequestBuilders.get("/eux/rinaurl"))
+//            .andExpect(MockMvcResultMatchers.status().isOk)
+//            .andReturn()
+//
+//        val result = response.response.contentAsString
+//        val expected = """{"rinaUrl":"https://rina-q.adeo.no/portal_new/case-management/"}""".trimIndent()
+//        assertEquals(expected, result)
+
+//        val response2 = mockMvc.perform(
+//            MockMvcRequestBuilders.get("/eux/rinaurl"))
+//            .andExpect(MockMvcResultMatchers.status().isOk)
+//            .andReturn()
+
+//        val result2 = response2.response.contentAsString
+//        assertEquals(expected, result2)
+
+//        val response3 = mockMvc.perform(
+//            MockMvcRequestBuilders.get("/eux/rinaurl"))
+//            .andExpect(MockMvcResultMatchers.status().isOk)
+//            .andReturn()
+
+//        val result3 = response3.response.contentAsString
+//        assertEquals(expected, result3)
+
+//    }
+
     @Test
-    fun `test på gyldig rina2020 url fra eux`() {
+    fun sjekkRinaUrl() {
         val fakeid = "-1-11-111"
         val mockRina2020url = "https://rina-q.adeo.no/portal_new/case-management/"
 
@@ -98,8 +137,8 @@ class EuxServiceKallItegrationTest {
             any(),
             eq(String::class.java)) } returns ResponseEntity.ok().body( mockRina2020url+fakeid )
 
-        val response = mockMvc.perform(
-            MockMvcRequestBuilders.get("/eux/rinaurl"))
+        val response = mockMvc.perform(get("/eux/rinaurl")
+            .header("Authorization", "blatoken"))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andReturn()
 
@@ -107,45 +146,6 @@ class EuxServiceKallItegrationTest {
         val expected = """{"rinaUrl":"https://rina-q.adeo.no/portal_new/case-management/"}""".trimIndent()
         assertEquals(expected, result)
 
-        val response2 = mockMvc.perform(
-            MockMvcRequestBuilders.get("/eux/rinaurl"))
-            .andExpect(MockMvcResultMatchers.status().isOk)
-            .andReturn()
-
-        val result2 = response2.response.contentAsString
-        assertEquals(expected, result2)
-
-        val response3 = mockMvc.perform(
-            MockMvcRequestBuilders.get("/eux/rinaurl"))
-            .andExpect(MockMvcResultMatchers.status().isOk)
-            .andReturn()
-
-        val result3 = response3.response.contentAsString
-        assertEquals(expected, result3)
-
     }
-
-    @Test
-    fun `test på gyldig rina2019 url fra eux`() {
-        val mockRina2019url = "https://rina-q.adeo.no/portal/#/caseManagement/"
-
-        every { restTemplate.exchange(
-            eq("/url/buc/-1-11-111"),
-            eq(HttpMethod.GET),
-            any(),
-            eq(String::class.java)) } returns ResponseEntity.ok().body( mockRina2019url )
-
-        val response = mockMvc.perform(
-            MockMvcRequestBuilders.get("/eux/rinaurl"))
-            .andExpect(MockMvcResultMatchers.status().isOk)
-            .andReturn()
-
-        val result = response.response.contentAsString
-
-        val expected = """{"rinaUrl":"https://rina-q.adeo.no/portal/#/caseManagement/"}""".trimIndent()
-
-        assertEquals(expected, result)
-    }
-
 
 }
