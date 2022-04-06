@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.client.HttpStatusCodeException
 import javax.annotation.PostConstruct
 
-@Protected
 @RestController
 @RequestMapping("/eux")
 class EuxController(
@@ -73,12 +72,14 @@ class EuxController(
         return ResponseEntity.ok(mapOf("rinaUrl" to euxInnhentingService.getRinaUrl()))
     }
 
+    @Protected
     @Operation(description = "henter liste over subject")
     @GetMapping("/subjectarea")
     fun getSubjectArea(): List<String> {
         return listOf("Pensjon")
     }
 
+    @Protected
     @Operation(description = "henter liste over alle tilknyttete land i valgt BUC")
     @GetMapping("/countries/{buctype}")
     fun getPaakobledeland(@PathVariable(value = "buctype") bucType: BucType): ResponseEntity<String> {
@@ -101,6 +102,7 @@ class EuxController(
         }
     }
 
+    @Protected
     @Operation(description = "Henter ut en liste over landkoder ut fra kodeverktjenesten eux")
     @GetMapping( "/landkoder")
     fun getCountryCode(): List<String> {
@@ -110,6 +112,7 @@ class EuxController(
         }
     }
 
+    @Protected
     @Operation(description = "Henter ut en liste over kodeverk fra eux")
     @GetMapping( "/kodeverk/{kodeverk}")
     fun getKodeverk(@PathVariable("kodeverk", required = true) kodeverk: Kodeverk): List<KodeverkResponse> {
@@ -119,6 +122,7 @@ class EuxController(
         }
     }
 
+    @Protected
     @Operation(description = "Henter ut en liste over registrerte institusjoner innenfor spesifiserte EU-land. ny api kall til eux")
     @GetMapping("/institutions/{buctype}", "/institutions/{buctype}/{countrycode}")
     fun getEuxInstitusjoner(
