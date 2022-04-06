@@ -81,7 +81,7 @@ spec:
     - name: AZURE_APP_UI_ID
       value: dev-gcp:eessipensjon:eessi-pensjon-frontend-ui-fss-q2
     - name: AZURE_APP_SAF_CLIENT_ID
-      value: dev-fss:teamdokumenthandtering:saf
+      value: dev-fss.teamdokumenthandtering.saf
 
     - name: ENV
       value: q2
