@@ -4,12 +4,12 @@ import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
 import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
 import no.nav.eessi.pensjon.logging.RequestIdHeaderInterceptor
 import no.nav.eessi.pensjon.logging.RequestResponseLoggerInterceptor
+import no.nav.eessi.pensjon.utils.getClaims
+import no.nav.eessi.pensjon.utils.getToken
 import no.nav.security.token.support.client.core.ClientProperties
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService
 import no.nav.security.token.support.client.spring.ClientConfigurationProperties
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
-import no.nav.security.token.support.core.jwt.JwtToken
-import no.nav.security.token.support.core.jwt.JwtTokenClaims
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
@@ -24,7 +24,6 @@ import org.springframework.http.client.SimpleClientHttpRequestFactory
 import org.springframework.web.client.DefaultResponseErrorHandler
 import org.springframework.web.client.RestTemplate
 import java.time.Duration
-import java.util.*
 
 
 @Configuration
@@ -151,33 +150,7 @@ class RestTemplateConfig(
         }
     }
 
-    private fun getClaims(tokenValidationContextHolder: TokenValidationContextHolder): JwtTokenClaims {
-        val context = tokenValidationContextHolder.tokenValidationContext
-        if(context.issuers.isEmpty())
-            throw RuntimeException("No issuer found in context")
 
-        val validIssuer = context.issuers.filterNot { issuer ->
-            val oidcClaims = context.getClaims(issuer)
-            oidcClaims.expirationTime.before(Date())
-        }.map { it }
-
-
-        if (validIssuer.isNotEmpty()) {
-            val issuer = validIssuer.first()
-            return context.getClaims(issuer)
-        }
-        throw RuntimeException("No valid issuer found in context")
-
-    }
-
-    private fun getToken(tokenValidationContextHolder: TokenValidationContextHolder): JwtToken {
-        val context = tokenValidationContextHolder.tokenValidationContext
-        if(context.issuers.isEmpty())
-            throw RuntimeException("No issuer found in context")
-        val issuer = context.issuers.first()
-
-        return context.getJwtToken(issuer)
-    }
 
 }
 
