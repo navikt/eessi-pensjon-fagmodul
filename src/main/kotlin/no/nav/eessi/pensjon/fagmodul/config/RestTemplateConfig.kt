@@ -119,12 +119,12 @@ class RestTemplateConfig(
         }
     }
 
-    private fun euxNavIdenBearerTokenInterceptor(
-        clientProperties: ClientProperties,
-        oAuth2AccessTokenService: OAuth2AccessTokenService
-    ): ClientHttpRequestInterceptor {
-        logger.info("NAVIdent: ${getClaims(tokenValidationContextHolder).get("NAVident")?.toString()}")
-        logger.info("token: ${getToken(tokenValidationContextHolder).tokenAsString}")
+    private fun euxNavIdenBearerTokenInterceptor(clientProperties: ClientProperties, oAuth2AccessTokenService: OAuth2AccessTokenService): ClientHttpRequestInterceptor {
+
+        try {
+            logger.info("NAVIdent: ${getClaims(tokenValidationContextHolder).get("NAVident")?.toString()}")
+            logger.info("token: ${getToken(tokenValidationContextHolder).tokenAsString}")
+        } catch (ex: Exception) { }
 
         return ClientHttpRequestInterceptor { request: HttpRequest, body: ByteArray?, execution: ClientHttpRequestExecution ->
             val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
