@@ -99,6 +99,8 @@ dependencies {
     implementation("no.nav.security:token-validation-jaxrs:${tokenSupportVersion}")
     implementation("no.nav.security:token-validation-test-support:${tokenSupportVersion}")
 
+    implementation ("no.nav.common:token-client:2.2022.04.01_08.27-cbfeb0be0ee0")
+
     testImplementation("org.pac4j:spring-webmvc-pac4j:5.1.0")
 
     // Tjenestespesifikasjoner

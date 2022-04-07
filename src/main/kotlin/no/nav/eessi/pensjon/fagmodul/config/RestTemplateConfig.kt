@@ -1,5 +1,8 @@
 package no.nav.eessi.pensjon.fagmodul.config
 
+import com.nimbusds.jwt.JWTClaimsSet
+import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
+import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
 import no.nav.eessi.pensjon.logging.RequestIdHeaderInterceptor
 import no.nav.eessi.pensjon.logging.RequestResponseLoggerInterceptor
 import no.nav.security.token.support.client.core.ClientProperties
@@ -34,6 +37,8 @@ class RestTemplateConfig(
 
     private val logger = LoggerFactory.getLogger(RestTemplateConfig::class.java)
 
+    @Value("\${AZURE_APP_EUX_CLIENT_ID}")
+    lateinit var euxClientId: String
 
     @Value("\${EESSIPEN_EUX_RINA_URL}")
     lateinit var euxUrl: String
@@ -126,9 +131,21 @@ class RestTemplateConfig(
                 logger.info("token: ${getToken(tokenValidationContextHolder).tokenAsString}")
             } catch (ex: Exception) { }
 
-            val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
-            request.headers.setBearerAuth(response.accessToken)
-            logger.info("accessToken: ${response.accessToken}")
+            val tokenClient: AzureAdOnBehalfOfTokenClient = AzureAdTokenClientBuilder.builder()
+                .withNaisDefaults()
+                .buildOnBehalfOfTokenClient()
+
+            val accessToken: String = tokenClient.exchangeOnBehalfOfToken(
+                "api://$euxClientId/.default",
+                "<access_token>"
+            )
+
+            logger.info("NAVIdent til eux: ${JWTClaimsSet.parse(accessToken).claims.get("NAVident")?.toString()} ")
+            logger.info("On Behalf accessToken: $accessToken")
+
+//            val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
+//            request.headers.setBearerAuth(response.accessToken)
+            request.headers.setBearerAuth(accessToken)
             execution.execute(request, body!!)
         }
     }
