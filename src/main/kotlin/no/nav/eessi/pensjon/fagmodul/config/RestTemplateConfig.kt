@@ -1,6 +1,5 @@
 package no.nav.eessi.pensjon.fagmodul.config
 
-import com.nimbusds.jwt.JWTClaimsSet
 import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
 import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
 import no.nav.eessi.pensjon.logging.RequestIdHeaderInterceptor
@@ -126,9 +125,11 @@ class RestTemplateConfig(
 
     private fun euxNavIdenBearerTokenInterceptor(clientProperties: ClientProperties, oAuth2AccessTokenService: OAuth2AccessTokenService): ClientHttpRequestInterceptor {
         return ClientHttpRequestInterceptor { request: HttpRequest, body: ByteArray?, execution: ClientHttpRequestExecution ->
+
+            val navidentTokenFromUI = getToken(tokenValidationContextHolder).tokenAsString
             try {
                 logger.info("NAVIdent: ${getClaims(tokenValidationContextHolder).get("NAVident")?.toString()}")
-                logger.info("token: ${getToken(tokenValidationContextHolder).tokenAsString}")
+                logger.info("token: $navidentTokenFromUI")
             } catch (ex: Exception) { }
 
             val tokenClient: AzureAdOnBehalfOfTokenClient = AzureAdTokenClientBuilder.builder()
@@ -137,10 +138,10 @@ class RestTemplateConfig(
 
             val accessToken: String = tokenClient.exchangeOnBehalfOfToken(
                 "api://$euxClientId/.default",
-                "<access_token>"
+                navidentTokenFromUI
             )
 
-            logger.info("NAVIdent til eux: ${JWTClaimsSet.parse(accessToken).claims.get("NAVident")?.toString()} ")
+//            logger.info("NAVIdent til eux: ${JWTClaimsSet.parse(accessToken).claims.get("NAVident")?.toString()} ")
             logger.info("On Behalf accessToken: $accessToken")
 
 //            val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
