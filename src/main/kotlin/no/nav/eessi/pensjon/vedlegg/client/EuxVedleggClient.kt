@@ -4,7 +4,13 @@ import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.*
+import org.springframework.http.ContentDisposition
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.bind.annotation.ResponseStatus
@@ -19,8 +25,8 @@ import java.util.*
 import javax.annotation.PostConstruct
 
 @Component
-class EuxVedleggClient(private val euxOidcRestTemplate: RestTemplate,
-                @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())) {
+class EuxVedleggClient(private val euxNavIdentRestTemplate: RestTemplate,
+                       @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())) {
 
     private val logger = LoggerFactory.getLogger(EuxVedleggClient::class.java)
 
@@ -72,7 +78,7 @@ class EuxVedleggClient(private val euxOidcRestTemplate: RestTemplate,
 
             restTemplateErrorhandler(
                     {
-                        euxOidcRestTemplate.exchange(
+                        euxNavIdentRestTemplate.exchange(
                                 queryUrl,
                                 HttpMethod.POST,
                                 requestEntity,

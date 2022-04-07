@@ -5,6 +5,10 @@ import no.nav.eessi.pensjon.logging.RequestResponseLoggerInterceptor
 import no.nav.security.token.support.client.core.ClientProperties
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService
 import no.nav.security.token.support.client.spring.ClientConfigurationProperties
+import no.nav.security.token.support.core.context.TokenValidationContextHolder
+import no.nav.security.token.support.core.jwt.JwtToken
+import no.nav.security.token.support.core.jwt.JwtTokenClaims
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
@@ -18,13 +22,18 @@ import org.springframework.http.client.SimpleClientHttpRequestFactory
 import org.springframework.web.client.DefaultResponseErrorHandler
 import org.springframework.web.client.RestTemplate
 import java.time.Duration
+import java.util.*
 
 
 @Configuration
 @Profile("prod", "test")
 class RestTemplateConfig(
     private val clientConfigurationProperties: ClientConfigurationProperties,
-    private val oAuth2AccessTokenService: OAuth2AccessTokenService) {
+    private val oAuth2AccessTokenService: OAuth2AccessTokenService,
+    private val tokenValidationContextHolder: TokenValidationContextHolder) {
+
+    private val logger = LoggerFactory.getLogger(RestTemplateConfig::class.java)
+
 
     @Value("\${EESSIPEN_EUX_RINA_URL}")
     lateinit var euxUrl: String
@@ -47,17 +56,17 @@ class RestTemplateConfig(
     @Value("\${SAF_HENTDOKUMENT_URL}")
     lateinit var hentRestUrl: String
 
-
+    //Dette var den gamle euxOidcResttemplaten
     @Bean
-    fun euxOidcRestTemplate(): RestTemplate = restTemplate(euxUrl, bearerTokenInterceptor(clientProperties("eux-credentials"), oAuth2AccessTokenService!!))
+    fun euxNavIdentRestTemplate(): RestTemplate = restTemplate(euxUrl, euxNavIdenBearerTokenInterceptor(clientProperties("eux-credentials"), oAuth2AccessTokenService!!))
 
+    //Dette var den gamle euxUsernameOidcRestTemplate
     @Bean
-    fun euxUsernameOidcRestTemplate() = restTemplate(euxUrl, bearerTokenInterceptor(clientProperties("eux-credentials"), oAuth2AccessTokenService!!))
+    fun euxSystemRestTemplate() = restTemplate(euxUrl, bearerTokenInterceptor(clientProperties("eux-credentials"), oAuth2AccessTokenService!!))
 
     @Bean
     fun proxyOAuthRestTemplate() = restTemplate(proxyUrl, bearerTokenInterceptor(clientProperties("proxy-credentials"), oAuth2AccessTokenService!!))
 
-//    @Profile("prod", "test")
     @Bean
     fun prefillOAuthTemplate() = restTemplate(prefillUrl, bearerTokenInterceptor(clientProperties("prefill-credentials"), oAuth2AccessTokenService!!))
 
@@ -108,6 +117,49 @@ class RestTemplateConfig(
 //            logger.info("subject: " + JWTClaimsSet.parse(Base64.getDecoder().decode(tokenBody).decodeToString()).subject)
             execution.execute(request, body!!)
         }
+    }
+
+    private fun euxNavIdenBearerTokenInterceptor(
+        clientProperties: ClientProperties,
+        oAuth2AccessTokenService: OAuth2AccessTokenService
+    ): ClientHttpRequestInterceptor {
+        logger.info("NAVIdent: ${getClaims(tokenValidationContextHolder).get("NAVident")?.toString()}")
+        logger.info("token: ${getToken(tokenValidationContextHolder).tokenAsString}")
+
+        return ClientHttpRequestInterceptor { request: HttpRequest, body: ByteArray?, execution: ClientHttpRequestExecution ->
+            val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
+            request.headers.setBearerAuth(response.accessToken)
+            logger.info("accessToken: ${response.accessToken}")
+            execution.execute(request, body!!)
+        }
+    }
+
+    private fun getClaims(tokenValidationContextHolder: TokenValidationContextHolder): JwtTokenClaims {
+        val context = tokenValidationContextHolder.tokenValidationContext
+        if(context.issuers.isEmpty())
+            throw RuntimeException("No issuer found in context")
+
+        val validIssuer = context.issuers.filterNot { issuer ->
+            val oidcClaims = context.getClaims(issuer)
+            oidcClaims.expirationTime.before(Date())
+        }.map { it }
+
+
+        if (validIssuer.isNotEmpty()) {
+            val issuer = validIssuer.first()
+            return context.getClaims(issuer)
+        }
+        throw RuntimeException("No valid issuer found in context")
+
+    }
+
+    private fun getToken(tokenValidationContextHolder: TokenValidationContextHolder): JwtToken {
+        val context = tokenValidationContextHolder.tokenValidationContext
+        if(context.issuers.isEmpty())
+            throw RuntimeException("No issuer found in context")
+        val issuer = context.issuers.first()
+
+        return context.getJwtToken(issuer)
     }
 
 }

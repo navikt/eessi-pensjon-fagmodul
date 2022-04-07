@@ -28,14 +28,17 @@ class VedleggControllerSpringTest {
     @MockkBean(name = "prefillOAuthTemplate")
     private lateinit var prefillOAuthTemplate: RestTemplate
 
-    @MockkBean(name = "euxOidcRestTemplate")
-    private lateinit var restTemplate: RestTemplate
+    @MockkBean(name = "euxNavIdentRestTemplate")
+    private lateinit var euxNavIdentRestTemplate: RestTemplate
 
-    @MockkBean(name = "euxUsernameOidcRestTemplate")
-    private lateinit var euxUserNameRestTemplate: RestTemplate
+    @MockkBean(name = "euxSystemRestTemplate")
+    private lateinit var euxSystemRestTemplate: RestTemplate
 
     @MockkBean(name = "safGraphQlOidcRestTemplate")
     private lateinit var restSafTemplate: RestTemplate
+
+    @MockkBean(name = "proxyOAuthRestTemplate")
+    private lateinit var proxyOAuthRestTemplate: RestTemplate
 
     @MockkBean(name = "safRestOidcRestTemplate")
     private lateinit var safRestOidcRestTemplate: RestTemplate

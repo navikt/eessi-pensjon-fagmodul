@@ -31,10 +31,10 @@ class PesysIntegrationSpringTest {
     @MockkBean(name = "prefillOAuthTemplate")
     private lateinit var prefillOAuthTemplate: RestTemplate
 
-    @MockkBean(name = "euxOidcRestTemplate")
+    @MockkBean(name = "euxNavIdentRestTemplate")
     private lateinit var euxRestOidcTemplate: RestTemplate
 
-    @MockkBean(name = "euxUsernameOidcRestTemplate")
+    @MockkBean(name = "euxSystemRestTemplate")
     private lateinit var restTemplate: RestTemplate
 
     @MockkBean(name = "safGraphQlOidcRestTemplate")

@@ -51,10 +51,10 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
     @MockkBean(name = "prefillOAuthTemplate")
     private lateinit var prefillOAuthTemplate: RestTemplate
 
-    @MockkBean(name = "euxOidcRestTemplate")
+    @MockkBean(name = "euxNavIdentRestTemplate")
     private lateinit var restEuxTemplate: RestTemplate
 
-    @MockkBean(name = "euxUsernameOidcRestTemplate")
+    @MockkBean(name = "euxSystemRestTemplate")
     private lateinit var euxUsernameOidcRestTemplate: RestTemplate
 
     @MockkBean(name = "safGraphQlOidcRestTemplate")
