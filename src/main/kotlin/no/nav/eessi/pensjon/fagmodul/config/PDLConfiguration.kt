@@ -35,7 +35,6 @@ class PDLConfiguration(private val tokenValidationContextHolder: TokenValidation
             "api://$pdlClientId/.default",
             navidentTokenFromUI
         )
-        println("PDL token on Behalf: $accessToken")
 
         return PdlTokenImp(accessToken)
     }

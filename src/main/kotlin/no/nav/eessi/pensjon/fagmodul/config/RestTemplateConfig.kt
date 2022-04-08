@@ -38,6 +38,9 @@ class RestTemplateConfig(
     @Value("\${AZURE_APP_EUX_CLIENT_ID}")
     lateinit var euxClientId: String
 
+    @Value("\${AZURE_APP_PREFILL_CLIENT_ID}")
+    lateinit var prefillClientId: String
+
     @Value("\${EESSIPEN_EUX_RINA_URL}")
     lateinit var euxUrl: String
 
@@ -61,29 +64,30 @@ class RestTemplateConfig(
 
     //Dette var den gamle euxOidcResttemplaten
     @Bean
-    fun euxNavIdentRestTemplate(): RestTemplate = restTemplate(euxUrl, euxNavIdenBearerTokenInterceptor(clientProperties("eux-credentials"), oAuth2AccessTokenService!!))
+    fun euxNavIdentRestTemplate(): RestTemplate = restTemplate(euxUrl, onBehalfOfBearerTokenInterceptor(euxClientId))
 
     //Dette var den gamle euxUsernameOidcRestTemplate
     @Bean
-    fun euxSystemRestTemplate() = restTemplate(euxUrl, bearerTokenInterceptor(clientProperties("eux-credentials"), oAuth2AccessTokenService!!))
+    fun euxSystemRestTemplate() = restTemplate(euxUrl, oAuth2BearerTokenInterceptor(clientProperties("eux-credentials"), oAuth2AccessTokenService!!))
 
     @Bean
-    fun proxyOAuthRestTemplate() = restTemplate(proxyUrl, bearerTokenInterceptor(clientProperties("proxy-credentials"), oAuth2AccessTokenService!!))
+    fun proxyOAuthRestTemplate() = restTemplate(proxyUrl, oAuth2BearerTokenInterceptor(clientProperties("proxy-credentials"), oAuth2AccessTokenService!!))
 
     @Bean
-    fun prefillOAuthTemplate() = restTemplate(prefillUrl, bearerTokenInterceptor(clientProperties("prefill-credentials"), oAuth2AccessTokenService!!))
+    fun prefillOAuthTemplate() = restTemplate(prefillUrl, onBehalfOfBearerTokenInterceptor(prefillClientId))
+    //fun prefillOAuthTemplate() = restTemplate(prefillUrl, bearerTokenInterceptor(clientProperties("prefill-credentials"), oAuth2AccessTokenService!!))
 
     @Bean
-    fun kodeRestTemplate() = restTemplate(kodeverkUrl, bearerTokenInterceptor(clientProperties("proxy-credentials"), oAuth2AccessTokenService!!))
+    fun kodeRestTemplate() = restTemplate(kodeverkUrl, oAuth2BearerTokenInterceptor(clientProperties("proxy-credentials"), oAuth2AccessTokenService!!))
 
     @Bean
-    fun pensjonsinformasjonOidcRestTemplate() = restTemplate(pensjonUrl, bearerTokenInterceptor(clientProperties("proxy-credentials"), oAuth2AccessTokenService!!))
+    fun pensjonsinformasjonOidcRestTemplate() = restTemplate(pensjonUrl, oAuth2BearerTokenInterceptor(clientProperties("proxy-credentials"), oAuth2AccessTokenService!!))
 
     @Bean
-    fun safGraphQlOidcRestTemplate() = restTemplate(graphQlUrl, bearerTokenInterceptor(clientProperties("saf-credentials"), oAuth2AccessTokenService!!))
+    fun safGraphQlOidcRestTemplate() = restTemplate(graphQlUrl, oAuth2BearerTokenInterceptor(clientProperties("saf-credentials"), oAuth2AccessTokenService!!))
 
     @Bean
-    fun safRestOidcRestTemplate() = restTemplate(hentRestUrl, bearerTokenInterceptor(clientProperties("saf-credentials"), oAuth2AccessTokenService!!))
+    fun safRestOidcRestTemplate() = restTemplate(hentRestUrl, oAuth2BearerTokenInterceptor(clientProperties("saf-credentials"), oAuth2AccessTokenService!!))
 
 
     private fun restTemplate(url: String, tokenIntercetor: ClientHttpRequestInterceptor?) : RestTemplate {
@@ -108,49 +112,37 @@ class RestTemplateConfig(
     private fun clientProperties(oAuthKey: String): ClientProperties = clientConfigurationProperties.registration[oAuthKey]
         ?: throw RuntimeException("could not find oauth2 client config for $oAuthKey")
 
-    private fun bearerTokenInterceptor(
+    private fun oAuth2BearerTokenInterceptor(
         clientProperties: ClientProperties,
         oAuth2AccessTokenService: OAuth2AccessTokenService
     ): ClientHttpRequestInterceptor? {
         return ClientHttpRequestInterceptor { request: HttpRequest, body: ByteArray?, execution: ClientHttpRequestExecution ->
             val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
             request.headers.setBearerAuth(response.accessToken)
-//            val tokenChunks = response.accessToken.split(".")
-//            val tokenBody =  tokenChunks[1]
-//            logger.info("subject: " + JWTClaimsSet.parse(Base64.getDecoder().decode(tokenBody).decodeToString()).subject)
             execution.execute(request, body!!)
         }
     }
 
-    private fun euxNavIdenBearerTokenInterceptor(clientProperties: ClientProperties, oAuth2AccessTokenService: OAuth2AccessTokenService): ClientHttpRequestInterceptor {
+    private fun onBehalfOfBearerTokenInterceptor(clientId: String): ClientHttpRequestInterceptor {
         return ClientHttpRequestInterceptor { request: HttpRequest, body: ByteArray?, execution: ClientHttpRequestExecution ->
-
             val navidentTokenFromUI = getToken(tokenValidationContextHolder).tokenAsString
-            try {
-                logger.info("NAVIdent: ${getClaims(tokenValidationContextHolder).get("NAVident")?.toString()}")
-                logger.info("token: $navidentTokenFromUI")
-            } catch (ex: Exception) { }
+
+            logger.info("NAVIdent: ${getClaims(tokenValidationContextHolder).get("NAVident")?.toString()}")
 
             val tokenClient: AzureAdOnBehalfOfTokenClient = AzureAdTokenClientBuilder.builder()
                 .withNaisDefaults()
                 .buildOnBehalfOfTokenClient()
 
             val accessToken: String = tokenClient.exchangeOnBehalfOfToken(
-                "api://$euxClientId/.default",
+                "api://$clientId/.default",
                 navidentTokenFromUI
             )
 
-//            logger.info("NAVIdent til eux: ${JWTClaimsSet.parse(accessToken).claims.get("NAVident")?.toString()} ")
-            logger.info("On Behalf accessToken: $accessToken")
-
-//            val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
-//            request.headers.setBearerAuth(response.accessToken)
             request.headers.setBearerAuth(accessToken)
             execution.execute(request, body!!)
         }
+
     }
-
-
 
 }
 
