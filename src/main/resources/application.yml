@@ -8,9 +8,6 @@ no.nav.security.jwt:
     aad:
       discoveryurl: ${AZURE_APP_WELL_KNOWN_URL}
       accepted_audience: ${AZURE_APP_CLIENT_ID}
-    servicebruker:
-      discoveryurl: ${security-token-service-openid-configuration_url}
-      accepted_audience: 'srvpensjon'
   client:
     registration:
       prefill-credentials:
@@ -83,15 +80,6 @@ spring:
     web:
       server:
         auto-time-requests: true
-
-eessi:
-#  pensjon_lokalnavn: 'NOINST002, NO INST002, NO'
-#  pensjon_lokalnavn: ''
-  pensjon_adresse_gate: 'Postboks 6600 Etterstad'
-  pensjon_adresse_by:   'Oslo'
-  pensjon_adresse_postnummer: '0607'
-  pensjon_adresse_land: 'NO'
-
 
 #Embedded tomcat
 server:
