@@ -9,9 +9,8 @@ no.nav.security.jwt:
       discoveryurl: ${AZURE_APP_WELL_KNOWN_URL}
       accepted_audience: ${AZURE_APP_CLIENT_ID}
     servicebruker:
-      discoveryurl: '${security-token-service-openid-configuration_url}'
+      discoveryurl: ${security-token-service-openid-configuration_url}
       accepted_audience: 'srvpensjon'
-
   client:
     registration:
       prefill-credentials:
