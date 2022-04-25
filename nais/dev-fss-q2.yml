@@ -72,20 +72,6 @@ spec:
   ingresses:
     - https://eessi-pensjon-fagmodul-q2.nais.preprod.local
     - https://eessi-pensjon-fagmodul-q2.dev-fss-pub.nais.io
-  liveness:
-    path: /internal/isalive
-    port: 8080
-    initialDelay: 40
-    failureThreshold: 10
-  port: 8080
-  prometheus:
-    enabled: true
-    path: /actuator/prometheus
-  readiness:
-    path: /internal/isready
-    port: 8080
-    initialDelay: 40
-    failureThreshold: 10
   replicas:
     min: 1
     max: 1
