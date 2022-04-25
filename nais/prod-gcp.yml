@@ -1,0 +1,114 @@
+kind: Application
+apiVersion: nais.io/v1alpha1
+metadata:
+  name: eessi-pensjon-fagmodul
+  namespace: eessipensjon
+  labels:
+    team: eessipensjon
+spec:
+  kafka:
+    pool: nav-prod
+  envFrom:
+    - secret: fagmodul-prod #secret name in Google Secret Manager
+  azure:
+    application:
+      enabled: true
+      claims:
+        extra:
+          - NAVident
+  accessPolicy:
+    outbound:
+      rules:
+        - application: eessi-pensjon-prefill
+          namespace: eessipensjon
+          cluster: prod-gcp
+        - application: eessi-pensjon-onprem-proxy
+          namespace: eessipensjon
+          cluster: prod-fss
+    inbound:
+      rules:
+        - application: eessi-pensjon-frontend-ui-fss
+          namespace: eessipensjon
+          cluster: prod-gcp
+        - application: eessi-pensjon-frontend-api-fss
+          namespace: eessipensjon
+          cluster: prod-gcp
+        - application: eessi-pensjon-journalforing
+          namespace: eessipensjon
+          cluster: prod-gcp
+        - application: eessi-pensjon-onprem-proxy
+          namespace: eessipensjon
+          cluster: prod-fss
+  webproxy: true
+  env:
+    - name: SPRING_PROFILES_ACTIVE
+      value: prod
+    - name: PENSJONSINFORMASJON_URL
+      value: https://eessi-pensjon-onprem-proxy.prod-fss-pub.nais.io/pen/api/pensjonsinformasjon/v1
+    - name: EESSIPEN_EUX_RINA_URL
+      value: https://eux-rina-api.prod-fss-pub.nais.io/cpi
+    - name: EESSIPENSJON_PREFILL_GCP_URL
+      value: https://eessi-pensjon-prefill.intern.nav.no
+    - name: RINA_HOST_URL
+      value: rina-ss1.adeo.no
+    - name: SAF_GRAPHQL_URL
+      value: https://saf.prod-fss-pub.nais.io/graphql
+    - name: SAF_HENTDOKUMENT_URL
+      value: https://saf.prod-fss-pub.nais.io/rest/hentdokument
+    - name: PDL_URL
+      value: https://pdl-api.prod-fss-pub.nais.io/graphql
+    - name: ONPREM_KAFKA_BOOTSTRAP_SERVERS_URL
+      value: SASL_SSL://a01apvl00145.adeo.no:8443,SASL_SSL://a01apvl00146.adeo.no:8443,SASL_SSL://a01apvl00147.adeo.no:8443,SASL_SSL://a01apvl00149.adeo.no:8443
+    - name: KAFKA_STATISTIKK_TOPICNAME
+      value: eessipensjon.privat-statistikk
+    - name: KAFKA_AUTOMATISERING_TOPIC
+      value: eessipensjon.public-automatisering
+    - name: KODEVERK_REST_API_URL
+      value: https://eessi-pensjon-onprem-proxy.prod-fss-pub.nais.io
+    - name: EESSI_PEN_ONPREM_PROXY_URL
+      value: https://eessi-pensjon-onprem-proxy.prod-fss-pub.nais.io
+    - name: EESSI_PENSJON_INSTITUSJON
+      value: NO:889640782
+    - name: EESSI_PENSJON_INSTITUSJON_NAVN
+      value: "The Norwegian Labour and Welfare Administration"
+    - name: AZURE_APP_PDL_CLIENT_ID
+      value: prod-fss.pdl.pdl-api
+    - name: AZURE_APP_PREFILL_CLIENT_ID
+      value: prod-gcp.eessipensjon.eessi-pensjon-prefill
+    - name: AZURE_APP_EUX_CLIENT_ID
+      value: prod-fss.eessibasis.eux-rina-api
+    - name: AZURE_APP_PROXY_CLIENT_ID
+      value: prod-fss.eessipensjon.eessi-pensjon-onprem-proxy
+    - name: AZURE_APP_SAF_CLIENT_ID
+      value: prod-fss.teamdokumenthandtering.saf
+
+    - name: ENV
+      value: p
+  image: {{ image }}
+  ingresses:
+    - https://eessi-pensjon-fagmodul.intern.nav.no
+  liveness:
+    path: /internal/isalive
+    port: 8080
+    initialDelay: 40
+    failureThreshold: 10
+  port: 8080
+  prometheus:
+    enabled: true
+    path: /actuator/prometheus
+  readiness:
+    path: /internal/isready
+    port: 8080
+    initialDelay: 40
+    failureThreshold: 10
+  replicas:
+    min: 1
+    max: 1
+    cpuThresholdPercentage: 80
+  resources:
+    limits:
+      cpu: "4"
+      memory: 8096Mi
+    requests:
+      cpu: 400m
+      memory: 4024Mi

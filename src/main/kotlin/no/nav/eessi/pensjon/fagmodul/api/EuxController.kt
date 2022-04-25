@@ -51,19 +51,6 @@ class EuxController(
         euxInstitusjoner  = metricsHelper.init("euxInstitusjoner", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
     }
 
-
-//    @Deprecated("Utgåår benytt /rinaurl/buc/{rinanr}", ReplaceWith("getRinaUrl2020"))
-//    @GetMapping("/rinaurl2")
-//    @Operation(description = "direkte URL til RINA")
-//    fun getRinaURL(): ResponseEntity<Map<String, String>> {
-//        if (environment == "q1") {
-//            //RINA2020
-//            return ResponseEntity.ok(mapOf("rinaUrl" to "https://$rinaUrl/portal_new/case-management/"))
-//        }
-//        //RINA2019
-//        return ResponseEntity.ok(mapOf("rinaUrl" to "https://$rinaUrl/portal/#/caseManagement/"))
-//    }
-
     @Unprotected
     @GetMapping("/rinaurl")
     @Operation(description = "direkte URL til RINA")
