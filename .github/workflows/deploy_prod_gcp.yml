@@ -1,4 +1,4 @@
-name: Deploy PROD
+name: Deploy PROD GCP
 on:
   repository_dispatch:
     types: [deploy-prod]
