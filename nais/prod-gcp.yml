@@ -27,12 +27,12 @@ spec:
           cluster: prod-fss
     inbound:
       rules:
-        - application: eessi-pensjon-frontend-ui-fss
+        - application: eessi-pensjon-frontend-ui
           namespace: eessipensjon
           cluster: prod-gcp
-        - application: eessi-pensjon-frontend-api-fss
-          namespace: eessipensjon
-          cluster: prod-gcp
+#        - application: eessi-pensjon-frontend-api-fss
+#          namespace: eessipensjon
+#          cluster: prod-gcp
         - application: eessi-pensjon-journalforing
           namespace: eessipensjon
           cluster: prod-gcp
@@ -67,10 +67,6 @@ spec:
       value: https://eessi-pensjon-onprem-proxy.prod-fss-pub.nais.io
     - name: EESSI_PEN_ONPREM_PROXY_URL
       value: https://eessi-pensjon-onprem-proxy.prod-fss-pub.nais.io
-    - name: EESSI_PENSJON_INSTITUSJON
-      value: NO:889640782
-    - name: EESSI_PENSJON_INSTITUSJON_NAVN
-      value: "The Norwegian Labour and Welfare Administration"
     - name: AZURE_APP_PDL_CLIENT_ID
       value: prod-fss.pdl.pdl-api
     - name: AZURE_APP_PREFILL_CLIENT_ID

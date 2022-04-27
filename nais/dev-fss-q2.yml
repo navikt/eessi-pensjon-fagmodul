@@ -60,10 +60,6 @@ spec:
       value: eessipensjon.public-automatisering-q2
     - name: KODEVERK_REST_API_URL
       value: https://kodeverk.nais.adeo.no
-    - name: EESSI_PENSJON_INSTITUSJON
-      value: NO:NAVAT07
-    - name: EESSI_PENSJON_INSTITUSJON_NAVN
-      value: NAV ACCEPTANCE TEST 07
     - name: AZURE_APP_PREFILL_CLIENT_ID
       value: dev-gcp.eessipensjon.eessi-pensjon-prefill-q2
     - name: ENV

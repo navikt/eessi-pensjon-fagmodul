@@ -67,10 +67,6 @@ spec:
       value: https://eessi-pensjon-onprem-proxy-q2.dev-fss-pub.nais.io
     - name: EESSI_PEN_ONPREM_PROXY_URL
       value: https://eessi-pensjon-onprem-proxy-q2.dev-fss-pub.nais.io
-    - name: EESSI_PENSJON_INSTITUSJON
-      value: NO:NAVAT07
-    - name: EESSI_PENSJON_INSTITUSJON_NAVN
-      value: NAV ACCEPTANCE TEST 07
     - name: AZURE_APP_PDL_CLIENT_ID
       value: dev-fss.pdl.pdl-api
     - name: AZURE_APP_PREFILL_CLIENT_ID
