@@ -81,7 +81,6 @@ spec:
       value: prod-fss.eessipensjon.eessi-pensjon-onprem-proxy
     - name: AZURE_APP_SAF_CLIENT_ID
       value: prod-fss.teamdokumenthandtering.saf
-
     - name: ENV
       value: p
   image: {{ image }}
