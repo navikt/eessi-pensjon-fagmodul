@@ -60,7 +60,7 @@ jobs:
         with:
           token: ${{ secrets.DISPATCH_TOKEN }}
           repository: ${{ github.repository }}
-          event-type: deploy-prod
+          event-type: deploy-prod-gcp
           client-payload: '{"image": "${{ env.IMAGE }}"}'
 #
 #      - name: 'Repository Dispatch Q1'
