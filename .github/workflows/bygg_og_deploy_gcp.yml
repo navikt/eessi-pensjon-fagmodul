@@ -42,7 +42,7 @@ jobs:
           docker push ${{ env.IMAGE }}
 
       # DEPLOYER TIL NAIS -Q2
-      - name: 'Deploy to NAIS'
+      - name: 'Deploy to Q2 GCP'
         uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
