@@ -30,7 +30,7 @@ spec:
         - application: eessi-pensjon-frontend-ui-q2
           namespace: eessipensjon
           cluster: dev-gcp
-        - application: eessi-pensjon-frontend-api-q2
+        - application: eessi-pensjon-saksbehandling-api-q2
           namespace: eessipensjon
           cluster: dev-gcp
         - application: eessi-pensjon-journalforing-q2
