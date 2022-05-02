@@ -27,10 +27,10 @@ spec:
           cluster: prod-fss
     inbound:
       rules:
-        - application: eessi-pensjon-frontend-ui-fss
+        - application: eessi-pensjon-frontend-ui
           namespace: eessipensjon
           cluster: prod-gcp
-        - application: eessi-pensjon-frontend-api-fss
+        - application: eessi-pensjon-saksbehandling-api
           namespace: eessipensjon
           cluster: prod-gcp
         - application: eessi-pensjon-journalforing
