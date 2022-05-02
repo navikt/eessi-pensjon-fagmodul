@@ -27,10 +27,10 @@ spec:
           cluster: dev-fss
     inbound:
       rules:
-        - application: eessi-pensjon-frontend-ui-fss-q2
+        - application: eessi-pensjon-frontend-ui-q2
           namespace: eessipensjon
           cluster: dev-gcp
-        - application: eessi-pensjon-frontend-api-fss-q2
+        - application: eessi-pensjon-frontend-api-q2
           namespace: eessipensjon
           cluster: dev-gcp
         - application: eessi-pensjon-journalforing-q2

@@ -30,9 +30,9 @@ spec:
         - application: eessi-pensjon-frontend-ui
           namespace: eessipensjon
           cluster: prod-gcp
-#        - application: eessi-pensjon-frontend-api-fss
-#          namespace: eessipensjon
-#          cluster: prod-gcp
+        - application: eessi-pensjon-frontend-api
+          namespace: eessipensjon
+          cluster: prod-gcp
         - application: eessi-pensjon-journalforing
           namespace: eessipensjon
           cluster: prod-gcp
