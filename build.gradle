@@ -10,13 +10,7 @@ buildscript {
         logstashLogbackVersion = '7.0.1'
         pensjonInformasjonVersion = '9.4.10'
         eppersonoppslagVersion = '9.0.11'
-        epeuxVersion = '1.1.+'
-        epMetricsVersion = "0.4.+"
-        epSecurityVersion ="0.0.+"
-        epLoggingVersion ="1.0.+"
         archunitVersion = '0.22.0'
-        pensjonInformasjonVersion = '9.4.10'
-        eppersonoppslagVersion = '8.2.+'
         epeuxVersion = '1.+'
         epMetricsVersion = '0.4.+'
         epSecurityVersion = '0.0.22'
