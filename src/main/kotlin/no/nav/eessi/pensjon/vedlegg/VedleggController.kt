@@ -1,7 +1,6 @@
 package no.nav.eessi.pensjon.vedlegg
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
-import io.swagger.v3.oas.annotations.Operation
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.utils.errorBody
@@ -37,7 +36,6 @@ class VedleggController(private val vedleggService: VedleggService,
         VedleggControllerInnhold = metricsHelper.init("VedleggControllerInnhold", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
     }
 
-    @Operation(description = "Henter metadata for alle dokumenter i alle journalposter for en gitt aktørid")
     @GetMapping("/metadata/{aktoerId}")
     fun hentDokumentMetadata(@PathVariable("aktoerId", required = true) aktoerId: String): ResponseEntity<String> {
         auditlogger.log("hentDokumentMetadata", aktoerId)
@@ -47,11 +45,9 @@ class VedleggController(private val vedleggService: VedleggService,
         }
     }
 
-    @Operation(description = "Henter ut rina IDer fra metadata, for alle dokumenter i alle journalposter for en gitt aktørid")
     @GetMapping("/rinaiderframetadata/{aktoerId}")
     fun hentRinaIderFraMetadata(@PathVariable("aktoerId", required = true) aktoerId: String) =vedleggService.hentRinaSakIderFraMetaData(aktoerId)
 
-    @Operation(description = "Henter dokumentInnhold for et JOARK dokument")
     @GetMapping("/hentdokument/{journalpostId}/{dokumentInfoId}/{variantFormat}")
     fun getDokumentInnhold(@PathVariable("journalpostId", required = true) journalpostId: String,
                            @PathVariable("dokumentInfoId", required = true) dokumentInfoId: String,
@@ -64,7 +60,6 @@ class VedleggController(private val vedleggService: VedleggService,
         }
     }
 
-    @Operation(description = "Legger til et vedlegg for det gitte dokumentet")
     @PutMapping("/vedlegg/{aktoerId}/{rinaSakId}/{rinaDokumentId}/{joarkJournalpostId}/{joarkDokumentInfoId}/{variantFormat}")
     fun putVedleggTilDokument(@PathVariable("aktoerId", required = true) aktoerId: String,
                               @PathVariable("rinaSakId", required = true) rinaSakId: String,

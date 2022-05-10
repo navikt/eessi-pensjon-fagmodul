@@ -1,7 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
-import io.swagger.v3.oas.annotations.Operation
 import no.nav.eessi.pensjon.eux.model.buc.BucType
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
@@ -19,7 +18,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.client.HttpStatusCodeException
@@ -53,21 +51,17 @@ class EuxController(
 
     @Unprotected
     @GetMapping("/rinaurl")
-    @Operation(description = "direkte URL til RINA")
-    fun getRinaUrl2020(@RequestHeader("Authorization") auth: String) : ResponseEntity<Map<String, String>> {
-        logger.debug("authToken: $auth")
+    fun getRinaUrl2020() : ResponseEntity<Map<String, String>> {
         return ResponseEntity.ok(mapOf("rinaUrl" to euxInnhentingService.getRinaUrl()))
     }
 
     @Protected
-    @Operation(description = "henter liste over subject")
     @GetMapping("/subjectarea")
     fun getSubjectArea(): List<String> {
         return listOf("Pensjon")
     }
 
     @Protected
-    @Operation(description = "henter liste over alle tilknyttete land i valgt BUC")
     @GetMapping("/countries/{buctype}")
     fun getPaakobledeland(@PathVariable(value = "buctype") bucType: BucType): ResponseEntity<String> {
         return paakobledeland.measure {
@@ -90,7 +84,6 @@ class EuxController(
     }
 
     @Protected
-    @Operation(description = "Henter ut en liste over landkoder ut fra kodeverktjenesten eux")
     @GetMapping( "/landkoder")
     fun getCountryCode(): List<String> {
         return euxKodeverkLand.measure {
@@ -100,7 +93,6 @@ class EuxController(
     }
 
     @Protected
-    @Operation(description = "Henter ut en liste over kodeverk fra eux")
     @GetMapping( "/kodeverk/{kodeverk}")
     fun getKodeverk(@PathVariable("kodeverk", required = true) kodeverk: Kodeverk): List<KodeverkResponse> {
         return euxKodeverk.measure {
@@ -110,7 +102,6 @@ class EuxController(
     }
 
     @Protected
-    @Operation(description = "Henter ut en liste over registrerte institusjoner innenfor spesifiserte EU-land. ny api kall til eux")
     @GetMapping("/institutions/{buctype}", "/institutions/{buctype}/{countrycode}")
     fun getEuxInstitusjoner(
         @PathVariable("buctype", required = true) buctype: String,

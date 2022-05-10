@@ -1,7 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
-import io.swagger.v3.oas.annotations.Operation
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.BucType
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedSubject
@@ -65,11 +64,9 @@ class BucController(
     }
 
 
-    @Operation(description = "henter liste av alle tilgjengelige BuC-typer")
     @GetMapping("/bucs/{sakId}", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getBucs(@PathVariable(value = "sakId", required = false) sakId: String? = "") = validBucAndSed.initSedOnBuc().keys.map { it }.toList()
 
-    @Operation(description = "Henter opp hele BUC på valgt caseid")
     @GetMapping("/{rinanr}")
     fun getBuc(@PathVariable(value = "rinanr", required = true) rinanr: String): Buc {
         auditlogger.log("getBuc")
@@ -77,7 +74,6 @@ class BucController(
         return euxInnhentingService.getBuc(rinanr)
     }
 
-    @Operation(description = "Viser prosessnavnet (f.eks P_BUC_01) på den valgte BUCen")
     @GetMapping("/{rinanr}/name",  produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getProcessDefinitionName(@PathVariable(value = "rinanr", required = true) rinanr: String): String? {
 
@@ -85,7 +81,6 @@ class BucController(
         return euxInnhentingService.getBuc(rinanr).processDefinitionName
     }
 
-    @Operation(description = "Henter opp den opprinelige inststusjon på valgt caseid (type)")
     @GetMapping("/{rinanr}/creator",  produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getCreator(@PathVariable(value = "rinanr", required = true) rinanr: String): Creator? {
 
@@ -93,7 +88,6 @@ class BucController(
         return euxInnhentingService.getBuc(rinanr).creator
     }
 
-    @Operation(description = "Henter BUC deltakere")
     @GetMapping("/{rinanr}/bucdeltakere",  produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getBucDeltakere(@PathVariable(value = "rinanr", required = true) rinanr: String): String {
         auditlogger.log("getBucDeltakere")
@@ -101,7 +95,6 @@ class BucController(
         return mapAnyToJson(euxInnhentingService.getBucDeltakere(rinanr))
     }
 
-    @Operation(description = "Henter alle gyldige sed på valgt rinanr")
     @GetMapping("/{rinanr}/allDocuments",  produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getAllDocuments(@PathVariable(value = "rinanr", required = true) rinanr: String): List<DocumentsItem> {
         auditlogger.logBuc("getAllDocuments", rinanr)
@@ -110,7 +103,6 @@ class BucController(
         return BucUtils(buc).getAllDocuments()
     }
 
-    @Operation(description = "Henter opp mulige aksjon(er) som kan utføres på valgt buc")
     @GetMapping("/{rinanr}/aksjoner")
     fun getMuligeAksjoner(@PathVariable(value = "rinanr", required = true) rinanr: String): List<SedType> {
         logger.debug("Henter ut muligeaksjoner på valgt buc med rinanummer: $rinanr")
@@ -118,7 +110,6 @@ class BucController(
         return bucUtil.filterSektorPandRelevantHorizontalAndXSeds(bucUtil.getSedsThatCanBeCreated())
     }
 
-    @Operation(description = "Henter ut en liste over saker på valgt aktoerid. ny api kall til eux")
     @GetMapping("/rinasaker/{aktoerId}")
     fun getRinasaker(@PathVariable("aktoerId", required = true) aktoerId: String): List<Rinasak> {
         auditlogger.log("getRinasaker", aktoerId)
@@ -130,7 +121,6 @@ class BucController(
         return euxInnhentingService.getRinasaker(norskIdent, rinaSakIderFraJoark)
     }
 
-    @Operation(description = "Henter ut liste av Buc meny struktur i json format for UI på valgt aktoerid")
     @Deprecated("Utgaar snart", ReplaceWith("getGjenlevendeRinasakerVedtak"))
     @GetMapping("/detaljer/{aktoerid}",
         "/detaljer/{aktoerid}/saknr/{saksnr}",
@@ -164,7 +154,6 @@ class BucController(
         }
     }
 
-    @Operation(description = "Henter ut liste av Buc meny struktur i json format for UI")
     @GetMapping(
         "/detaljer/{aktoerid}/vedtak/{vedtakid}",
         "/detaljer/{aktoerid}/saknr/{saksnr}/vedtak/{vedtakid}",
@@ -191,7 +180,6 @@ class BucController(
         }
     }
 
-    @Operation(description = "Henter ut liste av Buc meny struktur i json format for UI på valgt aktoerid")
     @GetMapping(
             "/detaljer/{aktoerid}/avdod/{avdodfnr}",
             "/detaljer/{aktoerid}/avdod/{avdodfnr}/saknr/{saknr}",  produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -231,7 +219,6 @@ class BucController(
         }
     }
 
-    @Operation(description = "Henter ut enkel Buc meny struktur i json format for UI på valgt euxcaseid")
     @GetMapping("/enkeldetalj/{euxcaseid}")
     @Deprecated("Går ut", ReplaceWith("Denne går ut ny funksjon på vei inn"))
     fun getSingleBucogSedView(@PathVariable("euxcaseid", required = true) euxcaseid: String): BucAndSedView {
@@ -243,7 +230,6 @@ class BucController(
         }
     }
 
-    @Operation(description = "Henter ut en liste over saker på valgt aktoerid. ny api kall til eux")
     @GetMapping("/rinasaker/{aktoerId}/saknr/{saknr}",
         "/rinasaker/{aktoerId}/saknr/{saknr}/vedtak/{vedtakid}")
     fun getGjenlevendeRinasakerVedtak(
@@ -396,7 +382,6 @@ class BucController(
 
     }
 
-    @Operation(description = "Henter ut enkel Buc meny struktur i json format for UI på valgt euxcaseid")
     @GetMapping("/enkeldetalj/{euxcaseid}/aktoerid/{aktoerid}/saknr/{saknr}/kilde/{kilde}")
     fun getSingleBucogSedView(
         @PathVariable("euxcaseid", required = true) euxcaseid: String,
@@ -410,7 +395,6 @@ class BucController(
         }
     }
 
-    @Operation(description = "Henter ut enkel Buc meny struktur i json format for UI på valgt euxcaseid")
     @GetMapping("/enkeldetalj/{euxcaseid}/aktoerid/{aktoerid}/saknr/{saknr}/avdodfnr/{avdodfnr}/kilde/{kilde}")
     fun getSingleBucogSedViewMedAvdod(
         @PathVariable("euxcaseid", required = true) euxcaseid: String,

@@ -1,7 +1,6 @@
 package no.nav.eessi.pensjon.api.person
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
-import io.swagger.v3.oas.annotations.Operation
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.BucType
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
@@ -61,7 +60,6 @@ class PersonPDLController(
 
     }
 
-    @Operation(description = "henter ut personinformasjon for en aktørId")
     @GetMapping("/person/pdl/{aktoerid}", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getPerson(@PathVariable("aktoerid", required = true) aktoerid: String): ResponseEntity<Person> {
         auditLogger.log("getPerson", aktoerid)
@@ -72,7 +70,6 @@ class PersonPDLController(
         }
     }
 
-    @Operation(description = "henter ut alle avdøde for en aktørId og vedtaksId der aktør er gjenlevende")
     @GetMapping("/person/pdl/{aktoerId}/avdode/vedtak/{vedtaksId}", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getDeceased(
         @PathVariable("aktoerId", required = true) gjenlevendeAktoerId: String,
@@ -136,7 +133,6 @@ class PersonPDLController(
         )
     }
 
-    @Operation(description = "henter ut navn for en aktørId")
     @GetMapping("/person/pdl/info/{aktoerid}", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getNameOnly(@PathVariable("aktoerid", required = true) aktoerid: String): ResponseEntity<Personinformasjon> {
         auditLogger.log("getNameOnly", aktoerid)

@@ -2,7 +2,6 @@ package no.nav.eessi.pensjon.fagmodul.pesys
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
-import io.swagger.v3.oas.annotations.Operation
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.security.token.support.core.api.Protected
 import org.springframework.beans.factory.annotation.Autowired
@@ -33,7 +32,6 @@ class PensjonsinformasjonUtlandController(
         pensjonUtland = metricsHelper.init("pensjonUtland")
     }
 
-    @Operation(method = "GET", description = "Henter ut kravhode fra innkommende SED fra EU/EØS. Nødvendig data for å automatisk opprette et krav i Pesys")
     @GetMapping("/hentKravUtland/{bucId}")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     fun hentKravUtland(@PathVariable("bucId", required = true) bucId: Int): KravUtland {
