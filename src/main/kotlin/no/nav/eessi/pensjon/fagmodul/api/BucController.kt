@@ -19,7 +19,6 @@ import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.utils.mapAnyToJson
-import no.nav.eessi.pensjon.utils.toJson
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -239,8 +238,6 @@ class BucController(
         @PathVariable("vedtakid", required = false) vedtakId: String? = null
     ): List<BucView> {
         return bucView.measure {
-            if (vedtakId == "" || vedtakId == null) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Støtter ikke kall uten gydlig vedtaksid")
-
             val start = System.currentTimeMillis()
             //buctyper fra saf som kobles til første avdodfnr
             val safAvdodBucList = listOf(BucType.P_BUC_02, BucType.P_BUC_05, BucType.P_BUC_06, BucType.P_BUC_10)
@@ -254,10 +251,10 @@ class BucController(
             logger.info("hentRinaSakIderFraMetaData tid: ${joarkend-joarkstart} i ms")
 
             //bruker saker fra eux/rina
-            //val brukerView = euxInnhentingService.getBucViewBruker(gjenlevendeFnr, aktoerId, sakNr)
+            val brukerView = euxInnhentingService.getBucViewBruker(gjenlevendeFnr, aktoerId, sakNr)
 
             //filtert bort brukersaker fra saf
-            //val filterBrukerRinaSakIderFraJoark = rinaSakIderFraJoark.filterNot { rinaid -> rinaid in brukerView.map { it.euxCaseId }  }
+            val filterBrukerRinaSakIderFraJoark = rinaSakIderFraJoark.filterNot { rinaid -> rinaid in brukerView.map { it.euxCaseId }  }
 
             //liste over avdodfnr fra vedtak (pesys)
             val avdodlist = avdodFraVedtak(vedtakId, sakNr)
@@ -270,36 +267,36 @@ class BucController(
             //filter avdodview for match på filterBrukersakerRina
             val avdodViewSaf = avdodView
                 //.filterNot { view -> view.kilde == BucViewKilde.SAF && view.avdodFnr != null }
-                //.filter { view -> view.euxCaseId in filterBrukerRinaSakIderFraJoark }
+                .filter { view -> view.euxCaseId in filterBrukerRinaSakIderFraJoark }
                 .map { view ->
                     view.copy(kilde = BucViewKilde.SAF)
                 }
 
             //avdod saker view uten saf
-            //val avdodViewUtenSaf = avdodView.filterNot { view -> view.euxCaseId in avdodViewSaf.map { it.euxCaseId  } }
+            val avdodViewUtenSaf = avdodView.filterNot { view -> view.euxCaseId in avdodViewSaf.map { it.euxCaseId  } }
 
             //liste over saker fra saf som kan hentes
-            //val filterAvodRinaSakIderFraJoark = filterBrukerRinaSakIderFraJoark.filterNot { rinaid -> rinaid in avdodView.map { it.euxCaseId }  }
+            val filterAvodRinaSakIderFraJoark = filterBrukerRinaSakIderFraJoark.filterNot { rinaid -> rinaid in avdodView.map { it.euxCaseId }  }
 
             //saker fra saf og eux/rina
-            val safView = euxInnhentingService.getBucViewBrukerSaf(aktoerId, sakNr, rinaSakIderFraJoark)
-            logger.debug("safView : ${safView.toJson()}")
+            val safView = euxInnhentingService.getBucViewBrukerSaf(aktoerId, sakNr, filterAvodRinaSakIderFraJoark)
+//            logger.debug("safView : ${safView.toJson()}")
 
             //saf filter mot avdod
             val safViewAvdod = safView
                 .filter { view -> view.buctype in safAvdodBucList }
                 .map { view -> view.copy(avdodFnr = avdodlist.firstOrNull()) }
                 .also { if (avdodlist.size == 2) logger.warn("finnes 2 avdod men valgte første, ingen koblinger")}
-            logger.debug("safViewAvdod : ${safViewAvdod.toJson()}")
+//            logger.debug("safViewAvdod : ${safViewAvdod.toJson()}")
 
             //saf filter mot bruker
-//            val safViewBruker = safView
-//                .filterNot { view -> view.euxCaseId in safViewAvdod.map { it.euxCaseId } }
+            val safViewBruker = safView
+                .filterNot { view -> view.euxCaseId in safViewAvdod.map { it.euxCaseId } }
 //            logger.debug("safView Bruker: ${safViewBruker.toJson()}")
 
             //samkjøre til megaview
             //val view = brukerView + safView + avdodViewSaf + avdodViewUtenSaf
-            val view = avdodViewSaf +  safViewAvdod + safView
+            val view = brukerView + avdodViewSaf + avdodViewUtenSaf + safViewAvdod + safViewBruker
 
             //return med sort og distict (avdodfmr og caseid)
             return@measure view.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }

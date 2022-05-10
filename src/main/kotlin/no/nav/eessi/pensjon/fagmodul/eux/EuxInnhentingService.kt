@@ -322,19 +322,19 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
 
     fun getBucViewBrukerSaf(aktoerId: String, sakNr: String, safSaker: List<String>): List<BucView> {
         val start = System.currentTimeMillis()
-//        val rinaSakerMedSaf = safSaker
-//            .map { id ->
-//                euxKlient.getRinasaker(euxCaseId = id , status = "\"open\"")
-//            }
-//            .flatten()
+        val rinaSakerMedSaf = safSaker
+            .map { id ->
+                euxKlient.getRinasaker(euxCaseId = id , status = "\"open\"")
+            }
+            .flatten()
 
-        //val filteredRinasakSaf = getFilteredArchivedaRinasakerSak(rinaSakerMedSaf)
-        //logger.info("rinaSaker total: ${filteredRinasakSaf.size}")
+        val filteredRinasakSaf = getFilteredArchivedaRinasakerSak(rinaSakerMedSaf)
+        logger.info("rinaSaker total: ${filteredRinasakSaf.size}")
 
-        return safSaker.map { rinasak ->
+        return filteredRinasakSaf.map { rinasak ->
             BucView(
-                rinasak,
-                null,
+                rinasak.id!!,
+                BucType.from(rinasak.processDefinitionId)!!,
                 aktoerId,
                 sakNr,
                 null,
