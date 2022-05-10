@@ -46,7 +46,7 @@ class Traits(
 //benyttes av UI
 data class BucView(
         val euxCaseId: String,
-        val buctype: BucType,
+        val buctype: BucType?,
         val aktoerId: String,
         val saknr: String,
         val avdodFnr: String? = null,
