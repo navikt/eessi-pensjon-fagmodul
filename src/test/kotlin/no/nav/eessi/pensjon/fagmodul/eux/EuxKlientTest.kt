@@ -13,7 +13,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Organisation
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
 import no.nav.eessi.pensjon.logging.RequestResponseLoggerInterceptor
 import no.nav.eessi.pensjon.metrics.MetricsHelper
-import no.nav.eessi.pensjon.security.sts.typeRef
+import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import no.nav.eessi.pensjon.utils.validateJson
 import org.junit.jupiter.api.AfterEach
@@ -516,12 +516,19 @@ class EuxKlientTest {
     @Test
     fun `gitt at det finnes en gydlig euxCaseid skal det returneres en liste av Buc deltakere`() {
         val mockEuxRinaid = "123456"
-        val mockResponse = ResponseEntity.ok().body(listOf(
+
+        val mockResponse = listOf(
                 ParticipantsItem(organisation = Organisation(countryCode = "DK", id = "DK006")),
                 ParticipantsItem(organisation = Organisation(countryCode = "PL", id = "PolishAcc"))
-        ))
+        )
 
-        every { mockEuxrestTemplate.exchange(any<String>(), HttpMethod.GET, null, typeRef<List<ParticipantsItem>>()) } returns mockResponse
+//        val mockResponse = ResponseEntity.ok().body(listOf(
+//            ParticipantsItem(organisation = Organisation(countryCode = "DK", id = "DK006")),
+//            ParticipantsItem(organisation = Organisation(countryCode = "PL", id = "PolishAcc"))
+//        ))
+
+
+        every { mockEuxrestTemplate.exchange(any<String>(), HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(mockResponse.toJson())
 
         val deltakere = klient.getBucDeltakere(mockEuxRinaid)
         assertEquals(2, deltakere.size)

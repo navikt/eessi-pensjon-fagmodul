@@ -8,14 +8,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import org.springframework.context.annotation.Profile
+import org.springframework.test.annotation.DirtiesContext
 
 @EnableJwtTokenValidation(ignore = ["org.springframework", "org.springdoc", "no.nav.eessi"])
 @SpringBootApplication
 @Profile("unsecured-webmvctest")
+@DirtiesContext
 class UnsecuredWebMvcTestLauncher : SpringBootServletInitializer() {
-
-//    @MockkBean(name = "prefillOAuthTemplate")
-//    private lateinit var prefillOAuthTemplate: RestTemplate
 
     @MockkBean
     private lateinit var clientConfigurationProperties: ClientConfigurationProperties
