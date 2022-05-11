@@ -6,7 +6,6 @@ on:
       - '*'
       - '*/*'
       - '!master'
-      - '!gcp'
 
 jobs:
   tag_build_and_deploy:
