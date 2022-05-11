@@ -10,6 +10,7 @@ import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.utils.errorBody
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.security.token.support.core.api.Protected
+import no.nav.security.token.support.core.api.Unprotected
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -22,7 +23,6 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.client.HttpStatusCodeException
 import javax.annotation.PostConstruct
 
-@Protected
 @RestController
 @RequestMapping("/eux")
 class EuxController(
@@ -49,17 +49,19 @@ class EuxController(
         euxInstitusjoner  = metricsHelper.init("euxInstitusjoner", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
     }
 
-
+    @Unprotected
     @GetMapping("/rinaurl")
     fun getRinaUrl2020() : ResponseEntity<Map<String, String>> {
         return ResponseEntity.ok(mapOf("rinaUrl" to euxInnhentingService.getRinaUrl()))
     }
 
+    @Protected
     @GetMapping("/subjectarea")
     fun getSubjectArea(): List<String> {
         return listOf("Pensjon")
     }
 
+    @Protected
     @GetMapping("/countries/{buctype}")
     fun getPaakobledeland(@PathVariable(value = "buctype") bucType: BucType): ResponseEntity<String> {
         return paakobledeland.measure {
@@ -81,6 +83,7 @@ class EuxController(
         }
     }
 
+    @Protected
     @GetMapping( "/landkoder")
     fun getCountryCode(): List<String> {
         return euxKodeverkLand.measure {
@@ -89,6 +92,7 @@ class EuxController(
         }
     }
 
+    @Protected
     @GetMapping( "/kodeverk/{kodeverk}")
     fun getKodeverk(@PathVariable("kodeverk", required = true) kodeverk: Kodeverk): List<KodeverkResponse> {
         return euxKodeverk.measure {
@@ -97,6 +101,7 @@ class EuxController(
         }
     }
 
+    @Protected
     @GetMapping("/institutions/{buctype}", "/institutions/{buctype}/{countrycode}")
     fun getEuxInstitusjoner(
         @PathVariable("buctype", required = true) buctype: String,

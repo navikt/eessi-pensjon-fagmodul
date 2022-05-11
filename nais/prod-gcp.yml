@@ -60,17 +60,13 @@ spec:
     - name: ONPREM_KAFKA_BOOTSTRAP_SERVERS_URL
       value: SASL_SSL://a01apvl00145.adeo.no:8443,SASL_SSL://a01apvl00146.adeo.no:8443,SASL_SSL://a01apvl00147.adeo.no:8443,SASL_SSL://a01apvl00149.adeo.no:8443
     - name: KAFKA_STATISTIKK_TOPICNAME
-      value: eessipensjon.privat-statistikk-gcp
+      value: eessipensjon.privat-statistikk
     - name: KAFKA_AUTOMATISERING_TOPIC
-      value: eessipensjon.public-automatisering-gcp
+      value: eessipensjon.public-automatisering
     - name: KODEVERK_REST_API_URL
       value: https://eessi-pensjon-onprem-proxy.prod-fss-pub.nais.io
     - name: EESSI_PEN_ONPREM_PROXY_URL
       value: https://eessi-pensjon-onprem-proxy.prod-fss-pub.nais.io
-    - name: EESSI_PENSJON_INSTITUSJON
-      value: NO:889640782
-    - name: EESSI_PENSJON_INSTITUSJON_NAVN
-      value: "The Norwegian Labour and Welfare Administration"
     - name: AZURE_APP_PDL_CLIENT_ID
       value: prod-fss.pdl.pdl-api
     - name: AZURE_APP_PREFILL_CLIENT_ID
@@ -81,6 +77,7 @@ spec:
       value: prod-fss.eessipensjon.eessi-pensjon-onprem-proxy
     - name: AZURE_APP_SAF_CLIENT_ID
       value: prod-fss.teamdokumenthandtering.saf
+
     - name: ENV
       value: p
   image: {{ image }}

@@ -5,7 +5,7 @@ import io.mockk.every
 import io.mockk.justRun
 import io.mockk.verify
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
-import no.nav.eessi.pensjon.security.sts.STSService
+import no.nav.eessi.pensjon.services.kodeverk.KodeverkClient
 import no.nav.eessi.pensjon.vedlegg.client.Dokument
 import no.nav.eessi.pensjon.vedlegg.client.HentdokumentInnholdResponse
 import org.hamcrest.Matchers.containsString
@@ -20,20 +20,37 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.web.client.RestTemplate
 
-
 @SpringBootTest(classes = [UnsecuredWebMvcTestLauncher::class] ,webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(profiles = ["unsecured-webmvctest"])
 @AutoConfigureMockMvc
 class VedleggControllerSpringTest {
 
-    @MockkBean
-    lateinit var vedleggService: VedleggService
-
-    @MockkBean
-    lateinit var stsService: STSService
-
     @MockkBean(name = "prefillOAuthTemplate")
     private lateinit var prefillOAuthTemplate: RestTemplate
+
+    @MockkBean(name = "euxNavIdentRestTemplate")
+    private lateinit var euxNavIdentRestTemplate: RestTemplate
+
+    @MockkBean(name = "euxSystemRestTemplate")
+    private lateinit var euxSystemRestTemplate: RestTemplate
+
+    @MockkBean(name = "safGraphQlOidcRestTemplate")
+    private lateinit var restSafTemplate: RestTemplate
+
+    @MockkBean(name = "proxyOAuthRestTemplate")
+    private lateinit var proxyOAuthRestTemplate: RestTemplate
+
+    @MockkBean(name = "safRestOidcRestTemplate")
+    private lateinit var safRestOidcRestTemplate: RestTemplate
+
+    @MockkBean(name = "pensjonsinformasjonOidcRestTemplate")
+    private lateinit var pensjonsinformasjonOidcRestTemplate: RestTemplate
+
+    @MockkBean
+    private lateinit var kodeverkClient: KodeverkClient
+
+    @MockkBean
+    lateinit var vedleggService: VedleggService
 
     @Autowired
     private val mockMvc: MockMvc? = null

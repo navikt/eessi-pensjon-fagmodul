@@ -217,6 +217,7 @@ class ArchitectureTest {
                 .whereLayer(services).mayOnlyBeAccessedByLayers(
                         frontendAPI,
                         fagmodulCore,
+                        vedlegg,
                         integrationtest)
                 .whereLayer(support).mayOnlyBeAccessedByLayers(
                         frontendAPI,

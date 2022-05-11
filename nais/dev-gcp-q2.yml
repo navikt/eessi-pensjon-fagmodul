@@ -8,6 +8,8 @@ metadata:
 spec:
   kafka:
     pool: nav-dev
+  envFrom:
+    - secret: fagmodul-dev #secret name in Google Secret Manager
   azure:
     application:
       enabled: true
@@ -17,41 +19,44 @@ spec:
   accessPolicy:
     outbound:
       rules:
-#        - host: eessi-pensjon-prefill-q2.dev.intern.nav.no
         - application: eessi-pensjon-prefill-q2
           namespace: eessipensjon
           cluster: dev-gcp
+        - application: eessi-pensjon-onprem-proxy-q2
+          namespace: eessipensjon
+          cluster: dev-fss
     inbound:
       rules:
+        - application: eessi-pensjon-frontend-ui-q2
+          namespace: eessipensjon
+          cluster: dev-gcp
+        - application: eessi-pensjon-saksbehandling-api-q2
+          namespace: eessipensjon
+          cluster: dev-gcp
         - application: eessi-pensjon-journalforing-q2
           namespace: eessipensjon
           cluster: dev-gcp
+        - application: eessi-pensjon-onprem-proxy-q2
+          namespace: eessipensjon
+          cluster: dev-fss
   webproxy: true
   env:
     - name: SPRING_PROFILES_ACTIVE
       value: test
     - name: PENSJONSINFORMASJON_URL
-      value: https://pensjon-pen-q2.nais.preprod.local/pen/api/pensjonsinformasjon/v1
+      value: https://eessi-pensjon-onprem-proxy-q2.dev-fss-pub.nais.io/pen/api/pensjonsinformasjon/v1
     - name: EESSIPEN_EUX_RINA_URL
-      value: https://eux-rina-api-q2.nais.preprod.local/cpi
-    - name: EESSIPENSJON_PREFILL_URL
-      value: https://eessi-pensjon-prefill-q2.nais.preprod.local/
+      value: https://eux-rina-api-q2.dev-fss-pub.nais.io/cpi
     - name: EESSIPENSJON_PREFILL_GCP_URL
       value: https://eessi-pensjon-prefill-q2.dev.intern.nav.no
     - name: RINA_HOST_URL
       value: rina-ss1-q.adeo.no
     - name: SAF_GRAPHQL_URL
-      value: https://saf-q2.nais.preprod.local/graphql
+      value: https://saf-q2.dev-fss-pub.nais.io/graphql
     - name: SAF_HENTDOKUMENT_URL
-      value: https://saf-q2.nais.preprod.local/rest/hentdokument
+      value: https://saf-q2.dev-fss-pub.nais.io/rest/hentdokument
     - name: PDL_URL
-      value: https://pdl-api.dev-fss.nais.io/graphql
-    - name: OPENIDCONNECT_URL
-      value: https://isso-q.adeo.no:443/isso
-    - name: SECURITY_TOKEN_SERVICE_OPENID_CONFIGURATION_URL
-      value: https://security-token-service.nais.preprod.local/rest/v1/sts/.well-known/openid-configuration
-    - name: SECURITYTOKENSERVICE_URL
-      value: https://sts-q2.preprod.local/SecurityTokenServiceProvider/
+      value: https://pdl-api.dev-fss-pub.nais.io/graphql
     - name: ONPREM_KAFKA_BOOTSTRAP_SERVERS_URL
       value: SSL://b27apvl00045.preprod.local:8443,SSL://b27apvl00046.preprod.local:8443,SSL://b27apvl00047.preprod.local:8443
     - name: KAFKA_STATISTIKK_TOPICNAME
@@ -59,15 +64,25 @@ spec:
     - name: KAFKA_AUTOMATISERING_TOPIC
       value: eessipensjon.public-automatisering-q2
     - name: KODEVERK_REST_API_URL
-      value: https://kodeverk.nais.adeo.no
+      value: https://eessi-pensjon-onprem-proxy-q2.dev-fss-pub.nais.io
+    - name: EESSI_PEN_ONPREM_PROXY_URL
+      value: https://eessi-pensjon-onprem-proxy-q2.dev-fss-pub.nais.io
+    - name: AZURE_APP_PDL_CLIENT_ID
+      value: dev-fss.pdl.pdl-api
     - name: AZURE_APP_PREFILL_CLIENT_ID
       value: dev-gcp.eessipensjon.eessi-pensjon-prefill-q2
+    - name: AZURE_APP_EUX_CLIENT_ID
+      value: dev-fss.eessibasis.eux-rina-api-q2
+    - name: AZURE_APP_PROXY_CLIENT_ID
+      value: dev-fss.eessipensjon.eessi-pensjon-onprem-proxy-q2
+    - name: AZURE_APP_SAF_CLIENT_ID
+      value: dev-fss.teamdokumenthandtering.saf
+
     - name: ENV
       value: q2
   image: {{ image }}
   ingresses:
-    - https://eessi-pensjon-fagmodul-q2.nais.preprod.local
-    - https://eessi-pensjon-fagmodul-q2.dev-fss-pub.nais.io
+    - https://eessi-pensjon-fagmodul-q2.dev.intern.nav.no
   liveness:
     path: /internal/isalive
     port: 8080
@@ -93,11 +108,3 @@ spec:
     requests:
       cpu: 400m
       memory: 4024Mi
-  vault:
-    enabled: true
-    paths:
-      - kvPath: {{serviceuserkv}}
-        mountPath: /var/run/secrets/nais.io/srveessipensjon
-      - kvPath: /apikey/appdynamics/dev
-        mountPath: /var/run/secrets/nais.io/vault
-

@@ -4,7 +4,6 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
 import no.nav.eessi.pensjon.fagmodul.integrationtest.IntegrasjonsTestConfig
-import no.nav.eessi.pensjon.security.sts.STSService
 import no.nav.eessi.pensjon.services.kodeverk.KodeverkClient
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.Test
@@ -29,14 +28,23 @@ import org.springframework.web.client.RestTemplate
 @EmbeddedKafka
 class PesysIntegrationSpringTest {
 
-    @MockkBean
-    private lateinit var stsService: STSService
-
     @MockkBean(name = "prefillOAuthTemplate")
     private lateinit var prefillOAuthTemplate: RestTemplate
 
-    @MockkBean(name = "euxUsernameOidcRestTemplate")
+    @MockkBean(name = "euxNavIdentRestTemplate")
+    private lateinit var euxRestOidcTemplate: RestTemplate
+
+    @MockkBean(name = "euxSystemRestTemplate")
     private lateinit var restTemplate: RestTemplate
+
+    @MockkBean(name = "safGraphQlOidcRestTemplate")
+    private lateinit var restSafTemplate: RestTemplate
+
+    @MockkBean(name = "safRestOidcRestTemplate")
+    private lateinit var safRestOidcRestTemplate: RestTemplate
+
+    @MockkBean(name = "pensjonsinformasjonOidcRestTemplate")
+    private lateinit var pensjonsinformasjonOidcRestTemplate: RestTemplate
 
     @MockkBean
     private lateinit var kodeverkClient: KodeverkClient

@@ -67,10 +67,6 @@ spec:
       value: eessipensjon.public-automatisering
     - name: KODEVERK_REST_API_URL
       value: https://kodeverk.nais.adeo.no
-    - name: EESSI_PENSJON_INSTITUSJON
-      value: NO:889640782
-    - name: EESSI_PENSJON_INSTITUSJON_NAVN
-      value: "The Norwegian Labour and Welfare Administration"
     - name: AZURE_APP_PREFILL_CLIENT_ID
       value: prod-gcp.eessipensjon.eessi-pensjon-prefill
     - name: ENV

@@ -14,7 +14,7 @@ import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
 import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentType
 import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
-import no.nav.eessi.pensjon.security.sts.STSService
+import no.nav.eessi.pensjon.services.kodeverk.KodeverkClient
 import no.nav.eessi.pensjon.utils.toJson
 import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
@@ -43,15 +43,26 @@ import kotlin.test.assertEquals
 @EmbeddedKafka
 class OpprettPrefillSedIntegrationTest {
 
-    @MockkBean
-    private lateinit var stsService: STSService
-
-
-    @MockkBean(name = "euxOidcRestTemplate")
-    private lateinit var restEuxTemplate: RestTemplate
-
     @MockkBean(name = "prefillOAuthTemplate")
     private lateinit var prefillOAuthTemplate: RestTemplate
+
+    @MockkBean(name = "euxNavIdentRestTemplate")
+    private lateinit var restEuxTemplate: RestTemplate
+
+    @MockkBean(name = "euxSystemRestTemplate")
+    private lateinit var euxUserNameRestTemplate: RestTemplate
+
+    @MockkBean(name = "safGraphQlOidcRestTemplate")
+    private lateinit var restSafTemplate: RestTemplate
+
+    @MockkBean(name = "safRestOidcRestTemplate")
+    private lateinit var safRestOidcRestTemplate: RestTemplate
+
+    @MockkBean(name = "pensjonsinformasjonOidcRestTemplate")
+    private lateinit var pensjonsinformasjonOidcRestTemplate: RestTemplate
+
+    @MockkBean
+    private lateinit var kodeverkClient: KodeverkClient
 
     @MockkBean
     private lateinit var personService: PersonService

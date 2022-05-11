@@ -10,7 +10,6 @@ import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.models.Kodeverk
 import no.nav.eessi.pensjon.fagmodul.models.KodeverkResponse
 import no.nav.eessi.pensjon.metrics.MetricsHelper
-import no.nav.eessi.pensjon.security.sts.typeRef
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.typeRefs
 import org.slf4j.LoggerFactory
@@ -45,8 +44,8 @@ import javax.annotation.PostConstruct
 @Description("Service class for EuxBasis - eux-cpi-service-controller")
 @CacheConfig(cacheNames = ["euxService"])
 class EuxKlient(
-    private val euxOidcRestTemplate: RestTemplate,
-    private val euxUsernameOidcRestTemplate: RestTemplate,
+    private val euxNavIdentRestTemplate: RestTemplate,
+    private val euxSystemRestTemplate: RestTemplate,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry()),
     private val overrideWaitTimes: Long? = null
 ) {
@@ -94,7 +93,7 @@ class EuxKlient(
         logger.debug("Kaller eux med json: $navSEDjson, euxCaseId: $euxCaseId, parentId: $parentDocumentId")
         val response = restTemplateErrorhandler(
             {
-                euxOidcRestTemplate.postForEntity(
+                euxNavIdentRestTemplate.postForEntity(
                     "/buc/$euxCaseId/sed/$parentDocumentId/svar",
                     httpEntity,
                     String::class.java
@@ -118,7 +117,7 @@ class EuxKlient(
         logger.debug("Kaller eux med json: $navSEDjson, euxCaseId: $euxCaseId")
         val response = restTemplateErrorhandler(
                 {
-                    euxOidcRestTemplate.postForEntity(
+                    euxNavIdentRestTemplate.postForEntity(
                         "/buc/$euxCaseId/sed?ventePaAksjon=$ventePaAksjonVerdi",
                             httpEntity,
                             String::class.java)
@@ -147,7 +146,7 @@ class EuxKlient(
         logger.debug("RinaUrl prøver å kontakte EUX ${builder.toUriString()}")
         val response = restTemplateErrorhandler(
             {
-                euxOidcRestTemplate.exchange(builder.toUriString(),
+                euxNavIdentRestTemplate.exchange(builder.toUriString(),
                     HttpMethod.GET,
                     null,
                     String::class.java)
@@ -164,10 +163,10 @@ class EuxKlient(
     }
 
     fun getSedOnBucByDocumentIdAsJsonAndAsSystemuser(euxCaseId: String, documentId: String): String =
-        getSedOnBucByDocumentIdWithRest(euxCaseId, documentId, euxUsernameOidcRestTemplate)
+        getSedOnBucByDocumentIdWithRest(euxCaseId, documentId, euxSystemRestTemplate)
 
     fun getSedOnBucByDocumentIdAsJson(euxCaseId: String, documentId: String): String =
-        getSedOnBucByDocumentIdWithRest(euxCaseId, documentId, euxOidcRestTemplate)
+        getSedOnBucByDocumentIdWithRest(euxCaseId, documentId, euxNavIdentRestTemplate)
 
     private fun getSedOnBucByDocumentIdWithRest(euxCaseId: String, documentId: String, restTemplate: RestTemplate): String {
         val path = "/buc/{RinaSakId}/sed/{DokumentId}"
@@ -192,9 +191,9 @@ class EuxKlient(
         }
     }
 
-    fun getBucJsonAsSystemuser(euxCaseId: String): String = getBucJsonWithRest(euxCaseId, euxUsernameOidcRestTemplate)
+    fun getBucJsonAsSystemuser(euxCaseId: String): String = getBucJsonWithRest(euxCaseId, euxSystemRestTemplate)
 
-    fun getBucJson(euxCaseId: String): String = getBucJsonWithRest(euxCaseId, euxOidcRestTemplate)
+    fun getBucJson(euxCaseId: String): String = getBucJsonWithRest(euxCaseId, euxNavIdentRestTemplate)
 
     private fun getBucJsonWithRest(euxCaseId: String, restTemplate: RestTemplate): String {
         logger.info("get euxCaseId: $euxCaseId")
@@ -234,7 +233,7 @@ class EuxKlient(
 
         val response = restTemplateErrorhandler(
             restTemplateFunction = {
-                euxOidcRestTemplate.exchange(
+                euxNavIdentRestTemplate.exchange(
                     builder.toUriString(),
                     HttpMethod.GET,
                     HttpEntity("/", headers),
@@ -267,7 +266,7 @@ class EuxKlient(
         val starttid = System.currentTimeMillis()
         val response = restTemplateErrorhandler(
             restTemplateFunction = {
-                euxOidcRestTemplate.exchange(
+                euxNavIdentRestTemplate.exchange(
                     builder.toUriString(),
                     HttpMethod.GET,
                     null,
@@ -295,18 +294,22 @@ class EuxKlient(
 
         val response = restTemplateErrorhandler(
                 restTemplateFunction = {
-                    euxOidcRestTemplate.exchange(
+                    euxNavIdentRestTemplate.exchange(
                             builder.toUriString(),
                             HttpMethod.GET,
                             null,
-                            typeRef<List<ParticipantsItem>>())
+                            String::class.java
+                    )
                 }
                 , euxCaseId = euxCaseId
                 , metric = BUCDeltakere
                 , prefixErrorMessage = "Feiler ved metode getDeltakerer. "
         )
-        return response.body
-                ?: throw ServerException("Feil ved henting av BucDeltakere: ingen data, euxCaseId $euxCaseId")
+        return try {
+            mapJsonToAny(response.body, typeRefs())
+        } catch (ex: Exception) {
+            throw ServerException("Feil ved henting av BucDeltakere: ingen data, euxCaseId $euxCaseId")
+       }
     }
 
     /**
@@ -318,7 +321,7 @@ class EuxKlient(
 
         val responseInstitution = restTemplateErrorhandler(
                 {
-                    euxOidcRestTemplate.exchange(
+                    euxNavIdentRestTemplate.exchange(
                         url,
                             HttpMethod.GET,
                             null,
@@ -370,7 +373,7 @@ class EuxKlient(
 
         val response = restTemplateErrorhandler(
                 {
-                    euxOidcRestTemplate.exchange(uriComponent.toUriString(),
+                    euxNavIdentRestTemplate.exchange(uriComponent.toUriString(),
                             HttpMethod.GET,
                             null,
                             String::class.java)
@@ -430,7 +433,7 @@ class EuxKlient(
         logger.info("Kontakter EUX for å prøve på opprette ny BUC med korrelasjonId: $correlationId")
         val response = restTemplateErrorhandler(
                 {
-                    euxOidcRestTemplate.exchange(
+                    euxNavIdentRestTemplate.exchange(
                             builder.toUriString(),
                             HttpMethod.POST,
                             null,
@@ -466,7 +469,7 @@ class EuxKlient(
 
         val result = restTemplateErrorhandler(
                 {
-                    euxOidcRestTemplate.exchange(
+                    euxNavIdentRestTemplate.exchange(
                             url,
                             HttpMethod.PUT,
                             null,
@@ -490,7 +493,7 @@ class EuxKlient(
         logger.info("Oppdaterer document med euxCaseId: $euxCaseId og documentid: $dokumentId")
         val result = restTemplateErrorhandler(
             {
-                euxOidcRestTemplate.exchange(
+                euxNavIdentRestTemplate.exchange(
                     url,
                     HttpMethod.PUT,
                     populerHttpEntity(sedPayload),

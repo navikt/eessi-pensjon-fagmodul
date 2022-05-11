@@ -1,14 +1,16 @@
 package no.nav.eessi.pensjon.fagmodul.config
 
+import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
+import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
 import no.nav.eessi.pensjon.logging.RequestIdHeaderInterceptor
 import no.nav.eessi.pensjon.logging.RequestResponseLoggerInterceptor
-import no.nav.eessi.pensjon.security.sts.STSService
-import no.nav.eessi.pensjon.security.sts.UsernameToOidcInterceptor
-import no.nav.eessi.pensjon.security.token.TokenAuthorizationHeaderInterceptor
+import no.nav.eessi.pensjon.utils.getClaims
+import no.nav.eessi.pensjon.utils.getToken
 import no.nav.security.token.support.client.core.ClientProperties
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService
 import no.nav.security.token.support.client.spring.ClientConfigurationProperties
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
@@ -23,54 +25,69 @@ import org.springframework.web.client.DefaultResponseErrorHandler
 import org.springframework.web.client.RestTemplate
 import java.time.Duration
 
+
 @Configuration
+@Profile("prod", "test")
 class RestTemplateConfig(
-    private val tokenValidationContextHolder: TokenValidationContextHolder,
-    private val stsService: STSService,
     private val clientConfigurationProperties: ClientConfigurationProperties,
-    private val oAuth2AccessTokenService: OAuth2AccessTokenService?) {
+    private val oAuth2AccessTokenService: OAuth2AccessTokenService,
+    private val tokenValidationContextHolder: TokenValidationContextHolder) {
 
+    private val logger = LoggerFactory.getLogger(RestTemplateConfig::class.java)
 
-    @Value("\${eessipen-eux-rina.url}")
+    @Value("\${AZURE_APP_EUX_CLIENT_ID}")
+    lateinit var euxClientId: String
+
+    @Value("\${AZURE_APP_PREFILL_CLIENT_ID}")
+    lateinit var prefillClientId: String
+
+    @Value("\${EESSIPEN_EUX_RINA_URL}")
     lateinit var euxUrl: String
+
+    @Value("\${EESSI_PEN_ONPREM_PROXY_URL}")
+    lateinit var proxyUrl: String
 
     @Value("\${EESSIPENSJON_PREFILL_GCP_URL}")
     lateinit var prefillUrl: String
 
-    @Value("\${kodeverk.rest-api.url}")
+    @Value("\${KODEVERK_REST_API_URL}")
     private lateinit var kodeverkUrl: String
 
-    @Value("\${pensjonsinformasjon.url}")
+    @Value("\${PENSJONSINFORMASJON_URL}")
     lateinit var pensjonUrl: String
 
-    @Value("\${saf.graphql.url}")
+    @Value("\${SAF_GRAPHQL_URL}")
     lateinit var graphQlUrl: String
 
-    @Value("\${saf.hentdokument.url}")
+    @Value("\${SAF_HENTDOKUMENT_URL}")
     lateinit var hentRestUrl: String
 
+    //Dette var den gamle euxOidcResttemplaten
+    @Bean
+    fun euxNavIdentRestTemplate(): RestTemplate = restTemplate(euxUrl, onBehalfOfBearerTokenInterceptor(euxClientId))
+
+    //Dette var den gamle euxUsernameOidcRestTemplate
+    @Bean
+    fun euxSystemRestTemplate() = restTemplate(euxUrl, oAuth2BearerTokenInterceptor(clientProperties("eux-credentials"), oAuth2AccessTokenService!!))
 
     @Bean
-    fun euxOidcRestTemplate() = restTemplate(euxUrl, TokenAuthorizationHeaderInterceptor(tokenValidationContextHolder))
+    fun proxyOAuthRestTemplate() = restTemplate(proxyUrl, oAuth2BearerTokenInterceptor(clientProperties("proxy-credentials"), oAuth2AccessTokenService!!))
 
     @Bean
-    fun euxUsernameOidcRestTemplate() = restTemplate(euxUrl, UsernameToOidcInterceptor(stsService))
+    fun prefillOAuthTemplate() = restTemplate(prefillUrl, onBehalfOfBearerTokenInterceptor(prefillClientId))
+    //fun prefillOAuthTemplate() = restTemplate(prefillUrl, bearerTokenInterceptor(clientProperties("prefill-credentials"), oAuth2AccessTokenService!!))
 
     @Bean
-    @Profile("prod", "test")
-    fun prefillOAuthTemplate() = restTemplate(prefillUrl, bearerTokenInterceptor(clientProperties("prefill-credentials"), oAuth2AccessTokenService!!))
+    fun kodeRestTemplate() = restTemplate(kodeverkUrl, oAuth2BearerTokenInterceptor(clientProperties("proxy-credentials"), oAuth2AccessTokenService!!))
 
     @Bean
-    fun kodeRestTemplate() = restTemplate(kodeverkUrl)
+    fun pensjonsinformasjonOidcRestTemplate() = restTemplate(pensjonUrl, oAuth2BearerTokenInterceptor(clientProperties("proxy-credentials"), oAuth2AccessTokenService!!))
 
     @Bean
-    fun pensjonsinformasjonOidcRestTemplate() = restTemplate(pensjonUrl, UsernameToOidcInterceptor(stsService))
+    fun safGraphQlOidcRestTemplate() = restTemplate(graphQlUrl, oAuth2BearerTokenInterceptor(clientProperties("saf-credentials"), oAuth2AccessTokenService!!))
 
     @Bean
-    fun safGraphQlOidcRestTemplate() = restTemplate(graphQlUrl, TokenAuthorizationHeaderInterceptor(tokenValidationContextHolder))
-
-    @Bean
-    fun safRestOidcRestTemplate() = restTemplate(hentRestUrl, TokenAuthorizationHeaderInterceptor(tokenValidationContextHolder))
+    fun safRestOidcRestTemplate() = restTemplate(hentRestUrl, oAuth2BearerTokenInterceptor(clientProperties("saf-credentials"), oAuth2AccessTokenService!!))
 
 
     private fun restTemplate(url: String, tokenIntercetor: ClientHttpRequestInterceptor?) : RestTemplate {
@@ -88,39 +105,44 @@ class RestTemplateConfig(
                 requestFactory = BufferingClientHttpRequestFactory(SimpleClientHttpRequestFactory()
                     .apply { setOutputStreaming(false) }
                 )
-            }
-    }
-
-    private fun restTemplate(url: String) : RestTemplate {
-        return RestTemplateBuilder()
-            .rootUri(url)
-            .errorHandler(DefaultResponseErrorHandler())
-            .additionalInterceptors(
-                RequestIdHeaderInterceptor(),
-                RequestResponseLoggerInterceptor()
-            )
-            .build().apply {
-                requestFactory = BufferingClientHttpRequestFactory(SimpleClientHttpRequestFactory()
-                    .apply { setOutputStreaming(false) }
-                )
-            }
+       }
     }
 
 
     private fun clientProperties(oAuthKey: String): ClientProperties = clientConfigurationProperties.registration[oAuthKey]
         ?: throw RuntimeException("could not find oauth2 client config for $oAuthKey")
 
-    private fun bearerTokenInterceptor(clientProperties: ClientProperties, oAuth2AccessTokenService: OAuth2AccessTokenService): ClientHttpRequestInterceptor {
+    private fun oAuth2BearerTokenInterceptor(
+        clientProperties: ClientProperties,
+        oAuth2AccessTokenService: OAuth2AccessTokenService
+    ): ClientHttpRequestInterceptor? {
         return ClientHttpRequestInterceptor { request: HttpRequest, body: ByteArray?, execution: ClientHttpRequestExecution ->
             val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
             request.headers.setBearerAuth(response.accessToken)
-//            val tokenChunks = response.accessToken.split(".")
-//            val tokenBody =  tokenChunks[1]
-//            logger.debug("subject: " + JWTClaimsSet.parse(Base64.getDecoder().decode(tokenBody).decodeToString()).subject)
-//            logger.debug("response: " + response.toJson())
             execution.execute(request, body!!)
         }
     }
 
+    private fun onBehalfOfBearerTokenInterceptor(clientId: String): ClientHttpRequestInterceptor {
+        return ClientHttpRequestInterceptor { request: HttpRequest, body: ByteArray?, execution: ClientHttpRequestExecution ->
+            val navidentTokenFromUI = getToken(tokenValidationContextHolder).tokenAsString
+
+            logger.info("NAVIdent: ${getClaims(tokenValidationContextHolder).get("NAVident")?.toString()}")
+
+            val tokenClient: AzureAdOnBehalfOfTokenClient = AzureAdTokenClientBuilder.builder()
+                .withNaisDefaults()
+                .buildOnBehalfOfTokenClient()
+
+            val accessToken: String = tokenClient.exchangeOnBehalfOfToken(
+                "api://$clientId/.default",
+                navidentTokenFromUI
+            )
+
+            request.headers.setBearerAuth(accessToken)
+            execution.execute(request, body!!)
+        }
+
+    }
 
 }
+
