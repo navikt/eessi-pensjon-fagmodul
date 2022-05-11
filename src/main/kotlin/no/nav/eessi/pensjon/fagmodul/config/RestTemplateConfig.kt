@@ -38,6 +38,9 @@ class RestTemplateConfig(
     @Value("\${AZURE_APP_EUX_CLIENT_ID}")
     lateinit var euxClientId: String
 
+    @Value("\${AZURE_APP_SAF_CLIENT_ID}")
+    lateinit var safClientId: String
+
     @Value("\${AZURE_APP_PREFILL_CLIENT_ID}")
     lateinit var prefillClientId: String
 
@@ -87,7 +90,7 @@ class RestTemplateConfig(
     fun safGraphQlOidcRestTemplate() = restTemplate(graphQlUrl, oAuth2BearerTokenInterceptor(clientProperties("saf-credentials"), oAuth2AccessTokenService!!))
 
     @Bean
-    fun safRestOidcRestTemplate() = restTemplate(hentRestUrl, oAuth2BearerTokenInterceptor(clientProperties("saf-credentials"), oAuth2AccessTokenService!!))
+    fun safRestOidcRestTemplate() = restTemplate(hentRestUrl, onBehalfOfBearerTokenInterceptor(safClientId))
 
 
     private fun restTemplate(url: String, tokenIntercetor: ClientHttpRequestInterceptor?) : RestTemplate {
