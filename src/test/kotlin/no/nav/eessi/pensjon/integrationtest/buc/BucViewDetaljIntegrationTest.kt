@@ -288,31 +288,33 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
         //data og spurt eux
         verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&status=\"open\"", HttpMethod.GET, null, String::class.java) }
-//        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=1234567890000&status=\"open\"", HttpMethod.GET, null, String::class.java) }
+        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=1234567890000&status=\"open\"", HttpMethod.GET, null, String::class.java) }
 //        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?rinasaksnummer=5010&status=\"open\"", HttpMethod.GET, null, String::class.java) }
 //        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?rinasaksnummer=344000&status=\"open\"", HttpMethod.GET, null, String::class.java) }
         verify (exactly = 1) { restSafTemplate.exchange("/", HttpMethod.POST, httpEntity, String::class.java) }
 
-//        val expected = """
-//            [{"euxCaseId":"344000","buctype":"P_BUC_10","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":"01010100001","kilde":"SAF"},
-//            {"euxCaseId":"5010","buctype":"P_BUC_02","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":"01010100001","kilde":"SAF"},
-//            {"euxCaseId":"14675","buctype":"P_BUC_06","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":"01010100001","kilde":"AVDOD"},
-//            {"euxCaseId":"3010","buctype":"P_BUC_01","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":null,"kilde":"BRUKER"},
-//            {"euxCaseId":"75312","buctype":"P_BUC_03","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":null,"kilde":"BRUKER"}]
-//        """.trimIndent()
-
         val expected = """
             [{"euxCaseId":"5010","buctype":"P_BUC_02","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":"01010100001","kilde":"SAF"},
             {"euxCaseId":"14675","buctype":"P_BUC_06","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":"01010100001","kilde":"AVDOD"},
+            {"euxCaseId":"3010","buctype":"P_BUC_01","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":null,"kilde":"BRUKER"},
+            {"euxCaseId":"75312","buctype":"P_BUC_03","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":null,"kilde":"BRUKER"},
             {"euxCaseId":"344000","buctype":null,"aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":null,"kilde":"SAF"}]
         """.trimIndent()
+
+//        val expected = """
+//            [{"euxCaseId":"5010","buctype":"P_BUC_02","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":"01010100001","kilde":"SAF"},
+//            {"euxCaseId":"14675","buctype":"P_BUC_06","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":"01010100001","kilde":"AVDOD"},
+//            {"euxCaseId":"344000","buctype":null,"aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":null,"kilde":"SAF"}]
+//        """.trimIndent()
+
+        println(response)
 
 
         JSONAssert.assertEquals(expected, response, true)
 
         val requestlist = mapJsonToAny(response, typeRefs<List<BucView>>())
 
-        assertEquals(3, requestlist.size)
+        assertEquals(5, requestlist.size)
         val bucVeiw = requestlist.first()
         assertEquals("100001000", bucVeiw.saknr)
         assertEquals( BucType.P_BUC_02, bucVeiw.buctype)
