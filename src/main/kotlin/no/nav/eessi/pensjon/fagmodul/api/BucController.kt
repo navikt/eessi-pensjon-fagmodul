@@ -255,11 +255,7 @@ class BucController(
             logger.info("hentRinaSakIderFraMetaData tid: ${joarkend-joarkstart} i ms")
 
             //bruker saker fra eux/rina
-            val brukerView = if (vedtakId == "" || vedtakId == null ) {
-                euxInnhentingService.getBucViewBruker(gjenlevendeFnr, aktoerId, sakNr)
-            } else {
-                emptyList()
-            }
+            val brukerView = euxInnhentingService.getBucViewBruker(gjenlevendeFnr, aktoerId, sakNr)
 
             //filtert bort brukersaker fra saf
             val filterBrukerRinaSakIderFraJoark = rinaSakIderFraJoark.filterNot { rinaid -> rinaid in brukerView.map { it.euxCaseId }  }
