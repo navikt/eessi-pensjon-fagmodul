@@ -230,15 +230,19 @@ class BucController(
         }
     }
 
+//    TODO: Splitte i to funksjoner, en for brukerkontekst og en for vedtakskontekst
+//    TODO: Sørge for at begge blir kalt av frontend
     @GetMapping("/rinasaker/{aktoerId}/saknr/{saknr}",
         "/rinasaker/{aktoerId}/saknr/{saknr}/vedtak/{vedtakid}")
     fun getGjenlevendeRinasakerVedtak(
         @PathVariable("aktoerId", required = true) aktoerId: String,
         @PathVariable("saknr", required = false) sakNr: String,
-        @PathVariable("vedtakid", required = false) vedtakId: String? = null
+        @PathVariable("vedtakid", required = false) vedtakIdFraFrontend: String? = null
     ): List<BucView> {
         return bucView.measure {
             val start = System.currentTimeMillis()
+            val vedtakId = if (vedtakIdFraFrontend == "undefined") null else vedtakIdFraFrontend
+
             //buctyper fra saf som kobles til første avdodfnr
             val safAvdodBucList = listOf(BucType.P_BUC_02, BucType.P_BUC_05, BucType.P_BUC_06, BucType.P_BUC_10)
 
