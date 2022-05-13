@@ -279,9 +279,6 @@ class BucController(
             //buctyper fra saf som kobles til første avdodfnr
             val safAvdodBucList = listOf(BucType.P_BUC_02, BucType.P_BUC_05, BucType.P_BUC_06, BucType.P_BUC_10)
 
-            logger.info("henter rinasaker på valgt aktoerid: $aktoerId, på saknr: $sakNr")
-            val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerId)
-
             val joarkstart = System.currentTimeMillis()
 
             //brukersaker fra Joark/saf
@@ -311,22 +308,18 @@ class BucController(
 
             //saker fra saf og eux/rina
             val safView = euxInnhentingService.getBucViewBrukerSaf(aktoerId, sakNr, filterAvodRinaSakIderFraJoark)
-//            logger.debug("safView : ${safView.toJson()}")
 
             //saf filter mot avdod
             val safViewAvdod = safView
                 .filter { view -> view.buctype in safAvdodBucList }
                 .map { view -> view.copy(avdodFnr = avdodlist.firstOrNull()) }
                 .also { if (avdodlist.size == 2) logger.warn("finnes 2 avdod men valgte første, ingen koblinger")}
-//            logger.debug("safViewAvdod : ${safViewAvdod.toJson()}")
 
             //saf filter mot bruker
             val safViewBruker = safView
                 .filterNot { view -> view.euxCaseId in safViewAvdod.map { it.euxCaseId } }
-//            logger.debug("safView Bruker: ${safViewBruker.toJson()}")
 
             //samkjøre til megaview
-            //val view = brukerView + safView + avdodViewSaf + avdodViewUtenSaf
             val view = avdodViewSaf + avdodViewUtenSaf + safViewAvdod + safViewBruker
 
             //return med sort og distict (avdodfmr og caseid)
