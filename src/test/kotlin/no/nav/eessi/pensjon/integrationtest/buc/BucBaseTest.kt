@@ -153,5 +153,12 @@ open class BucBaseTest {
 
         return pen
     }
+    fun mockVedtakUtenAvdod(gjenlevAktoerid: String): Pensjonsinformasjon {
+        val pen = Pensjonsinformasjon()
+        val person = V1Person()
+        person.aktorId = gjenlevAktoerid
+        pen.person = person
+        return pen
+    }
 
 }
