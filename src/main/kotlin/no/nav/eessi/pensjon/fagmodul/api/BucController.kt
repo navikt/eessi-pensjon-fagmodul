@@ -19,6 +19,7 @@ import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.utils.mapAnyToJson
+import no.nav.eessi.pensjon.utils.toJson
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -230,18 +231,50 @@ class BucController(
         }
     }
 
-//    TODO: Splitte i to funksjoner, en for brukerkontekst og en for vedtakskontekst
-//    TODO: Sørge for at begge blir kalt av frontend
-    @GetMapping("/rinasaker/{aktoerId}/saknr/{saknr}",
-        "/rinasaker/{aktoerId}/saknr/{saknr}/vedtak/{vedtakid}")
-    fun getGjenlevendeRinasakerVedtak(
+    @GetMapping("/rinasaker/{aktoerId}/saknr/{saknr}")
+    fun getRinasakerBrukerkontekst(
         @PathVariable("aktoerId", required = true) aktoerId: String,
-        @PathVariable("saknr", required = false) sakNr: String,
-        @PathVariable("vedtakid", required = false) vedtakIdFraFrontend: String? = null
+        @PathVariable("saknr", required = false) sakNr: String
     ): List<BucView> {
         return bucView.measure {
             val start = System.currentTimeMillis()
-            val vedtakId = if (vedtakIdFraFrontend == "undefined") null else vedtakIdFraFrontend
+
+            logger.info("henter rinasaker på valgt aktoerid: $aktoerId, på saknr: $sakNr")
+            val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerId)
+
+            val joarkstart = System.currentTimeMillis()
+            val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraMetaData(aktoerId)
+            logger.info("hentRinaSakIderFraMetaData tid: ${System.currentTimeMillis()-joarkstart} i ms")
+
+            //bruker saker fra eux/rina
+            val brukerView = euxInnhentingService.getBucViewBruker(gjenlevendeFnr, aktoerId, sakNr)
+
+            //filtert bort brukersaker fra saf
+            val filterBrukerRinaSakIderFraJoark = rinaSakIderFraJoark.filterNot { rinaid -> rinaid in brukerView.map { it.euxCaseId }  }
+
+            //saker fra saf og eux/rina
+            val safView = euxInnhentingService.getBucViewBrukerSaf(aktoerId, sakNr, filterBrukerRinaSakIderFraJoark)
+            logger.debug("safView : ${safView.toJson()}")
+
+            val view = brukerView + safView
+
+            //return med sort og distict (avdodfmr og caseid)
+            return@measure view.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
+                .also {
+                    logger.info("Total view size: ${it.size}")
+                    logger.info("BrukerRinasaker total tid: ${System.currentTimeMillis()-start} i ms")
+                }
+        }
+    }
+
+    @GetMapping("/rinasaker/{aktoerId}/saknr/{saknr}/vedtak/{vedtakid}")
+    fun getGjenlevendeRinasakerVedtak(
+        @PathVariable("aktoerId", required = true) aktoerId: String,
+        @PathVariable("saknr", required = false) sakNr: String,
+        @PathVariable("vedtakid", required = false) vedtakId: String? = null
+    ): List<BucView> {
+        return bucView.measure {
+            val start = System.currentTimeMillis()
 
             //buctyper fra saf som kobles til første avdodfnr
             val safAvdodBucList = listOf(BucType.P_BUC_02, BucType.P_BUC_05, BucType.P_BUC_06, BucType.P_BUC_10)
@@ -250,15 +283,10 @@ class BucController(
             val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerId)
 
             val joarkstart = System.currentTimeMillis()
-            val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraMetaData(aktoerId)
-            val joarkend = System.currentTimeMillis()
-            logger.info("hentRinaSakIderFraMetaData tid: ${joarkend-joarkstart} i ms")
 
-            //bruker saker fra eux/rina
-            val brukerView = euxInnhentingService.getBucViewBruker(gjenlevendeFnr, aktoerId, sakNr)
-
-            //filtert bort brukersaker fra saf
-            val filterBrukerRinaSakIderFraJoark = rinaSakIderFraJoark.filterNot { rinaid -> rinaid in brukerView.map { it.euxCaseId }  }
+            //brukersaker fra Joark/saf
+            val brukerRinaSakIderFraJoark = innhentingService.hentRinaSakIderFraMetaData(aktoerId)
+            logger.info("hentRinaSakIderFraMetaData tid: ${System.currentTimeMillis()-joarkstart} i ms")
 
             //liste over avdodfnr fra vedtak (pesys)
             val avdodlist = avdodFraVedtak(vedtakId, sakNr)
@@ -270,8 +298,7 @@ class BucController(
 
             //filter avdodview for match på filterBrukersakerRina
             val avdodViewSaf = avdodView
-                //.filterNot { view -> view.kilde == BucViewKilde.SAF && view.avdodFnr != null }
-                .filter { view -> view.euxCaseId in filterBrukerRinaSakIderFraJoark }
+                .filter { view -> view.euxCaseId in brukerRinaSakIderFraJoark }
                 .map { view ->
                     view.copy(kilde = BucViewKilde.SAF)
                 }
@@ -280,7 +307,7 @@ class BucController(
             val avdodViewUtenSaf = avdodView.filterNot { view -> view.euxCaseId in avdodViewSaf.map { it.euxCaseId  } }
 
             //liste over saker fra saf som kan hentes
-            val filterAvodRinaSakIderFraJoark = filterBrukerRinaSakIderFraJoark.filterNot { rinaid -> rinaid in avdodView.map { it.euxCaseId }  }
+            val filterAvodRinaSakIderFraJoark = brukerRinaSakIderFraJoark.filterNot { rinaid -> rinaid in avdodView.map { it.euxCaseId }  }
 
             //saker fra saf og eux/rina
             val safView = euxInnhentingService.getBucViewBrukerSaf(aktoerId, sakNr, filterAvodRinaSakIderFraJoark)
@@ -300,20 +327,20 @@ class BucController(
 
             //samkjøre til megaview
             //val view = brukerView + safView + avdodViewSaf + avdodViewUtenSaf
-            val view = brukerView + avdodViewSaf + avdodViewUtenSaf + safViewAvdod + safViewBruker
+            val view = avdodViewSaf + avdodViewUtenSaf + safViewAvdod + safViewBruker
 
             //return med sort og distict (avdodfmr og caseid)
             return@measure view.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
                 .also { logger.info("Total view size: ${it.size}") }
-                .also { val end = System.currentTimeMillis()
-                        if (avdodlist.isEmpty()) {
-                            logger.info("BrukerRinasaker total tid: ${end-start} i ms")
-                        } else {
-                            logger.info("GjenlevendeRinasakerVedtak total tid: ${end-start} i ms")
-                        }
+                .also { if (avdodlist.isEmpty()) {
+                        logger.info("BrukerRinasaker total tid: ${System.currentTimeMillis()-start} i ms")
+                    } else {
+                        logger.info("GjenlevendeRinasakerVedtak total tid: ${System.currentTimeMillis()-start} i ms")
+                    }
                 }
         }
     }
+
 
     private fun avdodFraVedtak(vedtakId: String?, sakNr: String): List<String> {
         if (vedtakId == null) return emptyList()

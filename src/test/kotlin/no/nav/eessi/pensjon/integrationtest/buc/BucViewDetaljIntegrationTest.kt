@@ -288,7 +288,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
         //data og spurt eux
         verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&status=\"open\"", HttpMethod.GET, null, String::class.java) }
-        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=1234567890000&status=\"open\"", HttpMethod.GET, null, String::class.java) }
+//        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=1234567890000&status=\"open\"", HttpMethod.GET, null, String::class.java) }
 //        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?rinasaksnummer=5010&status=\"open\"", HttpMethod.GET, null, String::class.java) }
 //        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?rinasaksnummer=344000&status=\"open\"", HttpMethod.GET, null, String::class.java) }
         verify (exactly = 1) { restSafTemplate.exchange("/", HttpMethod.POST, httpEntity, String::class.java) }
