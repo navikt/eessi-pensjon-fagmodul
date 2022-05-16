@@ -276,6 +276,17 @@ class BucController(
         return bucView.measure {
             val start = System.currentTimeMillis()
 
+            //liste over avdodfnr fra vedtak (pesys)
+            val avdodlist = avdodFraVedtak(vedtakId, sakNr)
+
+            if (avdodlist.isEmpty()) {
+                return@measure emptyList<BucView>()
+                    .also {
+                        logger.info("Total view size: ${it.size}")
+                        logger.info("BrukerRinasaker total tid: ${System.currentTimeMillis() - start} i ms")
+                    }
+            }
+
             //buctyper fra saf som kobles til første avdodfnr
             val safAvdodBucList = listOf(BucType.P_BUC_02, BucType.P_BUC_05, BucType.P_BUC_06, BucType.P_BUC_10)
 
@@ -284,9 +295,6 @@ class BucController(
             //brukersaker fra Joark/saf
             val brukerRinaSakIderFraJoark = innhentingService.hentRinaSakIderFraMetaData(aktoerId)
             logger.info("hentRinaSakIderFraMetaData tid: ${System.currentTimeMillis()-joarkstart} i ms")
-
-            //liste over avdodfnr fra vedtak (pesys)
-            val avdodlist = avdodFraVedtak(vedtakId, sakNr)
 
             //hent avdod saker fra eux/rina
             val avdodView = avdodlist.map { avdodfnr ->
