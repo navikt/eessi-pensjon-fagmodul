@@ -234,12 +234,12 @@ class BucController(
     @GetMapping("/rinasaker/{aktoerId}/saknr/{saknr}")
     fun getRinasakerBrukerkontekst(
         @PathVariable("aktoerId", required = true) aktoerId: String,
-        @PathVariable("saknr", required = false) sakNr: String
+        @PathVariable("saknr", required = false) pensjonSakNummer: String
     ): List<BucView> {
         return bucView.measure {
             val start = System.currentTimeMillis()
 
-            logger.info("henter rinasaker på valgt aktoerid: $aktoerId, på saknr: $sakNr")
+            logger.info("henter rinasaker på valgt aktoerid: $aktoerId, på saknr: $pensjonSakNummer")
             val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerId)
 
             val joarkstart = System.currentTimeMillis()
@@ -247,13 +247,13 @@ class BucController(
             logger.info("hentRinaSakIderFraMetaData tid: ${System.currentTimeMillis()-joarkstart} i ms")
 
             //bruker saker fra eux/rina
-            val brukerView = euxInnhentingService.getBucViewBruker(gjenlevendeFnr, aktoerId, sakNr)
+            val brukerView = euxInnhentingService.getBucViewBruker(gjenlevendeFnr, aktoerId, pensjonSakNummer)
 
             //filtert bort brukersaker fra saf
             val filterBrukerRinaSakIderFraJoark = rinaSakIderFraJoark.filterNot { rinaid -> rinaid in brukerView.map { it.euxCaseId }  }
 
             //saker fra saf og eux/rina
-            val safView = euxInnhentingService.getBucViewBrukerSaf(aktoerId, sakNr, filterBrukerRinaSakIderFraJoark)
+            val safView = euxInnhentingService.getBucViewBrukerSaf(aktoerId, pensjonSakNummer, filterBrukerRinaSakIderFraJoark)
             logger.debug("safView : ${safView.toJson()}")
 
             val view = brukerView + safView
