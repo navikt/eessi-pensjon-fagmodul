@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<ns33:pensjonsinformasjon xmlns:ns33="http://nav.no/pensjon/v1/pensjonsinformasjon"
+                          xmlns:ns12="http://nav.no/pensjon/v1/inngangOgEksport"
+                          xmlns:ns14="http://nav.no/pensjon/v1/trygdeavtale"
+                          xmlns:ns17="http://nav.no/pensjon/v1/vilkarsvurdering"
+                          xmlns:ns2="http://nav.no/pensjon/v1/person"
+                          xmlns:ns20="http://nav.no/pensjon/v1/vilkarsvurderingListe"
+                          xmlns:ns21="http://nav.no/pensjon/v1/avdod"
+                          xmlns:ns8="http://nav.no/pensjon/v1/vedtak" xmlns:ns9="http://nav.no/pensjon/v1/sakAlder">
+    <ns33:trygdeavtale xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns14:v1.Trygdeavtale"/>
+    <ns33:vedtak xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns8:v1.Vedtak">
+        <ns8:virkningstidspunkt>2022-03-01T00:00:00+01:00</ns8:virkningstidspunkt>
+        <ns8:kravGjelder>F_BH_BO_UTL</ns8:kravGjelder>
+        <ns8:kravVelgType>FORELDRELOS</ns8:kravVelgType>
+        <ns8:hovedytelseTrukket>false</ns8:hovedytelseTrukket>
+        <ns8:barnetilleggTrukket>false</ns8:barnetilleggTrukket>
+        <ns8:ektefelletilleggTrukket>false</ns8:ektefelletilleggTrukket>
+        <ns8:boddArbeidetUtland>false</ns8:boddArbeidetUtland>
+        <ns8:vurdereTrygdeAvtale>false</ns8:vurdereTrygdeAvtale>
+        <ns8:datoFattetVedtak>2022-05-16T00:00:00+02:00</ns8:datoFattetVedtak>
+        <ns8:vedtakStatus>IVERKS</ns8:vedtakStatus>
+        <ns8:vedtaksDato>2022-05-16T00:00:00+02:00</ns8:vedtaksDato>
+    </ns33:vedtak>
+    <ns33:person xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:v1.Person">
+        <ns2:pid>19041076588</ns2:pid>
+        <ns2:aktorId>2183876453768</ns2:aktorId>
+    </ns33:person>
+    <ns33:trygdetidAvdodFarListe xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true"/>
+    <ns33:sakAlder xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns9:v1.SakAlder">
+        <ns9:sakType>BARNEP</ns9:sakType>
+    </ns33:sakAlder>
+    <ns33:trygdetidAvdodListe xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true"/>
+    <ns33:avdod xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns21:v1.Avdod"/>
+    <ns33:trygdetidAvdodMorListe xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true"/>
+    <ns33:trygdetidListe xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true"/>
+    <ns33:ytelsePerMaanedListe xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true"/>
+    <ns33:vilkarsvurderingListe xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                xsi:type="ns20:v1.VilkarsvurderingListe">
+        <ns20:vilkarsvurderingListe>
+            <ns17:fom>2022-03-01T00:00:00+01:00</ns17:fom>
+            <ns17:resultatHovedytelse>AVSL</ns17:resultatHovedytelse>
+        </ns20:vilkarsvurderingListe>
+    </ns33:vilkarsvurderingListe>
+    <ns33:inngangOgEksport xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns12:v1.InngangOgEksport"/>
+</ns33:pensjonsinformasjon>

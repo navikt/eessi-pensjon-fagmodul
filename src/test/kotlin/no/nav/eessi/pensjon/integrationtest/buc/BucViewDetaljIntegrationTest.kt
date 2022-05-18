@@ -288,9 +288,6 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
         //data og spurt eux
         verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&status=\"open\"", HttpMethod.GET, null, String::class.java) }
-//        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=1234567890000&status=\"open\"", HttpMethod.GET, null, String::class.java) }
-//        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?rinasaksnummer=5010&status=\"open\"", HttpMethod.GET, null, String::class.java) }
-//        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?rinasaksnummer=344000&status=\"open\"", HttpMethod.GET, null, String::class.java) }
         verify (exactly = 1) { restSafTemplate.exchange("/", HttpMethod.POST, httpEntity, String::class.java) }
 
         val expected = """
@@ -307,15 +304,38 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
     @Test
     fun `Hent mulige rinasaker for aktoer og saf med vedtak uten avdod`() {
-        val gjenlevendeFnr = "1234567890000"
         val gjenlevendeAktoerId = "1123123123123123"
         val vedtakid = "2312123123123"
         val saknr = "100001000"
 
         every { pensjonsinformasjonClient.hentAltPaaVedtak(vedtakid) } .answers( FunctionAnswer { Thread.sleep(56); mockVedtakUtenAvdod(gjenlevendeAktoerId) } )
 
+        val result = mockMvc.perform(
+            MockMvcRequestBuilders.get("/buc/rinasaker/$gjenlevendeAktoerId/saknr/$saknr/vedtak/$vedtakid")
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andReturn()
+
+        val response = result.response.getContentAsString(charset("UTF-8"))
+
+        assertEquals("[]", response)
+    }
+
+    @Test
+    fun `Hent mulige rinasaker for aktoer og saf med vedtak med avdod`() {
+        val gjenlevendeFnr = "1234567890000"
+        val avdodFnr = "6789567890000"
+        val gjenlevendeAktoerId = "1123123123123123"
+        val avdodAktoerId = "8888123123123123"
+        val vedtakid = "2312123123123"
+        val saknr = "100001000"
+
+        every { pensjonsinformasjonClient.hentAltPaaVedtak(vedtakid) } .answers( FunctionAnswer { Thread.sleep(56); mockVedtak(avdodFnr,gjenlevendeAktoerId) } )
+
         //gjenlevende aktoerid -> gjenlevendefnr
         every { personService.hentIdent(IdentType.NorskIdent, AktoerId(gjenlevendeAktoerId)) } returns NorskIdent(gjenlevendeFnr)
+        every { personService.hentIdent(IdentType.NorskIdent, AktoerId(avdodAktoerId)) } returns NorskIdent(avdodFnr)
 
         //saf (sikker arkiv fasade) (vedlegg meta) gjenlevende
         val httpEntity = dummyHeader(dummySafReqeust(gjenlevendeAktoerId))
@@ -329,6 +349,9 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
             .andReturn()
 
         val response = result.response.getContentAsString(charset("UTF-8"))
+
+        println("********")
+        println(response)
 
         //data og spurt eux
         verify (exactly = 1) { restSafTemplate.exchange("/", HttpMethod.POST, httpEntity, String::class.java) }

@@ -328,7 +328,7 @@ class BucController(
                 .filterNot { view -> view.euxCaseId in safViewAvdod.map { it.euxCaseId } }
 
             //samkjøre til megaview
-            val view = avdodViewSaf + avdodViewUtenSaf + safViewAvdod + safViewBruker
+            val view = avdodViewSaf + avdodViewUtenSaf + safViewAvdod + safViewBruker  // avdødSaf + avdødUtenSaf + avdødsaf + safBruker
 
             //return med sort og distict (avdodfmr og caseid)
             return@measure view.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
@@ -363,40 +363,40 @@ class BucController(
 
 
 
-    private fun avdodRinasakerList(vedtakId: String?, sakNr: String, aktoerId: String, safView: List<BucView>): List<BucView> {
-        if (vedtakId == null) return emptyList()
-
-        val pensjonsinformasjon = try {
-            innhentingService.hentPensjoninformasjonVedtak(vedtakId)
-        } catch (ex: Exception) {
-            logger.warn("Feiler ved henting av pensjoninformasjon (saknr: $sakNr, vedtak: $vedtakId), forsetter uten.")
-            null
-        }
-        val avdod = pensjonsinformasjon?.let { peninfo -> innhentingService.hentAvdodeFnrfraPensjoninformasjon(peninfo) }
-
-        //rinasaker på avdod
-        return if (avdod != null && (pensjonsinformasjon.person.aktorId == aktoerId)) {
-            val safAvdodBucList = listOf(BucType.P_BUC_02, BucType.P_BUC_05, BucType.P_BUC_06, BucType.P_BUC_10)
-
-            val avdodview = avdod.map { avdodfnr ->
-                euxInnhentingService.getBucViewAvdod(avdodfnr, aktoerId, sakNr)
-            }.flatten()
-
-            val avdodFnrs = avdodview.map { view -> view.avdodFnr }
-
-            val safAvdodView = safView.filter { sview -> sview.buctype in safAvdodBucList }
-                        .map { view ->
-                             view.copy(avdodFnr = avdodFnrs.firstOrNull()  )
-                        }
-
-            val avdodSafView = avdodview + safAvdodView
-            avdodSafView.sortedBy { view -> view.kilde }.distinctBy { view -> view.euxCaseId }
-
-        } else {
-            emptyList()
-        }
-
-    }
+//    private fun avdodRinasakerList(vedtakId: String?, sakNr: String, aktoerId: String, safView: List<BucView>): List<BucView> {
+//        if (vedtakId == null) return emptyList()
+//
+//        val pensjonsinformasjon = try {
+//            innhentingService.hentPensjoninformasjonVedtak(vedtakId)
+//        } catch (ex: Exception) {
+//            logger.warn("Feiler ved henting av pensjoninformasjon (saknr: $sakNr, vedtak: $vedtakId), forsetter uten.")
+//            null
+//        }
+//        val avdod = pensjonsinformasjon?.let { peninfo -> innhentingService.hentAvdodeFnrfraPensjoninformasjon(peninfo) }
+//
+//        //rinasaker på avdod
+//        return if (avdod != null && (pensjonsinformasjon.person.aktorId == aktoerId)) {
+//            val safAvdodBucList = listOf(BucType.P_BUC_02, BucType.P_BUC_05, BucType.P_BUC_06, BucType.P_BUC_10)
+//
+//            val avdodview = avdod.map { avdodfnr ->
+//                euxInnhentingService.getBucViewAvdod(avdodfnr, aktoerId, sakNr)
+//            }.flatten()
+//
+//            val avdodFnrs = avdodview.map { view -> view.avdodFnr }
+//
+//            val safAvdodView = safView.filter { sview -> sview.buctype in safAvdodBucList }
+//                        .map { view ->
+//                             view.copy(avdodFnr = avdodFnrs.firstOrNull()  )
+//                        }
+//
+//            val avdodSafView = avdodview + safAvdodView
+//            avdodSafView.sortedBy { view -> view.kilde }.distinctBy { view -> view.euxCaseId }
+//
+//        } else {
+//            emptyList()
+//        }
+//
+//    }
 
     @GetMapping("/rinasaker/{aktoerId}/saknr/{saknr}/avdod/{avdodfnr}")
     fun getAvdodRinaSak(
