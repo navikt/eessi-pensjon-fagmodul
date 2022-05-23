@@ -388,38 +388,38 @@ class EuxKlient(
 
     companion object {
 
-    fun getRinasakerUri(fnr: String? = null, euxCaseId: String? = null, bucType: String? = null, status: String? = null): UriComponents {
-        require(!(fnr == null && euxCaseId == null && bucType == null && status == null)) {
-            "Minst et søkekriterie må fylles ut for å få et resultat fra Rinasaker"
-        }
-        //logger.debug("** fnr: $fnr, eux: $euxCaseId, buc: $bucType, status: $status **")
+        fun getRinasakerUri(fnr: String? = null, euxCaseId: String? = null, bucType: String? = null, status: String? = null): UriComponents {
+            require(!(fnr == null && euxCaseId == null && bucType == null && status == null)) {
+                "Minst et søkekriterie må fylles ut for å få et resultat fra Rinasaker"
+            }
+//                logger.debug("** fnr: $fnr, eux: $euxCaseId, buc: $bucType, status: $status **")
 
-        val uriComponent = if (euxCaseId != null && status != null && fnr == null) {
-            UriComponentsBuilder.fromPath("/rinasaker")
-                .queryParam("rinasaksnummer", euxCaseId)
-                .queryParam("status", status)
-                .build()
-        } else if (fnr != null && bucType != null && status != null && euxCaseId == null) {
-            UriComponentsBuilder.fromPath("/rinasaker")
-                .queryParam("fødselsnummer", fnr)
-                .queryParam("buctype", bucType)
-                .queryParam("status", status)
-                .build()
-        } else if (fnr != null && status != null && bucType == null && euxCaseId == null) {
-            UriComponentsBuilder.fromPath("/rinasaker")
-                .queryParam("fødselsnummer", fnr)
-                .queryParam("status", status)
-                .build()
-        } else {
-            UriComponentsBuilder.fromPath("/rinasaker")
-                .queryParam("fødselsnummer", fnr ?: "")
-                .queryParam("rinasaksnummer", euxCaseId ?: "")
-                .queryParam("buctype", bucType ?: "")
-                .queryParam("status", status ?: "")
-                .build()
+            val uriComponent = if (euxCaseId != null && status != null && fnr == null) {
+                UriComponentsBuilder.fromPath("/rinasaker")
+                    .queryParam("rinasaksnummer", euxCaseId)
+                    .queryParam("status", status)
+                    .build()
+            } else if (fnr != null && bucType != null && status != null && euxCaseId == null) {
+                UriComponentsBuilder.fromPath("/rinasaker")
+                    .queryParam("fødselsnummer", fnr)
+                    .queryParam("buctype", bucType)
+                    .queryParam("status", status)
+                    .build()
+            } else if (fnr != null && status != null && bucType == null && euxCaseId == null) {
+                UriComponentsBuilder.fromPath("/rinasaker")
+                    .queryParam("fødselsnummer", fnr)
+                    .queryParam("status", status)
+                    .build()
+            } else {
+                UriComponentsBuilder.fromPath("/rinasaker")
+                    .queryParam("fødselsnummer", fnr ?: "")
+                    .queryParam("rinasaksnummer", euxCaseId ?: "")
+                    .queryParam("buctype", bucType ?: "")
+                    .queryParam("status", status ?: "")
+                    .build()
+            }
+            return uriComponent
         }
-        return uriComponent
-    }
     }
 
 

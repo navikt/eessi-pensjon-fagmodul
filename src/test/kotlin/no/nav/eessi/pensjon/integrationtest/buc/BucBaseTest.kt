@@ -135,7 +135,7 @@ open class BucBaseTest {
 
     fun dummyRinasakAvdodUrl(avdod: String? = null, bucType: String? = "P_BUC_02", status: String? =  "\"open\"") = dummyRinasakUrl(avdod, bucType, null, status)
     fun dummyRinasakUrl(fnr: String? = null, bucType: String? = null, euxCaseId: String? = null, status: String? = null) : UriComponents {
-        return EuxKlient.getRinasakerUri(fnr, euxCaseId, bucType, status)
+        return EuxKlient.getRinasakerUri(fnr, euxCaseId, bucType, status).also { println(it) }
     }
 
     fun dummyRinasak(rinaSakId: String, bucType: String): Rinasak {
