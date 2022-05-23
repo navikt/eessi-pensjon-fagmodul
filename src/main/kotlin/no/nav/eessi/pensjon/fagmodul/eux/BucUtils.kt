@@ -379,14 +379,6 @@ class BucUtils(private val buc: Buc) {
         return true
     }
 
-    @Deprecated("Ikke benytt denne lenger", ReplaceWith("isChildDocumentByParentIdBeCreated(String, SedType)"))
-    fun sjekkOmSvarSedKanOpprettes(SedType: SedType, parentId: String) : Boolean{
-        if(getAllDocuments().any { it.parentDocumentId == parentId && it.type == SedType && it.status == "empty" }){
-            return true
-        }
-        throw  ResponseStatusException(HttpStatus.BAD_REQUEST, "$SedType kan ikke opaprettes i RINA (mulig det allerede finnes et utkast)")
-    }
-
     fun filterSektorPandRelevantHorizontalAndXSeds(list: List<SedType>): List<SedType> {
         val gyldigSektorOgHSed: (SedType) -> Boolean = { type ->
             type.name.startsWith("P")
