@@ -44,8 +44,7 @@ class EuxControllerTest {
 
         val result = euxController.getPaakobledeland(BucType.P_BUC_06)
 
-        val body = result.body.toString()
-        val list = mapJsonToAny(body, typeRefs<List<String>>())
+        val list = mapJsonToAny(result.body!!, typeRefs<List<String>>())
         assertEquals(30, list.size)
         assertEquals(euxController.backupList.toString(), list.toString())
     }
@@ -56,8 +55,7 @@ class EuxControllerTest {
 
         val result = euxController.getPaakobledeland(BucType.P_BUC_06)
 
-        val body = result.body.toString()
-        val list = mapJsonToAny(body, typeRefs<List<String>>())
+        val list = mapJsonToAny(result.body!!, typeRefs<List<String>>())
         assertEquals(1, list.size)
     }
 }

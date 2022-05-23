@@ -52,7 +52,7 @@ class ArchitectureTest {
                     .importPackages(root)
 
             //assertEquals(625, testClasses.size, "Sanity check on no. of classes to analyze")
-            assertTrue(testClasses.size > 600, "Sanity check on no. of classes to analyze")
+            assertTrue(testClasses.size > 500, "Sanity check on no. of classes to analyze")
         }
     }
 

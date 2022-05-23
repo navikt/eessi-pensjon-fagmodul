@@ -75,23 +75,6 @@ class BucUtilsTest {
     }
 
     @Test
-    fun `sjekk for om parentId finnes alt med valgt SedType`() {
-        val SedType = SedType.P9000
-        val parentId = "a89676b0ea7c4d8684e17f15d2471188"
-
-        val bucjson = getTestJsonFile("buc-285268-answerid.json")
-        val bucUtil = BucUtils(mapJsonToAny(bucjson, typeRefs()))
-
-        assertTrue(bucUtil.sjekkOmSvarSedKanOpprettes(SedType, parentId))
-
-        val parentIdStatusSendt = "fd9fd9ee97ee46d0a3f5c58d1b245268"
-
-        assertThrows<ResponseStatusException> {
-            bucUtil.sjekkOmSvarSedKanOpprettes(SedType, parentIdStatusSendt)
-        }
-    }
-
-    @Test
     fun getProcessDefinitionName() {
         val result = bucUtils.getProcessDefinitionName()
         assertEquals("P_BUC_01", result)
