@@ -58,8 +58,8 @@ class OpprettPrefillSedIntegrationTest {
     @MockkBean(name = "safRestOidcRestTemplate")
     private lateinit var safRestOidcRestTemplate: RestTemplate
 
-    @MockkBean(name = "pensjonsinformasjonOidcRestTemplate")
-    private lateinit var pensjonsinformasjonOidcRestTemplate: RestTemplate
+    @MockkBean(name = "pensjoninformasjonRestTemplate")
+    private lateinit var pensjoninformasjonRestTemplate: RestTemplate
 
     @MockkBean
     private lateinit var kodeverkClient: KodeverkClient

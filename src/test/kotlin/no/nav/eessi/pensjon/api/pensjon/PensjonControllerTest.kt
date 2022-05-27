@@ -6,8 +6,8 @@ import io.mockk.impl.annotations.SpyK
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.eessi.pensjon.logging.AuditLogger
-import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonRequestBuilder
-import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonClient
+import no.nav.eessi.pensjon.pensjonsinformasjon.PensjonsinformasjonClient
+import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonRequestBuilder
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.Pensjontype
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.pensjon.v1.brukerssakerliste.V1BrukersSakerListe
@@ -326,7 +326,8 @@ class PensjonControllerTest {
             MockMvcRequestBuilders.get("/pensjon/sak/aktoer/$ident/sakid/$mockSakid/pensjonsak")
                 .contentType(MediaType.APPLICATION_JSON)
         )
-       .andReturn()
+        .andReturn()
+
         val response = result.response.getContentAsString(charset("UTF-8"))
         val expected = """
             {
@@ -613,7 +614,9 @@ class PensjonControllerTest {
             }
         """.trimIndent()
 
-//        println(response)
+        println("*********")
+        println(response)
+        println("*********")
         assertEquals(expected, response)
     }
 
