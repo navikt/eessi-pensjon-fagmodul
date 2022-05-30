@@ -1,4 +1,4 @@
-FROM navikt/java:11-appdynamics
+FROM navikt/java:17-appdynamics
 
 COPY build/libs/eessi-fagmodul-0.0.1.jar /app/app.jar
 

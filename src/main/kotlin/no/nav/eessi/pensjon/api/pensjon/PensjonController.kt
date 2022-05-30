@@ -9,9 +9,10 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
-import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjoninformasjonException
+import no.nav.eessi.pensjon.pensjonsinformasjon.FinnSak
+import no.nav.eessi.pensjon.pensjonsinformasjon.PensjoninformasjonException
+import no.nav.eessi.pensjon.pensjonsinformasjon.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjoninformasjonValiderKrav
-import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.utils.errorBody
 import no.nav.eessi.pensjon.utils.mapAnyToJson
 import no.nav.eessi.pensjon.utils.toJson
@@ -99,7 +100,7 @@ class PensjonController(
                 throw PensjoninformasjonException("Ingen gyldig brukerSakerListe, mangler data fra pesys")
             }
 
-            val sak = PensjonsinformasjonClient.finnSak(sakId, pendata) ?: return@measure false
+            val sak = FinnSak.finnSak(sakId, pendata) ?: return@measure false
 
             return@measure when(bucType) {
                 "P_BUC_01", "P_BUC_03" -> {
@@ -152,7 +153,7 @@ class PensjonController(
     fun hentSakPensjonsinformasjon(@PathVariable("ident", required = true) ident: String, @PathVariable("sakid", required = true) sakid: String): String {
         val saker = pensjonsinformasjonClient.hentAltPaaAktoerId(ident)
         logger.info("saker: ${saker.brukersSakerListe.brukersSakerListe.size}")
-        val sak = saker?.let { PensjonsinformasjonClient.finnSak(sakid, it) }
+        val sak = saker?.let { FinnSak.finnSak(sakid, it) }
         logger.info("den fakiske sak: ${sak != null}")
         sak?.let {
             val mapper = ObjectMapper()

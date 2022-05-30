@@ -1,5 +1,6 @@
 package no.nav.eessi.pensjon.services.pensjonsinformasjon
 
+import no.nav.eessi.pensjon.pensjonsinformasjon.PensjonsinformasjonClient
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

@@ -15,6 +15,7 @@ buildscript {
         epMetricsVersion = '0.4.+'
         epSecurityVersion = '0.0.22'
         epLoggingVersion = '1.+'
+        epPensjonInformasjonVersjon = '2.0.11'
     }
 
     repositories {
@@ -39,29 +40,25 @@ plugins {
     id 'jacoco'
 }
 
-assert JavaVersion.current().isJava11Compatible(): "Java 11 or newer is required"
+assert JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_17): "Java 17 or newer is required"
 
 group = 'no.nav.eessi'
 version = '0.0.1'
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 compileKotlin {
-    kotlinOptions.jvmTarget = "11"
+    kotlinOptions.jvmTarget = "17"
 }
 compileTestKotlin {
-    kotlinOptions.jvmTarget = "11"
+    kotlinOptions.jvmTarget = "17"
 }
 
 jar {
     archivesBaseName = 'eessi-fagmodul'
-}
-
-configurations {
-    xsd
 }
 
 dependencies {
@@ -99,11 +96,11 @@ dependencies {
     testImplementation("org.pac4j:spring-webmvc-pac4j:5.1.0")
 
     // Tjenestespesifikasjoner
-    xsd("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:1.2021.01.21-11.34-02f5eb27bb76")
+//    xsd("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:1.2021.01.21-11.34-02f5eb27bb76")
 
-    implementation("com.sun.xml.ws:jaxws-ri:2.3.2")
-    jaxb ('org.glassfish.jaxb:jaxb-xjc:2.3.2')
-    jaxb ('org.glassfish.jaxb:jaxb-runtime:2.3.2')
+//    implementation("com.sun.xml.ws:jaxws-ri:2.3.2")
+//    jaxb ('org.glassfish.jaxb:jaxb-xjc:2.3.2')
+//    jaxb ('org.glassfish.jaxb:jaxb-runtime:2.3.2')
 
     // Micrometer
     implementation("io.micrometer:micrometer-registry-prometheus:1.8.1")
@@ -112,7 +109,11 @@ dependencies {
     //implementation("no.nav.eessi.pensjon:ep-security-sts:$epSecurityVersion")
     implementation("no.nav.eessi.pensjon:ep-logging:$epLoggingVersion")
     implementation("no.nav.eessi.pensjon:ep-personoppslag:$eppersonoppslagVersion")
+    implementation("no.nav.eessi.pensjon:ep-pensjonsinformasjon:2.0.12")
+//    implementation files('build/ep-pensjonsinformasjon-2.0.11.jar')
 //    implementation(files("/Users/mariampervez/Prosjekter/ep-personoppslag/build/libs/ep-personoppslag-9.0.11.jar"))
+
+    implementation("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:1.2021.01.21-11.34-02f5eb27bb76")
 
 
     implementation("no.nav.eessi.pensjon:ep-eux:$epeuxVersion")
@@ -148,44 +149,6 @@ test {
     useJUnitPlatform()
 }
 
-// Temporary - until these misplaced dirs are cleaned in all builds
-processResources.doFirst {
-    delete "${projectDir}/src/main/resources/schemas"
-    delete "${projectDir}/src/main/resources/xsdtemp"
-}
-
-ext.xsdTemp = "${buildDir}/xsdtemp"
-ext.schemasDir = "${buildDir}/schemas"
-ext.xsdArtifactName = "pensjonsinformasjon-xsd.jar"
-
-ext.pensjonsinformasjonDir = "${schemasDir}"
-
-task copyPensjonsinformasjonXsd(type: Copy) {
-    from(configurations.xsd) {
-        rename '^pensjonsinformasjon.*', 'pensjonsinformasjon-xsd.jar'
-    }
-    into xsdTemp
-}
-
-task copyPensjonsinformasjonXsdsFromArtifacts(type: Copy) {
-    with copyPensjonsinformasjonXsd
-    includeEmptyDirs = false
-    from zipTree( xsdTemp + "/" + xsdArtifactName)
-    include '**/*.xsd'
-    into pensjonsinformasjonDir
-}
-
-jaxb {
-    xsdDir = pensjonsinformasjonDir
-}
-
-copyPensjonsinformasjonXsdsFromArtifacts.dependsOn tasks["copyPensjonsinformasjonXsd"]
-xjc.dependsOn tasks["copyPensjonsinformasjonXsdsFromArtifacts"]
-compileKotlin.dependsOn tasks["xjc"]
-
-sourceSets["main"].resources.srcDir(schemasDir)
-sourceSets["main"].java.srcDir("${buildDir}/generated-sources/xjc")
-
 wrapper {
     distributionType = Wrapper.DistributionType.ALL
 }
@@ -207,7 +170,7 @@ tasks.sonarqube.dependsOn tasks["jacocoTestReport"]
 repositories {
     mavenCentral()
 
-    ["maven-release","ep-personoppslag","tjenestespesifikasjoner","ep-metrics"].each { repo ->
+    ["maven-release","ep-personoppslag","tjenestespesifikasjoner","ep-metrics","ep-pensjonsinformasjon"].each { repo ->
         String token = System.getenv("GITHUB_TOKEN") ?: project.findProperty("gpr.key")
         if (!token) throw new NullPointerException("Missing token, you have to set GITHUB_TOKEN or gpr.key, see README")
         maven {
