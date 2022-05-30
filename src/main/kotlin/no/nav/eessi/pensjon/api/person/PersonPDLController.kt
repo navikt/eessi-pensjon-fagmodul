@@ -134,17 +134,17 @@ class PersonPDLController(
     }
 
     @GetMapping("/person/pdl/info/{aktoerid}", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getNameOnly(@PathVariable("aktoerid", required = true) aktoerid: String): ResponseEntity<Personinformasjon> {
+    fun getNameOnly(@PathVariable("aktoerid", required = true) aktoerid: String): ResponseEntity<PersoninformasjonAvdode> {
         auditLogger.log("getNameOnly", aktoerid)
 
         return personControllerHentPersonNavn.measure {
             val navn = hentPerson(aktoerid).navn
             ResponseEntity.ok(
-                Personinformasjon(
-                    navn?.sammensattEtterNavn,
-                    navn?.fornavn,
-                    navn?.mellomnavn,
-                    navn?.etternavn
+                PersoninformasjonAvdode(
+                    fulltNavn = navn?.sammensattEtterNavn,
+                    fornavn = navn?.fornavn,
+                    mellomnavn = navn?.mellomnavn,
+                    etternavn= navn?.etternavn
                 )
             )
         }
@@ -204,7 +204,6 @@ class PersonPDLController(
         return sed.let { it.nav?.bruker?.person?.pin?.firstOrNull { pin -> pin.land == "NO" && pin.identifikator != null } }?.identifikator
     }
 
-
     private fun hentDoedsdatoFraPDL(avdodIdent: String?): String {
         if (avdodIdent == null || avdodIdent.isEmpty()) return emptyList<String>().toJson()
         val avdodperson = pdlService.hentPerson(NorskIdent(avdodIdent))
@@ -214,7 +213,6 @@ class PersonPDLController(
         logger.debug("result: $result")
         return result
     }
-
 
     private fun hentPerson(aktoerid: String): Person {
         logger.info("Henter personinformasjon for aktørId: $aktoerid")
@@ -238,26 +236,18 @@ class PersonPDLController(
             logger.error("Excpetion: ${ex.message}")
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Feil ved Personoppslag")
         }
-
     }
 
     /**
      * Personinformasjon
      */
-    data class Personinformasjon(
-        var fulltNavn: String? = null,
-        var fornavn: String? = null,
-        var mellomnavn: String? = null,
-        var etternavn: String? = null
-    )
-
     data class PersoninformasjonAvdode(
-        var fnr: String? = null,
-        var aktorId: String? = null,
-        var fulltNavn: String? = null,
-        var fornavn: String? = null,
-        var mellomnavn: String? = null,
-        var etternavn: String? = null,
-        var relasjon: String? = null
+        val fnr: String? = null,
+        val aktorId: String? = null,
+        val fulltNavn: String? = null,
+        val fornavn: String? = null,
+        val mellomnavn: String? = null,
+        val etternavn: String? = null,
+        val relasjon: String? = null
     )
 }

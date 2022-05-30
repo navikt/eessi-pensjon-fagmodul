@@ -43,7 +43,6 @@ plugins {
 assert JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_17): "Java 17 or newer is required"
 
 group = 'no.nav.eessi'
-version = '0.0.1'
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
@@ -92,34 +91,22 @@ dependencies {
     implementation("no.nav.security:token-validation-test-support:${tokenSupportVersion}")
 
     implementation ("no.nav.common:token-client:2.2022.04.01_08.27-cbfeb0be0ee0")
-
-    testImplementation("org.pac4j:spring-webmvc-pac4j:5.1.0")
-
-    // Tjenestespesifikasjoner
-//    xsd("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:1.2021.01.21-11.34-02f5eb27bb76")
-
-//    implementation("com.sun.xml.ws:jaxws-ri:2.3.2")
-//    jaxb ('org.glassfish.jaxb:jaxb-xjc:2.3.2')
-//    jaxb ('org.glassfish.jaxb:jaxb-runtime:2.3.2')
+    implementation("org.springframework.kafka:spring-kafka:2.8.4")
 
     // Micrometer
     implementation("io.micrometer:micrometer-registry-prometheus:1.8.1")
 
     implementation("no.nav.eessi.pensjon:ep-metrics:$epMetricsVersion")
-    //implementation("no.nav.eessi.pensjon:ep-security-sts:$epSecurityVersion")
     implementation("no.nav.eessi.pensjon:ep-logging:$epLoggingVersion")
     implementation("no.nav.eessi.pensjon:ep-personoppslag:$eppersonoppslagVersion")
     implementation("no.nav.eessi.pensjon:ep-pensjonsinformasjon:2.0.12")
-//    implementation files('build/ep-pensjonsinformasjon-2.0.11.jar')
-//    implementation(files("/Users/mariampervez/Prosjekter/ep-personoppslag/build/libs/ep-personoppslag-9.0.11.jar"))
+    implementation("no.nav.eessi.pensjon:ep-eux:$epeuxVersion")
 
     implementation("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:1.2021.01.21-11.34-02f5eb27bb76")
 
-
-    implementation("no.nav.eessi.pensjon:ep-eux:$epeuxVersion")
-
     // Forenklere mocking av beans, benyttes som mockito mockbean
     testImplementation("com.ninja-squad:springmockk:3.1.1")
+    testImplementation("org.pac4j:spring-webmvc-pac4j:5.1.0")
 
     //mock - test
     testImplementation("io.mockk:mockk:1.12.3")
@@ -127,7 +114,6 @@ dependencies {
     testImplementation("org.skyscreamer:jsonassert:1.5.0")
 
     //Kafka
-    implementation("org.springframework.kafka:spring-kafka:2.8.4")
     testImplementation("org.springframework.kafka:spring-kafka-test:2.8.4")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlinVersion") {
