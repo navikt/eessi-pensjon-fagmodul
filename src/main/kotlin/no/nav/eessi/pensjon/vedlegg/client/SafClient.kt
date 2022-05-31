@@ -12,6 +12,8 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.retry.annotation.Backoff
+import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
@@ -38,6 +40,10 @@ class SafClient(private val safGraphQlOidcRestTemplate: RestTemplate,
         HentRinaSakIderFraDokumentMetadata = metricsHelper.init("HentRinaSakIderFraDokumentMetadata", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
     }
 
+    @Retryable(
+        exclude = [HttpClientErrorException.NotFound::class],
+        backoff = Backoff(delay = 10000L, maxDelay = 100000L, multiplier = 3.0)
+    )
     fun hentDokumentMetadata(aktoerId: String) : HentMetadataResponse {
         logger.info("Henter dokument metadata for aktørid: $aktoerId")
 
@@ -73,6 +79,10 @@ class SafClient(private val safGraphQlOidcRestTemplate: RestTemplate,
         }
     }
 
+    @Retryable(
+        exclude = [HttpClientErrorException.NotFound::class],
+        backoff = Backoff(delay = 10000L, maxDelay = 100000L, multiplier = 3.0)
+    )
     fun hentDokumentInnhold(journalpostId: String,
                             dokumentInfoId: String,
                             variantFormat: String) : HentdokumentInnholdResponse {
