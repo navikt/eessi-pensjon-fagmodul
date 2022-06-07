@@ -14,12 +14,13 @@ import no.nav.eessi.pensjon.eux.model.sed.Leggtilinstitusjon
 import no.nav.eessi.pensjon.eux.model.sed.Navsak
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.X005
-import no.nav.eessi.pensjon.eux.model.sed.X009
 import no.nav.eessi.pensjon.eux.model.sed.XNav
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.eux.EuxKlient
 import no.nav.eessi.pensjon.fagmodul.eux.EuxPrefillService
+import no.nav.eessi.pensjon.fagmodul.eux.EuxTestUtils.Companion.apiRequestWith
+import no.nav.eessi.pensjon.fagmodul.eux.EuxTestUtils.Companion.createDummyBucDocumentItem
 import no.nav.eessi.pensjon.fagmodul.eux.SedDokumentIkkeOpprettetException
 import no.nav.eessi.pensjon.fagmodul.eux.SedDokumentKanIkkeOpprettesException
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucSedResponse
@@ -53,14 +54,13 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.kafka.core.DefaultKafkaProducerFactory
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDate
 import java.time.Month
 
-class PrefillControllerTest {
+internal class PrefillControllerTest {
 
     @SpyK
     private var auditLogger: AuditLogger = AuditLogger()
@@ -69,7 +69,7 @@ class PrefillControllerTest {
     private lateinit var mockEuxPrefillService: EuxPrefillService
 
     @SpyK
-    private var mockEuxInnhentingService: EuxInnhentingService = EuxInnhentingService(mockk())
+    private var mockEuxInnhentingService: EuxInnhentingService = EuxInnhentingService("Q2", mockk())
 
     @MockK
     private lateinit var kafkaTemplate: KafkaTemplate<String, String>
@@ -102,7 +102,6 @@ class PrefillControllerTest {
         innhentingService.initMetrics()
 
         prefillController = PrefillController(
-            "q2",
             mockEuxPrefillService,
             mockEuxInnhentingService,
             innhentingService,
@@ -409,6 +408,7 @@ class PrefillControllerTest {
         val parentDocumentId = "1122334455666"
         val lastupdate = LocalDate.of(2020, Month.AUGUST, 7).toString()
 
+
         every { personService.hentIdent(IdentType.NorskIdent, any<AktoerId>()) } returns NorskIdent("12345")
 
         val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = listOf(ParticipantsItem()), processDefinitionVersion = "4.2")
@@ -524,66 +524,6 @@ class PrefillControllerTest {
         assertThrows<SedDokumentIkkeOpprettetException> {
             prefillController.addInstutionAndDocument(apiRequest)
         }
-    }
-
-    @Test
-    fun `check apiRequest for prefill X010 contains X009 payload`() {
-        val x009 = SED.fromJsonToConcrete(javaClass.getResource("/json/nav/X009-NAV.json").readText()) as X009
-        every { mockEuxInnhentingService.getSedOnBucByDocumentId(any(), any()) } returns x009
-
-        val apiRequest = apiRequestWith("1000000", emptyList(), buc = "P_BUC_01", sed = "X010")
-
-
-        val json = prefillController.checkForX010AndAddX009(apiRequest, "20000000").toJson()
-
-        val expected = """
-{
-  "sakId" : "EESSI-PEN-123",
-  "vedtakId" : "1234567",
-  "kravId" : null,
-  "kravDato" : null,
-  "kravType" : null,
-  "aktoerId" : "0105094340092",
-  "fnr" : null,
-  "payload" : "{\n  \"sed\" : \"X009\",\n  \"nav\" : {\n    \"sak\" : {\n      \"kontekst\" : {\n        \"bruker\" : {\n          \"mor\" : null,\n          \"far\" : null,\n          \"person\" : {\n            \"pin\" : null,\n            \"pinland\" : null,\n            \"statsborgerskap\" : null,\n            \"etternavn\" : \"æøå\",\n            \"etternavnvedfoedsel\" : null,\n            \"fornavn\" : \"æøå\",\n            \"fornavnvedfoedsel\" : null,\n            \"tidligerefornavn\" : null,\n            \"tidligereetternavn\" : null,\n            \"kjoenn\" : \"M\",\n            \"foedested\" : null,\n            \"foedselsdato\" : \"æøå\",\n            \"sivilstand\" : null,\n            \"relasjontilavdod\" : null,\n            \"rolle\" : null\n          },\n          \"adresse\" : null,\n          \"arbeidsforhold\" : null,\n          \"bank\" : null\n        },\n        \"refusjonskrav\" : {\n          \"antallkrav\" : \"æøå\",\n          \"id\" : \"æøå\"\n        },\n        \"arbeidsgiver\" : {\n          \"identifikator\" : [ {\n            \"id\" : \"æøå\",\n            \"type\" : \"registrering\"\n          } ],\n          \"adresse\" : {\n            \"gate\" : \"æøå\",\n            \"bygning\" : \"æøå\",\n            \"by\" : \"æøå\",\n            \"postnummer\" : \"æøå\",\n            \"postkode\" : null,\n            \"region\" : \"æøå\",\n            \"land\" : \"NO\",\n            \"kontaktpersonadresse\" : null,\n            \"datoforadresseendring\" : null,\n            \"postadresse\" : null,\n            \"startdato\" : null,\n            \"type\" : null,\n            \"annen\" : null\n          },\n          \"navn\" : \"æøå\"\n        }\n      },\n      \"leggtilinstitusjon\" : null,\n      \"paaminnelse\" : {\n        \"svar\" : null,\n        \"sende\" : [ {\n          \"type\" : \"dokument\",\n          \"detaljer\" : \"æøå\"\n        } ]\n      }\n    }\n  },\n  \"sedGVer\" : \"4\",\n  \"sedVer\" : \"2\",\n  \"pensjon\" : null\n}",
-  "buc" : "P_BUC_01",
-  "sed" : "X010",
-  "documentid" : null,
-  "euxCaseId" : "1000000",
-  "institutions" : [ ],
-  "subjectArea" : "Pensjon",
-  "avdodfnr" : null,
-  "subject" : null,
-  "referanseTilPerson" : null
-}
-        """.trimIndent()
-
-        JSONAssert.assertEquals(expected, json, false)
-
-    }
-
-
-    private fun apiRequestWith(euxCaseId: String, institutions: List<InstitusjonItem> = listOf(), sed: String? = "P6000", buc: String? = "P_BUC_06"): ApiRequest {
-        return ApiRequest(
-            subjectArea = "Pensjon",
-            sakId = "EESSI-PEN-123",
-            euxCaseId = euxCaseId,
-            vedtakId = "1234567",
-            institutions = institutions,
-            sed = sed,
-            buc = buc,
-            aktoerId = "0105094340092"
-        )
-    }
-
-    private fun createDummyBucDocumentItem() : DocumentsItem {
-        return DocumentsItem(
-            id = "3123123",
-            type = SedType.P6000,
-            status = "empty",
-            allowsAttachments = true,
-            direction = "OUT"
-        )
     }
 }
 

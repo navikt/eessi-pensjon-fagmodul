@@ -3,8 +3,10 @@ package no.nav.eessi.pensjon.fagmodul.eux
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.BucType
 import no.nav.eessi.pensjon.eux.model.buc.MissingBuc
+import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.sed.Person
 import no.nav.eessi.pensjon.eux.model.sed.SED
+import no.nav.eessi.pensjon.eux.model.sed.X009
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucView
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucViewKilde
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
@@ -12,21 +14,25 @@ import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.PreviewPdf
+import no.nav.eessi.pensjon.fagmodul.models.ApiRequest
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.models.Kodeverk
 import no.nav.eessi.pensjon.fagmodul.models.KodeverkResponse
 import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
+import no.nav.eessi.pensjon.utils.mapAnyToJson
 import no.nav.eessi.pensjon.utils.mapJsonToAny
+import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import no.nav.eessi.pensjon.utils.typeRefs
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
 
 @Service
-class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlient: EuxKlient) {
+class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @Qualifier("fagmodulEuxKlient") private val euxKlient: EuxKlient) {
 
     private val logger = LoggerFactory.getLogger(EuxInnhentingService::class.java)
 
@@ -418,5 +424,28 @@ class EuxInnhentingService (@Qualifier("fagmodulEuxKlient") private val euxKlien
         logger.info("Oppdaterer ekisternede sed på rina: $euxcaseid. docid: $documentid")
         return euxKlient.updateSedOnBuc(euxcaseid, documentid, sedPayload)
     }
+
+
+    fun checkForP7000AndAddP6000(request: ApiRequest): ApiRequest {
+        return if (request.sed == SedType.P7000.name) {
+            //hente payload from ui
+            val docitems = request.payload?.let { mapJsonToAny(it, typeRefs<List<P6000Dokument>>()) }
+            logger.info("P6000 payload size: ${docitems?.size}")
+            //hente p6000sed fra rina legge på ny payload til prefill
+            val seds = docitems?.map { Pair<P6000Dokument, SED>(it, getSedOnBucByDocumentId(it.bucid, it.documentID)) }
+            //ny json payload til prefull
+            request.copy(payload = seds?.let { mapAnyToJson(it) })
+        } else request
+    }
+
+    //TODO fjern env for q2 når dette funker..
+    fun checkForX010AndAddX009(request: ApiRequest, parentId: String): ApiRequest {
+        return if (environment == "q2" &&  request.sed == SedType.X010.name && request.euxCaseId != null) {
+            logger.info("Legger ved X009 som payload for prefill X010")
+            val x009 = getSedOnBucByDocumentId(request.euxCaseId, parentId) as X009
+            request.copy(payload = x009.toJson())
+        } else request
+    }
+
 
 }
