@@ -176,9 +176,9 @@ class BucController(
             val start = System.currentTimeMillis()
 
             //liste over avdodfnr fra vedtak (pesys)
-            val avdodlist = avdodFraVedtak(vedtakId, sakNr)
+            val avdodFnrListe = avdodFraVedtak(vedtakId, sakNr)
 
-            if (avdodlist.isEmpty()) {
+            if (avdodFnrListe.isEmpty()) {
                 return@measure emptyList<BucView>()
                     .also {
                         logger.info("Total view size: ${it.size}")
@@ -196,7 +196,7 @@ class BucController(
             logger.info("hentRinaSakIderFraMetaData tid: ${System.currentTimeMillis()-joarkstart} i ms")
 
             //hent avdod saker fra eux/rina
-            val avdodView = avdodlist.map { avdodfnr ->
+            val avdodView = avdodFnrListe.map { avdodfnr ->
                 avdodRinasakerView(avdodfnr, aktoerId, sakNr)
             }.flatten()
 
@@ -219,8 +219,8 @@ class BucController(
             //saf filter mot avdod
             val safViewAvdod = safView
                 .filter { view -> view.buctype in safAvdodBucList }
-                .map { view -> view.copy(avdodFnr = avdodlist.firstOrNull()) }
-                .also { if (avdodlist.size == 2) logger.warn("finnes 2 avdod men valgte første, ingen koblinger")}
+                .map { view -> view.copy(avdodFnr = avdodFnrListe.firstOrNull()) }
+                .also { if (avdodFnrListe.size == 2) logger.warn("finnes 2 avdod men valgte første, ingen koblinger")}
 
             //saf filter mot bruker
             val safViewBruker = safView
@@ -229,10 +229,10 @@ class BucController(
             //samkjøre til megaview
             val view = avdodViewSaf + avdodViewUtenSaf + safViewAvdod + safViewBruker  // avdødSaf + avdødUtenSaf + avdødsaf + safBruker
 
-            //return med sort og distict (avdodfmr og caseid)
+            //return med sort og distinct (avdodfnr og caseid)
             return@measure view.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
                 .also { logger.info("Total view size: ${it.size}") }
-                .also { if (avdodlist.isEmpty()) {
+                .also { if (avdodFnrListe.isEmpty()) {
                         logger.info("BrukerRinasaker total tid: ${System.currentTimeMillis()-start} i ms")
                     } else {
                         logger.info("GjenlevendeRinasakerVedtak total tid: ${System.currentTimeMillis()-start} i ms")

@@ -147,7 +147,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
     fun getFilteredArchivedaRinasakerSak(list: List<Rinasak>): List<Rinasak> {
         val start = System.currentTimeMillis()
         val ugyldigeRinasaker = listOf("6006777")
-        fun filterUfyldigeRinasaker(rinaid: String) : Boolean {
+        fun filterUgyldigeRinasaker(rinaid: String) : Boolean {
             return if (rinaid in ugyldigeRinasaker) {
                 true.also { logger.warn("Fjerner ugydlig rinasak: $rinaid") }
             } else {
@@ -161,10 +161,10 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
             .filterNot { rinasak -> rinasak.status == "archived" }
             .filter { rinasak -> rinasak.processDefinitionId in  gyldigeBucs }
             .sortedBy { rinasak -> rinasak.id }
-            .filterNot { rinaid -> filterUfyldigeRinasaker(rinaid.id!!) }
+            .filterNot { rinaid -> filterUgyldigeRinasaker(rinaid.id!!) }
             .toList()
             .also { val end = System.currentTimeMillis()
-                logger.info("FilteredArchivedaRinasakerSak tid ${end-start} i ms")
+                logger.info(" *** før: ${list.size} etter: ${it.size} *** FilteredArchivedaRinasakerSak tid ${end-start} i ms")
             }
     }
 
@@ -177,30 +177,30 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
     }
 
 
-    fun getBucAndSedViewAvdod(gjenlevendeFnr: String, avdodFnr: String): List<BucAndSedView> {
-        // Henter rina saker basert på gjenlevendes fnr
-        val validAvdodBucs = listOf("P_BUC_02","P_BUC_05","P_BUC_06","P_BUC_10")
-        val rinaSakerMedFnr = validAvdodBucs.map {
-            euxKlient.getRinasaker(avdodFnr, bucType = it, status = "\"open\"") }
-           .flatten()
-
-        logger.info("rinaSaker total: ${rinaSakerMedFnr.size}")
-        val filteredRinaIdAvdod = getFilteredArchivedaRinasaker(rinaSakerMedFnr)
-
-        logger.debug("filterer ut rinasaker og får kun ider tilbake size: ${filteredRinaIdAvdod.size}")
-
-        val bucdocumentidAvdod = hentBucOgDocumentIdAvdod(filteredRinaIdAvdod)
-
-        val listeAvSedsPaaAvdod = hentDocumentJsonAvdod(bucdocumentidAvdod)
-
-        val gyldigeBucs = filterGyldigBucGjenlevendeAvdod(listeAvSedsPaaAvdod, gjenlevendeFnr)
-
-        val gjenlevendeBucAndSedView =  getBucAndSedViewWithBuc(gyldigeBucs, gjenlevendeFnr, avdodFnr)
-
-        logger.debug("TotalRinasaker med avdod og gjenlevende(rina/saf): ${gjenlevendeBucAndSedView.size}")
-
-        return gjenlevendeBucAndSedView
-    }
+//    fun getBucAndSedViewAvdod(gjenlevendeFnr: String, avdodFnr: String): List<BucAndSedView> {
+//        // Henter rina saker basert på gjenlevendes fnr
+//        val validAvdodBucs = listOf("P_BUC_02","P_BUC_05","P_BUC_06","P_BUC_10")
+//        val rinaSakerMedFnr = validAvdodBucs.map {
+//            euxKlient.getRinasaker(avdodFnr, bucType = it, status = "\"open\"") }
+//           .flatten()
+//
+//        logger.info("rinaSaker total: ${rinaSakerMedFnr.size}")
+//        val filteredRinaIdAvdod = getFilteredArchivedaRinasaker(rinaSakerMedFnr)
+//
+//        logger.debug("filterer ut rinasaker og får kun ider tilbake size: ${filteredRinaIdAvdod.size}")
+//
+//        val bucdocumentidAvdod = hentBucOgDocumentIdAvdod(filteredRinaIdAvdod)
+//
+//        val listeAvSedsPaaAvdod = hentDocumentJsonAvdod(bucdocumentidAvdod)
+//
+//        val gyldigeBucs = filterGyldigBucGjenlevendeAvdod(listeAvSedsPaaAvdod, gjenlevendeFnr)
+//
+//        val gjenlevendeBucAndSedView =  getBucAndSedViewWithBuc(gyldigeBucs, gjenlevendeFnr, avdodFnr)
+//
+//        logger.debug("TotalRinasaker med avdod og gjenlevende(rina/saf): ${gjenlevendeBucAndSedView.size}")
+//
+//        return gjenlevendeBucAndSedView
+//    }
 
     /**
      * filtere ut gyldig buc fra gjenlevende og avdød
