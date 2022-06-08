@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.web.client.RestTemplate
+import kotlin.test.assertContentEquals
 
 class EuxControllerTest {
 
@@ -22,15 +23,15 @@ class EuxControllerTest {
 
     private lateinit var euxController: EuxController
 
+    private val backupList = listOf("AT", "BE", "BG", "CH", "CZ", "DE", "DK", "EE", "ES", "FI", "FR", "HR", "HU", "IE", "IS", "IT", "LI", "LT", "LU", "LV", "MT", "NL", "NO", "PL", "PT", "RO", "SE", "SI", "SK", "UK")
+
     @BeforeEach
     fun before() {
-        mockEuxInnhentingService = EuxInnhentingService(EuxKlient(RestTemplate(), RestTemplate()))
+        mockEuxInnhentingService = EuxInnhentingService("Q2", EuxKlient(RestTemplate(), RestTemplate()))
 
         MockKAnnotations.init(this, relaxed = true, relaxUnitFun = true)
 
         euxController = EuxController(
-            "default",
-            rinaUrl = "http://localhost/cpi",
             euxInnhentingService = mockEuxInnhentingService
         )
         euxController.initMetrics()
@@ -45,8 +46,8 @@ class EuxControllerTest {
         val result = euxController.getPaakobledeland(BucType.P_BUC_06)
 
         val list = mapJsonToAny(result.body!!, typeRefs<List<String>>())
-        assertEquals(30, list.size)
-        assertEquals(euxController.backupList.toString(), list.toString())
+        assertContentEquals(backupList, list)
+
     }
 
     @Test

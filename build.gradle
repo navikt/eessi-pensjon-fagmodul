@@ -2,7 +2,7 @@ buildscript {
 
     ext {
         kotlinVersion = '1.6.10'
-        springBootVersion = '2.6.6'
+        springBootVersion = '2.6.8'
         springfoxVersion = '3.0.0'
         jacksonModuleKotlinVersion = '2.13.2'
         cxfVersion = '3.5.1'
@@ -10,18 +10,18 @@ buildscript {
         logstashLogbackVersion = '7.0.1'
         pensjonInformasjonVersion = '9.4.10'
         eppersonoppslagVersion = '9.0.12'
-        archunitVersion = '0.22.0'
+        archunitVersion = '0.23.1'
         epeuxVersion = '1.+'
         epMetricsVersion = '0.4.+'
         epSecurityVersion = '0.0.22'
         epLoggingVersion = '1.+'
         epPensjonInformasjonVersjon = '2.0.11'
+        springKafkaVersion = '2.8.6'
     }
 
     repositories {
         mavenCentral()
     }
-
 }
 
 plugins {
@@ -91,7 +91,7 @@ dependencies {
     implementation("no.nav.security:token-validation-test-support:${tokenSupportVersion}")
 
     implementation ("no.nav.common:token-client:2.2022.04.01_08.27-cbfeb0be0ee0")
-    implementation("org.springframework.kafka:spring-kafka:2.8.4")
+    implementation("org.springframework.kafka:spring-kafka:${springKafkaVersion}")
 
     // Micrometer
     implementation("io.micrometer:micrometer-registry-prometheus:1.8.1")
@@ -114,7 +114,7 @@ dependencies {
     testImplementation("org.skyscreamer:jsonassert:1.5.0")
 
     //Kafka
-    testImplementation("org.springframework.kafka:spring-kafka-test:2.8.4")
+    testImplementation("org.springframework.kafka:spring-kafka-test:${springKafkaVersion}")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlinVersion") {
         exclude module: 'kotlin-test-js'
@@ -129,7 +129,6 @@ dependencies {
         exclude module: 'junit-vintage-engine'
     }
 }
-
 
 test {
     useJUnitPlatform()
@@ -151,7 +150,6 @@ jacocoTestReport {
 }
 
 tasks.sonarqube.dependsOn tasks["jacocoTestReport"]
-
 
 repositories {
     mavenCentral()

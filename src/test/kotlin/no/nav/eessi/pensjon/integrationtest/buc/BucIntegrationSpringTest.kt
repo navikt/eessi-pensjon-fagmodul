@@ -1,5 +1,6 @@
 package no.nav.eessi.pensjon.integrationtest.buc
 
+
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
@@ -167,22 +168,25 @@ internal class BucIntegrationSpringTest: BucBaseTest() {
         val rinabucdocumentidpath = "/buc/1010/sed/1"
         every { restEuxTemplate.exchange( rinabucdocumentidpath, HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( sedjson )
 
-        mockMvc.perform(get("/buc/rinasaker/$gjenlevendeAktoerId/saknr/$saknr/vedtak/$vedtakid")
+        val result = mockMvc.perform(get("/buc/rinasaker/$gjenlevendeAktoerId/saknr/$saknr/vedtak/$vedtakid")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andReturn()
 
-//        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&buctype=P_BUC_02&status=\"open\"", HttpMethod.GET, null, String::class.java) }
-//        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&buctype=P_BUC_05&status=\"open\"", HttpMethod.GET, null, String::class.java) }
-//        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=1234567890000&status=\"open\"", HttpMethod.GET, null, String::class.java) }
-//        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&buctype=P_BUC_06&status=\"open\"", HttpMethod.GET, null, String::class.java) }
-//        verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&buctype=P_BUC_10&status=\"open\"", HttpMethod.GET, null, String::class.java) }
-//
-//        verify (exactly = 1) { restEuxTemplate.exchange("/buc/1010", HttpMethod.GET, null, String::class.java) }
-//        verify (exactly = 1) { restEuxTemplate.exchange("/buc/1010/sed/1", HttpMethod.GET, null, String::class.java) }
-//        verify (exactly = 1) { restSafTemplate.exchange("/", HttpMethod.POST, httpEntity, String::class.java) }
+        val response = result.response.getContentAsString(charset("UTF-8"))
 
+        //TODO testen stemmer ikke, gir tom liste tilbake
+        /*verify(restEuxTemplate, times(1)).exchange("/rinasaker?fødselsnummer=01010100001&rinasaksnummer=&buctype=P_BUC_02&status=\"open\"", HttpMethod.GET, null, String::class.java)
+        verify(restEuxTemplate, times(1)).exchange("/rinasaker?fødselsnummer=01010100001&rinasaksnummer=&buctype=P_BUC_05&status=\"open\"", HttpMethod.GET, null, String::class.java)
+        verify(restEuxTemplate, times(1)).exchange("/rinasaker?fødselsnummer=1234567890000&rinasaksnummer=&buctype=&status=", HttpMethod.GET, null, String::class.java)
+        verify(restEuxTemplate, times(1)).exchange("/buc/1010", HttpMethod.GET, null, String::class.java)
+        verify(restEuxTemplate, times(1)).exchange("/buc/1010/sed/1", HttpMethod.GET, null, String::class.java)
+        verify(restEuxTemplate, times(1)).exchange("/buc/2020", HttpMethod.GET, null, String::class.java)
+        verify(restEuxTemplate, times(1)).exchange("/buc/2020/sed/1", HttpMethod.GET, null, String::class.java)
+        verify(restSafTemplate, times(1)).exchange(eq("/"), eq(HttpMethod.POST), eq(httpEntity), eq(String::class.java))
+        JSONAssert.assertEquals(response, csseTwoExpected(), false)
+*/
     }
 
 /*    @Test

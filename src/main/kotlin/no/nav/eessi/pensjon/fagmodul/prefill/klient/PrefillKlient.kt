@@ -8,7 +8,6 @@ import no.nav.eessi.pensjon.utils.typeRefs
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
@@ -29,12 +28,8 @@ class PrefillKlient(private val prefillOAuthTemplate: RestTemplate,
         @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())
 ) {
 
-    @Value("\${ENV}")
-    lateinit var env: String
-
     private val logger: Logger by lazy { LoggerFactory.getLogger(PrefillKlient::class.java) }
     private lateinit var prefillSed: MetricsHelper.Metric
-//    private lateinit var prefillOidcRestTemplate: RestTemplate()
 
     @PostConstruct
     fun initMetrics() {

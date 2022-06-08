@@ -23,7 +23,6 @@ import no.nav.eessi.pensjon.utils.toJson
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.GetMapping
@@ -37,7 +36,6 @@ import javax.annotation.PostConstruct
 @RestController
 @RequestMapping("/buc")
 class BucController(
-    @Value("\${ENV}") val environment: String,
     private val euxInnhentingService: EuxInnhentingService,
     private val auditlogger: AuditLogger,
     private val innhentingService: InnhentingService,
@@ -120,104 +118,6 @@ class BucController(
 
         return euxInnhentingService.getRinasaker(norskIdent, rinaSakIderFraJoark)
     }
-
-//    @Deprecated("Utgaar snart", ReplaceWith("getGjenlevendeRinasakerVedtak"))
-//    @GetMapping("/detaljer/{aktoerid}",
-//        "/detaljer/{aktoerid}/saknr/{saksnr}",
-//        "/detaljer/{aktoerid}/saknr/{sakid}/{euxcaseid}",
-//        produces = [MediaType.APPLICATION_JSON_VALUE])
-//    fun getBucogSedView(@PathVariable("aktoerid", required = true) aktoerid: String,
-//                        @PathVariable("sakid", required = false) sakid: String? = "",
-//                        @PathVariable("euxcaseid", required = false) euxcaseid: String? = ""): List<BucAndSedView> {
-//        auditlogger.log("getBucogSedView", aktoerid)
-//
-//        return bucDetaljer.measure {
-//            logger.info("henter opp bucview for aktoerid: $aktoerid, saknr: $sakid")
-//            val fnr = innhentingService.hentFnrfraAktoerService(aktoerid)
-//
-//            val rinasakIdList = try {
-//                val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraMetaData(aktoerid)
-//                val rinasaker = euxInnhentingService.getRinasaker(fnr, rinaSakIderFraJoark)
-//                val rinasakIdList = euxInnhentingService.getFilteredArchivedaRinasaker(rinasaker)
-//                rinasakIdList
-//            } catch (ex: Exception) {
-//                logger.error("Feil oppstod under henting av rinasaker på aktoer: $aktoerid", ex)
-//                throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Feil ved henting av rinasaker på borger")
-//            }
-//
-//            try {
-//                return@measure euxInnhentingService.getBucAndSedView(rinasakIdList)
-//            } catch (ex: Exception) {
-//                logger.error("Feil ved henting av visning BucSedAndView på aktoer: $aktoerid", ex)
-//                throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Feil ved oppretting av visning over BUC")
-//            }
-//        }
-//    }
-
-//    @GetMapping(
-//        "/detaljer/{aktoerid}/vedtak/{vedtakid}",
-//        "/detaljer/{aktoerid}/saknr/{saksnr}/vedtak/{vedtakid}",
-//        produces = [MediaType.APPLICATION_JSON_VALUE])
-//    fun getBucogSedViewVedtak(@PathVariable("aktoerid", required = true) gjenlevendeAktoerid: String,
-//                    @PathVariable("vedtakid", required = true) vedtakid: String,
-//                    @PathVariable("saksnr", required = false) saksnr: String? = null): List<BucAndSedView> {
-//        return bucDetaljerVedtak.measure {
-//
-//            val pensjonsinformasjon = try {
-//                innhentingService.hentPensjoninformasjonVedtak(vedtakid)
-//            } catch (ex: Exception) {
-//                logger.warn("Feiler ved henting av pensjoninformasjon (saknr: $saksnr, vedtak: $vedtakid), forsetter uten.")
-//                null
-//            }
-//
-//            val avdod = pensjonsinformasjon?.let { peninfo -> innhentingService.hentAvdodeFnrfraPensjoninformasjon(peninfo) }
-//            return@measure if (avdod != null && (pensjonsinformasjon.person.aktorId == gjenlevendeAktoerid)) {
-//                logger.info("Henter bucview for gjenlevende med aktoerid: $gjenlevendeAktoerid, saksnr: $saksnr og vedtakid: $vedtakid")
-//                avdod.map { avdodFnr -> getBucogSedViewGjenlevende(gjenlevendeAktoerid, avdodFnr) }.flatten()
-//            } else {
-//                emptyList()
-//            }
-//        }
-//    }
-
-//    @GetMapping(
-//            "/detaljer/{aktoerid}/avdod/{avdodfnr}",
-//            "/detaljer/{aktoerid}/avdod/{avdodfnr}/saknr/{saknr}",  produces = [MediaType.APPLICATION_JSON_VALUE])
-//    fun getBucogSedViewGjenlevende(@PathVariable("aktoerid", required = true) aktoerid: String,
-//                                   @PathVariable("avdodfnr", required = true) avdodfnr: String,
-//                                   @PathVariable("saknr", required = false) saknr: String? = null): List<BucAndSedView> {
-//        return bucDetaljerGjenlev.measure {
-//            val fnrGjenlevende = innhentingService.hentFnrfraAktoerService(aktoerid)
-//
-//            //hente BucAndSedView på avdød
-//            val avdodBucAndSedView = try {
-//                logger.debug("henter avdod BucAndSedView fra avdød")
-//                euxInnhentingService.getBucAndSedViewAvdod(fnrGjenlevende, avdodfnr)
-//            } catch (ex: Exception) {
-//                logger.error("Feiler ved henting av Rinasaker for gjenlevende og avdod", ex)
-//                throw ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, "Feil ved henting av Rinasaker for gjenlevende")
-//            }
-//
-////            val normalBuc = getBucogSedView(aktoerid)
-//            val normalbucAndSedView = normalBuc.map { bucview ->
-//                if ( bucview.type == "P_BUC_02" || bucview.type == "P_BUC_05" || bucview.type == "P_BUC_10" || bucview.type == "P_BUC_06" ) {
-//                    bucview.copy(subject = BucAndSedSubject(SubjectFnr(fnrGjenlevende), SubjectFnr(avdodfnr)))
-//                } else {
-//                    bucview
-//                }
-//            }.toList()
-//
-//            //hente BucAndSedView resterende bucs på gjenlevende (normale bucs)
-//            //logger.info("henter buc normalt")
-//            //val normalbucAndSedView = getBucogSedView(aktoerid)
-//            logger.debug("buclist avdød: ${avdodBucAndSedView.size} buclist normal: ${normalbucAndSedView.size}")
-//            val list = avdodBucAndSedView.plus(normalbucAndSedView).distinctBy { it.caseId }
-//
-//            logger.debug("bucview size: ${list.size} ------------------ bucview slutt --------------------")
-//            return@measure list
-//
-//        }
-//    }
 
     @GetMapping("/enkeldetalj/{euxcaseid}")
     @Deprecated("Går ut", ReplaceWith("Denne går ut ny funksjon på vei inn"))

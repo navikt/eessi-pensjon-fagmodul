@@ -13,7 +13,6 @@ import no.nav.security.token.support.core.api.Protected
 import no.nav.security.token.support.core.api.Unprotected
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -26,8 +25,6 @@ import javax.annotation.PostConstruct
 @RestController
 @RequestMapping("/eux")
 class EuxController(
-    @Value("\${ENV}") val environment: String,
-    @Value("\${RINA_HOST_URL}") private val rinaUrl: String,
     private val euxInnhentingService: EuxInnhentingService,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())
 ) {
@@ -53,12 +50,6 @@ class EuxController(
     @GetMapping("/rinaurl")
     fun getRinaUrl2020() : ResponseEntity<Map<String, String>> {
         return ResponseEntity.ok(mapOf("rinaUrl" to euxInnhentingService.getRinaUrl()))
-    }
-
-    @Protected
-    @GetMapping("/subjectarea")
-    fun getSubjectArea(): List<String> {
-        return listOf("Pensjon")
     }
 
     @Protected
@@ -112,6 +103,5 @@ class EuxController(
             return@measure euxInnhentingService.getInstitutions(buctype, landkode)
         }
     }
-
 
 }

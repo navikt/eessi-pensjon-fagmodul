@@ -9,6 +9,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.sed.SED
+import no.nav.eessi.pensjon.fagmodul.eux.EuxTestUtils.Companion.dummyRequirement
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Organisation
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
 import no.nav.eessi.pensjon.logging.RequestResponseLoggerInterceptor
@@ -38,7 +39,6 @@ import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
 import kotlin.String
-
 
 class EuxKlientTest {
 
@@ -522,20 +522,9 @@ class EuxKlientTest {
                 ParticipantsItem(organisation = Organisation(countryCode = "PL", id = "PolishAcc"))
         )
 
-//        val mockResponse = ResponseEntity.ok().body(listOf(
-//            ParticipantsItem(organisation = Organisation(countryCode = "DK", id = "DK006")),
-//            ParticipantsItem(organisation = Organisation(countryCode = "PL", id = "PolishAcc"))
-//        ))
-
-
         every { mockEuxrestTemplate.exchange(any<String>(), HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(mockResponse.toJson())
 
         val deltakere = klient.getBucDeltakere(mockEuxRinaid)
         assertEquals(2, deltakere.size)
-    }
-
-    private fun dummyRequirement(dummyparam1: String?, dummyparam2: String?): Boolean{
-        require(!(dummyparam1 == null && dummyparam2 == null)) { "Minst et søkekriterie må fylles ut for å få et resultat fra Rinasaker" }
-        return true
     }
 }
