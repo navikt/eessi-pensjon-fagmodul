@@ -183,8 +183,6 @@ class SedControllerTest {
 
         val actualResponse = sedController.getSeds(buc, rinanr)
 
-        println(actualResponse)
-
         val sedList = listOf(
             SedType.H020,
             SedType.H070,

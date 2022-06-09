@@ -59,7 +59,6 @@ class PensjonControllerTest {
 
         controller.hentPensjonSakType(sakId, aktoerId)
 
-
         verify { pensjonsinformasjonClient.hentKunSakType(eq(sakId), eq(aktoerId)) }
     }
 
@@ -72,7 +71,6 @@ class PensjonControllerTest {
         every { pensjonsinformasjonClient.hentKunSakType(sakId, aktoerId) } returns Pensjontype(sakId, "")
         val response = controller.hentPensjonSakType(sakId, aktoerId)
 
-
         verify { pensjonsinformasjonClient.hentKunSakType(eq(sakId), eq(aktoerId)) }
 
         val expected = """
@@ -83,7 +81,6 @@ class PensjonControllerTest {
         """.trimIndent()
 
         assertEquals(expected, response?.body)
-
     }
 
     @Test
@@ -105,7 +102,6 @@ class PensjonControllerTest {
         """.trimIndent()
 
         assertEquals(expected, response?.body)
-
     }
 
     @Test
@@ -165,13 +161,11 @@ class PensjonControllerTest {
         val opph = "OPPHOR"
         val ukjent = "CrazyIkkeIbrukTull"
 
-
         assertEquals(PensjonSakStatus.TIL_BEHANDLING, PensjonSakStatus.from(tilbeh))
         assertEquals(PensjonSakStatus.AVSLUTTET, PensjonSakStatus.from(avsl))
         assertEquals(PensjonSakStatus.LOPENDE, PensjonSakStatus.from(lop))
         assertEquals(PensjonSakStatus.OPPHOR, PensjonSakStatus.from(opph))
         assertEquals(PensjonSakStatus.UKJENT, PensjonSakStatus.from(ukjent))
-
     }
 
     @Test
@@ -229,7 +223,6 @@ class PensjonControllerTest {
             }
         """.trimIndent()
         assertEquals(expected, response)
-
     }
 
     @Test
@@ -614,7 +607,7 @@ class PensjonControllerTest {
             }
         """.trimIndent()
 
-        println("*********")
+        println("*********/n$response/n*********")
         println(response)
         println("*********")
         assertEquals(expected, response)
