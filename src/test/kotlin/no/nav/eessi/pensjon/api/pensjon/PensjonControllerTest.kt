@@ -607,9 +607,6 @@ class PensjonControllerTest {
             }
         """.trimIndent()
 
-        println("*********/n$response/n*********")
-        println(response)
-        println("*********")
         assertEquals(expected, response)
     }
 
