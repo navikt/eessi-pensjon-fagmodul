@@ -100,7 +100,6 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
                         } else {
                             ex.message
                         }
-                        println ("error: ${ex.message}")
                         logger.error(ex.message, ex)
                         BucAndSedView.fromErr(errormsg)
                     }
@@ -233,11 +232,11 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
                 "P_BUC_02" -> bucutils.getDocumentByType(SedType.P2100)
                 "P_BUC_10" -> bucutils.getDocumentByType(SedType.P15000)
                 "P_BUC_05" -> {
-                    val docs = bucutils.getAllDocuments()
+                    val document = bucutils.getAllDocuments()
                         .filterNot { it.status in listOf("draft", "empty") }
                         .filter { it.type == SedType.P8000  }
-                    val docout = docs.firstOrNull { it.direction == "OUT" }
-                    val docin = docs.firstOrNull { it.direction == "IN" }
+                    val docout = document.firstOrNull { it.direction == "OUT" }
+                    val docin = document.firstOrNull { it.direction == "IN" }
                     docout ?: docin
                 }
                 else -> korrektDokumentAvdodPbuc06(bucutils)

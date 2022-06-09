@@ -291,15 +291,6 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         every { restEuxTemplate.exchange( "/buc/5010", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "5010", processDefinitionName = "P_BUC_02").toJson() )
         every { restEuxTemplate.exchange("/buc/344000", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "344000", processDefinitionName = "P_BUC_03").toJson() )
 
-/*
-        val answer1 = FunctionAnswer { Thread.sleep(220); ResponseEntity.ok().body(listOf(dummyRinasak("5010", "P_BUC_02")).toJson() ) }
-        every { restEuxTemplate.exchange( dummyRinasakUrl(euxCaseId = "5010", bucType = BucType.P_BUC_02.name, status = "\"open\"").toUriString(), HttpMethod.GET, null, String::class.java) } .answers(answer1)
-
-        val answer2 = FunctionAnswer { Thread.sleep(220); ResponseEntity.ok().body(listOf(dummyRinasak("344000", BucType.P_BUC_03.name)).toJson() ) }
-        every { restEuxTemplate.exchange( dummyRinasakUrl(euxCaseId = "344000", bucType = BucType.P_BUC_03.name, status = "\"open\"").toUriString(), HttpMethod.GET, null, String::class.java) } .answers(answer2)
-*/
-
-
         val result = mockMvc.perform(
             MockMvcRequestBuilders.get("/buc/rinasaker/$gjenlevendeAktoerId/saknr/$saknr/vedtak/$vedtakid")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -328,7 +319,6 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         val fnr = "1234567890000"
         val aktoerId = "1123123123123123"
         val saknr = "100001000"
-
 
         //gjenlevende aktoerid -> gjenlevendefnr
         every { personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerId)) } returns NorskIdent(fnr)
@@ -406,9 +396,6 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
         assertEquals(2, requestlist.size)
         assertEquals("3010", requestlist.first().euxCaseId)
-
-        println(requestlist.toJson())
-
     }
 
 
@@ -445,9 +432,6 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         assertEquals(1, requestlist.size)
         assertEquals("3010", requestlist.first().euxCaseId)
         assertEquals(BucType.P_BUC_02, requestlist.first().buctype)
-
-        println(response.toJson())
-
     }
 
     @Test
@@ -473,6 +457,5 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
         val requestlist = mapJsonToAny(response, typeRefs<List<BucView>>())
         assertEquals(0, requestlist.size)
-
     }
 }
