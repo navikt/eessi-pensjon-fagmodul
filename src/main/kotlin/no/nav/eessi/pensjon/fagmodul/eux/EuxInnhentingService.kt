@@ -175,32 +175,6 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
         return euxKlient.getPdfJsonWithRest(euxCaseId, documentId)
     }
 
-
-//    fun getBucAndSedViewAvdod(gjenlevendeFnr: String, avdodFnr: String): List<BucAndSedView> {
-//        // Henter rina saker basert på gjenlevendes fnr
-//        val validAvdodBucs = listOf("P_BUC_02","P_BUC_05","P_BUC_06","P_BUC_10")
-//        val rinaSakerMedFnr = validAvdodBucs.map {
-//            euxKlient.getRinasaker(avdodFnr, bucType = it, status = "\"open\"") }
-//           .flatten()
-//
-//        logger.info("rinaSaker total: ${rinaSakerMedFnr.size}")
-//        val filteredRinaIdAvdod = getFilteredArchivedaRinasaker(rinaSakerMedFnr)
-//
-//        logger.debug("filterer ut rinasaker og får kun ider tilbake size: ${filteredRinaIdAvdod.size}")
-//
-//        val bucdocumentidAvdod = hentBucOgDocumentIdAvdod(filteredRinaIdAvdod)
-//
-//        val listeAvSedsPaaAvdod = hentDocumentJsonAvdod(bucdocumentidAvdod)
-//
-//        val gyldigeBucs = filterGyldigBucGjenlevendeAvdod(listeAvSedsPaaAvdod, gjenlevendeFnr)
-//
-//        val gjenlevendeBucAndSedView =  getBucAndSedViewWithBuc(gyldigeBucs, gjenlevendeFnr, avdodFnr)
-//
-//        logger.debug("TotalRinasaker med avdod og gjenlevende(rina/saf): ${gjenlevendeBucAndSedView.size}")
-//
-//        return gjenlevendeBucAndSedView
-//    }
-
     /**
      * filtere ut gyldig buc fra gjenlevende og avdød
      */

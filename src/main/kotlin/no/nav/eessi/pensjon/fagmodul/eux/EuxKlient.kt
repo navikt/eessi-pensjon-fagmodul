@@ -47,7 +47,7 @@ class EuxKlient(
     private val euxNavIdentRestTemplate: RestTemplate,
     private val euxSystemRestTemplate: RestTemplate,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry()),
-    private val overrideWaitTimes: Long? = null
+    private val overrideWaitTimes: Long? = 1000L
 ) {
 
     private val logger = LoggerFactory.getLogger(EuxKlient::class.java)
