@@ -78,7 +78,6 @@ class ArchitectureTest {
         val euxBasisModel     = "fagmodul euxBasisModel"
         val euxBucModel       = "fagmodul euxBucModel"
         val config            = "fagmodul config"
-        val innhentingService = "fagmodul prefill"
         val geoApi            = "api geo"
         val personApi         = "api person"
         val pensjonApi        = "api pensjon"
@@ -97,7 +96,6 @@ class ArchitectureTest {
                 "$root.fagmodul.eux.bucmodel.." to euxBucModel,
                 "$root.fagmodul.config.." to config,
                 "$root.fagmodul.pesys.." to pesys,
-                "$root.fagmodul.prefill.." to innhentingService,
                 "$root.api.geo.." to geoApi,
                 "$root.api.person.." to personApi,
                 "$root.api.pensjon.." to pensjonApi,
@@ -120,7 +118,6 @@ class ArchitectureTest {
                 .layer(geoApi).definedBy(*packagesFor(geoApi))
                 .layer(personApi).definedBy(*packagesFor(personApi))
                 .layer(pensjonApi).definedBy(*packagesFor(pensjonApi))
-
                 .layer(bucSedApi).definedBy(*packagesFor(bucSedApi))
                 .layer(pesys).definedBy(*packagesFor(pesys))
                 .layer(prefill).definedBy(*packagesFor(prefill))
@@ -134,20 +131,23 @@ class ArchitectureTest {
                 .layer(config).definedBy(*packagesFor(config))
                 .layer(utils).definedBy(*packagesFor(utils))
                 .layer(vedlegg).definedBy(*packagesFor(vedlegg))
-                .layer(innhentingService).definedBy(*packagesFor(innhentingService))
                 .layer(statistikk).definedBy(*packagesFor(statistikk))
-                .whereLayer(geoApi).mayNotBeAccessedByAnyLayer()
 
-                .whereLayer(pesys).mayOnlyBeAccessedByLayers(models, euxService)
+                .whereLayer(geoApi).mayNotBeAccessedByAnyLayer()
                 .whereLayer(bucSedApi).mayNotBeAccessedByAnyLayer()
-                .whereLayer(prefill).mayOnlyBeAccessedByLayers(bucSedApi)
-                .whereLayer(euxService).mayOnlyBeAccessedByLayers(bucSedApi, pesys, innhentingService, personApi)
-                .whereLayer(euxBasisModel).mayOnlyBeAccessedByLayers(euxService, bucSedApi, pesys)
-                .whereLayer(euxBucModel).mayOnlyBeAccessedByLayers(euxService, bucSedApi, pesys, personApi)
-                .whereLayer(models).mayOnlyBeAccessedByLayers(prefill, euxService, euxBasisModel, euxBucModel, bucSedApi, pensjonApi, personApi, pesys)
-                .whereLayer(vedlegg).mayOnlyBeAccessedByLayers(innhentingService, bucSedApi)
+                .whereLayer(pensjonApi).mayNotBeAccessedByAnyLayer()
+
+                .whereLayer(prefill).mayOnlyBeAccessedByLayers(bucSedApi, pensjonApi)
+                .whereLayer(pesys).mayOnlyBeAccessedByLayers(euxService)
+                .whereLayer(vedlegg).mayOnlyBeAccessedByLayers(bucSedApi, prefill)
+
+                .whereLayer(euxService).mayOnlyBeAccessedByLayers(bucSedApi, pesys, prefill, personApi)
                 .whereLayer(geoService).mayOnlyBeAccessedByLayers(geoApi, prefill)
                 .whereLayer(pensjonService).mayOnlyBeAccessedByLayers(pensjonApi, prefill, bucSedApi, personApi)
+
+                .whereLayer(euxBucModel).mayOnlyBeAccessedByLayers(euxService, bucSedApi, pesys, personApi)
+                .whereLayer(euxBasisModel).mayOnlyBeAccessedByLayers(euxService, bucSedApi, pesys)
+                .whereLayer(models).mayOnlyBeAccessedByLayers(prefill, euxService, euxBasisModel, euxBucModel, bucSedApi, pensjonApi, personApi, pesys)
 
                 .whereLayer(config).mayNotBeAccessedByAnyLayer()
                 .check(productionClasses)

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
+import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.pensjonsinformasjon.FinnSak
@@ -39,7 +40,8 @@ import javax.xml.datatype.XMLGregorianCalendar
 class PensjonController(
     private val pensjonsinformasjonClient: PensjonsinformasjonClient,
     private val auditlogger: AuditLogger,
-    @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())
+    private val innhentingservice: InnhentingService,
+    @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry()),
 ) {
 
     private val logger = LoggerFactory.getLogger(PensjonController::class.java)
@@ -94,7 +96,9 @@ class PensjonController(
     fun validerKravPensjon(@PathVariable("aktoerId", required = true) aktoerId: String, @PathVariable("sakId", required = true) sakId: String, @PathVariable("buctype", required = true) bucType: String): Boolean {
         return PensjonControllerValidateSak.measure {
 
-            val pendata = pensjonsinformasjonClient.hentAltPaaAktoerId(aktoerId)
+            val fnr = innhentingservice.hentFnrfraAktoerService(aktoerId)
+            val pendata = pensjonsinformasjonClient.hentAltPaaFNR(fnr)
+
             if (pendata.brukersSakerListe == null) {
                 logger.warn("Ingen gyldig brukerSakerListe funnet")
                 throw PensjoninformasjonException("Ingen gyldig brukerSakerListe, mangler data fra pesys")
@@ -150,10 +154,11 @@ class PensjonController(
     }
 
     @GetMapping("/sak/aktoer/{ident}/sakid/{sakid}/pensjonsak")
-    fun hentSakPensjonsinformasjon(@PathVariable("ident", required = true) ident: String, @PathVariable("sakid", required = true) sakid: String): String {
-        val saker = pensjonsinformasjonClient.hentAltPaaAktoerId(ident)
+    fun hentSakPensjonsinformasjon(@PathVariable("ident", required = true) aktoerId: String, @PathVariable("sakid", required = true) sakid: String): String {
+        val fnr = innhentingservice.hentFnrfraAktoerService(aktoerId)
+        val saker = pensjonsinformasjonClient.hentAltPaaFNR(fnr)
         logger.info("saker: ${saker.brukersSakerListe.brukersSakerListe.size}")
-        val sak = saker?.let { FinnSak.finnSak(sakid, it) }
+        val sak = saker.let { FinnSak.finnSak(sakid, it) }
         logger.info("den fakiske sak: ${sak != null}")
         sak?.let {
             val mapper = ObjectMapper()
@@ -172,7 +177,7 @@ class PensjonController(
                     val localDate = LocalDate.of(
                         xmldate.getYear(),
                         xmldate.getMonth(),
-                        xmldate.getDay());
+                        xmldate.getDay())
                     jGen.writeString(localDate.toString())
                 } ?: jGen.writeNull()
             }
@@ -223,7 +228,8 @@ class PensjonController(
         return PensjonControllerHentSakListe.measure {
             logger.info("henter sakliste for aktoer: $aktoerId")
             return@measure try {
-                val pensjonInformasjon = pensjonsinformasjonClient.hentAltPaaAktoerId(aktoerId)
+                val fnr = innhentingservice.hentFnrfraAktoerService(aktoerId)
+                val pensjonInformasjon = pensjonsinformasjonClient.hentAltPaaFNR(fnr)
                 val brukersSakerListe = pensjonInformasjon.brukersSakerListe.brukersSakerListe
                 if (brukersSakerListe == null) {
                     logger.error("Ingen brukersSakerListe funnet i pensjoninformasjon for aktoer: $aktoerId")
