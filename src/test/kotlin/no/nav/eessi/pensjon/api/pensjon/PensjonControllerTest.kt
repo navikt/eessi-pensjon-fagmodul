@@ -5,7 +5,6 @@ import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.SpyK
 import io.mockk.mockk
 import io.mockk.verify
-import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.pensjonsinformasjon.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonRequestBuilder
@@ -41,10 +40,8 @@ class PensjonControllerTest {
     @SpyK
     private var auditLogger: AuditLogger = AuditLogger()
 
-    private val innhentingService: InnhentingService = mockk()
-
     @InjectMockKs
-    private val controller = PensjonController(pensjonsinformasjonClient, auditLogger, innhentingService)
+    private val controller = PensjonController(pensjonsinformasjonClient, auditLogger)
 
     private val mockMvc = MockMvcBuilders.standaloneSetup(controller).build()
 
@@ -110,7 +107,6 @@ class PensjonControllerTest {
     @Test
     fun `Gitt det finnes pensjonsak paa aktoer saa skal det returneres en liste over alle saker til aktierid`() {
         val aktoerId = "1234567890123" // 13 sifre
-        val fnr = "56789123456" // 13 sifre
 
         val mockpen = Pensjonsinformasjon()
         val mocksak1 = V1Sak()
@@ -125,12 +121,11 @@ class PensjonControllerTest {
         mocksak2.sakType = "UFOREP"
         mockpen.brukersSakerListe.brukersSakerListe.add(mocksak2)
 
-        every { innhentingService.hentFnrfraAktoerService(aktoerId) } returns fnr
-        every { pensjonsinformasjonClient.hentAltPaaFNR(fnr) } returns mockpen
+        every { pensjonsinformasjonClient.hentAltPaaAktoerId(aktoerId) } returns mockpen
 
         val result = controller.hentPensjonSakIder(aktoerId)
 
-        verify(exactly = 1) { pensjonsinformasjonClient.hentAltPaaFNR(fnr) }
+        verify { pensjonsinformasjonClient.hentAltPaaAktoerId(eq(aktoerId)) }
 
         assertEquals(2, result.size)
         val expected1 = PensjonSak("1010", "ALDER", PensjonSakStatus.LOPENDE)
@@ -144,17 +139,15 @@ class PensjonControllerTest {
     @Test
     fun `Gitt det ikke finnes pensjonsak paa aktoer saa skal det returneres et tomt svar tom liste`() {
         val aktoerId = "1234567890123" // 13 sifre
-        val fnr = "56787890123" // 13 sifre
 
         val mockpen = Pensjonsinformasjon()
         mockpen.brukersSakerListe = V1BrukersSakerListe()
 
-        every { (innhentingService.hentFnrfraAktoerService(aktoerId)) } returns fnr
-        every { (pensjonsinformasjonClient.hentAltPaaFNR(fnr)) } returns mockpen
+        every { (pensjonsinformasjonClient.hentAltPaaAktoerId(aktoerId)) } returns mockpen
 
         val result = controller.hentPensjonSakIder(aktoerId)
         verify(exactly = 1) {
-            pensjonsinformasjonClient.hentAltPaaFNR(any())
+            pensjonsinformasjonClient.hentAltPaaAktoerId(any())
 
             assertEquals(0, result.size)
         }
@@ -214,7 +207,7 @@ class PensjonControllerTest {
     fun uthentingAvUforeTidspunkt() {
         val mockVedtakid = "213123333"
         val mockClient = fraFil("VEDTAK-UT-MUTP.xml")
-        val mockController = PensjonController(mockClient, auditLogger, innhentingService)
+        val mockController = PensjonController(mockClient, auditLogger,)
         mockController.initMetrics()
         val mockMvc2 = MockMvcBuilders.standaloneSetup(mockController).build()
 
@@ -236,7 +229,7 @@ class PensjonControllerTest {
     fun uthentingAvUforeTidspunktMedGMTZ() {
         val mockVedtakid = "213123333"
         val mockClient = fraFil("VEDTAK-UT-MUTP-GMTZ.xml")
-        val mockController = PensjonController(mockClient, auditLogger,innhentingService)
+        val mockController = PensjonController(mockClient, auditLogger,)
         mockController.initMetrics()
         val mockMvc2 = MockMvcBuilders.standaloneSetup(mockController).build()
 
@@ -259,7 +252,7 @@ class PensjonControllerTest {
     fun uthentingAvUforeTidspunktSomErTom() {
         val mockVedtakid = "213123333"
         val mockClient = fraFil("VEDTAK-UT.xml")
-        val mockController = PensjonController(mockClient, auditLogger,innhentingService)
+        val mockController = PensjonController(mockClient, auditLogger,)
         mockController.initMetrics()
         val mockMvc2 = MockMvcBuilders.standaloneSetup(mockController).build()
 
@@ -314,19 +307,16 @@ class PensjonControllerTest {
 
     @Test
     fun `sjekk om sak resultat er gyldig pensjoninfo`() {
-        val aktoerId = "1234567890123"
-        val fnr = "56834646132"
+        val ident = "1234567890123"
         val mockSakid = "21841174"
         val mockClient = fraFil("ALDERP-INV-21841174.xml")
 
-        every { innhentingService.hentFnrfraAktoerService(aktoerId) } returns fnr
-
-        val mockController = PensjonController(mockClient, auditLogger, innhentingService)
+        val mockController = PensjonController(mockClient, auditLogger,)
         mockController.initMetrics()
         val mockMvc2 = MockMvcBuilders.standaloneSetup(mockController).build()
 
         val result = mockMvc2.perform(
-            MockMvcRequestBuilders.get("/pensjon/sak/aktoer/$aktoerId/sakid/$mockSakid/pensjonsak")
+            MockMvcRequestBuilders.get("/pensjon/sak/aktoer/$ident/sakid/$mockSakid/pensjonsak")
                 .contentType(MediaType.APPLICATION_JSON)
         )
         .andReturn()
@@ -625,7 +615,7 @@ class PensjonControllerTest {
         val mockVedtakid = "213123333"
         val mockClient = fraFil("BARNEP-PlukkBestOpptjening.xml")
 
-        val mockController = PensjonController(mockClient, auditLogger, innhentingService)
+        val mockController = PensjonController(mockClient, auditLogger,)
         mockController.initMetrics()
         val mockMvc2 = MockMvcBuilders.standaloneSetup(mockController).build()
 
@@ -829,7 +819,7 @@ class PensjonControllerTest {
     }
 
 
-    private fun fraFil(responseXMLfilename: String): PensjonsinformasjonClient {
+    fun fraFil(responseXMLfilename: String): PensjonsinformasjonClient {
         val resource = ResourceUtils.getFile("classpath:pensjonsinformasjon/$responseXMLfilename").readText()
         val readXMLresponse = ResponseEntity(resource, HttpStatus.OK)
 

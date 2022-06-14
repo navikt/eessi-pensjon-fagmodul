@@ -15,7 +15,7 @@ buildscript {
         epMetricsVersion = '0.4.+'
         epSecurityVersion = '0.0.22'
         epLoggingVersion = '1.+'
-        epPensjonInformasjonVersjon = '2.0.13'
+        epPensjonInformasjonVersjon = '2.0.14'
         springKafkaVersion = '2.8.6'
     }
 
@@ -99,7 +99,7 @@ dependencies {
     implementation("no.nav.eessi.pensjon:ep-metrics:$epMetricsVersion")
     implementation("no.nav.eessi.pensjon:ep-logging:$epLoggingVersion")
     implementation("no.nav.eessi.pensjon:ep-personoppslag:$eppersonoppslagVersion")
-    implementation("no.nav.eessi.pensjon:ep-pensjonsinformasjon:$epPensjonInformasjonVersjon")
+    implementation("no.nav.eessi.pensjon:ep-pensjonsinformasjon:2.0.12")
     implementation("no.nav.eessi.pensjon:ep-eux:$epeuxVersion")
 
     implementation("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:1.2021.01.21-11.34-02f5eb27bb76")
