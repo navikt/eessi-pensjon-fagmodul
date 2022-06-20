@@ -185,17 +185,12 @@ class PensjonController(
         val vilkarsvurderingListe = pensjonsinformasjon.vilkarsvurderingListe.vilkarsvurderingListe
         val vilkarsvurderingUforetrygdListe = vilkarsvurderingListe.mapNotNull { it.vilkarsvurderingUforetrygd }
         val uforetidspunkt = vilkarsvurderingUforetrygdListe.map { v1ufore ->
-            logger.debug("Uforetidspunkt: ${v1ufore.uforetidspunkt}")
-            if (v1ufore.uforetidspunkt != null) {
-                val uftdato = transformXMLGregorianCalendarToJson(v1ufore.uforetidspunkt)
-                mapOf("uforetidspunkt" to uftdato.toString()).toJson()
-           } else {
-                mapOf("uforetidspunkt" to null).toJson()
-            }
+            logger.debug("Uforetidspunkt-kandidat: ${v1ufore.uforetidspunkt}")
+            if (v1ufore.uforetidspunkt != null) transformXMLGregorianCalendarToJson(v1ufore.uforetidspunkt).toString() else null
         }.firstOrNull()
-
-        logger.info("Uforetidspunkt: $uforetidspunkt")
-        return uforetidspunkt
+        val uforetidspunktJson = mapOf("uforetidspunkt" to uforetidspunkt).toJson()
+        logger.info("Uforetidspunkt: $uforetidspunktJson")
+        return uforetidspunktJson
     }
 
     fun transformXMLGregorianCalendarToJson(v1uforetidpunkt: XMLGregorianCalendar): LocalDate {
