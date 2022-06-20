@@ -182,15 +182,24 @@ class PensjonController(
     @GetMapping("/vedtak/{vedtakid}/uforetidspunkt")
     fun hentVedtakforForUfor(@PathVariable("vedtakid", required = true) vedtakId: String): String? {
         val pensjonsinformasjon = pensjonsinformasjonClient.hentAltPaaVedtak(vedtakId)
+
         val vilkarsvurderingListe = pensjonsinformasjon.vilkarsvurderingListe.vilkarsvurderingListe
         val vilkarsvurderingUforetrygdListe = vilkarsvurderingListe.mapNotNull { it.vilkarsvurderingUforetrygd }
         val uforetidspunkt = vilkarsvurderingUforetrygdListe.map { v1ufore ->
             logger.debug("Uforetidspunkt-kandidat: ${v1ufore.uforetidspunkt}")
             if (v1ufore.uforetidspunkt != null) transformXMLGregorianCalendarToJson(v1ufore.uforetidspunkt).toString() else null
         }.firstOrNull()
-        val uforetidspunktJson = mapOf("uforetidspunkt" to uforetidspunkt).toJson()
-        logger.info("Uforetidspunkt: $uforetidspunktJson")
-        return uforetidspunktJson
+
+        val virkningstidspunktXML = pensjonsinformasjon.vedtak?.virkningstidspunkt // Kan teoretisk ikke inneholde vedtak
+        val virkningstidspunkt = if (virkningstidspunktXML != null) transformXMLGregorianCalendarToJson(virkningstidspunktXML).toString() else null
+
+        val resultatJson = mapOf(
+            "uforetidspunkt" to uforetidspunkt,
+            "virkningstidspunkt" to virkningstidspunkt
+        ).toJson()
+
+        logger.info("Oppslag på uføretidspunkt ga: $resultatJson")
+        return resultatJson
     }
 
     fun transformXMLGregorianCalendarToJson(v1uforetidpunkt: XMLGregorianCalendar): LocalDate {
