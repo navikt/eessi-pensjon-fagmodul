@@ -57,8 +57,6 @@ spec:
       value: https://saf-q2.dev-fss-pub.nais.io/rest/hentdokument
     - name: PDL_URL
       value: https://pdl-api.dev-fss-pub.nais.io/graphql
-    - name: ONPREM_KAFKA_BOOTSTRAP_SERVERS_URL
-      value: SSL://b27apvl00045.preprod.local:8443,SSL://b27apvl00046.preprod.local:8443,SSL://b27apvl00047.preprod.local:8443
     - name: KAFKA_STATISTIKK_TOPICNAME
       value: eessipensjon.privat-statistikk-q2
     - name: KAFKA_AUTOMATISERING_TOPIC

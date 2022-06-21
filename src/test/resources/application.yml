@@ -60,12 +60,6 @@ saf.hentdokument:
   url: 'http://localhost'
 
 kafka:
-  sedSendt:
-    topic: eessi-basis-sedSendt-v1
-    groupid: eessi-pensjon-fagmodul-group
-  sedMottatt:
-    topic: eessi-basis-sedMottatt-v1
-    groupid: eessi-pensjon-fagmodul-group
   statistikk:
     topic: eessi-pensjon-statistikk
   security.protocol: SSL
