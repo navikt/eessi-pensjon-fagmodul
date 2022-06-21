@@ -10,9 +10,6 @@ eessi-pensjon-active-profiles: ${spring.profiles.active}
 eessi-pensjon-institusjon: 'NO:noinst002'
 eessi-pensjon-institusjon-navn: 'NOINST002, NO INST002, NO'
 
-securityTokenService:
-  discoveryUrl: 'http://example.com'
-
 #eux-rina-api_v1:
 eessipen-eux-rina:
   url: 'http://example.com:8089'
@@ -27,18 +24,9 @@ METRICS_REQUESTFILTER_ENABLE: false
 EESSIPENSJON_PREFILL_URL: 'http://example.com:8099'
 EESSIPENSJON_PREFILL_GCP_URL: 'http://example.com:8099'
 
-srvusername: 'username'
-srvpassword: 'password'
-
 app:
   name: 'TEST'
   version: '0.1'
-
-security-token-service-token:
-  url: 'https://example.com/SecurityTokenServiceProvider/'
-
-securitytokenservice:
-  url: 'https://example.com/SecurityTokenServiceProvider/'
 
 eessi:
   pensjon_adresse_gate: 'Postboks 6600 Etterstad TEST'
