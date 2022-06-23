@@ -13,7 +13,7 @@
         <ns12:erArt10BruktTP>false</ns12:erArt10BruktTP>
     </ns19:trygdeavtale>
     <ns19:vedtak xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns6:v1.Vedtak">
-        <ns6:virkningstidspunkt>2015-12-01T00:00:00+01:00</ns6:virkningstidspunkt>
+        <ns6:virkningstidspunkt>2015-12-01T00:00:00+00:00</ns6:virkningstidspunkt>
         <ns6:kravGjelder>SLUTT_BH_UTL</ns6:kravGjelder>
         <ns6:kravVelgType>VARIG</ns6:kravVelgType>
         <ns6:hovedytelseTrukket>false</ns6:hovedytelseTrukket>

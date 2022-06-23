@@ -12,17 +12,7 @@
         <ns12:erArt10BruktGP>false</ns12:erArt10BruktGP>
         <ns12:erArt10BruktTP>false</ns12:erArt10BruktTP>
     </ns19:trygdeavtale>
-    <ns19:vedtak xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns6:v1.Vedtak">
-        <ns6:virkningstidspunkt>2015-12-01T00:00:00+01:00</ns6:virkningstidspunkt>
-        <ns6:kravGjelder>SLUTT_BH_UTL</ns6:kravGjelder>
-        <ns6:kravVelgType>VARIG</ns6:kravVelgType>
-        <ns6:hovedytelseTrukket>false</ns6:hovedytelseTrukket>
-        <ns6:barnetilleggTrukket>false</ns6:barnetilleggTrukket>
-        <ns6:ektefelletilleggTrukket>false</ns6:ektefelletilleggTrukket>
-        <ns6:boddArbeidetUtland>true</ns6:boddArbeidetUtland>
-        <ns6:vurdereTrygdeAvtale>true</ns6:vurdereTrygdeAvtale>
-        <ns6:datoFattetVedtak>2017-11-03T00:00:00+01:00</ns6:datoFattetVedtak>
-    </ns19:vedtak>
+    <!-- Fjernet vedtak her – for testformål -->
     <ns19:person xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:v1.Person">
         <ns2:pid>1234567890</ns2:pid>
         <ns2:aktorId>Ingen</ns2:aktorId>

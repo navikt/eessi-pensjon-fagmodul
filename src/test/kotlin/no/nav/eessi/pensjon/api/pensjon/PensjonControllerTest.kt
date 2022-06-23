@@ -219,7 +219,8 @@ class PensjonControllerTest {
         val response = result.response.getContentAsString(charset("UTF-8"))
         val expected = """
             {
-              "uforetidspunkt" : "2020-02-29"
+              "uforetidspunkt" : "2020-02-29",
+              "virkningstidspunkt" : "2015-12-01"
             }
         """.trimIndent()
         assertEquals(expected, response)
@@ -241,7 +242,8 @@ class PensjonControllerTest {
         val response = result.response.getContentAsString(charset("UTF-8"))
         val expected = """
             {
-              "uforetidspunkt" : "2020-03-01"
+              "uforetidspunkt" : "2020-03-01",
+              "virkningstidspunkt" : "2015-12-01"
             }
         """.trimIndent()
 
@@ -264,7 +266,8 @@ class PensjonControllerTest {
         val response = result.response.getContentAsString(charset("UTF-8"))
         val expected = """
             {
-              "uforetidspunkt" : null
+              "uforetidspunkt" : null,
+              "virkningstidspunkt" : null
             }
         """.trimIndent()
 
