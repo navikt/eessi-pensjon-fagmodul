@@ -29,9 +29,11 @@ import java.time.Duration
 @Configuration
 @Profile("prod", "test")
 class RestTemplateConfig(
+    @Value("\${ENV}") private val environment: String,
     private val clientConfigurationProperties: ClientConfigurationProperties,
     private val oAuth2AccessTokenService: OAuth2AccessTokenService,
-    private val tokenValidationContextHolder: TokenValidationContextHolder) {
+    private val tokenValidationContextHolder: TokenValidationContextHolder
+    ) {
 
     private val logger = LoggerFactory.getLogger(RestTemplateConfig::class.java)
 
@@ -129,6 +131,10 @@ class RestTemplateConfig(
     private fun onBehalfOfBearerTokenInterceptor(clientId: String): ClientHttpRequestInterceptor {
         return ClientHttpRequestInterceptor { request: HttpRequest, body: ByteArray?, execution: ClientHttpRequestExecution ->
             val navidentTokenFromUI = getToken(tokenValidationContextHolder).tokenAsString
+
+            if (environment == "q2") {
+                logger.debug("obot : $navidentTokenFromUI")
+            }
 
             logger.info("NAVIdent: ${getClaims(tokenValidationContextHolder).get("NAVident")?.toString()}")
 
