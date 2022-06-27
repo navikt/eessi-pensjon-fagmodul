@@ -135,9 +135,8 @@ class PrefillController(
 
             logger.info("Opprettet ny SED med dokumentId: ${docresult.documentId}")
             val result = bucUtil.findDocument(docresult.documentId)
-            if (dataModel.melding != null || dataModel.melding != "") {
-                result?.message = dataModel.melding
-            }
+            result?.message = dataModel.melding
+
             logger.info("Har docuemntItem ${result?.id}, er Rina2020 ny buc: ${bucUtil.isNewRina2020Buc()}")
 
             val documentItem = fetchBucAgainBeforeReturnShortDocument(dataModel.buc, docresult, result, bucUtil.isNewRina2020Buc())
