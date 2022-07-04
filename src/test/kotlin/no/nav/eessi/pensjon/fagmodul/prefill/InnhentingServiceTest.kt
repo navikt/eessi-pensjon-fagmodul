@@ -58,7 +58,7 @@ internal class InnhentingServiceTest {
         )
         every { personService.hentIdent(eq(IdentType.AktoerId), any<Ident<*>>()) } returns AktoerId("1122334455")
 
-        val result = innhentingService.getAvdodAktoerIdPDL(apiRequest)
+        val result = innhentingService.getAvdodId(apiRequest.buc!!, apiRequest.riktigAvdod())
         assertEquals("1122334455", result)
     }
 
@@ -77,7 +77,7 @@ internal class InnhentingServiceTest {
 
         every { personService.hentIdent(eq(IdentType.AktoerId), any<Ident<*>>()) } returns AktoerId("467846784671")
 
-        val result = innhentingService.getAvdodAktoerIdPDL(apiRequest)
+        val result = innhentingService.getAvdodId(apiRequest.buc!!, apiRequest.riktigAvdod())
         assertEquals("467846784671", result)
     }
 
@@ -91,7 +91,7 @@ internal class InnhentingServiceTest {
             aktoerId = "0105094340092"
         )
         assertThrows<ResponseStatusException> {
-            innhentingService.getAvdodAktoerIdPDL(apiRequest)
+            innhentingService.getAvdodId(apiRequest.buc!!, apiRequest.riktigAvdod())
         }
     }
 
@@ -106,7 +106,7 @@ internal class InnhentingServiceTest {
             avdodfnr = "12345566"
         )
         assertThrows<ResponseStatusException> {
-            innhentingService.getAvdodAktoerIdPDL(apiRequest)
+            innhentingService.getAvdodId(apiRequest.buc!!, apiRequest.riktigAvdod())
         }
     }
 
@@ -120,7 +120,7 @@ internal class InnhentingServiceTest {
             aktoerId = "0105094340092",
             avdodfnr = "12345566"
         )
-        val result = innhentingService.getAvdodAktoerIdPDL(request = apireq)
+        val result = innhentingService.getAvdodId(apireq.buc!!, apireq.avdodfnr)
         assertEquals(null, result)
     }
 }

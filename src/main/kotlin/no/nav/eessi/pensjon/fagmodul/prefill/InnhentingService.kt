@@ -4,6 +4,7 @@ import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import no.nav.eessi.pensjon.fagmodul.models.ApiRequest
 import no.nav.eessi.pensjon.fagmodul.prefill.klient.PrefillKlient
 import no.nav.eessi.pensjon.metrics.MetricsHelper
+import no.nav.eessi.pensjon.personoppslag.Fodselsnummer
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
 import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentType
@@ -51,28 +52,29 @@ class InnhentingService(
 
 
     //Hjelpe funksjon for å validere og hente aktoerid for evt. avdodfnr fra UI (P2100) - PDL
-    fun getAvdodAktoerIdPDL(request: ApiRequest): String? {
-        val buc = request.buc ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST,"Mangler Buc")
-        return when (buc) {
+    fun getAvdodId(buctype: String, avdodIdent: String?): String? {
+        return when (buctype) {
             "P_BUC_02" -> {
-                val norskIdent = request.riktigAvdod() ?: run {
+                if (avdodIdent == null) {
                     logger.warn("Mangler fnr for avdød")
-                    throw ResponseStatusException(HttpStatus.BAD_REQUEST,"Mangler fnr for avdød")
+                    throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mangler fnr for avdød")
                 }
-                if (norskIdent.isBlank()) {
+                if (avdodIdent.isBlank()) {
                     throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ident har tom input-verdi")
                 }
-                personService.hentIdent(IdentType.AktoerId, NorskIdent(norskIdent)).id
+                personService.hentIdent(IdentType.AktoerId, NorskIdent(avdodIdent)).id
             }
             "P_BUC_05", "P_BUC_06", "P_BUC_10" -> {
-                val norskIdent = request.riktigAvdod() ?: return null
-                if (norskIdent.isBlank()) {
+                if (avdodIdent == null) {
+                    return null
+                }
+                if (avdodIdent.isBlank()) {
                     throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ident har tom input-verdi")
                 }
 
-                val gyldigNorskIdent = no.nav.eessi.pensjon.personoppslag.Fodselsnummer.fra(norskIdent)
+                val gyldigNorskIdent = Fodselsnummer.fra(avdodIdent)
                 return try {
-                    personService.hentIdent(IdentType.AktoerId, NorskIdent(norskIdent)).id
+                    personService.hentIdent(IdentType.AktoerId, NorskIdent(avdodIdent)).id
                 } catch (ex: Exception) {
                     if (gyldigNorskIdent == null) logger.error("NorskIdent er ikke gyldig")
                     throw ResponseStatusException(HttpStatus.NOT_FOUND, "Korrekt aktoerIdent ikke funnet")
