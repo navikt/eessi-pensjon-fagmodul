@@ -5,6 +5,7 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import no.nav.eessi.pensjon.eux.model.buc.BucType
 import no.nav.eessi.pensjon.fagmodul.models.ApiRequest
 import no.nav.eessi.pensjon.fagmodul.models.ApiSubject
 import no.nav.eessi.pensjon.fagmodul.models.SubjectFnr
@@ -58,7 +59,7 @@ internal class InnhentingServiceTest {
         )
         every { personService.hentIdent(eq(IdentType.AktoerId), any<Ident<*>>()) } returns AktoerId("1122334455")
 
-        val result = innhentingService.getAvdodId(apiRequest.buc!!, apiRequest.riktigAvdod())
+        val result = innhentingService.getAvdodId(BucType.from(apiRequest.buc)!!, apiRequest.riktigAvdod())
         assertEquals("1122334455", result)
     }
 
@@ -77,7 +78,7 @@ internal class InnhentingServiceTest {
 
         every { personService.hentIdent(eq(IdentType.AktoerId), any<Ident<*>>()) } returns AktoerId("467846784671")
 
-        val result = innhentingService.getAvdodId(apiRequest.buc!!, apiRequest.riktigAvdod())
+        val result = innhentingService.getAvdodId(BucType.from(apiRequest.buc)!!, apiRequest.riktigAvdod())
         assertEquals("467846784671", result)
     }
 
@@ -91,7 +92,7 @@ internal class InnhentingServiceTest {
             aktoerId = "0105094340092"
         )
         assertThrows<ResponseStatusException> {
-            innhentingService.getAvdodId(apiRequest.buc!!, apiRequest.riktigAvdod())
+            innhentingService.getAvdodId(BucType.from(apiRequest.buc)!!, apiRequest.riktigAvdod())
         }
     }
 
@@ -106,13 +107,13 @@ internal class InnhentingServiceTest {
             avdodfnr = "12345566"
         )
         assertThrows<ResponseStatusException> {
-            innhentingService.getAvdodId(apiRequest.buc!!, apiRequest.riktigAvdod())
+            innhentingService.getAvdodId(BucType.from(apiRequest.buc)!!, apiRequest.riktigAvdod())
         }
     }
 
     @Test
     fun `call getAvdodAktoerId  expect null value when sed is P2000`() {
-        val apireq = ApiRequest(
+        val apiRequest = ApiRequest(
             subjectArea = "Pensjon",
             sakId = "EESSI-PEN-123",
             sed = "P2000",
@@ -120,7 +121,7 @@ internal class InnhentingServiceTest {
             aktoerId = "0105094340092",
             avdodfnr = "12345566"
         )
-        val result = innhentingService.getAvdodId(apireq.buc!!, apireq.avdodfnr)
+        val result = innhentingService.getAvdodId(BucType.from(apiRequest.buc)!!, apiRequest.avdodfnr)
         assertEquals(null, result)
     }
 }

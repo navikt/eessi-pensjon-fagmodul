@@ -1,6 +1,8 @@
 package no.nav.eessi.pensjon.fagmodul.prefill
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
+import no.nav.eessi.pensjon.eux.model.buc.BucType
+import no.nav.eessi.pensjon.eux.model.buc.BucType.*
 import no.nav.eessi.pensjon.fagmodul.models.ApiRequest
 import no.nav.eessi.pensjon.fagmodul.prefill.klient.PrefillKlient
 import no.nav.eessi.pensjon.metrics.MetricsHelper
@@ -52,9 +54,9 @@ class InnhentingService(
 
 
     //Hjelpe funksjon for å validere og hente aktoerid for evt. avdodfnr fra UI (P2100) - PDL
-    fun getAvdodId(buctype: String, avdodIdent: String?): String? {
-        return when (buctype) {
-            "P_BUC_02" -> {
+    fun getAvdodId(bucType: BucType, avdodIdent: String?): String? {
+        return when (bucType) {
+            P_BUC_02 -> {
                 if (avdodIdent == null) {
                     logger.warn("Mangler fnr for avdød")
                     throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mangler fnr for avdød")
@@ -64,7 +66,7 @@ class InnhentingService(
                 }
                 personService.hentIdent(IdentType.AktoerId, NorskIdent(avdodIdent)).id
             }
-            "P_BUC_05", "P_BUC_06", "P_BUC_10" -> {
+            P_BUC_05, P_BUC_06, P_BUC_10 -> {
                 if (avdodIdent == null) {
                     return null
                 }

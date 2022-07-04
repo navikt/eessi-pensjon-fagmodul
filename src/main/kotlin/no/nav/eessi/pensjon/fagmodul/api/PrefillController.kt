@@ -2,6 +2,7 @@ package no.nav.eessi.pensjon.fagmodul.api
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import no.nav.eessi.pensjon.eux.model.SedType
+import no.nav.eessi.pensjon.eux.model.buc.BucType
 import no.nav.eessi.pensjon.eux.model.sed.X005
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
@@ -119,7 +120,7 @@ class PrefillController(
         if (request.buc == null) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mangler Buc")
 
         val norskIdent = innhentingService.hentFnrfraAktoerService(request.aktoerId)
-        val avdodaktoerID = innhentingService.getAvdodId(request.buc, request.riktigAvdod())
+        val avdodaktoerID = innhentingService.getAvdodId(BucType.from(request.buc)!!, request.riktigAvdod())
         val dataModel = ApiRequest.buildPrefillDataModelOnExisting(request, norskIdent, avdodaktoerID)
 
         //Hente metadata for valgt BUC
@@ -167,7 +168,7 @@ class PrefillController(
         if (request.buc == null) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mangler Buc")
 
         val norskIdent = innhentingService.hentFnrfraAktoerService(request.aktoerId)
-        val avdodaktoerID = innhentingService.getAvdodId(request.buc, request.riktigAvdod())
+        val avdodaktoerID = innhentingService.getAvdodId(BucType.from(request.buc)!!, request.riktigAvdod())
         val dataModel = ApiRequest.buildPrefillDataModelOnExisting(request, norskIdent, avdodaktoerID)
 
         //Hente metadata for valgt BUC
