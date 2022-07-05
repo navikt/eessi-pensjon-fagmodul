@@ -100,7 +100,7 @@ class PersonPDLControllerTest {
         )
             .andReturn().response
 
-        JSONAssert.assertEquals(personResponseAsJson3, response.contentAsString, true)
+        JSONAssert.assertEquals(personResponseAsJson3, response.contentAsString, false)
     }
 
     @Test
