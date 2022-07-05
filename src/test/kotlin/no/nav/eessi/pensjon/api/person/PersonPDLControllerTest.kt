@@ -56,7 +56,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDate
 import java.time.LocalDateTime
-import kotlin.test.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Metadata as PDLMetaData
 
 @WebMvcTest(PersonPDLController::class)
@@ -241,7 +241,7 @@ class PersonPDLControllerTest {
             .andReturn().response
 
         val list: List<PersonPDLController.PersoninformasjonAvdode?> = mapJsonToAny(response.contentAsString, typeRefs())
-        assertEquals(emptyList(), list)
+        assertEquals(emptyList<PersonPDLController.PersoninformasjonAvdode?>(), list)
     }
 
     @Test

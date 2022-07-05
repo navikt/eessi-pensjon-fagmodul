@@ -10,11 +10,10 @@ import no.nav.eessi.pensjon.fagmodul.eux.EuxKlient
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.typeRefs
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.web.client.RestTemplate
-import kotlin.test.assertContentEquals
 
 class EuxControllerTest {
 
@@ -46,7 +45,7 @@ class EuxControllerTest {
         val result = euxController.getPaakobledeland(BucType.P_BUC_06)
 
         val list = mapJsonToAny(result.body!!, typeRefs<List<String>>())
-        assertContentEquals(backupList, list)
+        assertIterableEquals(backupList, list)
 
     }
 

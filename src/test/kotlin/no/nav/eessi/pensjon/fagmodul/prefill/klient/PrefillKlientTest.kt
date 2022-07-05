@@ -1,7 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.klient
 
 import org.junit.jupiter.api.Test
-import kotlin.test.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
 
 class PrefillKlientTest {
 

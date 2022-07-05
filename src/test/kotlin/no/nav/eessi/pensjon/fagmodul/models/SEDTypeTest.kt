@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.web.server.ResponseStatusException
-import kotlin.test.assertFalse
+import org.junit.jupiter.api.Assertions.assertFalse
 
 class SedTypeTest {
     @Test
