@@ -108,6 +108,8 @@ class PrefillController(
     @PostMapping("sed/add")
     fun addInstutionAndDocument(@RequestBody request: ApiRequest): DocumentsItem? {
 
+        logger.info("Avdød fnr finnes i requesten: ${request.subject?.avdod?.fnr != null}, Subject finnes: ${request.subject != null}, gjenlevende finnes: ${request.subject?.gjenlevende != null}")
+
         logger.info("Legger til institusjoner og SED for " +
                 "rinaId: ${request.euxCaseId} " +
                 "bucType: ${request.buc} " +
