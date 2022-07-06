@@ -67,11 +67,9 @@ class RestTemplateConfig(
     @Value("\${SAF_HENTDOKUMENT_URL}")
     lateinit var hentRestUrl: String
 
-    //Dette var den gamle euxOidcResttemplaten
     @Bean
     fun euxNavIdentRestTemplate(): RestTemplate = restTemplate(euxUrl, onBehalfOfBearerTokenInterceptor(euxClientId))
 
-    //Dette var den gamle euxUsernameOidcRestTemplate
     @Bean
     fun euxSystemRestTemplate() = restTemplate(euxUrl, oAuth2BearerTokenInterceptor(clientProperties("eux-credentials"), oAuth2AccessTokenService!!))
 
@@ -80,7 +78,6 @@ class RestTemplateConfig(
 
     @Bean
     fun prefillOAuthTemplate() = restTemplate(prefillUrl, onBehalfOfBearerTokenInterceptor(prefillClientId))
-    //fun prefillOAuthTemplate() = restTemplate(prefillUrl, bearerTokenInterceptor(clientProperties("prefill-credentials"), oAuth2AccessTokenService!!))
 
     @Bean
     fun kodeRestTemplate() = restTemplate(kodeverkUrl, oAuth2BearerTokenInterceptor(clientProperties("proxy-credentials"), oAuth2AccessTokenService!!))

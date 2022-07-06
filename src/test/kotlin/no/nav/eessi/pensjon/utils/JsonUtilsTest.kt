@@ -63,22 +63,4 @@ class JsonUtilsTest {
 
         JSONAssert.assertEquals(actualjson, mapAnyToJson(list), true)
     }
-
-//    @Test
-//    fun `Test mapAnyToJson error unvalid json expect FagmodulJsonIllegalArgumentException`() {
-//        val mockUnvalidjson = "[{\"country\":\"NO\",\"institution\": NO:NAVT003} ]"
-//        assertThrows<JsonIllegalArgumentException> {
-//            mapJsonToAny(mockUnvalidjson, typeRefs<List<InstitusjonItem>>())
-//        }
-//    }
-//
-//    @Test
-//    fun `Test mapAnyToJson error expect parseerror throws FagmodulJsonIllegalArgumentException`() {
-//        val mockUnvalidjson = "[{\"country\":\"NO\", \"instszw652tution\": \"NO:NAVT003\", \"Dummy\" : \"Dummy\" } ]"
-//        assertThrows<JsonIllegalArgumentException> {
-//            mapJsonToAny(mockUnvalidjson, typeRefs<List<InstitusjonItem>>())
-//        }
-//    }
-
-
 }

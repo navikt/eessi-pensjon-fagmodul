@@ -4,6 +4,7 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
 import no.nav.eessi.pensjon.services.kodeverk.KodeverkClient
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -17,7 +18,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.web.client.RestTemplate
-import org.junit.jupiter.api.Assertions.assertEquals
 
 @SpringBootTest(classes = [UnsecuredWebMvcTestLauncher::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(profiles = ["unsecured-webmvctest"])
@@ -87,44 +87,6 @@ class EuxServiceKallItegrationTest {
 
 
     }
-
-//    @Test
-//    fun `test på gyldig rina2020 url fra eux`() {
-//        val fakeid = "-1-11-111"
-//        val mockRina2020url = "https://rina-q.adeo.no/portal_new/case-management/"
-//
-//        every { restTemplate.exchange(
-//            eq("/url/buc/$fakeid"),
-//            eq(HttpMethod.GET),
-//            any(),
-//            eq(String::class.java)) } returns ResponseEntity.ok().body( mockRina2020url+fakeid )
-
-//        val response = mockMvc.perform(
-//            MockMvcRequestBuilders.get("/eux/rinaurl"))
-//            .andExpect(MockMvcResultMatchers.status().isOk)
-//            .andReturn()
-//
-//        val result = response.response.contentAsString
-//        val expected = """{"rinaUrl":"https://rina-q.adeo.no/portal_new/case-management/"}""".trimIndent()
-//        assertEquals(expected, result)
-
-//        val response2 = mockMvc.perform(
-//            MockMvcRequestBuilders.get("/eux/rinaurl"))
-//            .andExpect(MockMvcResultMatchers.status().isOk)
-//            .andReturn()
-
-//        val result2 = response2.response.contentAsString
-//        assertEquals(expected, result2)
-
-//        val response3 = mockMvc.perform(
-//            MockMvcRequestBuilders.get("/eux/rinaurl"))
-//            .andExpect(MockMvcResultMatchers.status().isOk)
-//            .andReturn()
-
-//        val result3 = response3.response.contentAsString
-//        assertEquals(expected, result3)
-
-//    }
 
     @Test
     fun sjekkRinaUrl() {

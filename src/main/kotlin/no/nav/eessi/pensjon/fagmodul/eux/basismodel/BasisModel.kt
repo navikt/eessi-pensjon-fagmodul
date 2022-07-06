@@ -6,14 +6,6 @@ import no.nav.eessi.pensjon.eux.model.buc.BucType
  * data class model from EUX Basis
  */
 
-//class RinaAksjon(
-//        val dokumentType: SedType? = null,
-//        val navn: String? = null,
-//        val dokumentId: String? = null,
-//        val kategori: String? = null,
-//        val id: String? = null
-//)
-
 data class BucSedResponse(
         val caseId: String,
         val documentId: String
