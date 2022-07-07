@@ -2,7 +2,6 @@ package no.nav.eessi.pensjon.vedlegg.client
 
 import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -24,7 +23,7 @@ import javax.annotation.PostConstruct
 @Component
 class SafClient(private val safGraphQlOidcRestTemplate: RestTemplate,
                 private val safRestOidcRestTemplate: RestTemplate,
-                @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())) {
+                @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()) {
 
     private val logger = LoggerFactory.getLogger(SafClient::class.java)
     private val mapper = jacksonObjectMapper()

@@ -1,7 +1,6 @@
 package no.nav.eessi.pensjon.services.kodeverk
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.utils.toJson
 import org.slf4j.LoggerFactory
@@ -27,7 +26,7 @@ import javax.annotation.PostConstruct
 @CacheConfig(cacheNames = ["kodeVerk"])
 class KodeverkClient(private val kodeRestTemplate: RestTemplate,
                      @Value("\${NAIS_APP_NAME}") private val appName: String,
-                     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())) {
+                     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()) {
 
     private val logger = LoggerFactory.getLogger(KodeverkClient::class.java)
 

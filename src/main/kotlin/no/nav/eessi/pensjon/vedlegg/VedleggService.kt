@@ -1,6 +1,5 @@
 package no.nav.eessi.pensjon.vedlegg
 
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.vedlegg.client.Dokument
 import no.nav.eessi.pensjon.vedlegg.client.EuxVedleggClient
@@ -16,7 +15,7 @@ import javax.annotation.PostConstruct
 @Service
 class VedleggService(private val safClient: SafClient,
                      private val euxVedleggClient: EuxVedleggClient,
-                     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())) {
+                     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()) {
 
     private final val TILLEGGSOPPLYSNING_RINA_SAK_ID_KEY = "eessi_pensjon_bucid"
     private val logger = LoggerFactory.getLogger(VedleggService::class.java)

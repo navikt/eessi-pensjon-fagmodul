@@ -1,6 +1,5 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.klient
 
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import no.nav.eessi.pensjon.fagmodul.models.ApiRequest
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.utils.mapJsonToAny
@@ -25,7 +24,7 @@ import javax.annotation.PostConstruct
  */
 @Component
 class PrefillKlient(private val prefillOAuthTemplate: RestTemplate,
-        @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())
+        @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
 
     private val logger: Logger by lazy { LoggerFactory.getLogger(PrefillKlient::class.java) }

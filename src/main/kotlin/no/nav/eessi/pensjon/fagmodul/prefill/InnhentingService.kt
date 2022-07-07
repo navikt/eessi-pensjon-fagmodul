@@ -1,6 +1,5 @@
 package no.nav.eessi.pensjon.fagmodul.prefill
 
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import no.nav.eessi.pensjon.eux.model.buc.BucType
 import no.nav.eessi.pensjon.eux.model.buc.BucType.*
 import no.nav.eessi.pensjon.fagmodul.models.ApiRequest
@@ -28,7 +27,7 @@ class InnhentingService(
     private val vedleggService: VedleggService,
     private val prefillKlient: PrefillKlient,
     private val pensjonsinformasjonService: PensjonsinformasjonService,
-    @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())
+    @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
 
     private lateinit var HentPerson: MetricsHelper.Metric

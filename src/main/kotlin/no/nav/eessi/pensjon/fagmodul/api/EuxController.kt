@@ -1,6 +1,5 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import no.nav.eessi.pensjon.eux.model.buc.BucType
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
@@ -26,7 +25,7 @@ import javax.annotation.PostConstruct
 @RequestMapping("/eux")
 class EuxController(
     private val euxInnhentingService: EuxInnhentingService,
-    @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())
+    @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
 
     private val logger = LoggerFactory.getLogger(EuxController::class.java)

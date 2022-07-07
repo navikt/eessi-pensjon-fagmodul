@@ -1,7 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
 
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import io.mockk.MockKAnnotations
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -424,7 +423,7 @@ class EuxKlientTest {
         val result = klient.opprettSed(
                 SED(SedType.P2000).toJsonSkipEmpty(),
                 "123456",
-                MetricsHelper(SimpleMeterRegistry()).init("dummy"),
+                MetricsHelper.ForTest().init("dummy"),
                 "Feil ved opprettSed")
 
         assertEquals("123456", result.caseId)
@@ -438,7 +437,7 @@ class EuxKlientTest {
             klient.opprettSed(
                 SED(SedType.P2200).toJsonSkipEmpty(),
                 "1231233",
-                MetricsHelper(SimpleMeterRegistry()).init("dummy"),
+                MetricsHelper.ForTest().init("dummy"),
                 "Feil ved opprettSed"
             )
         }
@@ -451,7 +450,7 @@ class EuxKlientTest {
             klient.opprettSed(
                 SED(SedType.P2000).toJsonSkipEmpty(),
                 "213123",
-                MetricsHelper(SimpleMeterRegistry()).init("dummy"),
+                MetricsHelper.ForTest().init("dummy"),
                 "Feil ved opprettSed"
             )
         }
@@ -466,7 +465,7 @@ class EuxKlientTest {
             "123456",
             "11111",
             "Feil ved opprettSed",
-            MetricsHelper(SimpleMeterRegistry()).init("dummy")
+            MetricsHelper.ForTest().init("dummy")
         )
 
         assertEquals("123456", result.caseId)

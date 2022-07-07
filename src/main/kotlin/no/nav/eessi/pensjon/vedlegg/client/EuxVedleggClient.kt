@@ -1,6 +1,5 @@
 package no.nav.eessi.pensjon.vedlegg.client
 
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -26,7 +25,7 @@ import javax.annotation.PostConstruct
 
 @Component
 class EuxVedleggClient(private val euxNavIdentRestTemplate: RestTemplate,
-                       @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())) {
+                       @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()) {
 
     private val logger = LoggerFactory.getLogger(EuxVedleggClient::class.java)
 

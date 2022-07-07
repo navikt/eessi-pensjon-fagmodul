@@ -1,6 +1,5 @@
 package no.nav.eessi.pensjon.vedlegg
 
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.utils.errorBody
@@ -23,7 +22,7 @@ import javax.annotation.PostConstruct
 @RequestMapping("/saf")
 class VedleggController(private val vedleggService: VedleggService,
                         private val auditlogger: AuditLogger,
-                        @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())) {
+                        @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()) {
 
     private val logger = LoggerFactory.getLogger(VedleggController::class.java)
 

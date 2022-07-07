@@ -12,7 +12,7 @@ buildscript {
         eppersonoppslagVersion = '10.2.7'
         archunitVersion = '0.23.1'
         epeuxVersion = '1.1.76'
-        epMetricsVersion = '0.4.29'
+        epMetricsVersion = '0.5.0'
         epSecurityVersion = '0.0.22'
         epLoggingVersion = '1.0.24'
         epPensjonInformasjonVersjon = '2.0.17'
@@ -98,9 +98,6 @@ dependencies {
 
     implementation ("no.nav.common:token-client:2.2022.04.01_08.27-cbfeb0be0ee0")
     implementation("org.springframework.kafka:spring-kafka:${springKafkaVersion}")
-
-    // Micrometer
-    implementation('io.micrometer:micrometer-registry-prometheus:1.9.0')
 
     implementation("no.nav.eessi.pensjon:ep-metrics:$epMetricsVersion")
     implementation("no.nav.eessi.pensjon:ep-logging:$epLoggingVersion")

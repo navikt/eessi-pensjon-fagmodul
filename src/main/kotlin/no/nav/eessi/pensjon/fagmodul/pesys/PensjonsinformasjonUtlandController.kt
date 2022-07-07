@@ -1,7 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.pesys
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.security.token.support.core.api.Protected
 import org.springframework.beans.factory.annotation.Autowired
@@ -23,7 +22,7 @@ import javax.annotation.PostConstruct
 @Protected
 class PensjonsinformasjonUtlandController(
     private val pensjonsinformasjonUtlandService: PensjonsinformasjonUtlandService,
-    @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper(SimpleMeterRegistry())) {
+    @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()) {
 
     private lateinit var pensjonUtland: MetricsHelper.Metric
 
