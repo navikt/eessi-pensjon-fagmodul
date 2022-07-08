@@ -9,13 +9,13 @@ buildscript {
         tokenSupportVersion = '1.3.9'
         logstashLogbackVersion = '7.1.1'
         pensjonInformasjonVersion = '9.4.10'
-        eppersonoppslagVersion = '10.2.7'
+        eppersonoppslagVersion = '11.1.1'
         archunitVersion = '0.23.1'
-        epeuxVersion = '1.1.76'
-        epMetricsVersion = '0.5.0'
+        epeuxVersion = '1.2.0'
+        epMetricsVersion = '0.5.1'
         epSecurityVersion = '0.0.22'
-        epLoggingVersion = '1.0.24'
-        epPensjonInformasjonVersjon = '2.0.17'
+        epLoggingVersion = '1.0.28'
+        epPensjonInformasjonVersjon = '2.0.24'
         springKafkaVersion = '2.8.6'
     }
 
