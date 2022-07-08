@@ -89,7 +89,7 @@ dependencies {
 
     // auditlogger syslog la stå i 1.0.0 / 0.9.30
     implementation("com.papertrailapp:logback-syslog4j:1.0.0")
-    implementation("org.syslog4j:syslog4j:0.9.30")
+    implementation("org.syslog4j:syslog4j:0.9.46")
 
     //auth
     implementation("no.nav.security:token-client-spring:${tokenSupportVersion}")
