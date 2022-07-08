@@ -16,7 +16,7 @@ buildscript {
         epSecurityVersion = '0.0.22'
         epLoggingVersion = '1.0.28'
         epPensjonInformasjonVersjon = '2.0.24'
-        springKafkaVersion = '2.8.6'
+        springKafkaVersion = '2.8.7'
     }
 
     repositories {
