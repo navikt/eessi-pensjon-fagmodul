@@ -227,15 +227,6 @@ class OpprettPrefillSedIntegrationTest {
     }
 
 
-
-    @Test
-    fun `opprette ny sed P5000 på buc med ekisterende mottaker prøver å legge til ny mottaker`() {}
-
-
-    @Test
-    fun `opprette ny svar sed P9000 på buc med svar fra P8000 `() {}
-
-
     fun dummyApijson(
         sakid: String,
         vedtakid: String? = null,
