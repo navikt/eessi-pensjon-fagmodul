@@ -22,7 +22,7 @@ import no.nav.eessi.pensjon.services.kodeverk.KodeverkClient
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.typeRefs
-import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.beans.factory.annotation.Autowired
@@ -41,7 +41,6 @@ import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
 import java.time.LocalDate
 import java.time.Month
-import org.junit.jupiter.api.Assertions.assertEquals
 
 @SpringBootTest(classes = [IntegrasjonsTestConfig::class, UnsecuredWebMvcTestLauncher::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(profiles = ["unsecured-webmvctest"])
@@ -314,7 +313,6 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
     }
 
     @Test
-    @Disabled
     fun `Hent mulige rinasaker for aktoer og saf`() {
         val fnr = "1234567890000"
         val aktoerId = "1123123123123123"
@@ -327,12 +325,9 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         val httpEntity = dummyHeader(dummySafReqeust(aktoerId))
         every { restSafTemplate.exchange(eq("/"), eq(HttpMethod.POST), eq(httpEntity), eq(String::class.java)) } returns ResponseEntity.ok().body(  dummySafMetaResponseMedRina( "5195021", "5922554" ) )
 
-        val rinaSafUrl1 = dummyRinasakUrl(euxCaseId =  "5922554", status = "\"open\"")
-        every { restEuxTemplate.exchange( eq( rinaSafUrl1.toUriString() ), eq(HttpMethod.GET), null, eq(String::class.java)) } .answers( FunctionAnswer { Thread.sleep(250); ResponseEntity.ok().body( listOf(dummyRinasak("5922554", BucType.P_BUC_03.name)).toJson() ) } )
-
-        //gjenlevende rinasak
-        val rinaGjenlevUrl = dummyRinasakUrl(fnr, status = "\"open\"")
-        every { restEuxTemplate.exchange(rinaGjenlevUrl.toUriString(), HttpMethod.GET, null, String::class.java) } .answers( FunctionAnswer { Thread.sleep(250); ResponseEntity.ok().body( listOf(dummyRinasak("5195021", "P_BUC_05") ).toJson() ) } )
+       //gjenlevende rinasak
+        every { restEuxTemplate.exchange("/rinasaker?fødselsnummer=1234567890000&status=\"open\"", HttpMethod.GET, null, String::class.java) } .answers( FunctionAnswer { Thread.sleep(250);  ResponseEntity.ok().body( listOf(dummyRinasak("5195021", "P_BUC_05") ).toJson() ) } )
+        every { restEuxTemplate.exchange( "/buc/5922554", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "5922554", processDefinitionName = "P_BUC_03").toJson() )
 
         val result = mockMvc.perform(
             MockMvcRequestBuilders.get("/buc/rinasaker/$aktoerId/saknr/$saknr")
@@ -354,9 +349,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         JSONAssert.assertEquals(expected, response, true)
     }
 
-
     @Test
-    @Disabled
     fun `Hent mulige rinasaker for aktoer uten vedtak og saf`() {
         val fnr = "1234567890000"
         val aktoerId = "1123123123123123"
