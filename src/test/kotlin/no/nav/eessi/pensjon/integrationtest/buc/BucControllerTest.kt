@@ -9,14 +9,16 @@ import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
-import no.nav.eessi.pensjon.fagmodul.integrationtest.IntegrasjonsTestConfig
-import no.nav.eessi.pensjon.pensjonsinformasjon.PensjonsinformasjonClient
+import no.nav.eessi.pensjon.integrationtest.IntegrasjonsTestConfig
+import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
 import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentType
 import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
 import no.nav.eessi.pensjon.services.kodeverk.KodeverkClient
 import no.nav.eessi.pensjon.utils.toJson
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.beans.factory.annotation.Autowired
@@ -33,8 +35,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.web.client.RestTemplate
 import java.time.LocalDate
 import java.time.Month
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
 
 @SpringBootTest(classes = [IntegrasjonsTestConfig::class, UnsecuredWebMvcTestLauncher::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(profiles = ["unsecured-webmvctest"])

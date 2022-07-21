@@ -6,9 +6,9 @@ import io.mockk.impl.annotations.SpyK
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.eessi.pensjon.logging.AuditLogger
-import no.nav.eessi.pensjon.pensjonsinformasjon.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonRequestBuilder
-import no.nav.eessi.pensjon.services.pensjonsinformasjon.Pensjontype
+import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
+import no.nav.eessi.pensjon.pensjonsinformasjon.models.Pensjontype
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.pensjon.v1.brukerssakerliste.V1BrukersSakerListe
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon

@@ -4,18 +4,19 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
 import no.nav.eessi.pensjon.eux.model.SedType
-import no.nav.eessi.pensjon.fagmodul.integrationtest.IntegrasjonsTestConfig
 import no.nav.eessi.pensjon.fagmodul.models.ApiRequest
 import no.nav.eessi.pensjon.fagmodul.models.ApiSubject
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.models.KravType
 import no.nav.eessi.pensjon.fagmodul.models.SubjectFnr
+import no.nav.eessi.pensjon.integrationtest.IntegrasjonsTestConfig
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
 import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentType
 import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
 import no.nav.eessi.pensjon.services.kodeverk.KodeverkClient
 import no.nav.eessi.pensjon.utils.toJson
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.beans.factory.annotation.Autowired
@@ -34,7 +35,6 @@ import org.springframework.test.web.servlet.MvcResult
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.web.client.RestTemplate
-import org.junit.jupiter.api.Assertions.assertEquals
 
 
 @SpringBootTest(classes = [IntegrasjonsTestConfig::class,UnsecuredWebMvcTestLauncher::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)

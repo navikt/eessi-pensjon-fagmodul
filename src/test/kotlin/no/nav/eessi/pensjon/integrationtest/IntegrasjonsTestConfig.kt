@@ -1,4 +1,4 @@
-package no.nav.eessi.pensjon.fagmodul.integrationtest
+package no.nav.eessi.pensjon.integrationtest
 
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.producer.ProducerConfig

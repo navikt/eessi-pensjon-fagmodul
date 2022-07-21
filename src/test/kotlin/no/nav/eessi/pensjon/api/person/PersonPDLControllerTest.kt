@@ -16,7 +16,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ActionsItem
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.logging.AuditLogger
-import no.nav.eessi.pensjon.pensjonsinformasjon.PensjonsinformasjonClient
+import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.personoppslag.FodselsnummerGenerator
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonoppslagException
@@ -43,6 +43,7 @@ import no.nav.eessi.pensjon.utils.typeRefs
 import no.nav.pensjon.v1.avdod.V1Avdod
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
 import no.nav.pensjon.v1.person.V1Person
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
@@ -56,7 +57,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDate
 import java.time.LocalDateTime
-import org.junit.jupiter.api.Assertions.assertEquals
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Metadata as PDLMetaData
 
 @WebMvcTest(PersonPDLController::class)

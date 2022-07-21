@@ -9,8 +9,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.pensjonsinformasjon.FinnSak
-import no.nav.eessi.pensjon.pensjonsinformasjon.PensjoninformasjonException
-import no.nav.eessi.pensjon.pensjonsinformasjon.PensjonsinformasjonClient
+import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjoninformasjonException
+import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjoninformasjonValiderKrav
 import no.nav.eessi.pensjon.utils.errorBody
 import no.nav.eessi.pensjon.utils.mapAnyToJson
