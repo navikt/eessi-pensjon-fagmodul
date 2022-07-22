@@ -171,7 +171,7 @@ class PensjonController(
                     val localDate = LocalDate.of(
                         xmldate.getYear(),
                         xmldate.getMonth(),
-                        xmldate.getDay());
+                        xmldate.getDay())
                     jGen.writeString(localDate.toString())
                 } ?: jGen.writeNull()
             }

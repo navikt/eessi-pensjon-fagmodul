@@ -180,7 +180,7 @@ class BucController(
             if (avdodFnrListe.isEmpty()) {
                 return@measure emptyList<BucView>()
                     .also {
-                        logger.info("Total view size: ${it.size}")
+                        logger.info("Total view size is zero")
                         logger.info("BrukerRinasaker total tid: ${System.currentTimeMillis() - start} i ms")
                     }
             }

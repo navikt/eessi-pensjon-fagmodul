@@ -62,7 +62,7 @@ class EuxServiceKallItegrationTest {
             eq(String::class.java)) } returns ResponseEntity.ok().body( responsejson )
 
         val result = mockMvc.perform(
-            MockMvcRequestBuilders.get("/eux/landkoder")
+            get("/eux/landkoder")
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))

@@ -87,7 +87,7 @@ class OpprettPrefillSedIntegrationTest {
         val apiRequest = dummyApijson(
             "1212000",
             "120012",
-            "$AKTOER_ID",
+            AKTOER_ID,
             SedType.P2000,
             "P_BUC_01",
             null,
@@ -127,7 +127,7 @@ class OpprettPrefillSedIntegrationTest {
         val apiRequest = dummyApijson(
             "1212000",
             "120012",
-            "$AKTOER_ID",
+            AKTOER_ID,
             SedType.P2000,
             "P_BUC_01",
             null,
@@ -141,7 +141,7 @@ class OpprettPrefillSedIntegrationTest {
         every { restEuxTemplate.exchange( "/buc/$euxRinaid", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(tomBucJson)
 
         val rinaputmottaker = "/buc/1000000001/mottakere?KorrelasjonsId=$X_REQUEST_ID&mottakere=FI:200032&mottakere=DK:120030"
-        every { restEuxTemplate.exchange( "$rinaputmottaker", HttpMethod.PUT, null, String::class.java) } returns ResponseEntity.ok().body("")
+        every { restEuxTemplate.exchange(rinaputmottaker, HttpMethod.PUT, null, String::class.java) } returns ResponseEntity.ok().body("")
 
         val prefillHeaders = HttpHeaders()
         prefillHeaders.contentType = MediaType.APPLICATION_JSON
@@ -195,7 +195,7 @@ class OpprettPrefillSedIntegrationTest {
         val apiRequest = dummyApijson(
             "1212000",
             "120012",
-            "$AKTOER_ID",
+            AKTOER_ID,
             SedType.P6000,
             "P_BUC_02",
             FNR_VOKSEN_2,
