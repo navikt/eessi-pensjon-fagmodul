@@ -26,6 +26,11 @@ import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatus.ACCEPTED
+import org.springframework.http.HttpStatus.BAD_REQUEST
+import org.springframework.http.HttpStatus.CREATED
+import org.springframework.http.HttpStatus.OK
+import org.springframework.http.HttpStatus.valueOf
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.kafka.test.context.EmbeddedKafka
@@ -110,7 +115,7 @@ class OpprettPrefillSedIntegrationTest {
 
         val responsePair = responseMvcDecode(result)
 
-        assertEquals(HttpStatus.BAD_REQUEST, responsePair.first)
+        assertEquals(BAD_REQUEST, responsePair.first)
         assertEquals("Ingen deltakere/Institusjon er tom", responsePair.second)
 
     }
@@ -221,7 +226,7 @@ class OpprettPrefillSedIntegrationTest {
         val responseStatus = responsePair.first
         val responseBody = responsePair.second
 
-        assertEquals(HttpStatus.BAD_REQUEST, responseStatus)
+        assertEquals(BAD_REQUEST, responseStatus)
         assertEquals("Utkast av type X005, finnes allerede i BUC", responseBody)
 
     }
@@ -262,12 +267,9 @@ class OpprettPrefillSedIntegrationTest {
     }
 
     fun responseMvcDecode(result: MvcResult): Pair<HttpStatus, String> {
-        val status = HttpStatus.valueOf(result.response.status)
-        return when(status) {
-            HttpStatus.OK, HttpStatus.ACCEPTED, HttpStatus.CREATED -> Pair(HttpStatus.OK, result.response.getContentAsString(charset("UTF-8"))).also { println("ResponseDecode: $it") }
+        return when(val status = valueOf(result.response.status)) {
+            OK, ACCEPTED, CREATED -> Pair(OK, result.response.getContentAsString(charset("UTF-8"))).also { println("ResponseDecode: $it") }
             else ->  Pair(status, result.response.errorMessage!!)
         }
     }
-
-
 }
