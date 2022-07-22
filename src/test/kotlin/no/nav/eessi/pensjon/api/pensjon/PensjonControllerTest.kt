@@ -207,7 +207,7 @@ class PensjonControllerTest {
     fun uthentingAvUforeTidspunkt() {
         val mockVedtakid = "213123333"
         val mockClient = fraFil("VEDTAK-UT-MUTP.xml")
-        val mockController = PensjonController(mockClient, auditLogger,)
+        val mockController = PensjonController(mockClient, auditLogger)
         mockController.initMetrics()
         val mockMvc2 = MockMvcBuilders.standaloneSetup(mockController).build()
 
@@ -230,7 +230,7 @@ class PensjonControllerTest {
     fun uthentingAvUforeTidspunktMedGMTZ() {
         val mockVedtakid = "213123333"
         val mockClient = fraFil("VEDTAK-UT-MUTP-GMTZ.xml")
-        val mockController = PensjonController(mockClient, auditLogger,)
+        val mockController = PensjonController(mockClient, auditLogger)
         mockController.initMetrics()
         val mockMvc2 = MockMvcBuilders.standaloneSetup(mockController).build()
 
@@ -254,7 +254,7 @@ class PensjonControllerTest {
     fun uthentingAvUforeTidspunktSomErTom() {
         val mockVedtakid = "213123333"
         val mockClient = fraFil("VEDTAK-UT.xml")
-        val mockController = PensjonController(mockClient, auditLogger,)
+        val mockController = PensjonController(mockClient, auditLogger)
         mockController.initMetrics()
         val mockMvc2 = MockMvcBuilders.standaloneSetup(mockController).build()
 
@@ -314,7 +314,7 @@ class PensjonControllerTest {
         val mockSakid = "21841174"
         val mockClient = fraFil("ALDERP-INV-21841174.xml")
 
-        val mockController = PensjonController(mockClient, auditLogger,)
+        val mockController = PensjonController(mockClient, auditLogger)
         mockController.initMetrics()
         val mockMvc2 = MockMvcBuilders.standaloneSetup(mockController).build()
 
@@ -618,7 +618,7 @@ class PensjonControllerTest {
         val mockVedtakid = "213123333"
         val mockClient = fraFil("BARNEP-PlukkBestOpptjening.xml")
 
-        val mockController = PensjonController(mockClient, auditLogger,)
+        val mockController = PensjonController(mockClient, auditLogger)
         mockController.initMetrics()
         val mockMvc2 = MockMvcBuilders.standaloneSetup(mockController).build()
 
