@@ -71,22 +71,22 @@ class RestTemplateConfig(
     fun euxNavIdentRestTemplate(): RestTemplate = restTemplate(euxUrl, onBehalfOfBearerTokenInterceptor(euxClientId))
 
     @Bean
-    fun euxSystemRestTemplate() = restTemplate(euxUrl, oAuth2BearerTokenInterceptor(clientProperties("eux-credentials"), oAuth2AccessTokenService!!))
+    fun euxSystemRestTemplate() = restTemplate(euxUrl, oAuth2BearerTokenInterceptor(clientProperties("eux-credentials"), oAuth2AccessTokenService))
 
     @Bean
-    fun proxyOAuthRestTemplate() = restTemplate(proxyUrl, oAuth2BearerTokenInterceptor(clientProperties("proxy-credentials"), oAuth2AccessTokenService!!))
+    fun proxyOAuthRestTemplate() = restTemplate(proxyUrl, oAuth2BearerTokenInterceptor(clientProperties("proxy-credentials"), oAuth2AccessTokenService))
 
     @Bean
     fun prefillOAuthTemplate() = restTemplate(prefillUrl, onBehalfOfBearerTokenInterceptor(prefillClientId))
 
     @Bean
-    fun kodeRestTemplate() = restTemplate(kodeverkUrl, oAuth2BearerTokenInterceptor(clientProperties("proxy-credentials"), oAuth2AccessTokenService!!))
+    fun kodeRestTemplate() = restTemplate(kodeverkUrl, oAuth2BearerTokenInterceptor(clientProperties("proxy-credentials"), oAuth2AccessTokenService))
 
     @Bean
-    fun pensjoninformasjonRestTemplate() = restTemplate(pensjonUrl, oAuth2BearerTokenInterceptor(clientProperties("proxy-credentials"), oAuth2AccessTokenService!!))
+    fun pensjoninformasjonRestTemplate() = restTemplate(pensjonUrl, oAuth2BearerTokenInterceptor(clientProperties("proxy-credentials"), oAuth2AccessTokenService))
 
     @Bean
-    fun safGraphQlOidcRestTemplate() = restTemplate(graphQlUrl, oAuth2BearerTokenInterceptor(clientProperties("saf-credentials"), oAuth2AccessTokenService!!))
+    fun safGraphQlOidcRestTemplate() = restTemplate(graphQlUrl, oAuth2BearerTokenInterceptor(clientProperties("saf-credentials"), oAuth2AccessTokenService))
 
     @Bean
     fun safRestOidcRestTemplate() = restTemplate(hentRestUrl, onBehalfOfBearerTokenInterceptor(safClientId))

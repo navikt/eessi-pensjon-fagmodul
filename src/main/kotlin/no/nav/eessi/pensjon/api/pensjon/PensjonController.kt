@@ -152,7 +152,7 @@ class PensjonController(
     fun hentSakPensjonsinformasjon(@PathVariable("ident", required = true) ident: String, @PathVariable("sakid", required = true) sakid: String): String {
         val saker = pensjonsinformasjonClient.hentAltPaaAktoerId(ident)
         logger.info("saker: ${saker.brukersSakerListe.brukersSakerListe.size}")
-        val sak = saker?.let { FinnSak.finnSak(sakid, it) }
+        val sak = saker.let { FinnSak.finnSak(sakid, it) }
         logger.info("den fakiske sak: ${sak != null}")
         sak?.let {
             val mapper = ObjectMapper()
