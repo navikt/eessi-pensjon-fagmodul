@@ -228,11 +228,10 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
     private fun korrektDokumentAvdodPbuc06(bucUtils: BucUtils): DocumentsItem? {
         logger.debug("henter ut korrekte SED fra P_BUC_06. ${bucUtils.getBuc().documents?.toJsonSkipEmpty()}")
 
-        val docitem = bucUtils.getAllDocuments()
-        .filterNot { it.status in listOf("draft", "empty") }
-        .filter { it.type in listOf(SedType.P5000, SedType.P6000, SedType.P7000, SedType.P10000) }
-        .firstOrNull { it.status in listOf("received", "new", "sent") }
-        return docitem
+        return bucUtils.getAllDocuments()
+            .filterNot { it.status in listOf("draft", "empty") }
+            .filter { it.type in listOf(SedType.P5000, SedType.P6000, SedType.P7000, SedType.P10000) }
+            .firstOrNull { it.status in listOf("received", "new", "sent") }
     }
 
     /**

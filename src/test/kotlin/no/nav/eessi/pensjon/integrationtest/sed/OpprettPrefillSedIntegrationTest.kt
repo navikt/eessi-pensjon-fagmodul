@@ -237,7 +237,8 @@ class OpprettPrefillSedIntegrationTest {
         kravtype: KravType? = null,
         kravdato: String? = null,
         euxRinaid: String? = "12345",
-        institutions: List<InstitusjonItem>? = emptyList()): ApiRequest {
+        institutions: List<InstitusjonItem>? = emptyList()
+    ): ApiRequest {
 
         val subject = if (fnravdod != null) {
             ApiSubject(null, SubjectFnr(fnravdod))
@@ -245,7 +246,7 @@ class OpprettPrefillSedIntegrationTest {
             null
         }
 
-        val req = ApiRequest(
+        return ApiRequest(
             sakId = sakid,
             vedtakId = vedtakid,
             kravId = null,
@@ -258,7 +259,6 @@ class OpprettPrefillSedIntegrationTest {
             institutions = institutions,
             subject = subject
         )
-        return req
     }
 
     fun responseMvcDecode(result: MvcResult): Pair<HttpStatus, String> {
