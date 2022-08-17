@@ -305,7 +305,7 @@ class EuxKlient(
                 , prefixErrorMessage = "Feiler ved metode getDeltakerer. "
         )
         return try {
-            mapJsonToAny(response.body, typeRefs())
+            mapJsonToAny(response.body!!, typeRefs())
         } catch (ex: Exception) {
             throw ServerException("Feil ved henting av BucDeltakere: ingen data, euxCaseId $euxCaseId")
        }

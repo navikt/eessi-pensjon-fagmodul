@@ -63,6 +63,7 @@ class PensjonController(
         return PensjonControllerHentSakType.measure {
             logger.info("Henter sakstype på $sakId / $aktoerId")
 
+            @Suppress("DEPRECATION")
             ResponseEntity.ok(mapAnyToJson(pensjonsinformasjonClient.hentKunSakType(sakId, aktoerId)))
         }
     }
@@ -77,7 +78,8 @@ class PensjonController(
                     errorBody("Mangler gyldige verdier for å hente kravdato, prøv heller fra vedtakskonteks", xid))
             }
             try {
-               pensjonsinformasjonClient.hentKravDatoFraAktor(aktorId = aktoerId, kravId = kravId, saksId = sakId)?.let {
+                @Suppress("DEPRECATION")
+                pensjonsinformasjonClient.hentKravDatoFraAktor(aktorId = aktoerId, kravId = kravId, saksId = sakId)?.let {
                    return@measure ResponseEntity.ok("""{ "kravDato": "$it" }""")
                }
                return@measure ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorBody("Feiler å hente kravDato", xid))
@@ -93,6 +95,7 @@ class PensjonController(
     fun validerKravPensjon(@PathVariable("aktoerId", required = true) aktoerId: String, @PathVariable("sakId", required = true) sakId: String, @PathVariable("buctype", required = true) bucType: String): Boolean {
         return PensjonControllerValidateSak.measure {
 
+            @Suppress("DEPRECATION")
             val pendata = pensjonsinformasjonClient.hentAltPaaAktoerId(aktoerId)
             if (pendata.brukersSakerListe == null) {
                 logger.warn("Ingen gyldig brukerSakerListe funnet")
@@ -150,6 +153,7 @@ class PensjonController(
 
     @GetMapping("/sak/aktoer/{ident}/sakid/{sakid}/pensjonsak")
     fun hentSakPensjonsinformasjon(@PathVariable("ident", required = true) ident: String, @PathVariable("sakid", required = true) sakid: String): String {
+        @Suppress("DEPRECATION")
         val saker = pensjonsinformasjonClient.hentAltPaaAktoerId(ident)
         logger.info("saker: ${saker.brukersSakerListe.brukersSakerListe.size}")
         val sak = saker.let { FinnSak.finnSak(sakid, it) }
@@ -226,6 +230,7 @@ class PensjonController(
         return PensjonControllerHentSakListe.measure {
             logger.info("henter sakliste for aktoer: $aktoerId")
             return@measure try {
+                @Suppress("DEPRECATION")
                 val pensjonInformasjon = pensjonsinformasjonClient.hentAltPaaAktoerId(aktoerId)
                 val brukersSakerListe = pensjonInformasjon.brukersSakerListe.brukersSakerListe
                 if (brukersSakerListe == null) {

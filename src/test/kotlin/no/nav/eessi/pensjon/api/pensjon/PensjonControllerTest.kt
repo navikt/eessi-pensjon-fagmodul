@@ -33,6 +33,7 @@ import java.util.*
 import javax.xml.datatype.DatatypeFactory
 import javax.xml.datatype.XMLGregorianCalendar
 
+@Suppress("DEPRECATION") // hentKunSakType / hentAltPaaAktoerId
 class PensjonControllerTest {
 
     private var pensjonsinformasjonClient: PensjonsinformasjonClient = mockk()

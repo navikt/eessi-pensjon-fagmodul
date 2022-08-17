@@ -21,6 +21,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.util.MultiValueMap
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
 import java.nio.charset.Charset
@@ -70,7 +71,7 @@ class UpdateSedOnBucIntegrationTest {
             eq("/buc/$euxCaseId/sed/$documentId?ventePaAksjon=false"),
             eq(HttpMethod.PUT),
             any(),
-            eq(String::class.java)) } returns ResponseEntity(null ,HttpStatus.OK)
+            eq(String::class.java)) } returns ResponseEntity("", HttpStatus.OK)
 
         val result = mockMvc.perform(put("/sed/put/$euxCaseId/$documentId")
             .contentType(MediaType.APPLICATION_JSON)
@@ -115,7 +116,7 @@ class UpdateSedOnBucIntegrationTest {
             eq("/buc/$euxCaseId/sed/$documentId?ventePaAksjon=false"),
             eq(HttpMethod.PUT),
             any(),
-            eq(String::class.java)) } returns ResponseEntity(null ,HttpStatus.OK)
+            eq(String::class.java)) } returns ResponseEntity("", HttpStatus.OK)
 
         val result = mockMvc.perform(put("/sed/put/$euxCaseId/$documentId")
             .contentType(MediaType.APPLICATION_JSON)
@@ -137,7 +138,7 @@ class UpdateSedOnBucIntegrationTest {
             eq("/buc/$euxCaseId/sed/$documentId?ventePaAksjon=false"),
             eq(HttpMethod.PUT),
             any(),
-            eq(String::class.java)) } returns ResponseEntity(null ,HttpStatus.OK)
+            eq(String::class.java)) } returns ResponseEntity("", HttpStatus.OK)
 
         val result = mockMvc.perform(put("/sed/put/$euxCaseId/$documentId")
             .contentType(MediaType.APPLICATION_JSON)

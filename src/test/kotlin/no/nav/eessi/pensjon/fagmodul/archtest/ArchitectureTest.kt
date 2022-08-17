@@ -1,6 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.archtest
 
 import com.tngtech.archunit.base.DescribedPredicate
+import com.tngtech.archunit.base.Optional
 import com.tngtech.archunit.core.domain.JavaAnnotation
 import com.tngtech.archunit.core.domain.JavaClass
 import com.tngtech.archunit.core.domain.JavaClasses
@@ -255,7 +256,7 @@ class ArchitectureTest {
         return object : DescribedPredicate<JavaMethod?>("don't access member variables") {
             override fun apply(input: JavaMethod?): Boolean {
                 return !input!!.fieldAccesses.stream().filter { access: JavaFieldAccess ->
-                    val optionalField = access.target.resolveField()
+                    val optionalField = access.target.resolveMember()
                     if (!optionalField.isPresent) {
                         return@filter false
                     }
@@ -271,11 +272,11 @@ class ArchitectureTest {
         return object : DescribedPredicate<JavaMethod?>("don't access instance methods") {
             override fun apply(input: JavaMethod?): Boolean {
                 return !input!!.getCallsFromSelf().stream().filter { access ->
-                    val targets: Set<JavaCodeUnit> = access.target.resolve()
-                    if (targets.isEmpty()) {
+                    val targets: Optional<out JavaCodeUnit>? = access.target.resolveMember()
+                    if (targets == null || !targets.isPresent) {
                         return@filter false
                     }
-                    val target = targets.stream().findAny().get()
+                    val target = targets.get()
                     target.owner == input.owner && !target.modifiers.contains(JavaModifier.STATIC)
                 }
                     .findAny().isPresent
