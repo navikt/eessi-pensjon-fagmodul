@@ -30,7 +30,8 @@ class KodeverkClientTest {
         kodeverkClient = KodeverkClient(mockrestTemplate, "eessi-fagmodul")
         kodeverkClient.initMetrics()
 
-        val mockResponseEntityISO3 = createResponseEntityFromJsonFile("src/test/resources/json/kodeverk/landkoderSammensattIso2.json")
+        val mockResponseEntityISO3 =
+            createResponseEntityFromJsonFile("src/test/resources/json/kodeverk/landkoderSammensattIso2.json")
 
         every {
             mockrestTemplate
@@ -85,14 +86,17 @@ class KodeverkClientTest {
     fun hentingavIso2landkodevedbrukAvlandkode3FeilerMedNull() {
         val landkode2 = "BMUL"
 
-        val exception  = assertThrows<LandkodeException> {
+        val exception = assertThrows<LandkodeException> {
             kodeverkClient.finnLandkode(landkode2)
 
         }
         Assertions.assertEquals("400 BAD_REQUEST \"Ugyldig landkode: BMUL\"", exception.message)
     }
 
-    private fun createResponseEntityFromJsonFile(filePath: String, httpStatus: HttpStatus = HttpStatus.OK): ResponseEntity<String> {
+    private fun createResponseEntityFromJsonFile(
+        filePath: String,
+        httpStatus: HttpStatus = HttpStatus.OK
+    ): ResponseEntity<String> {
         val mockResponseString = String(Files.readAllBytes(Paths.get(filePath)))
         return ResponseEntity(mockResponseString, httpStatus)
     }

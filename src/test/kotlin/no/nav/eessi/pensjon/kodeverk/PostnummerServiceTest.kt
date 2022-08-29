@@ -1,9 +1,6 @@
 package no.nav.eessi.pensjon.kodeverk
 
-import no.nav.eessi.pensjon.kodeverk.PostnummerService
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -28,6 +25,7 @@ class PostnummerServiceTest {
         assertNotNull(sted)
         assertEquals(poststed, sted)
     }
+
     @Test
     fun `hente postnr med ugyldig sted`() {
         val sted = service.finnPoststed("1439")
