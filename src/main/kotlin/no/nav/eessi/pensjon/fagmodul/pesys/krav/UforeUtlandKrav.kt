@@ -5,7 +5,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.fagmodul.pesys.KravUtland
 import no.nav.eessi.pensjon.fagmodul.pesys.SkjemaPersonopplysninger
-import no.nav.eessi.pensjon.services.kodeverk.KodeverkClient
+import no.nav.eessi.pensjon.kodeverk.KodeverkClient
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service

@@ -1,5 +1,6 @@
-package no.nav.eessi.pensjon.services.geo
+package no.nav.eessi.pensjon.kodeverk
 
+import no.nav.eessi.pensjon.kodeverk.PostnummerService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull

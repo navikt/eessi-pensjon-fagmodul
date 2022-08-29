@@ -1,4 +1,4 @@
-package no.nav.eessi.pensjon.services.geo
+package no.nav.eessi.pensjon.kodeverk
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

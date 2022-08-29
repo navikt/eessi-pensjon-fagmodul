@@ -1,10 +1,10 @@
-package no.nav.eessi.pensjon.services.kodeverk
+package no.nav.eessi.pensjon.kodeverk
 
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.typeRefs
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -32,12 +32,15 @@ class KodeverkClientTest {
 
         val mockResponseEntityISO3 = createResponseEntityFromJsonFile("src/test/resources/json/kodeverk/landkoderSammensattIso2.json")
 
-        every { mockrestTemplate
-            .exchange(
-                eq("/api/v1/hierarki/LandkoderSammensattISO2/noder"),
-                any(),
-                any<HttpEntity<Unit>>(),
-                eq(String::class.java)) } returns mockResponseEntityISO3
+        every {
+            mockrestTemplate
+                .exchange(
+                    eq("/api/v1/hierarki/LandkoderSammensattISO2/noder"),
+                    any(),
+                    any<HttpEntity<Unit>>(),
+                    eq(String::class.java)
+                )
+        } returns mockResponseEntityISO3
     }
 
     @ParameterizedTest(name = "Henter landkode: {0}. Forventet svar: {1}")
@@ -46,7 +49,7 @@ class KodeverkClientTest {
 
         val actual = kodeverkClient.finnLandkode(landkode)
 
-        assertEquals(expected, actual)
+        Assertions.assertEquals(expected, actual)
     }
 
     private companion object {
@@ -62,8 +65,8 @@ class KodeverkClientTest {
     fun testerLankodeMed2Siffer() {
         val actual = kodeverkClient.hentLandkoderAlpha2()
 
-        assertEquals("ZW", actual.last())
-        assertEquals(249, actual.size)
+        Assertions.assertEquals("ZW", actual.last())
+        Assertions.assertEquals(249, actual.size)
     }
 
     @Test
@@ -72,10 +75,10 @@ class KodeverkClientTest {
 
         val list = mapJsonToAny(json, typeRefs<List<Landkode>>())
 
-        assertEquals(249, list.size)
+        Assertions.assertEquals(249, list.size)
 
-        assertEquals("AD", list.first().landkode2)
-        assertEquals("AND", list.first().landkode3)
+        Assertions.assertEquals("AD", list.first().landkode2)
+        Assertions.assertEquals("AND", list.first().landkode3)
     }
 
     @Test
@@ -83,10 +86,10 @@ class KodeverkClientTest {
         val landkode2 = "BMUL"
 
         val exception  = assertThrows<LandkodeException> {
-                 kodeverkClient.finnLandkode(landkode2)
+            kodeverkClient.finnLandkode(landkode2)
 
         }
-        assertEquals("400 BAD_REQUEST \"Ugyldig landkode: BMUL\"", exception.message)
+        Assertions.assertEquals("400 BAD_REQUEST \"Ugyldig landkode: BMUL\"", exception.message)
     }
 
     private fun createResponseEntityFromJsonFile(filePath: String, httpStatus: HttpStatus = HttpStatus.OK): ResponseEntity<String> {

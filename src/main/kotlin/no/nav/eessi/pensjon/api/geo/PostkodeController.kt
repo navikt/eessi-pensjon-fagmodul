@@ -1,6 +1,6 @@
 package no.nav.eessi.pensjon.api.geo
 
-import no.nav.eessi.pensjon.services.geo.PostnummerService
+import no.nav.eessi.pensjon.kodeverk.PostnummerService
 import no.nav.security.token.support.core.api.Unprotected
 import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation.GetMapping

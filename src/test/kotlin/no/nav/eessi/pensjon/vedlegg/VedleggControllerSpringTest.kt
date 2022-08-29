@@ -5,7 +5,7 @@ import io.mockk.every
 import io.mockk.justRun
 import io.mockk.verify
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
-import no.nav.eessi.pensjon.services.kodeverk.KodeverkClient
+import no.nav.eessi.pensjon.kodeverk.KodeverkClient
 import no.nav.eessi.pensjon.vedlegg.client.Dokument
 import no.nav.eessi.pensjon.vedlegg.client.HentdokumentInnholdResponse
 import org.hamcrest.Matchers.containsString

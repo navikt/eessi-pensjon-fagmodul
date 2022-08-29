@@ -82,8 +82,7 @@ class ArchitectureTest {
         val geoApi            = "api geo"
         val personApi         = "api person"
         val pensjonApi        = "api pensjon"
-        val kodeverkService   = "services kodeverk"
-        val geoService        = "services geo"
+        val kodeverk          = "kodeverk"
         val pensjonService    = "services pensjon"
         val statistikk    = "services statistikk"
         val utils             = "utils"
@@ -101,8 +100,7 @@ class ArchitectureTest {
                 "$root.api.person.." to personApi,
                 "$root.api.pensjon.." to pensjonApi,
                 "$root.config.." to config,
-                "$root.services.kodeverk" to kodeverkService,
-                "$root.services.geo" to geoService,
+                "$root.kodeverk.." to kodeverk,
                 "$root.services.statistikk" to statistikk,
                 "$root.services.pensjonsinformasjon" to pensjonService,
                 "$root.metrics.." to utils,
@@ -126,8 +124,7 @@ class ArchitectureTest {
                 .layer(euxBasisModel).definedBy(*packagesFor(euxBasisModel))
                 .layer(euxBucModel).definedBy(*packagesFor(euxBucModel))
                 .layer(models).definedBy(*packagesFor(models))
-                .layer(kodeverkService).definedBy(*packagesFor(kodeverkService))
-                .layer(geoService).definedBy(*packagesFor(geoService))
+                .layer(kodeverk).definedBy(*packagesFor(kodeverk))
                 .layer(pensjonService).definedBy(*packagesFor(pensjonService))
                 .layer(config).definedBy(*packagesFor(config))
                 .layer(utils).definedBy(*packagesFor(utils))
@@ -143,7 +140,7 @@ class ArchitectureTest {
                 .whereLayer(vedlegg).mayOnlyBeAccessedByLayers(bucSedApi, prefill)
 
                 .whereLayer(euxService).mayOnlyBeAccessedByLayers(bucSedApi, pesys, prefill, personApi)
-                .whereLayer(geoService).mayOnlyBeAccessedByLayers(geoApi, prefill)
+                .whereLayer(kodeverk).mayOnlyBeAccessedByLayers(geoApi, pesys, prefill)
                 .whereLayer(pensjonService).mayOnlyBeAccessedByLayers(pensjonApi, prefill, bucSedApi, personApi)
 
                 .whereLayer(euxBucModel).mayOnlyBeAccessedByLayers(euxService, bucSedApi, pesys, personApi)
@@ -158,20 +155,16 @@ class ArchitectureTest {
     fun `main layers check`() {
         val frontendAPI = "Frontend API"
         val fagmodulCore = "Fagmodul Core"
-        val services = "Services"
-        val support = "Support"
-        val vedlegg ="Vedlegg"
-        val personoppslag = "Personoppslag"
-        val euxmodel = "euxmodel"
         val models = "models"
+        val services = "Services"
+        val vedlegg ="Vedlegg"
+        val support = "Support"
         layeredArchitecture()
                 .layer(frontendAPI).definedBy(      "$root.api..")
                 .layer(fagmodulCore).definedBy(     "$root.fagmodul..")
                 .layer(models).definedBy(           "$root.fagmodul.models..")
-                .layer(services).definedBy(         "$root.services..")
-                .layer(personoppslag).definedBy(    "$root.personoppslag..")
+                .layer(services).definedBy(         "$root.services..", "$root.kodeverk..", "$root.pensjonsinformasjon..")
                 .layer(vedlegg).definedBy(          "$root.vedlegg..")
-                .layer(euxmodel).definedBy(         "$root.eux.model..")
                 .layer(support).definedBy(
                         "$root.metrics..",
                         "$root.config..",
@@ -187,21 +180,12 @@ class ArchitectureTest {
                         fagmodulCore,
                         frontendAPI,
                         services,
-                        vedlegg,
-                        euxmodel)
+                        vedlegg)
                 .whereLayer(services).mayOnlyBeAccessedByLayers(
                         frontendAPI,
                         fagmodulCore,
                         vedlegg)
-                .whereLayer(support).mayOnlyBeAccessedByLayers(
-                        frontendAPI,
-                        fagmodulCore,
-                        services,
-                        personoppslag,
-                        vedlegg,
-                        euxmodel,
-                        models)
-                .withOptionalLayers(true)
+                .withOptionalLayers(false)
                 .check(productionClasses)
     }
 

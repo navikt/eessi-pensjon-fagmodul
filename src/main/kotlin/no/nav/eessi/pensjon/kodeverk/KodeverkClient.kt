@@ -1,4 +1,4 @@
-package no.nav.eessi.pensjon.services.kodeverk
+package no.nav.eessi.pensjon.kodeverk
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.nav.eessi.pensjon.metrics.MetricsHelper
