@@ -1,4 +1,4 @@
-package no.nav.eessi.pensjon.fagmodul.archtest
+package no.nav.eessi.pensjon.architecture
 
 import com.tngtech.archunit.base.DescribedPredicate
 import com.tngtech.archunit.base.Optional
