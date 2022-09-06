@@ -4,7 +4,7 @@ buildscript {
         kotlinVersion = '1.7.10'
         springBootVersion = '2.7.3'
         springfoxVersion = '3.0.0'
-        jacksonModuleKotlinVersion = '2.13.3'
+        jacksonModuleKotlinVersion = '2.13.4'
         cxfVersion = '3.5.1'
         tokenSupportVersion = '2.1.4'
         logstashLogbackVersion = '7.2'
