@@ -6,11 +6,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.cache.annotation.EnableCaching
 import org.springframework.context.annotation.Profile
+import org.springframework.retry.annotation.EnableRetry
 
 @EnableJwtTokenValidation(ignore = ["org.springframework", "springfox.documentation", "no.nav.eessi.pensjon.fagmodul.health.DiagnosticsController"])
 @EnableOAuth2Client(cacheEnabled = true)
 @SpringBootApplication
 @EnableCaching
+@EnableRetry
 @Profile("!unsecured-webmvctest")
 class EessiFagmodulApplication
 
