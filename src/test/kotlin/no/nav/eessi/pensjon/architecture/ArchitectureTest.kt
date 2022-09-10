@@ -47,23 +47,20 @@ class ArchitectureTest {
         fun `extract classes`() {
             allClasses = ClassFileImporter().importPackages(root)
 
-            assertTrue(allClasses.size > 350, "Sanity check on no. of classes to analyze")
-            assertTrue(allClasses.size < 1300, "Sanity check on no. of classes to analyze")
+            assertTrue(allClasses.size in 350..1300, "Sanity check on no. of classes to analyze (is ${allClasses.size})")
 
             productionClasses = ClassFileImporter()
                     .withImportOption(ImportOption.DoNotIncludeTests())
                     .withImportOption(ImportOption.DoNotIncludeJars())
                     .importPackages(root)
 
-            assertTrue(productionClasses.size > 200, "Sanity check on no. of classes to analyze")
-            assertTrue(productionClasses.size < 850, "Sanity check on no. of classes to analyze")
+            assertTrue(productionClasses.size in 200..850, "Sanity check on no. of classes to analyze (is ${productionClasses.size})")
 
             testClasses = ClassFileImporter()
                     .withImportOption{ !ImportOption.DoNotIncludeTests().includes(it) }
                     .importPackages(root)
 
-            //assertEquals(625, testClasses.size, "Sanity check on no. of classes to analyze")
-            assertTrue(testClasses.size > 500, "Sanity check on no. of classes to analyze")
+            assertTrue(testClasses.size in 500..800, "Sanity check on no. of classes to analyze (is ${testClasses.size})")
         }
     }
 
