@@ -53,7 +53,6 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonModuleKotlinVersion")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonModuleKotlinVersion")
 
-    implementation(platform("org.jetbrains.kotlin:kotlin-bom:$kotlinVersion"))
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
 
     // Logging
