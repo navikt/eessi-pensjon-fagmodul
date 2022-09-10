@@ -66,6 +66,9 @@ class OpprettPrefillSedIntegrationTest {
     @MockkBean(name = "pensjoninformasjonRestTemplate")
     private lateinit var pensjoninformasjonRestTemplate: RestTemplate
 
+    @MockkBean(name = "kodeverkRestTemplate")
+    private lateinit var kodeverkRestTemplate: RestTemplate
+
     @MockkBean
     private lateinit var kodeverkClient: KodeverkClient
 

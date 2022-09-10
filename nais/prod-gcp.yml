@@ -61,8 +61,6 @@ spec:
       value: eessipensjon.privat-statistikk
     - name: KAFKA_AUTOMATISERING_TOPIC
       value: eessipensjon.public-automatisering
-    - name: KODEVERK_REST_API_URL
-      value: https://eessi-pensjon-onprem-proxy.prod-fss-pub.nais.io
     - name: KODEVERK_URL
       value: https://kodeverk.prod-fss-pub.nais.io
     - name: EESSI_PEN_ONPREM_PROXY_URL

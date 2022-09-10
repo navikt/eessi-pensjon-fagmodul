@@ -79,7 +79,6 @@ class ArchitectureTest {
         val geoApi            = "api geo"
         val personApi         = "api person"
         val pensjonApi        = "api pensjon"
-        val kodeverk          = "kodeverk"
         val pensjonService    = "services pensjon"
         val statistikk    = "services statistikk"
         val utils             = "utils"
@@ -97,7 +96,6 @@ class ArchitectureTest {
                 "$root.api.person.." to personApi,
                 "$root.api.pensjon.." to pensjonApi,
                 "$root.config.." to config,
-                "$root.kodeverk.." to kodeverk,
                 "$root.services.statistikk" to statistikk,
                 "$root.services.pensjonsinformasjon" to pensjonService,
                 "$root.metrics.." to utils,
@@ -121,7 +119,6 @@ class ArchitectureTest {
                 .layer(euxBasisModel).definedBy(*packagesFor(euxBasisModel))
                 .layer(euxBucModel).definedBy(*packagesFor(euxBucModel))
                 .layer(models).definedBy(*packagesFor(models))
-                .layer(kodeverk).definedBy(*packagesFor(kodeverk))
                 .layer(pensjonService).definedBy(*packagesFor(pensjonService))
                 .layer(config).definedBy(*packagesFor(config))
                 .layer(utils).definedBy(*packagesFor(utils))
@@ -137,7 +134,6 @@ class ArchitectureTest {
                 .whereLayer(vedlegg).mayOnlyBeAccessedByLayers(bucSedApi, prefill)
 
                 .whereLayer(euxService).mayOnlyBeAccessedByLayers(bucSedApi, pesys, prefill, personApi)
-                .whereLayer(kodeverk).mayOnlyBeAccessedByLayers(geoApi, pesys, prefill)
                 .whereLayer(pensjonService).mayOnlyBeAccessedByLayers(pensjonApi, prefill, bucSedApi, personApi)
 
                 .whereLayer(euxBucModel).mayOnlyBeAccessedByLayers(euxService, bucSedApi, pesys, personApi)

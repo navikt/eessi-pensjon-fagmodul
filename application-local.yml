@@ -7,7 +7,7 @@ NAIS_APP_NAME: 'eessi-pensjon-fagmodul'
 NAIS_APP_IMAGE: 'localrun'
 
 NAIS_NAMESPACE: 'q2'
-
+KODEVERK_URL: 'https://kodeverk.nais.adeo.no'
 eessi-pensjon-active-profiles: ${spring.profiles.active}
 
 eessi-pensjon-institusjon: 'NO:NAVAT07'
@@ -45,9 +45,6 @@ saf.graphql:
 
 saf.hentdokument:
   url: 'https://saf-q2.nais.preprod.local/rest/hentdokument'
-
-kodeverk.rest-api:
-  url: 'https://kodeverk.nais.adeo.no'
 
 server:
   servlet:

@@ -4,6 +4,7 @@ NAIS_APP_IMAGE: 'someimage'
 ENV: test
 PDL_URL: 'http://example.com:8090'
 AZURE_APP_WELL_KNOWN_URL: 'http://example.com:8090'
+KODEVERK_URL: 'http://example.com:8093'
 
 eessi-pensjon-active-profiles: ${spring.profiles.active}
 
@@ -33,9 +34,6 @@ eessi:
   pensjon_adresse_by:   'Oslo'
   pensjon_adresse_postnummer: '0607'
   pensjon_adresse_land: 'NO'
-
-kodeverk.rest-api:
-  url: 'http://example.com:8093'
 
 spring:
   profiles:

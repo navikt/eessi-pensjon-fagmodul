@@ -63,6 +63,9 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
     @MockkBean(name = "safRestOidcRestTemplate")
     private lateinit var safRestOidcRestTemplate: RestTemplate
 
+    @MockkBean(name = "kodeverkRestTemplate")
+    private lateinit var kodeverkRestTemplate: RestTemplate
+
     @MockkBean
     private lateinit var kodeverkClient: KodeverkClient
 
