@@ -63,6 +63,8 @@ spec:
       value: eessipensjon.public-automatisering-q2
     - name: KODEVERK_REST_API_URL
       value: https://eessi-pensjon-onprem-proxy-q2.dev-fss-pub.nais.io
+    - name: KODEVERK_URL
+      value: https://kodeverk.dev-fss-pub.nais.io
     - name: EESSI_PEN_ONPREM_PROXY_URL
       value: https://eessi-pensjon-onprem-proxy-q2.dev-fss-pub.nais.io
     - name: AZURE_APP_PDL_CLIENT_ID
@@ -73,6 +75,8 @@ spec:
       value: dev-fss.eessibasis.eux-rina-api-q2
     - name: AZURE_APP_PROXY_CLIENT_ID
       value: dev-fss.eessipensjon.eessi-pensjon-onprem-proxy-q2
+    - name: AZURE_APP_KODEVERK_CLIENT_ID
+      value: dev-fss.org.kodeverk
     - name: AZURE_APP_SAF_CLIENT_ID
       value: dev-fss.teamdokumenthandtering.saf
 
