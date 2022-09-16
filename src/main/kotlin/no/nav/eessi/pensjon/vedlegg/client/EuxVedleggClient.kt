@@ -109,7 +109,7 @@ class EuxVedleggClient(private val euxNavIdentRestTemplate: RestTemplate,
                     HttpStatus.UNAUTHORIZED -> throw RinaIkkeAutorisertBrukerException("Authorization token required for Rina,")
                     HttpStatus.FORBIDDEN -> throw ForbiddenException("Forbidden, Ikke tilgang")
                     HttpStatus.NOT_FOUND -> throw IkkeFunnetException("Ikke funnet")
-                    else -> throw GenericUnprocessableEntity("Uoppdaget feil har oppstått!!, $errorBody")
+                    else -> throw GenericUnprocessableEntity("En feil har oppstått")
                 }
             } catch (hsee: HttpServerErrorException) {
                 val errorBody = hsee.responseBodyAsString
@@ -117,12 +117,12 @@ class EuxVedleggClient(private val euxNavIdentRestTemplate: RestTemplate,
                 when (hsee.statusCode) {
                     HttpStatus.INTERNAL_SERVER_ERROR -> throw EuxRinaServerException("Rina serverfeil, kan også skyldes ugyldig input, $errorBody")
                     HttpStatus.GATEWAY_TIMEOUT -> throw GatewayTimeoutException("Venting på respons fra Rina resulterte i en timeout, $errorBody")
-                    else -> throw GenericUnprocessableEntity("Uoppdaget feil har oppstått!!, $errorBody")
+                    else -> throw GenericUnprocessableEntity("En feil har oppstått")
                 }
             } catch (uhsce: UnknownHttpStatusCodeException) {
                 val errorBody = uhsce.responseBodyAsString
                 logger.error("$prefixErrorMessage, med euxCaseID: $euxCaseId errmessage: $errorBody", uhsce)
-                throw GenericUnprocessableEntity("Ukjent statusefeil, $errorBody")
+                throw GenericUnprocessableEntity("Ukjent statusfeil, $errorBody")
             } catch (ex: Exception) {
                 logger.error("$prefixErrorMessage, med euxCaseID: $euxCaseId", ex)
                 throw ServerException("Ukjent Feil oppstod euxCaseId: $euxCaseId,  ${ex.message}")
