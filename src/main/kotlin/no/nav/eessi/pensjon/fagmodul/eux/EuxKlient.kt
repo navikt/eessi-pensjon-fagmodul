@@ -6,8 +6,6 @@ import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.PreviewPdf
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonDetalj
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
-import no.nav.eessi.pensjon.fagmodul.models.Kodeverk
-import no.nav.eessi.pensjon.fagmodul.models.KodeverkResponse
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.typeRefs
@@ -250,37 +248,6 @@ class EuxKlient(
         val dokumentInnholdBase64 = String(Base64.getEncoder().encode(response.body!!.inputStream.readBytes()))
         return PreviewPdf(dokumentInnholdBase64, filnavn!!, contentType)
 
-    }
-
-    @Cacheable
-    fun getKodeverk(kodeverk: Kodeverk) : List<KodeverkResponse> {
-        logger.info("eux Kodeverk: $kodeverk")
-        //https://eux-rina-api-q1.nais.preprod.local/cpi/kodeverk?Kodeverk=landkoder
-        val valueKey = kodeverk.value
-        val path = "/kodeverk?Kodeverk={valueKey}"
-        val uriParams = mapOf("valueKey" to valueKey)
-        val builder = UriComponentsBuilder.fromUriString(path).buildAndExpand(uriParams)
-        logger.debug("Kodeverk prøver å kontakte EUX /${builder.toUriString()}")
-
-        val starttid = System.currentTimeMillis()
-        val response = restTemplateErrorhandler(
-            restTemplateFunction = {
-                euxNavIdentRestTemplate.exchange(
-                    builder.toUriString(),
-                    HttpMethod.GET,
-                    null,
-                    String::class.java)
-            }
-            , euxCaseId = "n/a"
-            , metric = GetKodeverk
-            , prefixErrorMessage = "Feiler ved metode getKodeverk."
-        )
-        val body = response.body ?: throw ServerException("Feil ved henting av kodeverk: ingen data. kode: $valueKey")
-        val result = mapJsonToAny(body, typeRefs<List<KodeverkResponse>>())
-        val slutttid = System.currentTimeMillis()
-        val tidbrukt = slutttid - starttid
-        logger.debug("Tid brukt på Kodeverk map: $tidbrukt ms")
-        return result
     }
 
     fun getBucDeltakere(euxCaseId: String): List<ParticipantsItem> {

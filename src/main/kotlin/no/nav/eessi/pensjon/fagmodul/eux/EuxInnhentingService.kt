@@ -16,8 +16,6 @@ import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.PreviewPdf
 import no.nav.eessi.pensjon.fagmodul.models.ApiRequest
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
-import no.nav.eessi.pensjon.fagmodul.models.Kodeverk
-import no.nav.eessi.pensjon.fagmodul.models.KodeverkResponse
 import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
 import no.nav.eessi.pensjon.utils.mapAnyToJson
 import no.nav.eessi.pensjon.utils.mapJsonToAny
@@ -113,11 +111,6 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
     fun getInstitutions(bucType: String, landkode: String? = ""): List<InstitusjonItem> {
         logger.debug("henter institustion for bucType: $bucType, land: $landkode")
         return euxKlient.getInstitutions(bucType, landkode)
-    }
-
-    fun getKodeverk(kodeverk: Kodeverk): List<KodeverkResponse> {
-        logger.debug("henter kodeverk for ${kodeverk.value}")
-        return euxKlient.getKodeverk(kodeverk)
     }
 
     /**
