@@ -60,7 +60,7 @@ class ArchitectureTest {
                     .withImportOption{ !ImportOption.DoNotIncludeTests().includes(it) }
                     .importPackages(root)
 
-            assertTrue(testClasses.size in 500..800, "Sanity check on no. of classes to analyze (is ${testClasses.size})")
+            assertTrue(testClasses.size in 400..800, "Sanity check on no. of classes to analyze (is ${testClasses.size})")
         }
     }
 
