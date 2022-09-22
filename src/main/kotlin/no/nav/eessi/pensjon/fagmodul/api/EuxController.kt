@@ -3,8 +3,6 @@ package no.nav.eessi.pensjon.fagmodul.api
 import no.nav.eessi.pensjon.eux.model.buc.BucType
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
-import no.nav.eessi.pensjon.fagmodul.models.Kodeverk
-import no.nav.eessi.pensjon.fagmodul.models.KodeverkResponse
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.utils.errorBody
 import no.nav.eessi.pensjon.utils.toJson
@@ -70,24 +68,6 @@ class EuxController(
             } catch (ex: Exception) {
                 ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.message?.let { errorBody(it) })
             }
-        }
-    }
-
-    @Protected
-    @GetMapping( "/landkoder")
-    fun getCountryCode(): List<String> {
-        return euxKodeverkLand.measure {
-            logger.info("Henter ut liste over land fra eux-kodeverk")
-            return@measure euxInnhentingService.getKodeverk(Kodeverk.LANDKODER).mapNotNull{ it.kode }.toList()
-        }
-    }
-
-    @Protected
-    @GetMapping( "/kodeverk/{kodeverk}")
-    fun getKodeverk(@PathVariable("kodeverk", required = true) kodeverk: Kodeverk): List<KodeverkResponse> {
-        return euxKodeverk.measure {
-            logger.info("Henter ut liste over alle kodeverk fra eux-rina")
-            return@measure euxInnhentingService.getKodeverk(kodeverk)
         }
     }
 
