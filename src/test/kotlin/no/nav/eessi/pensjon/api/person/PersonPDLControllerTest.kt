@@ -117,7 +117,7 @@ class PersonPDLControllerTest {
 
     @Test
     fun `should return NOT_FOUND hvis personen ikke finnes`() {
-        every { pdlService.hentPerson(any<Ident<*>>()) } throws PersonoppslagException("not_found: Fant ikke person")
+        every { pdlService.hentPerson(any<Ident<*>>()) } throws PersonoppslagException("Fant ikke person", "not_found")
 
         mvc.perform(
             get("/person/pdl/info/${AKTOERID}")
