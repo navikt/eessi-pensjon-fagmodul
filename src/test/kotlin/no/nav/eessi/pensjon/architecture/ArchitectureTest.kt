@@ -1,7 +1,6 @@
 package no.nav.eessi.pensjon.architecture
 
 import com.tngtech.archunit.base.DescribedPredicate
-import com.tngtech.archunit.base.Optional
 import com.tngtech.archunit.core.domain.JavaAnnotation
 import com.tngtech.archunit.core.domain.JavaClass
 import com.tngtech.archunit.core.domain.JavaClasses
@@ -26,6 +25,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.context.annotation.Scope
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.util.*
 
 class ArchitectureTest {
 
@@ -109,6 +109,7 @@ class ArchitectureTest {
 
         // mentally replace the word "layer" with "component":
         layeredArchitecture()
+            .consideringOnlyDependenciesInAnyPackage(root)
                 .layer(geoApi).definedBy(*packagesFor(geoApi))
                 .layer(personApi).definedBy(*packagesFor(personApi))
                 .layer(pensjonApi).definedBy(*packagesFor(pensjonApi))
@@ -153,6 +154,7 @@ class ArchitectureTest {
         val vedlegg ="Vedlegg"
         val support = "Support"
         layeredArchitecture()
+            .consideringOnlyDependenciesInAnyPackage(root)
                 .layer(frontendAPI).definedBy(      "$root.api..")
                 .layer(fagmodulCore).definedBy(     "$root.fagmodul..")
                 .layer(models).definedBy(           "$root.fagmodul.models..")
@@ -231,7 +233,7 @@ class ArchitectureTest {
     }
     private fun dontAccessMemberVariables(): DescribedPredicate<JavaMethod?>? {
         return object : DescribedPredicate<JavaMethod?>("don't access member variables") {
-            override fun apply(input: JavaMethod?): Boolean {
+            override fun test(input: JavaMethod?): Boolean {
                 return !input!!.fieldAccesses.stream().filter { access: JavaFieldAccess ->
                     val optionalField = access.target.resolveMember()
                     if (!optionalField.isPresent) {
@@ -247,7 +249,7 @@ class ArchitectureTest {
 
     private fun dontAccessInstanceMethods(): DescribedPredicate<JavaMethod?>? {
         return object : DescribedPredicate<JavaMethod?>("don't access instance methods") {
-            override fun apply(input: JavaMethod?): Boolean {
+            override fun test(input: JavaMethod?): Boolean {
                 return !input!!.getCallsFromSelf().stream().filter { access ->
                     val targets: Optional<out JavaCodeUnit>? = access.target.resolveMember()
                     if (targets == null || !targets.isPresent) {
@@ -274,7 +276,7 @@ class ArchitectureTest {
     fun `Spring singleton components should not have mutable instance fields`() {
 
         class SpringStereotypeAnnotation:DescribedPredicate<JavaAnnotation<*>>("Spring component annotation") {
-            override fun apply(input: JavaAnnotation<*>?) = input != null &&
+            override fun test(input: JavaAnnotation<*>?) = input != null &&
                     (input.rawType.packageName.startsWith("org.springframework.stereotype") ||
                             input.rawType.isEquivalentTo(RestController::class.java))
         }
@@ -305,7 +307,7 @@ class ArchitectureTest {
     @Test
     fun `No test classes should use inheritance`() {
         class TestSupportClasses:DescribedPredicate<JavaClass>("test support classes") {
-            override fun apply(input: JavaClass?) = input != null &&
+            override fun test(input: JavaClass?) = input != null &&
                     (!input.simpleName.endsWith("Test") &&
                             (!input.simpleName.endsWith("Tests")
                                     && input.name != "java.lang.Object"))
