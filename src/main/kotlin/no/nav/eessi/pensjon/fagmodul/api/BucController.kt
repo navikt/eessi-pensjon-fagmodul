@@ -46,8 +46,10 @@ class BucController(
     private lateinit var bucDetaljer: MetricsHelper.Metric
     private lateinit var bucDetaljerVedtak: MetricsHelper.Metric
     private lateinit var bucDetaljerEnkel: MetricsHelper.Metric
+    private lateinit var bucDetaljerEnkelGjenlevende: MetricsHelper.Metric
     private lateinit var bucDetaljerEnkelavdod: MetricsHelper.Metric
     private lateinit var bucDetaljerGjenlev: MetricsHelper.Metric
+    private lateinit var bucViewForVedtak: MetricsHelper.Metric
     private lateinit var bucView: MetricsHelper.Metric
 
     @PostConstruct
@@ -55,8 +57,10 @@ class BucController(
         bucDetaljer = metricsHelper.init("BucDetaljer", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         bucDetaljerVedtak = metricsHelper.init("BucDetaljerVedtak", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         bucDetaljerEnkel = metricsHelper.init("BucDetaljerEnkel", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
+        bucDetaljerEnkelGjenlevende = metricsHelper.init("bucDetaljerEnkelGjenlevende", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         bucDetaljerGjenlev  = metricsHelper.init("BucDetaljerGjenlev", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
-        bucDetaljerEnkelavdod = metricsHelper.init("BucDetalsjerEnkelAvdod", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
+        bucDetaljerEnkelavdod = metricsHelper.init("bucDetaljerEnkelavdod", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
+        bucViewForVedtak = metricsHelper.init("bucViewForVedtak", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         bucView = metricsHelper.init("BucView", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
     }
 
@@ -171,8 +175,10 @@ class BucController(
         @PathVariable("saknr", required = false) sakNr: String,
         @PathVariable("vedtakid", required = false) vedtakId: String? = null
     ): List<BucView> {
-        return bucView.measure {
+        return bucViewForVedtak.measure {
             val start = System.currentTimeMillis()
+
+            logger.info("henter rinasaker på valgt aktoerid: $aktoerId, på saknr: $sakNr")
 
             //liste over avdodfnr fra vedtak (pesys)
             val avdodFnrListe = avdodFraVedtak(vedtakId, sakNr)
@@ -294,7 +300,7 @@ class BucController(
         logger.info("Henter ut en enkel buc for gjenlevende")
 
         return if (kilde == BucViewKilde.SAF) {
-            bucDetaljerEnkel.measure {
+            bucDetaljerEnkelGjenlevende.measure {
                 logger.info("saf euxCaseId: $euxcaseid, saknr: $saknr")
                 val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerid)
                 euxInnhentingService.getSingleBucAndSedView(euxcaseid)
