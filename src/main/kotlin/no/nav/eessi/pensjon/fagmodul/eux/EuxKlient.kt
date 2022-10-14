@@ -12,8 +12,6 @@ import no.nav.eessi.pensjon.utils.typeRefs
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.cache.annotation.CacheConfig
-import org.springframework.cache.annotation.Cacheable
 import org.springframework.context.annotation.Description
 import org.springframework.core.io.Resource
 import org.springframework.http.HttpEntity
@@ -39,7 +37,6 @@ import javax.annotation.PostConstruct
 @Suppress("SpringJavaInjectionPointsAutowiringInspection")
 @Component("fagmodulEuxKlient")
 @Description("Service class for EuxBasis - eux-cpi-service-controller")
-@CacheConfig(cacheNames = ["euxService"])
 class EuxKlient(
     private val euxNavIdentRestTemplate: RestTemplate,
     private val euxSystemRestTemplate: RestTemplate,
@@ -133,8 +130,6 @@ class EuxKlient(
         return HttpEntity(navSEDjson, headers)
     }
 
-    //henter korrekte RinaURL fra eux
-    //@Cacheable
     fun getRinaUrl(): String {
         val rinaCallid = "-1-11-111" //hack rinaid/bucid for henting av rinaurl
         val path = "/url/buc/{RinaSakId}" //path
@@ -281,7 +276,6 @@ class EuxKlient(
     /**
      * List all institutions connected to RINA.
      */
-    @Cacheable
     fun getInstitutions(bucType: String, landkode: String? = ""): List<InstitusjonItem> {
         val url = "/institusjoner?BuCType=$bucType&LandKode=${landkode ?: ""}"
 
