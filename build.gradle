@@ -70,7 +70,7 @@ dependencies {
     implementation("no.nav.security:token-validation-jaxrs:${tokenSupportVersion}")
     implementation("no.nav.security:token-validation-test-support:2.0.5")
 
-    implementation ("no.nav.common:token-client:2.2022.09.26_07.11-78a5190823bd")
+    implementation ("no.nav.common:token-client:2.2022.10.28_08.02-d7d341cf26ba")
     implementation("org.springframework.kafka:spring-kafka:${springKafkaVersion}")
 
     implementation("no.nav.eessi.pensjon:ep-metrics:$epMetricsVersion")
