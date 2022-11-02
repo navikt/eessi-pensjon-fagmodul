@@ -99,7 +99,7 @@ class EuxKlientTest {
         assertThrows<GenericUnprocessableEntity> {
             klient.getBucJson(bucid)
         }
-        verify(exactly = 6){ mockEuxrestTemplate.exchange("/buc/$bucid", HttpMethod.GET, null, String::class.java)  }
+        verify(exactly = 3){ mockEuxrestTemplate.exchange("/buc/$bucid", HttpMethod.GET, null, String::class.java)  }
     }
 
     @Test
@@ -109,7 +109,7 @@ class EuxKlientTest {
         assertThrows<ResponseStatusException> {
             klient.getBucJson(bucid)
         }
-        verify(exactly = 6){ mockEuxrestTemplate.exchange("/buc/$bucid", HttpMethod.GET, null, String::class.java)  }
+        verify(exactly = 3){ mockEuxrestTemplate.exchange("/buc/$bucid", HttpMethod.GET, null, String::class.java)  }
     }
 
     @Test

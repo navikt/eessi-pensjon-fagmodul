@@ -242,7 +242,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
             """.trimIndent()
         assertEquals(expectederror, bucView.error)
 
-        verify (exactly = 6) { restEuxTemplate.exchange("/buc/$euxCaseId", HttpMethod.GET, null, String::class.java)  }
+        verify (exactly = 3) { restEuxTemplate.exchange("/buc/$euxCaseId", HttpMethod.GET, null, String::class.java)  }
     }
 
     @Test
