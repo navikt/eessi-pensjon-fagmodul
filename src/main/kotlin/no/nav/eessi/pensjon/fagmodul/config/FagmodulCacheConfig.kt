@@ -8,6 +8,7 @@ import org.springframework.cache.concurrent.ConcurrentMapCacheManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
+import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.scheduling.annotation.Scheduled
 import java.util.concurrent.TimeUnit
 
@@ -15,6 +16,7 @@ internal const val INSTITUTION_CACHE = "institutions"
 
 @Configuration
 @EnableCaching
+@EnableScheduling
 class FagmodulCacheConfig {
     private val logger = LoggerFactory.getLogger(FagmodulCacheConfig::class.java)
 
