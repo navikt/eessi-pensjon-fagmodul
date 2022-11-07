@@ -75,7 +75,7 @@ dependencies {
 
     implementation("no.nav.eessi.pensjon:ep-metrics:$epMetricsVersion")
     implementation("no.nav.eessi.pensjon:ep-logging:$epLoggingVersion")
-    implementation("no.nav.eessi.pensjon:ep-kodeverk:3.1.27")
+    implementation("no.nav.eessi.pensjon:ep-kodeverk:3.1.29")
     implementation("no.nav.eessi.pensjon:ep-personoppslag:$epPersonoppslagVersion")
     implementation("no.nav.eessi.pensjon:ep-pensjonsinformasjon:$epPensjonInformasjonVersjon")
     implementation("no.nav.eessi.pensjon:ep-eux:$epeuxVersion")
