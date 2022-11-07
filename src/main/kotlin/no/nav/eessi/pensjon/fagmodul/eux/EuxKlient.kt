@@ -1,5 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
+import no.nav.eessi.pensjon.fagmodul.config.INSTITUTION_CACHE
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucSedResponse
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
@@ -12,6 +13,7 @@ import no.nav.eessi.pensjon.utils.typeRefs
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.context.annotation.Description
 import org.springframework.core.io.Resource
 import org.springframework.http.HttpEntity
@@ -276,6 +278,7 @@ class EuxKlient(
     /**
      * List all institutions connected to RINA.
      */
+    @Cacheable(cacheNames = [INSTITUTION_CACHE], cacheManager = "fagmodulCacheManager")
     fun getInstitutions(bucType: String, landkode: String? = ""): List<InstitusjonItem> {
         val url = "/institusjoner?BuCType=$bucType&LandKode=${landkode ?: ""}"
 
