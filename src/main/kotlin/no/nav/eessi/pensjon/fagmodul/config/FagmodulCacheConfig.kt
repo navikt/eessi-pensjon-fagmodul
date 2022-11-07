@@ -27,7 +27,7 @@ class FagmodulCacheConfig {
     }
 
     @CacheEvict(cacheNames = [INSTITUTION_CACHE])
-    @Scheduled(fixedDelay = 2, timeUnit = TimeUnit.HOURS)
+    @Scheduled(fixedDelay = 5, timeUnit = TimeUnit.MINUTES)
     fun reportCacheEvict() {
         logger.info("Flushing cache: $INSTITUTION_CACHE")
     }
