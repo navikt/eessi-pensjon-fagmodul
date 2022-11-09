@@ -133,9 +133,9 @@ class EuxPrefillServiceTest {
                 Rinasak("8423","P_BUC_07",null,"PO",null,"archived")
         )
 
-        val result = euxinnhentingService.getFilteredArchivedaRinasaker(dummyList)
+        val result = euxinnhentingService.getFilteredArchivedaRinasakerSak(dummyList)
         assertEquals(3, result.size)
-        assertEquals("2123", result.first())
+        assertEquals("2123", result.first().id)
     }
 
     @Test
@@ -149,9 +149,9 @@ class EuxPrefillServiceTest {
                 Rinasak("8223","H_BUC_07",null,"PO",null,"open")
         )
 
-        val result = euxinnhentingService.getFilteredArchivedaRinasaker(dummyList)
+        val result = euxinnhentingService.getFilteredArchivedaRinasakerSak(dummyList)
         assertEquals(1, result.size)
-        assertEquals("8223", result.first())
+        assertEquals("8223", result.first().id)
     }
 
     @Test
@@ -166,10 +166,10 @@ class EuxPrefillServiceTest {
                 Rinasak("6006777","P_BUC_01",null,"PO",null,"open")
         )
 
-        val result = euxinnhentingService.getFilteredArchivedaRinasaker(dummyList)
+        val result = euxinnhentingService.getFilteredArchivedaRinasakerSak(dummyList)
         assertEquals(2, result.size)
-        assertEquals("723", result.first())
-        assertEquals("8223", result.last())
+        assertEquals("723", result.first().id)
+        assertEquals("8223", result.last().id)
     }
 
     @Test

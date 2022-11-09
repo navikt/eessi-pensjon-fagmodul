@@ -116,31 +116,10 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
     /**
      * filtert kun gyldige buc-type for visning, returnerer liste av rinaid
      */
-    fun getFilteredArchivedaRinasaker(list: List<Rinasak>): List<String> {
-        fun filterUgyldigeRinasaker(rinaid: String) : Boolean {
-            return if (MissingBuc.checkForMissingBuc(rinaid) ) {
-                true.also { logger.warn("Fjerner ugydlig rinasak: $rinaid") }
-            } else {
-                false
-            }
-        }
-        val spesialExtraBucs = mutableListOf("H_BUC_07", "R_BUC_01", "R_BUC_02", "M_BUC_02", "M_BUC_03a", "M_BUC_03b")
-        val pensjonNormaleBucs = validbucsed.initSedOnBuc().map { it.key }
-        val gyldigeBucs = pensjonNormaleBucs + spesialExtraBucs
-        return list.asSequence()
-                .filterNot { rinasak -> rinasak.status == "archived" }
-                .filter { rinasak -> gyldigeBucs.contains(rinasak.processDefinitionId) }
-                .sortedBy { rinasak -> rinasak.id }
-                .map { rinasak -> rinasak.id!! }
-                .filterNot { rinaid -> filterUgyldigeRinasaker(rinaid) }
-                .toList()
-    }
-
     fun getFilteredArchivedaRinasakerSak(list: List<Rinasak>): List<Rinasak> {
         val start = System.currentTimeMillis()
-        val ugyldigeRinasaker = listOf("6006777")
         fun filterUgyldigeRinasaker(rinaid: String) : Boolean {
-            return if (rinaid in ugyldigeRinasaker) {
+            return if (MissingBuc.checkForMissingBuc(rinaid)) {
                 true.also { logger.warn("Fjerner ugydlig rinasak: $rinaid") }
             } else {
                 false
