@@ -118,25 +118,18 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
      */
     fun getFilteredArchivedaRinasakerSak(list: List<Rinasak>): List<Rinasak> {
         val start = System.currentTimeMillis()
-        fun filterUgyldigeRinasaker(rinaid: String) : Boolean {
-            return if (MissingBuc.checkForMissingBuc(rinaid)) {
-                true.also { logger.warn("Fjerner ugydlig rinasak: $rinaid") }
-            } else {
-                false
-            }
-        }
         val spesialExtraBucs = mutableListOf("H_BUC_07", "R_BUC_01", "R_BUC_02", "M_BUC_02", "M_BUC_03a", "M_BUC_03b")
         val pensjonNormaleBucs = validbucsed.initSedOnBuc().map { it.key }
         val gyldigeBucs = pensjonNormaleBucs + spesialExtraBucs
         return list.asSequence()
-            .filterNot { rinasak -> rinasak.status == "archived" }
-            .filter { rinasak -> rinasak.processDefinitionId in  gyldigeBucs }
-            .sortedBy { rinasak -> rinasak.id }
-            .filterNot { rinaid -> filterUgyldigeRinasaker(rinaid.id!!) }
-            .toList()
-            .also { val end = System.currentTimeMillis()
-                logger.info(" *** før: ${list.size} etter: ${it.size} *** FilteredArchivedaRinasakerSak tid ${end-start} i ms")
-            }
+                .filterNot { rinasak -> rinasak.status == "archived" }
+                .filter { rinasak -> rinasak.processDefinitionId in  gyldigeBucs }
+                .sortedBy { rinasak -> rinasak.id }
+                .filterNot { MissingBuc.checkForMissingBuc(it.id!!) }
+                .toList()
+                .also { val end = System.currentTimeMillis()
+                    logger.info(" *** før: ${list.size} etter: ${it.size} *** FilteredArchivedaRinasakerSak tid ${end-start} i ms")
+                }
     }
 
     fun getBucDeltakere(euxCaseId: String): List<ParticipantsItem> {
