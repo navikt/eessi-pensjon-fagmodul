@@ -1,5 +1,6 @@
 package no.nav.eessi.pensjon.vedlegg
 
+import no.nav.eessi.pensjon.eux.model.buc.MissingBuc
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.vedlegg.client.Dokument
 import no.nav.eessi.pensjon.vedlegg.client.EuxVedleggClient
@@ -71,7 +72,9 @@ class VedleggService(private val safClient: SafClient,
                     }
                 }
             }
-            rinaSakIder.distinct()
+            rinaSakIder
+                    .filterNot { MissingBuc.checkForMissingBuc(it) }
+                    .distinct()
                 .also { logger.info("Fant følgende RINAID fra dokument Metadata: ${it.map { str -> str }}") }
         }
     }

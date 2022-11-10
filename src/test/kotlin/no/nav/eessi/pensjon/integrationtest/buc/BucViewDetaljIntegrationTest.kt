@@ -394,6 +394,32 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         assertEquals("3010", requestlist.first().euxCaseId)
     }
 
+    @Test
+    fun `Gitt at vi får inn en ikke migrert rinasak i metadata fra saf og fra rina saa skal denne fltreres vekk i begge view`() {
+        val fnr = "1234567890000"
+        val aktoerId = "1123123123123123"
+        val saknr = "100001000"
+
+        every { personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerId)) } returns NorskIdent(fnr)
+        every { restSafTemplate.exchange(eq("/"), eq(HttpMethod.POST), eq(dummyHeader(dummySafReqeust(aktoerId))), eq(String::class.java)) } returns
+                ResponseEntity.ok().body(  dummySafMetaResponseMedRina("9859667") )
+
+        val rinaSakerBuc = listOf(dummyRinasak("3010", "P_BUC_01"), dummyRinasak("75312", "P_BUC_03"))
+        every { restEuxTemplate.exchange(dummyRinasakUrl(fnr, status = "\"open\"").toUriString(), HttpMethod.GET, null, String::class.java) } returns
+                ResponseEntity.ok().body( rinaSakerBuc.toJson())
+
+        val result = mockMvc.perform(
+                MockMvcRequestBuilders.get("/buc/rinasaker/$aktoerId/saknr/$saknr")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andReturn()
+
+        val response = result.response.getContentAsString(charset("UTF-8"))
+
+        assertEquals(2, mapJsonToAny<List<BucView>>(response, typeRefs()).size)
+    }
+
 
     @Test
     fun `Gitt at saksbehandler går via brukerkontekst og har et avdød fnr når avdøds bucer søkes etter så returneres avdøds saker `() {

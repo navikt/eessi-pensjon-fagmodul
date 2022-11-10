@@ -122,8 +122,9 @@ internal class BucControllerTest: BucBaseTest() {
         every { personService.hentIdent(IdentType.NorskIdent, AktoerId(gjenlevendeAktoerId)) } returns NorskIdent(gjenlevendeFnr)
 
         //buc02 - avdød rinasak
-        val rinaSakerBuc02 = listOf(dummyRinasak("1010", "P_BUC_02"))
+        val rinaSakerBuc02 = listOf(dummyRinasak("1010", "P_BUC_02"), dummyRinasak("9859667", "P_BUC_01"))
         val rinaBuc02url = dummyRinasakUrl(avdodFnr, status =  "\"open\"")
+
 
         every { restEuxTemplate.exchange( rinaBuc02url.toUriString(), HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(rinaSakerBuc02.toJson())
 
