@@ -126,11 +126,11 @@ class EuxPrefillServiceTest {
     @Test
     fun `Test filter list av rinasak ta bort elementer av archived`() {
         val dummyList = listOf(
-                Rinasak("723","P_BUC_01",null,"PO",null,"open"),
-                Rinasak("2123","P_BUC_03",null,"PO",null,"open"),
-                Rinasak("423","H_BUC_01",null,"PO",null,"archived"),
-                Rinasak("234","P_BUC_06",null,"PO",null,"closed"),
-                Rinasak("8423","P_BUC_07",null,"PO",null,"archived")
+                Rinasak("723", "P_BUC_01", null, "PO", null, "open", null),
+                Rinasak("2123", "P_BUC_03", null, "PO", null, "open", null),
+                Rinasak("423", "H_BUC_01", null, "PO", null, "archived", null),
+                Rinasak("234", "P_BUC_06", null, "PO", null, "closed", null),
+                Rinasak("8423", "P_BUC_07", null, "PO", null, "archived", null)
         )
 
         val result = euxinnhentingService.getFilteredArchivedaRinasakerSak(dummyList)
@@ -141,12 +141,12 @@ class EuxPrefillServiceTest {
     @Test
     fun `Test filter list av rinasak ta bort elementer av archived og ugyldige buc`() {
         val dummyList = listOf(
-                Rinasak("723","FP_BUC_01",null,"PO",null,"open"),
-                Rinasak("2123","H_BUC_02",null,"PO",null,"open"),
-                Rinasak("423","P_BUC_01",null,"PO",null,"archived"),
-                Rinasak("234","FF_BUC_01",null,"PO",null,"closed"),
-                Rinasak("8423","FF_BUC_01",null,"PO",null,"archived"),
-                Rinasak("8223","H_BUC_07",null,"PO",null,"open")
+                Rinasak("723", "FP_BUC_01", null, "PO", null, "open", null),
+                Rinasak("2123", "H_BUC_02", null, "PO", null, "open", null),
+                Rinasak("423", "P_BUC_01", null, "PO", null, "archived", null),
+                Rinasak("234", "FF_BUC_01", null, "PO", null, "closed", null),
+                Rinasak("8423", "FF_BUC_01", null, "PO", null, "archived", null),
+                Rinasak("8223", "H_BUC_07", null, "PO", null, "open", null)
         )
 
         val result = euxinnhentingService.getFilteredArchivedaRinasakerSak(dummyList)
@@ -157,13 +157,13 @@ class EuxPrefillServiceTest {
     @Test
     fun `Test filter list av rinasak ta bort elementer av archived og ugyldige buc samt spesielle a og b bucer`() {
         val dummyList = listOf(
-                Rinasak("723","M_BUC_03a",null,"PO",null,"open"),
-                Rinasak("2123","H_BUC_02",null,"PO",null,"open"),
-                Rinasak("423","P_BUC_01",null,"PO",null,"archived"),
-                Rinasak("234","FF_BUC_01",null,"PO",null,"closed"),
-                Rinasak("8423","M_BUC_02",null,"PO",null,"archived"),
-                Rinasak("8223","M_BUC_03b",null,"PO",null,"open"),
-                Rinasak("6006777","P_BUC_01",null,"PO",null,"open")
+                Rinasak("723", "M_BUC_03a", null, "PO", null, "open", null),
+                Rinasak("2123", "H_BUC_02", null, "PO", null, "open", null),
+                Rinasak("423", "P_BUC_01", null, "PO", null, "archived", null),
+                Rinasak("234", "FF_BUC_01", null, "PO", null, "closed", null),
+                Rinasak("8423", "M_BUC_02", null, "PO", null, "archived", null),
+                Rinasak("8223", "M_BUC_03b", null, "PO", null, "open", null),
+                Rinasak("6006777", "P_BUC_01", null, "PO", null, "open", null)
         )
 
         val result = euxinnhentingService.getFilteredArchivedaRinasakerSak(dummyList)
@@ -206,7 +206,7 @@ class EuxPrefillServiceTest {
         val gjenlevendeFnr = "1234567890000"
         val rinasakid = "3893690"
 
-        val rinaSaker = listOf(Rinasak(rinasakid,"P_BUC_02", Traits(), "", Properties(), "open"))
+        val rinaSaker = listOf(Rinasak(rinasakid, "P_BUC_02", Traits(), "", Properties(), "open", null))
         every { euxKlient.getRinasaker(eq(avdodFnr), any(), any(), eq( "\"open\"")) } returns rinaSaker
 
         val actual = euxinnhentingService.getBucViewAvdod(avdodFnr, gjenlevendeFnr, rinasakid)
@@ -214,6 +214,7 @@ class EuxPrefillServiceTest {
         assertEquals(1, actual.size)
         assertEquals(rinasakid, actual.first().euxCaseId)
         assertEquals(BucType.P_BUC_02, actual.first().buctype)
+        assertEquals("", actual.first().internationalId)
     }
 
     @Test

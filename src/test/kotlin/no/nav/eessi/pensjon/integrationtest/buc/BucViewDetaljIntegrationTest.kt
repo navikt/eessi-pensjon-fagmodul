@@ -400,6 +400,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         val aktoerId = "1123123123123123"
         val saknr = "100001000"
         val avdodFnr = "01010100001"
+        val internationalId = "sødfue345idfbv8743dfg6565876"
 
         val rinaSakerBuc = listOf(dummyRinasak("3010", "P_BUC_02"), dummyRinasak("75312", "P_BUC_03"))
         val rinaGjenlevUrl = dummyRinasakAvdodUrl(avdodFnr, null)

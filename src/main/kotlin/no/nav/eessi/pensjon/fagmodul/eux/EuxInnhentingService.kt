@@ -257,12 +257,13 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
 
         return filteredRinaBruker.map { rinasak ->
             BucView(
-                rinasak.id!!,
-                BucType.from(rinasak.processDefinitionId)!!,
-                aktoerId,
-                sakNr,
-                null,
-                BucViewKilde.BRUKER
+                    rinasak.id!!,
+                    BucType.from(rinasak.processDefinitionId)!!,
+                    aktoerId,
+                    sakNr,
+                    null,
+                    BucViewKilde.BRUKER,
+                    null
             )
         }.also {
             val end = System.currentTimeMillis()
@@ -277,7 +278,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
             .map { id ->
                 //euxKlient.getRinasaker(euxCaseId = id , status = "\"open\"")
                 val buc = getBuc(id)
-                Rinasak(id = buc.id, processDefinitionId = buc.processDefinitionName, traits = null, applicationRoleId = null, properties = null, status = "open")
+                Rinasak(id = buc.id, processDefinitionId = buc.processDefinitionName, traits = null, applicationRoleId = null, properties = null, status = "open", internationalId = null)
             }
 
         val filteredRinasakSaf = getFilteredArchivedaRinasakerSak(rinaSakerMedSaf)
@@ -285,12 +286,13 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
 
         return filteredRinasakSaf.map { rinasak ->
             BucView(
-                rinasak.id!!,
-                BucType.from(rinasak.processDefinitionId)!!,
-                aktoerId,
-                sakNr,
-                null,
-                BucViewKilde.SAF
+                    rinasak.id!!,
+                    BucType.from(rinasak.processDefinitionId)!!,
+                    aktoerId,
+                    sakNr,
+                    null,
+                    BucViewKilde.SAF,
+                    null
             )
         }.also {
             val end = System.currentTimeMillis()
@@ -312,12 +314,13 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
 
         return filteredRinaIdAvdod.map { rinasak ->
             BucView(
-                rinasak.id!!,
-                BucType.from(rinasak.processDefinitionId)!!,
-                aktoerId,
-                sakNr,
-                avdodFnr,
-                BucViewKilde.AVDOD
+                    rinasak.id!!,
+                    BucType.from(rinasak.processDefinitionId)!!,
+                    aktoerId,
+                    sakNr,
+                    avdodFnr,
+                    BucViewKilde.AVDOD,
+                    null
             )
         }.also {
             val end = System.currentTimeMillis()

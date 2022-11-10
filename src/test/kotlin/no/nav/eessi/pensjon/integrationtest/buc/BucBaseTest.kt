@@ -139,7 +139,7 @@ open class BucBaseTest {
     }
 
     fun dummyRinasak(rinaSakId: String, bucType: String): Rinasak {
-        return Rinasak(rinaSakId, bucType, Traits(), "", Properties(), "open")
+        return Rinasak(rinaSakId, bucType, Traits(), "", Properties(), "open", null)
     }
 
     fun mockVedtak(avdofnr: String, gjenlevAktoerid: String): Pensjonsinformasjon {
