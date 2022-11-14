@@ -35,7 +35,7 @@ internal class EuxInnhentingServiceTest {
         val euxCaseId = "12345"
         val json = javaClass.getResource("/json/buc/P_BUC_02_4.2_P2100.json")!!.readText()
 
-        every { euxKlient.getBucJson(any()) } returns json
+        every { euxKlient.getBucJsonAsNavIdent(any()) } returns json
         val result = euxInnhentingService.getBuc(euxCaseId)
 
         val creator = """
@@ -91,7 +91,7 @@ internal class EuxInnhentingServiceTest {
     fun getBucViewBrukerSaf() {
         val euxCaseId = "3893690"
         val json = javaClass.getResource("/json/buc/P_BUC_02_4.2_P2100.json")!!.readText()
-        every { euxKlient.getBucJson(any()) } returns json
+        every { euxKlient.getBucJsonAsNavIdent(any()) } returns json
 
         val result = euxInnhentingService.getBucViewBrukerSaf(AKTOERID, SAKSNR, listOf(euxCaseId))
         assertEquals(1, result.size)

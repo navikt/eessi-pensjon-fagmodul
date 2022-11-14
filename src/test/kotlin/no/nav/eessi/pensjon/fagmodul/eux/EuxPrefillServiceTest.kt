@@ -84,7 +84,7 @@ class EuxPrefillServiceTest {
 
         val bucJson = File("src/test/resources/json/buc/buc-158123_2_v4.1.json").readText()
 
-        every { euxKlient.getBucJson(any()) } returns bucJson
+        every { euxKlient.getBucJsonAsNavIdent(any()) } returns bucJson
 
         val result = euxinnhentingService.getBucAndSedView(rinasaker.map{ it.id!! }.toList())
 
@@ -97,7 +97,7 @@ class EuxPrefillServiceTest {
 
         val bucJson = javaClass.getResource("/json/buc/buc-158123_2_v4.1.json").readText()
 
-        every { euxKlient.getBucJson(any()) } returns bucJson
+        every { euxKlient.getBucJsonAsNavIdent(any()) } returns bucJson
 
         val result = euxinnhentingService.getBucAndSedView(listOf(rinasakid))
 
@@ -112,7 +112,7 @@ class EuxPrefillServiceTest {
         val bucStr = javaClass.getResource("/json/buc/buc-158123_2_v4.1.json").readText()
         assertTrue(validateJson(bucStr))
 
-        every { euxKlient.getBucJson(any()) } returns bucStr
+        every { euxKlient.getBucJsonAsNavIdent(any()) } returns bucStr
 
         val firstJson = euxinnhentingService.getSingleBucAndSedView("158123")
 
@@ -222,7 +222,7 @@ class EuxPrefillServiceTest {
 
         val buc = mapJsonToAny(json, typeRefs<Buc>())
 
-        every { euxKlient.getBucJson(any()) } returns json
+        every { euxKlient.getBucJsonAsNavIdent(any()) } returns json
 
         val actual = euxinnhentingService.hentBucOgDocumentIdAvdod(listOf("123"))
 
@@ -236,7 +236,7 @@ class EuxPrefillServiceTest {
     fun `Henter flere buc og dokumentID fra avdod` () {
         val json = javaClass.getResource("/json/buc/P_BUC_02_4.2_P2100.json").readText()
 
-        every { euxKlient.getBucJson(any()) } returns json andThen json
+        every { euxKlient.getBucJsonAsNavIdent(any()) } returns json andThen json
 
         val actual = euxinnhentingService.hentBucOgDocumentIdAvdod(listOf("123","321"))
         assertEquals(2, actual.size)
@@ -245,7 +245,7 @@ class EuxPrefillServiceTest {
     @Test
     fun `Henter buc og dokumentID feiler ved henting av buc fra eux`() {
 
-        every { euxKlient.getBucJson(any()) } throws HttpClientErrorException(HttpStatus.UNAUTHORIZED)
+        every { euxKlient.getBucJsonAsNavIdent(any()) } throws HttpClientErrorException(HttpStatus.UNAUTHORIZED)
         assertThrows<Exception> {
             euxinnhentingService.hentBucOgDocumentIdAvdod(listOf("123"))
         }

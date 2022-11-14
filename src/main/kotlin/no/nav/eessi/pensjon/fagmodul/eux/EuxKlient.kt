@@ -16,12 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.context.annotation.Description
 import org.springframework.core.io.Resource
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
-import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
-import org.springframework.http.ResponseEntity
+import org.springframework.http.*
 import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
@@ -187,7 +182,7 @@ class EuxKlient(
 
     fun getBucJsonAsSystemuser(euxCaseId: String): String = getBucJsonWithRest(euxCaseId, euxSystemRestTemplate)
 
-    fun getBucJson(euxCaseId: String): String = getBucJsonWithRest(euxCaseId, euxNavIdentRestTemplate)
+    fun getBucJsonAsNavIdent(euxCaseId: String): String = getBucJsonWithRest(euxCaseId, euxNavIdentRestTemplate)
 
     private fun getBucJsonWithRest(euxCaseId: String, restTemplate: RestTemplate): String {
         logger.info("get euxCaseId: $euxCaseId")

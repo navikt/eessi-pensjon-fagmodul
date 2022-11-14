@@ -33,7 +33,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
     private val validbucsed = ValidBucAndSed()
 
     fun getBuc(euxCaseId: String): Buc {
-        val body = euxKlient.getBucJson(euxCaseId)
+        val body = euxKlient.getBucJsonAsNavIdent(euxCaseId)
         return mapJsonToAny(body, typeRefs())
     }
 
