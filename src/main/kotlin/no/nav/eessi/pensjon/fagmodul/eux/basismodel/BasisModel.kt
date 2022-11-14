@@ -18,7 +18,7 @@ class Rinasak(
         val applicationRoleId: String? = null,
         val properties: Properties? = null,
         val status: String? = null,
-        val internationalId: String?
+        val internationalId: String? = null
 )
 
 class Properties(

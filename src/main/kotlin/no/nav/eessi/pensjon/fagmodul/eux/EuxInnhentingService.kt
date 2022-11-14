@@ -17,11 +17,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.PreviewPdf
 import no.nav.eessi.pensjon.fagmodul.models.ApiRequest
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
-import no.nav.eessi.pensjon.utils.mapAnyToJson
-import no.nav.eessi.pensjon.utils.mapJsonToAny
-import no.nav.eessi.pensjon.utils.toJson
-import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
-import no.nav.eessi.pensjon.utils.typeRefs
+import no.nav.eessi.pensjon.utils.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
@@ -263,7 +259,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
                     sakNr,
                     null,
                     BucViewKilde.BRUKER,
-                    null
+                    rinasak.internationalId
             )
         }.also {
             val end = System.currentTimeMillis()
@@ -278,7 +274,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
             .map { id ->
                 //euxKlient.getRinasaker(euxCaseId = id , status = "\"open\"")
                 val buc = getBuc(id)
-                Rinasak(id = buc.id, processDefinitionId = buc.processDefinitionName, traits = null, applicationRoleId = null, properties = null, status = "open", internationalId = null)
+                Rinasak(id = buc.id, processDefinitionId = buc.processDefinitionName, traits = null, applicationRoleId = null, properties = null, status = "open", internationalId = buc.internationalId)
             }
 
         val filteredRinasakSaf = getFilteredArchivedaRinasakerSak(rinaSakerMedSaf)
@@ -292,7 +288,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
                     sakNr,
                     null,
                     BucViewKilde.SAF,
-                    null
+                    rinasak.internationalId
             )
         }.also {
             val end = System.currentTimeMillis()

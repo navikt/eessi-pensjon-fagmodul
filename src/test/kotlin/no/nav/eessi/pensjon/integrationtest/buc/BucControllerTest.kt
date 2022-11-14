@@ -10,12 +10,12 @@ import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.integrationtest.IntegrasjonsTestConfig
+import no.nav.eessi.pensjon.kodeverk.KodeverkClient
 import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
 import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentType
 import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
-import no.nav.eessi.pensjon.kodeverk.KodeverkClient
 import no.nav.eessi.pensjon.utils.toJson
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -203,7 +203,7 @@ internal class BucControllerTest: BucBaseTest() {
 
 
             val bucViewResponse = """
-                [{"euxCaseId":"1010","buctype":"P_BUC_02","aktoerId":"1123123123123123","saknr":"1203201322","avdodFnr":"01010100001","kilde":"SAF"}]
+                [{"euxCaseId":"1010","buctype":"P_BUC_02","aktoerId":"1123123123123123","saknr":"1203201322","avdodFnr":"01010100001","kilde":"SAF","internationalId":"1000100010001000"}]
             """.trimIndent()
 
             assertTrue {response.contains(avdodFnr)}
@@ -268,11 +268,10 @@ internal class BucControllerTest: BucBaseTest() {
             .andReturn()
 
         val bucViewResponse = """
-            [{"euxCaseId":"1010","buctype":"P_BUC_02","aktoerId":"1123123123123123","saknr":"1203201322","avdodFnr":"01010100001","kilde":"SAF"}]
+            [{"euxCaseId":"1010","buctype":"P_BUC_02","aktoerId":"1123123123123123","saknr":"1203201322","avdodFnr":"01010100001","kilde":"SAF","internationalId":"1000100010001000"}]
         """.trimIndent()
 
         val response = result.response.getContentAsString(charset("UTF-8"))
-        println(response)
         verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&status=\"open\"", HttpMethod.GET, null, String::class.java) }
         verify (exactly = 1) { restEuxTemplate.exchange("/buc/1010", HttpMethod.GET, null, String::class.java) }
         verify (exactly = 1) { restSafTemplate.exchange("/", HttpMethod.POST, httpEntity, String::class.java) }
@@ -309,9 +308,9 @@ internal class BucControllerTest: BucBaseTest() {
 
         val expected = """
             [
-                {"euxCaseId":"2020","buctype":"P_BUC_05","aktoerId":"1123123123123123","saknr":"2020","avdodFnr":"01010100001","kilde":"SAF"},
-                {"euxCaseId":"3030","buctype":"P_BUC_06","aktoerId":"1123123123123123","saknr":"2020","avdodFnr":"01010100001","kilde":"AVDOD"},
-                {"euxCaseId":"4040","buctype":"P_BUC_10","aktoerId":"1123123123123123","saknr":"2020","avdodFnr":"01010100001","kilde":"AVDOD"}
+                {"euxCaseId":"2020","buctype":"P_BUC_05","aktoerId":"1123123123123123","saknr":"2020","avdodFnr":"01010100001","kilde":"SAF","internationalId":null},
+                {"euxCaseId":"3030","buctype":"P_BUC_06","aktoerId":"1123123123123123","saknr":"2020","avdodFnr":"01010100001","kilde":"AVDOD","internationalId":null},
+                {"euxCaseId":"4040","buctype":"P_BUC_10","aktoerId":"1123123123123123","saknr":"2020","avdodFnr":"01010100001","kilde":"AVDOD","internationalId":null}
             ]
 
         """.trimIndent()

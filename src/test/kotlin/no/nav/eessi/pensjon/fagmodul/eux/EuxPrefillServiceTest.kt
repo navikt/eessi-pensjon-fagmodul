@@ -206,7 +206,7 @@ class EuxPrefillServiceTest {
         val gjenlevendeFnr = "1234567890000"
         val rinasakid = "3893690"
 
-        val rinaSaker = listOf(Rinasak(rinasakid, "P_BUC_02", Traits(), "", Properties(), "open", null))
+        val rinaSaker = listOf(Rinasak(rinasakid, "P_BUC_02", Traits(), "", Properties(), "open"))
         every { euxKlient.getRinasaker(eq(avdodFnr), any(), any(), eq( "\"open\"")) } returns rinaSaker
 
         val actual = euxinnhentingService.getBucViewAvdod(avdodFnr, gjenlevendeFnr, rinasakid)
@@ -214,7 +214,6 @@ class EuxPrefillServiceTest {
         assertEquals(1, actual.size)
         assertEquals(rinasakid, actual.first().euxCaseId)
         assertEquals(BucType.P_BUC_02, actual.first().buctype)
-        assertEquals("", actual.first().internationalId)
     }
 
     @Test
@@ -229,6 +228,8 @@ class EuxPrefillServiceTest {
 
         assert(actual[0].rinaidAvdod == "123")
         assert(actual[0].buc.id == buc.id)
+        assert(actual[0].buc.internationalId == "e94e1be2daff414f8a49c3149ec00e66")
+
     }
 
     @Test
