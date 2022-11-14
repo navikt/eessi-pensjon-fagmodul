@@ -145,7 +145,7 @@ class BucController(
             val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerId)
 
             val joarkstart = System.currentTimeMillis()
-            val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraMetaData(aktoerId)
+            val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraMetaData(aktoerId)  //rinasak
             logger.info("hentRinaSakIderFraMetaData tid: ${System.currentTimeMillis()-joarkstart} i ms")
 
             //bruker saker fra eux/rina
