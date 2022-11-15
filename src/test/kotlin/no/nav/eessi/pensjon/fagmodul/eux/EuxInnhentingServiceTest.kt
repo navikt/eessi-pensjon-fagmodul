@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig
 import org.springframework.web.client.HttpClientErrorException
@@ -32,20 +31,17 @@ private const val FNR = "13057065487"
 private const val AKTOERID = "1234568"
 private const val INTERNATIONAL_ID = "e94e1be2daff414f8a49c3149ec00e66"
 
-private const val s = "158123"
-
-@SpringJUnitConfig(classes = [EuxInnhentingService::class])
+@SpringJUnitConfig
 internal class EuxInnhentingServiceTest {
 
     @MockkBean(name = "fagmodulEuxKlient", relaxed = true)
     private lateinit var euxKlient: EuxKlient
 
-    @Autowired
     private lateinit var euxInnhentingService: EuxInnhentingService
-
 
     @BeforeEach
     fun setUp() {
+        euxInnhentingService = EuxInnhentingService("q2", euxKlient)
     }
 
     @Test
@@ -393,6 +389,21 @@ internal class EuxInnhentingServiceTest {
         val result = euxInnhentingService.filterGyldigBucGjenlevendeAvdod(data, "23123")
         assertEquals(0, result.size)
 
+    }
+
+    @Test
+    fun `check apiRequest for prefill X010 contains X009 payload`() {
+        val x009Json = javaClass.getResource("/json/nav/X009-NAV.json").readText()
+        val apiRequest = EuxTestUtils.apiRequestWith("1000000", emptyList(), buc = "P_BUC_01", sed = "X010")
+        every { euxKlient.getSedOnBucByDocumentIdAsJson(any(), any()) } returns x009Json
+
+        val json = euxInnhentingService.checkForX010AndAddX009(apiRequest, "20000000").toJson()
+
+        val payload = """
+                  "payload" : "{\n  \"sed\" : \"X009\",\n  \"nav\" : {\n    \"sak\" : {\n      \"kontekst\" : {\n        \"bruker\" : {\n          \"mor\" : null,\n          \"far\" : null,\n          \"person\" : {\n            \"pin\" : null,\n            \"pinland\" : null,\n            \"statsborgerskap\" : null,\n            \"etternavn\" : \"æøå\",\n            \"etternavnvedfoedsel\" : null,\n            \"fornavn\" : \"æøå\",\n            \"fornavnvedfoedsel\" : null,\n            \"tidligerefornavn\" : null,\n            \"tidligereetternavn\" : null,\n            \"kjoenn\" : \"M\",\n            \"foedested\" : null,\n            \"foedselsdato\" : \"æøå\",\n            \"sivilstand\" : null,\n            \"relasjontilavdod\" : null,\n            \"rolle\" : null\n          },\n          \"adresse\" : null,\n          \"arbeidsforhold\" : null,\n          \"bank\" : null\n        },\n        \"refusjonskrav\" : {\n          \"antallkrav\" : \"æøå\",\n          \"id\" : \"æøå\"\n        },\n        \"arbeidsgiver\" : {\n          \"identifikator\" : [ {\n            \"id\" : \"æøå\",\n            \"type\" : \"registrering\"\n          } ],\n          \"adresse\" : {\n            \"gate\" : \"æøå\",\n            \"bygning\" : \"æøå\",\n            \"by\" : \"æøå\",\n            \"postnummer\" : \"æøå\",\n            \"postkode\" : null,\n            \"region\" : \"æøå\",\n            \"land\" : \"NO\",\n            \"kontaktpersonadresse\" : null,\n            \"datoforadresseendring\" : null,\n            \"postadresse\" : null,\n            \"startdato\" : null,\n            \"type\" : null,\n            \"annen\" : null\n          },\n          \"navn\" : \"æøå\"\n        }\n      },\n      \"leggtilinstitusjon\" : null,\n      \"paaminnelse\" : {\n        \"svar\" : null,\n        \"sende\" : [ {\n          \"type\" : \"dokument\",\n          \"detaljer\" : \"æøå\"\n        } ]\n      }\n    }\n  },\n  \"sedGVer\" : \"4\",\n  \"sedVer\" : \"2\",\n  \"pensjon\" : null\n}",
+        """.trimIndent()
+
+        assert(json.contains(payload))
     }
 
     @Test
