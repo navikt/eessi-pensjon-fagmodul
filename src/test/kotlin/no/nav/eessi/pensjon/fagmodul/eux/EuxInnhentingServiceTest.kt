@@ -93,8 +93,10 @@ internal class EuxInnhentingServiceTest {
     @Test
     fun getBucViewBruker() {
         val euxCaseId = "3893690"
-        val rinaSaker = listOf(Rinasak(euxCaseId, BucType.P_BUC_02.name, Traits(), "", Properties(), "open", internationalId = INTERNATIONAL_ID))
+        val rinaSaker = listOf(Rinasak(euxCaseId, BucType.P_BUC_02.name, Traits(), "", Properties(), "open"))
         every { euxKlient.getRinasaker(eq(FNR), any(), any(), eq( "\"open\"")) } returns rinaSaker
+
+        every { euxKlient.getBucJsonAsNavIdent(euxCaseId) } returns Buc(id = "3893690", processDefinitionName = "P_BUC_03", internationalId = INTERNATIONAL_ID).toJson()
 
         val result = euxInnhentingService.getBucViewBruker(FNR, AKTOERID, SAKSNR)
         assertEquals(1, result.size)

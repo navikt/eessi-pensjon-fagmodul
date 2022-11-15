@@ -245,14 +245,15 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
         logger.info("rinaSaker total: ${filteredRinaBruker.size}")
 
         return filteredRinaBruker.map { rinasak ->
+            val buc = getBuc(rinasak.id!!)
             BucView(
-                    rinasak.id!!,
+                    rinasak.id,
                     BucType.from(rinasak.processDefinitionId)!!,
                     aktoerId,
                     sakNr,
                     null,
                     BucViewKilde.BRUKER,
-                    rinasak.internationalId
+                    buc.internationalId
             )
         }.also {
             val end = System.currentTimeMillis()
