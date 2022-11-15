@@ -2,12 +2,7 @@ package no.nav.eessi.pensjon.fagmodul.api
 
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.BucType
-import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedSubject
-import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
-import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
-import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
-import no.nav.eessi.pensjon.fagmodul.eux.SubjectFnr
-import no.nav.eessi.pensjon.fagmodul.eux.ValidBucAndSed
+import no.nav.eessi.pensjon.fagmodul.eux.*
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucView
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucViewKilde
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
@@ -147,9 +142,11 @@ class BucController(
             val joarkstart = System.currentTimeMillis()
             val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraMetaData(aktoerId)  //rinasak
             logger.info("hentRinaSakIderFraMetaData tid: ${System.currentTimeMillis()-joarkstart} i ms")
+            logger.debug("rinaSakIderFraJoark : ${rinaSakIderFraJoark.toJson()}")
 
             //bruker saker fra eux/rina
             val brukerView = euxInnhentingService.getBucViewBruker(gjenlevendeFnr, aktoerId, pensjonSakNummer)
+            logger.debug("brukerView : ${brukerView.toJson()}")
 
             //filtert bort brukersaker fra saf
             val filterBrukerRinaSakIderFraJoark = rinaSakIderFraJoark.filterNot { rinaid -> rinaid in brukerView.map { it.euxCaseId }  }
