@@ -4,35 +4,19 @@ import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.BucType
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.document.Retning
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ActionOperation
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ActionsItem
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Attachment
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ConversationsItem
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Organisation
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Receiver
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Sender
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.VersionsItem
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.VersionsItemNoUser
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.*
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
-import java.time.Instant
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.ZonedDateTime
+import java.time.*
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
 class BucUtils(private val buc: Buc) {
 
     private val logger = LoggerFactory.getLogger(BucUtils::class.java)
-    private val validbucsed = ValidBucAndSed()
 
     private fun getCreatorAsInstitusjonItem(): InstitusjonItem {
         return InstitusjonItem(
@@ -349,7 +333,7 @@ class BucUtils(private val buc: Buc) {
         val aksjonsliste = getGyldigeOpprettSedAksjonList()
 
         return if (SedType.DummyChooseParts in gyldigeSedList && gyldigeSedList.size == 1) {
-            validbucsed.getAvailableSedOnBuc(buc.processDefinitionName)
+            ValidBucAndSed.getAvailableSedOnBuc(buc.processDefinitionName)
                 .also { logger.debug("benytter backupList : ${it.toJsonSkipEmpty()}") }
         } else if (aksjonsliste.isNotEmpty()) {
             logger.debug("benytter seg av aksjonliste: ${aksjonsliste.toJsonSkipEmpty()}")

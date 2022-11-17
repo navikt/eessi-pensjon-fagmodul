@@ -180,7 +180,7 @@ internal class EuxInnhentingServiceTest {
                 Rinasak("8423", "P_BUC_07", null, "PO", null, "archived", null)
         )
 
-        val result = euxInnhentingService.getFilteredArchivedaRinasakerSak(dummyList)
+        val result = euxInnhentingService.getFilteredRinasakerSaker(dummyList)
         assertEquals(3, result.size)
         assertEquals("2123", result.first().id)
     }
@@ -196,7 +196,7 @@ internal class EuxInnhentingServiceTest {
                 Rinasak("8223", "H_BUC_07", null, "PO", null, "open", null)
         )
 
-        val result = euxInnhentingService.getFilteredArchivedaRinasakerSak(dummyList)
+        val result = euxInnhentingService.getFilteredRinasakerSaker(dummyList)
         assertEquals(1, result.size)
         assertEquals("8223", result.first().id)
     }
@@ -213,7 +213,7 @@ internal class EuxInnhentingServiceTest {
                 Rinasak("6006777", "P_BUC_01", null, "PO", null, "open", null)
         )
 
-        val result = euxInnhentingService.getFilteredArchivedaRinasakerSak(dummyList)
+        val result = euxInnhentingService.getFilteredRinasakerSaker(dummyList)
         assertEquals(2, result.size)
         assertEquals("723", result.first().id)
         assertEquals("8223", result.last().id)

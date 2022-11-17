@@ -37,7 +37,6 @@ class BucController(
 ) {
 
     private val logger = LoggerFactory.getLogger(BucController::class.java)
-    private val validBucAndSed = ValidBucAndSed()
     private lateinit var bucDetaljer: MetricsHelper.Metric
     private lateinit var bucDetaljerVedtak: MetricsHelper.Metric
     private lateinit var bucDetaljerEnkel: MetricsHelper.Metric
@@ -60,8 +59,9 @@ class BucController(
     }
 
 
+    @RequestMapping()
     @GetMapping("/bucs/{sakId}", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getBucs(@PathVariable(value = "sakId", required = false) sakId: String? = "") = validBucAndSed.initSedOnBuc().keys.map { it }.toList()
+    fun getBucs(@PathVariable(value = "sakId", required = false) sakId: String? = "") = ValidBucAndSed.pensjonsBucer()
 
     @GetMapping("/{rinanr}")
     fun getBuc(@PathVariable(value = "rinanr", required = true) rinanr: String): Buc {
@@ -79,7 +79,7 @@ class BucController(
 
     @GetMapping("/{rinanr}/creator",  produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getCreator(@PathVariable(value = "rinanr", required = true) rinanr: String): Creator? {
-
++
         logger.debug("Henter ut Creator på valgt Buc")
         return euxInnhentingService.getBuc(rinanr).creator
     }
