@@ -30,8 +30,6 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
 
     private val logger = LoggerFactory.getLogger(EuxInnhentingService::class.java)
 
-    private val validbucsed = ValidBucAndSed()
-
     fun getBuc(euxCaseId: String): Buc {
         val body = euxKlient.getBucJsonAsNavIdent(euxCaseId)
         return mapJsonToAny(body, typeRefs())
@@ -110,21 +108,20 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
     }
 
     /**
-     * filtert kun gyldige buc-type for visning, returnerer liste av rinaid
+     * Returnerer en liste over rinasaker.
+     * Metoden velger kun pensjonsbucer samt noen få utvalgte spesialbucer EP aksepterer for visning.
+     * Filtrerer også vekk umigrerte og arkiverte saker
      */
-    fun getFilteredArchivedaRinasakerSak(list: List<Rinasak>): List<Rinasak> {
-        val start = System.currentTimeMillis()
-        val spesialExtraBucs = mutableListOf("H_BUC_07", "R_BUC_01", "R_BUC_02", "M_BUC_02", "M_BUC_03a", "M_BUC_03b")
-        val pensjonNormaleBucs = validbucsed.initSedOnBuc().map { it.key }
-        val gyldigeBucs = pensjonNormaleBucs + spesialExtraBucs
+    fun getFilteredRinasakerSaker(list: List<Rinasak>): List<Rinasak> {
+        val gyldigeBucs = ValidBucAndSed.pensjonsBucer() + mutableListOf("H_BUC_07", "R_BUC_01", "R_BUC_02", "M_BUC_02", "M_BUC_03a", "M_BUC_03b")
         return list.asSequence()
                 .filterNot { rinasak -> rinasak.status == "archived" }
-                .filter { rinasak -> rinasak.processDefinitionId in  gyldigeBucs }
+                .filter { rinasak -> rinasak.processDefinitionId in gyldigeBucs }
                 .sortedBy { rinasak -> rinasak.id }
                 .filterNot { MissingBuc.checkForMissingBuc(it.id!!) }
                 .toList()
-                .also { val end = System.currentTimeMillis()
-                    logger.info(" *** før: ${list.size} etter: ${it.size} *** FilteredArchivedaRinasakerSak tid ${end-start} i ms")
+                .also {
+                    logger.info(" *** før: ${list.size} etter: ${it.size} *** FilteredArchivedaRinasakerSak")
                 }
     }
 
@@ -241,7 +238,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
         val start = System.currentTimeMillis()
         val rinaSakerMedFnr = euxKlient.getRinasaker(fnr, status = "\"open\"")
 
-        val filteredRinaBruker = getFilteredArchivedaRinasakerSak(rinaSakerMedFnr)
+        val filteredRinaBruker = getFilteredRinasakerSaker(rinaSakerMedFnr)
         logger.info("rinaSaker total: ${filteredRinaBruker.size}")
 
         return filteredRinaBruker.map { rinasak ->
@@ -266,12 +263,11 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
 
         val rinaSakerMedSaf = safSaker
             .map { id ->
-                //euxKlient.getRinasaker(euxCaseId = id , status = "\"open\"")
                 val buc = getBuc(id)
                 Rinasak(id = buc.id, processDefinitionId = buc.processDefinitionName, traits = null, applicationRoleId = null, properties = null, status = "open", internationalId = buc.internationalId)
             }
 
-        val filteredRinasakSaf = getFilteredArchivedaRinasakerSak(rinaSakerMedSaf)
+        val filteredRinasakSaf = getFilteredRinasakerSaker(rinaSakerMedSaf)
         logger.info("rinaSaker total: ${filteredRinasakSaf.size}")
 
         return filteredRinasakSaf.map { rinasak ->
@@ -299,7 +295,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
         val rinaSakerMedAvdodFnr =  euxKlient.getRinasaker(avdodFnr, status = "\"open\"")
             .filter { rinasak -> rinasak.processDefinitionId in validAvdodBucs }
 
-        val filteredRinaIdAvdod = getFilteredArchivedaRinasakerSak(rinaSakerMedAvdodFnr)
+        val filteredRinaIdAvdod = getFilteredRinasakerSaker(rinaSakerMedAvdodFnr)
         logger.info("rinaSaker avdod total: ${filteredRinaIdAvdod.size}")
 
         return filteredRinaIdAvdod.map { rinasak ->

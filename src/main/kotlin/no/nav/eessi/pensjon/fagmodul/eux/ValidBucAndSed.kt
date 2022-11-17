@@ -2,7 +2,7 @@ package no.nav.eessi.pensjon.fagmodul.eux
 
 import no.nav.eessi.pensjon.eux.model.SedType
 
-open class ValidBucAndSed {
+object ValidBucAndSed {
 
     fun getAvailableSedOnBuc(bucType: String?): List<SedType> {
         val map = initSedOnBuc()
@@ -24,7 +24,7 @@ open class ValidBucAndSed {
     /**
      * Own impl. no list from eux that contains list of SED to a speific BUC
      */
-    fun initSedOnBuc(): Map<String, List<SedType>> {
+    private fun initSedOnBuc(): Map<String, List<SedType>> {
         return mapOf(
                 "P_BUC_01" to listOf(SedType.P2000),
                 "P_BUC_02" to listOf(SedType.P2100),
@@ -37,6 +37,10 @@ open class ValidBucAndSed {
                 "P_BUC_07" to listOf(SedType.P11000),
                 "P_BUC_08" to listOf(SedType.P12000)
         )
+    }
+
+    fun pensjonsBucer() : List<String> {
+        return initSedOnBuc().map { it.key }
     }
 
 }
