@@ -125,6 +125,7 @@ class BucController(
         }
     }
 
+    @Deprecated("Utgår til fordel for url A og url B")
     @GetMapping("/rinasaker/{aktoerId}/saknr/{saknr}")
     fun getRinasakerBrukerkontekst(
         @PathVariable("aktoerId", required = true) aktoerId: String,
@@ -160,6 +161,57 @@ class BucController(
                     logger.info("Total view size: ${it.size}")
                     logger.info("BrukerRinasaker total tid: ${System.currentTimeMillis()-start} i ms")
                 }
+        }
+    }
+
+    @GetMapping("/rinasaker/joark/{aktoerId}/pesyssak/{saknr}")
+    fun getRinasakerJoark(
+            @PathVariable("aktoerId", required = true) aktoerId: String,
+            @PathVariable("saknr", required = false) pensjonSakNummer: String
+    ): List<BucView> {
+        return bucView.measure {
+            val start = System.currentTimeMillis()
+
+            logger.info("henter rinasaker på valgt aktoerid: $aktoerId, på saknr: $pensjonSakNummer")
+
+            val joarkstart = System.currentTimeMillis()
+            val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraMetaData(aktoerId)
+            logger.info("hentRinaSakIderFraMetaData tid: ${System.currentTimeMillis()-joarkstart} i ms")
+            logger.debug("rinaSakIderFraJoark : ${rinaSakIderFraJoark.toJson()}")
+
+            //saker fra saf og eux/rina
+            val safView = euxInnhentingService.getBucViewBrukerSaf(aktoerId, pensjonSakNummer, rinaSakIderFraJoark)
+            logger.debug("safView : ${safView.toJson()}")
+
+            //return med sort og distict (avdodfmr og caseid)
+            return@measure safView.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
+                    .also {
+                        logger.info("Total view size: ${it.size}")
+                        logger.info("BrukerRinasaker total tid: ${System.currentTimeMillis()-start} i ms")
+                    }
+        }
+    }
+
+    @GetMapping("/rinasaker/euxrina/{aktoerId}/pesyssak/{saknr}")
+    fun getRinasakerFraRina(
+            @PathVariable("aktoerId", required = true) aktoerId: String,
+            @PathVariable("saknr", required = false) pensjonSakNummer: String
+    ): List<BucView> {
+        return bucView.measure {
+            val start = System.currentTimeMillis()
+
+            logger.info("henter rinasaker på valgt aktoerid: $aktoerId, på saknr")
+            val fnr = innhentingService.hentFnrfraAktoerService(aktoerId)
+
+            val rinaSaker = euxInnhentingService.getBucViewBruker(fnr, aktoerId, pensjonSakNummer)
+            logger.debug("brukerView : ${rinaSaker.toJson()}")
+
+            //return med sort og distict (avdodfmr og caseid)
+            return@measure rinaSaker.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
+                    .also {
+                        logger.info("Total view size: ${it.size}")
+                        logger.info("BrukerRinasaker total tid: ${System.currentTimeMillis()-start} i ms")
+                    }
         }
     }
 

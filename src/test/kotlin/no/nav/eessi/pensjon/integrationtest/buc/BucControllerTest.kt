@@ -2,6 +2,7 @@ package no.nav.eessi.pensjon.integrationtest.buc
 
 
 import com.ninjasquad.springmockk.MockkBean
+import io.mockk.FunctionAnswer
 import io.mockk.every
 import io.mockk.verify
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
@@ -30,6 +31,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.web.client.RestTemplate
@@ -330,5 +332,64 @@ internal class BucControllerTest: BucBaseTest() {
         JSONAssert.assertEquals(response, expected, false)
     }
 
+    @Test
+    fun `Hent mulige rinasaker for aktoer uten vedtak og saf`() {
+        val aktoerId = "1123123123123123"
+        val pesysSaknr = "100001000"
+
+        val httpEntity = dummyHeader(dummySafReqeust(aktoerId))
+        every { restSafTemplate.exchange(eq("/"), eq(HttpMethod.POST), eq(httpEntity), eq(String::class.java)) } returns ResponseEntity.ok().body(  dummySafMetaResponseMedRina( "5195021", "5922554" ) )
+
+        every { restEuxTemplate.exchange( "/buc/5922554", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "5922554", processDefinitionName = "P_BUC_03", internationalId = "flkgjhfgh874356876").toJson() )
+        every { restEuxTemplate.exchange( "/buc/5195021", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "5195021", processDefinitionName = "P_BUC_03", internationalId = "8976876LJHjh").toJson() )
+
+        val result = mockMvc.perform(
+                get("/buc/rinasaker/joark/$aktoerId/pesyssak/$pesysSaknr")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andReturn()
+
+        val response = result.response.getContentAsString(charset("UTF-8"))
+
+        val expected = """
+                [{"euxCaseId":"5195021","buctype":"P_BUC_03","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":null,"kilde":"SAF","internationalId":"8976876LJHjh"},
+                {"euxCaseId":"5922554","buctype":"P_BUC_03","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":null,"kilde":"SAF","internationalId":"flkgjhfgh874356876"}]
+        """.trimIndent()
+
+        JSONAssert.assertEquals(expected, response, false)
+
+    }
+
+    @Test
+    fun `Hent mulige rinasaker for fnr fra euxrina`() {
+        val fnr = "1234567890000"
+        val aktoerId = "1123123123123123"
+        val pesyssaknr = "100001000"
+
+        every { personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerId)) } returns NorskIdent(fnr)
+
+        every { restEuxTemplate.exchange("/rinasaker?fødselsnummer=1234567890000&status=\"open\"", HttpMethod.GET, null, String::class.java) } .answers( FunctionAnswer { Thread.sleep(250);
+            ResponseEntity.ok().body(listOf(dummyRinasak("5195021", "P_BUC_03"), dummyRinasak("5922554", "P_BUC_03") ).toJson() )
+        })
+        every { restEuxTemplate.exchange( "/buc/5922554", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "5922554", processDefinitionName = "P_BUC_03", internationalId = "flkgjhfgh874356876").toJson() )
+        every { restEuxTemplate.exchange( "/buc/5195021", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "5195021", processDefinitionName = "P_BUC_03", internationalId = "8976876LJHjh").toJson() )
+
+        val result = mockMvc.perform(
+                MockMvcRequestBuilders.get("/buc/rinasaker/euxrina/$aktoerId/pesyssak/$pesyssaknr")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andReturn()
+
+        val response = result.response.getContentAsString(charset("UTF-8"))
+
+        val expected = """
+                [{"euxCaseId":"5195021","buctype":"P_BUC_03","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":null,"kilde":"BRUKER","internationalId":"8976876LJHjh"},
+                {"euxCaseId":"5922554","buctype":"P_BUC_03","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":null,"kilde":"BRUKER","internationalId":"flkgjhfgh874356876"}]
+        """.trimIndent()
+
+        JSONAssert.assertEquals(expected, response, true)
+    }
 
 }
