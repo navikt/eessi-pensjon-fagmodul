@@ -5,6 +5,7 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.BucType
 import no.nav.eessi.pensjon.fagmodul.models.ApiRequest
 import no.nav.eessi.pensjon.fagmodul.models.ApiSubject
@@ -22,6 +23,10 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.web.server.ResponseStatusException
 
+private const val AVDOD_FNR = "12345566"
+private const val AKTOER_ID = "1122334455"
+private const val GJENLEVENDE_FNR = "23123123"
+private const val ADVOD_FNR2 = "46784678467"
 
 internal class InnhentingServiceTest {
 
@@ -48,80 +53,63 @@ internal class InnhentingServiceTest {
     }
 
     @Test
-    fun `call getAvdodAktoerId  expect valid aktoerId when avdodfnr exist and sed is P2100`() {
-        val apiRequest = ApiRequest(
-            subjectArea = "Pensjon",
-            sakId = "EESSI-PEN-123",
-            sed = "P2100",
-            buc = "P_BUC_02",
-            aktoerId = "0105094340092",
-            avdodfnr = "12345566"
-        )
-        every { personService.hentIdent(eq(IdentType.AktoerId), any<Ident<*>>()) } returns AktoerId("1122334455")
+    fun `Gitt at avdodfnr finnes paa en p2100 saa skal aktoerid for avdodfnr returneres`() {
+        val apiRequest = apiRequest(SedType.P2100, BucType.P_BUC_02, AKTOER_ID, AVDOD_FNR)
+        every { personService.hentIdent(eq(IdentType.AktoerId), any<Ident<*>>()) } returns AktoerId(AKTOER_ID)
 
         val result = innhentingService.getAvdodId(BucType.from(apiRequest.buc)!!, apiRequest.riktigAvdod())
-        assertEquals("1122334455", result)
+
+        assertEquals(AKTOER_ID, result)
     }
 
     @Test
-    fun `call getAvdodAktoerId  expect valid aktoerId when avdod exist and sed is P5000`() {
-        val apiRequest = ApiRequest(
-            subjectArea = "Pensjon",
-            sakId = "EESSI-PEN-123",
-            sed = "P5000",
-            buc = "P_BUC_02",
-            aktoerId = "0105094340092",
-            avdodfnr = "12345566",
-            vedtakId = "23123123",
-            subject = ApiSubject(gjenlevende = SubjectFnr("23123123"), avdod = SubjectFnr("46784678467"))
+    fun `Gitt at avdodfnr finnes paa en p5000 saa skal aktoerid for avdodfnr returneres`() {
+        val apiRequest = apiRequest(
+                SedType.P5000, BucType.P_BUC_02, AKTOER_ID, AVDOD_FNR, GJENLEVENDE_FNR,
+                ApiSubject(gjenlevende = SubjectFnr(GJENLEVENDE_FNR), avdod = SubjectFnr(ADVOD_FNR2))
         )
 
-        every { personService.hentIdent(eq(IdentType.AktoerId), any<Ident<*>>()) } returns AktoerId("467846784671")
+        every { personService.hentIdent(eq(IdentType.AktoerId), any<Ident<*>>()) } returns AktoerId(AKTOER_ID)
 
         val result = innhentingService.getAvdodId(BucType.from(apiRequest.buc)!!, apiRequest.riktigAvdod())
-        assertEquals("467846784671", result)
+        assertEquals(AKTOER_ID, result)
     }
 
     @Test
-    fun `call getAvdodAktoerId  expect error when avdodfnr is missing and sed is P2100`() {
-        val apiRequest = ApiRequest(
-            subjectArea = "Pensjon",
-            sakId = "EESSI-PEN-123",
-            sed = "P2100",
-            buc = "P_BUC_02",
-            aktoerId = "0105094340092"
-        )
+    fun `Gitt en P2100 mangler fnr saa skal vi kaste en ResponseStatusException`() {
+        val apiRequest = apiRequest(SedType.P2100, BucType.P_BUC_02, AKTOER_ID)
         assertThrows<ResponseStatusException> {
             innhentingService.getAvdodId(BucType.from(apiRequest.buc)!!, apiRequest.riktigAvdod())
         }
     }
 
     @Test
-    fun `call getAvdodAktoerId expect error when avdodfnr is invalid and sed is P15000`() {
-        val apiRequest = ApiRequest(
-            subjectArea = "Pensjon",
-            sakId = "EESSI-PEN-123",
-            sed = "P15000",
-            buc = "P_BUC_10",
-            aktoerId = "0105094340092",
-            avdodfnr = "12345566"
-        )
+    fun `Gitt en P15000 inneholder et ugyldig avdodfnr saa kastes det en ResponseStatusException`() {
+        val apiRequest = apiRequest(SedType.P15000, BucType.P_BUC_10, AKTOER_ID, AVDOD_FNR)
+
         assertThrows<ResponseStatusException> {
             innhentingService.getAvdodId(BucType.from(apiRequest.buc)!!, apiRequest.riktigAvdod())
         }
     }
 
     @Test
-    fun `call getAvdodAktoerId  expect null value when sed is P2000`() {
-        val apiRequest = ApiRequest(
-            subjectArea = "Pensjon",
-            sakId = "EESSI-PEN-123",
-            sed = "P2000",
-            buc = "P_BUC_01",
-            aktoerId = "0105094340092",
-            avdodfnr = "12345566"
-        )
+    fun `Gitt en P2000 saa skal getAvdodAktoerId returnere null da det ikke skal finnes avdod på en p2000`() {
+        val apiRequest = apiRequest(SedType.P2000, BucType.P_BUC_01, AKTOER_ID, AVDOD_FNR)
+
         val result = innhentingService.getAvdodId(BucType.from(apiRequest.buc)!!, apiRequest.avdodfnr)
         assertEquals(null, result)
     }
+
+    private fun apiRequest(sedType: SedType = SedType.P2100, bucType: BucType, aktoerId: String = AKTOER_ID, avdodfnr : String? = null,  vedtakId : String? = null, subject: ApiSubject? = null) =
+            ApiRequest(
+                    subjectArea = "Pensjon",
+                    sakId = "EESSI-PEN-123",
+                    sed = sedType.name,
+                    buc = bucType.name,
+                    aktoerId = aktoerId,
+                    avdodfnr = avdodfnr,
+                    vedtakId = vedtakId,
+                    subject = subject
+            )
+
 }
