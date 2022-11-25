@@ -61,21 +61,16 @@ class VedleggService(private val safClient: SafClient,
     /**
      * Returnerer en distinct liste av rinaSakIDer basert på tilleggsinformasjon i journalposter for en aktør
      */
-    fun hentRinaSakIderFraMetaData(aktoerId: String): List<String> {
-        return HentRinaSakIderFraDokumentMetadata.measure {
-            val metadata = hentDokumentMetadata(aktoerId)
-            val rinaSakIder = mutableListOf<String>()
-            metadata.data.dokumentoversiktBruker.journalposter.forEach { journalpost ->
-                journalpost.tilleggsopplysninger.forEach { tilleggsopplysning ->
-                    if (tilleggsopplysning["nokkel"].equals(TILLEGGSOPPLYSNING_RINA_SAK_ID_KEY)) {
-                        rinaSakIder.add(tilleggsopplysning["verdi"].toString())
-                    }
-                }
-            }
-            rinaSakIder
-                    .filterNot { MissingBuc.checkForMissingBuc(it) }
-                    .distinct()
+    fun hentRinaSakIderFraMetaData(aktoerId: String): List<String> =
+        HentRinaSakIderFraDokumentMetadata.measure {
+            hentDokumentMetadata(aktoerId).data.dokumentoversiktBruker.journalposter
+                .flatMap { journalpost ->
+                    journalpost.tilleggsopplysninger
+                        .filter { it["nokkel"].equals(TILLEGGSOPPLYSNING_RINA_SAK_ID_KEY) }
+                        .filter { it["verdi"] != null }
+                        .map { it["verdi"]!! }
+                }.filterNot { MissingBuc.checkForMissingBuc(it) }
+                .distinct()
                 .also { logger.info("Fant følgende RINAID fra dokument Metadata: ${it.map { str -> str }}") }
         }
-    }
 }
