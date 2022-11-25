@@ -2,7 +2,6 @@ package no.nav.eessi.pensjon.fagmodul.eux
 
 import no.nav.eessi.pensjon.fagmodul.config.INSTITUTION_CACHE
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucSedResponse
-import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.PreviewPdf
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonDetalj
@@ -531,6 +530,42 @@ class EuxKlient(
             }
         }
     }
+
+    /**
+     * Respons fra eux-rina-api/cpi/rinasaker
+     * Skal bare endres dersom responsen fra EUX endrer seg.
+     */
+    class Rinasak(
+        val id: String? = null,
+        val processDefinitionId: String? = null,
+        val traits: Traits? = null,
+        val applicationRoleId: String? = null,
+        val properties: Properties? = null,
+        val status: String? = null
+    )
+
+    /**
+     * Del av respons fra eux-rina-api/cpi/rinasaker
+     * Skal bare endres dersom responsen fra EUX endrer seg.
+     */
+    class Properties(
+        val importance: String? = null,
+        val criticality: String? = null
+    )
+
+    /**
+     * Del av respons fra eux-rina-api/cpi/rinasaker
+     * Skal bare endres dersom responsen fra EUX endrer seg.
+     */
+    class Traits(
+        val birthday: String? = null,
+        val localPin: String? = null,
+        val surname: String? = null,
+        val caseId: String? = null,
+        val name: String? = null,
+        val flowType: String? = null,
+        val status: String? = null
+    )
 
 
 }

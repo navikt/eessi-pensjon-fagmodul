@@ -93,7 +93,7 @@ internal class EuxInnhentingServiceTest {
     @Test
     fun getBucViewBruker() {
         val euxCaseId = "3893690"
-        val rinaSaker = listOf(Rinasak(euxCaseId, BucType.P_BUC_02.name, Traits(), "", Properties(), "open"))
+        val rinaSaker = listOf(EuxKlient.Rinasak(euxCaseId, BucType.P_BUC_02.name, EuxKlient.Traits(), "", EuxKlient.Properties(), "open"))
         every { euxKlient.getRinasaker(eq(FNR), any(), any(), eq( "\"open\"")) } returns rinaSaker
 
         every { euxKlient.getBucJsonAsNavIdent(euxCaseId) } returns Buc(id = "3893690", processDefinitionName = "P_BUC_03").toJson()
@@ -133,7 +133,7 @@ internal class EuxInnhentingServiceTest {
     @Test
     fun `Calling eux-rina-api to create BucSedAndView gets one BUC per rinaid`() {
         val rinasakerJson = javaClass.getResource("/json/rinasaker/rinasaker_34567890111.json")!!.readText()
-        val rinasaker = mapJsonToAny(rinasakerJson, typeRefs<List<Rinasak>>())
+        val rinasaker = mapJsonToAny(rinasakerJson, typeRefs<List<EuxKlient.Rinasak>>())
         val bucJson = File("src/test/resources/json/buc/buc-158123_2_v4.1.json").readText()
         every { euxKlient.getBucJsonAsNavIdent(any()) } returns bucJson
 
@@ -172,32 +172,32 @@ internal class EuxInnhentingServiceTest {
 
     @Test
     fun `Test filter list av rinasak ta bort elementer av archived`() {
-        assertTrue(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("723", "P_BUC_01", null, "PO", null, "open")))
-        assertTrue(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("2123", "P_BUC_03", null, "PO", null, "open")))
-        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("423", "H_BUC_01", null, "PO", null, "archived")))
-        assertTrue(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("234", "P_BUC_06", null, "PO", null, "closed")))
-        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("8423", "P_BUC_07", null, "PO", null, "archived")))
+        assertTrue(euxInnhentingService.erRelevantForVisningIEessiPensjon(EuxKlient.Rinasak("723", "P_BUC_01", null, "PO", null, "open")))
+        assertTrue(euxInnhentingService.erRelevantForVisningIEessiPensjon(EuxKlient.Rinasak("2123", "P_BUC_03", null, "PO", null, "open")))
+        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(EuxKlient.Rinasak("423", "H_BUC_01", null, "PO", null, "archived")))
+        assertTrue(euxInnhentingService.erRelevantForVisningIEessiPensjon(EuxKlient.Rinasak("234", "P_BUC_06", null, "PO", null, "closed")))
+        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(EuxKlient.Rinasak("8423", "P_BUC_07", null, "PO", null, "archived")))
     }
 
     @Test
     fun `Test filter list av rinasak ta bort elementer av archived og ugyldige buc`() {
-        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("723", "FP_BUC_01", null, "PO", null, "open")))
-        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("2123", "H_BUC_02", null, "PO", null, "open")))
-        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("423", "P_BUC_01", null, "PO", null, "archived")))
-        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("234", "FF_BUC_01", null, "PO", null, "closed")))
-        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("8423", "FF_BUC_01", null, "PO", null, "archived")))
-        assertTrue(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("8223", "H_BUC_07", null, "PO", null, "open")))
+        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(EuxKlient.Rinasak("723", "FP_BUC_01", null, "PO", null, "open")))
+        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(EuxKlient.Rinasak("2123", "H_BUC_02", null, "PO", null, "open")))
+        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(EuxKlient.Rinasak("423", "P_BUC_01", null, "PO", null, "archived")))
+        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(EuxKlient.Rinasak("234", "FF_BUC_01", null, "PO", null, "closed")))
+        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(EuxKlient.Rinasak("8423", "FF_BUC_01", null, "PO", null, "archived")))
+        assertTrue(euxInnhentingService.erRelevantForVisningIEessiPensjon(EuxKlient.Rinasak("8223", "H_BUC_07", null, "PO", null, "open")))
     }
 
     @Test
     fun `Test filter list av rinasak ta bort elementer av archived og ugyldige buc samt spesielle a og b bucer`() {
-        assertTrue(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("723", "M_BUC_03a", null, "PO", null, "open")))
-        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("2123", "H_BUC_02", null, "PO", null, "open")))
-        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("423", "P_BUC_01", null, "PO", null, "archived")))
-        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("234", "FF_BUC_01", null, "PO", null, "closed")))
-        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("8423", "M_BUC_02", null, "PO", null, "archived")))
-        assertTrue(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("8223", "M_BUC_03b", null, "PO", null, "open")))
-        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("6006777", "P_BUC_01", null, "PO", null, "open")))
+        assertTrue(euxInnhentingService.erRelevantForVisningIEessiPensjon(EuxKlient.Rinasak("723", "M_BUC_03a", null, "PO", null, "open")))
+        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(EuxKlient.Rinasak("2123", "H_BUC_02", null, "PO", null, "open")))
+        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(EuxKlient.Rinasak("423", "P_BUC_01", null, "PO", null, "archived")))
+        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(EuxKlient.Rinasak("234", "FF_BUC_01", null, "PO", null, "closed")))
+        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(EuxKlient.Rinasak("8423", "M_BUC_02", null, "PO", null, "archived")))
+        assertTrue(euxInnhentingService.erRelevantForVisningIEessiPensjon(EuxKlient.Rinasak("8223", "M_BUC_03b", null, "PO", null, "open")))
+        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(EuxKlient.Rinasak("6006777", "P_BUC_01", null, "PO", null, "open")))
     }
 
     @Test
@@ -206,8 +206,8 @@ internal class EuxInnhentingServiceTest {
         val euxCaseId = "8877665511"
         val jsonRinasaker = javaClass.getResource("/json/rinasaker/rinasaker_12345678901.json")!!.readText()
         val jsonEnRinasak = javaClass.getResource("/json/rinasaker/rinasaker_ensak.json")!!.readText()
-        val orgRinasaker = mapJsonToAny(jsonRinasaker, typeRefs<List<Rinasak>>())
-        val enSak = mapJsonToAny(jsonEnRinasak, typeRefs<List<Rinasak>>())
+        val orgRinasaker = mapJsonToAny(jsonRinasaker, typeRefs<List<EuxKlient.Rinasak>>())
+        val enSak = mapJsonToAny(jsonEnRinasak, typeRefs<List<EuxKlient.Rinasak>>())
 
         every { euxKlient.getRinasaker(eq(fnr), status = "\"open\"") } returns orgRinasaker
         every { euxKlient.getRinasaker(euxCaseId = euxCaseId, status = "\"open\"") } returns enSak
@@ -221,7 +221,7 @@ internal class EuxInnhentingServiceTest {
     @Test
     fun `henter rinaid fra saf og rina hvor begge er tomme`() {
         val euxCaseId = "12345678900"
-        every { euxKlient.getRinasaker(eq(euxCaseId), null, null, null) } returns listOf<Rinasak>()
+        every { euxKlient.getRinasaker(eq(euxCaseId), null, null, null) } returns listOf<EuxKlient.Rinasak>()
 
         val result = euxInnhentingService.getRinasaker(euxCaseId, emptyList())
         assertEquals(0, result.size)
@@ -233,7 +233,7 @@ internal class EuxInnhentingServiceTest {
         val gjenlevendeFnr = "1234567890000"
         val rinasakid = "3893690"
 
-        val rinaSaker = listOf(Rinasak(rinasakid, "P_BUC_02", Traits(), "", Properties(), "open"))
+        val rinaSaker = listOf(EuxKlient.Rinasak(rinasakid, "P_BUC_02", EuxKlient.Traits(), "", EuxKlient.Properties(), "open"))
         every { euxKlient.getRinasaker(eq(avdodFnr), any(), any(), eq( "\"open\"")) } returns rinaSaker
 
         val actual = euxInnhentingService.hentBucViewAvdod(avdodFnr, gjenlevendeFnr, rinasakid)

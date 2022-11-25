@@ -1,9 +1,6 @@
 package no.nav.eessi.pensjon.integrationtest.buc
 
 import no.nav.eessi.pensjon.fagmodul.eux.EuxKlient
-import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Properties
-import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
-import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Traits
 import no.nav.eessi.pensjon.vedlegg.client.BrukerId
 import no.nav.eessi.pensjon.vedlegg.client.BrukerIdType
 import no.nav.eessi.pensjon.vedlegg.client.SafRequest
@@ -138,8 +135,8 @@ open class BucBaseTest {
         return EuxKlient.getRinasakerUri(fnr, euxCaseId, bucType, status).also { println(it) }
     }
 
-    fun dummyRinasak(rinaSakId: String, bucType: String): Rinasak {
-        return Rinasak(rinaSakId, bucType, Traits(), "", Properties(), "open")
+    fun dummyRinasak(rinaSakId: String, bucType: String): EuxKlient.Rinasak {
+        return EuxKlient.Rinasak(rinaSakId, bucType, EuxKlient.Traits(), "", EuxKlient.Properties(), "open")
     }
 
     fun mockVedtak(avdofnr: String, gjenlevAktoerid: String): Pensjonsinformasjon {

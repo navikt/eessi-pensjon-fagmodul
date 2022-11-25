@@ -7,7 +7,7 @@ import io.mockk.every
 import io.mockk.verify
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
 import no.nav.eessi.pensjon.eux.model.SedType
-import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
+import no.nav.eessi.pensjon.fagmodul.eux.EuxKlient
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.integrationtest.IntegrasjonsTestConfig
@@ -86,11 +86,11 @@ internal class BucControllerTest: BucBaseTest() {
         every { personService.hentIdent(IdentType.NorskIdent, AktoerId(gjenlevendeAktoerId)) }returns NorskIdent(gjenlevendeFnr)
 
         val rinaBuc02url = dummyRinasakAvdodUrl(avdodFnr, "P_BUC_02")
-        every { restEuxTemplate.exchange( rinaBuc02url.toUriString(), HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(emptyList<Rinasak>().toJson())
+        every { restEuxTemplate.exchange( rinaBuc02url.toUriString(), HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(emptyList<EuxKlient.Rinasak>().toJson())
 
         //gjenlevende rinasak
         val rinaGjenlevUrl = dummyRinasakUrl(avdodFnr, status = "\"open\"")
-        every { restEuxTemplate.exchange( rinaGjenlevUrl.toUriString(), HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( emptyList<Rinasak>().toJson())
+        every { restEuxTemplate.exchange( rinaGjenlevUrl.toUriString(), HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( emptyList<EuxKlient.Rinasak>().toJson())
 
         //saf (vedlegg meta) gjenlevende
         val httpEntity = dummyHeader(dummySafReqeust(gjenlevendeAktoerId))
@@ -195,7 +195,7 @@ internal class BucControllerTest: BucBaseTest() {
             val rinabucdocumentidpath = "/buc/1010/sed/1"
             every { restEuxTemplate.exchange( rinabucdocumentidpath, HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( sedjson )
 
-            every { restEuxTemplate.exchange( "/rinasaker?fødselsnummer=01010100001&status=\"open\"", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(emptyList<Rinasak>().toJson())
+            every { restEuxTemplate.exchange( "/rinasaker?fødselsnummer=01010100001&status=\"open\"", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(emptyList<EuxKlient.Rinasak>().toJson())
 
 
             val response = mockMvc.perform(get("/buc/rinasaker/$gjenlevendeAktoerId/saknr/$saknr/vedtak/$vedtakid")
@@ -234,11 +234,11 @@ internal class BucControllerTest: BucBaseTest() {
 
         //buc02 - avdød rinasak
         val rinaBuc02url = dummyRinasakAvdodUrl(avdodFnr, "P_BUC_02")
-        every { restEuxTemplate.exchange( eq(rinaBuc02url.toUriString()), eq(HttpMethod.GET), null, eq(String::class.java)) } returns ResponseEntity.ok().body(emptyList<Rinasak>().toJson())
+        every { restEuxTemplate.exchange( eq(rinaBuc02url.toUriString()), eq(HttpMethod.GET), null, eq(String::class.java)) } returns ResponseEntity.ok().body(emptyList<EuxKlient.Rinasak>().toJson())
 
         //gjenlevende rinasak
         val rinaGjenlevUrl = dummyRinasakUrl(gjenlevendeFnr, status = "\"open\"")
-        every { restEuxTemplate.exchange(rinaGjenlevUrl.toUriString(), HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( emptyList<Rinasak>().toJson())
+        every { restEuxTemplate.exchange(rinaGjenlevUrl.toUriString(), HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( emptyList<EuxKlient.Rinasak>().toJson())
 
         //dummy date
         val lastupdate = LocalDate.of(2020, Month.AUGUST, 7).toString()
@@ -262,7 +262,7 @@ internal class BucControllerTest: BucBaseTest() {
         val rinabucdocumentidpath = "/buc/1010/sed/1"
         every { restEuxTemplate.exchange( rinabucdocumentidpath, HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( sedjson )
 
-        every { restEuxTemplate.exchange( "/rinasaker?fødselsnummer=01010100001&status=\"open\"", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(emptyList<Rinasak>().toJson())
+        every { restEuxTemplate.exchange( "/rinasaker?fødselsnummer=01010100001&status=\"open\"", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(emptyList<EuxKlient.Rinasak>().toJson())
 
         val result = mockMvc.perform(get("/buc/rinasaker/$gjenlevendeAktoerId/saknr/$saknr/vedtak/$vedtakid")
             .contentType(MediaType.APPLICATION_JSON))

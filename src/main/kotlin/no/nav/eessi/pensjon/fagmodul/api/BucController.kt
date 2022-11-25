@@ -4,7 +4,6 @@ import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.fagmodul.eux.*
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucView
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucViewKilde
-import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Creator
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
@@ -103,7 +102,7 @@ class BucController(
     }
 
     @GetMapping("/rinasaker/{aktoerId}")
-    fun getRinasaker(@PathVariable("aktoerId", required = true) aktoerId: String): List<Rinasak> {
+    fun getRinasaker(@PathVariable("aktoerId", required = true) aktoerId: String): List<EuxKlient.Rinasak> {
         auditlogger.log("getRinasaker", aktoerId)
         logger.debug("henter rinasaker på valgt aktoerid: $aktoerId")
 

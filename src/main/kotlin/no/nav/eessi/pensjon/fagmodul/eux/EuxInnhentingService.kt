@@ -9,7 +9,6 @@ import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.X009
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucView
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucViewKilde
-import no.nav.eessi.pensjon.fagmodul.eux.basismodel.Rinasak
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
@@ -114,7 +113,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
     /**
      * Sjekker om rinasak er relevant for visning i EP
      */
-    fun erRelevantForVisningIEessiPensjon(rinasak: Rinasak) =
+    fun erRelevantForVisningIEessiPensjon(rinasak: EuxKlient.Rinasak) =
         rinasak.status != "archived"
                 && rinasak.processDefinitionId in relevanteBucTyperForVisningIEessiPensjon()
                 && !MissingBuc.checkForMissingBuc(rinasak.id!!)
@@ -296,7 +295,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
     }
 
     //** hente rinasaker fra RINA og SAF
-    fun getRinasaker(fnr: String, rinaSakIderFraJoark: List<String>): List<Rinasak> {
+    fun getRinasaker(fnr: String, rinaSakIderFraJoark: List<String>): List<EuxKlient.Rinasak> {
         // Henter rina saker basert på fnr
         val rinaSakerMedFnr = euxKlient.getRinasaker(fnr, status = "\"open\"")
         logger.debug("hentet rinasaker fra eux-rina-api size: ${rinaSakerMedFnr.size}")
@@ -321,7 +320,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
      * Returnerer en distinct liste av rinaSakIDer
      *  @param rinaSaker liste av rinasaker fra EUX datamodellen
      */
-    fun hentRinaSakIder(rinaSaker: List<Rinasak>) = rinaSaker.map { it.id!! }
+    fun hentRinaSakIder(rinaSaker: List<EuxKlient.Rinasak>) = rinaSaker.map { it.id!! }
 
     fun kanSedOpprettes(dataModel: PrefillDataModel): BucUtils {
 
