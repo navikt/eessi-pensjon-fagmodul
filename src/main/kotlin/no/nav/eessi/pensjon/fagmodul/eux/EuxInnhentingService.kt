@@ -252,20 +252,12 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
 
         return rinaSakIder
             .map { getBuc(it) }
+            .filter { it.processDefinitionName in relevanteBucTyperForVisningIEessiPensjon() }
+            .filter { !MissingBuc.checkForMissingBuc(it.id!!) }
             .map { buc ->
-                Rinasak(
-                    id = buc.id,
-                    processDefinitionId = buc.processDefinitionName,
-                    traits = null,
-                    applicationRoleId = null,
-                    properties = null,
-                    status = "open"
-                )
-            }.filter { erRelevantForVisningIEessiPensjon(it) }
-            .map { rinasak ->
                 BucView(
-                    rinasak.id!!,
-                    BucType.from(rinasak.processDefinitionId)!!,
+                    buc.id!!,
+                    BucType.from(buc.processDefinitionName)!!,
                     aktoerId,
                     pesysSaksnr,
                     null,
