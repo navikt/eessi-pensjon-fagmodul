@@ -9,7 +9,6 @@ import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.BucType
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
-import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucViewKilde
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.integrationtest.IntegrasjonsTestConfig
@@ -85,7 +84,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         val gjenlevFnr = "1234567890000"
         val avdodfnr = "01010100001"
         val euxCaseId = "80001"
-        val kilde = BucViewKilde.AVDOD
+        val kilde = EuxInnhentingService.BucViewKilde.AVDOD
 
         //gjenlevende aktoerid -> gjenlevendefnr
         every { personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerid)) } returns NorskIdent(gjenlevFnr)
@@ -135,7 +134,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         val gjenlevFnr = "1234567890000"
         val avdodfnr = "01010100001"
         val euxCaseId = "80001"
-        val kilde = BucViewKilde.SAF
+        val kilde = EuxInnhentingService.BucViewKilde.SAF
 
         //gjenlevende aktoerid -> gjenlevendefnr
         every { personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerid)) } returns NorskIdent(gjenlevFnr)
@@ -178,7 +177,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         val aktoerid = "1123123123123123"
         val fnr = "1234567890000"
         val euxCaseId = "900001"
-        val kilde = BucViewKilde.BRUKER
+        val kilde = EuxInnhentingService.BucViewKilde.BRUKER
 
         //aktoerid -> fnr
         every { personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerid)) } returns NorskIdent(fnr)
@@ -219,7 +218,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         val aktoerid = "1123123123123123"
         val fnr = "1234567890000"
         val euxCaseId = "900001"
-        val kilde = BucViewKilde.SAF
+        val kilde = EuxInnhentingService.BucViewKilde.SAF
 
         //aktoerid -> fnr
         every { personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerid)) } returns NorskIdent(fnr)

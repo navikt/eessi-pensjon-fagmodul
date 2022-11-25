@@ -64,7 +64,6 @@ class ArchitectureTest {
         val models            = "fagmodul models"
         val pesys             = "fagmodul pesys"
         val euxService        = "fagmodul euxservice"
-        val euxBasisModel     = "fagmodul euxBasisModel"
         val euxBucModel       = "fagmodul euxBucModel"
         val config            = "fagmodul config"
         val geoApi            = "api geo"
@@ -79,7 +78,6 @@ class ArchitectureTest {
                 "$root.fagmodul.prefill.." to prefill,
                 "$root.fagmodul.models.." to models,
                 "$root.fagmodul.eux" to euxService,
-                "$root.fagmodul.eux.basismodel.." to euxBasisModel,
                 "$root.fagmodul.eux.bucmodel.." to euxBucModel,
                 "$root.fagmodul.config.." to config,
                 "$root.fagmodul.pesys.." to pesys,
@@ -108,7 +106,6 @@ class ArchitectureTest {
                 .layer(pesys).definedBy(*packagesFor(pesys))
                 .layer(prefill).definedBy(*packagesFor(prefill))
                 .layer(euxService).definedBy(*packagesFor(euxService))
-                .layer(euxBasisModel).definedBy(*packagesFor(euxBasisModel))
                 .layer(euxBucModel).definedBy(*packagesFor(euxBucModel))
                 .layer(models).definedBy(*packagesFor(models))
                 .layer(pensjonService).definedBy(*packagesFor(pensjonService))
@@ -129,8 +126,7 @@ class ArchitectureTest {
                 .whereLayer(pensjonService).mayOnlyBeAccessedByLayers(pensjonApi, prefill, bucSedApi, personApi)
 
                 .whereLayer(euxBucModel).mayOnlyBeAccessedByLayers(euxService, bucSedApi, pesys, personApi)
-                .whereLayer(euxBasisModel).mayOnlyBeAccessedByLayers(euxService, bucSedApi, pesys)
-                .whereLayer(models).mayOnlyBeAccessedByLayers(prefill, euxService, euxBasisModel, euxBucModel, bucSedApi, pensjonApi, personApi, pesys)
+                .whereLayer(models).mayOnlyBeAccessedByLayers(prefill, euxService, euxBucModel, bucSedApi, pensjonApi, personApi, pesys)
 
                 .whereLayer(config).mayNotBeAccessedByAnyLayer()
                 .check(productionClasses)

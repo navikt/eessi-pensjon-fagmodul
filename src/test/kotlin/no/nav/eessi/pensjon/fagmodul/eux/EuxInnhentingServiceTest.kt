@@ -5,7 +5,6 @@ import io.mockk.every
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.BucType
 import no.nav.eessi.pensjon.eux.model.sed.P6000
-import no.nav.eessi.pensjon.fagmodul.eux.basismodel.*
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.utils.mapJsonToAny
@@ -107,7 +106,7 @@ internal class EuxInnhentingServiceTest {
                 aktoerId = AKTOERID,
                 saknr = SAKSNR,
                 avdodFnr = null,
-                kilde = BucViewKilde.BRUKER
+                kilde = EuxInnhentingService.BucViewKilde.BRUKER
             ), result[0])
     }
 
@@ -117,7 +116,7 @@ internal class EuxInnhentingServiceTest {
         val json = javaClass.getResource("/json/buc/P_BUC_02_4.2_P2100.json")!!.readText()
         every { euxKlient.getBucJsonAsNavIdent(any()) } returns json
 
-        val result = euxInnhentingService.hentBucViews(AKTOERID, SAKSNR, listOf(euxCaseId), BucViewKilde.SAF)
+        val result = euxInnhentingService.hentBucViews(AKTOERID, SAKSNR, listOf(euxCaseId), EuxInnhentingService.BucViewKilde.SAF)
         assertEquals(1, result.size)
         assertEquals(
             EuxInnhentingService.BucView(
@@ -126,7 +125,7 @@ internal class EuxInnhentingServiceTest {
                 aktoerId = AKTOERID,
                 saknr = SAKSNR,
                 avdodFnr = null,
-                kilde = BucViewKilde.SAF
+                kilde = EuxInnhentingService.BucViewKilde.SAF
             ), result[0])
     }
 

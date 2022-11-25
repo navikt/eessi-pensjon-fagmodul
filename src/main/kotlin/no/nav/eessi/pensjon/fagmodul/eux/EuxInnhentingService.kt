@@ -7,7 +7,6 @@ import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.sed.Person
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.X009
-import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucViewKilde
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
@@ -370,4 +369,11 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
         val avdodFnr: String? = null,
         val kilde: BucViewKilde
     )
+
+    enum class BucViewKilde{
+        BRUKER,
+        SAF,
+        AVDOD;
+    }
+
 }

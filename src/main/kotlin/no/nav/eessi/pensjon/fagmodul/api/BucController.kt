@@ -2,7 +2,6 @@ package no.nav.eessi.pensjon.fagmodul.api
 
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.fagmodul.eux.*
-import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucViewKilde
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Creator
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
@@ -151,7 +150,7 @@ class BucController(
                 aktoerId,
                 pensjonSakNummer,
                 filterBrukerRinaSakIderFraJoark,
-                BucViewKilde.SAF
+                EuxInnhentingService.BucViewKilde.SAF
             )
             logger.debug("safView : ${safView.toJson()}")
 
@@ -189,7 +188,7 @@ class BucController(
                 aktoerId,
                 pensjonSakNummer,
                 rinaSakIderFraJoark,
-                BucViewKilde.SAF
+                EuxInnhentingService.BucViewKilde.SAF
             )
             logger.debug("safView : ${safView.toJson()}")
 
@@ -264,7 +263,7 @@ class BucController(
             val avdodViewSaf = avdodView
                 .filter { view -> view.euxCaseId in brukerRinaSakIderFraJoark }
                 .map { view ->
-                    view.copy(kilde = BucViewKilde.SAF)
+                    view.copy(kilde = EuxInnhentingService.BucViewKilde.SAF)
                 }
 
             //avdod saker view uten saf
@@ -278,7 +277,7 @@ class BucController(
                 aktoerId,
                 sakNr,
                 filterAvodRinaSakIderFraJoark,
-                BucViewKilde.SAF
+                EuxInnhentingService.BucViewKilde.SAF
             )
 
             //saf filter mot avdod
@@ -340,7 +339,7 @@ class BucController(
         @PathVariable("euxcaseid", required = true) euxcaseid: String,
         @PathVariable("aktoerid", required = true) aktoerid: String,
         @PathVariable("saknr", required = true) saknr: String,
-        @PathVariable("kilde", required = true) kilde: BucViewKilde
+        @PathVariable("kilde", required = true) kilde: EuxInnhentingService.BucViewKilde
     ): BucAndSedView {
         return bucDetaljerEnkel.measure {
             logger.info("Henter ut en enkel buc med euxCaseId: $euxcaseid, saknr: $saknr, kilde: $kilde")
@@ -354,10 +353,11 @@ class BucController(
         @PathVariable("aktoerid", required = true) aktoerid: String,
         @PathVariable("saknr", required = true) saknr: String,
         @PathVariable("avdodfnr", required = true) avdodFnr: String,
-        @PathVariable("kilde", required = true) kilde: BucViewKilde): BucAndSedView {
+        @PathVariable("kilde", required = true) kilde: EuxInnhentingService.BucViewKilde
+    ): BucAndSedView {
         logger.info("Henter ut en enkel buc for gjenlevende")
 
-        return if (kilde == BucViewKilde.SAF) {
+        return if (kilde == EuxInnhentingService.BucViewKilde.SAF) {
             bucDetaljerEnkelGjenlevende.measure {
                 logger.info("saf euxCaseId: $euxcaseid, saknr: $saknr")
                 val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerid)
