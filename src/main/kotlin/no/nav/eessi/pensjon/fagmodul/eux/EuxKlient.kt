@@ -1,7 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
 import no.nav.eessi.pensjon.fagmodul.config.INSTITUTION_CACHE
-import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucSedResponse
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.PreviewPdf
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonDetalj
@@ -530,6 +529,18 @@ class EuxKlient(
             }
         }
     }
+
+    /**
+     * eux-rina-api returnerer documentId ved oppretting av SED
+     * Vi legger ved caseId (rinasaksnr).
+     *
+     * Skal bare endres dersom responsen fra EUX endrer seg.
+     */
+    data class BucSedResponse(
+        val caseId: String,
+        val documentId: String
+    )
+
 
     /**
      * Respons fra eux-rina-api/cpi/rinasaker

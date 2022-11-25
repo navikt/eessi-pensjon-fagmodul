@@ -6,12 +6,6 @@ import no.nav.eessi.pensjon.eux.model.buc.BucType
  * data class model from EUX Basis
  */
 
-data class BucSedResponse(
-        val caseId: String,
-        val documentId: String
-)
-
-
 //benyttes av UI
 data class BucView(
         val euxCaseId: String,

@@ -3,7 +3,6 @@ package no.nav.eessi.pensjon.fagmodul.eux
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.X005
-import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucSedResponse
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
@@ -34,7 +33,7 @@ class EuxPrefillService (private val euxKlient: EuxKlient,
     }
 
     @Throws(EuxGenericServerException::class, SedDokumentIkkeOpprettetException::class)
-    fun opprettSvarJsonSedOnBuc(jsonSed: String, euxCaseId: String, parentDocumentId: String, vedtakId: String?, sedType: SedType): BucSedResponse {
+    fun opprettSvarJsonSedOnBuc(jsonSed: String, euxCaseId: String, parentDocumentId: String, vedtakId: String?, sedType: SedType): EuxKlient.BucSedResponse {
         logger.info("Forsøker å opprette (svarsed) en $sedType på rinasakId: $euxCaseId")
         logger.debug("Logger ut $jsonSed")
         val bucSedResponse = euxKlient.opprettSvarSed(
@@ -53,7 +52,7 @@ class EuxPrefillService (private val euxKlient: EuxKlient,
      * Ny SED på ekisterende type
      */
     @Throws(EuxGenericServerException::class, SedDokumentIkkeOpprettetException::class)
-    fun opprettJsonSedOnBuc(jsonNavSED: String, sedType: SedType, euxCaseId: String, vedtakId: String?): BucSedResponse {
+    fun opprettJsonSedOnBuc(jsonNavSED: String, sedType: SedType, euxCaseId: String, vedtakId: String?): EuxKlient.BucSedResponse {
         logger.info("Forsøker å opprette en $sedType på rinasakId: $euxCaseId")
         logger.debug("Logger ut $jsonNavSED")
         val bucSedResponse  = euxKlient.opprettSed(jsonNavSED, euxCaseId, opprettSED, "Feil ved opprettSed: $sedType, med rinaId: $euxCaseId")
