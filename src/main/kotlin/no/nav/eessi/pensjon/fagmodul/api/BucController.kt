@@ -243,7 +243,7 @@ class BucController(
             logger.info("henter rinasaker på valgt aktoerid: $aktoerId, på saknr: $sakNr")
 
             //liste over avdodfnr fra vedtak (pesys)
-            val avdodFnrListe = avdodFraVedtak(vedtakId, sakNr)
+            val avdodFnrListe = hentAvdodFraVedtak(vedtakId, sakNr)
 
             if (avdodFnrListe.isEmpty()) {
                 return@measure emptyList<BucView>()
@@ -314,7 +314,7 @@ class BucController(
     }
 
 
-    private fun avdodFraVedtak(vedtakId: String?, sakNr: String): List<String> {
+    private fun hentAvdodFraVedtak(vedtakId: String?, sakNr: String): List<String> {
         if (vedtakId == null) return emptyList()
 
         val start = System.currentTimeMillis()
