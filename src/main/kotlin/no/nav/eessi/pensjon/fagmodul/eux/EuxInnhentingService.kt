@@ -258,31 +258,30 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
         }
     }
 
-    fun getBucViewBrukerSaf(aktoerId: String, sakNr: String, safSaker: List<String>): List<BucView> {
+    fun hentBucViews(aktoerId: String, pesysSaksnr: String, rinaSakIder: List<String>, rinaSakIdKilde: BucViewKilde): List<BucView> {
         val start = System.currentTimeMillis()
 
-        val rinaSakerMedSaf = safSaker
+        val rinaSaker = rinaSakIder
             .map { id ->
                 val buc = getBuc(id)
                 Rinasak(id = buc.id, processDefinitionId = buc.processDefinitionName, traits = null, applicationRoleId = null, properties = null, status = "open", internationalId = buc.internationalId)
             }
 
-        val filteredRinasakSaf = getFilteredRinasakerSaker(rinaSakerMedSaf)
-        logger.info("rinaSaker total: ${filteredRinasakSaf.size}")
+        val filteredRinasak = getFilteredRinasakerSaker(rinaSaker)
 
-        return filteredRinasakSaf.map { rinasak ->
+        return filteredRinasak.map { rinasak ->
             BucView(
                     rinasak.id!!,
                     BucType.from(rinasak.processDefinitionId)!!,
                     aktoerId,
-                    sakNr,
+                    pesysSaksnr,
                     null,
-                    BucViewKilde.SAF,
+                    rinaSakIdKilde,
                     rinasak.internationalId
             )
         }.also {
             val end = System.currentTimeMillis()
-            logger.info("SafViewBruker tid ${end-start} i ms")
+            logger.info("getBucViews tid: ${end-start} ms")
         }
 
     }

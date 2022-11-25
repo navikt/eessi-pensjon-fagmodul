@@ -150,7 +150,12 @@ class BucController(
             val filterBrukerRinaSakIderFraJoark = rinaSakIderFraJoark.filterNot { rinaid -> rinaid in brukerView.map { it.euxCaseId }  }
 
             //saker fra saf og eux/rina
-            val safView = euxInnhentingService.getBucViewBrukerSaf(aktoerId, pensjonSakNummer, filterBrukerRinaSakIderFraJoark)
+            val safView = euxInnhentingService.hentBucViews(
+                aktoerId,
+                pensjonSakNummer,
+                filterBrukerRinaSakIderFraJoark,
+                BucViewKilde.SAF
+            )
             logger.debug("safView : ${safView.toJson()}")
 
             val view = brukerView + safView
@@ -180,7 +185,12 @@ class BucController(
             logger.debug("rinaSakIderFraJoark : ${rinaSakIderFraJoark.toJson()}")
 
             //saker fra saf og eux/rina
-            val safView = euxInnhentingService.getBucViewBrukerSaf(aktoerId, pensjonSakNummer, rinaSakIderFraJoark)
+            val safView = euxInnhentingService.hentBucViews(
+                aktoerId,
+                pensjonSakNummer,
+                rinaSakIderFraJoark,
+                BucViewKilde.SAF
+            )
             logger.debug("safView : ${safView.toJson()}")
 
             //return med sort og distict (avdodfmr og caseid)
@@ -265,7 +275,12 @@ class BucController(
             val filterAvodRinaSakIderFraJoark = brukerRinaSakIderFraJoark.filterNot { rinaid -> rinaid in avdodView.map { it.euxCaseId }  }
 
             //saker fra saf og eux/rina
-            val safView = euxInnhentingService.getBucViewBrukerSaf(aktoerId, sakNr, filterAvodRinaSakIderFraJoark)
+            val safView = euxInnhentingService.hentBucViews(
+                aktoerId,
+                sakNr,
+                filterAvodRinaSakIderFraJoark,
+                BucViewKilde.SAF
+            )
 
             //saf filter mot avdod
             val safViewAvdod = safView

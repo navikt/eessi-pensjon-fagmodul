@@ -109,7 +109,7 @@ internal class EuxInnhentingServiceTest {
         val json = javaClass.getResource("/json/buc/P_BUC_02_4.2_P2100.json")!!.readText()
         every { euxKlient.getBucJsonAsNavIdent(any()) } returns json
 
-        val result = euxInnhentingService.getBucViewBrukerSaf(AKTOERID, SAKSNR, listOf(euxCaseId))
+        val result = euxInnhentingService.hentBucViews(AKTOERID, SAKSNR, listOf(euxCaseId), BucViewKilde.SAF)
         assertEquals(1, result.size)
         assertEquals(BucView(euxCaseId=euxCaseId, buctype= BucType.P_BUC_02, aktoerId= AKTOERID, saknr= SAKSNR, avdodFnr=null, kilde=BucViewKilde.SAF, internationalId= INTERNATIONAL_ID), result[0])
     }
