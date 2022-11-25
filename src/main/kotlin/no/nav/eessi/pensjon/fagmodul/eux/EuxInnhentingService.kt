@@ -1,10 +1,5 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.runBlocking
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.BucType
 import no.nav.eessi.pensjon.eux.model.buc.MissingBuc
@@ -254,44 +249,38 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
             }
     }
 
-    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     fun hentBucViews(aktoerId: String, pesysSaksnr: String, rinaSakIder: List<String>, rinaSakIdKilde: BucViewKilde): List<BucView> {
         val start = System.currentTimeMillis()
 
-        return runBlocking(Dispatchers.IO.limitedParallelism(20)) { // Velger 20 i parallell, men trolig begrenses det av andre ting
-            rinaSakIder
-                .parallelMap { getBuc(it) }
-                .map { buc ->
-                    Rinasak(
-                        id = buc.id,
-                        processDefinitionId = buc.processDefinitionName,
-                        traits = null,
-                        applicationRoleId = null,
-                        properties = null,
-                        status = "open",
-                        internationalId = buc.internationalId
-                    )
-                }.filter { erRelevantForVisningIEessiPensjon(it) }
-                .map { rinasak ->
-                    BucView(
-                        rinasak.id!!,
-                        BucType.from(rinasak.processDefinitionId)!!,
-                        aktoerId,
-                        pesysSaksnr,
-                        null,
-                        rinaSakIdKilde,
-                        rinasak.internationalId
-                    )
-                }.also {
-                    val end = System.currentTimeMillis()
-                    logger.info("hentBucViews tid: ${end - start} ms")
-                }
-        }
+        return rinaSakIder
+            .map { getBuc(it) }
+            .map { buc ->
+                Rinasak(
+                    id = buc.id,
+                    processDefinitionId = buc.processDefinitionName,
+                    traits = null,
+                    applicationRoleId = null,
+                    properties = null,
+                    status = "open",
+                    internationalId = buc.internationalId
+                )
+            }.filter { erRelevantForVisningIEessiPensjon(it) }
+            .map { rinasak ->
+                BucView(
+                    rinasak.id!!,
+                    BucType.from(rinasak.processDefinitionId)!!,
+                    aktoerId,
+                    pesysSaksnr,
+                    null,
+                    rinaSakIdKilde,
+                    rinasak.internationalId
+                )
+            }.also {
+                val end = System.currentTimeMillis()
+                logger.info("hentBucViews tid: ${end - start} ms")
+            }
     }
 
-    private suspend fun <A, B> Iterable<A>.parallelMap(f: suspend (A) -> B): List<B> = coroutineScope {
-        map { async { f(it) } }.awaitAll()
-    }
 
     fun hentBucViewAvdod(avdodFnr: String, aktoerId: String, pesysSaksnr: String): List<BucView> {
         val start = System.currentTimeMillis()
