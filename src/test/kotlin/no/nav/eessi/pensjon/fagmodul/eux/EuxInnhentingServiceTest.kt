@@ -100,7 +100,15 @@ internal class EuxInnhentingServiceTest {
 
         val result = euxInnhentingService.hentBucViewBruker(FNR, AKTOERID, SAKSNR)
         assertEquals(1, result.size)
-        assertEquals(BucView(euxCaseId=euxCaseId, buctype= BucType.P_BUC_02, aktoerId= AKTOERID, saknr= SAKSNR, avdodFnr=null, kilde=BucViewKilde.BRUKER), result[0])
+        assertEquals(
+            EuxInnhentingService.BucView(
+                euxCaseId = euxCaseId,
+                buctype = BucType.P_BUC_02,
+                aktoerId = AKTOERID,
+                saknr = SAKSNR,
+                avdodFnr = null,
+                kilde = BucViewKilde.BRUKER
+            ), result[0])
     }
 
     @Test
@@ -111,7 +119,15 @@ internal class EuxInnhentingServiceTest {
 
         val result = euxInnhentingService.hentBucViews(AKTOERID, SAKSNR, listOf(euxCaseId), BucViewKilde.SAF)
         assertEquals(1, result.size)
-        assertEquals(BucView(euxCaseId=euxCaseId, buctype= BucType.P_BUC_02, aktoerId= AKTOERID, saknr= SAKSNR, avdodFnr=null, kilde=BucViewKilde.SAF), result[0])
+        assertEquals(
+            EuxInnhentingService.BucView(
+                euxCaseId = euxCaseId,
+                buctype = BucType.P_BUC_02,
+                aktoerId = AKTOERID,
+                saknr = SAKSNR,
+                avdodFnr = null,
+                kilde = BucViewKilde.SAF
+            ), result[0])
     }
 
     @Test

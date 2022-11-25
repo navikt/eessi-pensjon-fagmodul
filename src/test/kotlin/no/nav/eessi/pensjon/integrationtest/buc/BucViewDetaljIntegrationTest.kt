@@ -8,7 +8,7 @@ import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.BucType
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
-import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucView
+import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucViewKilde
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
@@ -393,7 +393,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
         JSONAssert.assertEquals(expected, response, false)
 
-        val requestlist = mapJsonToAny(response, typeRefs<List<BucView>>())
+        val requestlist = mapJsonToAny(response, typeRefs<List<EuxInnhentingService.BucView>>())
 
         assertEquals(2, requestlist.size)
         assertEquals("3010", requestlist.first().euxCaseId)
@@ -426,7 +426,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
         val response = result.response.getContentAsString(charset("UTF-8"))
 
-        assertEquals(2, mapJsonToAny<List<BucView>>(response, typeRefs()).size)
+        assertEquals(2, mapJsonToAny<List<EuxInnhentingService.BucView>>(response, typeRefs()).size)
     }
 
 
@@ -458,7 +458,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
         JSONAssert.assertEquals(expected, response, false)
 
-        val requestlist = mapJsonToAny(response, typeRefs<List<BucView>>())
+        val requestlist = mapJsonToAny(response, typeRefs<List<EuxInnhentingService.BucView>>())
 
         assertEquals(1, requestlist.size)
         assertEquals("3010", requestlist.first().euxCaseId)
@@ -486,7 +486,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
         verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&status=\"open\"", HttpMethod.GET, null, String::class.java) }
 
-        val requestlist = mapJsonToAny(response, typeRefs<List<BucView>>())
+        val requestlist = mapJsonToAny(response, typeRefs<List<EuxInnhentingService.BucView>>())
         assertEquals(0, requestlist.size)
     }
 }

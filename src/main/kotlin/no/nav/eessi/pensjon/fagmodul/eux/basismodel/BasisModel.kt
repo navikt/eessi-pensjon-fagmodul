@@ -7,14 +7,6 @@ import no.nav.eessi.pensjon.eux.model.buc.BucType
  */
 
 //benyttes av UI
-data class BucView(
-        val euxCaseId: String,
-        val buctype: BucType?,
-        val aktoerId: String,
-        val saknr: String,
-        val avdodFnr: String? = null,
-        val kilde: BucViewKilde
-)
 
 enum class BucViewKilde{
         BRUKER,

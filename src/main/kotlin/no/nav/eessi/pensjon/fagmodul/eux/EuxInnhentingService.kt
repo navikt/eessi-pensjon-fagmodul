@@ -7,7 +7,6 @@ import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.sed.Person
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.X009
-import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucView
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucViewKilde
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
@@ -360,5 +359,15 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
         } else request
     }
 
-
+    /**
+     * Utvalgt informasjon om en rinasak/Buc.
+     */
+    data class BucView(
+        val euxCaseId: String,
+        val buctype: BucType?,
+        val aktoerId: String,
+        val saknr: String,
+        val avdodFnr: String? = null,
+        val kilde: BucViewKilde
+    )
 }

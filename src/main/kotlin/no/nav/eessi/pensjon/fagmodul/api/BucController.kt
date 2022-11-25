@@ -2,7 +2,6 @@ package no.nav.eessi.pensjon.fagmodul.api
 
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.fagmodul.eux.*
-import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucView
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucViewKilde
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Creator
@@ -128,7 +127,7 @@ class BucController(
     fun getRinasakerBrukerkontekst(
         @PathVariable("aktoerId", required = true) aktoerId: String,
         @PathVariable("saknr", required = false) pensjonSakNummer: String
-    ): List<BucView> {
+    ): List<EuxInnhentingService.BucView> {
         return bucView.measure {
             val start = System.currentTimeMillis()
 
@@ -174,7 +173,7 @@ class BucController(
     fun getRinasakerJoark(
             @PathVariable("aktoerId", required = true) aktoerId: String,
             @PathVariable("saknr", required = false) pensjonSakNummer: String
-    ): List<BucView> {
+    ): List<EuxInnhentingService.BucView> {
         return bucView.measure {
             val start = System.currentTimeMillis()
 
@@ -210,7 +209,7 @@ class BucController(
     fun getRinasakerFraRina(
             @PathVariable("aktoerId", required = true) aktoerId: String,
             @PathVariable("saknr", required = false) pensjonSakNummer: String
-    ): List<BucView> {
+    ): List<EuxInnhentingService.BucView> {
         return bucView.measure {
             val start = System.currentTimeMillis()
 
@@ -234,7 +233,7 @@ class BucController(
         @PathVariable("aktoerId", required = true) aktoerId: String,
         @PathVariable("saknr", required = false) sakNr: String,
         @PathVariable("vedtakid", required = false) vedtakId: String? = null
-    ): List<BucView> {
+    ): List<EuxInnhentingService.BucView> {
         return bucViewForVedtak.measure {
             val start = System.currentTimeMillis()
 
@@ -243,7 +242,7 @@ class BucController(
             val avdodeFraPesysVedtak = hentAvdodFraVedtak(vedtakId, sakNr)
 
             if (avdodeFraPesysVedtak.isEmpty()) {
-                return@measure emptyList<BucView>()
+                return@measure emptyList<EuxInnhentingService.BucView>()
                     .also {
                         logger.info("Total view size is zero")
                         logger.info("BrukerRinasaker total tid: ${System.currentTimeMillis() - start} i ms")
@@ -329,7 +328,7 @@ class BucController(
         @PathVariable("aktoerId", required = true) aktoerId: String,
         @PathVariable("saknr", required = true) sakNr: String,
         @PathVariable("avdodfnr", required = true) avdodfnr : String
-    ): List<BucView> {
+    ): List<EuxInnhentingService.BucView> {
         logger.info("Henter rinasaker på avdod: $aktoerId, saknr: $sakNr")
 
         return euxInnhentingService.hentBucViewAvdod(avdodfnr, aktoerId, sakNr)
