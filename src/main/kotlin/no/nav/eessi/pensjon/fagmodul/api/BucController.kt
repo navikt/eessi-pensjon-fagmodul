@@ -41,6 +41,8 @@ class BucController(
     private lateinit var bucDetaljerGjenlev: MetricsHelper.Metric
     private lateinit var bucViewForVedtak: MetricsHelper.Metric
     private lateinit var bucView: MetricsHelper.Metric
+    private lateinit var bucViewJoark: MetricsHelper.Metric
+    private lateinit var bucViewRina: MetricsHelper.Metric
 
     @PostConstruct
     fun initMetrics() {
@@ -52,6 +54,8 @@ class BucController(
         bucDetaljerEnkelavdod = metricsHelper.init("bucDetaljerEnkelavdod", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         bucViewForVedtak = metricsHelper.init("bucViewForVedtak", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         bucView = metricsHelper.init("BucView", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
+        bucViewJoark = metricsHelper.init("BucViewJoark", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
+        bucViewRina = metricsHelper.init("BucViewRina", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
     }
 
     @GetMapping("/bucs/{sakId}", produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -173,7 +177,7 @@ class BucController(
             @PathVariable("aktoerId", required = true) aktoerId: String,
             @PathVariable("saknr", required = false) pensjonSakNummer: String
     ): List<EuxInnhentingService.BucView> {
-        return bucView.measure {
+        return bucViewJoark.measure {
             val start = System.currentTimeMillis()
 
             logger.info("henter rinasaker på valgt aktoerid: $aktoerId, på saknr: $pensjonSakNummer")
@@ -209,7 +213,7 @@ class BucController(
             @PathVariable("aktoerId", required = true) aktoerId: String,
             @PathVariable("saknr", required = false) pensjonSakNummer: String
     ): List<EuxInnhentingService.BucView> {
-        return bucView.measure {
+        return bucViewRina.measure {
             val start = System.currentTimeMillis()
 
             logger.info("henter rinasaker på valgt aktoerid: $aktoerId, på saknr")
