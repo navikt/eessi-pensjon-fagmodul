@@ -169,6 +169,9 @@ class BucController(
         }
     }
 
+    /**
+     * Rina-saker der det finnes journalførte dokumenter
+     */
     @GetMapping("/rinasaker/joark/{aktoerId}/pesyssak/{saknr}")
     fun getRinasakerJoark(
             @PathVariable("aktoerId", required = true) aktoerId: String,
@@ -202,6 +205,9 @@ class BucController(
         }
     }
 
+    /**
+     * Åpne Rina-saker via EUX (her finnes ikke lukkede - bruk Joark-kallet for disse)
+     */
     @GetMapping("/rinasaker/euxrina/{aktoerId}/pesyssak/{saknr}")
     fun getRinasakerFraRina(
             @PathVariable("aktoerId", required = true) aktoerId: String,
