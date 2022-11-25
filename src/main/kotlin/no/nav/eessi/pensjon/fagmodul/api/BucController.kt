@@ -1,7 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
 import no.nav.eessi.pensjon.eux.model.SedType
-import no.nav.eessi.pensjon.eux.model.buc.BucType
 import no.nav.eessi.pensjon.fagmodul.eux.*
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucView
 import no.nav.eessi.pensjon.fagmodul.eux.basismodel.BucViewKilde
@@ -242,10 +241,9 @@ class BucController(
 
             logger.info("henter rinasaker på valgt aktoerid: $aktoerId, på saknr: $sakNr")
 
-            //liste over avdodfnr fra vedtak (pesys)
-            val avdodFnrListe = hentAvdodFraVedtak(vedtakId, sakNr)
+            val avdodeFraPesysVedtak = hentAvdodFraVedtak(vedtakId, sakNr)
 
-            if (avdodFnrListe.isEmpty()) {
+            if (avdodeFraPesysVedtak.isEmpty()) {
                 return@measure emptyList<BucView>()
                     .also {
                         logger.info("Total view size is zero")
@@ -253,19 +251,16 @@ class BucController(
                     }
             }
 
-            //buctyper fra saf som kobles til første avdodfnr
-            val safAvdodBucList = listOf(BucType.P_BUC_02, BucType.P_BUC_05, BucType.P_BUC_06, BucType.P_BUC_10)
+            //hent avdod saker fra eux/rina
+            val avdodView = avdodeFraPesysVedtak.map { avdod ->
+                euxInnhentingService.hentBucViewAvdod(avdod, aktoerId, sakNr)
+            }.flatten()
 
             val joarkstart = System.currentTimeMillis()
 
             //brukersaker fra Joark/saf
             val brukerRinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
             logger.info("hentRinaSakIderFraMetaData tid: ${System.currentTimeMillis()-joarkstart} i ms")
-
-            //hent avdod saker fra eux/rina
-            val avdodView = avdodFnrListe.map { avdodfnr ->
-                avdodRinasakerView(avdodfnr, aktoerId, sakNr)
-            }.flatten()
 
             //filter avdodview for match på filterBrukersakerRina
             val avdodViewSaf = avdodView
@@ -290,9 +285,9 @@ class BucController(
 
             //saf filter mot avdod
             val safViewAvdod = safView
-                .filter { view -> view.buctype in safAvdodBucList }
-                .map { view -> view.copy(avdodFnr = avdodFnrListe.firstOrNull()) }
-                .also { if (avdodFnrListe.size == 2) logger.warn("finnes 2 avdod men valgte første, ingen koblinger")}
+                .filter { view -> view.buctype in EuxInnhentingService.bucTyperSomKanHaAvdod }
+                .map { view -> view.copy(avdodFnr = avdodeFraPesysVedtak.firstOrNull()) }
+                .also { if (avdodeFraPesysVedtak.size == 2) logger.warn("finnes 2 avdod men valgte første, ingen koblinger")}
 
             //saf filter mot bruker
             val safViewBruker = safView
@@ -304,7 +299,7 @@ class BucController(
             //return med sort og distinct (avdodfnr og caseid)
             return@measure view.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
                 .also { logger.info("Total view size: ${it.size}") }
-                .also { if (avdodFnrListe.isEmpty()) {
+                .also { if (avdodeFraPesysVedtak.isEmpty()) {
                         logger.info("BrukerRinasaker total tid: ${System.currentTimeMillis()-start} i ms")
                     } else {
                         logger.info("GjenlevendeRinasakerVedtak total tid: ${System.currentTimeMillis()-start} i ms")
@@ -329,8 +324,6 @@ class BucController(
             val end = System.currentTimeMillis()
             logger.debug("Hent avdod fra vedtak tid: ${end-start} i ms") }
     }
-
-    private fun avdodRinasakerView(avdodfnr: String, aktoerid: String, sakNr: String) : List<BucView> =  euxInnhentingService.hentBucViewAvdod(avdodfnr, aktoerid, sakNr)
 
     @GetMapping("/rinasaker/{aktoerId}/saknr/{saknr}/avdod/{avdodfnr}")
     fun getAvdodRinaSak(

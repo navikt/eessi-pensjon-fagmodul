@@ -28,6 +28,10 @@ import org.springframework.web.server.ResponseStatusException
 @Service
 class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @Qualifier("fagmodulEuxKlient") private val euxKlient: EuxKlient) {
 
+    companion object { // TODO - finn et bedre sted
+        val bucTyperSomKanHaAvdod: List<BucType> = listOf(BucType.P_BUC_02, BucType.P_BUC_05, BucType.P_BUC_06, BucType.P_BUC_10)
+    }
+
     private val logger = LoggerFactory.getLogger(EuxInnhentingService::class.java)
 
     fun getBuc(euxCaseId: String): Buc {
@@ -272,10 +276,9 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
 
     fun hentBucViewAvdod(avdodFnr: String, aktoerId: String, pesysSaksnr: String): List<BucView> {
         val start = System.currentTimeMillis()
-        val validAvdodBucs = listOf("P_BUC_02", "P_BUC_05", "P_BUC_06", "P_BUC_10")
 
         return euxKlient.getRinasaker(avdodFnr, status = "\"open\"")
-            .filter { rinasak -> rinasak.processDefinitionId in validAvdodBucs }
+            .filter { rinasak -> rinasak.processDefinitionId in bucTyperSomKanHaAvdod.map { it.name } }
             .filter { erRelevantForVisningIEessiPensjon(it) }
             .map { rinasak ->
                 BucView(
