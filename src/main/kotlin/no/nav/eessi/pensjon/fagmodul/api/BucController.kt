@@ -109,7 +109,7 @@ class BucController(
         logger.debug("henter rinasaker på valgt aktoerid: $aktoerId")
 
         val norskIdent = innhentingService.hentFnrfraAktoerService(aktoerId)
-        val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraMetaData(aktoerId)
+        val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
 
         return euxInnhentingService.getRinasaker(norskIdent, rinaSakIderFraJoark)
     }
@@ -138,7 +138,7 @@ class BucController(
             val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerId)
 
             val joarkstart = System.currentTimeMillis()
-            val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraMetaData(aktoerId)  //rinasak
+            val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)  //rinasak
             logger.info("hentRinaSakIderFraMetaData tid: ${System.currentTimeMillis()-joarkstart} i ms")
             logger.debug("rinaSakIderFraJoark : ${rinaSakIderFraJoark.toJson()}")
 
@@ -175,7 +175,7 @@ class BucController(
             logger.info("henter rinasaker på valgt aktoerid: $aktoerId, på saknr: $pensjonSakNummer")
 
             val joarkstart = System.currentTimeMillis()
-            val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraMetaData(aktoerId)
+            val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
             logger.info("hentRinaSakIderFraMetaData tid: ${System.currentTimeMillis()-joarkstart} i ms")
             logger.debug("rinaSakIderFraJoark : ${rinaSakIderFraJoark.toJson()}")
 
@@ -243,7 +243,7 @@ class BucController(
             val joarkstart = System.currentTimeMillis()
 
             //brukersaker fra Joark/saf
-            val brukerRinaSakIderFraJoark = innhentingService.hentRinaSakIderFraMetaData(aktoerId)
+            val brukerRinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
             logger.info("hentRinaSakIderFraMetaData tid: ${System.currentTimeMillis()-joarkstart} i ms")
 
             //hent avdod saker fra eux/rina

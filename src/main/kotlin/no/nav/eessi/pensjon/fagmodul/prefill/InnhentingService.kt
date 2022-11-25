@@ -87,7 +87,7 @@ class InnhentingService(
 
     fun hentFnrfraAktoerService(aktoerid: String?): String = hentFnrfraAktoerIdfraPDL(aktoerid)
 
-    fun hentRinaSakIderFraMetaData(aktoerid: String): List<String> = vedleggService.hentRinaSakIderFraMetaData(aktoerid)
+    fun hentRinaSakIderFraJoarksMetadata(aktoerid: String): List<String> = vedleggService.hentRinaSakIderFraMetaData(aktoerid)
 
     fun hentPreutyltSed(apiRequest: ApiRequest): String = prefillKlient.hentPreutfyltSed(apiRequest)
 
