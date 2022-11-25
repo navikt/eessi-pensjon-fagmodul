@@ -98,7 +98,7 @@ internal class EuxInnhentingServiceTest {
 
         every { euxKlient.getBucJsonAsNavIdent(euxCaseId) } returns Buc(id = "3893690", processDefinitionName = "P_BUC_03", internationalId = INTERNATIONAL_ID).toJson()
 
-        val result = euxInnhentingService.getBucViewBruker(FNR, AKTOERID, SAKSNR)
+        val result = euxInnhentingService.hentBucViewBruker(FNR, AKTOERID, SAKSNR)
         assertEquals(1, result.size)
         assertEquals(BucView(euxCaseId=euxCaseId, buctype= BucType.P_BUC_02, aktoerId= AKTOERID, saknr= SAKSNR, avdodFnr=null, kilde=BucViewKilde.BRUKER, internationalId= INTERNATIONAL_ID), result[0])
     }
@@ -236,7 +236,7 @@ internal class EuxInnhentingServiceTest {
         val rinaSaker = listOf(Rinasak(rinasakid, "P_BUC_02", Traits(), "", Properties(), "open"))
         every { euxKlient.getRinasaker(eq(avdodFnr), any(), any(), eq( "\"open\"")) } returns rinaSaker
 
-        val actual = euxInnhentingService.getBucViewAvdod(avdodFnr, gjenlevendeFnr, rinasakid)
+        val actual = euxInnhentingService.hentBucViewAvdod(avdodFnr, gjenlevendeFnr, rinasakid)
 
         assertEquals(1, actual.size)
         assertEquals(rinasakid, actual.first().euxCaseId)

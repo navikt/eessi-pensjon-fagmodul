@@ -143,7 +143,7 @@ class BucController(
             logger.debug("rinaSakIderFraJoark : ${rinaSakIderFraJoark.toJson()}")
 
             //bruker saker fra eux/rina
-            val brukerView = euxInnhentingService.getBucViewBruker(gjenlevendeFnr, aktoerId, pensjonSakNummer)
+            val brukerView = euxInnhentingService.hentBucViewBruker(gjenlevendeFnr, aktoerId, pensjonSakNummer)
             logger.debug("brukerView : ${brukerView.toJson()}")
 
             //filtert bort brukersaker fra saf
@@ -213,7 +213,7 @@ class BucController(
             logger.info("henter rinasaker på valgt aktoerid: $aktoerId, på saknr")
             val fnr = innhentingService.hentFnrfraAktoerService(aktoerId)
 
-            val rinaSaker = euxInnhentingService.getBucViewBruker(fnr, aktoerId, pensjonSakNummer)
+            val rinaSaker = euxInnhentingService.hentBucViewBruker(fnr, aktoerId, pensjonSakNummer)
             logger.debug("brukerView : ${rinaSaker.toJson()}")
 
             //return med sort og distict (avdodfmr og caseid)
@@ -324,7 +324,7 @@ class BucController(
             logger.debug("Hent avdod fra vedtak tid: ${end-start} i ms") }
     }
 
-    private fun avdodRinasakerView(avdodfnr: String, aktoerid: String, sakNr: String) : List<BucView> =  euxInnhentingService.getBucViewAvdod(avdodfnr, aktoerid, sakNr)
+    private fun avdodRinasakerView(avdodfnr: String, aktoerid: String, sakNr: String) : List<BucView> =  euxInnhentingService.hentBucViewAvdod(avdodfnr, aktoerid, sakNr)
 
     @GetMapping("/rinasaker/{aktoerId}/saknr/{saknr}/avdod/{avdodfnr}")
     fun getAvdodRinaSak(
@@ -334,7 +334,7 @@ class BucController(
     ): List<BucView> {
         logger.info("Henter rinasaker på avdod: $aktoerId, saknr: $sakNr")
 
-        return euxInnhentingService.getBucViewAvdod(avdodfnr, aktoerId, sakNr)
+        return euxInnhentingService.hentBucViewAvdod(avdodfnr, aktoerId, sakNr)
 
     }
 

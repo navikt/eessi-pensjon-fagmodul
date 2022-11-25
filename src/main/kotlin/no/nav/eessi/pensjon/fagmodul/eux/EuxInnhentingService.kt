@@ -227,43 +227,34 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
     }
 
 
-    fun getBucViewBruker(fnr: String, aktoerId: String, sakNr: String): List<BucView> {
+    fun hentBucViewBruker(fnr: String, aktoerId: String, pesysSaksnr: String): List<BucView> {
         val start = System.currentTimeMillis()
-        val rinaSakerMedFnr = euxKlient.getRinasaker(fnr, status = "\"open\"")
 
-        val filteredRinaBruker = rinaSakerMedFnr
+        return euxKlient.getRinasaker(fnr, status = "\"open\"")
             .filter { erRelevantForVisningIEessiPensjon(it) }
-            .sortedBy(Rinasak::id)
-            .toList()
-            .also {
-                logger.info(" *** før: ${rinaSakerMedFnr.size} etter: ${it.size} *** FilteredArchivedaRinasakerSak")
+            .map { rinasak ->
+                val buc = getBuc(rinasak.id!!)
+                BucView(
+                    rinasak.id,
+                    BucType.from(rinasak.processDefinitionId)!!,
+                    aktoerId,
+                    pesysSaksnr,
+                    null,
+                    BucViewKilde.BRUKER,
+                    buc.internationalId
+                )
+            }.also {
+                val end = System.currentTimeMillis()
+                logger.info("hentBucViewBruker tid ${end - start} i ms")
             }
-        logger.info("rinaSaker total: ${filteredRinaBruker.size}")
-
-        return filteredRinaBruker.map { rinasak ->
-            val buc = getBuc(rinasak.id!!)
-            BucView(
-                rinasak.id,
-                BucType.from(rinasak.processDefinitionId)!!,
-                aktoerId,
-                sakNr,
-                null,
-                BucViewKilde.BRUKER,
-                buc.internationalId
-            )
-        }.also {
-            val end = System.currentTimeMillis()
-            logger.info("BucViewBruker tid ${end - start} i ms")
-        }
     }
 
     fun hentBucViews(aktoerId: String, pesysSaksnr: String, rinaSakIder: List<String>, rinaSakIdKilde: BucViewKilde): List<BucView> {
         val start = System.currentTimeMillis()
 
-        val rinaSaker = rinaSakIder
-            .map { id ->
-                getBuc(id)
-            }.map { buc ->
+        return rinaSakIder
+            .map { getBuc(it) }
+            .map { buc ->
                 Rinasak(
                     id = buc.id,
                     processDefinitionId = buc.processDefinitionName,
@@ -273,64 +264,45 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
                     status = "open",
                     internationalId = buc.internationalId
                 )
+            }.filter { erRelevantForVisningIEessiPensjon(it) }
+            .map { rinasak ->
+                BucView(
+                    rinasak.id!!,
+                    BucType.from(rinasak.processDefinitionId)!!,
+                    aktoerId,
+                    pesysSaksnr,
+                    null,
+                    rinaSakIdKilde,
+                    rinasak.internationalId
+                )
+            }.also {
+                val end = System.currentTimeMillis()
+                logger.info("hentBucViews tid: ${end - start} ms")
             }
-
-        val filteredRinasak = rinaSaker
-            .filter { erRelevantForVisningIEessiPensjon(it) }
-            .sortedBy(Rinasak::id)
-            .toList()
-            .also {
-                logger.info(" *** før: ${rinaSaker.size} etter: ${it.size} *** FilteredArchivedaRinasakerSak")
-            }
-
-        return filteredRinasak.map { rinasak ->
-            BucView(
-                rinasak.id!!,
-                BucType.from(rinasak.processDefinitionId)!!,
-                aktoerId,
-                pesysSaksnr,
-                null,
-                rinaSakIdKilde,
-                rinasak.internationalId
-            )
-        }.also {
-            val end = System.currentTimeMillis()
-            logger.info("getBucViews tid: ${end - start} ms")
-        }
-
     }
 
 
-    fun getBucViewAvdod(avdodFnr: String, aktoerId: String, sakNr: String): List<BucView> {
+    fun hentBucViewAvdod(avdodFnr: String, aktoerId: String, pesysSaksnr: String): List<BucView> {
         val start = System.currentTimeMillis()
         val validAvdodBucs = listOf("P_BUC_02", "P_BUC_05", "P_BUC_06", "P_BUC_10")
 
-        val rinaSakerMedAvdodFnr = euxKlient.getRinasaker(avdodFnr, status = "\"open\"")
+        return euxKlient.getRinasaker(avdodFnr, status = "\"open\"")
             .filter { rinasak -> rinasak.processDefinitionId in validAvdodBucs }
-
-        val filteredRinaIdAvdod = rinaSakerMedAvdodFnr
             .filter { erRelevantForVisningIEessiPensjon(it) }
-            .sortedBy(Rinasak::id)
-            .toList()
-            .also {
-                logger.info(" *** før: ${rinaSakerMedAvdodFnr.size} etter: ${it.size} *** FilteredArchivedaRinasakerSak")
+            .map { rinasak ->
+                BucView(
+                    rinasak.id!!,
+                    BucType.from(rinasak.processDefinitionId)!!,
+                    aktoerId,
+                    pesysSaksnr,
+                    avdodFnr,
+                    BucViewKilde.AVDOD,
+                    null
+                )
+            }.also {
+                val end = System.currentTimeMillis()
+                logger.info("hentBucViewAvdod tid ${end - start} i ms")
             }
-        logger.info("rinaSaker avdod total: ${filteredRinaIdAvdod.size}")
-
-        return filteredRinaIdAvdod.map { rinasak ->
-            BucView(
-                rinasak.id!!,
-                BucType.from(rinasak.processDefinitionId)!!,
-                aktoerId,
-                sakNr,
-                avdodFnr,
-                BucViewKilde.AVDOD,
-                null
-            )
-        }.also {
-            val end = System.currentTimeMillis()
-            logger.info("AvdodViewBruker tid ${end - start} i ms")
-        }
     }
 
     //** hente rinasaker fra RINA og SAF
