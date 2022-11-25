@@ -55,6 +55,7 @@ dependencies {
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonModuleKotlinVersion")
 
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4'
 
     // Logging
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashLogbackVersion")
