@@ -107,23 +107,26 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
         return euxKlient.getInstitutions(bucType, landkode)
     }
 
-    /**
-     * Returnerer en liste over rinasaker.
-     * Metoden velger kun pensjonsbucer samt noen få utvalgte spesialbucer EP aksepterer for visning.
-     * Filtrerer også vekk umigrerte og arkiverte saker
-     */
     fun getFilteredRinasakerSaker(list: List<Rinasak>): List<Rinasak> {
-        val gyldigeBucs = ValidBucAndSed.pensjonsBucer() + mutableListOf("H_BUC_07", "R_BUC_01", "R_BUC_02", "M_BUC_02", "M_BUC_03a", "M_BUC_03b")
-        return list.asSequence()
-                .filterNot { rinasak -> rinasak.status == "archived" }
-                .filter { rinasak -> rinasak.processDefinitionId in gyldigeBucs }
-                .sortedBy { rinasak -> rinasak.id }
-                .filterNot { MissingBuc.checkForMissingBuc(it.id!!) }
+        return list
+                .filter { erRelevantForVisningIEessiPensjon(it) }
+                .sortedBy(Rinasak::id)
                 .toList()
                 .also {
                     logger.info(" *** før: ${list.size} etter: ${it.size} *** FilteredArchivedaRinasakerSak")
                 }
     }
+
+    /**
+     * Sjekker om rinasak er relevant for visning i EP
+     */
+    fun erRelevantForVisningIEessiPensjon(rinasak: Rinasak) =
+        rinasak.status != "archived"
+                && rinasak.processDefinitionId in relevanteBucTyperForVisningIEessiPensjon()
+                && !MissingBuc.checkForMissingBuc(rinasak.id!!)
+
+    private fun relevanteBucTyperForVisningIEessiPensjon() =
+        ValidBucAndSed.pensjonsBucer() + mutableListOf("H_BUC_07", "R_BUC_01", "R_BUC_02", "M_BUC_02", "M_BUC_03a", "M_BUC_03b")
 
     fun getBucDeltakere(euxCaseId: String): List<ParticipantsItem> {
         return euxKlient.getBucDeltakere(euxCaseId)
@@ -263,7 +266,8 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
 
         val rinaSaker = rinaSakIder
             .map { id ->
-                val buc = getBuc(id)
+                getBuc(id)
+            }.map { buc ->
                 Rinasak(id = buc.id, processDefinitionId = buc.processDefinitionName, traits = null, applicationRoleId = null, properties = null, status = "open", internationalId = buc.internationalId)
             }
 
