@@ -233,15 +233,13 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
         return euxKlient.getRinasaker(fnr, status = "\"open\"")
             .filter { erRelevantForVisningIEessiPensjon(it) }
             .map { rinasak ->
-                val buc = getBuc(rinasak.id!!)
                 BucView(
-                    rinasak.id,
+                    rinasak.id!!,
                     BucType.from(rinasak.processDefinitionId)!!,
                     aktoerId,
                     pesysSaksnr,
                     null,
-                    BucViewKilde.BRUKER,
-                    buc.internationalId
+                    BucViewKilde.BRUKER
                 )
             }.also {
                 val end = System.currentTimeMillis()
@@ -261,8 +259,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
                     traits = null,
                     applicationRoleId = null,
                     properties = null,
-                    status = "open",
-                    internationalId = buc.internationalId
+                    status = "open"
                 )
             }.filter { erRelevantForVisningIEessiPensjon(it) }
             .map { rinasak ->
@@ -272,8 +269,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
                     aktoerId,
                     pesysSaksnr,
                     null,
-                    rinaSakIdKilde,
-                    rinasak.internationalId
+                    rinaSakIdKilde
                 )
             }.also {
                 val end = System.currentTimeMillis()
@@ -296,8 +292,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
                     aktoerId,
                     pesysSaksnr,
                     avdodFnr,
-                    BucViewKilde.AVDOD,
-                    null
+                    BucViewKilde.AVDOD
                 )
             }.also {
                 val end = System.currentTimeMillis()

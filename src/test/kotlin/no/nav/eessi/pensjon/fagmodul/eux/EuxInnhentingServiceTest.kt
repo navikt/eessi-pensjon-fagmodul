@@ -96,11 +96,11 @@ internal class EuxInnhentingServiceTest {
         val rinaSaker = listOf(Rinasak(euxCaseId, BucType.P_BUC_02.name, Traits(), "", Properties(), "open"))
         every { euxKlient.getRinasaker(eq(FNR), any(), any(), eq( "\"open\"")) } returns rinaSaker
 
-        every { euxKlient.getBucJsonAsNavIdent(euxCaseId) } returns Buc(id = "3893690", processDefinitionName = "P_BUC_03", internationalId = INTERNATIONAL_ID).toJson()
+        every { euxKlient.getBucJsonAsNavIdent(euxCaseId) } returns Buc(id = "3893690", processDefinitionName = "P_BUC_03").toJson()
 
         val result = euxInnhentingService.hentBucViewBruker(FNR, AKTOERID, SAKSNR)
         assertEquals(1, result.size)
-        assertEquals(BucView(euxCaseId=euxCaseId, buctype= BucType.P_BUC_02, aktoerId= AKTOERID, saknr= SAKSNR, avdodFnr=null, kilde=BucViewKilde.BRUKER, internationalId= INTERNATIONAL_ID), result[0])
+        assertEquals(BucView(euxCaseId=euxCaseId, buctype= BucType.P_BUC_02, aktoerId= AKTOERID, saknr= SAKSNR, avdodFnr=null, kilde=BucViewKilde.BRUKER), result[0])
     }
 
     @Test
@@ -111,7 +111,7 @@ internal class EuxInnhentingServiceTest {
 
         val result = euxInnhentingService.hentBucViews(AKTOERID, SAKSNR, listOf(euxCaseId), BucViewKilde.SAF)
         assertEquals(1, result.size)
-        assertEquals(BucView(euxCaseId=euxCaseId, buctype= BucType.P_BUC_02, aktoerId= AKTOERID, saknr= SAKSNR, avdodFnr=null, kilde=BucViewKilde.SAF, internationalId= INTERNATIONAL_ID), result[0])
+        assertEquals(BucView(euxCaseId=euxCaseId, buctype= BucType.P_BUC_02, aktoerId= AKTOERID, saknr= SAKSNR, avdodFnr=null, kilde=BucViewKilde.SAF), result[0])
     }
 
     @Test
@@ -172,32 +172,32 @@ internal class EuxInnhentingServiceTest {
 
     @Test
     fun `Test filter list av rinasak ta bort elementer av archived`() {
-        assertTrue(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("723", "P_BUC_01", null, "PO", null, "open", null)))
-        assertTrue(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("2123", "P_BUC_03", null, "PO", null, "open", null)))
-        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("423", "H_BUC_01", null, "PO", null, "archived", null)))
-        assertTrue(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("234", "P_BUC_06", null, "PO", null, "closed", null)))
-        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("8423", "P_BUC_07", null, "PO", null, "archived", null)))
+        assertTrue(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("723", "P_BUC_01", null, "PO", null, "open")))
+        assertTrue(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("2123", "P_BUC_03", null, "PO", null, "open")))
+        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("423", "H_BUC_01", null, "PO", null, "archived")))
+        assertTrue(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("234", "P_BUC_06", null, "PO", null, "closed")))
+        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("8423", "P_BUC_07", null, "PO", null, "archived")))
     }
 
     @Test
     fun `Test filter list av rinasak ta bort elementer av archived og ugyldige buc`() {
-        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("723", "FP_BUC_01", null, "PO", null, "open", null)))
-        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("2123", "H_BUC_02", null, "PO", null, "open", null)))
-        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("423", "P_BUC_01", null, "PO", null, "archived", null)))
-        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("234", "FF_BUC_01", null, "PO", null, "closed", null)))
-        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("8423", "FF_BUC_01", null, "PO", null, "archived", null)))
-        assertTrue(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("8223", "H_BUC_07", null, "PO", null, "open", null)))
+        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("723", "FP_BUC_01", null, "PO", null, "open")))
+        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("2123", "H_BUC_02", null, "PO", null, "open")))
+        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("423", "P_BUC_01", null, "PO", null, "archived")))
+        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("234", "FF_BUC_01", null, "PO", null, "closed")))
+        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("8423", "FF_BUC_01", null, "PO", null, "archived")))
+        assertTrue(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("8223", "H_BUC_07", null, "PO", null, "open")))
     }
 
     @Test
     fun `Test filter list av rinasak ta bort elementer av archived og ugyldige buc samt spesielle a og b bucer`() {
-        assertTrue(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("723", "M_BUC_03a", null, "PO", null, "open", null)))
-        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("2123", "H_BUC_02", null, "PO", null, "open", null)))
-        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("423", "P_BUC_01", null, "PO", null, "archived", null)))
-        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("234", "FF_BUC_01", null, "PO", null, "closed", null)))
-        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("8423", "M_BUC_02", null, "PO", null, "archived", null)))
-        assertTrue(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("8223", "M_BUC_03b", null, "PO", null, "open", null)))
-        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("6006777", "P_BUC_01", null, "PO", null, "open", null)))
+        assertTrue(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("723", "M_BUC_03a", null, "PO", null, "open")))
+        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("2123", "H_BUC_02", null, "PO", null, "open")))
+        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("423", "P_BUC_01", null, "PO", null, "archived")))
+        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("234", "FF_BUC_01", null, "PO", null, "closed")))
+        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("8423", "M_BUC_02", null, "PO", null, "archived")))
+        assertTrue(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("8223", "M_BUC_03b", null, "PO", null, "open")))
+        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("6006777", "P_BUC_01", null, "PO", null, "open")))
     }
 
     @Test

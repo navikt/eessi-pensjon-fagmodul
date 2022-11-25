@@ -17,8 +17,7 @@ class Rinasak(
         val traits: Traits? = null,
         val applicationRoleId: String? = null,
         val properties: Properties? = null,
-        val status: String? = null,
-        val internationalId: String? = null
+        val status: String? = null
 )
 
 class Properties(
@@ -43,8 +42,7 @@ data class BucView(
         val aktoerId: String,
         val saknr: String,
         val avdodFnr: String? = null,
-        val kilde: BucViewKilde,
-        val internationalId: String? = null
+        val kilde: BucViewKilde
 )
 
 enum class BucViewKilde{
