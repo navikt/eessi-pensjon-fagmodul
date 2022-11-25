@@ -107,16 +107,6 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
         return euxKlient.getInstitutions(bucType, landkode)
     }
 
-    fun getFilteredRinasakerSaker(list: List<Rinasak>): List<Rinasak> {
-        return list
-                .filter { erRelevantForVisningIEessiPensjon(it) }
-                .sortedBy(Rinasak::id)
-                .toList()
-                .also {
-                    logger.info(" *** før: ${list.size} etter: ${it.size} *** FilteredArchivedaRinasakerSak")
-                }
-    }
-
     /**
      * Sjekker om rinasak er relevant for visning i EP
      */
@@ -241,23 +231,29 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
         val start = System.currentTimeMillis()
         val rinaSakerMedFnr = euxKlient.getRinasaker(fnr, status = "\"open\"")
 
-        val filteredRinaBruker = getFilteredRinasakerSaker(rinaSakerMedFnr)
+        val filteredRinaBruker = rinaSakerMedFnr
+            .filter { erRelevantForVisningIEessiPensjon(it) }
+            .sortedBy(Rinasak::id)
+            .toList()
+            .also {
+                logger.info(" *** før: ${rinaSakerMedFnr.size} etter: ${it.size} *** FilteredArchivedaRinasakerSak")
+            }
         logger.info("rinaSaker total: ${filteredRinaBruker.size}")
 
         return filteredRinaBruker.map { rinasak ->
             val buc = getBuc(rinasak.id!!)
             BucView(
-                    rinasak.id,
-                    BucType.from(rinasak.processDefinitionId)!!,
-                    aktoerId,
-                    sakNr,
-                    null,
-                    BucViewKilde.BRUKER,
-                    buc.internationalId
+                rinasak.id,
+                BucType.from(rinasak.processDefinitionId)!!,
+                aktoerId,
+                sakNr,
+                null,
+                BucViewKilde.BRUKER,
+                buc.internationalId
             )
         }.also {
             val end = System.currentTimeMillis()
-            logger.info("BucViewBruker tid ${end-start} i ms")
+            logger.info("BucViewBruker tid ${end - start} i ms")
         }
     }
 
@@ -268,24 +264,38 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
             .map { id ->
                 getBuc(id)
             }.map { buc ->
-                Rinasak(id = buc.id, processDefinitionId = buc.processDefinitionName, traits = null, applicationRoleId = null, properties = null, status = "open", internationalId = buc.internationalId)
+                Rinasak(
+                    id = buc.id,
+                    processDefinitionId = buc.processDefinitionName,
+                    traits = null,
+                    applicationRoleId = null,
+                    properties = null,
+                    status = "open",
+                    internationalId = buc.internationalId
+                )
             }
 
-        val filteredRinasak = getFilteredRinasakerSaker(rinaSaker)
+        val filteredRinasak = rinaSaker
+            .filter { erRelevantForVisningIEessiPensjon(it) }
+            .sortedBy(Rinasak::id)
+            .toList()
+            .also {
+                logger.info(" *** før: ${rinaSaker.size} etter: ${it.size} *** FilteredArchivedaRinasakerSak")
+            }
 
         return filteredRinasak.map { rinasak ->
             BucView(
-                    rinasak.id!!,
-                    BucType.from(rinasak.processDefinitionId)!!,
-                    aktoerId,
-                    pesysSaksnr,
-                    null,
-                    rinaSakIdKilde,
-                    rinasak.internationalId
+                rinasak.id!!,
+                BucType.from(rinasak.processDefinitionId)!!,
+                aktoerId,
+                pesysSaksnr,
+                null,
+                rinaSakIdKilde,
+                rinasak.internationalId
             )
         }.also {
             val end = System.currentTimeMillis()
-            logger.info("getBucViews tid: ${end-start} ms")
+            logger.info("getBucViews tid: ${end - start} ms")
         }
 
     }
@@ -295,25 +305,31 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
         val start = System.currentTimeMillis()
         val validAvdodBucs = listOf("P_BUC_02", "P_BUC_05", "P_BUC_06", "P_BUC_10")
 
-        val rinaSakerMedAvdodFnr =  euxKlient.getRinasaker(avdodFnr, status = "\"open\"")
+        val rinaSakerMedAvdodFnr = euxKlient.getRinasaker(avdodFnr, status = "\"open\"")
             .filter { rinasak -> rinasak.processDefinitionId in validAvdodBucs }
 
-        val filteredRinaIdAvdod = getFilteredRinasakerSaker(rinaSakerMedAvdodFnr)
+        val filteredRinaIdAvdod = rinaSakerMedAvdodFnr
+            .filter { erRelevantForVisningIEessiPensjon(it) }
+            .sortedBy(Rinasak::id)
+            .toList()
+            .also {
+                logger.info(" *** før: ${rinaSakerMedAvdodFnr.size} etter: ${it.size} *** FilteredArchivedaRinasakerSak")
+            }
         logger.info("rinaSaker avdod total: ${filteredRinaIdAvdod.size}")
 
         return filteredRinaIdAvdod.map { rinasak ->
             BucView(
-                    rinasak.id!!,
-                    BucType.from(rinasak.processDefinitionId)!!,
-                    aktoerId,
-                    sakNr,
-                    avdodFnr,
-                    BucViewKilde.AVDOD,
-                    null
+                rinasak.id!!,
+                BucType.from(rinasak.processDefinitionId)!!,
+                aktoerId,
+                sakNr,
+                avdodFnr,
+                BucViewKilde.AVDOD,
+                null
             )
         }.also {
             val end = System.currentTimeMillis()
-            logger.info("AvdodViewBruker tid ${end-start} i ms")
+            logger.info("AvdodViewBruker tid ${end - start} i ms")
         }
     }
 
