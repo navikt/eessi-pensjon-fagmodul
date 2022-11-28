@@ -68,7 +68,7 @@ no.nav.security.jwt:
           client-auth-method: private_key_jwt
 
 
-METRICS_REQUESTFILTER_ENABLE: false
+METRICS_REQUESTFILTER_ENABLE: true
 
 management:
   endpoints:

@@ -1,9 +1,11 @@
 package no.nav.eessi.pensjon.fagmodul.config
 
+import io.micrometer.core.instrument.MeterRegistry
 import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
 import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
 import no.nav.eessi.pensjon.logging.RequestIdHeaderInterceptor
 import no.nav.eessi.pensjon.logging.RequestResponseLoggerInterceptor
+import no.nav.eessi.pensjon.metrics.RequestCountInterceptor
 import no.nav.eessi.pensjon.utils.getClaims
 import no.nav.eessi.pensjon.utils.getToken
 import no.nav.security.token.support.client.core.ClientProperties
@@ -29,11 +31,12 @@ import java.time.Duration
 @Configuration
 @Profile("prod", "test")
 class RestTemplateConfig(
-    @Value("\${ENV}") private val environment: String,
-    private val clientConfigurationProperties: ClientConfigurationProperties,
-    private val oAuth2AccessTokenService: OAuth2AccessTokenService,
-    private val tokenValidationContextHolder: TokenValidationContextHolder
-    ) {
+        @Value("\${ENV}") private val environment: String,
+        private val clientConfigurationProperties: ClientConfigurationProperties,
+        private val oAuth2AccessTokenService: OAuth2AccessTokenService,
+        private val tokenValidationContextHolder: TokenValidationContextHolder,
+        private val meterRegistry: MeterRegistry,
+        ) {
 
     private val logger = LoggerFactory.getLogger(RestTemplateConfig::class.java)
 
@@ -94,6 +97,7 @@ class RestTemplateConfig(
             .setConnectTimeout(Duration.ofSeconds(120))
             .additionalInterceptors(
                 RequestIdHeaderInterceptor(),
+                RequestCountInterceptor(meterRegistry),
                 RequestResponseLoggerInterceptor(),
                 tokenIntercetor
             )
