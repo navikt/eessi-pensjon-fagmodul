@@ -127,7 +127,7 @@ class BucController(
         }
     }
 
-    @Deprecated("Utgår til fordel for url A og url B")
+    @Deprecated("Utgår til fordel for hentBucerMedJournalforteSeder og getRinasakerFraRina")
     @GetMapping("/rinasaker/{aktoerId}/saknr/{saknr}")
     fun getRinasakerBrukerkontekst(
         @PathVariable("aktoerId", required = true) aktoerId: String,
