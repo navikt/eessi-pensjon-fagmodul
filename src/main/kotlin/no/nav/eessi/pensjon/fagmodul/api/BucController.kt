@@ -42,6 +42,7 @@ class BucController(
     private lateinit var bucViewForVedtak: MetricsHelper.Metric
     private lateinit var bucView: MetricsHelper.Metric
     private lateinit var bucViewJoark: MetricsHelper.Metric
+    private lateinit var bucerJoark: MetricsHelper.Metric
     private lateinit var bucViewRina: MetricsHelper.Metric
 
     @PostConstruct
@@ -55,6 +56,7 @@ class BucController(
         bucViewForVedtak = metricsHelper.init("bucViewForVedtak", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         bucView = metricsHelper.init("BucView", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         bucViewJoark = metricsHelper.init("BucViewJoark", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
+        bucerJoark = metricsHelper.init("BucerJoark", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         bucViewRina = metricsHelper.init("BucViewRina", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
     }
 
@@ -172,6 +174,7 @@ class BucController(
     /**
      * Rina-saker der det finnes journalførte dokumenter
      */
+    @Deprecated("Bruk hentBucerMedJournalforteSeder()")
     @GetMapping("/rinasaker/joark/{aktoerId}/pesyssak/{saknr}")
     fun getRinasakerJoark(
             @PathVariable("aktoerId", required = true) aktoerId: String,
@@ -201,6 +204,41 @@ class BucController(
                     .also {
                         logger.info("Total view size: ${it.size}")
                         logger.info("BrukerRinasaker total tid: ${System.currentTimeMillis()-start} i ms")
+                    }
+        }
+    }
+
+    /**
+     * Liste med buc'er for aktør & pesys-sakssnr - som det finnes journalførte dokumenter på
+     */
+    @GetMapping("/joark/aktoer/{aktoerId}/pesyssak/{saknr}")
+    fun hentBucerMedJournalforteSeder(
+            @PathVariable("aktoerId", required = true) aktoerId: String,
+            @PathVariable("saknr", required = false) pensjonSakNummer: String
+    ): List<Buc> {
+        return bucerJoark.measure {
+            val start = System.currentTimeMillis()
+
+            logger.info("henter journalførte bucer for valgt aktoerid: $aktoerId, på saknr: $pensjonSakNummer")
+
+            val joarkstart = System.currentTimeMillis()
+            val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
+            logger.debug("rinaSakIderFraJoark : ${rinaSakIderFraJoark.toJson()}")
+            logger.info("hentBucerMedJournalforteSeder tid: ${System.currentTimeMillis()-joarkstart} i ms")
+
+            //saker fra saf og eux/rina
+            val bucer = euxInnhentingService.hentBucer(
+                aktoerId,
+                pensjonSakNummer,
+                rinaSakIderFraJoark
+            )
+            logger.debug("bucer : ${bucer.toJson()}")
+
+            //return med sort og distict (avdodfmr og caseid)
+            return@measure bucer
+                    .also {
+                        logger.info("Buc count: ${it.size}")
+                        logger.info("hentBucerMedJournalforteSeder: buc count: ${it.size} - total tid: ${System.currentTimeMillis()-start} ms")
                     }
         }
     }

@@ -270,6 +270,19 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
             }
     }
 
+fun hentBucer(aktoerId: String, pesysSaksnr: String, rinaSakIder: List<String>): List<Buc> {
+        val start = System.currentTimeMillis()
+
+        return rinaSakIder
+            .map { getBuc(it) }
+            .filter { it.processDefinitionName in relevanteBucTyperForVisningIEessiPensjon() }
+            .filter { !MissingBuc.checkForMissingBuc(it.id!!) }
+            .also {
+                val end = System.currentTimeMillis()
+                logger.info("hentBucer tid: ${end - start} ms")
+            }
+    }
+
 
     fun hentBucViewAvdod(avdodFnr: String, aktoerId: String, pesysSaksnr: String): List<BucView> {
         val start = System.currentTimeMillis()
