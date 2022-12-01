@@ -6,6 +6,7 @@ import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
 import no.nav.eessi.pensjon.logging.RequestIdHeaderInterceptor
 import no.nav.eessi.pensjon.logging.RequestResponseLoggerInterceptor
 import no.nav.eessi.pensjon.metrics.RequestCountInterceptor
+import no.nav.eessi.pensjon.shared.retry.IOExceptionRetryInterceptor
 import no.nav.eessi.pensjon.utils.getClaims
 import no.nav.eessi.pensjon.utils.getToken
 import no.nav.security.token.support.client.core.ClientProperties
@@ -97,6 +98,7 @@ class RestTemplateConfig(
             .setConnectTimeout(Duration.ofSeconds(120))
             .additionalInterceptors(
                 RequestIdHeaderInterceptor(),
+                IOExceptionRetryInterceptor(),
                 RequestCountInterceptor(meterRegistry),
                 RequestResponseLoggerInterceptor(),
                 tokenIntercetor
