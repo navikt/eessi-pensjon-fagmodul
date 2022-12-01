@@ -20,7 +20,7 @@ RINA_HOST_URL: 'http://example.com:8089'
 pensjonsinformasjon:
   url: 'http://example.com:8099'
 
-METRICS_REQUESTFILTER_ENABLE: false
+METRICS_REQUESTFILTER_ENABLE: true
 
 EESSIPENSJON_PREFILL_URL: 'http://example.com:8099'
 EESSIPENSJON_PREFILL_GCP_URL: 'http://example.com:8099'
