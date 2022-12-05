@@ -6,7 +6,10 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
-import no.nav.eessi.pensjon.eux.model.SedType
+import no.nav.eessi.pensjon.eux.model.SedType.P2000
+import no.nav.eessi.pensjon.eux.model.SedType.P2200
+import no.nav.eessi.pensjon.eux.model.buc.BucType.P_BUC_01
+import no.nav.eessi.pensjon.eux.model.buc.BucType.P_BUC_03
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.fagmodul.eux.EuxTestUtils.Companion.dummyRequirement
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Organisation
@@ -32,6 +35,9 @@ import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
 import kotlin.String
+
+private const val P_BUC_99 = "P_BUC_99"
+private const val NAVT02 = "NO:NAVT02"
 
 class EuxKlientTest {
 
@@ -75,7 +81,7 @@ class EuxKlientTest {
 
         every { mockEuxrestTemplate.exchange(any<String>(), HttpMethod.GET, null, String::class.java) } returns response
 
-        val result = klient.getBucJsonAsNavIdent("P_BUC_99")
+        val result = klient.getBucJsonAsNavIdent(P_BUC_99)
         assertEquals(json, result)
     }
 
@@ -111,7 +117,7 @@ class EuxKlientTest {
         every { mockEuxrestTemplate.exchange( any<String>(), HttpMethod.GET, null, String::class.java) } throws HttpClientErrorException(HttpStatus.UNAUTHORIZED)
 
         assertThrows<RinaIkkeAutorisertBrukerException> {
-            klient.getBucJsonAsNavIdent("P_BUC_99")
+            klient.getBucJsonAsNavIdent(P_BUC_99)
         }
     }
 
@@ -119,7 +125,7 @@ class EuxKlientTest {
     fun `Calling EuxService feiler med en FORBIDDEN Exception fra kall til hentbuc`() {
         every { mockEuxrestTemplate.exchange( any<String>(), HttpMethod.GET, null, String::class.java) } throws createDummyClientRestExecption(HttpStatus.FORBIDDEN, "Gateway body dummy timeout")
         assertThrows<ForbiddenException> {
-            klient.getBucJsonAsNavIdent("P_BUC_99")
+            klient.getBucJsonAsNavIdent(P_BUC_99)
         }
     }
 
@@ -128,7 +134,7 @@ class EuxKlientTest {
         every { mockEuxrestTemplate.exchange( any<String>(), HttpMethod.GET, null, String::class.java) } throws createDummyClientRestExecption(HttpStatus.NOT_FOUND, "Gateway body dummy timeout")
 
         assertThrows<IkkeFunnetException> {
-            klient.getBucJsonAsNavIdent("P_BUC_99")
+            klient.getBucJsonAsNavIdent(P_BUC_99)
         }
     }
 
@@ -137,7 +143,7 @@ class EuxKlientTest {
         every { mockEuxrestTemplate.exchange( any<String>(), HttpMethod.GET, null, String::class.java) } throws createDummyClientRestExecption(HttpStatus.UNPROCESSABLE_ENTITY, "unprocesable dummy timeout")
 
         assertThrows<GenericUnprocessableEntity> {
-            klient.getBucJsonAsNavIdent("P_BUC_99")
+            klient.getBucJsonAsNavIdent(P_BUC_99)
         }
     }
 
@@ -145,7 +151,7 @@ class EuxKlientTest {
     fun `Calling EuxService kaster en GATEWAY_TIMEOUT Exception ved kall til hentbuc`() {
         every { mockEuxrestTemplate.exchange( any<String>(), HttpMethod.GET, null, String::class.java) } throws createDummyServerRestExecption(HttpStatus.GATEWAY_TIMEOUT, "Gateway body dummy timeout")
         assertThrows<GatewayTimeoutException> {
-            klient.getBucJsonAsNavIdent("P_BUC_99")
+            klient.getBucJsonAsNavIdent(P_BUC_99)
         }
     }
 
@@ -154,7 +160,7 @@ class EuxKlientTest {
         every { mockEuxrestTemplate.exchange( any<String>(), HttpMethod.GET, null, String::class.java) } throws RuntimeException(HttpStatus.I_AM_A_TEAPOT.name)
 
         assertThrows<ServerException> {
-            klient.getBucJsonAsNavIdent("P_BUC_99")
+            klient.getBucJsonAsNavIdent(P_BUC_99)
         }
     }
 
@@ -163,7 +169,7 @@ class EuxKlientTest {
         every { mockEuxrestTemplate.exchange( any<String>(), HttpMethod.GET, null, String::class.java) } throws createDummyClientRestExecption(HttpStatus.NOT_FOUND,"Dummy body for Not Found exception")
 
         assertThrows<IkkeFunnetException> {
-            klient.getBucJsonAsNavIdent("P_BUC_99")
+            klient.getBucJsonAsNavIdent(P_BUC_99)
         }
     }
 
@@ -224,7 +230,7 @@ class EuxKlientTest {
         val data = klient.getRinasaker(euxCaseId = "123123", status = "open")
 
         assertEquals("9002480", data.first().traits?.caseId)
-        assertEquals("P_BUC_03", data.first().traits?.flowType)
+        assertEquals(P_BUC_03.name, data.first().traits?.flowType)
 
     }
 
@@ -245,7 +251,7 @@ class EuxKlientTest {
 
         every {  mockEuxrestTemplate.exchange(any<String>(),HttpMethod.POST,null, String::class.java)} returns response
 
-        val result = klient.createBuc("P_BUC_01")
+        val result = klient.createBuc(P_BUC_01.name)
         assertEquals(mockBuc, result)
     }
 
@@ -254,7 +260,7 @@ class EuxKlientTest {
         every {  mockEuxrestTemplate.exchange(any<String>(),HttpMethod.POST,null, String::class.java)} throws  ResourceAccessException("I/O error")
 
         assertThrows<ServerException> {
-            klient.createBuc("P_BUC_01")
+            klient.createBuc(P_BUC_01.name)
         }
     }
 
@@ -264,7 +270,7 @@ class EuxKlientTest {
         every {  mockEuxrestTemplate.exchange(any<String>(),HttpMethod.POST,null, String::class.java)} throws  clientError
 
         assertThrows<RinaIkkeAutorisertBrukerException> {
-            klient.createBuc("P_BUC_01")
+            klient.createBuc(P_BUC_01.name)
         }
 
     }
@@ -277,7 +283,7 @@ class EuxKlientTest {
         every {  mockEuxrestTemplate.exchange(any<String>(),HttpMethod.POST,null, String::class.java)} throws  serverError
 
         assertThrows<EuxRinaServerException> {
-            klient.createBuc("P_BUC_01")
+            klient.createBuc(P_BUC_01.name)
         }
     }
 
@@ -303,17 +309,16 @@ class EuxKlientTest {
         every {  mockEuxrestTemplate.exchange(any<String>(),HttpMethod.PUT,null, String::class.java)} throws createDummyServerRestExecption(HttpStatus.INTERNAL_SERVER_ERROR,"Dummy Internal Server Error body")
 
         assertThrows<EuxRinaServerException> {
-            klient.putBucMottakere("122732", listOf("NO:NAVT02"))
+            klient.putBucMottakere("122732", listOf(NAVT02))
         }
     }
-
 
     @Test
     fun putBucDeltager_ResourceAccessError() {
         every {  mockEuxrestTemplate.exchange(any<String>(),HttpMethod.PUT,null, String::class.java)} throws ResourceAccessException("Other unknown Error")
 
         assertThrows<ServerException> {
-            klient.putBucMottakere("122732", listOf("NO:NAVT02"))
+            klient.putBucMottakere("122732", listOf(NAVT02))
         }
     }
 
@@ -322,7 +327,7 @@ class EuxKlientTest {
         every {  mockEuxrestTemplate.exchange(any<String>(),HttpMethod.PUT,null, String::class.java)} throws ResourceAccessException("Error")
 
         assertThrows<RuntimeException> {
-            klient.putBucMottakere("122732", listOf("NO:NAVT02"))
+            klient.putBucMottakere("122732", listOf(NAVT02))
         }
     }
 
@@ -364,13 +369,12 @@ class EuxKlientTest {
         every {  mockEuxrestTemplate.exchange(any<String>(),HttpMethod.GET,null, String::class.java)} returns response
 
         val expected = 239
-        val actual = klient.getInstitutions("P_BUC_01")
+        val actual = klient.getInstitutions(P_BUC_01.name)
 
         assertEquals(expected, actual.size)
 
-        val actual2 = klient.getInstitutions("P_BUC_01")
+        val actual2 = klient.getInstitutions(P_BUC_01.name)
         assertEquals(expected, actual2.size)
-
 
     }
 
@@ -381,7 +385,7 @@ class EuxKlientTest {
 
         every {  mockEuxrestTemplate.exchange(any<String>(),HttpMethod.GET,null, String::class.java)} returns response
 
-        val actual = klient.getInstitutions("P_BUC_03")
+        val actual = klient.getInstitutions(P_BUC_03.name)
         assertEquals(215, actual.size)
 
         val result = actual.filter { it.institution == "PL:PL390050ER" }.map { it }
@@ -395,7 +399,7 @@ class EuxKlientTest {
 
 
         assertThrows<GenericUnprocessableEntity> {
-            klient.getSedOnBucByDocumentIdAsJson("12345678900", "P_BUC_99")
+            klient.getSedOnBucByDocumentIdAsJson("12345678900", P_BUC_99)
         }
     }
 
@@ -405,7 +409,7 @@ class EuxKlientTest {
 
         every { mockEuxrestTemplate.exchange(any<String>(), HttpMethod.GET, null, String::class.java) } returns errorresponse
         assertThrows<SedDokumentIkkeLestException> {
-            klient.getSedOnBucByDocumentIdAsJson("12345678900", "P_BUC_99")
+            klient.getSedOnBucByDocumentIdAsJson("12345678900", P_BUC_99)
         }
     }
 
@@ -415,7 +419,7 @@ class EuxKlientTest {
 
         every { mockEuxrestTemplate.postForEntity("/buc/123456/sed?ventePaAksjon=false", any(),String::class.java) } returns response
         val result = klient.opprettSed(
-                SED(SedType.P2000).toJsonSkipEmpty(),
+                SED(P2000).toJsonSkipEmpty(),
                 "123456",
                 MetricsHelper.ForTest().init("dummy"),
                 "Feil ved opprettSed")
@@ -429,7 +433,7 @@ class EuxKlientTest {
         every { mockEuxrestTemplate.postForEntity( eq("/buc/1231233/sed?ventePaAksjon=false"), any(), String::class.java) } throws createDummyClientRestExecption(HttpStatus.BAD_REQUEST, "Dummy clent error")
         assertThrows<GenericUnprocessableEntity> {
             klient.opprettSed(
-                SED(SedType.P2200).toJsonSkipEmpty(),
+                SED(P2200).toJsonSkipEmpty(),
                 "1231233",
                 MetricsHelper.ForTest().init("dummy"),
                 "Feil ved opprettSed"
@@ -442,7 +446,7 @@ class EuxKlientTest {
         every { mockEuxrestTemplate.postForEntity( eq("/buc/213123/sed?ventePaAksjon=false"), any(), String::class.java) } throws createDummyServerRestExecption(HttpStatus.GATEWAY_TIMEOUT, "Dummy body")
         assertThrows<GatewayTimeoutException> {
             klient.opprettSed(
-                SED(SedType.P2000).toJsonSkipEmpty(),
+                SED(P2000).toJsonSkipEmpty(),
                 "213123",
                 MetricsHelper.ForTest().init("dummy"),
                 "Feil ved opprettSed"
@@ -455,7 +459,7 @@ class EuxKlientTest {
         val response: ResponseEntity<String> = ResponseEntity("323413415dfvsdfgq343145sdfsdfg34135", HttpStatus.OK)
         every { mockEuxrestTemplate.postForEntity(any<String>(), any(), String::class.java) } returns response
         val result = klient.opprettSvarSed(
-            SED(SedType.P2000).toJsonSkipEmpty(),
+            SED(P2000).toJsonSkipEmpty(),
             "123456",
             "11111",
             "Feil ved opprettSed",

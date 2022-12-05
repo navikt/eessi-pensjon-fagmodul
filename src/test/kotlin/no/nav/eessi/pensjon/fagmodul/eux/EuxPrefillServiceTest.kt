@@ -3,7 +3,7 @@ package no.nav.eessi.pensjon.fagmodul.eux
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
-import no.nav.eessi.pensjon.eux.model.SedType
+import no.nav.eessi.pensjon.eux.model.SedType.P2000
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.services.statistikk.StatistikkHandler
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -41,7 +41,7 @@ class EuxPrefillServiceTest {
 
     @Test
     fun `update SED Version from old version to new version`() {
-        val sed = SED(SedType.P2000)
+        val sed = SED(P2000)
         val bucVersion = "v4.2"
 
         euxPrefillService.updateSEDVersion(sed, bucVersion)
@@ -50,7 +50,7 @@ class EuxPrefillServiceTest {
 
     @Test
     fun `update SED Version from old version to same version`() {
-        val sed = SED(SedType.P2000)
+        val sed = SED(P2000)
         val bucVersion = "v4.1"
 
         euxPrefillService.updateSEDVersion(sed, bucVersion)
@@ -59,7 +59,7 @@ class EuxPrefillServiceTest {
 
     @Test
     fun `update SED Version from old version to unknown new version`() {
-        val sed = SED(SedType.P2000)
+        val sed = SED(P2000)
         val bucVersion = "v4.4"
 
         euxPrefillService.updateSEDVersion(sed, bucVersion)
