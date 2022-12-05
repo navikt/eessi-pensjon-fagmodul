@@ -129,10 +129,6 @@ class RestTemplateConfig(
         return ClientHttpRequestInterceptor { request: HttpRequest, body: ByteArray?, execution: ClientHttpRequestExecution ->
             val navidentTokenFromUI = getToken(tokenValidationContextHolder).tokenAsString
 
-            if (environment == "q2") {
-                logger.debug("obot : $navidentTokenFromUI")
-            }
-
             logger.info("NAVIdent: ${getClaims(tokenValidationContextHolder).get("NAVident")?.toString()}")
 
             val tokenClient: AzureAdOnBehalfOfTokenClient = AzureAdTokenClientBuilder.builder()
