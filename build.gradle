@@ -3,7 +3,7 @@ buildscript {
     ext {
         springBootVersion = '2.7.5'
         springfoxVersion = '3.0.0'
-        jacksonModuleKotlinVersion = '2.14.0'
+        jacksonModuleKotlinVersion = '2.14.1'
         cxfVersion = '3.5.1'
         tokenSupportVersion = '2.1.8'
         logstashLogbackVersion = '7.2'
