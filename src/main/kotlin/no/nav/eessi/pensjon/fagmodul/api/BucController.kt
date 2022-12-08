@@ -117,15 +117,12 @@ class BucController(
     }
 
     @GetMapping("/enkeldetalj/{euxcaseid}")
-    @Deprecated("Går ut", ReplaceWith("Denne går ut ny funksjon på vei inn"))
-    fun getSingleBucogSedView(@PathVariable("euxcaseid", required = true) euxcaseid: String): BucAndSedView {
-        auditlogger.log("getSingleBucogSedView")
-
-        return bucDetaljerEnkel.measure {
+    fun hentSingleBucAndSedView(@PathVariable("euxcaseid") euxcaseid: String): BucAndSedView =
+        bucDetaljerEnkel.measure {
+            auditlogger.log("hentSingleBucAndSedView")
             logger.debug(" prøver å hente ut en enkel buc med euxCaseId: $euxcaseid")
             return@measure euxInnhentingService.getSingleBucAndSedView(euxcaseid)
         }
-    }
 
     @Deprecated("Utgår til fordel for hentBucerMedJournalforteSeder og getRinasakerFraRina")
     @GetMapping("/rinasaker/{aktoerId}/saknr/{saknr}")
@@ -376,6 +373,7 @@ class BucController(
 
     }
 
+    @Deprecated("Fjernes når vi bytter til endepunktet ->", replaceWith = ReplaceWith("hentSingleBucAndSedView(euxcaseid)"))
     @GetMapping("/enkeldetalj/{euxcaseid}/aktoerid/{aktoerid}/saknr/{saknr}/kilde/{kilde}")
     fun getSingleBucogSedView(
         @PathVariable("euxcaseid", required = true) euxcaseid: String,
