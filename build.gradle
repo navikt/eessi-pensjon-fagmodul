@@ -14,7 +14,7 @@ buildscript {
         epMetricsVersion = '1.0.7'
         epSecurityVersion = '0.0.22'
         epLoggingVersion = '1.1.11'
-        epPensjonInformasjonVersjon = '2.0.71'
+        epPensjonInformasjonVersjon = '2.0.73'
         springKafkaVersion = '2.9.2'
     }
 }
