@@ -4,13 +4,28 @@ import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.BucType
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.document.Retning
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.*
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ActionOperation
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ActionsItem
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Attachment
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ConversationsItem
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Organisation
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Receiver
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Sender
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.VersionsItem
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.VersionsItemNoUser
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
-import java.time.*
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.OffsetDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
@@ -113,30 +128,32 @@ class BucUtils(private val buc: Buc) {
         }
     }
 
-    private fun toLocalDatetimeFromString(dateTime: String): LocalDateTime {
-        //offse & zone
-        if(dateTime.contains("+")){
-            if(dateTime.substringAfter("+").contains(":")){
-                return ZonedDateTime.parse(dateTime, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-                    .withZoneSameInstant(ZoneId.of("Europe/Paris")).toLocalDateTime()
-            }
-            return ZonedDateTime.parse(dateTime, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ"))
-                .withZoneSameInstant(ZoneId.of("Europe/Paris"))
-                .toLocalDateTime()
-        }
-        if(isValidLocalDate(dateTime)){
-            return LocalDate.parse(dateTime, DateTimeFormatter.ofPattern("yyyy-MM-dd")).atStartOfDay()
-        }
+    /***
+     * Evaluates date formats and attempts to find the best match
+     *
+     * @param datetime, localdate or date with offsett
+     * @return a LocalDateTime
+     */
+    private fun toLocalDatetimeFromString(dateTime: String): LocalDateTime? {
+        checkdateFormat(dateTime, DateTimeFormatter.ISO_OFFSET_DATE_TIME, OffsetDateTime::class)?.let { return it }
+        checkdateFormat(dateTime, DateTimeFormatter.ofPattern("yyyy-MM-dd"), LocalDate::class)?.let{return it}
+        checkdateFormat(dateTime, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ"), OffsetDateTime::class)?.let { return it }
+
         return LocalDateTime.parse(dateTime, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"))
     }
 
-    private fun isValidLocalDate(dateStr: String?): Boolean {
+    private fun <T> checkdateFormat(dateStr: String, dateTimeFormatter: DateTimeFormatter, type : T): LocalDateTime? {
         try {
-            LocalDate.parse(dateStr,  DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+            if(type == LocalDate::class){
+                return LocalDate.parse(dateStr,  dateTimeFormatter).atStartOfDay()
+            }
+            if(type == OffsetDateTime::class){
+                return OffsetDateTime.parse(dateStr, dateTimeFormatter).atZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime()
+            }
         } catch (e: DateTimeParseException) {
-            return false
+            return null
         }
-        return true
+        return null
     }
 
 
