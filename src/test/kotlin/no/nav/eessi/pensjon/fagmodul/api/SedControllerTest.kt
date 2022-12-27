@@ -19,7 +19,6 @@ import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonServ
 import no.nav.eessi.pensjon.utils.mapAnyToJson
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
-import no.nav.eessi.pensjon.utils.typeRefs
 import no.nav.eessi.pensjon.vedlegg.VedleggService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -98,7 +97,7 @@ class SedControllerTest {
 
     @Test
     fun `getFiltrerteGyldigSedAksjonListAsString   buc_01 returns 1 sed`() {
-        val mockBuc = mapJsonToAny(javaClass.getResource("/json/buc/P_BUC_01_4.2_tom.json").readText(), typeRefs<Buc>())
+        val mockBuc = mapJsonToAny<Buc>(javaClass.getResource("/json/buc/P_BUC_01_4.2_tom.json").readText())
         val buc = "P_BUC_01"
         val rinanr = "1000101"
 
@@ -110,14 +109,13 @@ class SedControllerTest {
 
         assertEquals(expectedResponse, actualResponse)
 
-        val list = mapJsonToAny(actualResponse.body!!, typeRefs<List<String>>())
+        val list = mapJsonToAny<List<String>>(actualResponse.body!!)
         assertEquals(1, list.size)
     }
 
     @Test
     fun `getFiltrerteGyldigSedAksjonListAsString   buc_06 returns 4 seds`() {
-        val mockBuc =
-            mapJsonToAny(javaClass.getResource("/json/buc/buc_P_BUC_06_4.2_tom.json").readText(), typeRefs<Buc>())
+        val mockBuc =  mapJsonToAny<Buc>(javaClass.getResource("/json/buc/buc_P_BUC_06_4.2_tom.json").readText())
         val buc = "P_BUC_06"
         val rinanr = "1000101"
 
@@ -130,13 +128,13 @@ class SedControllerTest {
 
         assertEquals(expectedResponse, actualResponse)
 
-        val list = mapJsonToAny(actualResponse.body!!, typeRefs<List<String>>())
+        val list = mapJsonToAny<List<String>>(actualResponse.body!!)
         assertEquals(4, list.size)
     }
 
     @Test
     fun `getFiltrerteGyldigSedAksjonListAsString buc_06 ingen documents skal retutnere 4 gyldige sedtyper`() {
-        val mockBuc = mapJsonToAny(javaClass.getResource("/json/buc/P_BUC_06_emptyDocumentsList.json").readText(), typeRefs<Buc>())
+        val mockBuc = mapJsonToAny<Buc>(javaClass.getResource("/json/buc/P_BUC_06_emptyDocumentsList.json").readText())
         val buc = "P_BUC_06"
         val rinanr = "434164"
 
@@ -147,7 +145,7 @@ class SedControllerTest {
 
         assertEquals(expectedResponse, actualResponse)
 
-        val list = mapJsonToAny(actualResponse.body!!, typeRefs<List<String>>())
+        val list = mapJsonToAny<List<String>>(actualResponse.body!!)
         println(list.toJson())
 
         assertEquals(4, list.size)
@@ -156,7 +154,7 @@ class SedControllerTest {
     @Test
     fun `getFiltrerteGyldigSedAksjonListAsString   buc_06 returns 3 seds if a sed already exists`() {
         val mockBuc =
-            mapJsonToAny(javaClass.getResource("/json/buc/buc-P_BUC_06_4.2_P5000.json").readText(), typeRefs<Buc>())
+            mapJsonToAny<Buc>(javaClass.getResource("/json/buc/buc-P_BUC_06_4.2_P5000.json").readText())
         val buc = "P_BUC_06"
         val rinanr = "1000101"
 
@@ -169,13 +167,13 @@ class SedControllerTest {
 
         assertEquals(expectedResponse, actualResponse)
 
-        val list = mapJsonToAny(actualResponse.body!!, typeRefs<List<String>>())
+        val list = mapJsonToAny<List<String>>(actualResponse.body!!)
         assertEquals(3, list.size)
     }
 
     @Test
     fun `getFiltrerteGyldigSedAksjonListAsString buc_01 returns lots of seds`() {
-        val mockBuc = mapJsonToAny(javaClass.getResource("/json/buc/buc-22909_v4.1.json").readText(), typeRefs<Buc>())
+        val mockBuc = mapJsonToAny<Buc>(javaClass.getResource("/json/buc/buc-22909_v4.1.json").readText())
         val buc = "P_BUC_01"
         val rinanr = "1000101"
 
@@ -199,14 +197,14 @@ class SedControllerTest {
 
         assertEquals(expectedResponse, actualResponse)
 
-        val list = mapJsonToAny(actualResponse.body!!, typeRefs<List<String>>())
+        val list = mapJsonToAny<List<String>>(actualResponse.body!!)
         assertEquals(10, list.size)
     }
 
     @Test
     fun `getFiltrerteGyldigSedAksjonListAsString buc_06 returns 0 seds if a sed is sent`() {
         val mockBuc =
-            mapJsonToAny(javaClass.getResource("/json/buc/buc-P_BUC_06-P5000_Sendt.json").readText(), typeRefs<Buc>())
+            mapJsonToAny<Buc>(javaClass.getResource("/json/buc/buc-P_BUC_06-P5000_Sendt.json").readText())
         val buc = "P_BUC_06"
         val rinanr = "1000101"
 
@@ -218,16 +216,16 @@ class SedControllerTest {
 
         assertEquals(expectedResponse, actualResponse)
 
-        val list = mapJsonToAny(actualResponse.body!!, typeRefs<List<String>>())
+        val list = mapJsonToAny<List<String>>(actualResponse.body!!)
         assertEquals(0, list.size)
     }
 
     @Test
     fun `sjekk for gyldig liste av beregninger i P5000oppdatering`() {
 
-        val mockP5000 = mapJsonToAny(javaClass.getResource("/json/nav/P5000OppdateringNAV.json").readText(), typeRefs<P5000>())
+        val mockP5000 = mapJsonToAny<P5000>(javaClass.getResource("/json/nav/P5000OppdateringNAV.json").readText())
 
-        val mockP5000Rina = mapJsonToAny(javaClass.getResource("/json/nav/P5000OppdateringRinaNav.json").readText(), typeRefs<P5000>())
+        val mockP5000Rina = mapJsonToAny<P5000>(javaClass.getResource("/json/nav/P5000OppdateringRinaNav.json").readText())
 
         val trygdetidberegning = mockP5000.p5000Pensjon?.trygdetid?.map { it.beregning }
         val medlemskapsberegning = mockP5000.p5000Pensjon?.medlemskapboarbeid?.medlemskap?.map { it.beregning }

@@ -33,14 +33,14 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
 
     fun getBuc(euxCaseId: String): Buc {
         val body = euxKlient.getBucJsonAsNavIdent(euxCaseId)
-        return mapJsonToAny(body, typeRefs())
+        return mapJsonToAny(body)
     }
 
     //hent buc for Pesys/tjeneste kjør som systembruker
     fun getBucAsSystemuser(euxCaseId: String): Buc {
         val body = euxKlient.getBucJsonAsSystemuser(euxCaseId)
         logger.debug("mapper buc om til BUC objekt-model")
-        return mapJsonToAny(body, typeRefs())
+        return mapJsonToAny(body)
     }
 
     fun getSedOnBucByDocumentId(euxCaseId: String, documentId: String): SED {
@@ -140,7 +140,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
     private fun filterGjenlevende(docs: BucOgDocumentAvdod, fnrGjenlevende: String): Boolean {
         val sedjson = docs.dokumentJson
         if (sedjson.isBlank()) return false
-        val sed = mapJsonToAny(sedjson, typeRefs<SED>())
+        val sed = mapJsonToAny<SED>(sedjson)
         return filterGjenlevendePinNode(sed, docs.rinaidAvdod) == fnrGjenlevende ||
                 filterAnnenPersonPinNode(sed, docs.rinaidAvdod) == fnrGjenlevende
     }
@@ -353,7 +353,7 @@ fun hentBucer(aktoerId: String, pesysSaksnr: String, rinaSakIder: List<String>):
     fun checkForP7000AndAddP6000(request: ApiRequest): ApiRequest {
         return if (request.sed == SedType.P7000.name) {
             //hente payload from ui
-            val docitems = request.payload?.let { mapJsonToAny(it, typeRefs<List<P6000Dokument>>()) }
+            val docitems = request.payload?.let { mapJsonToAny<List<P6000Dokument>>(it) }
             logger.info("P6000 payload size: ${docitems?.size}")
             //hente p6000sed fra rina legge på ny payload til prefill
             val seds = docitems?.map { Pair<P6000Dokument, SED>(it, getSedOnBucByDocumentId(it.bucid, it.documentID)) }

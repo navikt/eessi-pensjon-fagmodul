@@ -23,7 +23,7 @@ class JsonUtilsTest {
                 "    \"01065201794___varsler___23917355___2019-03-06T12:06:58.642.json\",\n" +
                 "    \"01065201794___varsler___23917355___2019-03-06T12:04:58.642.json\"\n" +
                 "]"
-        val varsler = mapJsonToAny(json, typeRefs<List<String>>())
+        val varsler = mapJsonToAny<List<String>>(json)
         val aktivesakid = hentSisteSakIdFraVarsel(varsler)
         assertEquals("23916815", aktivesakid)
     }

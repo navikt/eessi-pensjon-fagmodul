@@ -1,15 +1,44 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
 import no.nav.eessi.pensjon.eux.model.SedType
-import no.nav.eessi.pensjon.eux.model.SedType.*
+import no.nav.eessi.pensjon.eux.model.SedType.DummyChooseParts
+import no.nav.eessi.pensjon.eux.model.SedType.H020
+import no.nav.eessi.pensjon.eux.model.SedType.H021
+import no.nav.eessi.pensjon.eux.model.SedType.H070
+import no.nav.eessi.pensjon.eux.model.SedType.H120
+import no.nav.eessi.pensjon.eux.model.SedType.H121
+import no.nav.eessi.pensjon.eux.model.SedType.P10000
+import no.nav.eessi.pensjon.eux.model.SedType.P12000
+import no.nav.eessi.pensjon.eux.model.SedType.P2000
+import no.nav.eessi.pensjon.eux.model.SedType.P2100
+import no.nav.eessi.pensjon.eux.model.SedType.P2200
+import no.nav.eessi.pensjon.eux.model.SedType.P3000_NO
+import no.nav.eessi.pensjon.eux.model.SedType.P4000
+import no.nav.eessi.pensjon.eux.model.SedType.P5000
+import no.nav.eessi.pensjon.eux.model.SedType.P6000
+import no.nav.eessi.pensjon.eux.model.SedType.P7000
+import no.nav.eessi.pensjon.eux.model.SedType.P8000
+import no.nav.eessi.pensjon.eux.model.SedType.P9000
+import no.nav.eessi.pensjon.eux.model.SedType.X005
 import no.nav.eessi.pensjon.eux.model.buc.BucType.P_BUC_01
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.document.Retning
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.*
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ActionOperation
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Organisation
+import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
-import no.nav.eessi.pensjon.utils.*
+import no.nav.eessi.pensjon.utils.mapJsonToAny
+import no.nav.eessi.pensjon.utils.toJson
+import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
+import no.nav.eessi.pensjon.utils.validateJson
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -42,7 +71,7 @@ class BucUtilsTest {
     @BeforeEach
     fun bringItOn() {
         bucjson = getTestJsonFile("buc-22909_v4.1.json")
-        buc = mapJsonToAny(bucjson, typeRefs())
+        buc = mapJsonToAny(bucjson)
         bucUtils = BucUtils(buc)
     }
 
@@ -77,7 +106,7 @@ class BucUtilsTest {
     @Test
     fun getAllP6000AsDocumentItemTest() {
         val bucfile = getTestJsonFile("buc-2019-p6000.json")
-        val bucn : Buc = mapJsonToAny(bucfile, typeRefs())
+        val bucn : Buc = mapJsonToAny(bucfile)
         val bucutils = BucUtils(bucn)
 
         val expected = listOf(
@@ -105,7 +134,7 @@ class BucUtilsTest {
         assertEquals(P_BUC_01.name, bucdef41)
 
         val bucjson = getTestJsonFile("buc-362590_v4.0.json")
-        val buc = mapJsonToAny(bucjson, typeRefs<Buc>())
+        val buc = mapJsonToAny<Buc>(bucjson)
         val bucUtilsLocal = BucUtils(buc)
 
         val result = bucUtilsLocal.getProcessDefinitionVersion()
@@ -185,7 +214,7 @@ class BucUtilsTest {
     @Test
     fun getBucAndDocumentsWithAttachment() {
         bucjson = getTestJsonFile("buc-158123_2_v4.1.json")
-        buc = mapJsonToAny(bucjson, typeRefs())
+        buc = mapJsonToAny(bucjson)
         bucUtils = BucUtils(buc)
 
         assertEquals(2, buc.attachments?.size)
@@ -205,7 +234,7 @@ class BucUtilsTest {
     @Test
     fun getParticipantsTestOnMock_2() {
         bucjson = getTestJsonFile("buc-158123_2_v4.1.json")
-        buc = mapJsonToAny(bucjson, typeRefs())
+        buc = mapJsonToAny(bucjson)
         bucUtils = BucUtils(buc)
         val deltakere = bucUtils.getParticipants()
 
@@ -229,7 +258,7 @@ class BucUtilsTest {
 
     @Test
     fun `getFiltrerteGyldigSedAksjonListAsString   returns sorted of one element ok`(){
-        val tmpbuc3 = mapJsonToAny(getTestJsonFile("P_BUC_01_4.2_tom.json"), typeRefs<Buc>())
+        val tmpbuc3 = mapJsonToAny<Buc>(getTestJsonFile("P_BUC_01_4.2_tom.json"))
         val bucUtil = BucUtils(tmpbuc3)
         val actualOutput = bucUtil.getFiltrerteGyldigSedAksjonListAsString()
 
@@ -238,7 +267,7 @@ class BucUtilsTest {
 
     @Test
     fun `getGyldigSedAksjonListAsString   returns sorted of one element ok`(){
-        val tmpbuc3 = mapJsonToAny(getTestJsonFile("P_BUC_01_4.2_tom.json"), typeRefs<Buc>())
+        val tmpbuc3 = mapJsonToAny<Buc>(getTestJsonFile("P_BUC_01_4.2_tom.json"))
         val bucUtil = BucUtils(tmpbuc3)
         val actualOutput = bucUtil.getSedsThatCanBeCreated()
 
@@ -247,7 +276,7 @@ class BucUtilsTest {
 
     @Test
     fun `getFiltrerteGyldigSedAksjonListAsString   returns no element`(){
-        val tmpbuc3 = mapJsonToAny(getTestJsonFile("P_BUC_01_4.2_P2000.json"), typeRefs<Buc>())
+        val tmpbuc3 = mapJsonToAny<Buc>(getTestJsonFile("P_BUC_01_4.2_P2000.json"))
         val bucUtil = BucUtils(tmpbuc3)
         val actualOutput = bucUtil.getFiltrerteGyldigSedAksjonListAsString()
 
@@ -370,7 +399,7 @@ class BucUtilsTest {
     @Test
     fun findNewParticipantsMockwithExternalCaseOwnerAddEveryoneInBucResultExpectedToBeZero(){
         val bucjson = getTestJsonFile("buc-254740_v4.1.json")
-        val buc = mapJsonToAny(bucjson, typeRefs<Buc>())
+        val buc = mapJsonToAny<Buc>(bucjson)
         val bucUtils = BucUtils(buc)
 
         assertEquals(3, bucUtils.getParticipants().size)
@@ -386,7 +415,7 @@ class BucUtilsTest {
     @Test
     fun `sjekk deltakere mot buc og om den er fjernet i x007`() {
         val bucjson = getTestJsonFile("buc-4929378.json")
-        val buc = mapJsonToAny(bucjson, typeRefs<Buc>())
+        val buc = mapJsonToAny<Buc>(bucjson)
         val bucUtils = BucUtils(buc)
 
         val list = listOf(InstitusjonItem(FI, "FI:0200000010", ""), InstitusjonItem(FI, FI_INSTITUSJON, ""))
@@ -403,7 +432,7 @@ class BucUtilsTest {
     @Test
     fun `sjekk for om x100 inneholder avsender ikke lenger i bruk`() {
         val bucjson = getTestJsonFile("buc-3059699-x100.json")
-        val buc = mapJsonToAny(bucjson, typeRefs<Buc>())
+        val buc = mapJsonToAny<Buc>(bucjson)
         val bucUtils = BucUtils(buc)
 
         val lists = listOf(InstitusjonItem(FI, FI_INSTITUSJON, ""), InstitusjonItem(DE, DE_INSTITUSJON, "German Federal Pension"))
@@ -419,7 +448,7 @@ class BucUtilsTest {
     @Test
     fun findNewParticipantsMockwithExternalCaseOwnerResultExpectedToBeZero(){
         val bucjson = getTestJsonFile("buc-254740_v4.1.json")
-        val buc = mapJsonToAny(bucjson, typeRefs<Buc>())
+        val buc = mapJsonToAny<Buc>(bucjson)
         val bucUtils = BucUtils(buc)
         val candidates = listOf(InstitusjonItem(country = NO, institution = "NO:NAVT003", name = "NAV T003"))
 
@@ -431,7 +460,7 @@ class BucUtilsTest {
     @Test
     fun findNewParticipantsMockwithExternalCaseOwnerResultExpectedOne(){
         val bucjson = getTestJsonFile("buc-254740_v4.1.json")
-        val buc = mapJsonToAny(bucjson, typeRefs<Buc>())
+        val buc = mapJsonToAny<Buc>(bucjson)
         val bucUtils = BucUtils(buc)
         val candidates = listOf(InstitusjonItem(country = NO, institution = "NO:NAVT007", name = "NAV T007"))
 
@@ -449,7 +478,7 @@ class BucUtilsTest {
     @Test
     fun parseAndTestBucAndSedView() {
         val bucjson = getTestJsonFile("buc-280670.json")
-        val buc = mapJsonToAny(bucjson, typeRefs<Buc>())
+        val buc = mapJsonToAny<Buc>(bucjson)
 
         val bucview =  BucAndSedView.from(buc)
 
@@ -460,7 +489,7 @@ class BucUtilsTest {
     @Test
     fun parseAndTestBucAttachmentsDate() {
         val bucjson = getTestJsonFile("buc-279020big.json")
-        val buc = mapJsonToAny(bucjson, typeRefs<Buc>())
+        val buc = mapJsonToAny<Buc>(bucjson)
 
         val bucview =  BucAndSedView.from(buc)
         assertEquals(1567088832589, bucview.startDate)
@@ -478,7 +507,7 @@ class BucUtilsTest {
     @Test
     fun bucsedandviewDisplaySedsWithParentIdToReply() {
         val bucjson = getTestJsonFile("buc-285268-answerid.json")
-        val buc = mapJsonToAny(bucjson, typeRefs<Buc>())
+        val buc = mapJsonToAny<Buc>(bucjson)
         val bucUtils = BucUtils(buc)
 
         val result = bucUtils.getAllDocuments()
@@ -492,7 +521,7 @@ class BucUtilsTest {
     @Test
     fun bucsedandviewCheck() {
         val bucjson = getTestJsonFile("buc-285268-answerid.json")
-        val buc = mapJsonToAny(bucjson, typeRefs<Buc>())
+        val buc = mapJsonToAny<Buc>(bucjson)
         val bucAndSedView = BucAndSedView.from(buc)
         val seds = bucAndSedView.seds
         val filterParentId = seds?.filter { it.parentDocumentId != null }
@@ -507,7 +536,7 @@ class BucUtilsTest {
     @Test
     fun bucsedandviewCheckforCaseOwnerIfmissingUseCreator() {
         val bucjson = getTestJsonFile("buc-287679short.json")
-        val buc = mapJsonToAny(bucjson, typeRefs<Buc>())
+        val buc = mapJsonToAny<Buc>(bucjson)
         val bucAndSedView = BucAndSedView.from(buc)
         val seds = bucAndSedView.seds
 
@@ -533,7 +562,7 @@ class BucUtilsTest {
     @Test
     fun hentutBucsedviewmedDato() {
         val bucjson = getTestJsonFile("buc-279020big.json")
-        val buc = mapJsonToAny(bucjson, typeRefs<Buc>())
+        val buc = mapJsonToAny<Buc>(bucjson)
         val bucAndSedView = BucAndSedView.from(buc)
 
         val seds = bucAndSedView.seds.orEmpty()
@@ -563,7 +592,7 @@ class BucUtilsTest {
     @Test
     fun `check that document P12000 on buc support attchemnt`() {
         val bucjson = getTestJsonFile("buc-P_BUC_08-P12000.json")
-        val buc = mapJsonToAny(bucjson, typeRefs<Buc>())
+        val buc = mapJsonToAny<Buc>(bucjson)
         val bucAndSedView = BucAndSedView.from(buc)
         val seds = bucAndSedView.seds
 
@@ -575,7 +604,7 @@ class BucUtilsTest {
     @Test
     fun `check that document P12000 is allready on buc throw Exception`() {
         val bucjson = getTestJsonFile("buc-P_BUC_08-P12000.json")
-        val buc = mapJsonToAny(bucjson, typeRefs<Buc>())
+        val buc = mapJsonToAny<Buc>(bucjson)
         val bucUtils = BucUtils(buc)
 
         assertThrows<SedDokumentKanIkkeOpprettesException> {
@@ -586,7 +615,7 @@ class BucUtilsTest {
     @Test
     fun `check that document P10000 is allready on buc throw Exception`() {
         val bucjson = getTestJsonFile("buc-P_BUC_06-P6000_Sendt.json")
-        val buc = mapJsonToAny(bucjson, typeRefs<Buc>())
+        val buc = mapJsonToAny<Buc>(bucjson)
         val bucUtils = BucUtils(buc)
 
         assertThrows<SedDokumentKanIkkeOpprettesException> {
@@ -597,7 +626,7 @@ class BucUtilsTest {
     @Test
     fun `check that document P50000 is allready on buc throw Exception`() {
         val bucjson = getTestJsonFile("buc-P_BUC_06-P6000_Sendt.json")
-        val buc = mapJsonToAny(bucjson, typeRefs<Buc>())
+        val buc = mapJsonToAny<Buc>(bucjson)
         val bucUtils = BucUtils(buc)
 
         assertThrows<SedDokumentKanIkkeOpprettesException> {
@@ -608,7 +637,7 @@ class BucUtilsTest {
     @Test
     fun `check that different document on BUC_03 is allowed or not will throw Exception`() {
         val bucjson = getTestJsonFile("buc-279020big.json")
-        val buc = mapJsonToAny(bucjson, typeRefs<Buc>())
+        val buc = mapJsonToAny<Buc>(bucjson)
         val bucUtils = BucUtils(buc)
 
         val allowed = listOf(P5000, P6000, P8000, P10000, H121, H020)
@@ -628,7 +657,7 @@ class BucUtilsTest {
     @Test
     fun `check that different document on BUC_01 is allowed or not will throw Exception`() {
         val bucjson = getTestJsonFile("P_BUC_01_4.2_P2000.json")
-        val buc = mapJsonToAny(bucjson, typeRefs<Buc>())
+        val buc = mapJsonToAny<Buc>(bucjson)
         val bucUtils = BucUtils(buc)
 
         val notAllowd = listOf(P2000, P4000, P3000_NO, P9000)
@@ -642,7 +671,7 @@ class BucUtilsTest {
     @Test
     fun `check that different document on other BUC_01 is allowed or not will throw Exception`() {
         val bucjson = getTestJsonFile("buc-22909_v4.1.json")
-        val buc = mapJsonToAny(bucjson, typeRefs<Buc>())
+        val buc = mapJsonToAny<Buc>(bucjson)
         val bucUtils = BucUtils(buc)
 
         val allowed = listOf(P4000, P5000, P6000, P8000, P7000, P10000, H120, H020)
@@ -662,7 +691,7 @@ class BucUtilsTest {
     @Test
     fun `a draft SED should have sender and receiver based on the last conversation`() {
         val bucjson = getTestJsonFile("BucResponseFraEUXMedX007.json")
-        val buc = mapJsonToAny(bucjson, typeRefs<Buc>())
+        val buc = mapJsonToAny<Buc>(bucjson)
 
         // behandle
         val view = BucAndSedView.from(buc)
@@ -699,7 +728,7 @@ class BucUtilsTest {
     fun `an empty sed should have sender and receiver based on the last conversation`() {
         // filen vi har
         val bucjson = getTestJsonFile("BucResponseFraEUXMedX007.json")
-        val buc = mapJsonToAny(bucjson, typeRefs<Buc>())
+        val buc = mapJsonToAny<Buc>(bucjson)
 
 
         // behandle
@@ -725,7 +754,7 @@ class BucUtilsTest {
         //Vi velger å ikke benytte oss av usermessages, siden det ser ut til at det holder å bruke conversations.last()
         // filen vi har
         val sedjson = getTestJsonFile("Buc-P8000-sendt.json")
-        val documentItem = mapJsonToAny(sedjson, typeRefs<DocumentsItem>())
+        val documentItem = mapJsonToAny<DocumentsItem>(sedjson)
         val mockBuc = Buc(documents = listOf(documentItem))
 
         // behandle
@@ -743,7 +772,7 @@ class BucUtilsTest {
     fun `an sed exchanged before X007 should have old sender and receiver`() {
         val sedP2200CancelledId = "49bd11a447db48fc8edace43477781c9"
         val bucjson = getTestJsonFile("BucResponseFraEUXMedX007.json")
-        val buc = mapJsonToAny(bucjson, typeRefs<Buc>())
+        val buc = mapJsonToAny<Buc>(bucjson)
 
         val viewP2200 = BucAndSedView.from(buc)
 
@@ -764,7 +793,7 @@ class BucUtilsTest {
     @Test
     fun validateOneRina2020Buc() {
         val bucjson = getTestJsonFile( "buc-id-rina2020new.json")
-        val buc = mapJsonToAny(bucjson, typeRefs<Buc>())
+        val buc = mapJsonToAny<Buc>(bucjson)
         val view = BucAndSedView.from(buc)
 
         println(view.toJsonSkipEmpty())
@@ -774,7 +803,7 @@ class BucUtilsTest {
     @Test
     fun `sjekk for documentlist contains dummyparts on pbuc06 buc rina2020`() {
         val bucjson = getTestJsonFile("buc-id-rina2020new.json")
-        val buc = mapJsonToAny(bucjson, typeRefs<Buc>())
+        val buc = mapJsonToAny<Buc>(bucjson)
         val bucUtils = BucUtils(buc)
         val result = bucUtils.getAllDocuments()
 
@@ -790,7 +819,7 @@ class BucUtilsTest {
 
     @Test
     fun `sjekk for tom pbuc06 tom documentlist contains dummyparts on pbuc06 buc rina2020`() {
-        val buc = mapJsonToAny(javaClass.getResource("/json/buc/P_BUC_06_emptyDocumentsList.json").readText(), typeRefs<Buc>())
+        val buc = mapJsonToAny<Buc>(javaClass.getResource("/json/buc/P_BUC_06_emptyDocumentsList.json").readText())
         val bucUtils = BucUtils(buc)
         val result = bucUtils.getAllDocuments()
 
@@ -886,7 +915,7 @@ class BucUtilsTest {
 
     @Test
     fun `test en rina2020 buc med sed og x005 statuser og rinaactions`() {
-        val buc = mapJsonToAny(javaClass.getResource("/json/buc/buc-rina2020-P2K-X005.json").readText(), typeRefs<Buc>())
+        val buc = mapJsonToAny<Buc>(javaClass.getResource("/json/buc/buc-rina2020-P2K-X005.json").readText())
         val bucUtils = BucUtils(buc)
 
         try {
@@ -911,7 +940,7 @@ class BucUtilsTest {
 
     @Test
     fun testingIfP9000CanBeCreated() {
-        val buc = mapJsonToAny(javaClass.getResource("/json/buc/buc-3059699-x100.json").readText(), typeRefs<Buc>())
+        val buc = mapJsonToAny<Buc>(javaClass.getResource("/json/buc/buc-3059699-x100.json").readText())
         val bucUtils = BucUtils(buc)
 
         assertTrue(bucUtils.isChildDocumentByParentIdBeCreated("aac5ac5d6a2b47019ea606114c96cf50", P9000))

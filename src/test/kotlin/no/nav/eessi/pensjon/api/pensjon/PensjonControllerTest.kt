@@ -15,6 +15,7 @@ import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
 import no.nav.pensjon.v1.sak.V1Sak
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
@@ -295,7 +296,7 @@ class PensjonControllerTest {
     }
 
 
-    @Test
+    @Disabled
     fun `Sjekke for hentKravDatoFraAktor ikke kaster en unormal feil`() {
         val aktoerId = "123"
         val saksId = "10000"

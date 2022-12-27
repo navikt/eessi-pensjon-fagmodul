@@ -2,7 +2,6 @@ package no.nav.eessi.pensjon.fagmodul.models
 
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.utils.mapJsonToAny
-import no.nav.eessi.pensjon.utils.typeRefs
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
@@ -47,7 +46,7 @@ class ApiRequestTest {
                 "  \"skipSEDkey\" : null,\n" +
                 "  \"mockSED\" : true\n" +
                 "}"
-        val datamodel = ApiRequest.buildPrefillDataModelOnExisting( mapJsonToAny(req, typeRefs<ApiRequest>()), "", "")
+        val datamodel = ApiRequest.buildPrefillDataModelOnExisting( mapJsonToAny(req), "", "")
         assertNotNull(datamodel)
         assertEquals(SedType.P2000, datamodel.sedType)
         assertEquals("P_BUC_01", datamodel.buc)

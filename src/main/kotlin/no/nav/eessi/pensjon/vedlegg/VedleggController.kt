@@ -2,8 +2,7 @@ package no.nav.eessi.pensjon.vedlegg
 
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
-import no.nav.eessi.pensjon.utils.errorBody
-import no.nav.eessi.pensjon.utils.successBody
+import no.nav.eessi.pensjon.utils.*
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired

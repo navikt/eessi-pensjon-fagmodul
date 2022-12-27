@@ -46,7 +46,6 @@ import no.nav.eessi.pensjon.services.statistikk.StatistikkHandler
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
-import no.nav.eessi.pensjon.utils.typeRefs
 import no.nav.eessi.pensjon.vedlegg.VedleggService
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -113,7 +112,7 @@ internal class PrefillControllerTest {
     @Test
     fun `createBuc run ok and return id`() {
         val gyldigBuc = javaClass.getResource("/json/buc/buc-279020big.json").readText()
-        val buc : Buc =  mapJsonToAny(gyldigBuc, typeRefs())
+        val buc : Buc =  mapJsonToAny(gyldigBuc)
 
         every { mockEuxPrefillService.createBuc("P_BUC_03") } returns "1231231"
         every { mockEuxInnhentingService.getBuc(any()) } returns buc
@@ -127,7 +126,7 @@ internal class PrefillControllerTest {
     @Test
     fun `createBuc run ok and does not run statistics in default namespace`() {
         val gyldigBuc = javaClass.getResource("/json/buc/buc-279020big.json").readText()
-        val buc : Buc =  mapJsonToAny(gyldigBuc, typeRefs())
+        val buc : Buc =  mapJsonToAny(gyldigBuc)
 
         every {  mockEuxPrefillService.createBuc("P_BUC_03")} returns "1231231"
         every { mockEuxInnhentingService.getBuc(any()) } returns buc
@@ -285,10 +284,10 @@ internal class PrefillControllerTest {
         val fnr = "123123123"
 
         val jsonbuc = javaClass.getResource("/json/buc/buc-4326040-rina2020new-P_BUC_01.json")?.readText()!!
-        val mockBuc: Buc = mapJsonToAny(jsonbuc, typeRefs())
+        val mockBuc: Buc = mapJsonToAny(jsonbuc)
 
         val jsonDocbuc = javaClass.getResource("/json/buc/buc-4326040-rina2020docs-P_BUC_01.json")?.readText()!!
-        val mockDocBuc: Buc = mapJsonToAny(jsonDocbuc, typeRefs())
+        val mockDocBuc: Buc = mapJsonToAny(jsonDocbuc)
 
         val newParticipants = listOf(
             InstitusjonItem(country = "FI", institution = "FI:213231", name="Finland test"),
@@ -433,7 +432,7 @@ internal class PrefillControllerTest {
 
         every { personService.hentIdent(eq(IdentType.NorskIdent), any<AktoerId>()) } returns NorskIdent("12345")
         val mockBucJson = javaClass.getResource("/json/buc/buc-P_BUC_06-P6000_Sendt.json").readText()
-        every { mockEuxInnhentingService.getBuc(euxCaseId) } returns mapJsonToAny(mockBucJson, typeRefs<Buc>())
+        every { mockEuxInnhentingService.getBuc(euxCaseId) } returns mapJsonToAny(mockBucJson)
         val apiRequest = apiRequestWith(euxCaseId, emptyList())
 
         assertThrows<SedDokumentKanIkkeOpprettesException> {
@@ -452,7 +451,7 @@ internal class PrefillControllerTest {
         val mockBucJson = javaClass.getResource("/json/buc/buc_P_BUC_06_4.2_tom.json").readText()
         val mockBucJson2 = javaClass.getResource("/json/buc/P_BUC_06_P10000.json").readText()
 
-        every { mockEuxInnhentingService.getBuc(euxCaseId) } returns mapJsonToAny(mockBucJson, typeRefs<Buc>()) andThen mapJsonToAny(mockBucJson2, typeRefs<Buc>())
+        every { mockEuxInnhentingService.getBuc(euxCaseId) } returns mapJsonToAny(mockBucJson) andThen mapJsonToAny<Buc>((mockBucJson2))
         val newParticipants = listOf(
             InstitusjonItem(country = "FI", institution = "FI:Finland", name="Finland test")
         )

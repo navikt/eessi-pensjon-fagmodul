@@ -8,7 +8,8 @@ import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.BucType
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
-import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
+import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucView
+import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucViewKilde
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.integrationtest.IntegrasjonsTestConfig
@@ -20,7 +21,6 @@ import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentType
 import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
-import no.nav.eessi.pensjon.utils.typeRefs
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
@@ -84,7 +84,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         val gjenlevFnr = "1234567890000"
         val avdodfnr = "01010100001"
         val euxCaseId = "80001"
-        val kilde = EuxInnhentingService.BucViewKilde.AVDOD
+        val kilde = BucViewKilde.AVDOD
 
         //gjenlevende aktoerid -> gjenlevendefnr
         every { personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerid)) } returns NorskIdent(gjenlevFnr)
@@ -134,7 +134,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         val gjenlevFnr = "1234567890000"
         val avdodfnr = "01010100001"
         val euxCaseId = "80001"
-        val kilde = EuxInnhentingService.BucViewKilde.SAF
+        val kilde = BucViewKilde.SAF
 
         //gjenlevende aktoerid -> gjenlevendefnr
         every { personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerid)) } returns NorskIdent(gjenlevFnr)
@@ -177,7 +177,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         val aktoerid = "1123123123123123"
         val fnr = "1234567890000"
         val euxCaseId = "900001"
-        val kilde = EuxInnhentingService.BucViewKilde.BRUKER
+        val kilde = BucViewKilde.BRUKER
 
         //aktoerid -> fnr
         every { personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerid)) } returns NorskIdent(fnr)
@@ -218,7 +218,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         val aktoerid = "1123123123123123"
         val fnr = "1234567890000"
         val euxCaseId = "900001"
-        val kilde = EuxInnhentingService.BucViewKilde.SAF
+        val kilde = BucViewKilde.SAF
 
         //aktoerid -> fnr
         every { personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerid)) } returns NorskIdent(fnr)
@@ -235,7 +235,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
         val response = result.response.getContentAsString(charset("UTF-8"))
 
-        val bucView = mapJsonToAny(response, typeRefs<BucAndSedView>())
+        val bucView = mapJsonToAny<BucAndSedView>(response)
         val expectederror = """
             404 NOT_FOUND "Ikke funnet"
             """.trimIndent()
@@ -392,7 +392,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
         JSONAssert.assertEquals(expected, response, false)
 
-        val requestlist = mapJsonToAny(response, typeRefs<List<EuxInnhentingService.BucView>>())
+        val requestlist = mapJsonToAny<List<BucView>>(response)
 
         assertEquals(2, requestlist.size)
         assertEquals("3010", requestlist.first().euxCaseId)
@@ -425,7 +425,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
         val response = result.response.getContentAsString(charset("UTF-8"))
 
-        assertEquals(2, mapJsonToAny<List<EuxInnhentingService.BucView>>(response, typeRefs()).size)
+        assertEquals(2, mapJsonToAny<List<BucView>>(response).size)
     }
 
 
@@ -457,7 +457,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
         JSONAssert.assertEquals(expected, response, false)
 
-        val requestlist = mapJsonToAny(response, typeRefs<List<EuxInnhentingService.BucView>>())
+        val requestlist = mapJsonToAny<List<BucView>>(response)
 
         assertEquals(1, requestlist.size)
         assertEquals("3010", requestlist.first().euxCaseId)
@@ -485,7 +485,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
         verify (exactly = 1) { restEuxTemplate.exchange("/rinasaker?fødselsnummer=01010100001&status=\"open\"", HttpMethod.GET, null, String::class.java) }
 
-        val requestlist = mapJsonToAny(response, typeRefs<List<EuxInnhentingService.BucView>>())
+        val requestlist = mapJsonToAny<List<BucView>>(response)
         assertEquals(0, requestlist.size)
     }
 }

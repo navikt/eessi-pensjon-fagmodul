@@ -17,7 +17,6 @@ import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
-import no.nav.eessi.pensjon.utils.typeRefs
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -96,7 +95,7 @@ class PrefillController(
                         logger.debug("Prefiller X005, legger til Institusjon på X005 ${it.institution}")
                         // ID og Navn på X005 er påkrevd må hente innn navn fra UI.
                         val x005request = request.copy(avdodfnr = null, sed = SedType.X005.name, institutions = listOf(it))
-                        mapJsonToAny(innhentingService.hentPreutyltSed(x005request), typeRefs<X005>())
+                        mapJsonToAny<X005>(innhentingService.hentPreutyltSed(x005request))
                     }
                     euxPrefillService.checkAndAddInstitution(dataModel, bucUtil, x005Liste, nyeInstitusjoner)
                 } else if (!bucUtil.isValidSedtypeOperation(SedType.X005, ActionOperation.Create)) { /* nada */  }

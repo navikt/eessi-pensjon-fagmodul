@@ -9,10 +9,11 @@ import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
-import no.nav.eessi.pensjon.utils.typeRefs
 import no.nav.eessi.pensjon.utils.validateJson
 import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -148,7 +149,7 @@ internal class EuxInnhentingServiceTest {
     @Test
     fun `Calling eux-rina-api to create BucSedAndView gets one BUC per rinaid`() {
         val rinasakerJson = javaClass.getResource("/json/rinasaker/rinasaker_34567890111.json")!!.readText()
-        val rinasaker = mapJsonToAny(rinasakerJson, typeRefs<List<EuxKlient.Rinasak>>())
+        val rinasaker = mapJsonToAny<List<EuxKlient.Rinasak>>(rinasakerJson)
         val bucJson = File("src/test/resources/json/buc/buc-158123_2_v4.1.json").readText()
         every { euxKlient.getBucJsonAsNavIdent(any()) } returns bucJson
 
@@ -221,8 +222,8 @@ internal class EuxInnhentingServiceTest {
         val euxCaseId = "8877665511"
         val jsonRinasaker = javaClass.getResource("/json/rinasaker/rinasaker_12345678901.json")!!.readText()
         val jsonEnRinasak = javaClass.getResource("/json/rinasaker/rinasaker_ensak.json")!!.readText()
-        val orgRinasaker = mapJsonToAny(jsonRinasaker, typeRefs<List<EuxKlient.Rinasak>>())
-        val enSak = mapJsonToAny(jsonEnRinasak, typeRefs<List<EuxKlient.Rinasak>>())
+        val orgRinasaker = mapJsonToAny<List<EuxKlient.Rinasak>>(jsonRinasaker)
+        val enSak = mapJsonToAny<List<EuxKlient.Rinasak>>(jsonEnRinasak)
 
         every { euxKlient.getRinasaker(eq(fnr), status = "\"open\"") } returns orgRinasaker
         every { euxKlient.getRinasaker(euxCaseId = euxCaseId, status = "\"open\"") } returns enSak
@@ -262,7 +263,7 @@ internal class EuxInnhentingServiceTest {
     fun `Henter buc og dokumentID` () {
         val euxCaseId = "123"
         val json = javaClass.getResource("/json/buc/P_BUC_02_4.2_P2100.json")!!.readText()
-        val buc = mapJsonToAny(json, typeRefs<Buc>())
+        val buc = mapJsonToAny<Buc>(json)
 
         every { euxKlient.getBucJsonAsNavIdent(any()) } returns json
 

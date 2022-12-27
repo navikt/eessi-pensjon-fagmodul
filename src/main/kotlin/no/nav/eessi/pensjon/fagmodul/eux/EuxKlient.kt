@@ -7,7 +7,6 @@ import no.nav.eessi.pensjon.fagmodul.models.InstitusjonDetalj
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.utils.mapJsonToAny
-import no.nav.eessi.pensjon.utils.typeRefs
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 import org.springframework.beans.factory.annotation.Autowired
@@ -262,7 +261,7 @@ class EuxKlient(
                 , prefixErrorMessage = "Feiler ved metode getDeltakerer. "
         )
         return try {
-            mapJsonToAny(response.body!!, typeRefs())
+            mapJsonToAny(response.body!!)
         } catch (ex: Exception) {
             throw ServerException("Feil ved henting av BucDeltakere: ingen data, euxCaseId $euxCaseId")
        }
@@ -288,7 +287,7 @@ class EuxKlient(
                 , "Feil ved innhenting av institusjoner"
         )
         val starttid = System.currentTimeMillis()
-        val detaljList = mapJsonToAny(responseInstitution.body!!, typeRefs<List<InstitusjonDetalj>>())
+        val detaljList = mapJsonToAny<List<InstitusjonDetalj>>(responseInstitution.body!!)
 
         val institusjonListe = detaljList.asSequence()
                 .filter { institusjon ->
@@ -339,7 +338,7 @@ class EuxKlient(
                 , "Feil ved Rinasaker"
         )
 
-        return mapJsonToAny(response.body!!, typeRefs())
+        return mapJsonToAny(response.body!!)
     }
 
     companion object {

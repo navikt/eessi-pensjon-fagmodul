@@ -3,7 +3,6 @@ package no.nav.eessi.pensjon.fagmodul.prefill.klient
 import no.nav.eessi.pensjon.fagmodul.models.ApiRequest
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.utils.mapJsonToAny
-import no.nav.eessi.pensjon.utils.typeRefs
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -79,10 +78,10 @@ class PrefillKlient(private val prefillOAuthTemplate: RestTemplate,
     ) {
         companion object {
             fun from(hsce: HttpStatusCodeException): ResponseErrorData {
-                return mapJsonToAny(hsce.getResponseBodyAsString(), typeRefs())
+                return mapJsonToAny(hsce.getResponseBodyAsString())
             }
             fun fromJson(json: String): ResponseErrorData {
-                return mapJsonToAny(json, typeRefs())
+                return mapJsonToAny(json)
             }
         }
 

@@ -5,7 +5,6 @@ package no.nav.eessi.pensjon.vedlegg
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.eessi.pensjon.utils.mapJsonToAny
-import no.nav.eessi.pensjon.utils.typeRefs
 import no.nav.eessi.pensjon.vedlegg.client.Data
 import no.nav.eessi.pensjon.vedlegg.client.DokumentoversiktBruker
 import no.nav.eessi.pensjon.vedlegg.client.EuxVedleggClient
@@ -33,7 +32,7 @@ internal class VedleggServiceTest  {
     fun `Gitt en liste av journalposter med tilhørende dokumenter Når man filtrer et konkret dokumentInfoId Så returner et dokument med dokumentInfoId`() {
 
         val metadataJson = javaClass.getResource("/json/saf/hentMetadataResponse.json").readText()
-        val metadata = mapJsonToAny(metadataJson, typeRefs<HentMetadataResponse>())
+        val metadata = mapJsonToAny<HentMetadataResponse>(metadataJson)
 
         every {safClient.hentDokumentMetadata(any())  } returns metadata
 
@@ -52,7 +51,7 @@ internal class VedleggServiceTest  {
               }
             }
         """.trimIndent()
-        val metadata = mapJsonToAny(metadataJson, typeRefs<HentMetadataResponse>())
+        val metadata = mapJsonToAny<HentMetadataResponse>(metadataJson)
 
         every {safClient.hentDokumentMetadata(any())  } returns metadata
 
@@ -100,7 +99,7 @@ internal class VedleggServiceTest  {
               }
             }
         """.trimIndent()
-        val metadata = mapJsonToAny(metadataJson, typeRefs<HentMetadataResponse>())
+        val metadata = mapJsonToAny<HentMetadataResponse>(metadataJson)
 
         every {safClient.hentDokumentMetadata(any())  } returns metadata
 
@@ -112,7 +111,7 @@ internal class VedleggServiceTest  {
         val aktoerId = "12345"
 
         val metadataJson = javaClass.getResource("/json/saf/hentMetadataResponse.json").readText()
-        val metadata = mapJsonToAny(metadataJson, typeRefs<HentMetadataResponse>())
+        val metadata = mapJsonToAny<HentMetadataResponse>(metadataJson)
 
         every {safClient.hentDokumentMetadata(any())  } returns metadata
 

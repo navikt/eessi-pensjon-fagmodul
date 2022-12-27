@@ -39,7 +39,6 @@ import no.nav.eessi.pensjon.personoppslag.pdl.model.Sivilstand
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Sivilstandstype
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Statsborgerskap
 import no.nav.eessi.pensjon.utils.mapJsonToAny
-import no.nav.eessi.pensjon.utils.typeRefs
 import no.nav.pensjon.v1.avdod.V1Avdod
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
 import no.nav.pensjon.v1.person.V1Person
@@ -170,7 +169,7 @@ class PersonPDLControllerTest {
         )
             .andReturn().response
 
-        val actual = mapJsonToAny(response.contentAsString, typeRefs<List<PersonPDLController.PersoninformasjonAvdode>>())
+        val actual = mapJsonToAny<List<PersonPDLController.PersoninformasjonAvdode>>(response.contentAsString)
         val avdodFarResponse = actual.first()
         val avdodMorResponse = actual.last()
 
@@ -207,7 +206,7 @@ class PersonPDLControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
         ).andReturn().response
 
-        val result = mapJsonToAny(response.contentAsString, typeRefs<List<PersonPDLController.PersoninformasjonAvdode?>>())
+        val result = mapJsonToAny<List<PersonPDLController.PersoninformasjonAvdode?>>(response.contentAsString)
 
         assertEquals(1, result.size)
         val element = result.firstOrNull()
@@ -240,7 +239,7 @@ class PersonPDLControllerTest {
         )
             .andReturn().response
 
-        val list: List<PersonPDLController.PersoninformasjonAvdode?> = mapJsonToAny(response.contentAsString, typeRefs())
+        val list: List<PersonPDLController.PersoninformasjonAvdode?> = mapJsonToAny(response.contentAsString)
         assertEquals(emptyList<PersonPDLController.PersoninformasjonAvdode?>(), list)
     }
 

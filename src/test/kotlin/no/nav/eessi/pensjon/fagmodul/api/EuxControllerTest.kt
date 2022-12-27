@@ -9,8 +9,8 @@ import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.eux.EuxKlient
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.utils.mapJsonToAny
-import no.nav.eessi.pensjon.utils.typeRefs
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertIterableEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.web.client.RestTemplate
@@ -44,7 +44,7 @@ class EuxControllerTest {
 
         val result = euxController.getPaakobledeland(BucType.P_BUC_06)
 
-        val list = mapJsonToAny(result.body!!, typeRefs<List<String>>())
+        val list = mapJsonToAny<List<String>>(result.body!!)
         assertIterableEquals(backupList, list)
 
     }
@@ -55,7 +55,7 @@ class EuxControllerTest {
 
         val result = euxController.getPaakobledeland(BucType.P_BUC_06)
 
-        val list = mapJsonToAny(result.body!!, typeRefs<List<String>>())
+        val list = mapJsonToAny<List<String>>(result.body!!)
         assertEquals(1, list.size)
     }
 }
