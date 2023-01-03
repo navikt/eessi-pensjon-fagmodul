@@ -80,7 +80,7 @@ dependencies {
     implementation("no.nav.eessi.pensjon:ep-pensjonsinformasjon:$epPensjonInformasjonVersjon")
     implementation("no.nav.eessi.pensjon:ep-eux:1.3.63")
 
-    implementation("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:2606.1f6354e")
+    implementation("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:2610.9b6de22")
 
     // Forenklere mocking av beans, benyttes som mockito mockbean
     testImplementation("com.ninja-squad:springmockk:4.0.0")
