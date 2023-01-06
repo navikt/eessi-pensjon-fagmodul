@@ -186,7 +186,7 @@ class EuxKlientTest {
         every { mockEuxrestTemplate.exchange( any<String>(), HttpMethod.GET, null, String::class.java) } throws createDummyServerRestExecption(HttpStatus.INTERNAL_SERVER_ERROR,"Serverfeil, I/O-feil")
 
         assertThrows<EuxRinaServerException> {
-            klient.getRinasaker("12345678900", null, null, null)
+            klient.getRinasaker("12345678900", null)
         }
     }
 
@@ -195,7 +195,7 @@ class EuxKlientTest {
         every { mockEuxrestTemplate.exchange( any<String>(), HttpMethod.GET, null, String::class.java) } throws createDummyClientRestExecption(HttpStatus.UNAUTHORIZED,"UNAUTHORIZED")
 
         assertThrows<RinaIkkeAutorisertBrukerException> {
-            klient.getRinasaker("12345678900", null, null, null)
+            klient.getRinasaker("12345678900", null)
         }
     }
 
@@ -227,7 +227,7 @@ class EuxKlientTest {
 
         every { mockEuxrestTemplate.exchange( any<String>(), HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(datajson)
 
-        val data = klient.getRinasaker(euxCaseId = "123123", status = "open")
+        val data = klient.getRinasaker(euxCaseId = "123123")
 
         assertEquals("9002480", data.first().traits?.caseId)
         assertEquals(P_BUC_03.name, data.first().traits?.flowType)
@@ -240,7 +240,7 @@ class EuxKlientTest {
         every { mockEuxrestTemplate.exchange( any<String>(), HttpMethod.GET, null, String::class.java) } throws createDummyServerRestExecption(HttpStatus.BAD_GATEWAY, "Dummybody")
 
         assertThrows<GenericUnprocessableEntity> {
-            klient.getRinasaker("12345678900", null, null, null)
+            klient.getRinasaker("12345678900", null)
         }
     }
 

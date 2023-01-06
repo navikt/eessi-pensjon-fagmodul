@@ -319,11 +319,11 @@ class EuxKlient(
      * @param status String, status
      * @return List<Rinasak>
      */
-    fun getRinasaker(fnr: String? = null, euxCaseId: String? = null, bucType: String? = null, status: String? = null): List<Rinasak> {
+    fun getRinasaker(fnr: String? = null, euxCaseId: String? = null): List<Rinasak> {
 
-        val uriComponent = getRinasakerUri(fnr, euxCaseId, bucType, status)
+        val uriComponent = getRinasakerUri(fnr, euxCaseId).also {  }
 
-        logger.debug("** fnr: $fnr, eux: $euxCaseId, buc: $bucType, status: $status **")
+        logger.debug("** fnr: $fnr, eux: $euxCaseId, buc: NULL, status: OPEN **")
         logger.debug("** rinaSaker Url: ${uriComponent.toUriString()} **")
 
         val response = restTemplateErrorhandler(
@@ -343,34 +343,26 @@ class EuxKlient(
 
     companion object {
 
-        fun getRinasakerUri(fnr: String? = null, euxCaseId: String? = null, bucType: String? = null, status: String? = null): UriComponents {
-            require(!(fnr == null && euxCaseId == null && bucType == null && status == null)) {
+        fun getRinasakerUri(fnr: String? = null, euxCaseId: String? = null): UriComponents {
+            require(!(fnr == null && euxCaseId == null)) {
                 "Minst et søkekriterie må fylles ut for å få et resultat fra Rinasaker"
             }
-//                logger.debug("** fnr: $fnr, eux: $euxCaseId, buc: $bucType, status: $status **")
 
-            val uriComponent = if (euxCaseId != null && status != null && fnr == null) {
+            val uriComponent = if (euxCaseId != null && fnr == null) {
                 UriComponentsBuilder.fromPath("/rinasaker")
                     .queryParam("rinasaksnummer", euxCaseId)
-                    .queryParam("status", status)
+                    .queryParam("status", "\"open\"")
                     .build()
-            } else if (fnr != null && bucType != null && status != null && euxCaseId == null) {
+            } else if (euxCaseId == null && fnr != null) {
                 UriComponentsBuilder.fromPath("/rinasaker")
                     .queryParam("fødselsnummer", fnr)
-                    .queryParam("buctype", bucType)
-                    .queryParam("status", status)
-                    .build()
-            } else if (fnr != null && status != null && bucType == null && euxCaseId == null) {
-                UriComponentsBuilder.fromPath("/rinasaker")
-                    .queryParam("fødselsnummer", fnr)
-                    .queryParam("status", status)
+                    .queryParam("status", "\"open\"")
                     .build()
             } else {
                 UriComponentsBuilder.fromPath("/rinasaker")
                     .queryParam("fødselsnummer", fnr ?: "")
                     .queryParam("rinasaksnummer", euxCaseId ?: "")
-                    .queryParam("buctype", bucType ?: "")
-                    .queryParam("status", status ?: "")
+                    .queryParam("status","\"open\"")
                     .build()
             }
             return uriComponent

@@ -94,7 +94,7 @@ internal class EuxInnhentingServiceTest {
     fun getBucViewBruker() {
         val euxCaseId = "3893690"
         val rinaSaker = listOf(EuxKlient.Rinasak(euxCaseId, BucType.P_BUC_02.name, EuxKlient.Traits(), "", EuxKlient.Properties(), "open"))
-        every { euxKlient.getRinasaker(eq(FNR), any(), any(), eq( "\"open\"")) } returns rinaSaker
+        every { euxKlient.getRinasaker(eq(FNR), any()) } returns rinaSaker
 
         every { euxKlient.getBucJsonAsNavIdent(euxCaseId) } returns Buc(id = "3893690", processDefinitionName = "P_BUC_03").toJson()
 
@@ -225,8 +225,8 @@ internal class EuxInnhentingServiceTest {
         val orgRinasaker = mapJsonToAny<List<EuxKlient.Rinasak>>(jsonRinasaker)
         val enSak = mapJsonToAny<List<EuxKlient.Rinasak>>(jsonEnRinasak)
 
-        every { euxKlient.getRinasaker(eq(fnr), status = "\"open\"") } returns orgRinasaker
-        every { euxKlient.getRinasaker(euxCaseId = euxCaseId, status = "\"open\"") } returns enSak
+        every { euxKlient.getRinasaker(eq(fnr)) } returns orgRinasaker
+        every { euxKlient.getRinasaker(euxCaseId = euxCaseId) } returns enSak
 
         val result = euxInnhentingService.getRinasaker(fnr, listOf(euxCaseId))
 
@@ -237,7 +237,7 @@ internal class EuxInnhentingServiceTest {
     @Test
     fun `henter rinaid fra saf og rina hvor begge er tomme`() {
         val euxCaseId = "12345678900"
-        every { euxKlient.getRinasaker(eq(euxCaseId), null, null, null) } returns listOf<EuxKlient.Rinasak>()
+        every { euxKlient.getRinasaker(eq(euxCaseId), null) } returns listOf<EuxKlient.Rinasak>()
 
         val result = euxInnhentingService.getRinasaker(euxCaseId, emptyList())
         assertEquals(0, result.size)
@@ -250,7 +250,7 @@ internal class EuxInnhentingServiceTest {
         val rinasakid = "3893690"
 
         val rinaSaker = listOf(EuxKlient.Rinasak(rinasakid, "P_BUC_02", EuxKlient.Traits(), "", EuxKlient.Properties(), "open"))
-        every { euxKlient.getRinasaker(eq(avdodFnr), any(), any(), eq( "\"open\"")) } returns rinaSaker
+        every { euxKlient.getRinasaker(eq(avdodFnr), any()) } returns rinaSaker
 
         val actual = euxInnhentingService.hentBucViewAvdod(avdodFnr, gjenlevendeFnr, rinasakid)
 

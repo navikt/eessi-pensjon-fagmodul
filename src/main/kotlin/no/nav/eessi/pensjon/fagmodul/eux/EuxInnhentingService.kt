@@ -231,7 +231,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
     fun hentBucViewBruker(fnr: String, aktoerId: String, pesysSaksnr: String): List<BucView> {
         val start = System.currentTimeMillis()
 
-        return euxKlient.getRinasaker(fnr, status = "\"open\"")
+        return euxKlient.getRinasaker(fnr)
             .filter { erRelevantForVisningIEessiPensjon(it) }
             .map { rinasak ->
                 BucView(
@@ -287,7 +287,7 @@ fun hentBucer(aktoerId: String, pesysSaksnr: String, rinaSakIder: List<String>):
     fun hentBucViewAvdod(avdodFnr: String, aktoerId: String, pesysSaksnr: String): List<BucView> {
         val start = System.currentTimeMillis()
 
-        return euxKlient.getRinasaker(avdodFnr, status = "\"open\"")
+        return euxKlient.getRinasaker(avdodFnr)
             .filter { rinasak -> rinasak.processDefinitionId in bucTyperSomKanHaAvdod.map { it.name } }
             .filter { erRelevantForVisningIEessiPensjon(it) }
             .map { rinasak ->
@@ -308,7 +308,7 @@ fun hentBucer(aktoerId: String, pesysSaksnr: String, rinaSakIder: List<String>):
     //** hente rinasaker fra RINA og SAF
     fun getRinasaker(fnr: String, rinaSakIderFraJoark: List<String>): List<EuxKlient.Rinasak> {
         // Henter rina saker basert på fnr
-        val rinaSakerMedFnr = euxKlient.getRinasaker(fnr, status = "\"open\"")
+        val rinaSakerMedFnr = euxKlient.getRinasaker(fnr)
         logger.debug("hentet rinasaker fra eux-rina-api size: ${rinaSakerMedFnr.size}")
 
         // Filtrerer vekk saker som allerede er hentet som har fnr
@@ -317,7 +317,7 @@ fun hentBucer(aktoerId: String, pesysSaksnr: String, rinaSakIder: List<String>):
 
         // Henter rina saker som ikke har fnr
         val rinaSakerUtenFnr = rinaSakIderUtenFnr
-                .map { euxCaseId -> euxKlient.getRinasaker( euxCaseId =  euxCaseId, status = "\"open\"") }
+                .map { euxCaseId -> euxKlient.getRinasaker(euxCaseId =  euxCaseId) }
                 .flatten()
                 .distinctBy { it.id }
         logger.info("henter rinasaker ut i fra saf documentMetadata, antall: ${rinaSakerUtenFnr.size}")

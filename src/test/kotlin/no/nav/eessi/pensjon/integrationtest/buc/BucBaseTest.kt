@@ -130,9 +130,9 @@ open class BucBaseTest {
         """.trimIndent()
     }
 
-    fun dummyRinasakAvdodUrl(avdod: String? = null, bucType: String? = "P_BUC_02", status: String? =  "\"open\"") = dummyRinasakUrl(avdod, bucType, null, status)
-    fun dummyRinasakUrl(fnr: String? = null, bucType: String? = null, euxCaseId: String? = null, status: String? = null) : UriComponents {
-        return EuxKlient.getRinasakerUri(fnr, euxCaseId, bucType, status).also { println(it) }
+    fun dummyRinasakAvdodUrl(avdod: String? = null) = dummyRinasakUrl(avdod, null)
+    fun dummyRinasakUrl(fnr: String? = null, euxCaseId: String? = null) : UriComponents {
+        return EuxKlient.getRinasakerUri(fnr, euxCaseId).also { println(it) }
     }
 
     fun dummyRinasak(rinaSakId: String, bucType: String): EuxKlient.Rinasak {

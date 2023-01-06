@@ -85,11 +85,11 @@ internal class BucControllerIT: BucBaseTest() {
         //gjenlevende aktoerid -> gjenlevendefnr
         every { personService.hentIdent(IdentType.NorskIdent, AktoerId(gjenlevendeAktoerId)) }returns NorskIdent(gjenlevendeFnr)
 
-        val rinaBuc02url = dummyRinasakAvdodUrl(avdodFnr, "P_BUC_02")
+        val rinaBuc02url = dummyRinasakAvdodUrl(avdodFnr)
         every { restEuxTemplate.exchange( rinaBuc02url.toUriString(), HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(emptyList<EuxKlient.Rinasak>().toJson())
 
         //gjenlevende rinasak
-        val rinaGjenlevUrl = dummyRinasakUrl(avdodFnr, status = "\"open\"")
+        val rinaGjenlevUrl = dummyRinasakUrl(avdodFnr)
         every { restEuxTemplate.exchange( rinaGjenlevUrl.toUriString(), HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( emptyList<EuxKlient.Rinasak>().toJson())
 
         //saf (vedlegg meta) gjenlevende
@@ -125,7 +125,7 @@ internal class BucControllerIT: BucBaseTest() {
 
         //buc02 - avdød rinasak
         val rinaSakerBuc02 = listOf(dummyRinasak("1010", "P_BUC_02"), dummyRinasak("9859667", "P_BUC_01"))
-        val rinaBuc02url = dummyRinasakUrl(avdodFnr, status =  "\"open\"")
+        val rinaBuc02url = dummyRinasakUrl(avdodFnr)
 
 
         every { restEuxTemplate.exchange( rinaBuc02url.toUriString(), HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(rinaSakerBuc02.toJson())
@@ -170,7 +170,7 @@ internal class BucControllerIT: BucBaseTest() {
             every { personService.hentIdent(IdentType.NorskIdent, AktoerId(gjenlevendeAktoerId)) } returns NorskIdent(gjenlevendeFnr)
             //buc02 - avdød rinasak
             val rinaSakerBuc02 = listOf(dummyRinasak("1010", "P_BUC_02"))
-            val rinaBuc02url = dummyRinasakAvdodUrl(avdodFnr, "P_BUC_02")
+            val rinaBuc02url = dummyRinasakAvdodUrl(avdodFnr)
             every { restEuxTemplate.exchange( rinaBuc02url.toUriString(), HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(rinaSakerBuc02.toJson())
 
             //dummy date
@@ -188,7 +188,7 @@ internal class BucControllerIT: BucBaseTest() {
             val httpEntity = dummyHeader(dummySafReqeust(gjenlevendeAktoerId))
             every { restSafTemplate.exchange(eq("/"), eq(HttpMethod.POST), eq(httpEntity), eq(String::class.java)) } returns ResponseEntity.ok().body(  dummySafMetaResponseMedRina("1010"))
 
-            val rinaSafUrl = dummyRinasakUrl(euxCaseId =  "1010", status = "\"open\"")
+            val rinaSafUrl = dummyRinasakUrl(euxCaseId =  "1010")
             every { restEuxTemplate.exchange( eq(rinaSafUrl.toUriString()), eq(HttpMethod.GET), null, eq(String::class.java)) } returns ResponseEntity.ok().body( rinaSakerBuc02.toJson())
 
             //buc02 sed
@@ -233,11 +233,11 @@ internal class BucControllerIT: BucBaseTest() {
         every { personService.hentIdent(IdentType.NorskIdent, AktoerId(gjenlevendeAktoerId)) } returns NorskIdent(gjenlevendeFnr)
 
         //buc02 - avdød rinasak
-        val rinaBuc02url = dummyRinasakAvdodUrl(avdodFnr, "P_BUC_02")
+        val rinaBuc02url = dummyRinasakAvdodUrl(avdodFnr)
         every { restEuxTemplate.exchange( eq(rinaBuc02url.toUriString()), eq(HttpMethod.GET), null, eq(String::class.java)) } returns ResponseEntity.ok().body(emptyList<EuxKlient.Rinasak>().toJson())
 
         //gjenlevende rinasak
-        val rinaGjenlevUrl = dummyRinasakUrl(gjenlevendeFnr, status = "\"open\"")
+        val rinaGjenlevUrl = dummyRinasakUrl(gjenlevendeFnr)
         every { restEuxTemplate.exchange(rinaGjenlevUrl.toUriString(), HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( emptyList<EuxKlient.Rinasak>().toJson())
 
         //dummy date

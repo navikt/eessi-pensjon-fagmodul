@@ -280,7 +280,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         every { personService.hentIdent(IdentType.NorskIdent, AktoerId(avdodAktoerId)) } returns NorskIdent(avdodFnr)
 
         val rinaSakerBuc02 = listOf(dummyRinasak("5010", "P_BUC_02"), dummyRinasak("3202", BucType.P_BUC_03.name), dummyRinasak("5005", BucType.AD_BUC_01.name), dummyRinasak("14675", BucType.P_BUC_06.name))
-        val rinaBuc02url = dummyRinasakAvdodUrl(avdodFnr, bucType = null)
+        val rinaBuc02url = dummyRinasakAvdodUrl(avdodFnr)
 
         val answer = FunctionAnswer { Thread.sleep(220); ResponseEntity.ok().body(rinaSakerBuc02.toJson() ) }
         every { restEuxTemplate.exchange( rinaBuc02url.toUriString(), HttpMethod.GET, null, String::class.java) } .answers(answer)
@@ -367,7 +367,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
         //gjenlevende rinasak
         val rinaSakerBuc = listOf(dummyRinasak("3010", "P_BUC_01"), dummyRinasak("75312", "P_BUC_03"))
-        val rinaGjenlevUrl = dummyRinasakUrl(fnr, status = "\"open\"")
+        val rinaGjenlevUrl = dummyRinasakUrl(fnr)
         every { restEuxTemplate.exchange(rinaGjenlevUrl.toUriString(), HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( rinaSakerBuc.toJson())
 
         every { restEuxTemplate.exchange( "/buc/3010", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "3010", processDefinitionName = "P_BUC_03").toJson() )
@@ -409,7 +409,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
                 ResponseEntity.ok().body(  dummySafMetaResponseMedRina("9859667") )
 
         val rinaSakerBuc = listOf(dummyRinasak("3010", "P_BUC_01"), dummyRinasak("75312", "P_BUC_03"))
-        every { restEuxTemplate.exchange(dummyRinasakUrl(fnr, status = "\"open\"").toUriString(), HttpMethod.GET, null, String::class.java) } returns
+        every { restEuxTemplate.exchange(dummyRinasakUrl(fnr).toUriString(), HttpMethod.GET, null, String::class.java) } returns
                 ResponseEntity.ok().body( rinaSakerBuc.toJson())
 
         every { restEuxTemplate.exchange( "/buc/3010", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "3010", processDefinitionName = "P_BUC_03").toJson() )
@@ -436,7 +436,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         val avdodFnr = "01010100001"
 
         val rinaSakerBuc = listOf(dummyRinasak("3010", "P_BUC_02"), dummyRinasak("75312", "P_BUC_03"))
-        val rinaGjenlevUrl = dummyRinasakAvdodUrl(avdodFnr, null)
+        val rinaGjenlevUrl = dummyRinasakAvdodUrl(avdodFnr)
         every { restEuxTemplate.exchange(rinaGjenlevUrl.toUriString(), HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( rinaSakerBuc.toJson())
 
         val result = mockMvc.perform(
@@ -471,7 +471,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         val avdodFnr = "01010100001"
 
         //gjenlevende rinasak
-        val rinaGjenlevUrl = dummyRinasakUrl(avdodFnr, status = "\"open\"")
+        val rinaGjenlevUrl = dummyRinasakUrl(avdodFnr)
         every { restEuxTemplate.exchange(rinaGjenlevUrl.toUriString(), HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body("[]")
 
         val result = mockMvc.perform(
