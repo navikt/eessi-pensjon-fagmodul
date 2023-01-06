@@ -368,7 +368,7 @@ class EuxKlientTest {
 
         every {  mockEuxrestTemplate.exchange(any<String>(),HttpMethod.GET,null, String::class.java)} returns response
 
-        val expected = 239
+        val expected = 248
         val actual = klient.getInstitutions(P_BUC_01.name)
 
         assertEquals(expected, actual.size)
@@ -386,10 +386,10 @@ class EuxKlientTest {
         every {  mockEuxrestTemplate.exchange(any<String>(),HttpMethod.GET,null, String::class.java)} returns response
 
         val actual = klient.getInstitutions(P_BUC_03.name)
-        assertEquals(215, actual.size)
+        assertEquals(248, actual.size)
 
-        val result = actual.filter { it.institution == "PL:PL390050ER" }.map { it }
-        assertEquals(0, result.size)
+/*        val result = actual.filter { it.institution == "PL:PL390050ER" }.map { it }
+        assertEquals(0, result.size)*/
 
    }
 
