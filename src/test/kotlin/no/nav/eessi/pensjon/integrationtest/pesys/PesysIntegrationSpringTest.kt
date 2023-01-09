@@ -28,6 +28,9 @@ import org.springframework.web.client.RestTemplate
 @EmbeddedKafka
 class PesysIntegrationSpringTest {
 
+    @MockkBean(name = "pdlRestTemplate")
+    private lateinit var pdlRestTemplate: RestTemplate
+
     @MockkBean(name = "prefillOAuthTemplate")
     private lateinit var prefillOAuthTemplate: RestTemplate
 

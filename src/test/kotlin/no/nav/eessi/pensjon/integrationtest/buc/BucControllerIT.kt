@@ -44,6 +44,9 @@ import java.time.Month
 @EmbeddedKafka
 internal class BucControllerIT: BucBaseTest() {
 
+    @MockkBean(name = "pdlRestTemplate")
+    private lateinit var pdlRestTemplate: RestTemplate
+
     @MockkBean(name = "prefillOAuthTemplate")
     private lateinit var prefillOAuthTemplate: RestTemplate
 

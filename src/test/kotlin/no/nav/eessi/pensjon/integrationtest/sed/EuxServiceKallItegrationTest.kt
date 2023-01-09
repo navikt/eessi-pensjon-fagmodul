@@ -22,6 +22,9 @@ import org.springframework.web.client.RestTemplate
 @AutoConfigureMockMvc
 class EuxServiceKallItegrationTest {
 
+    @MockkBean(name = "pdlRestTemplate")
+    private lateinit var pdlRestTemplate: RestTemplate
+
     @MockkBean(name = "prefillOAuthTemplate")
     private lateinit var prefillOAuthTemplate: RestTemplate
 
