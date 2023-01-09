@@ -4,7 +4,6 @@ import no.nav.eessi.pensjon.fagmodul.config.INSTITUTION_CACHE
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.PreviewPdf
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonDetalj
-import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import org.slf4j.LoggerFactory
@@ -24,7 +23,6 @@ import org.springframework.web.util.UriComponents
 import org.springframework.web.util.UriComponentsBuilder
 import java.util.*
 import javax.annotation.PostConstruct
-
 /**
  *   https://eux-app.nais.preprod.local/swagger-ui.html#/eux-cpi-service-controller/
  */
@@ -74,19 +72,19 @@ class EuxKlient(
                        euxCaseId: String,
                        parentDocumentId: String,
                        errorMessage: String,
-                       metric: MetricsHelper.Metric
-    ): BucSedResponse {
-        val httpEntity = populerHttpEntity(navSEDjson)
-
-        logger.debug("Kaller eux med json: $navSEDjson, euxCaseId: $euxCaseId, parentId: $parentDocumentId")
+                       metric: MetricsHelper.Metric ): BucSedResponse {
         val response = restTemplateErrorhandler(
-            {
+            restTemplateFunction = {
                 euxNavIdentRestTemplate.postForEntity(
                     "/buc/$euxCaseId/sed/$parentDocumentId/svar",
-                    httpEntity,
+                    HttpEntity(navSEDjson, HttpHeaders().apply { contentType = MediaType.APPLICATION_JSON }),
                     String::class.java
                 )
-            }, euxCaseId, metric, errorMessage, waitTimes = 20000L
+            },
+            euxCaseId =  euxCaseId,
+            metric = metric,
+            prefixErrorMessage = errorMessage,
+            waitTimes = 20000L
         )
         return BucSedResponse(euxCaseId, response.body!!)
     }
@@ -99,50 +97,33 @@ class EuxKlient(
                    metric: MetricsHelper.Metric,
                    errorMessage: String): BucSedResponse {
 
-        val httpEntity = populerHttpEntity(navSEDjson)
-        val ventePaAksjonVerdi = "false"
-
-        logger.debug("Kaller eux med json: $navSEDjson, euxCaseId: $euxCaseId")
         val response = restTemplateErrorhandler(
-                {
-                    euxNavIdentRestTemplate.postForEntity(
-                        "/buc/$euxCaseId/sed?ventePaAksjon=$ventePaAksjonVerdi",
-                            httpEntity,
-                            String::class.java)
-                }
-                , euxCaseId
-                , metric
-                , errorMessage
-                , waitTimes = 9000L
+            restTemplateFunction = {
+                euxNavIdentRestTemplate.postForEntity(
+                    "/buc/$euxCaseId/sed?ventePaAksjon=false",
+                    HttpEntity(navSEDjson, HttpHeaders().apply { contentType = MediaType.APPLICATION_JSON }),
+                    String::class.java)
+            },
+            euxCaseId = euxCaseId,
+            metric = metric,
+            prefixErrorMessage =  errorMessage,
+            waitTimes = 9000L
         )
         return BucSedResponse(euxCaseId, response.body!!)
     }
 
-    private fun populerHttpEntity(navSEDjson: String): HttpEntity<String> {
-        val headers = HttpHeaders()
-        headers.contentType = MediaType.APPLICATION_JSON
-        return HttpEntity(navSEDjson, headers)
-    }
-
     fun getRinaUrl(): String {
-        val rinaCallid = "-1-11-111" //hack rinaid/bucid for henting av rinaurl
-        val path = "/url/buc/{RinaSakId}" //path
-        val uriParams = mapOf("RinaSakId" to rinaCallid)
-        val builder = UriComponentsBuilder.fromUriString(path).buildAndExpand(uriParams)
-        logger.debug("RinaUrl prøver å kontakte EUX ${builder.toUriString()}")
+        val rinaCallid = "-1-11-111"
+        val path = "/url/buc/$rinaCallid"
         val response = restTemplateErrorhandler(
-            {
-                euxNavIdentRestTemplate.exchange(builder.toUriString(),
-                    HttpMethod.GET,
-                    null,
-                    String::class.java)
-            }
-            , ""
-            , RinaUrl
-            , "Feil ved henting av RinaURL"
+            restTemplateFunction = {
+                euxNavIdentRestTemplate.exchange(path, HttpMethod.GET, null, String::class.java)
+            },
+            metric = RinaUrl,
+            prefixErrorMessage = "Feil ved henting av RinaURL"
         )
         val url =  response.body ?: run {
-            logger.error("Feiler ved lasting av navSed: ${builder.toUriString()}")
+            logger.error("Feiler ved lasting av navSed: $path")
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Feiler ved response av RinaURL")
         }
         return url.replace(rinaCallid, "").also { logger.info("Url til Rina: $it") }
@@ -155,24 +136,16 @@ class EuxKlient(
         getSedOnBucByDocumentIdWithRest(euxCaseId, documentId, euxNavIdentRestTemplate)
 
     private fun getSedOnBucByDocumentIdWithRest(euxCaseId: String, documentId: String, restTemplate: RestTemplate): String {
-        val path = "/buc/{RinaSakId}/sed/{DokumentId}"
-        val uriParams = mapOf("RinaSakId" to euxCaseId, "DokumentId" to documentId)
-        val builder = UriComponentsBuilder.fromUriString(path).buildAndExpand(uriParams)
-        logger.debug("SedDocument prøver å kontakte EUX ${builder.toUriString()}")
+        val path = "/buc/$euxCaseId/sed/$documentId"
 
         val response = restTemplateErrorhandler(
-                {
-                    restTemplate.exchange(builder.toUriString(),
-                            HttpMethod.GET,
-                            null,
-                            String::class.java)
-                }
-                , euxCaseId
-                , SEDByDocumentId
-                , "Feil ved henting av Sed med DocId: $documentId"
+            restTemplateFunction = { restTemplate.exchange(path,HttpMethod.GET,null, String::class.java) },
+            euxCaseId= euxCaseId,
+            metric = SEDByDocumentId,
+            prefixErrorMessage = "Feil ved henting av Sed med DocId: $documentId"
         )
         return response.body ?: run {
-            logger.error("Feiler ved lasting av navSed: ${builder.toUriString()}")
+            logger.error("Feiler ved lasting av navSed: $path")
             throw SedDokumentIkkeLestException("Feiler ved lesing av navSED, feiler ved uthenting av SED")
         }
     }
@@ -182,54 +155,40 @@ class EuxKlient(
     fun getBucJsonAsNavIdent(euxCaseId: String): String = getBucJsonWithRest(euxCaseId, euxNavIdentRestTemplate)
 
     private fun getBucJsonWithRest(euxCaseId: String, restTemplate: RestTemplate): String {
-        logger.info("get euxCaseId: $euxCaseId")
-
-        val path = "/buc/{RinaSakId}"
-        val uriParams = mapOf("RinaSakId" to euxCaseId)
-        val builder = UriComponentsBuilder.fromUriString(path).buildAndExpand(uriParams)
-        logger.debug("BucJson prøver å kontakte EUX ${builder.toUriString()}")
+        val path = "/buc/$euxCaseId"
+        logger.info("getBucJsonWithRest prøver å kontakte EUX $path")
 
         val response = restTemplateErrorhandler(
-                restTemplateFunction = {
-                    restTemplate.exchange(
-                            builder.toUriString(),
-                            HttpMethod.GET,
-                            null,
-                            String::class.java)
-                }
-                , euxCaseId = euxCaseId
-                , metric = GetBUC
-                , prefixErrorMessage = "Feiler ved metode GetBuc. "
-                , maxAttempts = 3
-                , waitTimes = 6000L
+            restTemplateFunction = {
+                restTemplate.exchange(path, HttpMethod.GET, null, String::class.java)
+            },
+            euxCaseId = euxCaseId,
+            metric = GetBUC,
+            prefixErrorMessage = "Feiler ved metode getBucJsonWithRest",
+            maxAttempts = 3,
+            waitTimes = 6000L
         )
         return response.body ?: throw ServerException("Feil ved henting av BUCdata ingen data, euxCaseId $euxCaseId")
     }
 
     fun getPdfJsonWithRest(euxCaseId: String, documentId: String): PreviewPdf {
-        logger.info("get euxCaseId: $euxCaseId")
 
         val path = "/buc/${euxCaseId}/sed/${documentId}/pdf"
-        val uriParams = mapOf("euxCaseId" to euxCaseId, "documentId" to documentId)
-        val builder = UriComponentsBuilder.fromUriString(path).buildAndExpand(uriParams)
-        logger.debug("BucJson prøver å kontakte EUX ${builder.toUriString()}")
-
-        val headers = HttpHeaders()
-        headers.contentType = MediaType.APPLICATION_PDF
+        logger.info("getPdfJsonWithRest prøver å kontakte EUX path")
 
         val response = restTemplateErrorhandler(
             restTemplateFunction = {
                 euxNavIdentRestTemplate.exchange(
-                    builder.toUriString(),
+                    path,
                     HttpMethod.GET,
-                    HttpEntity("/", headers),
+                    HttpEntity("/", HttpHeaders().apply { contentType = MediaType.APPLICATION_PDF }),
                     Resource::class.java)
-            }
-            , euxCaseId = euxCaseId
-            , metric = GetBUC
-            , prefixErrorMessage = "Feiler ved metode GetPdf. "
-            , maxAttempts = 4
-            , waitTimes = 10000L
+            },
+            euxCaseId = euxCaseId,
+            metric = GetBUC,
+            prefixErrorMessage = "Feiler ved metode GetPdf. ",
+            maxAttempts = 4,
+            waitTimes = 10000L
         )
         val filnavn = response.headers.contentDisposition.filename
         val contentType = response.headers.contentType!!.toString()
@@ -242,72 +201,33 @@ class EuxKlient(
     fun getBucDeltakere(euxCaseId: String): List<ParticipantsItem> {
         logger.info("euxCaseId: $euxCaseId")
 
-        val path = "/buc/{RinaSakId}/bucdeltakere"
-        val uriParams = mapOf("RinaSakId" to euxCaseId)
-        val builder = UriComponentsBuilder.fromUriString(path).buildAndExpand(uriParams)
-        logger.debug("BucDeltakere prøver å kontakte EUX /${builder.toUriString()}")
-
+        val path = "/buc/$euxCaseId/bucdeltakere"
         val response = restTemplateErrorhandler(
-                restTemplateFunction = {
-                    euxNavIdentRestTemplate.exchange(
-                            builder.toUriString(),
-                            HttpMethod.GET,
-                            null,
-                            String::class.java
-                    )
-                }
-                , euxCaseId = euxCaseId
-                , metric = BUCDeltakere
-                , prefixErrorMessage = "Feiler ved metode getDeltakerer. "
+            restTemplateFunction = {
+                euxNavIdentRestTemplate.exchange(path, HttpMethod.GET,null,String::class.java)
+            },
+            euxCaseId = euxCaseId,
+            metric = BUCDeltakere,
+            prefixErrorMessage = "Feiler ved metode getDeltakerer"
         )
-        return try {
-            mapJsonToAny(response.body!!)
-        } catch (ex: Exception) {
-            throw ServerException("Feil ved henting av BucDeltakere: ingen data, euxCaseId $euxCaseId")
-       }
+        return mapJsonToAny(response.body!!)
     }
 
     /**
      * List all institutions connected to RINA.
      */
     @Cacheable(cacheNames = [INSTITUTION_CACHE], cacheManager = "fagmodulCacheManager")
-    fun getInstitutions(bucType: String, landkode: String? = ""): List<InstitusjonItem> {
+    fun getInstitutions(bucType: String, landkode: String? = ""): List<InstitusjonDetalj> {
         val url = "/institusjoner?BuCType=$bucType&LandKode=${landkode ?: ""}"
 
         val responseInstitution = restTemplateErrorhandler(
-                {
-                    euxNavIdentRestTemplate.exchange(
-                        url,
-                            HttpMethod.GET,
-                            null,
-                            String::class.java)
-                }
-                , ""
-                , Institusjoner
-                , "Feil ved innhenting av institusjoner"
+            restTemplateFunction = {
+                euxNavIdentRestTemplate.exchange(url, HttpMethod.GET, null, String::class.java)
+            },
+            metric = Institusjoner,
+            prefixErrorMessage = "Feil ved innhenting av institusjoner"
         )
-        val starttid = System.currentTimeMillis()
-        val detaljList = mapJsonToAny<List<InstitusjonDetalj>>(responseInstitution.body!!)
-
-        val institusjonListe = detaljList.asSequence()
-                .filter { institusjon ->
-                    institusjon.tilegnetBucs.any { tilegnetBucsItem ->
-                        tilegnetBucsItem.institusjonsrolle == "CounterParty"
-                                && tilegnetBucsItem.eessiklar
-                                && tilegnetBucsItem.bucType == bucType
-                    }
-                }
-                .map { institusjon ->
-                    InstitusjonItem(institusjon.landkode, institusjon.id, institusjon.navn, institusjon.akronym)
-                }
-                .sortedBy { it.institution }
-                .sortedBy { it.country }
-                .toList()
-
-        val slutttid = System.currentTimeMillis()
-        val tidbrukt = slutttid - starttid
-        logger.debug("Tid brukt på institusjonListe map: $tidbrukt ms")
-        return institusjonListe
+        return  mapJsonToAny(responseInstitution.body!!)
     }
 
     /**
@@ -327,48 +247,15 @@ class EuxKlient(
         logger.debug("** rinaSaker Url: ${uriComponent.toUriString()} **")
 
         val response = restTemplateErrorhandler(
-                {
-                    euxNavIdentRestTemplate.exchange(uriComponent.toUriString(),
-                            HttpMethod.GET,
-                            null,
-                            String::class.java)
-                }
-                , euxCaseId ?: ""
-                , HentRinasaker
-                , "Feil ved Rinasaker"
+            restTemplateFunction = {
+                euxNavIdentRestTemplate.exchange(uriComponent.toUriString(), HttpMethod.GET, null, String::class.java)
+            },
+            metric = HentRinasaker,
+            prefixErrorMessage = "Feil ved Rinasaker"
         )
 
         return mapJsonToAny(response.body!!)
     }
-
-    companion object {
-
-        fun getRinasakerUri(fnr: String? = null, euxCaseId: String? = null): UriComponents {
-            require(!(fnr == null && euxCaseId == null)) {
-                "Minst et søkekriterie må fylles ut for å få et resultat fra Rinasaker"
-            }
-
-            val uriComponent = if (euxCaseId != null && fnr == null) {
-                UriComponentsBuilder.fromPath("/rinasaker")
-                    .queryParam("rinasaksnummer", euxCaseId)
-                    .queryParam("status", "\"open\"")
-                    .build()
-            } else if (euxCaseId == null && fnr != null) {
-                UriComponentsBuilder.fromPath("/rinasaker")
-                    .queryParam("fødselsnummer", fnr)
-                    .queryParam("status", "\"open\"")
-                    .build()
-            } else {
-                UriComponentsBuilder.fromPath("/rinasaker")
-                    .queryParam("fødselsnummer", fnr ?: "")
-                    .queryParam("rinasaksnummer", euxCaseId ?: "")
-                    .queryParam("status","\"open\"")
-                    .build()
-            }
-            return uriComponent
-        }
-    }
-
 
     fun createBuc(bucType: String): String {
         val correlationId = correlationId()
@@ -379,16 +266,12 @@ class EuxKlient(
 
         logger.info("Kontakter EUX for å prøve på opprette ny BUC med korrelasjonId: $correlationId")
         val response = restTemplateErrorhandler(
-                {
-                    euxNavIdentRestTemplate.exchange(
-                            builder.toUriString(),
-                            HttpMethod.POST,
-                            null,
-                            String::class.java)
-                }
-                , bucType
-                , CreateBUC
-                , "Opprett Buc, "
+            restTemplateFunction = {
+                euxNavIdentRestTemplate.exchange(builder.toUriString(), HttpMethod.POST, null, String::class.java)
+            },
+            euxCaseId = bucType,
+            metric = CreateBUC,
+            prefixErrorMessage = "Opprett Buc, "
         )
         response.body?.let { return it } ?: run {
             logger.error("Får ikke opprettet BUC på bucType: $bucType")
@@ -415,40 +298,31 @@ class EuxKlient(
         logger.debug("Kontakter EUX for å legge til deltager: $institusjoner med korrelasjonId: $correlationId på type: $euxCaseId")
 
         val result = restTemplateErrorhandler(
-                {
-                    euxNavIdentRestTemplate.exchange(
-                            url,
-                            HttpMethod.PUT,
-                            null,
-                            String::class.java)
-                }
-                , euxCaseId
-                , PutMottaker
-                , "Feiler ved behandling. Får ikke lagt til mottaker på Buc. "
+            restTemplateFunction = {
+                euxNavIdentRestTemplate.exchange(url, HttpMethod.PUT, null, String::class.java)
+            },
+            euxCaseId = euxCaseId,
+            metric = PutMottaker,
+            prefixErrorMessage = "Feiler ved behandling. Får ikke lagt til mottaker på Buc. "
         )
         return result.statusCode == HttpStatus.OK
-
     }
 
-
     fun updateSedOnBuc(euxCaseId: String, dokumentId: String, sedPayload: String): Boolean {
-        ///cpi/buc/{RinaSakId}/sed/{DokumentId}
-        val ventePaAksjonVerdi = "false"
-        val builder = UriComponentsBuilder.fromPath("/buc/$euxCaseId/sed/$dokumentId?ventePaAksjon=$ventePaAksjonVerdi").build()
-        val url = builder.toUriString()
+        val path = "/buc/$euxCaseId/sed/$dokumentId?ventePaAksjon=false"
 
-        logger.info("Oppdaterer document med euxCaseId: $euxCaseId og documentid: $dokumentId")
         val result = restTemplateErrorhandler(
-            {
+            restTemplateFunction = {
                 euxNavIdentRestTemplate.exchange(
-                    url,
+                    path,
                     HttpMethod.PUT,
-                    populerHttpEntity(sedPayload),
-                    String::class.java)
-            }
-            , euxCaseId
-            , PutDocument
-            , "Feiler ved behandling. Får ikke oppdatert document. "
+                    HttpEntity(sedPayload, HttpHeaders().apply { contentType = MediaType.APPLICATION_JSON }),
+                    String::class.java
+                )
+            },
+            euxCaseId = euxCaseId,
+            metric = PutDocument,
+            prefixErrorMessage = "Feiler ved behandling. Får ikke oppdatert document. "
         )
         return result.statusCode == HttpStatus.OK
     }
@@ -477,7 +351,7 @@ class EuxKlient(
     }
 
     fun <T> restTemplateErrorhandler(restTemplateFunction: () -> ResponseEntity<T>,
-                                     euxCaseId: String,
+                                     euxCaseId: String? = null,
                                      metric: MetricsHelper.Metric,
                                      prefixErrorMessage: String,
                                      maxAttempts: Int = 3,
@@ -532,7 +406,6 @@ class EuxKlient(
         val documentId: String
     )
 
-
     /**
      * Respons fra eux-rina-api/cpi/rinasaker
      * Skal bare endres dersom responsen fra EUX endrer seg.
@@ -569,6 +442,35 @@ class EuxKlient(
         val status: String? = null
     )
 
+    companion object {
+
+        fun getRinasakerUri(fnr: String? = null, euxCaseId: String? = null): UriComponents {
+            require(!(fnr == null && euxCaseId == null)) {
+                "Minst et søkekriterie må fylles ut for å få et resultat fra Rinasaker"
+            }
+
+            val uriComponent = if (euxCaseId != null && fnr == null) {
+                UriComponentsBuilder.fromPath("/rinasaker")
+                    .queryParam("rinasaksnummer", euxCaseId)
+                    .queryParam("status", "\"open\"")
+                    .build()
+            } else if (euxCaseId == null && fnr != null) {
+                UriComponentsBuilder.fromPath("/rinasaker")
+                    .queryParam("fødselsnummer", fnr)
+                    .queryParam("status", "\"open\"")
+                    .build()
+            } else {
+                UriComponentsBuilder.fromPath("/rinasaker")
+                    .queryParam("fødselsnummer", fnr ?: "")
+                    .queryParam("rinasaksnummer", euxCaseId ?: "")
+                    .queryParam("status","\"open\"")
+                    .build()
+            }
+            return uriComponent
+        }
+    }
+
+
 
 }
 
@@ -597,5 +499,3 @@ class SedDokumentIkkeOpprettetException(message: String) : ResponseStatusExcepti
 class SedDokumentIkkeLestException(message: String?) : ResponseStatusException(HttpStatus.NOT_FOUND, message)
 
 class EuxGenericServerException(message: String?) : ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, message)
-
-class EuxServerException(message: String?) : ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, message)

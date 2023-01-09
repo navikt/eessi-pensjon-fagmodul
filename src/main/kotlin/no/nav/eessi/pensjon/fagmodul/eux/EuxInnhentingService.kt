@@ -12,6 +12,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.PreviewPdf
 import no.nav.eessi.pensjon.fagmodul.models.ApiRequest
+import no.nav.eessi.pensjon.fagmodul.models.InstitusjonDetalj
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
 import no.nav.eessi.pensjon.utils.*
@@ -104,8 +105,25 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
     }
 
     fun getInstitutions(bucType: String, landkode: String? = ""): List<InstitusjonItem> {
-        logger.debug("henter institustion for bucType: $bucType, land: $landkode")
-        return euxKlient.getInstitutions(bucType, landkode)
+        logger.info("henter institustion for bucType: $bucType, land: $landkode")
+        val detaljList: List<InstitusjonDetalj> =  euxKlient.getInstitutions(bucType, landkode)
+
+        val institusjonListe = detaljList.asSequence()
+            .filter { institusjon ->
+                institusjon.tilegnetBucs.any { tilegnetBucsItem ->
+                    tilegnetBucsItem.institusjonsrolle == "CounterParty"
+                            && tilegnetBucsItem.eessiklar
+                            && tilegnetBucsItem.bucType == bucType
+                }
+            }
+            .map { institusjon ->
+                InstitusjonItem(institusjon.landkode, institusjon.id, institusjon.navn, institusjon.akronym)
+            }
+            .sortedBy { it.institution }
+            .sortedBy { it.country }
+            .toList()
+
+        return institusjonListe
     }
 
     /**
@@ -345,7 +363,7 @@ fun hentBucer(aktoerId: String, pesysSaksnr: String, rinaSakIder: List<String>):
     }
 
     fun updateSedOnBuc(euxcaseid: String, documentid: String, sedPayload: String): Boolean {
-        logger.info("Oppdaterer ekisternede sed på rina: $euxcaseid. docid: $documentid")
+        logger.info("Oppdaterer eksisterende sed på rina: $euxcaseid. docid: $documentid")
         return euxKlient.updateSedOnBuc(euxcaseid, documentid, sedPayload)
     }
 
