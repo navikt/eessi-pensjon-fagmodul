@@ -31,6 +31,9 @@ import java.nio.charset.Charset
 @EmbeddedKafka
 class UpdateSedOnBucIntegrationTest {
 
+    @MockkBean(name = "pdlRestTemplate")
+    private lateinit var pdlRestTemplate: RestTemplate
+
     @MockkBean(name = "prefillOAuthTemplate")
     private lateinit var prefillOAuthTemplate: RestTemplate
 

@@ -24,6 +24,8 @@ import org.springframework.web.client.RestTemplate
 @ActiveProfiles(profiles = ["unsecured-webmvctest"])
 @AutoConfigureMockMvc
 class VedleggControllerSpringTest {
+    @MockkBean(name = "pdlRestTemplate")
+    private lateinit var pdlRestTemplate: RestTemplate
 
     @MockkBean(name = "prefillOAuthTemplate")
     private lateinit var prefillOAuthTemplate: RestTemplate
