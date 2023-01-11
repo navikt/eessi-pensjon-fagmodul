@@ -2,8 +2,8 @@ package no.nav.eessi.pensjon.fagmodul.eux
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
+import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_02
 import no.nav.eessi.pensjon.eux.model.SedType
-import no.nav.eessi.pensjon.eux.model.buc.BucType
 import no.nav.eessi.pensjon.eux.model.sed.P6000
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
@@ -93,7 +93,7 @@ internal class EuxInnhentingServiceTest {
     @Test
     fun getBucViewBruker() {
         val euxCaseId = "3893690"
-        val rinaSaker = listOf(EuxKlient.Rinasak(euxCaseId, BucType.P_BUC_02.name, EuxKlient.Traits(), "", EuxKlient.Properties(), "open"))
+        val rinaSaker = listOf(EuxKlient.Rinasak(euxCaseId, P_BUC_02.name, EuxKlient.Traits(), "", EuxKlient.Properties(), "open"))
         every { euxKlient.getRinasaker(eq(FNR), any()) } returns rinaSaker
 
         every { euxKlient.getBucJsonAsNavIdent(euxCaseId) } returns Buc(id = "3893690", processDefinitionName = "P_BUC_03").toJson()
@@ -103,7 +103,7 @@ internal class EuxInnhentingServiceTest {
         assertEquals(
             EuxInnhentingService.BucView(
                 euxCaseId = euxCaseId,
-                buctype = BucType.P_BUC_02,
+                buctype = P_BUC_02,
                 aktoerId = AKTOERID,
                 saknr = SAKSNR,
                 avdodFnr = null,
@@ -122,7 +122,7 @@ internal class EuxInnhentingServiceTest {
         assertEquals(
             EuxInnhentingService.BucView(
                 euxCaseId = euxCaseId,
-                buctype = BucType.P_BUC_02,
+                buctype = P_BUC_02,
                 aktoerId = AKTOERID,
                 saknr = SAKSNR,
                 avdodFnr = null,
@@ -256,7 +256,7 @@ internal class EuxInnhentingServiceTest {
 
         assertEquals(1, actual.size)
         assertEquals(rinasakid, actual.first().euxCaseId)
-        assertEquals(BucType.P_BUC_02, actual.first().buctype)
+        assertEquals(P_BUC_02, actual.first().buctype)
     }
 
     @Test

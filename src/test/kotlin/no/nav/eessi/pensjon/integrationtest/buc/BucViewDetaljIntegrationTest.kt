@@ -5,8 +5,11 @@ import io.mockk.FunctionAnswer
 import io.mockk.every
 import io.mockk.verify
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
+import no.nav.eessi.pensjon.eux.model.BucType.AD_BUC_01
+import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_02
+import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_03
+import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_06
 import no.nav.eessi.pensjon.eux.model.SedType
-import no.nav.eessi.pensjon.eux.model.buc.BucType
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucView
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucViewKilde
@@ -282,7 +285,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         every { personService.hentIdent(IdentType.NorskIdent, AktoerId(gjenlevendeAktoerId)) } returns NorskIdent(gjenlevendeFnr)
         every { personService.hentIdent(IdentType.NorskIdent, AktoerId(avdodAktoerId)) } returns NorskIdent(avdodFnr)
 
-        val rinaSakerBuc02 = listOf(dummyRinasak("5010", "P_BUC_02"), dummyRinasak("3202", BucType.P_BUC_03.name), dummyRinasak("5005", BucType.AD_BUC_01.name), dummyRinasak("14675", BucType.P_BUC_06.name))
+        val rinaSakerBuc02 = listOf(dummyRinasak("5010", "P_BUC_02"), dummyRinasak("3202", P_BUC_03.name), dummyRinasak("5005", AD_BUC_01.name), dummyRinasak("14675", P_BUC_06.name))
         val rinaBuc02url = dummyRinasakAvdodUrl(avdodFnr)
 
         val answer = FunctionAnswer { Thread.sleep(220); ResponseEntity.ok().body(rinaSakerBuc02.toJson() ) }
@@ -464,7 +467,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
         assertEquals(1, requestlist.size)
         assertEquals("3010", requestlist.first().euxCaseId)
-        assertEquals(BucType.P_BUC_02, requestlist.first().buctype)
+        assertEquals(P_BUC_02, requestlist.first().buctype)
     }
 
     @Test

@@ -3,7 +3,7 @@ package no.nav.eessi.pensjon.integrationtest.buc
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
-import no.nav.eessi.pensjon.eux.model.buc.BucType
+import no.nav.eessi.pensjon.eux.model.BucType.*
 import no.nav.eessi.pensjon.fagmodul.api.BucController
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
@@ -41,7 +41,7 @@ class BucControllerTest {
         val aktoerId = "12666"
         val rinanummer = "1111"
         val endpointUrl = "/buc/joark/aktoer/$aktoerId/pesyssak/$pesyssak"
-        val buc = Buc(id = rinanummer, processDefinitionName = BucType.P_BUC_01.name)
+        val buc = Buc(id = rinanummer, processDefinitionName = P_BUC_01.name)
 
         every { innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)} returns listOf(rinanummer)
         every { euxInnhentingService.hentBucer(aktoerId, pesyssak, listOf(rinanummer)) } returns listOf(buc)
@@ -57,7 +57,7 @@ class BucControllerTest {
         val rinanummer = "1111"
         val aktoerId = "12666"
         val endpointUrl = "/buc/$rinanummer"
-        val buc = Buc(id = rinanummer, processDefinitionName = BucType.P_BUC_01.name)
+        val buc = Buc(id = rinanummer, processDefinitionName = P_BUC_01.name)
 
         every { euxInnhentingService.getBuc(rinanummer) } returns buc
         every { innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)} returns listOf(rinanummer, "2222")

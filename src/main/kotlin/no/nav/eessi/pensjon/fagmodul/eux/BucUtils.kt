@@ -1,7 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
+import no.nav.eessi.pensjon.eux.model.BucType.*
 import no.nav.eessi.pensjon.eux.model.SedType
-import no.nav.eessi.pensjon.eux.model.buc.BucType
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.document.Retning
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ActionOperation
@@ -79,16 +79,16 @@ class BucUtils(private val buc: Buc) {
     private fun createEmptyDocumentsForRina2020() : List<DocumentsItem> {
         logger.debug("Kjører hjelpemetode for RINA2020")
         return when(getProcessDefinitionName()) {
-            BucType.P_BUC_01.name -> createEmptyDocument(SedType.P2000)
-            BucType.P_BUC_02.name -> createEmptyDocument(SedType.P2100)
-            BucType.P_BUC_03.name -> createEmptyDocument(SedType.P2200)
-            BucType.P_BUC_04.name -> createEmptyDocument(SedType.P1000)
-            BucType.P_BUC_05.name -> createEmptyDocument(SedType.P8000)
-            BucType.P_BUC_06.name -> createEmptyDocument(SedType.DummyChooseParts)
-            BucType.P_BUC_07.name -> createEmptyDocument(SedType.P11000)
-            BucType.P_BUC_08.name -> createEmptyDocument(SedType.P12000)
-            BucType.P_BUC_09.name -> createEmptyDocument(SedType.P14000)
-            BucType.P_BUC_10.name -> createEmptyDocument(SedType.P15000)
+            P_BUC_01.name -> createEmptyDocument(SedType.P2000)
+            P_BUC_02.name -> createEmptyDocument(SedType.P2100)
+            P_BUC_03.name -> createEmptyDocument(SedType.P2200)
+            P_BUC_04.name -> createEmptyDocument(SedType.P1000)
+            P_BUC_05.name -> createEmptyDocument(SedType.P8000)
+            P_BUC_06.name -> createEmptyDocument(SedType.DummyChooseParts)
+            P_BUC_07.name -> createEmptyDocument(SedType.P11000)
+            P_BUC_08.name -> createEmptyDocument(SedType.P12000)
+            P_BUC_09.name -> createEmptyDocument(SedType.P14000)
+            P_BUC_10.name -> createEmptyDocument(SedType.P15000)
             else ->  emptyList()
         }
     }

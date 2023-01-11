@@ -5,8 +5,11 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import no.nav.eessi.pensjon.eux.model.BucType
+import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_01
+import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_02
+import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_10
 import no.nav.eessi.pensjon.eux.model.SedType
-import no.nav.eessi.pensjon.eux.model.buc.BucType
 import no.nav.eessi.pensjon.fagmodul.models.ApiRequest
 import no.nav.eessi.pensjon.fagmodul.models.ApiSubject
 import no.nav.eessi.pensjon.fagmodul.models.SubjectFnr
@@ -54,7 +57,7 @@ internal class InnhentingServiceTest {
 
     @Test
     fun `Gitt at avdodfnr finnes paa en p2100 saa skal aktoerid for avdodfnr returneres`() {
-        val apiRequest = apiRequest(SedType.P2100, BucType.P_BUC_02, AKTOER_ID, AVDOD_FNR)
+        val apiRequest = apiRequest(SedType.P2100, P_BUC_02, AKTOER_ID, AVDOD_FNR)
         every { personService.hentIdent(eq(IdentType.AktoerId), any<Ident<*>>()) } returns AktoerId(AKTOER_ID)
 
         val result = innhentingService.getAvdodId(BucType.from(apiRequest.buc)!!, apiRequest.riktigAvdod())
@@ -65,7 +68,7 @@ internal class InnhentingServiceTest {
     @Test
     fun `Gitt at avdodfnr finnes paa en p5000 saa skal aktoerid for avdodfnr returneres`() {
         val apiRequest = apiRequest(
-                SedType.P5000, BucType.P_BUC_02, AKTOER_ID, AVDOD_FNR, GJENLEVENDE_FNR,
+                SedType.P5000, P_BUC_02, AKTOER_ID, AVDOD_FNR, GJENLEVENDE_FNR,
                 ApiSubject(gjenlevende = SubjectFnr(GJENLEVENDE_FNR), avdod = SubjectFnr(ADVOD_FNR2))
         )
 
@@ -77,7 +80,7 @@ internal class InnhentingServiceTest {
 
     @Test
     fun `Gitt en P2100 mangler fnr saa skal vi kaste en ResponseStatusException`() {
-        val apiRequest = apiRequest(SedType.P2100, BucType.P_BUC_02, AKTOER_ID)
+        val apiRequest = apiRequest(SedType.P2100, P_BUC_02, AKTOER_ID)
         assertThrows<ResponseStatusException> {
             innhentingService.getAvdodId(BucType.from(apiRequest.buc)!!, apiRequest.riktigAvdod())
         }
@@ -85,7 +88,7 @@ internal class InnhentingServiceTest {
 
     @Test
     fun `Gitt en P15000 inneholder et ugyldig avdodfnr saa kastes det en ResponseStatusException`() {
-        val apiRequest = apiRequest(SedType.P15000, BucType.P_BUC_10, AKTOER_ID, AVDOD_FNR)
+        val apiRequest = apiRequest(SedType.P15000, P_BUC_10, AKTOER_ID, AVDOD_FNR)
 
         assertThrows<ResponseStatusException> {
             innhentingService.getAvdodId(BucType.from(apiRequest.buc)!!, apiRequest.riktigAvdod())
@@ -94,7 +97,7 @@ internal class InnhentingServiceTest {
 
     @Test
     fun `Gitt en P2000 saa skal getAvdodAktoerId returnere null da det ikke skal finnes avdod på en p2000`() {
-        val apiRequest = apiRequest(SedType.P2000, BucType.P_BUC_01, AKTOER_ID, AVDOD_FNR)
+        val apiRequest = apiRequest(SedType.P2000, P_BUC_01, AKTOER_ID, AVDOD_FNR)
 
         val result = innhentingService.getAvdodId(BucType.from(apiRequest.buc)!!, apiRequest.avdodfnr)
         assertEquals(null, result)

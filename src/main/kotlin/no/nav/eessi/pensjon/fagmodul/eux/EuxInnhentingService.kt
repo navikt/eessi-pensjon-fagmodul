@@ -1,7 +1,8 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
+import no.nav.eessi.pensjon.eux.model.BucType
+import no.nav.eessi.pensjon.eux.model.BucType.*
 import no.nav.eessi.pensjon.eux.model.SedType
-import no.nav.eessi.pensjon.eux.model.buc.BucType
 import no.nav.eessi.pensjon.eux.model.buc.MissingBuc
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.sed.Person
@@ -27,7 +28,7 @@ import org.springframework.web.server.ResponseStatusException
 class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @Qualifier("fagmodulEuxKlient") private val euxKlient: EuxKlient) {
 
     companion object { // TODO - finn et bedre sted
-        val bucTyperSomKanHaAvdod: List<BucType> = listOf(BucType.P_BUC_02, BucType.P_BUC_05, BucType.P_BUC_06, BucType.P_BUC_10)
+        val bucTyperSomKanHaAvdod: List<BucType> = listOf(P_BUC_02, P_BUC_05, P_BUC_06, P_BUC_10)
     }
 
     private val logger = LoggerFactory.getLogger(EuxInnhentingService::class.java)

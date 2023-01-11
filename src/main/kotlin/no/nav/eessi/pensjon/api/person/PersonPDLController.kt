@@ -1,7 +1,7 @@
 package no.nav.eessi.pensjon.api.person
 
+import no.nav.eessi.pensjon.eux.model.BucType.*
 import no.nav.eessi.pensjon.eux.model.SedType
-import no.nav.eessi.pensjon.eux.model.buc.BucType
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.logging.AuditLogger
@@ -165,7 +165,7 @@ class PersonPDLController(
 
             //hvis p_buc_02
             when (buc.processDefinitionName) {
-                BucType.P_BUC_02.name -> {
+                P_BUC_02.name -> {
                     logger.debug("2 avdøde fra vedtak, henter buc for å kunne velge ut den avdod som finnes i P2100")
                     val bucUtils = BucUtils(buc)
                     val p2100id = bucUtils.getAllDocuments().firstOrNull { doc -> doc.type == SedType.P2100 && doc.direction == "OUT" }?.id
@@ -175,7 +175,7 @@ class PersonPDLController(
                     //henter person for doeadsdato
                     hentDoedsdatoFraPDL(korrektid)
                 }
-                BucType.P_BUC_06.name -> {
+                P_BUC_06.name -> {
                     val bucUtils = BucUtils(buc)
                     val p5000id = bucUtils.getAllDocuments().firstOrNull { doc -> doc.type == SedType.P5000 && doc.direction == "OUT" }?.id
                     logger.debug("2 avdøde fra vedtak, henter buc for å kunne velge ut den avdod som finnes i P5000")
