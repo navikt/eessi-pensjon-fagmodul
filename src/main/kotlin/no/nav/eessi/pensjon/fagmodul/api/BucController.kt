@@ -332,6 +332,17 @@ class BucController(
             //samkjøre til megaview
             val view = avdodViewSaf + avdodViewUtenSaf + safViewAvdod + safViewBruker  // avdødSaf + avdødUtenSaf + avdødsaf + safBruker
 
+            logger.info("""getGjenlevendeRinasakerVedtak resultat: 
+                avdodView : ${avdodView.size}
+                brukerRinaSakIderFraJoark: ${brukerRinaSakIderFraJoark.size}
+                avdodViewUtenSaf: ${avdodViewUtenSaf.size}
+                filterAvodRinaSakIderFraJoark: ${filterAvodRinaSakIderFraJoark.size}
+                safView: ${safView.size}
+                safViewAvdod: ${safViewAvdod.size}
+                safViewBruker: ${safViewBruker.size}
+                view : ${view.size}
+            """.trimMargin())
+
             //return med sort og distinct (avdodfnr og caseid)
             return@measure view.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
                 .also { logger.info("Total view size: ${it.size}") }
