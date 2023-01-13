@@ -275,7 +275,7 @@ class BucController(
         return bucViewForVedtak.measure {
             val start = System.currentTimeMillis()
 
-            logger.info("henter rinasaker på valgt aktoerid: $aktoerId, på saknr: $sakNr")
+            logger.info("henter rinasaker på valgt aktoerid: $aktoerId, saknr: $sakNr, vedtaksId:$vedtakId")
 
             val avdodeFraPesysVedtak = hentAvdodFraVedtak(vedtakId, sakNr)
 

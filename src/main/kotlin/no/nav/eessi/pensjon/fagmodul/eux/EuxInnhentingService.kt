@@ -289,7 +289,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
             }
     }
 
-fun hentBucer(aktoerId: String, pesysSaksnr: String, rinaSakIder: List<String>): List<Buc> {
+    fun hentBucer(aktoerId: String, pesysSaksnr: String, rinaSakIder: List<String>): List<Buc> {
         val start = System.currentTimeMillis()
 
         return rinaSakIder
