@@ -8,6 +8,7 @@ import no.nav.eessi.pensjon.fagmodul.api.BucController
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.beans.factory.annotation.Autowired
@@ -25,7 +26,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 @ContextConfiguration(classes = [BucControllerTest.Config::class, UnsecuredWebMvcTestLauncher::class])
 @AutoConfigureMockMvc
 class BucControllerTest {
-//
+
     @Autowired
     private lateinit var innhentingService: InnhentingService
 
@@ -34,6 +35,12 @@ class BucControllerTest {
 
     @Autowired
     private lateinit var mockMvc: MockMvc
+
+    @Test
+    fun `hentAvdodFraVedtak skal returerer en tom liste om vedtaksId er noe annet enn tall`(){
+        val result = mvcPerform("/buc/rinasaker/111/saknr/222/vedtak/undefined")
+        assertEquals("[]", result)
+    }
 
     @Test
     fun `getRinasakerJoark skal returnere en liste over bucer paa aktoerId`() {
