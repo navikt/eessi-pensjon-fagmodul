@@ -1,8 +1,10 @@
 package no.nav.eessi.pensjon.fagmodul.models
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import no.nav.eessi.pensjon.eux.model.BucType
+import no.nav.eessi.pensjon.eux.model.BucType.*
 import no.nav.eessi.pensjon.eux.model.SedType
-import no.nav.eessi.pensjon.fagmodul.models.*
+import no.nav.eessi.pensjon.eux.model.sed.KravType
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
@@ -27,8 +29,8 @@ data class ApiRequest(
     val aktoerId: String? = null,
     val fnr: String? = null,
     val payload: String? = null,
-    val buc: String? = null,
-    val sed: String? = null,
+    val buc: BucType? = null,
+    val sed: SedType? = null,
     val documentid: String? = null,
     val euxCaseId: String? = null,
     val institutions: List<InstitusjonItem>? = null,
@@ -38,7 +40,7 @@ data class ApiRequest(
     //P8000-P_BUC_05
     val referanseTilPerson: ReferanseTilPerson? = null,
 
-) {
+    ) {
 
     fun riktigAvdod(): String? {
         return subject?.avdod?.fnr ?: avdodfnr
@@ -49,10 +51,10 @@ data class ApiRequest(
 
         //validatate request and convert to PrefillDataModel
         fun buildPrefillDataModelOnExisting(request: ApiRequest, fodselsnr: String, avdodaktoerID: String? = null): PrefillDataModel {
-            val sedType = if (request.sed.isNullOrBlank())
+            val sedType = if (request.sed == null)
                 throw ResponseStatusException(HttpStatus.BAD_REQUEST,"SedType mangler")
             else
-                SedType.from(request.sed) ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST,"SedType ${request.sed} er ikke gyldig")
+                SedType.from(request.sed.name) ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST,"SedType ${request.sed} er ikke gyldig")
 
             return when {
                 request.buc == null -> throw ResponseStatusException(HttpStatus.BAD_REQUEST,"Mangler BUC")
@@ -83,8 +85,8 @@ data class ApiRequest(
 
         private fun populerAvdodHvisGjenlevendePensjonSak(request: ApiRequest, avdodaktoerID: String?): PersonId? {
             return when(request.buc) {
-                "P_BUC_02" -> populerAvdodPersonId(request, avdodaktoerID, true)
-                "P_BUC_05","P_BUC_06","P_BUC_10" -> populerAvdodPersonId(request, avdodaktoerID)
+                P_BUC_02 -> populerAvdodPersonId(request, avdodaktoerID, true)
+                P_BUC_05,P_BUC_06,P_BUC_10 -> populerAvdodPersonId(request, avdodaktoerID)
                 else -> null
             }
         }

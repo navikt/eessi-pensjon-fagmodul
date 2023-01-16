@@ -370,7 +370,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
 
 
     fun checkForP7000AndAddP6000(request: ApiRequest): ApiRequest {
-        return if (request.sed == SedType.P7000.name) {
+        return if (request.sed?.name == SedType.P7000.name) {
             //hente payload from ui
             val docitems = request.payload?.let { mapJsonToAny<List<P6000Dokument>>(it) }
             logger.info("P6000 payload size: ${docitems?.size}")
@@ -383,7 +383,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String, @
 
     //TODO fjern env for q2 når dette funker..
     fun checkForX010AndAddX009(request: ApiRequest, parentId: String): ApiRequest {
-        return if (environment == "q2" &&  request.sed == SedType.X010.name && request.euxCaseId != null) {
+        return if (environment == "q2" &&  request.sed?.name == SedType.X010.name && request.euxCaseId != null) {
             logger.info("Legger ved X009 som payload for prefill X010")
             val x009 = getSedOnBucByDocumentId(request.euxCaseId, parentId) as X009
             request.copy(payload = x009.toJson())

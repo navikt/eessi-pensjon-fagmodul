@@ -3,11 +3,13 @@ package no.nav.eessi.pensjon.integrationtest.sed
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
+import no.nav.eessi.pensjon.eux.model.BucType
+import no.nav.eessi.pensjon.eux.model.BucType.*
 import no.nav.eessi.pensjon.eux.model.SedType
+import no.nav.eessi.pensjon.eux.model.sed.KravType
 import no.nav.eessi.pensjon.fagmodul.models.ApiRequest
 import no.nav.eessi.pensjon.fagmodul.models.ApiSubject
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
-import no.nav.eessi.pensjon.fagmodul.models.KravType
 import no.nav.eessi.pensjon.fagmodul.models.SubjectFnr
 import no.nav.eessi.pensjon.integrationtest.IntegrasjonsTestConfig
 import no.nav.eessi.pensjon.kodeverk.KodeverkClient
@@ -22,17 +24,8 @@ import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
-import org.springframework.http.HttpStatus
-import org.springframework.http.HttpStatus.ACCEPTED
-import org.springframework.http.HttpStatus.BAD_REQUEST
-import org.springframework.http.HttpStatus.CREATED
-import org.springframework.http.HttpStatus.OK
-import org.springframework.http.HttpStatus.valueOf
-import org.springframework.http.MediaType
-import org.springframework.http.ResponseEntity
+import org.springframework.http.*
+import org.springframework.http.HttpStatus.*
 import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
@@ -100,7 +93,7 @@ class OpprettPrefillSedIntegrationTest {
             "120012",
             AKTOER_ID,
             SedType.P2000,
-            "P_BUC_01",
+            P_BUC_01,
             null,
             KravType.ALDER,
             euxRinaid = euxRinaid
@@ -140,7 +133,7 @@ class OpprettPrefillSedIntegrationTest {
             "120012",
             AKTOER_ID,
             SedType.P2000,
-            "P_BUC_01",
+            P_BUC_01,
             null,
             KravType.ALDER,
             euxRinaid = euxRinaid,
@@ -208,9 +201,9 @@ class OpprettPrefillSedIntegrationTest {
             "120012",
             AKTOER_ID,
             SedType.P6000,
-            "P_BUC_02",
+            P_BUC_02,
             FNR_VOKSEN_2,
-            KravType.GJENLEV,
+            KravType.ETTERLATTE,
             euxRinaid = euxRinaid,
             institutions = nyDeltakere)
 
@@ -243,7 +236,7 @@ class OpprettPrefillSedIntegrationTest {
         vedtakid: String? = null,
         aktoerId: String,
         sedType: SedType = SedType.P2000,
-        buc: String? = "P_BUC_06",
+        buc: BucType? = P_BUC_06,
         fnravdod: String? = null,
         kravtype: KravType? = null,
         kravdato: String? = null,
@@ -262,7 +255,7 @@ class OpprettPrefillSedIntegrationTest {
             vedtakId = vedtakid,
             kravId = null,
             aktoerId = aktoerId,
-            sed = sedType.name,
+            sed = sedType,
             buc = buc,
             kravType = kravtype,
             kravDato = kravdato,

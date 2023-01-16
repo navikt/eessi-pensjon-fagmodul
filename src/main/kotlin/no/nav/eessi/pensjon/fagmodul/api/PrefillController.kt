@@ -1,13 +1,10 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
 import no.nav.eessi.pensjon.eux.model.BucType
+import no.nav.eessi.pensjon.eux.model.BucType.*
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.sed.X005
-import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
-import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
-import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
-import no.nav.eessi.pensjon.fagmodul.eux.EuxKlient
-import no.nav.eessi.pensjon.fagmodul.eux.EuxPrefillService
+import no.nav.eessi.pensjon.fagmodul.eux.*
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ActionOperation
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.fagmodul.models.ApiRequest
@@ -94,7 +91,7 @@ class PrefillController(
                     val x005Liste = nyeInstitusjoner.map {
                         logger.debug("Prefiller X005, legger til Institusjon på X005 ${it.institution}")
                         // ID og Navn på X005 er påkrevd må hente innn navn fra UI.
-                        val x005request = request.copy(avdodfnr = null, sed = SedType.X005.name, institutions = listOf(it))
+                        val x005request = request.copy(avdodfnr = null, sed = SedType.X005, institutions = listOf(it))
                         mapJsonToAny<X005>(innhentingService.hentPreutyltSed(x005request))
                     }
                     euxPrefillService.checkAndAddInstitution(dataModel, bucUtil, x005Liste, nyeInstitusjoner)
@@ -120,13 +117,13 @@ class PrefillController(
         if (request.buc == null) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mangler Buc")
 
         val norskIdent = innhentingService.hentFnrfraAktoerService(request.aktoerId)
-        val avdodaktoerID = innhentingService.getAvdodId(BucType.from(request.buc)!!, request.riktigAvdod())
+        val avdodaktoerID = innhentingService.getAvdodId(BucType.from(request.buc.name)!!, request.riktigAvdod())
         val dataModel = ApiRequest.buildPrefillDataModelOnExisting(request, norskIdent, avdodaktoerID)
 
         //Hente metadata for valgt BUC
         val bucUtil = euxInnhentingService.kanSedOpprettes(dataModel)
 
-        if (bucUtil.getProcessDefinitionName() != request.buc) {
+        if (bucUtil.getProcessDefinitionName() != request.buc.name) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Rina Buctype og request buctype må være samme")
         }
 
@@ -143,7 +140,7 @@ class PrefillController(
         return addInstutionAndDocument.measure {
             logger.info("******* Legge til ny SED - start *******")
 
-            val sedType = SedType.from(request.sed!!)!!
+            val sedType = SedType.from(request.sed?.name!!)!!
             logger.info("Prøver å sende SED: $sedType inn på BUC: ${dataModel.euxCaseID}")
             val docresult = euxPrefillService.opprettJsonSedOnBuc(sed, sedType, dataModel.euxCaseID, request.vedtakId)
 
@@ -168,7 +165,7 @@ class PrefillController(
         if (request.buc == null) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mangler Buc")
 
         val norskIdent = innhentingService.hentFnrfraAktoerService(request.aktoerId)
-        val avdodaktoerID = innhentingService.getAvdodId(BucType.from(request.buc)!!, request.riktigAvdod())
+        val avdodaktoerID = innhentingService.getAvdodId(BucType.from(request.buc.name)!!, request.riktigAvdod())
         val dataModel = ApiRequest.buildPrefillDataModelOnExisting(request, norskIdent, avdodaktoerID)
 
         //Hente metadata for valgt BUC
@@ -207,8 +204,8 @@ class PrefillController(
         }
     }
 
-    private fun fetchBucAgainBeforeReturnShortDocument(bucType: String, bucSedResponse: EuxKlient.BucSedResponse, orginal: DocumentsItem?, isNewRina2020: Boolean = false): DocumentsItem? {
-        return if (bucType == "P_BUC_06") {
+    private fun fetchBucAgainBeforeReturnShortDocument(bucType: BucType, bucSedResponse: EuxKlient.BucSedResponse, orginal: DocumentsItem?, isNewRina2020: Boolean = false): DocumentsItem? {
+        return if (bucType == P_BUC_06) {
             logger.info("Henter BUC på nytt for buctype: $bucType")
             Thread.sleep(900)
             val buc = euxInnhentingService.getBuc(bucSedResponse.caseId)

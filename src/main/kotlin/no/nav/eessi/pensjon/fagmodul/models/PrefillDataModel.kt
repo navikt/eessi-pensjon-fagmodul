@@ -1,6 +1,8 @@
 package no.nav.eessi.pensjon.fagmodul.models
 
+import no.nav.eessi.pensjon.eux.model.BucType
 import no.nav.eessi.pensjon.eux.model.SedType
+import no.nav.eessi.pensjon.eux.model.sed.KravType
 
 /**
  * Data class to store different required data to build any given sed, auto or semiauto.
@@ -16,7 +18,7 @@ data class PrefillDataModel(
     val bruker: PersonId,
     val avdod: PersonId?,
     val sedType: SedType,
-    val buc: String,
+    val buc: BucType,
     val vedtakId: String? = null,
     val kravDato: String? = null, // Brukes bare av P15000
     val kravType: KravType? = null, // Brukes bare av P15000
@@ -40,8 +42,8 @@ enum class ReferanseTilPerson(val verdi: String) {
     AVDOD("01");
 }
 
-enum class KravType(val verdi: String) {
-    ALDER("01"),
-    GJENLEV("02"),
-    UFOREP("03");
-}
+//enum class KravType(val verdi: String) {
+//    ALDER("01"),
+//    GJENLEV("02"),
+//    UFOREP("03");
+//}

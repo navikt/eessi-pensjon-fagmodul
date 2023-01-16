@@ -5,6 +5,7 @@ import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_06
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.sed.P5000
 import no.nav.eessi.pensjon.eux.model.sed.SED
@@ -73,7 +74,7 @@ class SedControllerTest {
         val req = map.readValue(json, ApiRequest::class.java)
 
 
-        assertEquals("P_BUC_06", req.buc)
+        assertEquals(P_BUC_06, req.buc)
         assertEquals("DUMMY", req.institutions!![0].institution)
         assertEquals("123456", req?.sakId)
     }

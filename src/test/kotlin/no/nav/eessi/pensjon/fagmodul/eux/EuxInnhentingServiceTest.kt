@@ -2,6 +2,7 @@ package no.nav.eessi.pensjon.fagmodul.eux
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
+import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_01
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_02
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.sed.P6000
@@ -11,9 +12,7 @@ import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.validateJson
 import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -393,7 +392,7 @@ internal class EuxInnhentingServiceTest {
     @Test
     fun `check apiRequest for prefill X010 contains X009 payload`() {
         val x009Json = javaClass.getResource("/json/nav/X009-NAV.json").readText()
-        val apiRequest = EuxTestUtils.apiRequestWith("1000000", emptyList(), buc = "P_BUC_01", sed = "X010")
+        val apiRequest = EuxTestUtils.apiRequestWith("1000000", emptyList(), buc = P_BUC_01, sed = SedType.X010)
         every { euxKlient.getSedOnBucByDocumentIdAsJson(any(), any()) } returns x009Json
 
         val json = euxInnhentingService.checkForX010AndAddX009(apiRequest, "20000000").toJson()
