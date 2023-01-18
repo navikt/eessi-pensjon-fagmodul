@@ -203,7 +203,7 @@ class OpprettPrefillSedIntegrationTest {
             SedType.P6000,
             P_BUC_02,
             FNR_VOKSEN_2,
-            KravType.ETTERLATTE,
+            KravType.GJENLEV,
             euxRinaid = euxRinaid,
             institutions = nyDeltakere)
 
