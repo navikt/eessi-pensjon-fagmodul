@@ -12,7 +12,7 @@ buildscript {
         archunitVersion = '1.0.1'
         epMetricsVersion = '1.0.9'
         epSecurityVersion = '0.0.22'
-        epLoggingVersion = '1.1.12'
+        epLoggingVersion = '1.1.13'
         epPensjonInformasjonVersjon = '2.0.78'
         springKafkaVersion = '2.9.2'
     }
