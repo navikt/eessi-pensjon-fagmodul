@@ -251,11 +251,11 @@ class BucController(
         return bucViewRina.measure {
             val start = System.currentTimeMillis()
 
-            logger.info("henter rinasaker på valgt aktoerid: $aktoerId, på saknr")
             val fnr = innhentingService.hentFnrfraAktoerService(aktoerId)
+            logger.info("henter rinasaker på valgt aktoerid: $aktoerId, på saknr: $pensjonSakNummer")
 
             val rinaSaker = euxInnhentingService.hentBucViewBruker(fnr, aktoerId, pensjonSakNummer)
-            logger.debug("brukerView : ${rinaSaker.toJson()}")
+            logger.info("brukerView : ${rinaSaker.toJson()}")
 
             //return med sort og distict (avdodfmr og caseid)
             return@measure rinaSaker.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
