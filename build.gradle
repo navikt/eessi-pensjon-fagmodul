@@ -7,9 +7,7 @@ buildscript {
         cxfVersion = '3.5.1'
         tokenSupportVersion = '2.1.8'
         logstashLogbackVersion = '7.2'
-        pensjonInformasjonVersion = '9.4.10'
         archunitVersion = '1.0.1'
-        epSecurityVersion = '0.0.22'
         springKafkaVersion = '2.9.2'
     }
 }
