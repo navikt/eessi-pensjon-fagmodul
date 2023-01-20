@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import no.nav.eessi.pensjon.eux.model.buc.SakStatus
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.pensjonsinformasjon.FinnSak
@@ -235,7 +236,7 @@ class PensjonController(
                 }
                 brukersSakerListe.map { sak ->
                     logger.debug("PensjonSak for journalføring: sakId: ${sak.sakId} sakType: ${sak.sakType} sakStatus: ${sak.status} ")
-                    PensjonSak(sak.sakId.toString(), sak.sakType, PensjonSakStatus.from(sak.status))
+                    PensjonSak(sak.sakId.toString(), sak.sakType, SakStatus.from(sak.status))
                 }
             } catch (ex: Exception) {
                 logger.warn("Ingen pensjoninformasjon kunne hentes", ex)
@@ -248,21 +249,5 @@ class PensjonController(
 class PensjonSak (
         val sakId: String,
         val sakType: String,
-        val sakStatus: PensjonSakStatus
+        val sakStatus: SakStatus
 )
-
-enum class PensjonSakStatus(val status: String) {
-    TIL_BEHANDLING("TIL_BEHANDLING"),
-    AVSLUTTET("AVSL"),
-    LOPENDE("INNV"),
-    OPPHOR("OPPHOR"),
-    UKJENT("");
-
-    companion object {
-        @JvmStatic
-        fun from(s: String): PensjonSakStatus {
-            return values().firstOrNull { it.status == s } ?: UKJENT
-        }
-    }
-
-}

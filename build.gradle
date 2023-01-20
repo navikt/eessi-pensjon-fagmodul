@@ -8,12 +8,8 @@ buildscript {
         tokenSupportVersion = '2.1.8'
         logstashLogbackVersion = '7.2'
         pensjonInformasjonVersion = '9.4.10'
-        epPersonoppslagVersion = '12.2.2'
         archunitVersion = '1.0.1'
-        epMetricsVersion = '1.0.10'
         epSecurityVersion = '0.0.22'
-        epLoggingVersion = '1.1.13'
-        epPensjonInformasjonVersjon = '2.0.80'
         springKafkaVersion = '2.9.2'
     }
 }
@@ -73,12 +69,12 @@ dependencies {
     implementation ("no.nav.common:token-client:2.2022.10.28_08.02-d7d341cf26ba")
     implementation("org.springframework.kafka:spring-kafka:${springKafkaVersion}")
 
-    implementation("no.nav.eessi.pensjon:ep-metrics:$epMetricsVersion")
-    implementation("no.nav.eessi.pensjon:ep-logging:$epLoggingVersion")
+    implementation("no.nav.eessi.pensjon:ep-metrics:1.0.10")
+    implementation("no.nav.eessi.pensjon:ep-logging:1.1.13")
     implementation("no.nav.eessi.pensjon:ep-kodeverk:3.1.53")
-    implementation("no.nav.eessi.pensjon:ep-personoppslag:$epPersonoppslagVersion")
-    implementation("no.nav.eessi.pensjon:ep-pensjonsinformasjon:$epPensjonInformasjonVersjon")
-    implementation("no.nav.eessi.pensjon:ep-eux:1.4.11")
+    implementation("no.nav.eessi.pensjon:ep-personoppslag:12.2.2")
+    implementation("no.nav.eessi.pensjon:ep-pensjonsinformasjon:2.0.80")
+    implementation("no.nav.eessi.pensjon:ep-eux:1.4.14")
 
     implementation("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:2610.9b6de22")
 

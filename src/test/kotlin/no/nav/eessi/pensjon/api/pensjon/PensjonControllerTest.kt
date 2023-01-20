@@ -5,6 +5,8 @@ import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.SpyK
 import io.mockk.mockk
 import io.mockk.verify
+import no.nav.eessi.pensjon.eux.model.buc.SakStatus
+import no.nav.eessi.pensjon.eux.model.buc.SakStatus.*
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonRequestBuilder
 import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
@@ -130,12 +132,12 @@ class PensjonControllerTest {
         verify { pensjonsinformasjonClient.hentAltPaaAktoerId(eq(aktoerId)) }
 
         assertEquals(2, result.size)
-        val expected1 = PensjonSak("1010", "ALDER", PensjonSakStatus.LOPENDE)
+        val expected1 = PensjonSak("1010", "ALDER", LOPENDE)
         assertEquals(expected1.toJson(), result.first().toJson())
-        val expected2 = PensjonSak("2020", "UFOREP", PensjonSakStatus.AVSLUTTET)
+        val expected2 = PensjonSak("2020", "UFOREP", AVSLUTTET)
         assertEquals(expected2.toJson(), result.last().toJson())
 
-        assertEquals(PensjonSakStatus.AVSLUTTET, expected2.sakStatus)
+        assertEquals(AVSLUTTET, expected2.sakStatus)
     }
 
     @Test
@@ -163,11 +165,11 @@ class PensjonControllerTest {
         val opph = "OPPHOR"
         val ukjent = "CrazyIkkeIbrukTull"
 
-        assertEquals(PensjonSakStatus.TIL_BEHANDLING, PensjonSakStatus.from(tilbeh))
-        assertEquals(PensjonSakStatus.AVSLUTTET, PensjonSakStatus.from(avsl))
-        assertEquals(PensjonSakStatus.LOPENDE, PensjonSakStatus.from(lop))
-        assertEquals(PensjonSakStatus.OPPHOR, PensjonSakStatus.from(opph))
-        assertEquals(PensjonSakStatus.UKJENT, PensjonSakStatus.from(ukjent))
+        assertEquals(TIL_BEHANDLING, SakStatus.from(tilbeh))
+        assertEquals(AVSLUTTET, SakStatus.from(avsl))
+        assertEquals(LOPENDE, SakStatus.from(lop))
+        assertEquals(OPPHOR, SakStatus.from(opph))
+        assertEquals(UKJENT, SakStatus.from(ukjent))
     }
 
     @Test
