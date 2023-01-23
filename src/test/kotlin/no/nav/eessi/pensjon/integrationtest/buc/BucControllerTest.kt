@@ -36,6 +36,16 @@ class BucControllerTest {
     @Autowired
     private lateinit var mockMvc: MockMvc
 
+    @TestConfiguration
+    class Config {
+        @Bean
+        fun euxInnhentingService() : EuxInnhentingService = mockk(relaxed = true)
+        @Bean
+        fun innhentingService() : InnhentingService = mockk(relaxed = true)
+        @Bean
+        fun bucController() = BucController(euxInnhentingService(), mockk( relaxed = true), innhentingService()).apply { initMetrics() }
+    }
+
     @Test
     fun `hentAvdodFraVedtak skal returerer en tom liste om vedtaksId er noe annet enn tall`(){
         val result = mvcPerform("/buc/rinasaker/111/saknr/222/vedtak/undefined")
@@ -69,12 +79,10 @@ class BucControllerTest {
         every { euxInnhentingService.getBuc(rinanummer) } returns buc
         every { innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)} returns listOf(rinanummer, "2222")
 
-
         val result = mvcPerform(endpointUrl)
         val expected = "{\"processDefinitionName\":\"P_BUC_01\",\"id\":\"$rinanummer\"}"
 
         JSONAssert.assertEquals(expected, result, false)
-
     }
 
     private fun mvcPerform(endpointUrl: String) : String {
@@ -87,19 +95,5 @@ class BucControllerTest {
             .andReturn()
 
         return result.response.getContentAsString(charset("UTF-8"))
-    }
-
-    @TestConfiguration
-    class Config {
-
-        @Bean
-        fun euxInnhentingService() : EuxInnhentingService = mockk()
-
-        @Bean
-        fun innhentingService() : InnhentingService = InnhentingService(mockk(), mockk(), mockk(), mockk()).apply { initMetrics() }
-
-        @Bean
-        fun bucController() = BucController(euxInnhentingService(), mockk( relaxed = true), innhentingService()).apply { initMetrics() }
-
     }
 }

@@ -25,11 +25,16 @@ class EuxPrefillService (private val euxKlient: EuxKlient,
 
     private lateinit var opprettSvarSED: MetricsHelper.Metric
     private lateinit var opprettSED: MetricsHelper.Metric
+    private lateinit var PutMottaker: MetricsHelper.Metric
+    private lateinit var GetBUC: MetricsHelper.Metric
 
     @PostConstruct
     fun initMetrics() {
         opprettSvarSED = metricsHelper.init("OpprettSvarSED")
         opprettSED = metricsHelper.init("OpprettSED")
+        PutMottaker = metricsHelper.init("PutMottaker", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
+        GetBUC = metricsHelper.init("GetBUC", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
+
     }
 
     @Throws(EuxGenericServerException::class, SedDokumentIkkeOpprettetException::class)
@@ -63,11 +68,11 @@ class EuxPrefillService (private val euxKlient: EuxKlient,
 
     fun addInstitution(euxCaseID: String, nyeInstitusjoner: List<String>) {
         logger.info("Legger til Deltakere/Institusjon på vanlig måte, ny Buc")
-        euxKlient.putBucMottakere(euxCaseID, nyeInstitusjoner)
+        euxKlient.putBucMottakere(euxCaseID, nyeInstitusjoner, PutMottaker)
     }
 
     fun createBuc(buctype: String): String {
-        val euxCaseId = euxKlient.createBuc(buctype)
+        val euxCaseId = euxKlient.createBuc(buctype, GetBUC)
         try {
             statistikk.produserBucOpprettetHendelse(euxCaseId, null)
         } catch (ex: Exception) {

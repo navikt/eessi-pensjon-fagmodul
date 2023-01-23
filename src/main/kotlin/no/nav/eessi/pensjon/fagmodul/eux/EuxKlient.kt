@@ -8,7 +8,6 @@ import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.context.annotation.Description
 import org.springframework.core.io.Resource
@@ -22,49 +21,18 @@ import org.springframework.web.server.ResponseStatusException
 import org.springframework.web.util.UriComponents
 import org.springframework.web.util.UriComponentsBuilder
 import java.util.*
-import javax.annotation.PostConstruct
+
 /**
  *   https://eux-app.nais.preprod.local/swagger-ui.html#/eux-cpi-service-controller/
  */
 @Suppress("SpringJavaInjectionPointsAutowiringInspection")
 @Component("fagmodulEuxKlient")
 @Description("Service class for EuxBasis - eux-cpi-service-controller")
-class EuxKlient(
-    private val euxNavIdentRestTemplate: RestTemplate,
-    private val euxSystemRestTemplate: RestTemplate,
-    @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest(),
-    private val overrideWaitTimes: Long? = 1000L
-) {
+class EuxKlient(private val euxNavIdentRestTemplate: RestTemplate,
+                private val euxSystemRestTemplate: RestTemplate,
+                private val overrideWaitTimes: Long? = 1000L) {
 
     private val logger = LoggerFactory.getLogger(EuxKlient::class.java)
-
-    private lateinit var SEDByDocumentId: MetricsHelper.Metric
-    private lateinit var GetBUC: MetricsHelper.Metric
-    private lateinit var BUCDeltakere: MetricsHelper.Metric
-    private lateinit var GetKodeverk: MetricsHelper.Metric
-    private lateinit var Institusjoner: MetricsHelper.Metric
-    private lateinit var CreateBUC: MetricsHelper.Metric
-    private lateinit var HentRinasaker: MetricsHelper.Metric
-    private lateinit var PutMottaker: MetricsHelper.Metric
-    private lateinit var PutDocument: MetricsHelper.Metric
-    private lateinit var PingEux: MetricsHelper.Metric
-    private lateinit var RinaUrl: MetricsHelper.Metric
-
-    @PostConstruct
-    fun initMetrics() {
-        SEDByDocumentId = metricsHelper.init("SEDByDocumentId", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
-        GetBUC = metricsHelper.init("GetBUC", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
-        BUCDeltakere = metricsHelper.init("BUCDeltakere", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
-        Institusjoner = metricsHelper.init("Institusjoner", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
-        CreateBUC = metricsHelper.init("CreateBUC", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
-        HentRinasaker = metricsHelper.init("HentRinasaker", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
-        PutMottaker = metricsHelper.init("PutMottaker", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
-        PutDocument = metricsHelper.init("PutDocument", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
-        PingEux = metricsHelper.init("PingEux")
-        GetKodeverk = metricsHelper.init("GetKodeverk", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
-        RinaUrl = metricsHelper.init("RinaUrl")
-    }
-
 
     //ny SED på ekisterende type eller ny svar SED på ekisternede rina
     @Throws(EuxGenericServerException::class, SedDokumentIkkeOpprettetException::class)
@@ -112,7 +80,7 @@ class EuxKlient(
         return BucSedResponse(euxCaseId, response.body!!)
     }
 
-    fun getRinaUrl(): String {
+    fun getRinaUrl(RinaUrl: MetricsHelper.Metric): String {
         val rinaCallid = "-1-11-111"
         val path = "/url/buc/$rinaCallid"
         val response = restTemplateErrorhandler(
@@ -129,19 +97,19 @@ class EuxKlient(
         return url.replace(rinaCallid, "").also { logger.info("Url til Rina: $it") }
     }
 
-    fun getSedOnBucByDocumentIdAsJsonAndAsSystemuser(euxCaseId: String, documentId: String): String =
-        getSedOnBucByDocumentIdWithRest(euxCaseId, documentId, euxSystemRestTemplate)
+    fun getSedOnBucByDocumentIdAsJsonAndAsSystemuser(euxCaseId: String, documentId: String, metric: MetricsHelper.Metric): String =
+        getSedOnBucByDocumentIdWithRest(euxCaseId, documentId, euxSystemRestTemplate, metric)
 
-    fun getSedOnBucByDocumentIdAsJson(euxCaseId: String, documentId: String): String =
-        getSedOnBucByDocumentIdWithRest(euxCaseId, documentId, euxNavIdentRestTemplate)
+    fun getSedOnBucByDocumentIdAsJson(euxCaseId: String, documentId: String, metric: MetricsHelper.Metric): String =
+        getSedOnBucByDocumentIdWithRest(euxCaseId, documentId, euxNavIdentRestTemplate, metric)
 
-    private fun getSedOnBucByDocumentIdWithRest(euxCaseId: String, documentId: String, restTemplate: RestTemplate): String {
+    private fun getSedOnBucByDocumentIdWithRest(euxCaseId: String, documentId: String, restTemplate: RestTemplate, metric: MetricsHelper.Metric): String {
         val path = "/buc/$euxCaseId/sed/$documentId"
 
         val response = restTemplateErrorhandler(
             restTemplateFunction = { restTemplate.exchange(path,HttpMethod.GET,null, String::class.java) },
             euxCaseId= euxCaseId,
-            metric = SEDByDocumentId,
+            metric = metric,
             prefixErrorMessage = "Feil ved henting av Sed med DocId: $documentId"
         )
         return response.body ?: run {
@@ -150,11 +118,11 @@ class EuxKlient(
         }
     }
 
-    fun getBucJsonAsSystemuser(euxCaseId: String): String = getBucJsonWithRest(euxCaseId, euxSystemRestTemplate)
+    fun getBucJsonAsSystemuser(euxCaseId: String, metric: MetricsHelper.Metric): String = getBucJsonWithRest(euxCaseId, euxSystemRestTemplate, metric)
 
-    fun getBucJsonAsNavIdent(euxCaseId: String): String = getBucJsonWithRest(euxCaseId, euxNavIdentRestTemplate)
+    fun getBucJsonAsNavIdent(euxCaseId: String, metric: MetricsHelper.Metric): String = getBucJsonWithRest(euxCaseId, euxNavIdentRestTemplate, metric)
 
-    private fun getBucJsonWithRest(euxCaseId: String, restTemplate: RestTemplate): String {
+    private fun getBucJsonWithRest(euxCaseId: String, restTemplate: RestTemplate, metric: MetricsHelper.Metric): String {
         val path = "/buc/$euxCaseId"
         logger.info("getBucJsonWithRest prøver å kontakte EUX $path")
 
@@ -163,7 +131,7 @@ class EuxKlient(
                 restTemplate.exchange(path, HttpMethod.GET, null, String::class.java)
             },
             euxCaseId = euxCaseId,
-            metric = GetBUC,
+            metric = metric,
             prefixErrorMessage = "Feiler ved metode getBucJsonWithRest",
             maxAttempts = 3,
             waitTimes = 6000L
@@ -171,7 +139,7 @@ class EuxKlient(
         return response.body ?: throw ServerException("Feil ved henting av BUCdata ingen data, euxCaseId $euxCaseId")
     }
 
-    fun getPdfJsonWithRest(euxCaseId: String, documentId: String): PreviewPdf {
+    fun getPdfJsonWithRest(euxCaseId: String, documentId: String, metric: MetricsHelper.Metric): PreviewPdf {
 
         val path = "/buc/${euxCaseId}/sed/${documentId}/pdf"
         logger.info("getPdfJsonWithRest prøver å kontakte EUX path")
@@ -185,7 +153,7 @@ class EuxKlient(
                     Resource::class.java)
             },
             euxCaseId = euxCaseId,
-            metric = GetBUC,
+            metric = metric,
             prefixErrorMessage = "Feiler ved metode GetPdf. ",
             maxAttempts = 4,
             waitTimes = 10000L
@@ -198,7 +166,7 @@ class EuxKlient(
 
     }
 
-    fun getBucDeltakere(euxCaseId: String): List<ParticipantsItem> {
+    fun getBucDeltakere(euxCaseId: String, metric: MetricsHelper.Metric): List<ParticipantsItem> {
         logger.info("euxCaseId: $euxCaseId")
 
         val path = "/buc/$euxCaseId/bucdeltakere"
@@ -207,7 +175,7 @@ class EuxKlient(
                 euxNavIdentRestTemplate.exchange(path, HttpMethod.GET,null,String::class.java)
             },
             euxCaseId = euxCaseId,
-            metric = BUCDeltakere,
+            metric = metric,
             prefixErrorMessage = "Feiler ved metode getDeltakerer"
         )
         return mapJsonToAny(response.body!!)
@@ -217,14 +185,14 @@ class EuxKlient(
      * List all institutions connected to RINA.
      */
     @Cacheable(cacheNames = [INSTITUTION_CACHE], cacheManager = "fagmodulCacheManager")
-    fun getInstitutions(bucType: String, landkode: String? = ""): List<InstitusjonDetalj> {
+    fun getInstitutions(bucType: String, landkode: String? = "", metric: MetricsHelper.Metric): List<InstitusjonDetalj> {
         val url = "/institusjoner?BuCType=$bucType&LandKode=${landkode ?: ""}"
 
         val responseInstitution = restTemplateErrorhandler(
             restTemplateFunction = {
                 euxNavIdentRestTemplate.exchange(url, HttpMethod.GET, null, String::class.java)
             },
-            metric = Institusjoner,
+            metric = metric,
             prefixErrorMessage = "Feil ved innhenting av institusjoner"
         )
         return  mapJsonToAny(responseInstitution.body!!)
@@ -239,7 +207,7 @@ class EuxKlient(
      * @param status String, status
      * @return List<Rinasak>
      */
-    fun getRinasaker(fnr: String? = null, euxCaseId: String? = null): List<Rinasak> {
+    fun getRinasaker(fnr: String? = null, euxCaseId: String? = null, metric: MetricsHelper.Metric): List<Rinasak> {
 
         val uriComponent = getRinasakerUri(fnr, euxCaseId).also {  }
 
@@ -250,14 +218,14 @@ class EuxKlient(
             restTemplateFunction = {
                 euxNavIdentRestTemplate.exchange(uriComponent.toUriString(), HttpMethod.GET, null, String::class.java)
             },
-            metric = HentRinasaker,
+            metric = metric,
             prefixErrorMessage = "Feil ved Rinasaker"
         )
 
         return mapJsonToAny(response.body!!)
     }
 
-    fun createBuc(bucType: String): String {
+    fun createBuc(bucType: String, metric: MetricsHelper.Metric): String {
         val correlationId = correlationId()
         val builder = UriComponentsBuilder.fromPath("/buc")
                 .queryParam("BuCType", bucType)
@@ -270,7 +238,7 @@ class EuxKlient(
                 euxNavIdentRestTemplate.exchange(builder.toUriString(), HttpMethod.POST, null, String::class.java)
             },
             euxCaseId = bucType,
-            metric = CreateBUC,
+            metric = metric,
             prefixErrorMessage = "Opprett Buc, "
         )
         response.body?.let { return it } ?: run {
@@ -288,7 +256,7 @@ class EuxKlient(
         }
     }
 
-    fun putBucMottakere(euxCaseId: String, institusjoner: List<String>): Boolean {
+    fun putBucMottakere(euxCaseId: String, institusjoner: List<String>, metric: MetricsHelper.Metric): Boolean {
         val correlationId = correlationId()
         val builder = UriComponentsBuilder.fromPath("/buc/$euxCaseId/mottakere")
                 .queryParam("KorrelasjonsId", correlationId)
@@ -302,13 +270,13 @@ class EuxKlient(
                 euxNavIdentRestTemplate.exchange(url, HttpMethod.PUT, null, String::class.java)
             },
             euxCaseId = euxCaseId,
-            metric = PutMottaker,
+            metric = metric,
             prefixErrorMessage = "Feiler ved behandling. Får ikke lagt til mottaker på Buc. "
         )
         return result.statusCode == HttpStatus.OK
     }
 
-    fun updateSedOnBuc(euxCaseId: String, dokumentId: String, sedPayload: String): Boolean {
+    fun updateSedOnBuc(euxCaseId: String, dokumentId: String, sedPayload: String, metric: MetricsHelper.Metric): Boolean {
         val path = "/buc/$euxCaseId/sed/$dokumentId?ventePaAksjon=false"
 
         val result = restTemplateErrorhandler(
@@ -321,7 +289,7 @@ class EuxKlient(
                 )
             },
             euxCaseId = euxCaseId,
-            metric = PutDocument,
+            metric = metric,
             prefixErrorMessage = "Feiler ved behandling. Får ikke oppdatert document. "
         )
         return result.statusCode == HttpStatus.OK
@@ -469,11 +437,7 @@ class EuxKlient(
             return uriComponent
         }
     }
-
-
-
 }
-
 
 //--- Disse er benyttet av restTemplateErrorhandler  -- start
 class IkkeFunnetException(message: String) : ResponseStatusException(HttpStatus.NOT_FOUND, message)
