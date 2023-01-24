@@ -98,12 +98,12 @@ class EuxKlient(private val euxNavIdentRestTemplate: RestTemplate,
     }
 
     fun getSedOnBucByDocumentIdAsJsonAndAsSystemuser(euxCaseId: String, documentId: String, metric: MetricsHelper.Metric): String =
-        getSedOnBucByDocumentIdWithRest(euxCaseId, documentId, euxSystemRestTemplate, metric)
+        getSedOnBucByDocumentId(euxCaseId, documentId, euxSystemRestTemplate, metric)
 
     fun getSedOnBucByDocumentIdAsJson(euxCaseId: String, documentId: String, metric: MetricsHelper.Metric): String =
-        getSedOnBucByDocumentIdWithRest(euxCaseId, documentId, euxNavIdentRestTemplate, metric)
+        getSedOnBucByDocumentId(euxCaseId, documentId, euxNavIdentRestTemplate, metric)
 
-    private fun getSedOnBucByDocumentIdWithRest(euxCaseId: String, documentId: String, restTemplate: RestTemplate, metric: MetricsHelper.Metric): String {
+    private fun getSedOnBucByDocumentId(euxCaseId: String, documentId: String, restTemplate: RestTemplate, metric: MetricsHelper.Metric): String {
         val path = "/buc/$euxCaseId/sed/$documentId"
 
         val response = restTemplateErrorhandler(
@@ -118,11 +118,11 @@ class EuxKlient(private val euxNavIdentRestTemplate: RestTemplate,
         }
     }
 
-    fun getBucJsonAsSystemuser(euxCaseId: String, metric: MetricsHelper.Metric): String = getBucJsonWithRest(euxCaseId, euxSystemRestTemplate, metric)
+    fun getBucJsonAsSystemuser(euxCaseId: String, metric: MetricsHelper.Metric): String = getBucJson(euxCaseId, euxSystemRestTemplate, metric)
 
-    fun getBucJsonAsNavIdent(euxCaseId: String, metric: MetricsHelper.Metric): String = getBucJsonWithRest(euxCaseId, euxNavIdentRestTemplate, metric)
+    fun getBucJsonAsNavIdent(euxCaseId: String, metric: MetricsHelper.Metric): String = getBucJson(euxCaseId, euxNavIdentRestTemplate, metric)
 
-    private fun getBucJsonWithRest(euxCaseId: String, restTemplate: RestTemplate, metric: MetricsHelper.Metric): String {
+    private fun getBucJson(euxCaseId: String, restTemplate: RestTemplate, metric: MetricsHelper.Metric): String {
         val path = "/buc/$euxCaseId"
         logger.info("getBucJsonWithRest prøver å kontakte EUX $path")
 
@@ -139,7 +139,7 @@ class EuxKlient(private val euxNavIdentRestTemplate: RestTemplate,
         return response.body ?: throw ServerException("Feil ved henting av BUCdata ingen data, euxCaseId $euxCaseId")
     }
 
-    fun getPdfJsonWithRest(euxCaseId: String, documentId: String, metric: MetricsHelper.Metric): PreviewPdf {
+    fun getPdfJson(euxCaseId: String, documentId: String, metric: MetricsHelper.Metric): PreviewPdf {
 
         val path = "/buc/${euxCaseId}/sed/${documentId}/pdf"
         logger.info("getPdfJsonWithRest prøver å kontakte EUX path")

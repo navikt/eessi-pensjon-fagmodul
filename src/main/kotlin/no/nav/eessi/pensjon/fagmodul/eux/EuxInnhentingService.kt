@@ -172,7 +172,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
     }
 
     fun getPdfContents(euxCaseId: String, documentId: String): PreviewPdf {
-        return euxKlient.getPdfJsonWithRest(euxCaseId, documentId, GetBUC)
+        return euxKlient.getPdfJson(euxCaseId, documentId, GetBUC)
     }
 
     /**
