@@ -6,17 +6,18 @@ import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
 import no.nav.eessi.pensjon.eux.model.BucType
 import no.nav.eessi.pensjon.eux.model.BucType.*
 import no.nav.eessi.pensjon.eux.model.SedType
+import no.nav.eessi.pensjon.eux.model.SedType.*
 import no.nav.eessi.pensjon.eux.model.sed.KravType
-import no.nav.eessi.pensjon.fagmodul.models.ApiRequest
-import no.nav.eessi.pensjon.fagmodul.models.ApiSubject
 import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
-import no.nav.eessi.pensjon.fagmodul.models.SubjectFnr
 import no.nav.eessi.pensjon.integrationtest.IntegrasjonsTestConfig
 import no.nav.eessi.pensjon.kodeverk.KodeverkClient
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
 import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentType
 import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
+import no.nav.eessi.pensjon.shared.api.ApiRequest
+import no.nav.eessi.pensjon.shared.api.ApiSubject
+import no.nav.eessi.pensjon.shared.api.SubjectFnr
 import no.nav.eessi.pensjon.utils.toJson
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -92,7 +93,7 @@ class OpprettPrefillSedIntegrationTest {
             "1212000",
             "120012",
             AKTOER_ID,
-            SedType.P2000,
+            P2000,
             P_BUC_01,
             null,
             KravType.ALDER,
@@ -132,7 +133,7 @@ class OpprettPrefillSedIntegrationTest {
             "1212000",
             "120012",
             AKTOER_ID,
-            SedType.P2000,
+            P2000,
             P_BUC_01,
             null,
             KravType.ALDER,
@@ -200,7 +201,7 @@ class OpprettPrefillSedIntegrationTest {
             "1212000",
             "120012",
             AKTOER_ID,
-            SedType.P6000,
+            P6000,
             P_BUC_02,
             FNR_VOKSEN_2,
             KravType.GJENLEV,
@@ -235,7 +236,7 @@ class OpprettPrefillSedIntegrationTest {
         sakid: String,
         vedtakid: String? = null,
         aktoerId: String,
-        sedType: SedType = SedType.P2000,
+        sedType: SedType = P2000,
         buc: BucType? = P_BUC_06,
         fnravdod: String? = null,
         kravtype: KravType? = null,

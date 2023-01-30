@@ -1,7 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.klient
 
-import no.nav.eessi.pensjon.fagmodul.models.ApiRequest
 import no.nav.eessi.pensjon.metrics.MetricsHelper
+import no.nav.eessi.pensjon.shared.api.ApiRequest
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
