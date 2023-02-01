@@ -40,13 +40,13 @@ class EuxPrefillService (private val euxKlient: EuxKlient,
     @Throws(EuxGenericServerException::class, SedDokumentIkkeOpprettetException::class)
     fun opprettSvarJsonSedOnBuc(jsonSed: String, euxCaseId: String, parentDocumentId: String, vedtakId: String?, sedType: SedType): EuxKlient.BucSedResponse {
         logger.info("Forsøker å opprette (svarsed) en $sedType på rinasakId: $euxCaseId")
-        logger.debug("Logger ut $jsonSed")
-        val bucSedResponse = euxKlient.opprettSvarSed(
-            jsonSed,
-            euxCaseId,
-            parentDocumentId,
-            "Feil ved opprettSvarSed", opprettSvarSED
-        )
+
+        val bucSedResponse = opprettSvarSED.measure {
+            euxKlient.opprettSvarSed(
+                jsonSed,
+                euxCaseId,
+                parentDocumentId)
+        }
 
         statistikk.produserSedOpprettetHendelse(euxCaseId, bucSedResponse.documentId, vedtakId, sedType)
 
@@ -59,8 +59,8 @@ class EuxPrefillService (private val euxKlient: EuxKlient,
     @Throws(EuxGenericServerException::class, SedDokumentIkkeOpprettetException::class)
     fun opprettJsonSedOnBuc(jsonNavSED: String, sedType: SedType, euxCaseId: String, vedtakId: String?): EuxKlient.BucSedResponse {
         logger.info("Forsøker å opprette en $sedType på rinasakId: $euxCaseId")
-        logger.debug("Logger ut $jsonNavSED")
-        val bucSedResponse  = euxKlient.opprettSed(jsonNavSED, euxCaseId, opprettSED, "Feil ved opprettSed: $sedType, med rinaId: $euxCaseId")
+
+        val bucSedResponse = opprettSED.measure { euxKlient.opprettSed(jsonNavSED, euxCaseId) }
 
         statistikk.produserSedOpprettetHendelse(euxCaseId, bucSedResponse.documentId, vedtakId, sedType)
         return bucSedResponse
@@ -68,11 +68,11 @@ class EuxPrefillService (private val euxKlient: EuxKlient,
 
     fun addInstitution(euxCaseID: String, nyeInstitusjoner: List<String>) {
         logger.info("Legger til Deltakere/Institusjon på vanlig måte, ny Buc")
-        euxKlient.putBucMottakere(euxCaseID, nyeInstitusjoner, PutMottaker)
+        PutMottaker.measure { euxKlient.putBucMottakere(euxCaseID, nyeInstitusjoner) }
     }
 
     fun createBuc(buctype: String): String {
-        val euxCaseId = euxKlient.createBuc(buctype, GetBUC)
+        val euxCaseId = GetBUC.measure { euxKlient.createBuc(buctype) }
         try {
             statistikk.produserBucOpprettetHendelse(euxCaseId, null)
         } catch (ex: Exception) {
@@ -148,9 +148,7 @@ class EuxPrefillService (private val euxKlient: EuxKlient,
             }
         }
     }
-
 }
-
 
 data class BucOgDocumentAvdod(
         val rinaidAvdod: String,

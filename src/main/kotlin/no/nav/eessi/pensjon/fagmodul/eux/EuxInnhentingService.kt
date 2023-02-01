@@ -8,6 +8,7 @@ import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.sed.Person
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.X009
+import no.nav.eessi.pensjon.fagmodul.config.INSTITUTION_CACHE
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
@@ -20,16 +21,23 @@ import no.nav.eessi.pensjon.shared.api.ApiRequest
 import no.nav.eessi.pensjon.utils.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.cache.annotation.Cacheable
+import org.springframework.context.annotation.Profile
 import org.springframework.http.HttpStatus
+import org.springframework.retry.RetryCallback
+import org.springframework.retry.RetryContext
+import org.springframework.retry.annotation.Backoff
+import org.springframework.retry.annotation.Retryable
+import org.springframework.retry.listener.RetryListenerSupport
+import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
 import javax.annotation.PostConstruct
 
 @Service
 class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
-                            @Qualifier("fagmodulEuxKlient") private val euxKlient: EuxKlient,
+                            @Autowired private val euxKlient: EuxKlient,
                             @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()) {
 
     private lateinit var RinaUrl: MetricsHelper.Metric
@@ -62,28 +70,33 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
 
     private val logger = LoggerFactory.getLogger(EuxInnhentingService::class.java)
 
+    @Retryable(
+        backoff = Backoff(delayExpression = "@euxKlientRetryConfig.initialRetryMillis", maxDelay = 200000L, multiplier = 3.0),
+        listeners  = ["euxKlientRetryLogger"]
+    )
     fun getBuc(euxCaseId: String): Buc {
-        val body = euxKlient.getBucJsonAsNavIdent(euxCaseId, GetBUC)
-        return mapJsonToAny(body)
+        return GetBUC.measure {
+            mapJsonToAny(euxKlient.getBucJsonAsNavIdent(euxCaseId))
+        }
     }
 
     //hent buc for Pesys/tjeneste kjør som systembruker
     fun getBucAsSystemuser(euxCaseId: String): Buc {
-        val body = euxKlient.getBucJsonAsSystemuser(euxCaseId, GetBUC)
+        val body = GetBUC.measure { euxKlient.getBucJsonAsSystemuser(euxCaseId) }
         logger.debug("mapper buc om til BUC objekt-model")
         return mapJsonToAny(body)
     }
 
     fun getSedOnBucByDocumentId(euxCaseId: String, documentId: String): SED {
-        val json = euxKlient.getSedOnBucByDocumentIdAsJson(euxCaseId, documentId, SEDByDocumentId)
+        val json = SEDByDocumentId.measure { euxKlient.getSedOnBucByDocumentIdAsJson(euxCaseId, documentId)}
         return SED.fromJsonToConcrete(json)
     }
 
     //henter ut korrekt url til Rina fra eux-rina-api
-    fun getRinaUrl() = euxKlient.getRinaUrl(RinaUrl)
+    fun getRinaUrl() = RinaUrl.measure { euxKlient.getRinaUrl() }
 
     fun getSedOnBucByDocumentIdAsSystemuser(euxCaseId: String, documentId: String): SED {
-        val json = euxKlient.getSedOnBucByDocumentIdAsJsonAndAsSystemuser(euxCaseId, documentId, SEDByDocumentId)
+        val json = SEDByDocumentId.measure { euxKlient.getSedOnBucByDocumentIdAsJsonAndAsSystemuser(euxCaseId, documentId) }
         return try {
             SED.fromJsonToConcrete(json)
         } catch (ex: Exception) {
@@ -134,9 +147,11 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
         return list
     }
 
+
+    @Cacheable(cacheNames = [INSTITUTION_CACHE], cacheManager = "fagmodulCacheManager")
     fun getInstitutions(bucType: String, landkode: String? = ""): List<InstitusjonItem> {
         logger.info("henter institustion for bucType: $bucType, land: $landkode")
-        val detaljList: List<InstitusjonDetalj> =  euxKlient.getInstitutions(bucType, landkode, Institusjoner)
+        val detaljList: List<InstitusjonDetalj> = Institusjoner.measure {  euxKlient.getInstitutions(bucType, landkode) }
 
         val institusjonListe = detaljList.asSequence()
             .filter { institusjon ->
@@ -168,11 +183,11 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
         ValidBucAndSed.pensjonsBucer() + mutableListOf("H_BUC_07", "R_BUC_01", "R_BUC_02", "M_BUC_02", "M_BUC_03a", "M_BUC_03b")
 
     fun getBucDeltakere(euxCaseId: String): List<ParticipantsItem> {
-        return euxKlient.getBucDeltakere(euxCaseId, BUCDeltakere)
+        return BUCDeltakere.measure {  euxKlient.getBucDeltakere(euxCaseId) }
     }
 
     fun getPdfContents(euxCaseId: String, documentId: String): PreviewPdf {
-        return euxKlient.getPdfJson(euxCaseId, documentId, GetBUC)
+        return GetBUC.measure { euxKlient.getPdfJson(euxCaseId, documentId ) }
     }
 
     /**
@@ -218,7 +233,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
 
             logger.debug("Henter sedJson fra document: ${shortDoc?.type}, ${shortDoc?.status}, ${shortDoc?.id}")
             val sedJson = shortDoc?.let {
-                euxKlient.getSedOnBucByDocumentIdAsJson(docs.rinaidAvdod, it.id!!, SEDByDocumentId)
+                SEDByDocumentId.measure { euxKlient.getSedOnBucByDocumentIdAsJson(docs.rinaidAvdod, it.id!!) }
             }
             docs.dokumentJson = sedJson ?: ""
             docs
@@ -279,7 +294,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
     fun hentBucViewBruker(fnr: String, aktoerId: String, pesysSaksnr: String): List<BucView> {
         val start = System.currentTimeMillis()
 
-        return euxKlient.getRinasaker(fnr = fnr, euxCaseId = null, metric = HentRinasaker)
+        return HentRinasaker.measure {  euxKlient.getRinasaker(fnr = fnr, euxCaseId = null)
             .filter { erRelevantForVisningIEessiPensjon(it) }
             .map { rinasak ->
                 BucView(
@@ -294,6 +309,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
                 val end = System.currentTimeMillis()
                 logger.info("hentBucViewBruker tid ${end - start} i ms")
             }
+        }
     }
 
     fun hentBucViews(aktoerId: String, pesysSaksnr: String, rinaSakIder: List<String>, rinaSakIdKilde: BucViewKilde): List<BucView> {
@@ -335,28 +351,30 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
     fun hentBucViewAvdod(avdodFnr: String, aktoerId: String, pesysSaksnr: String): List<BucView> {
         val start = System.currentTimeMillis()
 
-        return euxKlient.getRinasaker(fnr = avdodFnr, euxCaseId = null, metric = HentRinasaker)
-            .filter { rinasak -> rinasak.processDefinitionId in bucTyperSomKanHaAvdod.map { it.name } }
-            .filter { erRelevantForVisningIEessiPensjon(it) }
-            .map { rinasak ->
-                BucView(
-                    rinasak.id!!,
-                    BucType.from(rinasak.processDefinitionId)!!,
-                    aktoerId,
-                    pesysSaksnr,
-                    avdodFnr,
-                    BucViewKilde.AVDOD
-                )
-            }.also {
-                val end = System.currentTimeMillis()
-                logger.info("hentBucViewAvdod tid ${end - start} i ms")
-            }
+        return HentRinasaker.measure {
+            euxKlient.getRinasaker(fnr = avdodFnr, euxCaseId = null)
+                .filter { rinasak -> rinasak.processDefinitionId in bucTyperSomKanHaAvdod.map { it.name } }
+                .filter { erRelevantForVisningIEessiPensjon(it) }
+                .map { rinasak ->
+                    BucView(
+                        rinasak.id!!,
+                        BucType.from(rinasak.processDefinitionId)!!,
+                        aktoerId,
+                        pesysSaksnr,
+                        avdodFnr,
+                        BucViewKilde.AVDOD
+                    )
+                }.also {
+                    val end = System.currentTimeMillis()
+                    logger.info("hentBucViewAvdod tid ${end - start} i ms")
+                }
+        }
     }
 
     //** hente rinasaker fra RINA og SAF
     fun getRinasaker(fnr: String, rinaSakIderFraJoark: List<String>): List<EuxKlient.Rinasak> {
-        // Henter rina saker basert på fnr
-        val rinaSakerMedFnr = euxKlient.getRinasaker(fnr = fnr, euxCaseId = null, metric = HentRinasaker)
+
+        val rinaSakerMedFnr = HentRinasaker.measure { euxKlient.getRinasaker(fnr = fnr, euxCaseId = null) }
         logger.debug("hentet rinasaker fra eux-rina-api size: ${rinaSakerMedFnr.size}")
 
         // Filtrerer vekk saker som allerede er hentet som har fnr
@@ -364,10 +382,12 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
         val rinaSakIderUtenFnr = rinaSakIderFraJoark.minus(rinaSakIderMedFnr)
 
         // Henter rina saker som ikke har fnr
-        val rinaSakerUtenFnr = rinaSakIderUtenFnr
-                .map { euxCaseId -> euxKlient.getRinasaker(euxCaseId =  euxCaseId, metric = HentRinasaker) }
+        val rinaSakerUtenFnr = HentRinasaker.measure {
+            rinaSakIderUtenFnr
+                .map { euxCaseId -> euxKlient.getRinasaker(euxCaseId = euxCaseId) }
                 .flatten()
                 .distinctBy { it.id }
+        }
         logger.info("henter rinasaker ut i fra saf documentMetadata, antall: ${rinaSakerUtenFnr.size}")
 
         return rinaSakerMedFnr.plus(rinaSakerUtenFnr).also {
@@ -394,7 +414,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
 
     fun updateSedOnBuc(euxcaseid: String, documentid: String, sedPayload: String): Boolean {
         logger.info("Oppdaterer eksisterende sed på rina: $euxcaseid. docid: $documentid")
-        return euxKlient.updateSedOnBuc(euxcaseid, documentid, sedPayload, PutDocument)
+        return PutDocument.measure { euxKlient.updateSedOnBuc(euxcaseid, documentid, sedPayload) }
     }
 
 
@@ -418,7 +438,6 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
             request.copy(payload = x009.toJson())
         } else request
     }
-
     /**
      * Utvalgt informasjon om en rinasak/Buc.
      */
@@ -436,5 +455,16 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
         SAF,
         AVDOD;
     }
+}
 
+@Profile("!retryConfigOverride")
+@Component
+data class EuxKlientRetryConfig(val initialRetryMillis: Long = 20000L)
+
+@Component
+class EuxKlientRetryLogger : RetryListenerSupport() {
+    private val logger = LoggerFactory.getLogger(EuxKlientRetryLogger::class.java)
+    override fun <T : Any?, E : Throwable?> onError(context: RetryContext?, callback: RetryCallback<T, E>?, throwable: Throwable?) {
+        logger.info("Feil under henting fra EUX - try #${context?.retryCount } - ${throwable?.toString()}", throwable)
+    }
 }
