@@ -8,6 +8,7 @@ import no.nav.eessi.pensjon.kodeverk.KodeverkClient
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
@@ -18,11 +19,13 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.util.NestedServletException
 import java.nio.charset.Charset
 
 @SpringBootTest(classes = [IntegrasjonsTestConfig::class, UnsecuredWebMvcTestLauncher::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -60,11 +63,11 @@ class UpdateSedOnBucIntegrationTest {
 
     @Autowired
     private lateinit var mockMvc: MockMvc
+    private lateinit var server: MockRestServiceServer
 
     private companion object {
         const val euxCaseId = "131231234"
         const val documentId = "12312j3g12jh3g12kj3g12kj3g12k3gh123k1g23"
-
     }
 
     @Test
@@ -102,14 +105,14 @@ class UpdateSedOnBucIntegrationTest {
             eq(String::class.java)) } throws createDummyClientRestExecption(HttpStatus.UNAUTHORIZED, "Unauthorized")
 
         val expectedError = """Authorization token required for Rina.""".trimIndent()
-
-        mockMvc.perform(
-            put("/sed/put/$euxCaseId/$documentId")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonsed))
-            .andExpect(status().is4xxClientError)
-            .andExpect(status().reason(Matchers.containsString(expectedError)))
-
+        assertThrows<NestedServletException> {
+            mockMvc.perform(
+                put("/sed/put/$euxCaseId/$documentId")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonsed))
+                .andExpect(status().is4xxClientError)
+                .andExpect(status().reason(Matchers.containsString(expectedError)))
+        }
     }
 
     @Test

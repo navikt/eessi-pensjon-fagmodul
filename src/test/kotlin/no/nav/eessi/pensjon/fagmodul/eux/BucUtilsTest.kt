@@ -950,8 +950,6 @@ class BucUtilsTest {
 
     }
 
-
-
     fun mockBucNoRecevieDate(direction: String = "OUT") : Buc {
         return Buc(
             id = "1",
