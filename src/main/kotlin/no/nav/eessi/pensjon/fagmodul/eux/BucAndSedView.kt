@@ -43,13 +43,6 @@ data class BucAndSedView(
             )
         }
 
-        private fun checkForReadOnly(buc: Buc): Boolean {
-            return when (buc.processDefinitionName) {
-                "R_BUC_02" -> true
-                else -> false
-            }
-        }
-
         fun from(buc: Buc) = from(buc, null)
 
         fun from(buc: Buc, gjenlevendeFnr: String, avdodFnr: String): BucAndSedView {
@@ -59,7 +52,6 @@ data class BucAndSedView(
         fun from(buc: Buc, subject: BucAndSedSubject? = null): BucAndSedView {
             val bucUtil = BucUtils(buc)
             return BucAndSedView(
-                    readOnly = checkForReadOnly(buc),
                     type = bucUtil.getProcessDefinitionName() ?: "",
                     creator = bucUtil.getCaseOwnerOrCreator(),
                     caseId = buc.id ?: "n/a",
