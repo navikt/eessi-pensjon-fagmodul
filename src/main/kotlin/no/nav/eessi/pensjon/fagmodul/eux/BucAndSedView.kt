@@ -2,7 +2,7 @@ package no.nav.eessi.pensjon.fagmodul.eux
 
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
-import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
+import no.nav.eessi.pensjon.shared.api.InstitusjonItem
 import no.nav.eessi.pensjon.utils.toJson
 
 class BucAndSedSubject(
@@ -15,19 +15,19 @@ class SubjectFnr(
 )
 
 data class BucAndSedView(
-        val type: String,
-        val caseId: String,
-        val internationalId: String,
-        val creator: InstitusjonItem? = null,
-        val sakType: String? = null,
-        val status: String? = null,
-        val startDate: Long? = null,
-        val lastUpdate: Long? = null,
-        val institusjon: List<InstitusjonItem>? = null,
-        val seds: List<DocumentsItem>? = null,
-        val error: String? = null,
-        val readOnly: Boolean? = false,
-        val subject: BucAndSedSubject? = null
+    val type: String,
+    val caseId: String,
+    val internationalId: String,
+    val creator: InstitusjonItem? = null,
+    val sakType: String? = null,
+    val status: String? = null,
+    val startDate: Long? = null,
+    val lastUpdate: Long? = null,
+    val institusjon: List<InstitusjonItem>? = null,
+    val seds: List<DocumentsItem>? = null,
+    val error: String? = null,
+    val readOnly: Boolean? = false,
+    val subject: BucAndSedSubject? = null
 ) {
     override fun toString(): String {
         return toJson()

@@ -1,8 +1,9 @@
-package no.nav.eessi.pensjon.fagmodul.models
+package no.nav.eessi.pensjon.shared.api
 
 import no.nav.eessi.pensjon.eux.model.BucType
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.sed.KravType
+import no.nav.eessi.pensjon.utils.mapJsonToAny
 
 /**
  * Data class to store different required data to build any given sed, auto or semiauto.
@@ -20,7 +21,7 @@ data class PrefillDataModel(
     val sedType: SedType,
     val buc: BucType,
     val vedtakId: String? = null,
-    val kravDato: String? = null, // Brukes bare av P15000
+    val kravDato: String? = null, // Brukes bare av P15000 yyyy-MM-dd
     val kravType: KravType? = null, // Brukes bare av P15000
     val kravId: String? = null,
     val euxCaseID: String,
@@ -31,10 +32,20 @@ data class PrefillDataModel(
     ) {
 
     override fun toString(): String {
-        return "DataModel: SedType: $SedType, bucType: $buc, penSakId: $penSaksnummer, vedtakId: $vedtakId, euxCaseId: $euxCaseID"
+        return "DataModel: SedType: ${sedType.name}, bucType: $buc, penSakId: $penSaksnummer, vedtakId: $vedtakId, euxCaseId: $euxCaseID"
+    }
+
+    fun getPartSEDasJson(key: String): String? {
+        return partSedAsJson[key]
+    }
+
+    fun getBankOgArbeidFromRequest(): BankOgArbeid? {
+        val personInfo = getPartSEDasJson("PersonInfo") ?: return null
+        return mapJsonToAny(personInfo)
     }
 
     fun getInstitutionsList(): List<InstitusjonItem> = institution
+
 }
 
 enum class ReferanseTilPerson(val verdi: String) {
