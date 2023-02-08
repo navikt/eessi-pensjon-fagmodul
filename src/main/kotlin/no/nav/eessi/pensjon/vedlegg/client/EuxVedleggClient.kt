@@ -21,7 +21,7 @@ import org.springframework.web.util.UriComponentsBuilder
 import java.io.File
 import java.nio.file.Paths
 import java.util.*
-import javax.annotation.PostConstruct
+import jakarta.annotation.PostConstruct
 
 @Component
 class EuxVedleggClient(private val euxNavIdentRestTemplate: RestTemplate,

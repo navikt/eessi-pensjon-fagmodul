@@ -1,14 +1,14 @@
 buildscript {
 
     ext {
-        springBootVersion = '2.7.5'
+        springBootVersion = '3.0.2'
         springfoxVersion = '3.0.0'
         jacksonModuleKotlinVersion = '2.14.1'
         cxfVersion = '3.5.1'
         tokenSupportVersion = '2.1.8'
         logstashLogbackVersion = '7.2'
         archunitVersion = '1.0.1'
-        springKafkaVersion = '2.9.2'
+        springKafkaVersion = '3.0.2'
     }
 }
 
@@ -29,19 +29,27 @@ jar {
 
 dependencies {
 
+    // Spring Framework BOM-fil overstyrer så vi får siste patch-versjon av Spring Framework
+    implementation(platform("org.springframework:spring-framework-bom:6.0.4"))
+
     // Spring-boot BOM-fil spesifiserer versjoner for Spring Boot-avhengigheter
-    implementation(platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}"))
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")) {
+        exclude group: 'jakarta.xml.bind', module: 'jakarta.xml.bind-api'
+    }
+
     implementation("org.springframework.boot:spring-boot-starter-web")
+
     implementation("org.yaml:snakeyaml:1.33") // Pga https://security.snyk.io/package/maven/org.yaml:snakeyaml
     implementation("org.springframework.boot:spring-boot-starter-aop")
     implementation("org.springframework.boot:spring-boot-starter-cache")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-actuator")
 
-    // Spring Framework BOM-fil overstyrer så vi får siste patch-versjon av Spring Framework
-    implementation(platform("org.springframework:spring-framework-bom:5.3.23"))
+    implementation("jakarta.annotation:jakarta.annotation-api:2.1.0")
 
-    // Spring-boot
+    implementation("com.sun.xml.ws:jaxws-ri:2.3.2")
+    implementation('org.glassfish.jaxb:jaxb-xjc:2.3.2')
+    implementation('org.glassfish.jaxb:jaxb-runtime:2.3.2')
 
     // Kotlin
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonModuleKotlinVersion")
@@ -62,17 +70,17 @@ dependencies {
     implementation("no.nav.security:token-client-spring:${tokenSupportVersion}")
     implementation("no.nav.security:token-validation-spring:${tokenSupportVersion}")
     implementation("no.nav.security:token-validation-jaxrs:${tokenSupportVersion}")
-    implementation("no.nav.security:token-validation-test-support:2.0.5")
+    testImplementation("no.nav.security:token-validation-test-support:2.0.5")
 
     implementation ("no.nav.common:token-client:2.2022.10.28_08.02-d7d341cf26ba")
     implementation("org.springframework.kafka:spring-kafka:${springKafkaVersion}")
 
-    implementation("no.nav.eessi.pensjon:ep-metrics:1.0.11")
-    implementation("no.nav.eessi.pensjon:ep-logging:1.1.16")
-    implementation("no.nav.eessi.pensjon:ep-kodeverk:3.1.55")
-    implementation("no.nav.eessi.pensjon:ep-personoppslag:12.2.4")
-    implementation("no.nav.eessi.pensjon:ep-pensjonsinformasjon:2.0.84")
-    implementation("no.nav.eessi.pensjon:ep-eux:1.4.20")
+    implementation("no.nav.eessi.pensjon:ep-metrics:1.0.12")
+    implementation("no.nav.eessi.pensjon:ep-logging:1.1.17")
+    implementation("no.nav.eessi.pensjon:ep-kodeverk:3.1.56")
+    implementation("no.nav.eessi.pensjon:ep-personoppslag:12.2.6")
+    implementation("no.nav.eessi.pensjon:ep-pensjonsinformasjon:2.0.86")
+    implementation("no.nav.eessi.pensjon:ep-eux:1.4.23")
 
     implementation("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:2610.9b6de22")
 

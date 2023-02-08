@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
-import javax.annotation.PostConstruct
+import jakarta.annotation.PostConstruct
 
 @Protected
 @RestController
