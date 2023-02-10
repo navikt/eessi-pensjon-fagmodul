@@ -25,7 +25,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
-import jakarta.annotation.PostConstruct
+import javax.annotation.PostConstruct
 
 @Service
 class EuxInnhentingService (@Value("\${ENV}") private val environment: String,

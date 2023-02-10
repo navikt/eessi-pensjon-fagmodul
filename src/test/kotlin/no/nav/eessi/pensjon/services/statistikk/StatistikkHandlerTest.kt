@@ -12,7 +12,8 @@ import org.junit.jupiter.api.Test
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.support.SendResult
 import org.springframework.test.util.ReflectionTestUtils
-import java.util.concurrent.CompletableFuture
+import org.springframework.util.concurrent.SettableListenableFuture
+
 
 class StatistikkHandlerTest{
 
@@ -34,13 +35,13 @@ class StatistikkHandlerTest{
 
     @Test
     fun `Det legges en buc melding på kakfa-kø`(){
-        val future: CompletableFuture<SendResult<String, String>> = CompletableFuture()
+        val future: SettableListenableFuture<SendResult<String, String>> = SettableListenableFuture()
         every { template.sendDefault(any(), any()) } returns future
 
         ReflectionTestUtils.setField(statHandler, "statistikkTopic", "eessi-pensjon-statistikk" )
 
         val record =  ProducerRecord<String, String>("","")
-        future.complete( SendResult(record, recordMetadata ) )
+        future.set( SendResult(record, recordMetadata ) )
 
         statHandler.produserBucOpprettetHendelse(rinaid = "", dokumentId = null)
         verify (exactly = 1) { template.sendDefault(any(), any()) }

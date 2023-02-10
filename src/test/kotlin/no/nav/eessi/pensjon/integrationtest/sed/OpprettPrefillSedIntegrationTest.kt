@@ -4,12 +4,9 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
 import no.nav.eessi.pensjon.eux.model.BucType
-import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_01
-import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_02
-import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_06
+import no.nav.eessi.pensjon.eux.model.BucType.*
 import no.nav.eessi.pensjon.eux.model.SedType
-import no.nav.eessi.pensjon.eux.model.SedType.P2000
-import no.nav.eessi.pensjon.eux.model.SedType.P6000
+import no.nav.eessi.pensjon.eux.model.SedType.*
 import no.nav.eessi.pensjon.eux.model.sed.KravType
 import no.nav.eessi.pensjon.integrationtest.IntegrasjonsTestConfig
 import no.nav.eessi.pensjon.kodeverk.KodeverkClient
@@ -28,27 +25,18 @@ import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
-import org.springframework.http.HttpStatus
-import org.springframework.http.HttpStatus.ACCEPTED
-import org.springframework.http.HttpStatus.BAD_REQUEST
-import org.springframework.http.HttpStatus.CREATED
-import org.springframework.http.HttpStatus.OK
-import org.springframework.http.HttpStatus.valueOf
-import org.springframework.http.MediaType
-import org.springframework.http.ResponseEntity
+import org.springframework.http.*
+import org.springframework.http.HttpStatus.*
 import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.MvcResult
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.web.client.RestTemplate
 
 
-@SpringBootTest(classes = [IntegrasjonsTestConfig::class,UnsecuredWebMvcTestLauncher::class], webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@SpringBootTest(classes = [IntegrasjonsTestConfig::class,UnsecuredWebMvcTestLauncher::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(profiles = ["unsecured-webmvctest"])
 @AutoConfigureMockMvc
 @EmbeddedKafka
@@ -96,6 +84,7 @@ class OpprettPrefillSedIntegrationTest {
 
         const val X_REQUEST_ID = "21abba12-22gozilla12-31daftpunk10"
     }
+
     @Test
     fun `Gitt at det opprettes ny SED P2000 på ny tom BUC Når det mangler deltakere SÅ skal det kastes en exception`() {
         val euxRinaid = "1000000001"
@@ -118,7 +107,7 @@ class OpprettPrefillSedIntegrationTest {
         every { restEuxTemplate.exchange( "/buc/$euxRinaid", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(tomBucJson)
 
         val result = mockMvc.perform(
-            post("/sed/add")
+            MockMvcRequestBuilders.post("/sed/add/")
             .contentType(MediaType.APPLICATION_JSON)
             .content(apiRequest.toJson()))
             .andExpect(MockMvcResultMatchers.status().is4xxClientError)
@@ -156,9 +145,8 @@ class OpprettPrefillSedIntegrationTest {
         val tomBucJson = javaClass.getResource("/json/buc/P_BUC_01_4.2_tom.json").readText()
         every { restEuxTemplate.exchange( "/buc/$euxRinaid", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(tomBucJson)
 
-        every { restEuxTemplate.exchange(match { url:String ->
-            url.contains("/buc/1000000001/mottakere?")
-        }, HttpMethod.PUT, null, String::class.java) } returns ResponseEntity.ok().body("")
+        val rinaputmottaker = "/buc/1000000001/mottakere?KorrelasjonsId=$X_REQUEST_ID&mottakere=FI:200032&mottakere=DK:120030"
+        every { restEuxTemplate.exchange(rinaputmottaker, HttpMethod.PUT, null, String::class.java) } returns ResponseEntity.ok().body("")
 
         val prefillHeaders = HttpHeaders()
         prefillHeaders.contentType = MediaType.APPLICATION_JSON
@@ -182,8 +170,8 @@ class OpprettPrefillSedIntegrationTest {
             String::class.java) } returns ResponseEntity.ok().body("0b804938b8974c8ba52c253905424510")
 
         val result = mockMvc.perform(
-            post("/sed/add")
-                .header("x_request_id", X_REQUEST_ID)
+            MockMvcRequestBuilders.post("/sed/add/")
+                .header("x-request-id", X_REQUEST_ID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(apiRequest.toJson()))
             .andExpect(MockMvcResultMatchers.status().is2xxSuccessful)
@@ -227,7 +215,7 @@ class OpprettPrefillSedIntegrationTest {
         every { restEuxTemplate.exchange( "/buc/$euxRinaid", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(tomBucJson)
 
         val result = mockMvc.perform(
-            post("/sed/add")
+            MockMvcRequestBuilders.post("/sed/add/")
                 .header("x-request-id", X_REQUEST_ID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(apiRequest.toJson()))

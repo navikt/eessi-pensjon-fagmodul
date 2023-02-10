@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
-import jakarta.annotation.PostConstruct
+import javax.annotation.PostConstruct
 
 const val PERSON_IKKE_FUNNET = "Person ikke funnet"
 

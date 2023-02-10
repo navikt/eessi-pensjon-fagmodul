@@ -6,6 +6,11 @@ import no.nav.eessi.pensjon.metrics.MetricsHelper
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.io.Resource
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.retry.annotation.Backoff
 import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
@@ -13,8 +18,7 @@ import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
 import java.util.*
-import jakarta.annotation.PostConstruct
-import org.springframework.http.*
+import javax.annotation.PostConstruct
 
 @Component
 class SafClient(private val safGraphQlOidcRestTemplate: RestTemplate,
@@ -55,7 +59,7 @@ class SafClient(private val safGraphQlOidcRestTemplate: RestTemplate,
                 mapper.readValue(response.body!!, HentMetadataResponse::class.java)
 
             } catch (ce: HttpClientErrorException) {
-                if(ce.statusCode == HttpStatus.FORBIDDEN) {
+                if(ce.rawStatusCode == 403) {
                     logger.error("En feil oppstod under henting av dokument metadata fra SAF for aktørID $aktoerId, ikke tilgang", ce)
                     throw HttpClientErrorException(ce.statusCode, "Du har ikke tilgang til dette dokument-temaet. Kontakt nærmeste leder for å få tilgang.")
                 }
@@ -103,7 +107,7 @@ class SafClient(private val safGraphQlOidcRestTemplate: RestTemplate,
                 HentdokumentInnholdResponse(dokumentInnholdBase64, filnavn!!, contentType)
 
             } catch (ce: HttpClientErrorException) {
-                if(ce.statusCode == HttpStatus.FORBIDDEN) {
+                if(ce.rawStatusCode == 403) {
                     logger.error("En feil oppstod under henting av dokumentInnhold fra SAF: for journalpostId: $journalpostId, dokumentInfoId $dokumentInfoId, ikke tilgang", ce)
                     throw HttpClientErrorException(ce.statusCode, "Du har ikke tilgang til dette dokument-temaet. Kontakt nærmeste leder for å få tilgang.")
                 }
