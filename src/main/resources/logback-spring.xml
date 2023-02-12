@@ -41,7 +41,7 @@
     </springProfile>
 
     <!--  For kjøring i kube/docker under miljø T,Q  -->
-    <springProfile name="!prod">
+    <springProfile name="test">
         <appender name="stdout_json" class="ch.qos.logback.core.ConsoleAppender">
             <encoder>
                 <pattern>%level %logger %msg %n</pattern>
@@ -66,9 +66,6 @@
             <appender-ref ref="auditLogger" />
         </logger>
 
-        <logger name="no.nav" level="DEBUG"/>
-        <logger name="no.nav.security" level="DEBUG"/>
-        <logger name="no.nav.eessi" level="DEBUG"/>
         <root level="DEBUG">
             <appender-ref ref="stdout_json"/>
         </root>
