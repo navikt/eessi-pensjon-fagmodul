@@ -86,7 +86,7 @@ spec:
   liveness:
     path: /internal/isalive
     port: 8080
-    initialDelay: 20
+    initialDelay: 40
     failureThreshold: 10
   port: 8080
   prometheus:
@@ -95,8 +95,8 @@ spec:
   readiness:
     path: /internal/isready
     port: 8080
-    initialDelay: 20
-    failureThreshold: 5
+    initialDelay: 40
+    failureThreshold: 10
   replicas:
     min: 2
     max: 4
