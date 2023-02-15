@@ -4,10 +4,8 @@ buildscript {
         springBootVersion = '3.0.2'
         springfoxVersion = '3.0.0'
         jacksonModuleKotlinVersion = '2.14.1'
-        cxfVersion = '3.5.1'
         tokenSupportVersion = '3.0.3'
         logstashLogbackVersion = '7.2'
-        archunitVersion = '1.0.1'
         springKafkaVersion = '3.0.2'
     }
 }
@@ -68,12 +66,12 @@ dependencies {
     implementation ("no.nav.common:token-client:2.2022.10.28_08.02-d7d341cf26ba")
     implementation("org.springframework.kafka:spring-kafka:${springKafkaVersion}")
 
-    implementation("no.nav.eessi.pensjon:ep-metrics:1.0.12")
-    implementation("no.nav.eessi.pensjon:ep-logging:1.1.17")
-    implementation("no.nav.eessi.pensjon:ep-kodeverk:3.1.56")
-    implementation("no.nav.eessi.pensjon:ep-personoppslag:12.2.6")
-    implementation("no.nav.eessi.pensjon:ep-pensjonsinformasjon:2.0.87")
-    implementation("no.nav.eessi.pensjon:ep-eux:1.4.23")
+    implementation("no.nav.eessi.pensjon:ep-metrics:2.0.0")
+    implementation("no.nav.eessi.pensjon:ep-logging:2.0.0")
+    implementation("no.nav.eessi.pensjon:ep-kodeverk:4.0.1")
+    implementation("no.nav.eessi.pensjon:ep-personoppslag:13.0.0")
+    implementation("no.nav.eessi.pensjon:ep-pensjonsinformasjon:3.0.0")
+    implementation("no.nav.eessi.pensjon:ep-eux:2.0.1")
 
     implementation("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:2610.9b6de22")
 
@@ -91,8 +89,7 @@ dependencies {
     //Kafka
     testImplementation("org.springframework.kafka:spring-kafka-test:${springKafkaVersion}")
 
-    // Architecture tests keep archunit at 0.22
-    testImplementation("com.tngtech.archunit:archunit:$archunitVersion")
+    testImplementation("com.tngtech.archunit:archunit:1.0.1")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude module: 'junit'
         exclude module: "mockito-core"
