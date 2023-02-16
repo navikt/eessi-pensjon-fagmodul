@@ -40,7 +40,8 @@ dependencies {
 
     implementation("org.yaml:snakeyaml:1.33") // Pga https://security.snyk.io/package/maven/org.yaml:snakeyaml
 
-    implementation('jakarta.xml.bind:jakarta.xml.bind-api:2.3.3')
+    implementation 'javax.xml.bind:jaxb-api:2.2.4'
+    implementation('jakarta.annotation:jakarta.annotation-api:2.1.1')
     implementation('org.glassfish.jaxb:jaxb-runtime:2.3.6')
 
     // Kotlin
