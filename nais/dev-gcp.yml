@@ -14,6 +14,8 @@ spec:
     application:
       enabled: true
       claims:
+        groups:
+          - id: 6e921c7e-7b22-4c9a-9ff6-ee3719e3c4ba #Tilgang til 0000-ga-eessi-clerk-pensjon
         extra:
           - NAVident
   accessPolicy:
