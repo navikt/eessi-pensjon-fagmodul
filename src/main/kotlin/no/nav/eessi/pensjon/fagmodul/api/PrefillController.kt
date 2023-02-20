@@ -1,5 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
+import jakarta.annotation.PostConstruct
 import no.nav.eessi.pensjon.eux.model.BucType
 import no.nav.eessi.pensjon.eux.model.BucType.*
 import no.nav.eessi.pensjon.eux.model.SedType
@@ -23,7 +24,6 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
-import jakarta.annotation.PostConstruct
 
 @Protected
 @RestController
@@ -111,7 +111,9 @@ class PrefillController(
                 "sedType: ${request.sed} " +
                 "aktoerId: ${request.aktoerId} " +
                 "sakId: ${request.sakId} " +
-                "vedtak: ${request.vedtakId}"
+                "vedtak: ${request.vedtakId}" +
+                "institusjoner: ${request.institutions}"
+
         )
 
         if (request.buc == null) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mangler Buc")
