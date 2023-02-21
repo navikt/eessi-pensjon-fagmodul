@@ -66,46 +66,8 @@
             <appender-ref ref="auditLogger" />
         </logger>
 
-        <logger name="io" level="ERROR"/>
-        <logger name="org" level="ERROR"/>
-        <logger name="com" level="ERROR"/>
-        <logger name="no.nav" level="DEBUG"/>
-        <logger name="no.nav.security" level="ERROR"/>
-        <logger name="no.nav.eessi" level="DEBUG"/>
-        <logger name="no.nav.security.token.support.core.validation" level="ERROR"/>
-        <root level="info">
+        <root level="DEBUG">
             <appender-ref ref="stdout_json"/>
         </root>
     </springProfile>
-
-    <!--  Kun for kjøring lokalt i utviklerimage/direkte i intellij -->
-    <springProfile name="local">
-        <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
-            <encoder>
-                <pattern>%magenta(%d{dd-MM-yyyy HH:mm:ss.SSS}) %highlight(%-5level) %logger{20} - %msg%n</pattern>
-            </encoder>
-        </appender>
-        <appender name="auditLogger" class="ch.qos.logback.core.ConsoleAppender">
-            <encoder>
-                <pattern>[%boldMagenta(%d{"yyyy-MM-dd'T'HH:mm:ss,SSSXXX", UTC}) %highlight(%level)] %red(%logger{15}) : %mdc - %m%n%xEx</pattern>
-            </encoder>
-        </appender>
-
-        <logger level="INFO" name="auditLogger" additivity="false">
-            <appender-ref ref="auditLogger" />
-        </logger>
-
-
-        <logger name="io" level="ERROR"/>
-        <logger name="org" level="ERROR"/>
-        <logger name="com" level="ERROR"/>
-        <logger name="no.nav" level="DEBUG"/>
-        <logger name="no.nav.security" level="ERROR"/>
-        <logger name="no.nav.eessi" level="DEBUG"/>
-
-        <root level="info">
-            <appender-ref ref="stdout" />
-        </root>
-    </springProfile>
-
 </configuration>

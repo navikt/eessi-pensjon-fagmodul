@@ -2,8 +2,8 @@ package no.nav.eessi.pensjon.fagmodul.api
 
 import no.nav.eessi.pensjon.eux.model.BucType
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
-import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
 import no.nav.eessi.pensjon.metrics.MetricsHelper
+import no.nav.eessi.pensjon.shared.api.InstitusjonItem
 import no.nav.eessi.pensjon.utils.errorBody
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.security.token.support.core.api.Protected
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.client.HttpStatusCodeException
-import javax.annotation.PostConstruct
+import jakarta.annotation.PostConstruct
 
 @RestController
 @RequestMapping("/eux")

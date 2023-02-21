@@ -16,7 +16,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Receiver
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Sender
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.VersionsItem
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.VersionsItemNoUser
-import no.nav.eessi.pensjon.fagmodul.models.InstitusjonItem
+import no.nav.eessi.pensjon.shared.api.InstitusjonItem
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus

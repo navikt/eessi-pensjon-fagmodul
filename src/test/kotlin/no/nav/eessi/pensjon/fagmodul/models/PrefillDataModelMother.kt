@@ -2,6 +2,10 @@ package no.nav.eessi.pensjon.fagmodul.models
 
 import no.nav.eessi.pensjon.eux.model.BucType
 import no.nav.eessi.pensjon.eux.model.SedType
+import no.nav.eessi.pensjon.shared.api.InstitusjonItem
+import no.nav.eessi.pensjon.shared.api.PersonId
+import no.nav.eessi.pensjon.shared.api.PrefillDataModel
+import no.nav.eessi.pensjon.shared.api.ReferanseTilPerson
 
 object PrefillDataModelMother {
 

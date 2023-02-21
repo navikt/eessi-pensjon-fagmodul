@@ -1,6 +1,8 @@
 package no.nav.eessi.pensjon.fagmodul.models
 
 import no.nav.eessi.pensjon.eux.model.SedType
+import no.nav.eessi.pensjon.shared.api.PersonId
+import no.nav.eessi.pensjon.shared.api.PrefillDataModel
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach

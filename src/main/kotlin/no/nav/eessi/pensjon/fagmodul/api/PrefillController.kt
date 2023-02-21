@@ -1,5 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
+import jakarta.annotation.PostConstruct
 import no.nav.eessi.pensjon.eux.model.BucType
 import no.nav.eessi.pensjon.eux.model.BucType.*
 import no.nav.eessi.pensjon.eux.model.SedType
@@ -7,11 +8,11 @@ import no.nav.eessi.pensjon.eux.model.sed.X005
 import no.nav.eessi.pensjon.fagmodul.eux.*
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ActionOperation
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
-import no.nav.eessi.pensjon.fagmodul.models.PrefillDataModel
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.shared.api.ApiRequest
+import no.nav.eessi.pensjon.shared.api.PrefillDataModel
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.security.token.support.core.api.Protected
@@ -23,7 +24,6 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
-import javax.annotation.PostConstruct
 
 @Protected
 @RestController
@@ -111,7 +111,9 @@ class PrefillController(
                 "sedType: ${request.sed} " +
                 "aktoerId: ${request.aktoerId} " +
                 "sakId: ${request.sakId} " +
-                "vedtak: ${request.vedtakId}"
+                "vedtak: ${request.vedtakId}" +
+                "institusjoner: ${request.institutions}"
+
         )
 
         if (request.buc == null) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mangler Buc")

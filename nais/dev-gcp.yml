@@ -14,6 +14,9 @@ spec:
     application:
       enabled: true
       claims:
+        groups:
+          - id: 6e921c7e-7b22-4c9a-9ff6-ee3719e3c4ba #Tilgang til 0000-ga-eessi-clerk-pensjon
+          - id: 79c6b5b5-1144-495c-a2c9-78aebfb5faf4 #Tilgang til 0000-ga-eessi-clerk-ufore
         extra:
           - NAVident
   accessPolicy:
@@ -98,13 +101,13 @@ spec:
     initialDelay: 40
     failureThreshold: 10
   replicas:
-    min: 2
-    max: 4
-    cpuThresholdPercentage: 80
+    min: 1
+    max: 1
+    cpuThresholdPercentage: 50
   resources:
     limits:
       cpu: 4000m
-      memory: 1Gi
+      memory: 512Mi
     requests:
       cpu: 200m
-      memory: 1Gi
+      memory: 512Mi
