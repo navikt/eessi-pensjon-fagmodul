@@ -74,7 +74,7 @@ dependencies {
     implementation("no.nav.eessi.pensjon:ep-pensjonsinformasjon:3.0.5")
     implementation("no.nav.eessi.pensjon:ep-eux:2.0.7")
 
-    implementation("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:2610.9b6de22")
+    implementation("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:2612.db4dc68")
 
     testImplementation("no.nav.security:token-validation-spring-test:${tokenSupportVersion}")
 
