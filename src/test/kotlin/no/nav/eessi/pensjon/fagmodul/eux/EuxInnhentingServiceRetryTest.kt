@@ -73,7 +73,7 @@ internal class EuxInnhentingServiceRetryTest {
     }
 
     @Test
-    fun `gitt at det finnes en gydlig euxCaseid og Buc, ved feil skal det prøves noen ganger så exception til slutt`() {
+    fun `gitt at det finnes en gyldig euxCaseid og Buc og en exception kastes, så skal retry benyttes før endelig exception til slutt`() {
         val euxCaseId = "123456"
         server.expect(ExpectedCount.times(3), MockRestRequestMatchers.requestTo(StringContains.containsString("/buc/$euxCaseId"))).andRespond(
             MockRestResponseCreators.withStatus(HttpStatus.NOT_FOUND)
