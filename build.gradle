@@ -6,7 +6,7 @@ buildscript {
         jacksonModuleKotlinVersion = '2.14.2'
         tokenSupportVersion = '3.0.3'
         logstashLogbackVersion = '7.2'
-        springKafkaVersion = '3.0.2'
+        springKafkaVersion = '3.0.3'
     }
 }
 
@@ -67,14 +67,14 @@ dependencies {
     implementation ("no.nav.common:token-client:2.2023.01.10_13.49-81ddc732df3a")
     implementation("org.springframework.kafka:spring-kafka:${springKafkaVersion}")
 
-    implementation("no.nav.eessi.pensjon:ep-metrics:2.0.0")
-    implementation("no.nav.eessi.pensjon:ep-logging:2.0.1")
-    implementation("no.nav.eessi.pensjon:ep-kodeverk:4.0.1")
+    implementation("no.nav.eessi.pensjon:ep-metrics:2.0.5")
+    implementation("no.nav.eessi.pensjon:ep-logging:2.0.4")
+    implementation("no.nav.eessi.pensjon:ep-kodeverk:4.0.6")
     implementation("no.nav.eessi.pensjon:ep-personoppslag:13.0.0")
-    implementation("no.nav.eessi.pensjon:ep-pensjonsinformasjon:3.0.0")
-    implementation("no.nav.eessi.pensjon:ep-eux:2.0.1")
+    implementation("no.nav.eessi.pensjon:ep-pensjonsinformasjon:3.0.5")
+    implementation("no.nav.eessi.pensjon:ep-eux:2.0.7")
 
-    implementation("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:2610.9b6de22")
+    implementation("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:2612.db4dc68")
 
     testImplementation("no.nav.security:token-validation-spring-test:${tokenSupportVersion}")
 
