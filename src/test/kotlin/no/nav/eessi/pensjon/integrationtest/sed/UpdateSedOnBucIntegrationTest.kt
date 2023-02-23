@@ -1,13 +1,16 @@
 package no.nav.eessi.pensjon.integrationtest.sed
 
 import com.ninjasquad.springmockk.MockkBean
+import com.ninjasquad.springmockk.MockkBeans
 import io.mockk.every
+import jakarta.servlet.ServletException
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
 import no.nav.eessi.pensjon.integrationtest.IntegrasjonsTestConfig
 import no.nav.eessi.pensjon.kodeverk.KodeverkClient
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
@@ -18,6 +21,7 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -29,42 +33,30 @@ import java.nio.charset.Charset
 @ActiveProfiles(profiles = ["unsecured-webmvctest"])
 @AutoConfigureMockMvc
 @EmbeddedKafka
+@MockkBeans(
+    MockkBean(name = "pdlRestTemplate", classes = [RestTemplate::class]),
+    MockkBean(name = "prefillOAuthTemplate", classes = [RestTemplate::class]),
+    MockkBean(name = "euxSystemRestTemplate", classes = [RestTemplate::class]),
+    MockkBean(name = "safGraphQlOidcRestTemplate", classes = [RestTemplate::class]),
+    MockkBean(name = "safRestOidcRestTemplate", classes = [RestTemplate::class]),
+    MockkBean(name = "pensjoninformasjonRestTemplate", classes = [RestTemplate::class]),
+    MockkBean(name = "kodeverkRestTemplate", classes = [RestTemplate::class])
+)
 class UpdateSedOnBucIntegrationTest {
-
-    @MockkBean(name = "pdlRestTemplate")
-    private lateinit var pdlRestTemplate: RestTemplate
-
-    @MockkBean(name = "prefillOAuthTemplate")
-    private lateinit var prefillOAuthTemplate: RestTemplate
 
     @MockkBean(name = "euxNavIdentRestTemplate")
     private lateinit var restTemplate: RestTemplate
-
-    @MockkBean(name = "euxSystemRestTemplate")
-    private lateinit var restSysTemplate: RestTemplate
-
-    @MockkBean(name = "safGraphQlOidcRestTemplate")
-    private lateinit var restSafTemplate: RestTemplate
-
-    @MockkBean(name = "safRestOidcRestTemplate")
-    private lateinit var safRestOidcRestTemplate: RestTemplate
-
-    @MockkBean(name = "pensjoninformasjonRestTemplate")
-    private lateinit var pensjoninformasjonRestTemplate: RestTemplate
-
-    @MockkBean(name = "kodeverkRestTemplate")
-    private lateinit var kodeverkRestTemplate: RestTemplate
 
     @MockkBean
     private lateinit var kodeverkClient: KodeverkClient
 
     @Autowired
     private lateinit var mockMvc: MockMvc
+    private lateinit var server: MockRestServiceServer
 
     private companion object {
         const val euxCaseId = "131231234"
         const val documentId = "12312j3g12jh3g12kj3g12kj3g12k3gh123k1g23"
-
     }
 
     @Test
@@ -102,14 +94,14 @@ class UpdateSedOnBucIntegrationTest {
             eq(String::class.java)) } throws createDummyClientRestExecption(HttpStatus.UNAUTHORIZED, "Unauthorized")
 
         val expectedError = """Authorization token required for Rina.""".trimIndent()
-
-        mockMvc.perform(
-            put("/sed/put/$euxCaseId/$documentId")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonsed))
-            .andExpect(status().is4xxClientError)
-            .andExpect(status().reason(Matchers.containsString(expectedError)))
-
+        assertThrows<ServletException> {
+            mockMvc.perform(
+                put("/sed/put/$euxCaseId/$documentId")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonsed))
+                .andExpect(status().is4xxClientError)
+                .andExpect(status().reason(Matchers.containsString(expectedError)))
+        }
     }
 
     @Test
@@ -131,7 +123,6 @@ class UpdateSedOnBucIntegrationTest {
         val response = result.response.getContentAsString(charset("UTF-8"))
 
         assertEquals(true, response.toBoolean())
-
     }
 
     @Test
@@ -153,11 +144,7 @@ class UpdateSedOnBucIntegrationTest {
         val response = result.response.getContentAsString(charset("UTF-8"))
 
         assertEquals(true, response.toBoolean())
-
     }
-
-
-
 
     @Test
     fun `oppdate sed P5000 on buc results in false when json is not a valid SED Exception`() {
@@ -177,7 +164,6 @@ class UpdateSedOnBucIntegrationTest {
                 .content(jsonsed))
             .andExpect(status().isBadRequest)
             .andExpect(status().reason(Matchers.containsString(expectedError)))
-
     }
 
     private fun createDummyClientRestExecption(httpstatus: HttpStatus, dummyBody: String)

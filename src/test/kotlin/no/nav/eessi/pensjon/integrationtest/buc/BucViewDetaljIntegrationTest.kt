@@ -219,7 +219,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
     }
 
     @Test
-    fun `Gitt Det er en SingleBucRequest uten avdod på rinaid som ikke finnes`() {
+    fun `gitt en singleBucRequest uten avdod, og rinaid som ikke finnes så skal det kastes et NOT_FOUND exception`() {
         val saknr = "1203201322"
         val aktoerid = "1123123123123123"
         val fnr = "1234567890000"
@@ -242,12 +242,9 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         val response = result.response.getContentAsString(charset("UTF-8"))
 
         val bucView = mapJsonToAny<BucAndSedView>(response)
-        val expectederror = """
-            404 NOT_FOUND "Ikke funnet"
-            """.trimIndent()
-        assertEquals(expectederror, bucView.error)
+        assertEquals("404 NOT_FOUND", bucView.error)
 
-        verify (exactly = 3) { restEuxTemplate.exchange("/buc/$euxCaseId", HttpMethod.GET, null, String::class.java)  }
+        verify (exactly = 1) { restEuxTemplate.exchange("/buc/$euxCaseId", HttpMethod.GET, null, String::class.java)  }
     }
 
     @Test

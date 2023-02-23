@@ -269,7 +269,7 @@ internal class PrefillControllerTest {
         every { personService.hentIdent(eq(IdentType.NorskIdent), any<AktoerId>())  } returns NorskIdent("12345")
         every { mockEuxInnhentingService.getBuc(euxCaseId) } returns mockBuc
         every { prefillKlient.hentPreutfyltSed(any()) } returns SED(type = dummyPrefillData.sedType).toJson()
-        every { mockEuxKlient.putBucMottakere(any(), any(), any())  } returns true
+        every { mockEuxKlient.putBucMottakere(any(), any())  } returns true
         every { mockEuxPrefillService.opprettJsonSedOnBuc(any(), any(),eq(euxCaseId), dummyPrefillData.vedtakId) } returns EuxKlient.BucSedResponse(euxCaseId, "1")
 
         prefillController.addInstutionAndDocument(apirequest)
@@ -277,7 +277,7 @@ internal class PrefillControllerTest {
         verify(exactly = 1 ) { mockEuxInnhentingService.getBuc(any()) }
         verify(exactly = 1 ) { mockEuxPrefillService.opprettJsonSedOnBuc(any(), any(), euxCaseId, dummyPrefillData.vedtakId) }
         verify(exactly = 1 ) { prefillKlient.hentPreutfyltSed(any()) }
-        verify(exactly = 1 ) { mockEuxKlient.putBucMottakere(any(), any(),  any()) }
+        verify(exactly = 1 ) { mockEuxKlient.putBucMottakere(any(), any()) }
         verify(exactly = 1 ) { personService.hentIdent(any<IdentType.NorskIdent>(), any<AktoerId>())}
     }
 
@@ -302,7 +302,7 @@ internal class PrefillControllerTest {
         every { personService.hentIdent(eq(IdentType.NorskIdent), any<AktoerId>())  } returns NorskIdent("12345")
         every { mockEuxInnhentingService.getBuc(any()) } returns mockBuc andThen mockDocBuc
         every { prefillKlient.hentPreutfyltSed(any()) } returns SED(type = dummyPrefillData.sedType).toJson()
-        every { mockEuxKlient.putBucMottakere(any(), any(),  any())  } returns true
+        every { mockEuxKlient.putBucMottakere(any(), any())  } returns true
         every { mockEuxPrefillService.opprettJsonSedOnBuc(any(), any(),eq(euxCaseId), dummyPrefillData.vedtakId) } returns EuxKlient.BucSedResponse(
             euxCaseId,
             "5a61468eb8cb4fd78c5c44d75b9bb890"
@@ -436,7 +436,7 @@ internal class PrefillControllerTest {
         val euxCaseId = "1234567890"
 
         every { personService.hentIdent(eq(IdentType.NorskIdent), any<AktoerId>()) } returns NorskIdent("12345")
-        val mockBucJson = javaClass.getResource("/json/buc/buc-P_BUC_06-P6000_Sendt.json").readText()
+        val mockBucJson = javaClass.getResource("/json/buc/buc-P_BUC_06-P6000_Sendt.json")!!.readText()
         every { mockEuxInnhentingService.getBuc(euxCaseId) } returns mapJsonToAny(mockBucJson)
         val apiRequest = apiRequestWith(euxCaseId, emptyList())
 
@@ -453,8 +453,8 @@ internal class PrefillControllerTest {
         every { personService.hentIdent(eq(IdentType.NorskIdent), any<AktoerId>()) } returns NorskIdent("12345")
         every { prefillKlient.hentPreutfyltSed(any()) } returns SED(SedType.P10000).toJson()
 
-        val mockBucJson = javaClass.getResource("/json/buc/buc_P_BUC_06_4.2_tom.json").readText()
-        val mockBucJson2 = javaClass.getResource("/json/buc/P_BUC_06_P10000.json").readText()
+        val mockBucJson = javaClass.getResource("/json/buc/buc_P_BUC_06_4.2_tom.json")!!.readText()
+        val mockBucJson2 = javaClass.getResource("/json/buc/P_BUC_06_P10000.json")!!.readText()
 
         every { mockEuxInnhentingService.getBuc(euxCaseId) } returns mapJsonToAny(mockBucJson) andThen mapJsonToAny<Buc>((mockBucJson2))
         val newParticipants = listOf(

@@ -3,6 +3,7 @@ package no.nav.eessi.pensjon.fagmodul.config
 import io.micrometer.core.instrument.MeterRegistry
 import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
 import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
+import no.nav.eessi.pensjon.fagmodul.eux.EuxErrorHandler
 import no.nav.eessi.pensjon.logging.RequestIdHeaderInterceptor
 import no.nav.eessi.pensjon.logging.RequestResponseLoggerInterceptor
 import no.nav.eessi.pensjon.metrics.RequestCountInterceptor
@@ -25,14 +26,13 @@ import org.springframework.http.client.ClientHttpRequestExecution
 import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.http.client.SimpleClientHttpRequestFactory
 import org.springframework.web.client.DefaultResponseErrorHandler
+import org.springframework.web.client.ResponseErrorHandler
 import org.springframework.web.client.RestTemplate
 import java.time.Duration
-
 
 @Configuration
 @Profile("prod", "test")
 class RestTemplateConfig(
-        @Value("\${ENV}") private val environment: String,
         private val clientConfigurationProperties: ClientConfigurationProperties,
         private val oAuth2AccessTokenService: OAuth2AccessTokenService,
         private val tokenValidationContextHolder: TokenValidationContextHolder,
@@ -69,10 +69,10 @@ class RestTemplateConfig(
     lateinit var hentRestUrl: String
 
     @Bean
-    fun euxNavIdentRestTemplate(): RestTemplate = restTemplate(euxUrl, onBehalfOfBearerTokenInterceptor(euxClientId))
+    fun euxNavIdentRestTemplate(): RestTemplate = restTemplate(euxUrl, onBehalfOfBearerTokenInterceptor(euxClientId), EuxErrorHandler())
 
     @Bean
-    fun euxSystemRestTemplate() = restTemplate(euxUrl, oAuth2BearerTokenInterceptor(clientProperties("eux-credentials"), oAuth2AccessTokenService))
+    fun euxSystemRestTemplate() = restTemplate(euxUrl, oAuth2BearerTokenInterceptor(clientProperties("eux-credentials"), oAuth2AccessTokenService), EuxErrorHandler())
 
     @Bean
     fun proxyOAuthRestTemplate() = restTemplate(proxyUrl, oAuth2BearerTokenInterceptor(clientProperties("proxy-credentials"), oAuth2AccessTokenService))
@@ -90,11 +90,11 @@ class RestTemplateConfig(
     fun safRestOidcRestTemplate() = restTemplate(hentRestUrl, onBehalfOfBearerTokenInterceptor(safClientId))
 
 
-    private fun restTemplate(url: String, tokenIntercetor: ClientHttpRequestInterceptor?) : RestTemplate {
+    private fun restTemplate(url: String, tokenIntercetor: ClientHttpRequestInterceptor?, defaultErrorHandler: ResponseErrorHandler = DefaultResponseErrorHandler()) : RestTemplate {
         logger.info("init restTemplate: $url")
         return RestTemplateBuilder()
             .rootUri(url)
-            .errorHandler(DefaultResponseErrorHandler())
+            .errorHandler(defaultErrorHandler)
             .setReadTimeout(Duration.ofSeconds(120))
             .setConnectTimeout(Duration.ofSeconds(120))
             .additionalInterceptors(
@@ -110,7 +110,6 @@ class RestTemplateConfig(
                 )
        }
     }
-
 
     private fun clientProperties(oAuthKey: String): ClientProperties = clientConfigurationProperties.registration[oAuthKey]
         ?: throw RuntimeException("could not find oauth2 client config for $oAuthKey")
