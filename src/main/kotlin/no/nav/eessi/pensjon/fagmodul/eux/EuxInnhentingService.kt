@@ -1,9 +1,16 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
+import jakarta.annotation.PostConstruct
+import no.nav.eessi.pensjon.eux.klient.EuxKlientForSystemUser
+import no.nav.eessi.pensjon.eux.klient.ForbiddenException
+import no.nav.eessi.pensjon.eux.klient.Rinasak
 import no.nav.eessi.pensjon.eux.model.BucType
 import no.nav.eessi.pensjon.eux.model.BucType.*
+import no.nav.eessi.pensjon.eux.model.InstitusjonDetalj
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.MissingBuc
+import no.nav.eessi.pensjon.eux.model.buc.ParticipantsItem
+import no.nav.eessi.pensjon.eux.model.buc.PreviewPdf
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.sed.Person
 import no.nav.eessi.pensjon.eux.model.sed.SED
@@ -11,9 +18,6 @@ import no.nav.eessi.pensjon.eux.model.sed.X009
 import no.nav.eessi.pensjon.fagmodul.config.INSTITUTION_CACHE
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.PreviewPdf
-import no.nav.eessi.pensjon.fagmodul.models.InstitusjonDetalj
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.shared.api.ApiRequest
 import no.nav.eessi.pensjon.shared.api.InstitusjonItem
@@ -33,11 +37,10 @@ import org.springframework.retry.listener.RetryListenerSupport
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
-import jakarta.annotation.PostConstruct
 
 @Service
 class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
-                            @Autowired private val euxKlient: EuxKlient,
+                            @Autowired private val euxKlient: EuxKlientForSystemUser,
                             @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()) {
 
     private lateinit var RinaUrl: MetricsHelper.Metric
@@ -174,7 +177,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
     /**
      * Sjekker om rinasak er relevant for visning i EP
      */
-    fun erRelevantForVisningIEessiPensjon(rinasak: EuxKlient.Rinasak) =
+    fun erRelevantForVisningIEessiPensjon(rinasak: Rinasak) =
         rinasak.status != "archived"
                 && rinasak.processDefinitionId in relevanteBucTyperForVisningIEessiPensjon()
                 && !MissingBuc.checkForMissingBuc(rinasak.id!!)
@@ -372,7 +375,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
     }
 
     //** hente rinasaker fra RINA og SAF
-    fun getRinasaker(fnr: String, rinaSakIderFraJoark: List<String>): List<EuxKlient.Rinasak> {
+    fun getRinasaker(fnr: String, rinaSakIderFraJoark: List<String>): List<Rinasak> {
 
         val rinaSakerMedFnr = HentRinasaker.measure { euxKlient.getRinasaker(fnr = fnr, euxCaseId = null) }
         logger.debug("hentet rinasaker fra eux-rina-api size: ${rinaSakerMedFnr.size}")
@@ -399,7 +402,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
      * Returnerer en distinct liste av rinaSakIDer
      *  @param rinaSaker liste av rinasaker fra EUX datamodellen
      */
-    fun hentRinaSakIder(rinaSaker: List<EuxKlient.Rinasak>) = rinaSaker.map { it.id!! }
+    fun hentRinaSakIder(rinaSaker: List<Rinasak>) = rinaSaker.map { it.id!! }
 
     fun kanSedOpprettes(dataModel: PrefillDataModel): BucUtils {
 

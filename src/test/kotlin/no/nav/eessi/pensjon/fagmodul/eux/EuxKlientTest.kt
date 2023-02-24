@@ -2,17 +2,24 @@ package no.nav.eessi.pensjon.fagmodul.eux
 
 
 import io.mockk.mockk
+import no.nav.eessi.pensjon.eux.klient.EuxKlientForSystemUser
+import no.nav.eessi.pensjon.eux.klient.EuxRinaServerException
+import no.nav.eessi.pensjon.eux.klient.ForbiddenException
+import no.nav.eessi.pensjon.eux.klient.GatewayTimeoutException
+import no.nav.eessi.pensjon.eux.klient.GenericUnprocessableEntity
+import no.nav.eessi.pensjon.eux.klient.IkkeFunnetException
+import no.nav.eessi.pensjon.eux.klient.RinaIkkeAutorisertBrukerException
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_01
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_03
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.SedType.P2000
 import no.nav.eessi.pensjon.eux.model.SedType.P2200
+import no.nav.eessi.pensjon.eux.model.buc.Organisation
+import no.nav.eessi.pensjon.eux.model.buc.ParticipantsItem
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.fagmodul.eux.EuxTestUtils.Companion.dummyRequirement
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Organisation
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
 import no.nav.eessi.pensjon.shared.retry.IOExceptionRetryInterceptor
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
@@ -50,7 +57,7 @@ private const val NAVT02 = "NO:NAVT02"
 @SpringJUnitConfig(classes = [
     TestEuxClientRetryConfig::class,
     EuxKlientRetryLogger::class,
-    EuxKlient::class,
+    EuxKlientForSystemUser::class,
     EuxKlientTest.Config::class]
 )
 @ActiveProfiles(profiles = ["unsecured-webmvctest"])
@@ -58,7 +65,7 @@ private const val NAVT02 = "NO:NAVT02"
 class EuxKlientTest {
 
     @Autowired
-    lateinit var euxNavIdentRestTemplate: RestTemplate
+    lateinit var euxRestTemplate: RestTemplate
 
     @Autowired
     lateinit var euxSystemRestTemplate: RestTemplate
@@ -66,18 +73,17 @@ class EuxKlientTest {
     lateinit var server: MockRestServiceServer
 
     @Autowired
-    lateinit var euxKlient: EuxKlient
+    lateinit var euxKlient: EuxKlientForSystemUser
 
     @BeforeEach
     fun setup() {
-        server = MockRestServiceServer.bindTo(euxNavIdentRestTemplate).build()
-        euxKlient = EuxKlient(euxNavIdentRestTemplate, euxSystemRestTemplate)
+        server = MockRestServiceServer.bindTo(euxRestTemplate).build()
     }
 
     @TestConfiguration
     class Config {
         @Bean
-        fun euxNavIdentRestTemplate(): RestTemplate {
+        fun euxRestTemplate(): RestTemplate {
             return RestTemplateBuilder()
                 .errorHandler(EuxErrorHandler())
                 .additionalInterceptors(IOExceptionRetryInterceptor())

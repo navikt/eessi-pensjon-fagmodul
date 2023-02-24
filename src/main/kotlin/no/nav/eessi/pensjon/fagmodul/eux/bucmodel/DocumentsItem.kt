@@ -1,6 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.eux.bucmodel
 
 import no.nav.eessi.pensjon.eux.model.SedType
+import no.nav.eessi.pensjon.eux.model.buc.ParticipantsItem
 
 class DocumentsItem(
         val attachments: List<Attachment>? = null,

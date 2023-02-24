@@ -1,6 +1,9 @@
 package no.nav.eessi.pensjon.integrationtest.buc
 
-import no.nav.eessi.pensjon.fagmodul.eux.EuxKlient
+import no.nav.eessi.pensjon.eux.klient.EuxKlientForSystemUser
+import no.nav.eessi.pensjon.eux.klient.Properties
+import no.nav.eessi.pensjon.eux.klient.Rinasak
+import no.nav.eessi.pensjon.eux.klient.Traits
 import no.nav.eessi.pensjon.vedlegg.client.BrukerId
 import no.nav.eessi.pensjon.vedlegg.client.BrukerIdType
 import no.nav.eessi.pensjon.vedlegg.client.SafRequest
@@ -132,11 +135,11 @@ open class BucBaseTest {
 
     fun dummyRinasakAvdodUrl(avdod: String? = null) = dummyRinasakUrl(avdod, null)
     fun dummyRinasakUrl(fnr: String? = null, euxCaseId: String? = null) : UriComponents {
-        return EuxKlient.getRinasakerUri(fnr, euxCaseId).also { println(it) }
+        return EuxKlientForSystemUser.getRinasakerUri(fnr, euxCaseId).also { println(it) }
     }
 
-    fun dummyRinasak(rinaSakId: String, bucType: String): EuxKlient.Rinasak {
-        return EuxKlient.Rinasak(rinaSakId, bucType, EuxKlient.Traits(), "", EuxKlient.Properties(), "open")
+    fun dummyRinasak(rinaSakId: String, bucType: String): Rinasak {
+        return Rinasak(rinaSakId, bucType, Traits(), "", Properties(), "open")
     }
 
     fun mockVedtak(avdofnr: String, gjenlevAktoerid: String): Pensjonsinformasjon {

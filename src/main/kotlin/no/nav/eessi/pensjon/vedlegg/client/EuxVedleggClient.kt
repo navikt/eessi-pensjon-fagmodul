@@ -1,5 +1,13 @@
 package no.nav.eessi.pensjon.vedlegg.client
 
+import jakarta.annotation.PostConstruct
+import no.nav.eessi.pensjon.eux.klient.EuxRinaServerException
+import no.nav.eessi.pensjon.eux.klient.ForbiddenException
+import no.nav.eessi.pensjon.eux.klient.GatewayTimeoutException
+import no.nav.eessi.pensjon.eux.klient.GenericUnprocessableEntity
+import no.nav.eessi.pensjon.eux.klient.IkkeFunnetException
+import no.nav.eessi.pensjon.eux.klient.RinaIkkeAutorisertBrukerException
+import no.nav.eessi.pensjon.eux.klient.ServerException
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -12,7 +20,6 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import org.springframework.util.LinkedMultiValueMap
-import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
@@ -21,7 +28,6 @@ import org.springframework.web.util.UriComponentsBuilder
 import java.io.File
 import java.nio.file.Paths
 import java.util.*
-import jakarta.annotation.PostConstruct
 
 @Component
 class EuxVedleggClient(private val euxNavIdentRestTemplate: RestTemplate,
@@ -149,6 +155,7 @@ class EuxVedleggClient(private val euxNavIdentRestTemplate: RestTemplate,
     }
 }
 
+/*
 @ResponseStatus(value = HttpStatus.NOT_FOUND)
 class IkkeFunnetException(message: String) : RuntimeException(message)
 
@@ -169,3 +176,4 @@ class GatewayTimeoutException(message: String?) : RuntimeException(message)
 
 @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
 class ServerException(message: String?) : RuntimeException(message)
+*/

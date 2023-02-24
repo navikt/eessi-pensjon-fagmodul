@@ -1,10 +1,13 @@
 package no.nav.eessi.pensjon.integrationtest.pesys
 
 import com.ninjasquad.springmockk.MockkBean
+import com.ninjasquad.springmockk.MockkBeans
 import io.mockk.every
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
 import no.nav.eessi.pensjon.integrationtest.IntegrasjonsTestConfig
 import no.nav.eessi.pensjon.kodeverk.KodeverkClient
+import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
+import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
@@ -26,31 +29,21 @@ import org.springframework.web.client.RestTemplate
 @ActiveProfiles(profiles = ["unsecured-webmvctest"])
 @AutoConfigureMockMvc
 @EmbeddedKafka
+@MockkBeans(
+    MockkBean(name = "personService", classes = [PersonService::class]),
+    MockkBean(name = "pdlRestTemplate", classes = [RestTemplate::class]),
+    MockkBean(name = "kodeverkRestTemplate", classes = [RestTemplate::class]),
+    MockkBean(name = "prefillOAuthTemplate", classes = [RestTemplate::class]),
+    MockkBean(name = "euxSystemRestTemplate", classes = [RestTemplate::class]),
+    MockkBean(name = "safRestOidcRestTemplate", classes = [RestTemplate::class]),
+    MockkBean(name = "euxNavIdentRestTemplate", classes = [RestTemplate::class]),
+    MockkBean(name = "safGraphQlOidcRestTemplate", classes = [RestTemplate::class]),
+    MockkBean(name = "pensjonsinformasjonClient", classes = [PensjonsinformasjonClient::class])
+)
 class PesysIntegrationSpringTest {
 
-    @MockkBean(name = "pdlRestTemplate")
-    private lateinit var pdlRestTemplate: RestTemplate
-
-    @MockkBean(name = "prefillOAuthTemplate")
-    private lateinit var prefillOAuthTemplate: RestTemplate
-
-    @MockkBean(name = "euxNavIdentRestTemplate")
-    private lateinit var euxRestOidcTemplate: RestTemplate
-
-    @MockkBean(name = "euxSystemRestTemplate")
-    private lateinit var restTemplate: RestTemplate
-
-    @MockkBean(name = "safGraphQlOidcRestTemplate")
-    private lateinit var restSafTemplate: RestTemplate
-
-    @MockkBean(name = "safRestOidcRestTemplate")
-    private lateinit var safRestOidcRestTemplate: RestTemplate
-
-    @MockkBean(name = "pensjoninformasjonRestTemplate")
-    private lateinit var pensjoninformasjonRestTemplate: RestTemplate
-
-    @MockkBean(name = "kodeverkRestTemplate")
-    private lateinit var kodeverkRestTemplate: RestTemplate
+    @Autowired
+    private lateinit var euxSystemRestTemplate: RestTemplate
 
     @MockkBean
     private lateinit var kodeverkClient: KodeverkClient
@@ -70,13 +63,13 @@ class PesysIntegrationSpringTest {
         val buc03 = ResourceUtils.getFile("classpath:json/buc/buc-1297512-kravP2200_v4.2.json").readText()
         val rinabucpath = "/buc/$bucid"
 
-        every { restTemplate.exchange( eq(rinabucpath), eq(HttpMethod.GET), any(), eq(String::class.java)) } returns ResponseEntity.ok().body( buc03 )
+        every { euxSystemRestTemplate.exchange( eq(rinabucpath), eq(HttpMethod.GET), any(), eq(String::class.java)) } returns ResponseEntity.ok().body( buc03 )
 
         //euxrest kall til p2200
         val sedurl = "/buc/$bucid/sed/$sedid"
         val sedP2200 = ResourceUtils.getFile("classpath:json/nav/P2200-NAV-FRA-UTLAND-KRAV.json").readText()
 
-        every { restTemplate.exchange( eq(sedurl), eq(HttpMethod.GET), any(), eq(String::class.java)) } returns ResponseEntity.ok().body( sedP2200 )
+        every { euxSystemRestTemplate.exchange( eq(sedurl), eq(HttpMethod.GET), any(), eq(String::class.java)) } returns ResponseEntity.ok().body( sedP2200 )
 
         val result = mockMvc.perform(
             MockMvcRequestBuilders.get("/pesys/hentKravUtland/$bucid")
@@ -122,13 +115,13 @@ class PesysIntegrationSpringTest {
         val buc01 = ResourceUtils.getFile("classpath:json/buc/buc-1297512-kravP2000_v4.2.json").readText()
         val rinabucpath = "/buc/$bucid"
 
-        every { restTemplate.exchange( eq(rinabucpath), eq(HttpMethod.GET), any(), eq(String::class.java)) } returns ResponseEntity.ok().body( buc01 )
+        every { euxSystemRestTemplate.exchange( eq(rinabucpath), eq(HttpMethod.GET), any(), eq(String::class.java)) } returns ResponseEntity.ok().body( buc01 )
 
         //euxrest kall til p2000
         val sedurl = "/buc/$bucid/sed/$sedid"
         val sedP2000 = ResourceUtils.getFile("classpath:json/nav/P2000-NAV-FRA-UTLAND-KRAV.json").readText()
 
-        every { restTemplate.exchange( eq(sedurl), eq(HttpMethod.GET), any(), eq(String::class.java)) } returns ResponseEntity.ok().body( sedP2000 )
+        every { euxSystemRestTemplate.exchange( eq(sedurl), eq(HttpMethod.GET), any(), eq(String::class.java)) } returns ResponseEntity.ok().body( sedP2000 )
 
         val result = mockMvc.perform(
             MockMvcRequestBuilders.get("/pesys/hentKravUtland/$bucid")
@@ -184,11 +177,11 @@ class PesysIntegrationSpringTest {
         val buc01 = ResourceUtils.getFile("classpath:json/buc/buc-1297512-kravP2000_v4.2.json").readText()
         val rinabucpath = "/buc/$bucid"
 
-        every { restTemplate.exchange( eq(rinabucpath), eq(HttpMethod.GET), any(), eq(String::class.java)) } returns ResponseEntity.ok().body( buc01 )
+        every { euxSystemRestTemplate.exchange( eq(rinabucpath), eq(HttpMethod.GET), any(), eq(String::class.java)) } returns ResponseEntity.ok().body( buc01 )
 
         //euxrest kall til p2000
         val sedurl = "/buc/$bucid/sed/$sedid"
-        every { restTemplate.exchange( eq(sedurl), eq(HttpMethod.GET), any(), eq(String::class.java)) } returns ResponseEntity.ok().body( p2000json )
+        every { euxSystemRestTemplate.exchange( eq(sedurl), eq(HttpMethod.GET), any(), eq(String::class.java)) } returns ResponseEntity.ok().body( p2000json )
 
         val result = mockMvc.perform(
             MockMvcRequestBuilders.get("/pesys/hentKravUtland/$bucid")
@@ -245,7 +238,7 @@ class PesysIntegrationSpringTest {
 
         val rinabucpath = "/buc/$bucid"
 
-        every { restTemplate.exchange( eq(rinabucpath), eq(HttpMethod.GET), any(), eq(String::class.java)) } returns ResponseEntity.ok().body( bucjson )
+        every { euxSystemRestTemplate.exchange( eq(rinabucpath), eq(HttpMethod.GET), any(), eq(String::class.java)) } returns ResponseEntity.ok().body( bucjson )
 
 
         val expectedError = """Ugyldig BUC, Ikke korrekt type KRAV."""
@@ -271,7 +264,7 @@ class PesysIntegrationSpringTest {
 
         val rinabucpath = "/buc/$bucid"
 
-        every { restTemplate.exchange( eq(rinabucpath), eq(HttpMethod.GET), any(), eq(String::class.java)) } returns ResponseEntity.ok().body( bucjson )
+        every { euxSystemRestTemplate.exchange( eq(rinabucpath), eq(HttpMethod.GET), any(), eq(String::class.java)) } returns ResponseEntity.ok().body( bucjson )
 
 
         val expectedError = """Ingen CaseOwner funnet på BUC med id: 998777"""
@@ -321,7 +314,7 @@ class PesysIntegrationSpringTest {
         """.trimIndent()
 
         val rinabucpath = "/buc/$bucid"
-        every { restTemplate.exchange( eq(rinabucpath), eq(HttpMethod.GET), any(), eq(String::class.java)) } returns ResponseEntity.ok().body( bucjson )
+        every { euxSystemRestTemplate.exchange( eq(rinabucpath), eq(HttpMethod.GET), any(), eq(String::class.java)) } returns ResponseEntity.ok().body( bucjson )
 
         val expectedError = """Ingen dokument metadata funnet i BUC med id: 998777."""
 
