@@ -2,6 +2,8 @@ package no.nav.eessi.pensjon.fagmodul.eux
 
 import no.nav.eessi.pensjon.eux.model.BucType.*
 import no.nav.eessi.pensjon.eux.model.SedType
+import no.nav.eessi.pensjon.eux.model.buc.Organisation
+import no.nav.eessi.pensjon.eux.model.buc.ParticipantsItem
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.document.Retning
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ActionOperation
@@ -10,8 +12,6 @@ import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Attachment
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ConversationsItem
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Organisation
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Receiver
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Sender
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.VersionsItem

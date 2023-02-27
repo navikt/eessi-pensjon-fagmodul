@@ -1,5 +1,12 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
+import jakarta.annotation.PostConstruct
+import no.nav.eessi.pensjon.eux.klient.BucSedResponse
+import no.nav.eessi.pensjon.eux.klient.EuxConflictException
+import no.nav.eessi.pensjon.eux.klient.EuxGenericServerException
+import no.nav.eessi.pensjon.eux.klient.EuxKlientLib
+import no.nav.eessi.pensjon.eux.klient.EuxRinaServerException
+import no.nav.eessi.pensjon.eux.klient.SedDokumentIkkeOpprettetException
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.X005
@@ -14,10 +21,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
-import jakarta.annotation.PostConstruct
 
 @Service
-class EuxPrefillService (private val euxKlient: EuxKlient,
+class EuxPrefillService (private val euxKlient: EuxKlientLib,
                          private val statistikk: StatistikkHandler,
                          @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()) {
 
@@ -38,7 +44,7 @@ class EuxPrefillService (private val euxKlient: EuxKlient,
     }
 
     @Throws(EuxGenericServerException::class, SedDokumentIkkeOpprettetException::class)
-    fun opprettSvarJsonSedOnBuc(jsonSed: String, euxCaseId: String, parentDocumentId: String, vedtakId: String?, sedType: SedType): EuxKlient.BucSedResponse {
+    fun opprettSvarJsonSedOnBuc(jsonSed: String, euxCaseId: String, parentDocumentId: String, vedtakId: String?, sedType: SedType): BucSedResponse {
         logger.info("Forsøker å opprette (svarsed) en $sedType på rinasakId: $euxCaseId")
 
         val bucSedResponse = opprettSvarSED.measure {
@@ -57,7 +63,7 @@ class EuxPrefillService (private val euxKlient: EuxKlient,
      * Ny SED på ekisterende type
      */
     @Throws(EuxGenericServerException::class, SedDokumentIkkeOpprettetException::class)
-    fun opprettJsonSedOnBuc(jsonNavSED: String, sedType: SedType, euxCaseId: String, vedtakId: String?): EuxKlient.BucSedResponse {
+    fun opprettJsonSedOnBuc(jsonNavSED: String, sedType: SedType, euxCaseId: String, vedtakId: String?): BucSedResponse {
         logger.info("Forsøker å opprette en $sedType på rinasakId: $euxCaseId")
 
         val bucSedResponse = opprettSED.measure { euxKlient.opprettSed(jsonNavSED, euxCaseId) }
@@ -72,7 +78,7 @@ class EuxPrefillService (private val euxKlient: EuxKlient,
     }
 
     fun createBuc(buctype: String): String {
-        val euxCaseId = GetBUC.measure { euxKlient.createBuc(buctype) }
+        val euxCaseId = GetBUC.measure { createBuc(buctype) }
         try {
             statistikk.produserBucOpprettetHendelse(euxCaseId, null)
         } catch (ex: Exception) {

@@ -1,6 +1,7 @@
 package no.nav.eessi.pensjon.integrationtest.sed
 
 import com.ninjasquad.springmockk.MockkBean
+import com.ninjasquad.springmockk.MockkBeans
 import io.mockk.every
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
 import no.nav.eessi.pensjon.eux.model.BucType
@@ -12,7 +13,7 @@ import no.nav.eessi.pensjon.eux.model.SedType.P2000
 import no.nav.eessi.pensjon.eux.model.SedType.P6000
 import no.nav.eessi.pensjon.eux.model.sed.KravType
 import no.nav.eessi.pensjon.integrationtest.IntegrasjonsTestConfig
-import no.nav.eessi.pensjon.kodeverk.KodeverkClient
+import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
 import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentType
@@ -52,36 +53,26 @@ import org.springframework.web.client.RestTemplate
 @ActiveProfiles(profiles = ["unsecured-webmvctest"])
 @AutoConfigureMockMvc
 @EmbeddedKafka
+@MockkBeans(
+    MockkBean(name = "personService", classes = [PersonService::class]),
+    MockkBean(name = "pdlRestTemplate", classes = [RestTemplate::class]),
+    MockkBean(name = "kodeverkRestTemplate", classes = [RestTemplate::class]),
+    MockkBean(name = "prefillOAuthTemplate", classes = [RestTemplate::class]),
+    MockkBean(name = "euxSystemRestTemplate", classes = [RestTemplate::class]),
+    MockkBean(name = "safRestOidcRestTemplate", classes = [RestTemplate::class]),
+    MockkBean(name = "euxNavIdentRestTemplate", classes = [RestTemplate::class]),
+    MockkBean(name = "safGraphQlOidcRestTemplate", classes = [RestTemplate::class]),
+    MockkBean(name = "pensjonsinformasjonClient", classes = [PensjonsinformasjonClient::class])
+)
 class OpprettPrefillSedIntegrationTest {
 
-    @MockkBean(name = "pdlRestTemplate")
-    private lateinit var pdlRestTemplate: RestTemplate
-
-    @MockkBean(name = "prefillOAuthTemplate")
+    @Autowired
     private lateinit var prefillOAuthTemplate: RestTemplate
 
-    @MockkBean(name = "euxNavIdentRestTemplate")
-    private lateinit var restEuxTemplate: RestTemplate
+    @Autowired
+    private lateinit var euxNavIdentRestTemplate: RestTemplate
 
-    @MockkBean(name = "euxSystemRestTemplate")
-    private lateinit var euxUserNameRestTemplate: RestTemplate
-
-    @MockkBean(name = "safGraphQlOidcRestTemplate")
-    private lateinit var restSafTemplate: RestTemplate
-
-    @MockkBean(name = "safRestOidcRestTemplate")
-    private lateinit var safRestOidcRestTemplate: RestTemplate
-
-    @MockkBean(name = "pensjoninformasjonRestTemplate")
-    private lateinit var pensjoninformasjonRestTemplate: RestTemplate
-
-    @MockkBean(name = "kodeverkRestTemplate")
-    private lateinit var kodeverkRestTemplate: RestTemplate
-
-    @MockkBean
-    private lateinit var kodeverkClient: KodeverkClient
-
-    @MockkBean
+    @Autowired
     private lateinit var personService: PersonService
 
     @Autowired
@@ -96,6 +87,7 @@ class OpprettPrefillSedIntegrationTest {
 
         const val X_REQUEST_ID = "21abba12-22gozilla12-31daftpunk10"
     }
+
     @Test
     fun `Gitt at det opprettes ny SED P2000 på ny tom BUC Når det mangler deltakere SÅ skal det kastes en exception`() {
         val euxRinaid = "1000000001"
@@ -115,7 +107,7 @@ class OpprettPrefillSedIntegrationTest {
 
         every { personService.hentIdent(IdentType.NorskIdent, AktoerId(AKTOER_ID)) } returns NorskIdent(FNR_VOKSEN)
 
-        every { restEuxTemplate.exchange( "/buc/$euxRinaid", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(tomBucJson)
+        every { euxNavIdentRestTemplate.exchange( "/buc/$euxRinaid", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(tomBucJson)
 
         val result = mockMvc.perform(
             post("/sed/add")
@@ -154,9 +146,9 @@ class OpprettPrefillSedIntegrationTest {
         every { personService.hentIdent(IdentType.NorskIdent, AktoerId(AKTOER_ID)) } returns NorskIdent(FNR_VOKSEN)
 
         val tomBucJson = javaClass.getResource("/json/buc/P_BUC_01_4.2_tom.json").readText()
-        every { restEuxTemplate.exchange( "/buc/$euxRinaid", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(tomBucJson)
+        every { euxNavIdentRestTemplate.exchange( "/buc/$euxRinaid", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(tomBucJson)
 
-        every { restEuxTemplate.exchange(match { url:String ->
+        every { euxNavIdentRestTemplate.exchange(match { url:String ->
             url.contains("/buc/1000000001/mottakere?")
         }, HttpMethod.PUT, null, String::class.java) } returns ResponseEntity.ok().body("")
 
@@ -176,7 +168,7 @@ class OpprettPrefillSedIntegrationTest {
         val opprettSedHeader = HttpEntity(prefillSEDjson, headers)
         val ventePaAksjonVerdi = "false"
 
-        every { restEuxTemplate.postForEntity(
+        every { euxNavIdentRestTemplate.postForEntity(
             "/buc/$euxRinaid/sed?ventePaAksjon=$ventePaAksjonVerdi",
             opprettSedHeader,
             String::class.java) } returns ResponseEntity.ok().body("0b804938b8974c8ba52c253905424510")
@@ -224,7 +216,7 @@ class OpprettPrefillSedIntegrationTest {
         every { personService.hentIdent(IdentType.AktoerId, NorskIdent(FNR_VOKSEN_2)) } returns AktoerId("23423423423423423423423423423423423423423423423423")
 
         val tomBucJson = javaClass.getResource("/json/buc/buc-rina2020-P2K-X005.json").readText()
-        every { restEuxTemplate.exchange( "/buc/$euxRinaid", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(tomBucJson)
+        every { euxNavIdentRestTemplate.exchange( "/buc/$euxRinaid", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(tomBucJson)
 
         val result = mockMvc.perform(
             post("/sed/add")

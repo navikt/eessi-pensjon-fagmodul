@@ -1,5 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
+import jakarta.annotation.PostConstruct
+import no.nav.eessi.pensjon.eux.klient.Rinasak
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.fagmodul.eux.*
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
@@ -19,7 +21,6 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import jakarta.annotation.PostConstruct
 
 
 @Protected
@@ -106,7 +107,7 @@ class BucController(
     }
 
     @GetMapping("/rinasaker/{aktoerId}")
-    fun getRinasaker(@PathVariable("aktoerId", required = true) aktoerId: String): List<EuxKlient.Rinasak> {
+    fun getRinasaker(@PathVariable("aktoerId", required = true) aktoerId: String): List<Rinasak> {
         auditlogger.log("getRinasaker", aktoerId)
         logger.debug("henter rinasaker på valgt aktoerid: $aktoerId")
 

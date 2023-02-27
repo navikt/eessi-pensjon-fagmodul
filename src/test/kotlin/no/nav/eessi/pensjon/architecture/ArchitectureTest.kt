@@ -1,10 +1,20 @@
 package no.nav.eessi.pensjon.architecture
 
 import com.tngtech.archunit.base.DescribedPredicate
-import com.tngtech.archunit.core.domain.*
+import com.tngtech.archunit.core.domain.JavaAnnotation
+import com.tngtech.archunit.core.domain.JavaClass
+import com.tngtech.archunit.core.domain.JavaClasses
+import com.tngtech.archunit.core.domain.JavaCodeUnit
+import com.tngtech.archunit.core.domain.JavaFieldAccess
+import com.tngtech.archunit.core.domain.JavaMethod
+import com.tngtech.archunit.core.domain.JavaModifier
 import com.tngtech.archunit.core.importer.ClassFileImporter
 import com.tngtech.archunit.core.importer.ImportOption
-import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*
+import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes
+import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods
+import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses
+import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noFields
+import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noMethods
 import com.tngtech.archunit.library.Architectures.layeredArchitecture
 import com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.slices
 import no.nav.eessi.pensjon.EessiFagmodulApplication
@@ -62,7 +72,6 @@ class ArchitectureTest {
         // components
         val bucSedApi         = "fagmodul api"
         val prefill           = "fagmodul prefill"
-        val models            = "fagmodul models"
         val pesys             = "fagmodul pesys"
         val euxService        = "fagmodul euxservice"
         val euxBucModel       = "fagmodul euxBucModel"
@@ -77,7 +86,6 @@ class ArchitectureTest {
         val packages: Map<String, String> = mapOf(
                 "$root.fagmodul.api.." to bucSedApi,
                 "$root.fagmodul.prefill.." to prefill,
-                "$root.fagmodul.models.." to models,
                 "$root.fagmodul.eux" to euxService,
                 "$root.fagmodul.eux.bucmodel.." to euxBucModel,
                 "$root.fagmodul.config.." to config,
@@ -108,7 +116,6 @@ class ArchitectureTest {
                 .layer(prefill).definedBy(*packagesFor(prefill))
                 .layer(euxService).definedBy(*packagesFor(euxService))
                 .layer(euxBucModel).definedBy(*packagesFor(euxBucModel))
-                .layer(models).definedBy(*packagesFor(models))
                 .layer(pensjonService).definedBy(*packagesFor(pensjonService))
                 .layer(config).definedBy(*packagesFor(config))
                 .layer(utils).definedBy(*packagesFor(utils))
@@ -127,7 +134,6 @@ class ArchitectureTest {
                 .whereLayer(pensjonService).mayOnlyBeAccessedByLayers(pensjonApi, prefill, bucSedApi, personApi)
 
                 .whereLayer(euxBucModel).mayOnlyBeAccessedByLayers(euxService, bucSedApi, pesys, personApi)
-                .whereLayer(models).mayOnlyBeAccessedByLayers(prefill, euxService, euxBucModel, bucSedApi, pensjonApi, personApi, pesys)
 
                 .whereLayer(config).mayNotBeAccessedByAnyLayer()
                 .check(productionClasses)
@@ -137,7 +143,6 @@ class ArchitectureTest {
     fun `main layers check`() {
         val frontendAPI = "Frontend API"
         val fagmodulCore = "Fagmodul Core"
-        val models = "models"
         val services = "Services"
         val vedlegg ="Vedlegg"
         val support = "Support"
@@ -145,7 +150,6 @@ class ArchitectureTest {
             .consideringOnlyDependenciesInAnyPackage(root)
                 .layer(frontendAPI).definedBy(      "$root.api..")
                 .layer(fagmodulCore).definedBy(     "$root.fagmodul..")
-                .layer(models).definedBy(           "$root.fagmodul.models..")
                 .layer(services).definedBy(         "$root.services..", "$root.kodeverk..", "$root.pensjonsinformasjon..")
                 .layer(vedlegg).definedBy(          "$root.vedlegg..")
                 .layer(support).definedBy(
@@ -158,12 +162,6 @@ class ArchitectureTest {
                 .whereLayer(fagmodulCore).mayOnlyBeAccessedByLayers(
                         frontendAPI,
                         services)
-                .whereLayer(models).mayOnlyBeAccessedByLayers(
-                        support,
-                        fagmodulCore,
-                        frontendAPI,
-                        services,
-                        vedlegg)
                 .whereLayer(services).mayOnlyBeAccessedByLayers(
                         frontendAPI,
                         fagmodulCore,

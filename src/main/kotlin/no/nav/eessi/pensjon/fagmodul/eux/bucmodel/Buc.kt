@@ -1,6 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.eux.bucmodel
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import no.nav.eessi.pensjon.eux.model.buc.ParticipantsItem
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 class Buc(

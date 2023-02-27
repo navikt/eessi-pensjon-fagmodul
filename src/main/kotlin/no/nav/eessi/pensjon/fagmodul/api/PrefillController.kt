@@ -1,6 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
 import jakarta.annotation.PostConstruct
+import no.nav.eessi.pensjon.eux.klient.BucSedResponse
 import no.nav.eessi.pensjon.eux.model.BucType
 import no.nav.eessi.pensjon.eux.model.BucType.*
 import no.nav.eessi.pensjon.eux.model.SedType
@@ -206,7 +207,7 @@ class PrefillController(
         }
     }
 
-    private fun fetchBucAgainBeforeReturnShortDocument(bucType: BucType, bucSedResponse: EuxKlient.BucSedResponse, orginal: DocumentsItem?, isNewRina2020: Boolean = false): DocumentsItem? {
+    private fun fetchBucAgainBeforeReturnShortDocument(bucType: BucType, bucSedResponse: BucSedResponse, orginal: DocumentsItem?, isNewRina2020: Boolean = false): DocumentsItem? {
         return if (bucType == P_BUC_06) {
             logger.info("Henter BUC på nytt for buctype: $bucType")
             Thread.sleep(900)

@@ -3,6 +3,7 @@ package no.nav.eessi.pensjon.fagmodul.eux
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.model.SedType.P2000
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.services.statistikk.StatistikkHandler
@@ -17,15 +18,15 @@ class EuxPrefillServiceTest {
     private lateinit var euxinnhentingService: EuxInnhentingService
 
     @MockK(relaxed = true)
-    lateinit var euxKlient: EuxKlient
+    lateinit var EuxKlientForSystemUser: EuxKlientAsSystemUser
 
     var statistikkHandler: StatistikkHandler = mockk()
 
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
-        euxPrefillService = EuxPrefillService(euxKlient, statistikkHandler)
-        euxinnhentingService = EuxInnhentingService("q2", euxKlient)
+        euxPrefillService = EuxPrefillService(EuxKlientForSystemUser, statistikkHandler)
+        euxinnhentingService = EuxInnhentingService("q2", EuxKlientForSystemUser)
     }
 
     @Test

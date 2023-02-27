@@ -1,5 +1,7 @@
 package no.nav.eessi.pensjon.integrationtest
 
+import io.mockk.mockk
+import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.common.serialization.StringDeserializer
@@ -15,10 +17,12 @@ import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.core.ProducerFactory
 import org.springframework.kafka.support.serializer.JsonSerializer
 import org.springframework.kafka.test.EmbeddedKafkaBroker
+import org.springframework.web.client.RestTemplate
 
 @TestConfiguration
 class IntegrasjonsTestConfig(
-    @Value("\${" + EmbeddedKafkaBroker.SPRING_EMBEDDED_KAFKA_BROKERS + "}")  private val brokerAddresses: String) {
+    @Value("\${" + EmbeddedKafkaBroker.SPRING_EMBEDDED_KAFKA_BROKERS + "}")  private val brokerAddresses: String,
+    val euxNavIdentRestTemplate: RestTemplate, val euxSystemRestTemplate: RestTemplate) {
 
     @Bean
     fun producerFactory(): ProducerFactory<String, String> {
@@ -56,4 +60,12 @@ class IntegrasjonsTestConfig(
             defaultTopic = "test"
         }
     }
+    @Bean
+    fun euxNavIdentRestTemplate(): RestTemplate = mockk()
+    @Bean
+    fun euxSystemRestTemplate(): RestTemplate = mockk()
+    @Bean
+    fun euxKlient(): EuxKlientAsSystemUser = EuxKlientAsSystemUser(euxNavIdentRestTemplate, euxSystemRestTemplate)
+
+
 }

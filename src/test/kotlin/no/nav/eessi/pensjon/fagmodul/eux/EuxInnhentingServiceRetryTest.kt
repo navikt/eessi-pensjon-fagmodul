@@ -1,6 +1,8 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
 import io.mockk.mockk
+import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
+import no.nav.eessi.pensjon.eux.klient.IkkeFunnetException
 import no.nav.eessi.pensjon.shared.retry.IOExceptionRetryInterceptor
 import org.hamcrest.core.StringContains
 import org.junit.jupiter.api.BeforeEach
@@ -45,7 +47,7 @@ internal class EuxInnhentingServiceRetryTest {
     private lateinit var euxNavIdentRestTemplate: RestTemplate
 
     @Autowired
-    private lateinit var euxKlient: EuxKlient
+    private lateinit var euxKlient: EuxKlientAsSystemUser
 
     @Autowired
     private lateinit var euxInnhentingService: EuxInnhentingService
@@ -69,7 +71,7 @@ internal class EuxInnhentingServiceRetryTest {
         @Bean
         fun euxSystemRestTemplate(): RestTemplate = mockk()
         @Bean
-        fun euxKlient(): EuxKlient = EuxKlient(euxNavIdentRestTemplate(), euxSystemRestTemplate())
+        fun euxKlient(): EuxKlientAsSystemUser = EuxKlientAsSystemUser(euxNavIdentRestTemplate(), euxSystemRestTemplate())
     }
 
     @Test

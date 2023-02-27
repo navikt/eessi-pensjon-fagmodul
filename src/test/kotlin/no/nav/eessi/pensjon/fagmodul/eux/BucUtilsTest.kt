@@ -21,13 +21,13 @@ import no.nav.eessi.pensjon.eux.model.SedType.P7000
 import no.nav.eessi.pensjon.eux.model.SedType.P8000
 import no.nav.eessi.pensjon.eux.model.SedType.P9000
 import no.nav.eessi.pensjon.eux.model.SedType.X005
+import no.nav.eessi.pensjon.eux.model.buc.Organisation
+import no.nav.eessi.pensjon.eux.model.buc.ParticipantsItem
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.document.Retning
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ActionOperation
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Organisation
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ParticipantsItem
 import no.nav.eessi.pensjon.shared.api.InstitusjonItem
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson

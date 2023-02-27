@@ -1,5 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
+import no.nav.eessi.pensjon.eux.model.buc.PreviewPdf
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.sed.MedlemskapItem
 import no.nav.eessi.pensjon.eux.model.sed.P5000
@@ -8,7 +9,6 @@ import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.TotalSum
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.PreviewPdf
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
