@@ -1,7 +1,9 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
 import io.mockk.MockKAnnotations
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.justRun
 import io.mockk.mockk
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.model.SedType.P2000
@@ -18,15 +20,16 @@ class EuxPrefillServiceTest {
     private lateinit var euxinnhentingService: EuxInnhentingService
 
     @MockK(relaxed = true)
-    lateinit var EuxKlientForSystemUser: EuxKlientAsSystemUser
+    lateinit var euxKlientForSystemUser: EuxKlientAsSystemUser
 
     var statistikkHandler: StatistikkHandler = mockk()
 
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
-        euxPrefillService = EuxPrefillService(EuxKlientForSystemUser, statistikkHandler)
-        euxinnhentingService = EuxInnhentingService("q2", EuxKlientForSystemUser)
+        euxPrefillService = EuxPrefillService(euxKlientForSystemUser, statistikkHandler)
+        euxinnhentingService = EuxInnhentingService("q2", euxKlientForSystemUser)
+        euxPrefillService.initMetrics()
     }
 
     @Test
@@ -65,6 +68,20 @@ class EuxPrefillServiceTest {
 
         euxPrefillService.updateSEDVersion(sed, bucVersion)
         assertEquals("v4.1", "v${sed.sedGVer}.${sed.sedVer}")
+    }
+
+    @Test
+    fun `create buc skal oppdatere statistikk og returnere rinaId`() {
+        val euxRinaId =  "12345"
+        every { euxKlientForSystemUser.createBuc(any()) } returns euxRinaId
+        justRun { statistikkHandler.produserBucOpprettetHendelse(eq( euxRinaId), any()) }
+
+        assertEquals(
+            euxRinaId,
+            euxPrefillService.createBuc(
+                javaClass.getResource("/json/buc/buc-4326040-rina2020docs-P_BUC_01.json")?.readText()!!
+            )
+        )
     }
 
 }
