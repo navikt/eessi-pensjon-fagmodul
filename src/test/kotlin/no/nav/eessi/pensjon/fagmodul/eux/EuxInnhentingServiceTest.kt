@@ -3,7 +3,7 @@ package no.nav.eessi.pensjon.fagmodul.eux
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.MockKAnnotations
 import io.mockk.every
-import no.nav.eessi.pensjon.eux.klient.EuxKlientForSystemUser
+import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.klient.Properties
 import no.nav.eessi.pensjon.eux.klient.Rinasak
 import no.nav.eessi.pensjon.eux.klient.Traits
@@ -42,7 +42,7 @@ private const val INTERNATIONAL_ID = "e94e1be2daff414f8a49c3149ec00e66"
 internal class EuxInnhentingServiceTest {
 
     @MockkBean( relaxed = true)
-    private lateinit var euxKlient: EuxKlientForSystemUser
+    private lateinit var euxKlient: EuxKlientAsSystemUser
 
     private lateinit var euxInnhentingService: EuxInnhentingService
 
@@ -148,7 +148,7 @@ internal class EuxInnhentingServiceTest {
         val json = javaClass.getResource("/json/nav/P6000-NAV.json")!!.readText()
         Assertions.assertTrue(validateJson(json))
 
-        every { euxKlient.getSedOnBucByDocumentIdAsJson(any(), any()) } returns json
+        every { euxKlient.getSedOnBucByDocumentIdNotAsSystemUser(any(), any()) } returns json
 
         val result = euxInnhentingService.getSedOnBucByDocumentId("12345678900", "0bb1ad15987741f1bbf45eba4f955e80")
         assertEquals(SedType.P6000, result.type)
@@ -313,7 +313,7 @@ internal class EuxInnhentingServiceTest {
         val buc = Buc(processDefinitionName = "P_BUC_02", documents = documentsItem)
         val docs = listOf(BucOgDocumentAvdod(rinaid, buc, dokumentid))
 
-        every { euxKlient.getSedOnBucByDocumentIdAsJson(rinaid, dokumentid) } returns SedType.P2100.name
+        every { euxKlient.getSedOnBucByDocumentIdNotAsSystemUser(rinaid, dokumentid) } returns SedType.P2100.name
 
         val actual = euxInnhentingService.hentDocumentJsonAvdod(docs)
 
@@ -330,7 +330,7 @@ internal class EuxInnhentingServiceTest {
         val buc = Buc(processDefinitionName = "P_BUC_02", documents = documentsItem)
         val docs = listOf(BucOgDocumentAvdod(rinaid, buc, dokumentid))
 
-        every {euxKlient.getSedOnBucByDocumentIdAsJson(rinaid, dokumentid)  } throws  HttpClientErrorException(HttpStatus.MULTI_STATUS)
+        every {euxKlient.getSedOnBucByDocumentIdNotAsSystemUser(rinaid, dokumentid)  } throws  HttpClientErrorException(HttpStatus.MULTI_STATUS)
 
         assertThrows<Exception> {
             euxInnhentingService.hentDocumentJsonAvdod(docs)
@@ -407,7 +407,7 @@ internal class EuxInnhentingServiceTest {
     fun `check apiRequest for prefill X010 contains X009 payload`() {
         val x009Json = javaClass.getResource("/json/nav/X009-NAV.json").readText()
         val apiRequest = EuxTestUtils.apiRequestWith("1000000", emptyList(), buc = P_BUC_01, sed = SedType.X010)
-        every { euxKlient.getSedOnBucByDocumentIdAsJson(any(), any()) } returns x009Json
+        every { euxKlient.getSedOnBucByDocumentIdNotAsSystemUser(any(), any()) } returns x009Json
 
         val json = euxInnhentingService.checkForX010AndAddX009(apiRequest, "20000000").toJson()
 

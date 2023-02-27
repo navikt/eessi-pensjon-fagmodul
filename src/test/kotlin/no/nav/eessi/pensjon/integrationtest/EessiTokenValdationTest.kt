@@ -3,7 +3,7 @@ package no.nav.eessi.pensjon.integrationtest
 import com.ninjasquad.springmockk.MockkBean
 import com.ninjasquad.springmockk.MockkBeans
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
-import no.nav.eessi.pensjon.eux.klient.EuxKlientForSystemUser
+import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.fagmodul.config.RestTemplateConfig
 import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
@@ -33,7 +33,7 @@ import org.springframework.web.client.RestTemplate
     MockkBean(name = "safGraphQlOidcRestTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "pensjonsinformasjonClient", classes = [PensjonsinformasjonClient::class]),
     MockkBean(name = "personService", classes = [PersonService::class]),
-    MockkBean(name = "euxKlient", classes = [EuxKlientForSystemUser::class])
+    MockkBean(name = "euxKlient", classes = [EuxKlientAsSystemUser::class])
 )
 class EessiTokenValdationTest {
 

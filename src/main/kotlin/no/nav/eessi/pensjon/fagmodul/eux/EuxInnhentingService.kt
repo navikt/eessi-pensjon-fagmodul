@@ -1,7 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
 import jakarta.annotation.PostConstruct
-import no.nav.eessi.pensjon.eux.klient.EuxKlientForSystemUser
+import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.klient.ForbiddenException
 import no.nav.eessi.pensjon.eux.klient.Rinasak
 import no.nav.eessi.pensjon.eux.model.BucType
@@ -40,7 +40,7 @@ import org.springframework.web.server.ResponseStatusException
 
 @Service
 class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
-                            @Autowired private val euxKlient: EuxKlientForSystemUser,
+                            @Autowired private val euxKlient: EuxKlientAsSystemUser,
                             @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()) {
 
     private lateinit var RinaUrl: MetricsHelper.Metric
@@ -91,7 +91,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
     }
 
     fun getSedOnBucByDocumentId(euxCaseId: String, documentId: String): SED {
-        val json = SEDByDocumentId.measure { euxKlient.getSedOnBucByDocumentIdAsJson(euxCaseId, documentId)}
+        val json = SEDByDocumentId.measure { euxKlient.getSedOnBucByDocumentIdNotAsSystemUser(euxCaseId, documentId)}
         return SED.fromJsonToConcrete(json)
     }
 
@@ -99,7 +99,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
     fun getRinaUrl() = RinaUrl.measure { euxKlient.getRinaUrl() }
 
     fun getSedOnBucByDocumentIdAsSystemuser(euxCaseId: String, documentId: String): SED {
-        val json = SEDByDocumentId.measure { euxKlient.getSedOnBucByDocumentIdAsJsonAndAsSystemuser(euxCaseId, documentId) }
+        val json = SEDByDocumentId.measure { euxKlient.getSedOnBucByDocumentIdAsSystemuser(euxCaseId, documentId) }
         return try {
             SED.fromJsonToConcrete(json)
         } catch (ex: Exception) {
@@ -236,7 +236,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
 
             logger.debug("Henter sedJson fra document: ${shortDoc?.type}, ${shortDoc?.status}, ${shortDoc?.id}")
             val sedJson = shortDoc?.let {
-                SEDByDocumentId.measure { euxKlient.getSedOnBucByDocumentIdAsJson(docs.rinaidAvdod, it.id!!) }
+                SEDByDocumentId.measure { euxKlient.getSedOnBucByDocumentIdNotAsSystemUser(docs.rinaidAvdod, it.id!!) }
             }
             docs.dokumentJson = sedJson ?: ""
             docs

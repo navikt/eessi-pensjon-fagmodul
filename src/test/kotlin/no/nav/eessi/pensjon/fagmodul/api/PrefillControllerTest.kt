@@ -9,7 +9,7 @@ import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.eessi.pensjon.eux.klient.BucSedResponse
-import no.nav.eessi.pensjon.eux.klient.EuxKlientForSystemUser
+import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.klient.SedDokumentIkkeOpprettetException
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_01
 import no.nav.eessi.pensjon.eux.model.SedType
@@ -90,7 +90,7 @@ internal class PrefillControllerTest {
 
     private lateinit var prefillController: PrefillController
 
-    private  val mockEuxKlient: EuxKlientForSystemUser = mockk()
+    private  val mockEuxKlient: EuxKlientAsSystemUser = mockk()
 
     @BeforeEach
     fun before() {

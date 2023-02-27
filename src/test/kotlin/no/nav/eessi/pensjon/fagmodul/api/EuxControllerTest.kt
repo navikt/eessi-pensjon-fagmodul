@@ -4,7 +4,7 @@ package no.nav.eessi.pensjon.fagmodul.api
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.SpyK
-import no.nav.eessi.pensjon.eux.klient.EuxKlientForSystemUser
+import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_06
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.shared.api.InstitusjonItem
@@ -26,7 +26,7 @@ class EuxControllerTest {
 
     @BeforeEach
     fun before() {
-        mockEuxInnhentingService = EuxInnhentingService("Q2", EuxKlientForSystemUser(RestTemplate(), RestTemplate()))
+        mockEuxInnhentingService = EuxInnhentingService("Q2", EuxKlientAsSystemUser(RestTemplate(), RestTemplate()))
 
         MockKAnnotations.init(this, relaxed = true, relaxUnitFun = true)
 

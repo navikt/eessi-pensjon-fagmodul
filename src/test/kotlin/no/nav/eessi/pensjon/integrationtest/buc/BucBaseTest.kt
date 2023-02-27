@@ -1,6 +1,6 @@
 package no.nav.eessi.pensjon.integrationtest.buc
 
-import no.nav.eessi.pensjon.eux.klient.EuxKlientForSystemUser
+import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.klient.Properties
 import no.nav.eessi.pensjon.eux.klient.Rinasak
 import no.nav.eessi.pensjon.eux.klient.Traits
@@ -135,7 +135,7 @@ open class BucBaseTest {
 
     fun dummyRinasakAvdodUrl(avdod: String? = null) = dummyRinasakUrl(avdod, null)
     fun dummyRinasakUrl(fnr: String? = null, euxCaseId: String? = null) : UriComponents {
-        return EuxKlientForSystemUser.getRinasakerUri(fnr, euxCaseId).also { println(it) }
+        return EuxKlientAsSystemUser.getRinasakerUri(fnr, euxCaseId).also { println(it) }
     }
 
     fun dummyRinasak(rinaSakId: String, bucType: String): Rinasak {

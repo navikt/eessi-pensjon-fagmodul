@@ -2,7 +2,7 @@ package no.nav.eessi.pensjon.fagmodul.eux
 
 
 import io.mockk.mockk
-import no.nav.eessi.pensjon.eux.klient.EuxKlientForSystemUser
+import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.klient.EuxRinaServerException
 import no.nav.eessi.pensjon.eux.klient.ForbiddenException
 import no.nav.eessi.pensjon.eux.klient.GatewayTimeoutException
@@ -57,7 +57,7 @@ private const val NAVT02 = "NO:NAVT02"
 @SpringJUnitConfig(classes = [
     TestEuxClientRetryConfig::class,
     EuxKlientRetryLogger::class,
-    EuxKlientForSystemUser::class,
+    EuxKlientAsSystemUser::class,
     EuxKlientTest.Config::class]
 )
 @ActiveProfiles(profiles = ["unsecured-webmvctest"])
@@ -73,7 +73,7 @@ class EuxKlientTest {
     lateinit var server: MockRestServiceServer
 
     @Autowired
-    lateinit var euxKlient: EuxKlientForSystemUser
+    lateinit var euxKlient: EuxKlientAsSystemUser
 
     @BeforeEach
     fun setup() {
@@ -388,7 +388,7 @@ class EuxKlientTest {
             withStatus(HttpStatus.BAD_GATEWAY)
         )
         assertThrows<GenericUnprocessableEntity> {
-            euxKlient.getSedOnBucByDocumentIdAsJson("12345678900", P_BUC_99)
+            euxKlient.getSedOnBucByDocumentIdNotAsSystemUser("12345678900", P_BUC_99)
         }
     }
 
@@ -398,7 +398,7 @@ class EuxKlientTest {
         server.expect(requestTo(containsString("/buc/$euxCaseId/sed/"))).andRespond(withStatus(HttpStatus.UNAUTHORIZED))
 
         assertThrows<RinaIkkeAutorisertBrukerException> {
-            euxKlient.getSedOnBucByDocumentIdAsJson(euxCaseId, P_BUC_99)
+            euxKlient.getSedOnBucByDocumentIdNotAsSystemUser(euxCaseId, P_BUC_99)
         }
     }
 

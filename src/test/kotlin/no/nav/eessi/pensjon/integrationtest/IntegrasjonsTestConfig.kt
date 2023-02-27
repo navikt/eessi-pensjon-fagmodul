@@ -1,7 +1,7 @@
 package no.nav.eessi.pensjon.integrationtest
 
 import io.mockk.mockk
-import no.nav.eessi.pensjon.eux.klient.EuxKlientForSystemUser
+import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.common.serialization.StringDeserializer
@@ -65,7 +65,7 @@ class IntegrasjonsTestConfig(
     @Bean
     fun euxSystemRestTemplate(): RestTemplate = mockk()
     @Bean
-    fun euxKlient(): EuxKlientForSystemUser = EuxKlientForSystemUser(euxNavIdentRestTemplate, euxSystemRestTemplate)
+    fun euxKlient(): EuxKlientAsSystemUser = EuxKlientAsSystemUser(euxNavIdentRestTemplate, euxSystemRestTemplate)
 
 
 }

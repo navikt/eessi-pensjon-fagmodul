@@ -3,7 +3,7 @@ package no.nav.eessi.pensjon.fagmodul.config
 import io.micrometer.core.instrument.MeterRegistry
 import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
 import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
-import no.nav.eessi.pensjon.eux.klient.EuxKlientForSystemUser
+import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.fagmodul.eux.EuxErrorHandler
 import no.nav.eessi.pensjon.logging.RequestIdHeaderInterceptor
 import no.nav.eessi.pensjon.logging.RequestResponseLoggerInterceptor
@@ -91,7 +91,7 @@ class RestTemplateConfig(
     fun safRestOidcRestTemplate() = restTemplate(hentRestUrl, onBehalfOfBearerTokenInterceptor(safClientId))
 
     @Bean
-    fun euxKlient() = EuxKlientForSystemUser(euxNavIdentRestTemplate(), euxSystemRestTemplate())
+    fun euxKlient() = EuxKlientAsSystemUser(euxNavIdentRestTemplate(), euxSystemRestTemplate())
 
     private fun restTemplate(url: String, tokenIntercetor: ClientHttpRequestInterceptor?, defaultErrorHandler: ResponseErrorHandler = DefaultResponseErrorHandler()) : RestTemplate {
         logger.info("init restTemplate: $url")
