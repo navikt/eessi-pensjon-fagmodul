@@ -4,9 +4,9 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
 import no.nav.eessi.pensjon.eux.model.BucType.*
+import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.fagmodul.api.BucController
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test

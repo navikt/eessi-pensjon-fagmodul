@@ -2,30 +2,16 @@ package no.nav.eessi.pensjon.fagmodul.eux
 
 import no.nav.eessi.pensjon.eux.model.BucType.*
 import no.nav.eessi.pensjon.eux.model.SedType
-import no.nav.eessi.pensjon.eux.model.buc.Organisation
-import no.nav.eessi.pensjon.eux.model.buc.ParticipantsItem
+import no.nav.eessi.pensjon.eux.model.buc.*
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.document.Retning
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ActionOperation
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ActionsItem
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Attachment
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ConversationsItem
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Receiver
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Sender
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.VersionsItem
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.VersionsItemNoUser
 import no.nav.eessi.pensjon.shared.api.InstitusjonItem
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
-import java.time.Instant
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.OffsetDateTime
-import java.time.ZoneId
+import java.time.*
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
@@ -182,7 +168,7 @@ class BucUtils(private val buc: Buc) {
                 lastVersion = getLastVersion(documentItem.versions),
                 allowsAttachments = overrideAllowAttachemnts(documentItem),
                 direction = documentItem.direction,
-                receiveDate = filterOutReceiveDateOnOut(documentItem.direction, getDateTimeToLong(documentItem.receiveDate))
+                receiveDate = filterOutReceiveDateOnOut(documentItem.direction!!, getDateTimeToLong(documentItem.receiveDate))
             )
 
     fun filterOutReceiveDateOnOut(direction: String, receiveDate: Long?): Long? = if (direction == "OUT") null else receiveDate
@@ -228,7 +214,7 @@ class BucUtils(private val buc: Buc) {
                 ?.firstOrNull()
     }
 
-    private fun createParticipants(conversations: List<ConversationsItem>?): List<ParticipantsItem?>? =
+    private fun createParticipants(conversations: List<ConversationsItem>?): List<Participant?>? =
             if (conversations != null && conversations.any { it.userMessages != null }) {
                 val conversation = conversations.findLast { it.userMessages != null }!!
                 val userMessagesSent = conversation.userMessages!!
@@ -236,7 +222,7 @@ class BucUtils(private val buc: Buc) {
                         .map { it.sender }
                         .distinctBy { it!!.id }
                         .map {
-                            ParticipantsItem(
+                            Participant(
                                     role = "Sender",
                                     organisation = it as Sender,
                                     selected = false
@@ -246,12 +232,12 @@ class BucUtils(private val buc: Buc) {
                     logger.info("No " + "Sender" + "s found for conversation: ${conversation.id}")
                 }
 
-                val userMessagesReceivedWithoutError = conversation.userMessages.filter { it.error == null }
+                val userMessagesReceivedWithoutError = conversation.userMessages!!.filter { it.error == null }
                 val receivers = userMessagesReceivedWithoutError
                         .map { it.receiver }
                         .distinctBy { it!!.id }
                         .map {
-                            ParticipantsItem(
+                            Participant(
                                     role = "Receiver",
                                     organisation = it as Receiver,
                                     selected = false
@@ -290,12 +276,12 @@ class BucUtils(private val buc: Buc) {
                     sisteVersjon = doc.version ?: "1",
                     pdfUrl = "$pdfurl/buc/${getBuc().id}/sed/${doc.id}/pdf",
                     sistMottatt = getLocalDateTime(doc.lastUpdate)?.toLocalDate()!!,
-                    retning = Retning.valueOf(doc.direction)
+                    retning = Retning.valueOf(doc.direction!!)
                 )
         }
     }
 
-    fun getDocumentSenderCountryCode(participants: List<ParticipantsItem?>?): String {
+    fun getDocumentSenderCountryCode(participants: List<Participant?>?): String {
         return participants
             ?.filter { it?.role == "Sender" }
             ?.map { it?.organisation?.countryCode }
@@ -303,7 +289,7 @@ class BucUtils(private val buc: Buc) {
     }
 
 
-    fun getDocumentSenderOrganisation(participants: List<ParticipantsItem?>?): Organisation {
+    fun getDocumentSenderOrganisation(participants: List<Participant?>?): Organisation {
         val res =  participants
             ?.filter { it?.role == "Sender" }
             ?.mapNotNull { it?.organisation }

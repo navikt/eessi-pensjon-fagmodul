@@ -185,7 +185,7 @@ class OpprettPrefillSedIntegrationTest {
         val responseData = responsePair.second
 
         val expected = """
-            {"attachments":[],"displayName":"Old age pension claim","type":"P2000","conversations":null,"isSendExecuted":null,"id":"0b804938b8974c8ba52c253905424510","direction":"OUT","creationDate":1586931418000,"receiveDate":null,"typeVersion":null,"allowsAttachments":true,"versions":null,"lastUpdate":1586931418000,"parentDocumentId":null,"status":"empty","participants":null,"firstVersion":{"date":"2020-04-15T06:16:58.000+0000","id":"1"},"lastVersion":{"date":"2020-04-15T06:16:58.000+0000","id":"1"},"version":"1","message":null}
+            {"attachments":[],"displayName":"Old age pension claim","type":"P2000","conversations":null,"isSendExecuted":null,"id":"0b804938b8974c8ba52c253905424510","direction":"OUT","creationDate":1586931418000,"receiveDate":null,"typeVersion":null,"allowsAttachments":true,"versions":null,"lastUpdate":1586931418000,"parentDocumentId":null,"status":"empty","participants":null,"firstVersion":{"date":"2020-04-15T06:16:58.000+0000","id":"1"},"lastVersion":{"date":"2020-04-15T06:16:58.000+0000","id":"1"},"version":"1","message":null,"name":null,"mimeType":null,"creator":null}
         """.trimIndent()
 
         JSONAssert.assertEquals(responseData, expected, false)

@@ -1,7 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
 import no.nav.eessi.pensjon.eux.model.SedType
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.VersionsItemNoUser
+import no.nav.eessi.pensjon.eux.model.buc.VersionsItemNoUser
 
 data class DocItem(
     val type: SedType,

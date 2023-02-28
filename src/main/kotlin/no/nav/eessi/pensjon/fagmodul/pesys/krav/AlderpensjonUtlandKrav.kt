@@ -1,8 +1,8 @@
 package no.nav.eessi.pensjon.fagmodul.pesys.krav
 
+import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.fagmodul.pesys.KravUtland
 import no.nav.eessi.pensjon.fagmodul.pesys.SkjemaPersonopplysninger
 import no.nav.eessi.pensjon.fagmodul.pesys.SkjemaUtland

@@ -14,8 +14,7 @@ import no.nav.eessi.pensjon.eux.klient.SedDokumentIkkeOpprettetException
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_01
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.SedType.X007
-import no.nav.eessi.pensjon.eux.model.buc.Organisation
-import no.nav.eessi.pensjon.eux.model.buc.ParticipantsItem
+import no.nav.eessi.pensjon.eux.model.buc.*
 import no.nav.eessi.pensjon.eux.model.sed.InstitusjonX005
 import no.nav.eessi.pensjon.eux.model.sed.Leggtilinstitusjon
 import no.nav.eessi.pensjon.eux.model.sed.Navsak
@@ -28,14 +27,6 @@ import no.nav.eessi.pensjon.fagmodul.eux.EuxPrefillService
 import no.nav.eessi.pensjon.fagmodul.eux.EuxTestUtils.Companion.apiRequestWith
 import no.nav.eessi.pensjon.fagmodul.eux.EuxTestUtils.Companion.createDummyBucDocumentItem
 import no.nav.eessi.pensjon.fagmodul.eux.SedDokumentKanIkkeOpprettesException
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ActionOperation
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ActionsItem
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ConversationsItem
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
-
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Sender
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.UserMessagesItem
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.fagmodul.prefill.klient.PrefillKlient
 import no.nav.eessi.pensjon.logging.AuditLogger
@@ -147,7 +138,7 @@ internal class PrefillControllerTest {
 
         every { personService.hentIdent(eq(IdentType.NorskIdent), any<AktoerId>()) } returns NorskIdent("12345")
 
-        val mockParticipants = listOf(ParticipantsItem(role = "CaseOwner", organisation = Organisation(countryCode = "NO", name = "NAV", id = "NAV")))
+        val mockParticipants = listOf(Participant(role = "CaseOwner", organisation = Organisation(countryCode = "NO", name = "NAV", id = "NAV")))
         val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = mockParticipants)
         mockBuc.documents = listOf(createDummyBucDocumentItem(), DocumentsItem(type = SedType.X005, status = "new", direction = "OUT"))
         mockBuc.actions = listOf(ActionsItem(operation = ActionOperation.Send))
@@ -176,7 +167,7 @@ internal class PrefillControllerTest {
     fun `call addInstutionAndDocument mock adding two institusjon when we are not CaseOwner badrequest execption is thrown`() {
         val euxCaseId = "1234567890"
 
-        val mockParticipants = listOf(ParticipantsItem(role = "CaseOwner", organisation = Organisation(countryCode = "SE", name = "SE", id = "SE")))
+        val mockParticipants = listOf(Participant(role = "CaseOwner", organisation = Organisation(countryCode = "SE", name = "SE", id = "SE")))
         val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = mockParticipants)
         mockBuc.documents = listOf(createDummyBucDocumentItem(), DocumentsItem(type = SedType.X005, status = "empty", direction = "OUT"))
         mockBuc.actions = listOf(ActionsItem(operation = ActionOperation.Send))
@@ -207,7 +198,7 @@ internal class PrefillControllerTest {
     fun `call addInstutionAndDocument mock check on X007 will fail on matching newparticipants with exception`() {
 
         val euxCaseId = "1234567890"
-        val mockParticipants = listOf(ParticipantsItem(role = "CaseOwner", organisation = Organisation(countryCode = "SE", name = "SE", id = "SE")))
+        val mockParticipants = listOf(Participant(role = "CaseOwner", organisation = Organisation(countryCode = "SE", name = "SE", id = "SE")))
         val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = mockParticipants)
         mockBuc.documents = listOf(
             createDummyBucDocumentItem(),
@@ -255,7 +246,7 @@ internal class PrefillControllerTest {
         val mockBuc = Buc(
             id = "23123",
             processDefinitionName = "P_BUC_01",
-            participants = listOf(ParticipantsItem(role = "CaseOwner", organisation = Organisation(countryCode = "SE", name = "SE", id = "SE"))),
+            participants = listOf(Participant(role = "CaseOwner", organisation = Organisation(countryCode = "SE", name = "SE", id = "SE"))),
             documents = listOf(DocumentsItem(type = SedType.P2000, status = "empty", direction = "OUT", id = "1") ),
             actions = listOf(ActionsItem(operation = ActionOperation.Create))
         )
@@ -330,7 +321,7 @@ internal class PrefillControllerTest {
     fun `call addInstutionAndDocument ingen ny Deltaker kun hovedsed`() {
         val euxCaseId = "1234567890"
 
-        val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = listOf(ParticipantsItem()))
+        val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = listOf(Participant()))
         mockBuc.documents = listOf(createDummyBucDocumentItem())
         mockBuc.actions = listOf(ActionsItem(operation = ActionOperation.Send))
 
@@ -361,7 +352,7 @@ internal class PrefillControllerTest {
         val lastupdate = LocalDate.of(2020, Month.AUGUST, 7).toString()
 
         val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01",
-            participants = listOf(ParticipantsItem()), processDefinitionVersion = "4.2",
+            participants = listOf(Participant()), processDefinitionVersion = "4.2",
             documents = listOf(DocumentsItem(id = "3123123", type = SedType.P9000, status = "empty", allowsAttachments = true, lastUpdate = lastupdate, creationDate = lastupdate, parentDocumentId = parentDocumentId, direction = "OUT"),
             DocumentsItem(id = parentDocumentId, type = SedType.P8000, status = "received", allowsAttachments = true,  lastUpdate = lastupdate, creationDate = lastupdate, direction = "IN")),
            actions = listOf(ActionsItem(documentType = SedType.P8000, documentId = parentDocumentId , operation = ActionOperation.Read), ActionsItem(documentType = SedType.P9000, documentId = "3123123", operation = ActionOperation.Create))
@@ -397,7 +388,10 @@ internal class PrefillControllerTest {
           "firstVersion" : null,
           "lastVersion" : null,
           "version" : "1",
-          "message" : null
+          "message" : null,
+          "name" : null,
+          "mimeType" : null,
+          "creator" : null
         }
         """.trimIndent()
 
@@ -419,7 +413,7 @@ internal class PrefillControllerTest {
 
         every { personService.hentIdent(IdentType.NorskIdent, any<AktoerId>()) } returns NorskIdent("12345")
 
-        val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = listOf(ParticipantsItem()), processDefinitionVersion = "4.2")
+        val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = listOf(Participant()), processDefinitionVersion = "4.2")
         mockBuc.documents = listOf(
             DocumentsItem(id = "3123123", type = SedType.P9000, status = "draft", allowsAttachments = true, lastUpdate = lastupdate, creationDate = lastupdate, parentDocumentId = parentDocumentId, direction = "OUT")
         )
@@ -482,7 +476,7 @@ internal class PrefillControllerTest {
 
         every{ personService.hentIdent(eq(IdentType.NorskIdent), any<AktoerId>()) } returns NorskIdent("12345")
 
-        val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = listOf(ParticipantsItem()))
+        val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = listOf(Participant()))
         mockBuc.documents = listOf(createDummyBucDocumentItem())
         mockBuc.actions = listOf(ActionsItem(operation = ActionOperation.Send))
 
@@ -512,7 +506,7 @@ internal class PrefillControllerTest {
 
         every{ personService.hentIdent(eq(IdentType.NorskIdent), any<AktoerId>()) } returns NorskIdent("12345")
 
-        val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = listOf(ParticipantsItem()))
+        val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = listOf(Participant()))
         mockBuc.documents = listOf(createDummyBucDocumentItem(), DocumentsItem(direction = "OUT"))
         mockBuc.actions = listOf(ActionsItem(operation = ActionOperation.Send))
 
