@@ -63,6 +63,7 @@ internal class EuxInnhentingServiceTest {
 
         val creator = """
             {
+              "name" : "Z990638",
               "organisation" : {
                 "address" : {
                   "country" : "NO"
@@ -72,28 +73,24 @@ internal class EuxInnhentingServiceTest {
                 "countryCode" : "NO",
                 "name" : "NAV ACCEPTANCE TEST 07",
                 "id" : "NO:NAVAT07"
-              }
+              },
+              "id" : "AWjw_fiySVr4y0o3ykMJ",
+              "type" : "User"
             }
         """.trimIndent()
 
         val subject = """
             {
               "birthday" : "2019-03-13",
-              "address" : null,
               "surname" : "STRIELA",
               "sex" : "f",
-              "contactMethods" : null,
-              "name" : "NYDELIG",
-              "pid" : null,
-              "id" : null,
-              "title" : null,
-              "age" : null
+              "name" : "NYDELIG"
             }
         """.trimIndent()
 
 
         assertEquals(creator, result.creator?.toJsonSkipEmpty())
-        assertEquals(subject, result.subject?.toJson())
+        assertEquals(subject, result.subject?.toJsonSkipEmpty())
         assertEquals(INTERNATIONAL_ID, result.internationalId)
         assertEquals("3893690", result.id)
         assertEquals("P_BUC_02", result.processDefinitionName)
