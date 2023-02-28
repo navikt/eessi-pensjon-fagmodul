@@ -104,14 +104,14 @@ class EuxKlientTest {
         assertEquals("/type/12345/sed?KorrelasjonsId=c0b0c068-4f79-48fe-a640-b9a23bf7c920", str)
     }
 
-//    @Test
-//    fun `Calling EuxService forventer korrekt svar tilbake fra et kall til hentbuc`() {
-//        val mockBuck = mockBucNoRecevieDate().toJson()
-//        server.expect(requestTo(containsString("/buc"))).andRespond( withSuccess(mockBuck, MediaType.APPLICATION_JSON))
-//
-//        val result = euxKlient.getBucJsonAsNavIdent("22909" )
-//        assertEquals(mockBuck, result)
-//    }
+    @Test
+    fun `Calling EuxService forventer korrekt svar tilbake fra et kall til hentbuc`() {
+        val mockBuck = mockBucNoRecevieDate().toJson()
+        server.expect(requestTo(containsString("/buc"))).andRespond( withSuccess(mockBuck, MediaType.APPLICATION_JSON))
+
+        val result = euxKlient.getBucJsonAsNavIdent("22909" )
+        assertEquals(mockBuck, result)
+    }
 
     @Test
     fun `Calling EuxService feiler med BAD_REQUEST fra kall til getBuc`() {
