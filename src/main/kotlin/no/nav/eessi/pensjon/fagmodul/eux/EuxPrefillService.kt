@@ -8,9 +8,9 @@ import no.nav.eessi.pensjon.eux.klient.EuxKlientLib
 import no.nav.eessi.pensjon.eux.klient.EuxRinaServerException
 import no.nav.eessi.pensjon.eux.klient.SedDokumentIkkeOpprettetException
 import no.nav.eessi.pensjon.eux.model.SedType
+import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.X005
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.services.statistikk.StatistikkHandler
 import no.nav.eessi.pensjon.shared.api.InstitusjonItem
@@ -157,7 +157,7 @@ class EuxPrefillService (private val euxKlient: EuxKlientLib,
 }
 
 data class BucOgDocumentAvdod(
-        val rinaidAvdod: String,
-        val buc: Buc,
-        var dokumentJson: String = ""
+    val rinaidAvdod: String,
+    val buc: Buc,
+    var dokumentJson: String = ""
 )

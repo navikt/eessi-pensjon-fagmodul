@@ -21,13 +21,9 @@ import no.nav.eessi.pensjon.eux.model.SedType.P7000
 import no.nav.eessi.pensjon.eux.model.SedType.P8000
 import no.nav.eessi.pensjon.eux.model.SedType.P9000
 import no.nav.eessi.pensjon.eux.model.SedType.X005
-import no.nav.eessi.pensjon.eux.model.buc.Organisation
-import no.nav.eessi.pensjon.eux.model.buc.ParticipantsItem
+import no.nav.eessi.pensjon.eux.model.buc.*
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.document.Retning
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.ActionOperation
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.shared.api.InstitusjonItem
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
@@ -143,48 +139,35 @@ class BucUtilsTest {
         assertEquals(P_BUC_01.name, name)
     }
 
-    @Test
-    fun `getStartDateLong parses dates correctly`() {
-        val unixTimeStamp = 1567154257318L
-        val listOfArgs = listOf<Any>(
-            1567154257318L,
-            "2019-08-30T10:37:37.318",
-            "2019-08-30T09:37:37.318+0100",
-            "2019-08-30T09:37:37.318+01:00"
-        )
-        listOfArgs.forEach { assertEquals(unixTimeStamp, BucUtils(Buc(startDate = it)).getStartDateLong()) }
-    }
+//    @Test
+//    fun `getEndDateLong parses dates correctly`() {
+//        val unixTimeStamp = 1567154257318L
+//        val listOfArgs = listOf(
+//            "2019-08-30T10:37:37.318",
+//            "2019-08-30T09:37:37.318+0100",
+//            "2019-08-30T08:37:37.318+00:00",
+//            "2019-08-30T09:37:37.318+01:00",
+//        )
+//        listOfArgs.forEach { assertEquals(unixTimeStamp, BucUtils(Buc(lastUpdate= it)).getLastDateLong()) }
+//    }
 
-    @Test
-    fun `getEndDateLong parses dates correctly`() {
-        val unixTimeStamp = 1567154257318L
-        val listOfArgs = listOf(
-            1567154257318L,
-            "2019-08-30T10:37:37.318",
-            "2019-08-30T09:37:37.318+0100",
-            "2019-08-30T08:37:37.318+00:00",
-            "2019-08-30T09:37:37.318+01:00",
-        )
-        listOfArgs.forEach { assertEquals(unixTimeStamp, BucUtils(Buc(lastUpdate= it)).getLastDateLong()) }
-    }
+//    @Test
+//    fun checkForValidReceiveDate() {
+//        assertEquals(1616763505000, BucUtils(Buc(lastUpdate = "2021-03-26T12:58:25.000+0000")).getLastDateLong())
+//
+//    }
 
-    @Test
-    fun checkForValidReceiveDate() {
-        assertEquals(1616763505000, BucUtils(Buc(lastUpdate = "2021-03-26T12:58:25.000+0000")).getLastDateLong())
-
-    }
-
-    @Test
-    fun `getEndDateLong parses dates correctly2`() {
-        val listOfArgs = listOf(
-            Pair(1567150657318L, 1567150657318L),
-            Pair(1567154257318L, 1567154257318L),
-            Pair(1567154257318L, "2019-08-30T10:37:37.318"),
-            Pair(1567154257318L, "2019-08-30T09:37:37.318+0100")
-        )
-
-        listOfArgs.forEach { assertEquals(it.first, BucUtils(Buc(lastUpdate= it.second) ).getLastDateLong()) }
-    }
+//    @Test
+//    fun `getEndDateLong parses dates correctly2`() {
+//        val listOfArgs = listOf(
+//            Pair(1567150657318L, 1567150657318L),
+//            Pair(1567154257318L, 1567154257318L),
+//            Pair(1567154257318L, "2019-08-30T10:37:37.318"),
+//            Pair(1567154257318L, "2019-08-30T09:37:37.318+0100")
+//        )
+//
+//        listOfArgs.forEach { assertEquals(it.first, BucUtils(Buc(lastUpdate= it.second) ).getLastDateLong()) }
+//    }
 
     @Test
     fun getRinaAksjoner() {
@@ -358,8 +341,8 @@ class BucUtilsTest {
     @Test
     fun `findNewParticipants   list er lik forventer 0 size`(){
         val bucUtils = BucUtils(Buc(participants = listOf(
-                ParticipantsItem(organisation = Organisation(countryCode = "DK", id = "DK006")),
-                ParticipantsItem(organisation = Organisation(countryCode = PL, id = "PolishAcc")))))
+                Participant(organisation = Organisation(countryCode = "DK", id = "DK006")),
+                Participant(organisation = Organisation(countryCode = PL, id = "PolishAcc")))))
 
         val candidates = listOf(
                 InstitusjonItem(country = PL, institution = "PolishAcc"),
@@ -371,8 +354,8 @@ class BucUtilsTest {
     @Test
     fun `findNewParticipants   buclist er 2 mens list er 3 forventer 1 size`(){
         val bucUtils = BucUtils(Buc(participants = listOf(
-                ParticipantsItem(organisation = Organisation(countryCode = "DK", id = "DK006")),
-                ParticipantsItem(organisation = Organisation(countryCode = PL, id = "PolishAcc")))))
+                Participant(organisation = Organisation(countryCode = "DK", id = "DK006")),
+                Participant(organisation = Organisation(countryCode = PL, id = "PolishAcc")))))
 
         val candidates = listOf(
                 InstitusjonItem(country = PL, institution = "PolishAcc"),
@@ -385,11 +368,11 @@ class BucUtilsTest {
     @Test
     fun `findNewParticipants   buclist er 5 og list er 0 forventer 0 size`(){
         val bucUtils = BucUtils(Buc(participants = listOf(
-                ParticipantsItem(organisation = Organisation(countryCode = "DK", id = "DK006")),
-                ParticipantsItem(organisation = Organisation(countryCode = PL, id = "PolishAcc")),
-                ParticipantsItem(organisation = Organisation(countryCode = PL, id = "PolishAcc")),
-                ParticipantsItem(organisation = Organisation(countryCode = "DK", id = "DK006")),
-                ParticipantsItem(organisation = Organisation(countryCode = FI, id = "FINLAND")))))
+                Participant(organisation = Organisation(countryCode = "DK", id = "DK006")),
+                Participant(organisation = Organisation(countryCode = PL, id = "PolishAcc")),
+                Participant(organisation = Organisation(countryCode = PL, id = "PolishAcc")),
+                Participant(organisation = Organisation(countryCode = "DK", id = "DK006")),
+                Participant(organisation = Organisation(countryCode = FI, id = "FINLAND")))))
 
         val candidates = listOf<InstitusjonItem>()
 
@@ -475,26 +458,27 @@ class BucUtilsTest {
         assertEquals("NO:NAVT003", result?.institution)
     }
 
-    @Test
-    fun parseAndTestBucAndSedView() {
-        val bucjson = getTestJsonFile("buc-280670.json")
-        val buc = mapJsonToAny<Buc>(bucjson)
+//    TODO: Fjerne eller beholde disse testene, da vi ikke lenger skal forholde oss til Long verdier lenger på dato
+//    @Test
+//    fun parseAndTestBucAndSedView() {
+//        val bucjson = getTestJsonFile("buc-280670.json")
+//        val buc = mapJsonToAny<Buc>(bucjson)
+//
+//        val bucview =  BucAndSedView.from(buc)
+//
+//        assertEquals(1567155195638, bucview.startDate)
+//        assertEquals(1567155212000, bucview.lastUpdate)
+//    }
 
-        val bucview =  BucAndSedView.from(buc)
-
-        assertEquals(1567155195638, bucview.startDate)
-        assertEquals(1567155212000, bucview.lastUpdate)
-    }
-
-    @Test
-    fun parseAndTestBucAttachmentsDate() {
-        val bucjson = getTestJsonFile("buc-279020big.json")
-        val buc = mapJsonToAny<Buc>(bucjson)
-
-        val bucview =  BucAndSedView.from(buc)
-        assertEquals(1567088832589, bucview.startDate)
-        assertEquals(1567178490000, bucview.lastUpdate)
-    }
+//    @Test
+//    fun parseAndTestBucAttachmentsDate() {
+//        val bucjson = getTestJsonFile("buc-279020big.json")
+//        val buc = mapJsonToAny<Buc>(bucjson)
+//
+//        val bucview =  BucAndSedView.from(buc)
+//        assertEquals(1567088832589, bucview.startDate)
+//        assertEquals(1567178490000, bucview.lastUpdate)
+//    }
 
     @Test
     fun parseAndTestBucMockError() {
@@ -571,12 +555,12 @@ class BucUtilsTest {
         assertEquals(NO, bucAndSedView.creator?.country)
         assertEquals("NO:NAVT002", bucAndSedView.creator?.institution)
         assertEquals("NAVT002", bucAndSedView.creator?.name)
-        assertEquals(1567088832589, bucAndSedView.startDate)
-        assertEquals(1567178490000, bucAndSedView.lastUpdate)
+//        assertEquals(1567088832589, bucAndSedView.startDate)
+//        assertEquals(1567178490000, bucAndSedView.lastUpdate)
 
-        val startDate = DateTimeFormatter.ISO_INSTANT.format(java.time.Instant.ofEpochMilli (1567088832589))
-        val startDlen = startDate.length -5
-        assertEquals(startDate.substring(0, startDlen), buc.startDate.toString().substring(0,19))
+//        val startDate = DateTimeFormatter.ISO_INSTANT.format(java.time.Instant.ofEpochMilli (1567088832589))
+//        val startDlen = startDate.length -5
+//        assertEquals(startDate.substring(0, startDlen), buc.startDate.toString().substring(0,19))
         assertEquals("2019-08-29T14:27:12.589+0000", buc.startDate)
         assertEquals("2019-08-30T15:21:30.000+0000", buc.lastUpdate)
 
@@ -871,7 +855,10 @@ class BucUtilsTest {
               "firstVersion" : null,
               "lastVersion" : null,
               "version" : "1",
-              "message" : null
+              "message" : null,
+              "name" : null,
+              "mimeType" : null,
+              "creator" : null
             }
         """.trimIndent()
 
@@ -905,7 +892,10 @@ class BucUtilsTest {
               "firstVersion" : null,
               "lastVersion" : null,
               "version" : "1",
-              "message" : null
+              "message" : null,
+              "name" : null,
+              "mimeType" : null,
+              "creator" : null
             }
         """.trimIndent()
 

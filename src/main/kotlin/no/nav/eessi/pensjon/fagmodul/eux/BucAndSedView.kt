@@ -1,7 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
+import no.nav.eessi.pensjon.eux.model.buc.Buc
+import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
 import no.nav.eessi.pensjon.shared.api.InstitusjonItem
 import no.nav.eessi.pensjon.utils.toJson
 
@@ -21,8 +21,8 @@ data class BucAndSedView(
     val creator: InstitusjonItem? = null,
     val sakType: String? = null,
     val status: String? = null,
-    val startDate: Long? = null,
-    val lastUpdate: Long? = null,
+    val startDate: String? = null,
+    val lastUpdate: String? = null,
     val institusjon: List<InstitusjonItem>? = null,
     val seds: List<DocumentsItem>? = null,
     val error: String? = null,
@@ -64,8 +64,8 @@ data class BucAndSedView(
                 creator = bucUtil.getCaseOwnerOrCreator(),
                 caseId = buc.id ?: "n/a",
                 internationalId = buc.internationalId ?: "n/a",
-                startDate = bucUtil.getStartDateLong(),
-                lastUpdate = bucUtil.getLastDateLong(),
+                startDate = buc.startDate,
+                lastUpdate = buc.lastUpdate,
                 status = buc.status,
                 institusjon = bucUtil.getParticipants().map {
                     InstitusjonItem(

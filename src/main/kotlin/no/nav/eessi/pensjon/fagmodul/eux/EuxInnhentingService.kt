@@ -8,16 +8,12 @@ import no.nav.eessi.pensjon.eux.model.BucType
 import no.nav.eessi.pensjon.eux.model.BucType.*
 import no.nav.eessi.pensjon.eux.model.InstitusjonDetalj
 import no.nav.eessi.pensjon.eux.model.SedType
-import no.nav.eessi.pensjon.eux.model.buc.MissingBuc
-import no.nav.eessi.pensjon.eux.model.buc.ParticipantsItem
-import no.nav.eessi.pensjon.eux.model.buc.PreviewPdf
+import no.nav.eessi.pensjon.eux.model.buc.*
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.sed.Person
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.X009
 import no.nav.eessi.pensjon.fagmodul.config.INSTITUTION_CACHE
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Buc
-import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.DocumentsItem
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.shared.api.ApiRequest
 import no.nav.eessi.pensjon.shared.api.InstitusjonItem
@@ -185,7 +181,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
     private fun relevanteBucTyperForVisningIEessiPensjon() =
         ValidBucAndSed.pensjonsBucer() + mutableListOf("H_BUC_07", "R_BUC_01", "R_BUC_02", "M_BUC_02", "M_BUC_03a", "M_BUC_03b")
 
-    fun getBucDeltakere(euxCaseId: String): List<ParticipantsItem> {
+    fun getBucDeltakere(euxCaseId: String): List<Participant> {
         return BUCDeltakere.measure {  euxKlient.getBucDeltakere(euxCaseId) }
     }
 
