@@ -131,15 +131,10 @@ class PrefillController(
         }
 
         logger.debug("bucUtil BucType: ${bucUtil.getBuc().processDefinitionName} apiRequest Buc: ${request.buc}")
-        logger.debug("""bucUtils buc: 
-                rinaId :${bucUtil.getBuc().id}            
-                participants :${bucUtil.getBuc().participants?.size}            
-                documents :${bucUtil.getBuc().documents}
-            """.trimMargin())
-
 
         //AddInstitution
         addInstitution(request, dataModel, bucUtil)
+
         //Preutfyll av SED, pensjon og personer samt oppdatering av versjon
         //sjekk på P7000-- hente nødvendige P6000 sed fra eux.. legg til på request->prefilll
         val sed = innhentingService.hentPreutyltSed(euxInnhentingService.checkForP7000AndAddP6000(request))
