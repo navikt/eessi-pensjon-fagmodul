@@ -6,6 +6,7 @@ import no.nav.eessi.pensjon.eux.model.BucType
 import no.nav.eessi.pensjon.eux.model.BucType.*
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.ActionOperation
+import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.X005
@@ -152,15 +153,15 @@ class PrefillController(
             val sedType = SedType.from(request.sed?.name!!)!!
             logger.info("Prøver å sende SED: $sedType inn på BUC: ${dataModel.euxCaseID}")
 
-            val docresult = euxPrefillService.opprettJsonSedOnBuc(sed, sedType, dataModel.euxCaseID, request.vedtakId)
+            val bucAndSedResponse = euxPrefillService.opprettJsonSedOnBuc(sed, sedType, dataModel.euxCaseID, request.vedtakId)
 
-            logger.info("Opprettet ny SED med dokumentId: ${docresult.documentId}")
-            val result = bucUtil.findDocument(docresult.documentId)
-            result?.message = dataModel.melding
+            logger.info("Opprettet ny SED med dokumentId: ${bucAndSedResponse.documentId}")
+            val sedDocument = bucUtil.findDocument(bucAndSedResponse.documentId)
+            sedDocument?.message = dataModel.melding
 
-            logger.info("Har docuemntItem ${result?.id}")
+            logger.info("Har documentItem ${sedDocument?.id}")
 
-            val documentItem = fetchBucAgainBeforeReturnShortDocument(dataModel.buc, docresult, result)
+            val documentItem = getBucForPBuc06AndForEmptySed(dataModel.buc, bucUtil.getBuc().documents, bucAndSedResponse, sedDocument)
             logger.info("******* Legge til ny SED - slutt *******")
             documentItem
         }
@@ -206,7 +207,7 @@ class PrefillController(
             val parent = bucUtil.findDocument(parentId)
             val result = bucUtil.findDocument(docresult.documentId)
 
-            val documentItem = fetchBucAgainBeforeReturnShortDocument(dataModel.buc, docresult, result)
+            val documentItem = getBucForPBuc06AndForEmptySed(dataModel.buc, bucUtil.getBuc().documents, docresult, result)
 
             logger.info("Buc: (${dataModel.euxCaseID}, hovedSED type: ${parent?.type}, docId: ${parent?.id}, svarSED type: ${documentItem?.type} docID: ${documentItem?.id}")
             logger.info("******* Legge til svarSED - slutt *******")
@@ -214,12 +215,12 @@ class PrefillController(
         }
     }
 
-    private fun fetchBucAgainBeforeReturnShortDocument(bucType: BucType, bucSedResponse: BucSedResponse, orginal: DocumentsItem?): DocumentsItem? {
-        logger.info("Henter BUC på nytt for buctype: $bucType")
+    private fun getBucForPBuc06AndForEmptySed(bucType: BucType, bucDocuments: List<DocumentsItem>?, bucSedResponse: BucSedResponse, orginal: DocumentsItem?): DocumentsItem? {
+        logger.info("Henter BUC på nytt for buctype: $bucDocuments")
         Thread.sleep(900)
-        return if (bucType == P_BUC_06 || orginal == null) {
-            val buc = euxInnhentingService.getBuc(bucSedResponse.caseId)
-            BucUtils(buc).findDocument(bucSedResponse.documentId)
+        return if (bucType == P_BUC_06 || orginal == null && bucDocuments.isNullOrEmpty()) {
+            val innhentetBuc = euxInnhentingService.getBuc(bucSedResponse.caseId)
+            BucUtils(innhentetBuc).findDocument(bucSedResponse.documentId)
         } else {
             orginal
 
