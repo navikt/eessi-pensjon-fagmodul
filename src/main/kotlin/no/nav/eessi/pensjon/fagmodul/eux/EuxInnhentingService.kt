@@ -462,6 +462,6 @@ data class EuxKlientRetryConfig(val initialRetryMillis: Long = 20000L)
 class EuxKlientRetryLogger : RetryListenerSupport() {
     private val logger = LoggerFactory.getLogger(EuxKlientRetryLogger::class.java)
     override fun <T : Any?, E : Throwable?> onError(context: RetryContext?, callback: RetryCallback<T, E>?, throwable: Throwable?) {
-        logger.info("Feil under henting fra EUX - try #${context?.retryCount } - ${throwable?.toString()}", throwable)
+        logger.warn("Feil under henting fra EUX - try #${context?.retryCount } - ${throwable?.toString()}", throwable)
     }
 }
