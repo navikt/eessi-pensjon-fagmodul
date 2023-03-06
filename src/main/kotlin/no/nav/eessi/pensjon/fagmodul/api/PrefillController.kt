@@ -107,7 +107,6 @@ class PrefillController(
     fun addInstutionAndDocument(@RequestBody request: ApiRequest): DocumentsItem? {
 
         logger.info("Avdød fnr finnes i requesten: ${request.subject?.avdod?.fnr != null}, Subject finnes: ${request.subject != null}, gjenlevende finnes: ${request.subject?.gjenlevende != null}")
-
         logger.info("Legger til institusjoner og SED for " +
                 "rinaId: ${request.euxCaseId} " +
                 "bucType: ${request.buc} " +
@@ -140,10 +139,6 @@ class PrefillController(
         //Preutfyll av SED, pensjon og personer samt oppdatering av versjon
         //sjekk på P7000-- hente nødvendige P6000 sed fra eux.. legg til på request->prefilll
         val sed = innhentingService.hentPreutyltSed(euxInnhentingService.checkForP7000AndAddP6000(request))
-        val sedSed = mapJsonToAny<SED>(sed)
-        if(sedSed.type  == SedType.P8000){
-            println(sedSed.nav?.eessisak.toString())
-        }
 
         //val institusjonerFraRequest = request.institutions
         //Sjekk og opprette deltaker og legge sed på valgt BUC
