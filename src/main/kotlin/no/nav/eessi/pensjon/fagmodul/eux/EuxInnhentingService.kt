@@ -41,7 +41,6 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
 
     private lateinit var RinaUrl: MetricsHelper.Metric
     private lateinit var SEDByDocumentId: MetricsHelper.Metric
-    private lateinit var GetBUC: MetricsHelper.Metric
     private lateinit var BUCDeltakere: MetricsHelper.Metric
     private lateinit var GetKodeverk: MetricsHelper.Metric
     private lateinit var Institusjoner: MetricsHelper.Metric
@@ -53,7 +52,6 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
     fun initMetrics(){
         RinaUrl = metricsHelper.init("RinaUrl")
         SEDByDocumentId = metricsHelper.init("SEDByDocumentId", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
-        GetBUC = metricsHelper.init("GetBUC", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         BUCDeltakere = metricsHelper.init("BUCDeltakere", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         Institusjoner = metricsHelper.init("Institusjoner", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         CreateBUC = metricsHelper.init("CreateBUC", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
@@ -73,15 +71,11 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
         backoff = Backoff(delayExpression = "@euxKlientRetryConfig.initialRetryMillis", maxDelay = 200000L, multiplier = 3.0),
         listeners  = ["euxKlientRetryLogger"]
     )
-    fun getBuc(euxCaseId: String): Buc {
-        return GetBUC.measure {
-            mapJsonToAny(euxKlient.getBucJsonAsNavIdent(euxCaseId))
-        }
-    }
+    fun getBuc(euxCaseId: String) = mapJsonToAny<Buc>(euxKlient.getBucJsonAsNavIdent(euxCaseId))
 
     //hent buc for Pesys/tjeneste kjør som systembruker
     fun getBucAsSystemuser(euxCaseId: String): Buc {
-        val body = GetBUC.measure { euxKlient.getBucJsonAsSystemuser(euxCaseId) }
+        val body =  euxKlient.getBucJsonAsSystemuser(euxCaseId)
         logger.debug("mapper buc om til BUC objekt-model")
         return mapJsonToAny(body)
     }
@@ -186,7 +180,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
     }
 
     fun getPdfContents(euxCaseId: String, documentId: String): PreviewPdf {
-        return GetBUC.measure { euxKlient.getPdfJson(euxCaseId, documentId ) }
+        return euxKlient.getPdfJson(euxCaseId, documentId )
     }
 
     /**

@@ -45,6 +45,8 @@ class BucController(
     private lateinit var bucViewJoark: MetricsHelper.Metric
     private lateinit var bucerJoark: MetricsHelper.Metric
     private lateinit var bucViewRina: MetricsHelper.Metric
+    private lateinit var getBUC: MetricsHelper.Metric
+
 
     @PostConstruct
     fun initMetrics() {
@@ -59,30 +61,34 @@ class BucController(
         bucViewJoark = metricsHelper.init("BucViewJoark", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         bucerJoark = metricsHelper.init("BucerJoark", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         bucViewRina = metricsHelper.init("BucViewRina", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
+        getBUC = metricsHelper.init("GetBUC", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
+
     }
 
     @GetMapping("/bucs/{sakId}", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getBucs(@PathVariable(value = "sakId", required = false) sakId: String? = "") = ValidBucAndSed.pensjonsBucer()
 
     @GetMapping("/{rinanr}")
-    fun getBuc(@PathVariable(value = "rinanr", required = true) rinanr: String): Buc {
-        auditlogger.log("getBuc")
-        logger.debug("Henter ut hele Buc data fra rina via eux-rina-api")
-        return euxInnhentingService.getBuc(rinanr)
-    }
+    fun getBuc(@PathVariable(value = "rinanr", required = true) rinanr: String): Buc =
+        getBUC.measure {
+            auditlogger.log("getBuc")
+            logger.debug("Henter ut hele Buc data fra rina via eux-rina-api")
+            return@measure euxInnhentingService.getBuc(rinanr)
+        }
 
     @GetMapping("/{rinanr}/name",  produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getProcessDefinitionName(@PathVariable(value = "rinanr", required = true) rinanr: String): String? {
-
-        logger.debug("Henter ut definisjonsnavn (type type) på valgt Buc")
-        return euxInnhentingService.getBuc(rinanr).processDefinitionName
-    }
+    fun getProcessDefinitionName(@PathVariable(value = "rinanr", required = true) rinanr: String): String? =
+        getBUC.measure {
+            logger.debug("Henter ut definisjonsnavn (type type) på valgt Buc")
+            return@measure euxInnhentingService.getBuc(rinanr).processDefinitionName
+        }
 
     @GetMapping("/{rinanr}/creator",  produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getCreator(@PathVariable(value = "rinanr", required = true) rinanr: String): Creator? {
-        logger.debug("Henter ut Creator på valgt Buc")
-        return euxInnhentingService.getBuc(rinanr).creator
-    }
+    fun getCreator(@PathVariable(value = "rinanr", required = true) rinanr: String): Creator? =
+        getBUC.measure {
+            logger.debug("Henter ut Creator på valgt Buc")
+            return@measure euxInnhentingService.getBuc(rinanr).creator
+        }
 
     @GetMapping("/{rinanr}/bucdeltakere",  produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getBucDeltakere(@PathVariable(value = "rinanr", required = true) rinanr: String): String {
@@ -92,19 +98,22 @@ class BucController(
     }
 
     @GetMapping("/{rinanr}/allDocuments",  produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getAllDocuments(@PathVariable(value = "rinanr", required = true) rinanr: String): List<DocumentsItem> {
-        auditlogger.logBuc("getAllDocuments", rinanr)
-        logger.debug("Henter ut documentId på alle dokumenter som finnes på valgt type")
-        val buc = euxInnhentingService.getBuc(rinanr)
-        return BucUtils(buc).getAllDocuments()
-    }
+    fun getAllDocuments(@PathVariable(value = "rinanr", required = true) rinanr: String): List<DocumentsItem> =
+        getBUC.measure {
+            auditlogger.logBuc("getAllDocuments", rinanr)
+            logger.debug("Henter ut documentId på alle dokumenter som finnes på valgt type")
+            val buc = euxInnhentingService.getBuc(rinanr)
+            return@measure BucUtils(buc).getAllDocuments()
+        }
 
     @GetMapping("/{rinanr}/aksjoner")
-    fun getMuligeAksjoner(@PathVariable(value = "rinanr", required = true) rinanr: String): List<SedType> {
-        logger.debug("Henter ut muligeaksjoner på valgt buc med rinanummer: $rinanr")
-        val bucUtil = BucUtils(euxInnhentingService.getBuc(rinanr))
-        return bucUtil.filterSektorPandRelevantHorizontalAndXSeds(bucUtil.getSedsThatCanBeCreated())
-    }
+    fun getMuligeAksjoner(@PathVariable(value = "rinanr", required = true) rinanr: String): List<SedType> =
+        getBUC.measure {
+            logger.debug("Henter ut muligeaksjoner på valgt buc med rinanummer: $rinanr")
+            val bucUtil = BucUtils(euxInnhentingService.getBuc(rinanr))
+            return@measure bucUtil.filterSektorPandRelevantHorizontalAndXSeds(bucUtil.getSedsThatCanBeCreated())
+        }
+
 
     @GetMapping("/rinasaker/{aktoerId}")
     fun getRinasaker(@PathVariable("aktoerId", required = true) aktoerId: String): List<Rinasak> {
