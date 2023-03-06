@@ -39,7 +39,6 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
                             @Autowired private val euxKlient: EuxKlientAsSystemUser,
                             @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()) {
 
-    private lateinit var RinaUrl: MetricsHelper.Metric
     private lateinit var SEDByDocumentId: MetricsHelper.Metric
     private lateinit var BUCDeltakere: MetricsHelper.Metric
     private lateinit var GetKodeverk: MetricsHelper.Metric
@@ -50,7 +49,6 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
     private lateinit var PingEux: MetricsHelper.Metric
     @PostConstruct
     fun initMetrics(){
-        RinaUrl = metricsHelper.init("RinaUrl")
         SEDByDocumentId = metricsHelper.init("SEDByDocumentId", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         BUCDeltakere = metricsHelper.init("BUCDeltakere", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         Institusjoner = metricsHelper.init("Institusjoner", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
@@ -85,8 +83,14 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
         return SED.fromJsonToConcrete(json)
     }
 
-    //henter ut korrekt url til Rina fra eux-rina-api
-    fun getRinaUrl() = RinaUrl.measure { euxKlient.getRinaUrl() }
+    /**
+     * henter ut korrekt url til Rina fra eux-rina-api
+     */
+    @Retryable(
+        backoff = Backoff(delayExpression = "@euxKlientRetryConfig.initialRetryMillis", maxDelay = 200000L, multiplier = 3.0),
+        listeners  = ["euxKlientRetryLogger"]
+    )
+    fun getRinaUrl() = euxKlient.getRinaUrl()
 
     fun getSedOnBucByDocumentIdAsSystemuser(euxCaseId: String, documentId: String): SED {
         val json = SEDByDocumentId.measure { euxKlient.getSedOnBucByDocumentIdAsSystemuser(euxCaseId, documentId) }

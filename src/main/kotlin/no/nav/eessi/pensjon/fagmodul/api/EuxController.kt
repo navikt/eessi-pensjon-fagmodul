@@ -1,5 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
+import jakarta.annotation.PostConstruct
 import no.nav.eessi.pensjon.eux.model.BucType
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.metrics.MetricsHelper
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.client.HttpStatusCodeException
-import jakarta.annotation.PostConstruct
 
 @RestController
 @RequestMapping("/eux")
@@ -32,6 +32,7 @@ class EuxController(
     private lateinit var euxKodeverk: MetricsHelper.Metric
     private lateinit var euxKodeverkLand: MetricsHelper.Metric
     private lateinit var euxInstitusjoner: MetricsHelper.Metric
+    private lateinit var rinaUrl: MetricsHelper.Metric
 
     val backupList = listOf("AT", "BE", "BG", "CH", "CZ", "DE", "DK", "EE", "ES", "FI", "FR", "HR", "HU", "IE", "IS", "IT", "LI", "LT", "LU", "LV", "MT", "NL", "NO", "PL", "PT", "RO", "SE", "SI", "SK", "UK")
 
@@ -41,13 +42,16 @@ class EuxController(
         euxKodeverk = metricsHelper.init("euxKodeverk", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         euxKodeverkLand = metricsHelper.init("euxKodeverkLand", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         euxInstitusjoner  = metricsHelper.init("euxInstitusjoner", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
+        rinaUrl = metricsHelper.init("RinaUrl")
+
     }
 
     @Unprotected
     @GetMapping("/rinaurl")
-    fun getRinaUrl2020() : ResponseEntity<Map<String, String>> {
-        return ResponseEntity.ok(mapOf("rinaUrl" to euxInnhentingService.getRinaUrl()))
+    fun getRinaUrl2020(): ResponseEntity<Map<String, String>> = rinaUrl.measure {
+        return@measure ResponseEntity.ok(mapOf("rinaUrl" to euxInnhentingService.getRinaUrl()))
     }
+
 
     @Protected
     @GetMapping("/countries/{buctype}")
