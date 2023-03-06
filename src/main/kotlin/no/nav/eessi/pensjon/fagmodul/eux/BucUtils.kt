@@ -58,10 +58,6 @@ class BucUtils(private val buc: Buc) {
         }
     }
 
-    fun isNewRina2020Buc() : Boolean {
-        return buc.documents == null || (buc.documents != null && buc.documents!!.isEmpty())
-    }
-
     private fun createEmptyDocumentsForRina2020() : List<DocumentsItem> {
         logger.debug("Kjører hjelpemetode for RINA2020")
         return when(getProcessDefinitionName()) {

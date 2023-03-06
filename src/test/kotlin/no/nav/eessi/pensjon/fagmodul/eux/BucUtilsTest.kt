@@ -40,7 +40,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 private const val FI = "FI"
 private const val DE = "DE"
@@ -786,8 +785,7 @@ class BucUtilsTest {
 
     @Test
     fun `sjekk for documentlist contains dummyparts on pbuc06 buc rina2020`() {
-        val bucjson = getTestJsonFile("buc-id-rina2020new.json")
-        val buc = mapJsonToAny<Buc>(bucjson)
+        val buc = mapJsonToAny<Buc>(javaClass.getResource("/json/buc/buc-id-rina2020new.json")!!.readText())
         val bucUtils = BucUtils(buc)
         val result = bucUtils.getAllDocuments()
 
@@ -798,12 +796,11 @@ class BucUtilsTest {
 
         assertEquals(seds.toString(), validsed.toString())
         assertThat(seds.containsAll(validsed) )
-        assertEquals(true, bucUtils.isNewRina2020Buc())
     }
 
     @Test
     fun `sjekk for tom pbuc06 tom documentlist contains dummyparts on pbuc06 buc rina2020`() {
-        val buc = mapJsonToAny<Buc>(javaClass.getResource("/json/buc/P_BUC_06_emptyDocumentsList.json").readText())
+        val buc = mapJsonToAny<Buc>(javaClass.getResource("/json/buc/P_BUC_06_emptyDocumentsList.json")!!.readText())
         val bucUtils = BucUtils(buc)
         val result = bucUtils.getAllDocuments()
 
@@ -814,7 +811,6 @@ class BucUtilsTest {
 
         assertEquals(seds.toString(), validsed.toString())
         assertThat(seds.containsAll(validsed) )
-        assertEquals(true, bucUtils.isNewRina2020Buc())
 
     }
 

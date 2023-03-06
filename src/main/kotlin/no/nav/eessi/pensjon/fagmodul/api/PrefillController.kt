@@ -7,6 +7,7 @@ import no.nav.eessi.pensjon.eux.model.BucType.*
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.ActionOperation
 import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
+import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.X005
 import no.nav.eessi.pensjon.fagmodul.eux.*
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
@@ -138,22 +139,28 @@ class PrefillController(
         //Preutfyll av SED, pensjon og personer samt oppdatering av versjon
         //sjekk på P7000-- hente nødvendige P6000 sed fra eux.. legg til på request->prefilll
         val sed = innhentingService.hentPreutyltSed(euxInnhentingService.checkForP7000AndAddP6000(request))
+        val sedSed = mapJsonToAny<SED>(sed)
+        if(sedSed.type  == SedType.P8000){
+            println(sedSed.nav?.eessisak.toString())
+        }
 
+        //val institusjonerFraRequest = request.institutions
         //Sjekk og opprette deltaker og legge sed på valgt BUC
         return addInstutionAndDocument.measure {
             logger.info("******* Legge til ny SED - start *******")
 
             val sedType = SedType.from(request.sed?.name!!)!!
             logger.info("Prøver å sende SED: $sedType inn på BUC: ${dataModel.euxCaseID}")
+
             val docresult = euxPrefillService.opprettJsonSedOnBuc(sed, sedType, dataModel.euxCaseID, request.vedtakId)
 
             logger.info("Opprettet ny SED med dokumentId: ${docresult.documentId}")
             val result = bucUtil.findDocument(docresult.documentId)
             result?.message = dataModel.melding
 
-            logger.info("Har docuemntItem ${result?.id}, er Rina2020 ny buc: ${bucUtil.isNewRina2020Buc()}")
+            logger.info("Har docuemntItem ${result?.id}")
 
-            val documentItem = fetchBucAgainBeforeReturnShortDocument(dataModel.buc, docresult, result, bucUtil.isNewRina2020Buc())
+            val documentItem = fetchBucAgainBeforeReturnShortDocument(dataModel.buc, docresult, result)
             logger.info("******* Legge til ny SED - slutt *******")
             documentItem
         }
@@ -199,7 +206,7 @@ class PrefillController(
             val parent = bucUtil.findDocument(parentId)
             val result = bucUtil.findDocument(docresult.documentId)
 
-            val documentItem = fetchBucAgainBeforeReturnShortDocument(dataModel.buc, docresult, result, bucUtil.isNewRina2020Buc())
+            val documentItem = fetchBucAgainBeforeReturnShortDocument(dataModel.buc, docresult, result)
 
             logger.info("Buc: (${dataModel.euxCaseID}, hovedSED type: ${parent?.type}, docId: ${parent?.id}, svarSED type: ${documentItem?.type} docID: ${documentItem?.id}")
             logger.info("******* Legge til svarSED - slutt *******")
@@ -207,22 +214,15 @@ class PrefillController(
         }
     }
 
-    private fun fetchBucAgainBeforeReturnShortDocument(bucType: BucType, bucSedResponse: BucSedResponse, orginal: DocumentsItem?, isNewRina2020: Boolean = false): DocumentsItem? {
-        return if (bucType == P_BUC_06) {
-            logger.info("Henter BUC på nytt for buctype: $bucType")
-            Thread.sleep(900)
+    private fun fetchBucAgainBeforeReturnShortDocument(bucType: BucType, bucSedResponse: BucSedResponse, orginal: DocumentsItem?): DocumentsItem? {
+        logger.info("Henter BUC på nytt for buctype: $bucType")
+        Thread.sleep(900)
+        return if (bucType == P_BUC_06 || orginal == null) {
             val buc = euxInnhentingService.getBuc(bucSedResponse.caseId)
-            val bucUtil = BucUtils(buc)
-            val document = bucUtil.findDocument(bucSedResponse.documentId)
-            document
-        } else if (orginal == null && isNewRina2020) {
-            logger.info("Henter BUC på nytt for buctype: $bucType")
-            Thread.sleep(1000)
-            val buc = euxInnhentingService.getBuc(bucSedResponse.caseId)
-            val bucUtil = BucUtils(buc)
-            bucUtil.findDocument(bucSedResponse.documentId)
+            BucUtils(buc).findDocument(bucSedResponse.documentId)
         } else {
             orginal
+
         }
     }
 
