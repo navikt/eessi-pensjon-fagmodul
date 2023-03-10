@@ -170,7 +170,6 @@ class ArchitectureTest {
                 .check(productionClasses)
     }
 
-    @Disabled
     @Test
     fun `no cycles on top level`() {
         slices()

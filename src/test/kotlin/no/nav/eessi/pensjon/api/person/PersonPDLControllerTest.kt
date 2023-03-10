@@ -17,7 +17,6 @@ import no.nav.eessi.pensjon.eux.model.sed.PinItem
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
-import no.nav.eessi.pensjon.personoppslag.FodselsnummerGenerator
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonoppslagException
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
@@ -38,6 +37,7 @@ import no.nav.eessi.pensjon.personoppslag.pdl.model.Person
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Sivilstand
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Sivilstandstype
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Statsborgerskap
+import no.nav.eessi.pensjon.shared.person.FodselsnummerGenerator
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.pensjon.v1.avdod.V1Avdod
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
