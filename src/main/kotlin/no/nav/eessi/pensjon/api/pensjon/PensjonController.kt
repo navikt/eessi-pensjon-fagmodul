@@ -84,7 +84,7 @@ class PensjonController(
 
             } catch (e: Exception) {
                 logger.warn("Feil ved henting av kravdato på saksid: $sakId")
-                ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorBody(e.message!!, xid))
+                ResponseEntity.status(HttpStatus.BAD_REQUEST).body("")
             }
         }
     }
