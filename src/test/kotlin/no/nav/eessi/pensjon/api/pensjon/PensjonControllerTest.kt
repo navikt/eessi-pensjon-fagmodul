@@ -17,10 +17,10 @@ import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
 import no.nav.pensjon.v1.sak.V1Sak
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
+import org.skyscreamer.jsonassert.JSONAssert
 import org.slf4j.MDC
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpStatus
@@ -298,7 +298,7 @@ class PensjonControllerTest {
     }
 
 
-    @Disabled
+    @Test
     fun `Sjekke for hentKravDatoFraAktor ikke kaster en unormal feil`() {
         val aktoerId = "123"
         val saksId = "10000"
@@ -308,8 +308,10 @@ class PensjonControllerTest {
         every { pensjonsinformasjonClient.hentKravDatoFraAktor(any(), any(), any()) } returns null
 
         val result = controller.hentKravDatoFraAktor(saksId, kravId, aktoerId)
-        assertEquals("{\"success\": false, \n" + " \"error\": \"Feiler å hente kravDato\", \"uuid\": \"AAA-BBB\"}", result?.body)
-
+        JSONAssert.assertEquals(
+            """{"success": false, "error": "Feiler å hente kravDato", "uuid": "AAA-BBB"}""",
+            result?.body, true
+        )
     }
 
     @Test

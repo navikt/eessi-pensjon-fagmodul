@@ -18,6 +18,7 @@ import no.nav.eessi.pensjon.utils.*
 import no.nav.pensjon.v1.vilkarsvurdering.V1Vilkarsvurdering
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
+import org.slf4j.MDC
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -68,8 +69,8 @@ class PensjonController(
 
     @GetMapping("/kravdato/saker/{saksId}/krav/{kravId}/aktor/{aktoerId}")
     fun hentKravDatoFraAktor(@PathVariable("saksId", required = true) sakId: String, @PathVariable("kravId", required = true) kravId: String, @PathVariable("aktoerId", required = true) aktoerId: String) : ResponseEntity<String>? {
-        //val xid =  MDC.get("x_request_id").toString()
         return PensjonControllerKravDato.measure {
+            val xid =  MDC.get("x_request_id").toString()
             if (sakId.isEmpty() || kravId.isEmpty() || aktoerId.isEmpty()) {
                 logger.warn("Det mangler verdier: saksId $sakId, kravId: $kravId, aktørId: $aktoerId")
                 ResponseEntity.status(HttpStatus.BAD_REQUEST).body("")
@@ -79,10 +80,11 @@ class PensjonController(
                 pensjonsinformasjonClient.hentKravDatoFraAktor(aktorId = aktoerId, kravId = kravId, saksId = sakId)?.let {
                    return@measure ResponseEntity.ok("""{ "kravDato": "$it" }""")
                }
-               return@measure ResponseEntity.status(HttpStatus.BAD_REQUEST).body("")
+               return@measure ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorBody("Feiler å hente kravDato", xid))
+
             } catch (e: Exception) {
                 logger.warn("Feil ved henting av kravdato på saksid: $sakId")
-                ResponseEntity.status(HttpStatus.BAD_REQUEST).body("")
+                ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorBody(e.message!!, xid))
             }
         }
     }
