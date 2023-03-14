@@ -7,6 +7,7 @@ import org.springframework.boot.runApplication
 import org.springframework.cache.annotation.EnableCaching
 import org.springframework.context.annotation.Profile
 import org.springframework.retry.annotation.EnableRetry
+import springfox.documentation.swagger2.annotations.EnableSwagger2
 
 
 @EnableJwtTokenValidation(ignore = ["org.springframework", "springfox.documentation", "no.nav.eessi.pensjon.fagmodul.health.DiagnosticsController"])
@@ -14,6 +15,7 @@ import org.springframework.retry.annotation.EnableRetry
 @SpringBootApplication
 @EnableCaching
 @EnableRetry
+@EnableSwagger2
 @Profile("!unsecured-webmvctest")
 class EessiFagmodulApplication
 
