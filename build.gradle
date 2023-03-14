@@ -75,7 +75,7 @@ dependencies {
 
     implementation("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:2612.db4dc68")
 
-    implementation("io.springfox:springfox-swagger2:3.0.0")
+    implementation("io.springfox:springfox-boot-starter:3.0.0")
 
     testImplementation("no.nav.security:token-validation-spring-test:${tokenSupportVersion}")
 
