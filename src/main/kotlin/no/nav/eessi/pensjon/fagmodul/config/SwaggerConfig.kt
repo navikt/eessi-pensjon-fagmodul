@@ -14,7 +14,7 @@ class SwaggerConfig {
     fun api(): Docket? {
         return Docket(DocumentationType.SWAGGER_2)
             .select()
-            .apis(RequestHandlerSelectors.any())
+            .apis(RequestHandlerSelectors.basePackage("no.nav.eessi.pensjon.fagmodul"))
             .paths(PathSelectors.any())
             .build()
     }
