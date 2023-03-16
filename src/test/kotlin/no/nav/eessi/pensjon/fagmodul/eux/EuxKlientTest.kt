@@ -72,12 +72,12 @@ class EuxKlientTest {
 
     lateinit var server: MockRestServiceServer
 
-    @Autowired
     lateinit var euxKlient: EuxKlientAsSystemUser
 
     @BeforeEach
     fun setup() {
         server = MockRestServiceServer.bindTo(euxRestTemplate).build()
+        euxKlient = EuxKlientAsSystemUser(euxRestTemplate, euxSystemRestTemplate, 100L)
     }
 
     @TestConfiguration
@@ -383,8 +383,8 @@ class EuxKlientTest {
     }
 
     @Test
-    fun `Calling EuxKlient  feiler med kontakt fra eux med kall til getSedOnBucByDocumentId`() {
-        server.expect(requestTo(containsString("/buc/12345678900/sed/"))).andRespond(
+    fun `Calling EuxKlient forsøker 3 ganger før den feiler med kontakt fra eux med kall til getSedOnBucByDocumentId`() {
+        server.expect(ExpectedCount.times(3), requestTo(containsString("/buc/12345678900/sed/"))).andRespond(
             withStatus(HttpStatus.BAD_GATEWAY)
         )
         assertThrows<GenericUnprocessableEntity> {
@@ -393,9 +393,9 @@ class EuxKlientTest {
     }
 
     @Test
-    fun `Calling EuxKlient feiler med motta navsed fra eux med kall til getSedOnBucByDocumentId`() {
+    fun `Calling EuxKlient forsøker 3 ganger før den feiler med motta navsed fra eux med kall til getSedOnBucByDocumentId`() {
         val euxCaseId = "12345678900"
-        server.expect(requestTo(containsString("/buc/$euxCaseId/sed/"))).andRespond(withStatus(HttpStatus.UNAUTHORIZED))
+        server.expect(ExpectedCount.times(3),requestTo(containsString("/buc/$euxCaseId/sed/"))).andRespond(withStatus(HttpStatus.UNAUTHORIZED))
 
         assertThrows<RinaIkkeAutorisertBrukerException> {
             euxKlient.getSedOnBucByDocumentIdNotAsSystemUser(euxCaseId, P_BUC_99)
