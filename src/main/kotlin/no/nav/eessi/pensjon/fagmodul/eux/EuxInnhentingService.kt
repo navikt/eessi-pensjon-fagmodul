@@ -67,6 +67,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
     private val logger = LoggerFactory.getLogger(EuxInnhentingService::class.java)
 
     @Retryable(
+        exclude = [IOException::class],
         backoff = Backoff(delayExpression = "@euxKlientRetryConfig.initialRetryMillis", maxDelay = 200000L, multiplier = 3.0),
         listeners  = ["euxKlientRetryLogger"]
     )
@@ -88,6 +89,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
      * henter ut korrekt url til Rina fra eux-rina-api
      */
     @Retryable(
+        exclude = [IOException::class],
         backoff = Backoff(delayExpression = "@euxKlientRetryConfig.initialRetryMillis", maxDelay = 200000L, multiplier = 3.0),
         listeners  = ["euxKlientRetryLogger"]
     )
