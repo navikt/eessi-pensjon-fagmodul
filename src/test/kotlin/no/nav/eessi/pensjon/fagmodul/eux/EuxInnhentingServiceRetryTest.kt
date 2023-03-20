@@ -73,20 +73,18 @@ internal class EuxInnhentingServiceRetryTest {
     }
 
     @Test
-    fun `gitt at det finnes en gyldig euxCaseid og Buc og en exception kastes, så skal retry benyttes før endelig exception til slutt`() {
+    fun `gitt det finnes en gyldig euxCaseid og Buc og en exception kastes, så skal retry benyttes før endelig exception til slutt`() {
         val euxCaseId = "123456"
-
-        repeat(3){
-            server.expect(MockRestRequestMatchers.requestTo(StringContains.containsString("/buc/$euxCaseId"))).andRespond { throw HttpClientErrorException(HttpStatus.NOT_FOUND, "Ikke funnet") }
-        }
-
+        server.expect(ExpectedCount.times(3), MockRestRequestMatchers.requestTo(StringContains.containsString("/buc/$euxCaseId"))).andRespond(
+            MockRestResponseCreators.withStatus(HttpStatus.NOT_FOUND)
+        )
         assertThrows<IkkeFunnetException> {
             euxInnhentingService.getBuc(euxCaseId)
         }
     }
 
     @Test
-    fun `Gitt at det finnes en gyldig euxCaseid og Buc og en exception kastes, så skal retry benyttes før endelig exception til slutt`() {
+    fun `Gitt at det finnes en gyldig euxCaseid og en exception kastes, så skal retry benyttes før HttpClientErrorException til slutt`() {
         repeat(3){
             server.expect(MockRestRequestMatchers.requestTo(StringContains.containsString("/rinasaker"))).andRespond { throw HttpClientErrorException(HttpStatus.NOT_FOUND, "Ikke funnet") }
         }
@@ -98,7 +96,7 @@ internal class EuxInnhentingServiceRetryTest {
     }
 
     @Test
-    fun `Gitt at det finnes en gyldig euxCaseid og Buc og en exception kastes, så skal retry benyttes før endelig exception til sdfghfslutt`() {
+    fun `Gitt at det finnes en gyldig euxCaseid og exception kastes, så skal retry benyttes før ResourceAccessException kastes til slutt`() {
         repeat(3){
             server.expect(MockRestRequestMatchers.requestTo(StringContains.containsString("/rinasaker"))).andRespond { throw IOException("IO EXCEPTION") }
         }
