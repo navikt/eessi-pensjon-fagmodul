@@ -68,10 +68,24 @@ dependencies {
 
     implementation("no.nav.eessi.pensjon:ep-metrics:2.0.8")
     implementation("no.nav.eessi.pensjon:ep-logging:2.0.8")
-    implementation("no.nav.eessi.pensjon:ep-eux:2.1.10")
-    implementation("no.nav.eessi.pensjon:ep-kodeverk:4.0.14")
-    implementation("no.nav.eessi.pensjon:ep-personoppslag:13.0.19")
-    implementation("no.nav.eessi.pensjon:ep-pensjonsinformasjon:3.0.12")
+    implementation("no.nav.eessi.pensjon:ep-eux:2.1.13")
+    implementation("no.nav.eessi.pensjon:ep-kodeverk:4.0.14") {
+        exclude module: 'ep-eux'
+        exclude module: 'ep-logging'
+        exclude module: 'ep-metrics'
+    }
+
+    implementation("no.nav.eessi.pensjon:ep-personoppslag:13.0.19") {
+        exclude module: 'ep-eux'
+        exclude module: 'ep-logging'
+        exclude module: 'ep-metrics'
+    }
+
+    implementation("no.nav.eessi.pensjon:ep-pensjonsinformasjon:3.0.12") {
+        exclude module: 'ep-eux'
+        exclude module: 'ep-logging'
+        exclude module: 'ep-metrics'
+    }
 
     implementation("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:2612.db4dc68")
 

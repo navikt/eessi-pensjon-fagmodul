@@ -33,6 +33,7 @@ import org.springframework.retry.listener.RetryListenerSupport
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
+import java.io.IOException
 
 @Service
 class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
@@ -66,6 +67,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
     private val logger = LoggerFactory.getLogger(EuxInnhentingService::class.java)
 
     @Retryable(
+        exclude = [IOException::class],
         backoff = Backoff(delayExpression = "@euxKlientRetryConfig.initialRetryMillis", maxDelay = 200000L, multiplier = 3.0),
         listeners  = ["euxKlientRetryLogger"]
     )
@@ -87,6 +89,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
      * henter ut korrekt url til Rina fra eux-rina-api
      */
     @Retryable(
+        exclude = [IOException::class],
         backoff = Backoff(delayExpression = "@euxKlientRetryConfig.initialRetryMillis", maxDelay = 200000L, multiplier = 3.0),
         listeners  = ["euxKlientRetryLogger"]
     )
@@ -369,6 +372,11 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
     }
 
     //** hente rinasaker fra RINA og SAF
+    @Retryable(
+        exclude = [IOException::class],
+        backoff = Backoff(delayExpression = "@euxKlientRetryConfig.initialRetryMillis", maxDelay = 200000L, multiplier = 3.0),
+        listeners  = ["euxKlientRetryLogger"]
+    )
     fun getRinasaker(fnr: String, rinaSakIderFraJoark: List<String>): List<Rinasak> {
 
         val rinaSakerMedFnr = HentRinasaker.measure { euxKlient.getRinasaker(fnr = fnr, euxCaseId = null) }
