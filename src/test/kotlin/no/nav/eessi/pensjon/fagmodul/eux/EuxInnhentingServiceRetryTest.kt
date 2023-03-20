@@ -22,6 +22,7 @@ import org.springframework.test.web.client.ExpectedCount
 import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.test.web.client.match.MockRestRequestMatchers
 import org.springframework.test.web.client.response.MockRestResponseCreators
+import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.ResourceAccessException
 import org.springframework.web.client.RestTemplate
 import java.io.IOException
@@ -45,9 +46,6 @@ internal class EuxInnhentingServiceRetryTest {
 
     @Autowired
     private lateinit var euxNavIdentRestTemplate: RestTemplate
-
-    @Autowired
-    private lateinit var euxKlient: EuxKlientAsSystemUser
 
     @Autowired
     private lateinit var euxInnhentingService: EuxInnhentingService
@@ -77,25 +75,40 @@ internal class EuxInnhentingServiceRetryTest {
     @Test
     fun `gitt at det finnes en gyldig euxCaseid og Buc og en exception kastes, så skal retry benyttes før endelig exception til slutt`() {
         val euxCaseId = "123456"
-        server.expect(ExpectedCount.times(3), MockRestRequestMatchers.requestTo(StringContains.containsString("/buc/$euxCaseId"))).andRespond(
-            MockRestResponseCreators.withStatus(HttpStatus.NOT_FOUND)
-        )
+
+        repeat(3){
+            server.expect(MockRestRequestMatchers.requestTo(StringContains.containsString("/buc/$euxCaseId"))).andRespond { throw HttpClientErrorException(HttpStatus.NOT_FOUND, "Ikke funnet") }
+        }
+
         assertThrows<IkkeFunnetException> {
             euxInnhentingService.getBuc(euxCaseId)
         }
     }
 
     @Test
-    fun `gitt et kall til getRinaSaker som kaster en IOException og fanges av IOExceptionRetryInterceptor`() {
+    fun `Gitt at det finnes en gyldig euxCaseid og Buc og en exception kastes, så skal retry benyttes før endelig exception til slutt`() {
         repeat(3){
-            server.expect(MockRestRequestMatchers.requestTo(StringContains.containsString("/rinasaker"))).andRespond { throw IOException("take $it") }
+            server.expect(MockRestRequestMatchers.requestTo(StringContains.containsString("/rinasaker"))).andRespond { throw HttpClientErrorException(HttpStatus.NOT_FOUND, "Ikke funnet") }
+        }
+
+        assertThrows<HttpClientErrorException> {
+            euxInnhentingService.getRinasaker("12345678900", emptyList())
+            server.verify()
+        }
+    }
+
+    @Test
+    fun `Gitt at det finnes en gyldig euxCaseid og Buc og en exception kastes, så skal retry benyttes før endelig exception til sdfghfslutt`() {
+        repeat(3){
+            server.expect(MockRestRequestMatchers.requestTo(StringContains.containsString("/rinasaker"))).andRespond { throw IOException("IO EXCEPTION") }
         }
 
         assertThrows<ResourceAccessException> {
-            euxKlient.getRinasaker("12345678900", null)
+            euxInnhentingService.getRinasaker("12345678900", emptyList())
+            server.verify()
         }
-        server.verify()
     }
+
 }
 @Profile("retryConfigOverride")
 @Component("euxKlientRetryConfig")

@@ -24,6 +24,7 @@ import no.nav.eessi.pensjon.shared.retry.IOExceptionRetryInterceptor
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
+import org.hamcrest.core.StringContains
 import org.hamcrest.core.StringContains.containsString
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -41,9 +42,11 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig
 import org.springframework.test.web.client.ExpectedCount
 import org.springframework.test.web.client.MockRestServiceServer
+import org.springframework.test.web.client.match.MockRestRequestMatchers
 import org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo
 import org.springframework.test.web.client.response.MockRestResponseCreators.withStatus
 import org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess
+import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.ResourceAccessException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.server.ResponseStatusException
@@ -489,6 +492,18 @@ class EuxKlientTest {
             euxKlient.getRinasaker("12345678900", null)
         }
         server.verify()
+    }
+
+    @Test
+    fun `gitt et kall til getRinaSaker som kaster en NOT_FOUND og ignoreres`() {
+        repeat(3){
+            server.expect(requestTo(containsString("/rinasaker"))).andRespond { throw HttpClientErrorException(HttpStatus.NOT_FOUND, "DUMT") }
+        }
+
+        assertThrows<HttpClientErrorException> {
+            euxKlient.getRinasaker("12345678900", null)
+            server.verify()
+        }
     }
 
     fun mockBucNoRecevieDate(direction: String = "OUT") : Buc {
