@@ -70,10 +70,10 @@ class RestTemplateConfig(
     lateinit var hentRestUrl: String
 
     @Bean
-    fun euxNavIdentRestTemplate(): RestTemplate = restTemplate(euxUrl, onBehalfOfBearerTokenInterceptor(euxClientId))
+    fun euxNavIdentRestTemplate(): RestTemplate = restTemplate(euxUrl, onBehalfOfBearerTokenInterceptor(euxClientId), EuxErrorHandler())
 
     @Bean
-    fun euxSystemRestTemplate() = restTemplate(euxUrl, oAuth2BearerTokenInterceptor(clientProperties("eux-credentials"), oAuth2AccessTokenService))
+    fun euxSystemRestTemplate() = restTemplate(euxUrl, oAuth2BearerTokenInterceptor(clientProperties("eux-credentials"), oAuth2AccessTokenService), EuxErrorHandler())
 
     @Bean
     fun proxyOAuthRestTemplate() = restTemplate(proxyUrl, oAuth2BearerTokenInterceptor(clientProperties("proxy-credentials"), oAuth2AccessTokenService))

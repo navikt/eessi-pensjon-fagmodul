@@ -7,6 +7,7 @@ import no.nav.eessi.pensjon.eux.klient.GatewayTimeoutException
 import no.nav.eessi.pensjon.eux.klient.GenericUnprocessableEntity
 import no.nav.eessi.pensjon.eux.klient.IkkeFunnetException
 import no.nav.eessi.pensjon.eux.klient.RinaIkkeAutorisertBrukerException
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.client.ClientHttpResponse
 import org.springframework.web.client.ResponseErrorHandler
@@ -17,12 +18,16 @@ import java.io.IOException
  * kaster en lokal exception basert på http status for server/klient -exception
  */
 open class EuxErrorHandler : ResponseErrorHandler {
+
+    private val logger = LoggerFactory.getLogger(EuxErrorHandler::class.java)
+
     @Throws(IOException::class)
     override fun hasError(response: ClientHttpResponse): Boolean {
         return response.statusCode.is4xxClientError || response.statusCode.is5xxServerError
     }
     @Throws(IOException::class)
     override fun handleError(httpResponse: ClientHttpResponse) {
+        logger.error("Error ved henting fra EUX. Response:\n $httpResponse")
         if (httpResponse.statusCode.is5xxServerError) {
             when (httpResponse.statusCode) {
                 HttpStatus.INTERNAL_SERVER_ERROR -> throw EuxRinaServerException("Rina serverfeil, kan også skyldes ugyldig input")
