@@ -32,6 +32,7 @@ open class EuxErrorHandler : ResponseErrorHandler {
             when (httpResponse.statusCode) {
                 HttpStatus.INTERNAL_SERVER_ERROR -> throw EuxRinaServerException("Rina serverfeil, kan også skyldes ugyldig input")
                 HttpStatus.GATEWAY_TIMEOUT -> throw GatewayTimeoutException("Venting på respons fra Rina resulterte i en timeout")
+                HttpStatus.BAD_REQUEST -> if (httpResponse.body.toString().contains("postalCode"))throw EuxRinaServerException("Postnummer i PDLadresse er for lang til å preutfylle postnummer i sed")
                 else -> throw GenericUnprocessableEntity("En feil har oppstått")
             }
 
