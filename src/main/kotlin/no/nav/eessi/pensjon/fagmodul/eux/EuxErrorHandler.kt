@@ -27,7 +27,7 @@ open class EuxErrorHandler : ResponseErrorHandler {
     }
     @Throws(IOException::class)
     override fun handleError(httpResponse: ClientHttpResponse) {
-        logger.error("Error ved henting fra EUX. Response:\n $httpResponse")
+        logger.error("Error ved henting fra EUX. Response:\n ${httpResponse.toString()}")
         if (httpResponse.statusCode.is5xxServerError) {
             when (httpResponse.statusCode) {
                 HttpStatus.INTERNAL_SERVER_ERROR -> throw EuxRinaServerException("Rina serverfeil, kan også skyldes ugyldig input")
