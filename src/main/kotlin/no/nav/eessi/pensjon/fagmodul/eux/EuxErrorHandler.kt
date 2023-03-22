@@ -60,20 +60,13 @@ open class EuxErrorHandler : DefaultResponseErrorHandler() {
         throw Exception("Ukjent Feil oppstod: ${httpResponse.statusText}")
     }
 
-    open fun jacksonMapper(): ObjectMapper {
-        val mapper = ObjectMapper().apply {
-            configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
-        }
-        return MappingJackson2HttpMessageConverter(mapper).objectMapper
-    }
-
     @Throws(IOException::class)
     private fun logResponse(response: ClientHttpResponse) {
         logger.warn("""
-            Status code  : {}, ${response.statusCode}
-            Status text  : {}, ${response.statusText}
-            Headers      : {}, ${response.headers}
-            Response body: {}, ${StreamUtils.copyToString(response.body, Charset.defaultCharset())}
+            Status code  : ${response.statusCode}
+            Status text  : ${response.statusText}
+            Headers      : ${response.headers}
+            Response body: ${StreamUtils.copyToString(response.body, Charset.defaultCharset())}
         """.trimIndent())
     }
 }
