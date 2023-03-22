@@ -51,7 +51,7 @@ open class EuxErrorHandler : DefaultResponseErrorHandler() {
                 HttpStatus.BAD_REQUEST -> {
                     val bodyAsString = StreamUtils.copyToString(httpResponse.body, Charset.defaultCharset())
                     if (bodyAsString.contains("postalCode")) {
-                        throw KanIkkeOppretteSedFeilmelding("Postnummer i PDLadresse er for lang til å preutfylle postnummer i sed")
+                        throw KanIkkeOppretteSedFeilmelding("Feil ved oppretting av SED: Postnummer overskrider maks antall tegn (25) i PDL.")
                     }
                     throw GenericUnprocessableEntity("Feil")
                 } else -> throw GenericUnprocessableEntity("En feil har oppstått")
