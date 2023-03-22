@@ -71,6 +71,9 @@ class EuxPrefillService (private val euxKlient: EuxKlientLib,
                 euxKlient.opprettSed(jsonNavSED, euxCaseId)
             } catch (ex: Exception){
                 logger.error("OpprettSed feiler med melding: ${ex.message}", ex)
+                if (ex.toString().contains("postalCode")) {
+                    throw KanIkkeOppretteSedFeilmelding("Sed kan ikke opprettes, da postnummer feltet er lengre enn 25 tegn i PDL adressen til bruker")
+                }
                 throw ex
             }
         }
@@ -161,7 +164,12 @@ class EuxPrefillService (private val euxKlient: EuxKlientLib,
             }
         }
     }
+
+
 }
+open class KanIkkeOppretteSedFeilmelding(message: String?) : ResponseStatusException(HttpStatus.BAD_REQUEST, message)
+
+
 
 data class BucOgDocumentAvdod(
     val rinaidAvdod: String,
