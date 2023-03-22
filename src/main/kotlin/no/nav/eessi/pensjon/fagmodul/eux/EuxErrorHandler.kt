@@ -39,7 +39,6 @@ open class EuxErrorHandler : DefaultResponseErrorHandler() {
             when (httpResponse.statusCode) {
                 HttpStatus.INTERNAL_SERVER_ERROR -> throw EuxRinaServerException("Rina serverfeil, kan også skyldes ugyldig input")
                 HttpStatus.GATEWAY_TIMEOUT -> throw GatewayTimeoutException("Venting på respons fra Rina resulterte i en timeout")
-                HttpStatus.BAD_REQUEST -> if (httpResponse.body.toString().contains("postalCode"))throw EuxRinaServerException("Postnummer i PDLadresse er for lang til å preutfylle postnummer i sed")
                 else -> throw GenericUnprocessableEntity("En feil har oppstått")
             }
 
@@ -49,7 +48,11 @@ open class EuxErrorHandler : DefaultResponseErrorHandler() {
                 HttpStatus.FORBIDDEN -> throw ForbiddenException("Forbidden, Ikke tilgang")
                 HttpStatus.NOT_FOUND -> throw IkkeFunnetException("Ikke funnet")
                 HttpStatus.CONFLICT -> throw EuxConflictException("En konflikt oppstod under kall til Rina")
-                else -> throw GenericUnprocessableEntity("En feil har oppstått")
+                HttpStatus.BAD_REQUEST -> {
+                    if (StreamUtils.copyToString(httpResponse.body, Charset.defaultCharset()).contains("postalCode")) {
+                        throw KanIkkeOppretteSedFeilmelding("Postnummer i PDLadresse er for lang til å preutfylle postnummer i sed")
+                    }
+                } else -> throw GenericUnprocessableEntity("En feil har oppstått")
             }
         }
         throw Exception("Ukjent Feil oppstod: ${httpResponse.statusText}")
