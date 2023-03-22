@@ -11,7 +11,9 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.client.ClientHttpResponse
 import org.springframework.web.client.ResponseErrorHandler
+import java.io.ByteArrayInputStream
 import java.io.IOException
+import java.io.InputStream
 
 
 /**
@@ -27,7 +29,7 @@ open class EuxErrorHandler : ResponseErrorHandler {
     }
     @Throws(IOException::class)
     override fun handleError(httpResponse: ClientHttpResponse) {
-        logger.error("Error ved henting fra EUX. Response:\n ${httpResponse.toString()}")
+        logger.error("Error ved henting fra EUX. Response:\n ${ReReadableClientHttpResponse(httpResponse)}")
         if (httpResponse.statusCode.is5xxServerError) {
             when (httpResponse.statusCode) {
                 HttpStatus.INTERNAL_SERVER_ERROR -> throw EuxRinaServerException("Rina serverfeil, kan også skyldes ugyldig input")
@@ -46,5 +48,13 @@ open class EuxErrorHandler : ResponseErrorHandler {
             }
         }
         throw Exception("Ukjent Feil oppstod: ${httpResponse.statusText}")
+    }
+
+    private class ReReadableClientHttpResponse(original: ClientHttpResponse) : ClientHttpResponse by original {
+        val originalBody = original.body.readBytes()
+
+        override fun getBody(): InputStream {
+            return ByteArrayInputStream(originalBody)
+        }
     }
 }
