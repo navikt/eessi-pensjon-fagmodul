@@ -49,9 +49,11 @@ open class EuxErrorHandler : DefaultResponseErrorHandler() {
                 HttpStatus.NOT_FOUND -> throw IkkeFunnetException("Ikke funnet")
                 HttpStatus.CONFLICT -> throw EuxConflictException("En konflikt oppstod under kall til Rina")
                 HttpStatus.BAD_REQUEST -> {
-                    if (StreamUtils.copyToString(httpResponse.body, Charset.defaultCharset()).contains("postalCode")) {
+                    val bodyAsString = StreamUtils.copyToString(httpResponse.body, Charset.defaultCharset())
+                    if (bodyAsString.contains("postalCode")) {
                         throw KanIkkeOppretteSedFeilmelding("Postnummer i PDLadresse er for lang til å preutfylle postnummer i sed")
                     }
+                    throw GenericUnprocessableEntity("Feil")
                 } else -> throw GenericUnprocessableEntity("En feil har oppstått")
             }
         }
