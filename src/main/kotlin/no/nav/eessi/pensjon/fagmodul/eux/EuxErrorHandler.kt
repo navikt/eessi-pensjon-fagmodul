@@ -13,14 +13,16 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.client.ClientHttpResponse
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
-import org.springframework.web.client.ResponseErrorHandler
+import org.springframework.util.StreamUtils
+import org.springframework.web.client.DefaultResponseErrorHandler
 import java.io.IOException
+import java.nio.charset.Charset
 
 
 /**
  * kaster en lokal exception basert på http status for server/klient -exception
  */
-open class EuxErrorHandler : ResponseErrorHandler {
+open class EuxErrorHandler : DefaultResponseErrorHandler() {
 
     private val logger = LoggerFactory.getLogger(EuxErrorHandler::class.java)
 
@@ -30,7 +32,8 @@ open class EuxErrorHandler : ResponseErrorHandler {
     }
     @Throws(IOException::class)
     override fun handleError(httpResponse: ClientHttpResponse) {
-        logger.error("Error ved henting fra EUX. Response:\n" + jacksonMapper().writeValueAsString(httpResponse))
+        logger.error("Error ved henting fra EUX")
+        logResponse(httpResponse)
 
         if (httpResponse.statusCode.is5xxServerError) {
             when (httpResponse.statusCode) {
@@ -57,5 +60,15 @@ open class EuxErrorHandler : ResponseErrorHandler {
             configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
         }
         return MappingJackson2HttpMessageConverter(mapper).objectMapper
+    }
+
+    @Throws(IOException::class)
+    private fun logResponse(response: ClientHttpResponse) {
+        logger.warn("""
+            Status code  : {}, ${response.statusCode}
+            Status text  : {}, ${response.statusText}
+            Headers      : {}, ${response.headers}
+            Response body: {}, ${StreamUtils.copyToString(response.body, Charset.defaultCharset())}
+        """.trimIndent())
     }
 }
