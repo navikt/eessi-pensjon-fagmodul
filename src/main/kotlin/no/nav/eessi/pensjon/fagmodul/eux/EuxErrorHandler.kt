@@ -1,7 +1,5 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
 import no.nav.eessi.pensjon.eux.klient.EuxConflictException
 import no.nav.eessi.pensjon.eux.klient.EuxRinaServerException
 import no.nav.eessi.pensjon.eux.klient.ForbiddenException
@@ -12,7 +10,6 @@ import no.nav.eessi.pensjon.eux.klient.RinaIkkeAutorisertBrukerException
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.client.ClientHttpResponse
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
 import org.springframework.util.StreamUtils
 import org.springframework.web.client.DefaultResponseErrorHandler
 import java.io.IOException
@@ -32,7 +29,6 @@ open class EuxErrorHandler : DefaultResponseErrorHandler() {
     }
     @Throws(IOException::class)
     override fun handleError(httpResponse: ClientHttpResponse) {
-        logger.error("Error ved henting fra EUX")
         logResponse(httpResponse)
 
         if (httpResponse.statusCode.is5xxServerError) {
@@ -51,7 +47,7 @@ open class EuxErrorHandler : DefaultResponseErrorHandler() {
                 HttpStatus.BAD_REQUEST -> {
                     val bodyAsString = StreamUtils.copyToString(httpResponse.body, Charset.defaultCharset())
                     if (bodyAsString.contains("postalCode")) {
-                        throw KanIkkeOppretteSedFeilmelding("Feil ved oppretting av SED: Postnummer overskrider maks antall tegn (25) i PDL.")
+                        throw KanIkkeOppretteSedFeilmelding("Postnummer overskrider maks antall tegn (25) i PDL.")
                     }
                     throw GenericUnprocessableEntity("Feil")
                 } else -> throw GenericUnprocessableEntity("En feil har oppstått")
