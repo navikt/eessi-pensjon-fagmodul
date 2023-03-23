@@ -14,7 +14,12 @@ import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
 import java.util.*
 import jakarta.annotation.PostConstruct
+import no.nav.eessi.pensjon.utils.mapJsonToAny
+import org.springframework.context.annotation.Profile
 import org.springframework.http.*
+import org.springframework.retry.RetryCallback
+import org.springframework.retry.RetryContext
+import org.springframework.retry.listener.RetryListenerSupport
 
 @Component
 class SafClient(private val safGraphQlOidcRestTemplate: RestTemplate,
@@ -22,7 +27,6 @@ class SafClient(private val safGraphQlOidcRestTemplate: RestTemplate,
                 @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()) {
 
     private val logger = LoggerFactory.getLogger(SafClient::class.java)
-    private val mapper = jacksonObjectMapper()
 
     private lateinit var HentDokumentMetadata: MetricsHelper.Metric
     private lateinit var HentDokumentInnhold: MetricsHelper.Metric
@@ -37,7 +41,8 @@ class SafClient(private val safGraphQlOidcRestTemplate: RestTemplate,
 
     @Retryable(
         exclude = [HttpClientErrorException.NotFound::class],
-        backoff = Backoff(delay = 10000L, maxDelay = 100000L, multiplier = 3.0)
+        backoff = Backoff(delayExpression = "@retryConfig.initialRetryMillis", delay = 10000L, maxDelay = 100000L, multiplier = 3.0),
+        listeners  = ["retryLogger"]
     )
     fun hentDokumentMetadata(aktoerId: String) : HentMetadataResponse {
         logger.info("Henter dokument metadata for aktørid: $aktoerId")
@@ -52,7 +57,7 @@ class SafClient(private val safGraphQlOidcRestTemplate: RestTemplate,
                         httpEntity,
                         String::class.java)
 
-                mapper.readValue(response.body!!, HentMetadataResponse::class.java)
+                mapJsonToAny(response.body!!)
 
             } catch (ce: HttpClientErrorException) {
                 if(ce.statusCode == HttpStatus.FORBIDDEN) {
@@ -76,7 +81,8 @@ class SafClient(private val safGraphQlOidcRestTemplate: RestTemplate,
 
     @Retryable(
         exclude = [HttpClientErrorException.NotFound::class],
-        backoff = Backoff(delay = 10000L, maxDelay = 100000L, multiplier = 3.0)
+        backoff = Backoff(delayExpression = "@retryConfig.initialRetryMillis", delay = 10000L, maxDelay = 100000L, multiplier = 3.0),
+        listeners  = ["retryLogger"]
     )
     fun hentDokumentInnhold(journalpostId: String,
                             dokumentInfoId: String,
@@ -122,6 +128,18 @@ class SafClient(private val safGraphQlOidcRestTemplate: RestTemplate,
     private fun genererQuery(aktoerId: String): String {
         val request = SafRequest(variables = Variables(BrukerId(aktoerId, BrukerIdType.AKTOERID), 10000))
         return request.toJson()
+    }
+
+    @Profile("!retryConfigOverride")
+    @Component
+    data class RetryConfig(val initialRetryMillis: Long = 20000L)
+
+    @Component
+    class RetryLogger : RetryListenerSupport() {
+        private val logger = LoggerFactory.getLogger(RetryLogger::class.java)
+        override fun <T : Any?, E : Throwable?> onError(context: RetryContext?, callback: RetryCallback<T, E>?, throwable: Throwable?) {
+            logger.warn("Feil under henting av data fra SAF - try #${context?.retryCount } - ${throwable?.toString()}", throwable)
+        }
     }
 }
 
