@@ -66,17 +66,7 @@ class EuxPrefillService (private val euxKlient: EuxKlientLib,
     fun opprettJsonSedOnBuc(jsonNavSED: String, sedType: SedType, euxCaseId: String, vedtakId: String?): BucSedResponse {
         logger.info("Forsøker å opprette en $sedType på rinasakId: $euxCaseId")
 
-        val bucSedResponse = opprettSED.measure {
-            try {
-                euxKlient.opprettSed(jsonNavSED, euxCaseId)
-            } catch (ex: Exception){
-                logger.error("OpprettSed feiler med melding: ${ex.message}", ex)
-                if (ex.toString().contains("postalCode")) {
-                    throw KanIkkeOppretteSedFeilmelding("Sed kan ikke opprettes, da postnummer feltet er lengre enn 25 tegn i PDL adressen til bruker")
-                }
-                throw ex
-            }
-        }
+        val bucSedResponse = opprettSED.measure { euxKlient.opprettSed(jsonNavSED, euxCaseId) }
 
         statistikk.produserSedOpprettetHendelse(euxCaseId, bucSedResponse.documentId, vedtakId, sedType)
         return bucSedResponse

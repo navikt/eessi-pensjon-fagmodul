@@ -45,11 +45,10 @@ open class EuxErrorHandler : DefaultResponseErrorHandler() {
                 HttpStatus.NOT_FOUND -> throw IkkeFunnetException("Ikke funnet")
                 HttpStatus.CONFLICT -> throw EuxConflictException("En konflikt oppstod under kall til Rina")
                 HttpStatus.BAD_REQUEST -> {
-                    val bodyAsString = StreamUtils.copyToString(httpResponse.body, Charset.defaultCharset())
-                    if (bodyAsString.contains("postalCode")) {
+                    if (StreamUtils.copyToString(httpResponse.body, Charset.defaultCharset()).contains("postalCode")) {
                         throw KanIkkeOppretteSedFeilmelding("Postnummer overskrider maks antall tegn (25) i PDL.")
                     }
-                    throw GenericUnprocessableEntity("Feil")
+                    throw GenericUnprocessableEntity("Bad request, en feil har oppstått")
                 } else -> throw GenericUnprocessableEntity("En feil har oppstått")
             }
         }
