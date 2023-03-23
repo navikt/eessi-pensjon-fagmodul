@@ -65,15 +65,15 @@ class SafClientTest {
 
     @Test
     fun `gitt en mappingfeil når metadata hentes så kast en feil`() {
-//        val responseJson = javaClass.getResource("/json/saf/hentMetadataResponseMedError.json")!!.readText()
+        val responseJson = javaClass.getResource("/json/saf/hentMetadataResponseMedError.json").readText()
 
-//        every { safGraphQlOidcRestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), eq(String::class.java)) } returns ResponseEntity(responseJson, HttpStatus.OK)
+        every { safGraphQlOidcRestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), eq(String::class.java)) } returns ResponseEntity(responseJson, HttpStatus.OK)
 
         try {
             safClient.hentDokumentMetadata("1234567891000")
-//            fail("En feil burde ha oppstått her")
+            fail("En feil burde ha oppstått her")
         } catch (ex: HttpServerErrorException) {
-            assertEquals("500 En feil oppstod under henting av dokument metadata fra SAF", ex.message)
+            assertEquals("500 En feil oppstod ved mapping av metadata fra SAF", ex.message)
         }
     }
 
