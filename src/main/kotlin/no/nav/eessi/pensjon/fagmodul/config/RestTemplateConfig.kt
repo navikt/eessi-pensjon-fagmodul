@@ -144,8 +144,6 @@ class RestTemplateConfig(
                 navidentTokenFromUI
             )
 
-            logger.debug("On Behalf accessToken: $accessToken")
-
             request.headers.setBearerAuth(accessToken)
             execution.execute(request, body!!)
         }
