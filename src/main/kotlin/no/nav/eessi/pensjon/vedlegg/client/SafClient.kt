@@ -68,9 +68,6 @@ class SafClient(private val safGraphQlOidcRestTemplate: RestTemplate,
             } catch (se: HttpServerErrorException) {
                 logger.error("En feil oppstod under henting av dokument metadata fra SAF: ${se.responseBodyAsString}", se)
                 throw HttpServerErrorException(se.statusCode, "En feil oppstod under henting av dokument metadata fra SAF: ${se.responseBodyAsString}")
-            } catch (mke: MissingKotlinParameterException) {
-                logger.error("En feil oppstod ved mapping av metadata fra SAF" , mke)
-                throw HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "En feil oppstod ved mapping av metadata fra SAF")
             } catch (ex: Exception) {
                 logger.error("En feil oppstod under henting av dokument metadata fra SAF: $ex")
                 throw HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "En feil oppstod under henting av dokument metadata fra SAF")

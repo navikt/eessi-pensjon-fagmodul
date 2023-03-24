@@ -6,10 +6,10 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.fail
 import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -41,7 +41,7 @@ class SafClientTest {
 
     @Test
     fun `gitt en gyldig hentMetadata reponse når metadata hentes så map til HentMetadataResponse`() {
-        val responseJson = javaClass.getResource("/json/saf/hentMetadataResponse.json").readText()
+        val responseJson = javaClass.getResource("/json/saf/hentMetadataResponse.json")!!.readText()
 
         every { safGraphQlOidcRestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), eq(String::class.java)) } returns ResponseEntity(responseJson, HttpStatus.OK)
 
@@ -53,7 +53,7 @@ class SafClientTest {
 
     @Test
     fun `gitt en gyldig hentMetadata reponse med tom tittel når metadata hentes så map til HentMetadataResponse`() {
-        val responseJson = javaClass.getResource("/json/saf/hentMetadataResponse.json").readText()
+        val responseJson = javaClass.getResource("/json/saf/hentMetadataResponse.json")!!.readText()
                 .replace("\"JOURNALPOSTTITTEL\"", "null")
 
         every { safGraphQlOidcRestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), eq(String::class.java)) } returns ResponseEntity(responseJson, HttpStatus.OK)
@@ -65,16 +65,17 @@ class SafClientTest {
 
     @Test
     fun `gitt en mappingfeil når metadata hentes så kast en feil`() {
-//        val responseJson = javaClass.getResource("/json/saf/hentMetadataResponseMedError.json")!!.readText()
+        val responseJson = javaClass.getResource("/json/saf/hentMetadataResponseMedError.json")!!.readText()
 
-//        every { safGraphQlOidcRestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), eq(String::class.java)) } returns ResponseEntity(responseJson, HttpStatus.OK)
+        every { safGraphQlOidcRestTemplate.exchange(
+            any<String>(), any(), any<HttpEntity<Unit>>(), eq(String::class.java))
+        } returns ResponseEntity(responseJson, HttpStatus.OK)
 
-        try {
-            safClient.hentDokumentMetadata("1234567891000")
-//            fail("En feil burde ha oppstått her")
-        } catch (ex: HttpServerErrorException) {
-            assertEquals("500 En feil oppstod under henting av dokument metadata fra SAF", ex.message)
-        }
+        val exception = assertThrows<HttpServerErrorException> {
+                safClient.hentDokumentMetadata("1234567891000")
+            }
+        assertEquals("500 En feil oppstod under henting av dokument metadata fra SAF", exception.message)
+
     }
 
     @Test
