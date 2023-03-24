@@ -1,7 +1,6 @@
 package no.nav.eessi.pensjon.vedlegg.client
 
 import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -41,8 +40,8 @@ class SafClient(private val safGraphQlOidcRestTemplate: RestTemplate,
 
     @Retryable(
         exclude = [HttpClientErrorException.NotFound::class],
-        backoff = Backoff(delayExpression = "@retryConfig.initialRetryMillis", delay = 10000L, maxDelay = 100000L, multiplier = 3.0),
-        listeners  = ["retryLogger"]
+        backoff = Backoff(delayExpression = "@retrySafConfig.initialRetryMillis", delay = 10000L, maxDelay = 100000L, multiplier = 3.0),
+        listeners  = ["retrySafLogger"]
     )
     fun hentDokumentMetadata(aktoerId: String) : HentMetadataResponse {
         logger.info("Henter dokument metadata for aktørid: $aktoerId")
@@ -81,8 +80,8 @@ class SafClient(private val safGraphQlOidcRestTemplate: RestTemplate,
 
     @Retryable(
         exclude = [HttpClientErrorException.NotFound::class],
-        backoff = Backoff(delayExpression = "@retryConfig.initialRetryMillis", delay = 10000L, maxDelay = 100000L, multiplier = 3.0),
-        listeners  = ["retryLogger"]
+        backoff = Backoff(delayExpression = "@retrySafConfig.initialRetryMillis", delay = 10000L, maxDelay = 100000L, multiplier = 3.0),
+        listeners  = ["retrySafLogger"]
     )
     fun hentDokumentInnhold(journalpostId: String,
                             dokumentInfoId: String,
@@ -132,15 +131,13 @@ class SafClient(private val safGraphQlOidcRestTemplate: RestTemplate,
 
     @Profile("!retryConfigOverride")
     @Component
-    data class RetryConfig(val initialRetryMillis: Long = 20000L)
+    data class RetrySafConfig(val initialRetryMillis: Long = 20000L)
 
+}
     @Component
-    class RetryLogger : RetryListenerSupport() {
-        private val logger = LoggerFactory.getLogger(RetryLogger::class.java)
+    class RetrySafLogger : RetryListenerSupport() {
+        private val logger = LoggerFactory.getLogger(RetrySafLogger::class.java)
         override fun <T : Any?, E : Throwable?> onError(context: RetryContext?, callback: RetryCallback<T, E>?, throwable: Throwable?) {
             logger.warn("Feil under henting av data fra SAF - try #${context?.retryCount } - ${throwable?.toString()}", throwable)
         }
     }
-}
-
-
