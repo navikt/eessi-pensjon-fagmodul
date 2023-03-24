@@ -119,6 +119,7 @@ internal class PrefillControllerTest {
 
         val excpeted = BucAndSedView.from(buc)
         val actual = prefillController.createBuc("P_BUC_03")
+        println(actual)
 
         assertEquals(excpeted.toJson(), actual.toJson())
     }
