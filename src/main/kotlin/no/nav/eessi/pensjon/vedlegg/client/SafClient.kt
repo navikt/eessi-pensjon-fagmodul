@@ -1,10 +1,16 @@
 package no.nav.eessi.pensjon.vedlegg.client
 
-import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
+import jakarta.annotation.PostConstruct
 import no.nav.eessi.pensjon.metrics.MetricsHelper
+import no.nav.eessi.pensjon.utils.mapJsonToAny
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.annotation.Profile
 import org.springframework.core.io.Resource
+import org.springframework.http.*
+import org.springframework.retry.RetryCallback
+import org.springframework.retry.RetryContext
+import org.springframework.retry.RetryListener
 import org.springframework.retry.annotation.Backoff
 import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
@@ -12,13 +18,6 @@ import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
 import java.util.*
-import jakarta.annotation.PostConstruct
-import no.nav.eessi.pensjon.utils.mapJsonToAny
-import org.springframework.context.annotation.Profile
-import org.springframework.http.*
-import org.springframework.retry.RetryCallback
-import org.springframework.retry.RetryContext
-import org.springframework.retry.listener.RetryListenerSupport
 
 @Component
 class SafClient(private val safGraphQlOidcRestTemplate: RestTemplate,
@@ -132,7 +131,7 @@ class SafClient(private val safGraphQlOidcRestTemplate: RestTemplate,
 
 }
     @Component
-    class RetrySafLogger : RetryListenerSupport() {
+    class RetrySafLogger : RetryListener {
         private val logger = LoggerFactory.getLogger(RetrySafLogger::class.java)
         override fun <T : Any?, E : Throwable?> onError(context: RetryContext?, callback: RetryCallback<T, E>?, throwable: Throwable?) {
             logger.warn("Feil under henting av data fra SAF - try #${context?.retryCount } - ${throwable?.toString()}", throwable)
