@@ -28,6 +28,14 @@ spec:
         - application: eessi-pensjon-onprem-proxy
           namespace: eessipensjon
           cluster: prod-fss
+      external:
+        - host: eessi-pensjon-onprem-proxy.prod-fss-pub.nais.io
+        - host: eessi-pensjon-prefill.intern.nav.no
+        - host: saf.prod-fss-pub.nais.io
+        - host: pdl-api.prod-fss-pub.nais.io
+        - host: prod-fss.org.kodeverk
+        - host: prod-fss.eessibasis.eux-rina-api
+        - host: saf.prod-fss-pub.nais.io
     inbound:
       rules:
         - application: eessi-pensjon-frontend-ui
