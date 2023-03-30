@@ -43,7 +43,6 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
     private lateinit var SEDByDocumentId: MetricsHelper.Metric
     private lateinit var BUCDeltakere: MetricsHelper.Metric
     private lateinit var GetKodeverk: MetricsHelper.Metric
-    private lateinit var Institusjoner: MetricsHelper.Metric
     private lateinit var CreateBUC: MetricsHelper.Metric
     private lateinit var HentRinasaker: MetricsHelper.Metric
     private lateinit var PutDocument: MetricsHelper.Metric
@@ -52,7 +51,6 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
     fun initMetrics(){
         SEDByDocumentId = metricsHelper.init("SEDByDocumentId", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         BUCDeltakere = metricsHelper.init("BUCDeltakere", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
-        Institusjoner = metricsHelper.init("Institusjoner", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         CreateBUC = metricsHelper.init("CreateBUC", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         HentRinasaker = metricsHelper.init("HentRinasaker", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         PutDocument = metricsHelper.init("PutDocument", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
@@ -149,9 +147,14 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
 
 
     @Cacheable(cacheNames = [INSTITUTION_CACHE], cacheManager = "fagmodulCacheManager")
+    @Retryable(
+        exclude = [IOException::class],
+        backoff = Backoff(delayExpression = "@euxKlientRetryConfig.initialRetryMillis", maxDelay = 200000L, multiplier = 3.0),
+        listeners  = ["euxKlientRetryLogger"]
+    )
     fun getInstitutions(bucType: String, landkode: String? = ""): List<InstitusjonItem> {
         logger.info("henter institustion for bucType: $bucType, land: $landkode")
-        val detaljList: List<InstitusjonDetalj> = Institusjoner.measure {  euxKlient.getInstitutions(bucType, landkode) }
+        val detaljList: List<InstitusjonDetalj> = euxKlient.getInstitutions(bucType, landkode)
 
         val institusjonListe = detaljList.asSequence()
             .filter { institusjon ->

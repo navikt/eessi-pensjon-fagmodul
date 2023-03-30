@@ -3,6 +3,7 @@ package no.nav.eessi.pensjon.fagmodul.eux
 import io.mockk.mockk
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.klient.IkkeFunnetException
+import no.nav.eessi.pensjon.eux.model.BucType
 import no.nav.eessi.pensjon.shared.retry.IOExceptionRetryInterceptor
 import org.hamcrest.core.StringContains
 import org.junit.jupiter.api.BeforeEach
@@ -103,6 +104,22 @@ internal class EuxInnhentingServiceRetryTest {
 
         assertThrows<ResourceAccessException> {
             euxInnhentingService.getRinasaker("12345678900", emptyList())
+            server.verify()
+        }
+    }
+
+    @Test
+    fun `getInstitutions skal ved exception gi 3 retry før ResourceAccessException kastes til slutt`() {
+        val bucType = BucType.P_BUC_01.name
+        val landkode = "SE"
+        repeat(3){
+            server.expect(MockRestRequestMatchers.requestTo(StringContains.containsString("/institusjoner?BuCType=$bucType&LandKode=$landkode"))).andRespond {
+                throw HttpClientErrorException(HttpStatus.NOT_FOUND, "Ikke funnet")
+            }
+        }
+
+        assertThrows<HttpClientErrorException> {
+            euxInnhentingService.getInstitutions(bucType, landkode)
             server.verify()
         }
     }
