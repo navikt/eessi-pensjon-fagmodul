@@ -28,6 +28,9 @@ spec:
         - application: eessi-pensjon-onprem-proxy-q2
           namespace: eessipensjon
           cluster: dev-fss
+      external:
+        - host: eessi-pensjon-onprem-proxy-q2.dev-fss-pub.nais.io
+        - host: eessi-pensjon-prefill-q2.dev.intern.nav.no
     inbound:
       rules:
         - application: eessi-pensjon-frontend-ui-q2
