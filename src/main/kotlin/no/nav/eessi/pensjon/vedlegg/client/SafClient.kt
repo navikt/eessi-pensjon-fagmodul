@@ -124,16 +124,16 @@ class SafClient(private val safGraphQlOidcRestTemplate: RestTemplate,
         val request = SafRequest(variables = Variables(BrukerId(aktoerId, BrukerIdType.AKTOERID), 10000))
         return request.toJson()
     }
-
-    @Profile("!retryConfigOverride")
-    @Component
-    data class RetrySafConfig(val initialRetryMillis: Long = 20000L)
-
 }
-    @Component
-    class RetrySafLogger : RetryListener {
-        private val logger = LoggerFactory.getLogger(RetrySafLogger::class.java)
-        override fun <T : Any?, E : Throwable?> onError(context: RetryContext?, callback: RetryCallback<T, E>?, throwable: Throwable?) {
-            logger.warn("Feil under henting av data fra SAF - try #${context?.retryCount } - ${throwable?.toString()}", throwable)
-        }
+
+@Profile("!retryConfigOverride")
+@Component
+data class RetrySafConfig(val initialRetryMillis: Long = 20000L)
+
+@Component
+class RetrySafLogger : RetryListener {
+    private val logger = LoggerFactory.getLogger(RetrySafLogger::class.java)
+    override fun <T : Any?, E : Throwable?> onError(context: RetryContext?, callback: RetryCallback<T, E>?, throwable: Throwable?) {
+        logger.warn("Feil under henting av data fra SAF - try #${context?.retryCount} - ${throwable?.toString()}", throwable)
     }
+}
