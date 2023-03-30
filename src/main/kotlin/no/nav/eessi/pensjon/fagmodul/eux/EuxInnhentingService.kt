@@ -337,6 +337,11 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
             }
     }
 
+    @Retryable(
+        exclude = [IOException::class],
+        backoff = Backoff(delayExpression = "@euxKlientRetryConfig.initialRetryMillis", maxDelay = 200000L, multiplier = 3.0),
+        listeners  = ["euxKlientRetryLogger"]
+    )
     fun hentBucer(aktoerId: String, pesysSaksnr: String, rinaSakIder: List<String>): List<Buc> {
         val start = System.currentTimeMillis()
 
