@@ -34,8 +34,8 @@ spec:
         - host: saf-q2.dev-fss-pub.nais.io
         - host: pdl-api.dev-fss-pub.nais.io
         - host: kodeverk.dev-fss-pub.nais.io
-        - host: dev-fss.eessibasis.eux-rina-api-q2
-        - host: dev-fss.teamdokumenthandtering.saf
+        - host: eux-rina-api-q2.dev-fss-pub.nais.io
+        - host: rina-ss1-q.adeo.no
     inbound:
       rules:
         - application: eessi-pensjon-frontend-ui-q2
