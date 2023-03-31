@@ -31,6 +31,7 @@ spec:
       external:
         - host: eessi-pensjon-onprem-proxy-q2.dev-fss-pub.nais.io
         - host: eessi-pensjon-prefill-q2.dev.intern.nav.no
+        - host: eessi-pensjon-journalforing-q2.dev.intern.nav.no
         - host: saf-q2.dev-fss-pub.nais.io
         - host: pdl-api.dev-fss-pub.nais.io
         - host: kodeverk.dev-fss-pub.nais.io
