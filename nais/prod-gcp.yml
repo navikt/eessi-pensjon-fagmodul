@@ -31,11 +31,12 @@ spec:
       external:
         - host: eessi-pensjon-onprem-proxy.prod-fss-pub.nais.io
         - host: eessi-pensjon-prefill.intern.nav.no
+        - host: eessi-pensjon-journalforing.intern.nav.no
         - host: saf.prod-fss-pub.nais.io
         - host: pdl-api.prod-fss-pub.nais.io
-        - host: prod-fss.org.kodeverk
-        - host: prod-fss.eessibasis.eux-rina-api
-        - host: saf.prod-fss-pub.nais.io
+        - host: kodeverk.prod-fss-pub.nais.io
+        - host: eux-rina-api.prod-fss-pub.nais.io
+        - host: rina-ss1.adeo.no
     inbound:
       rules:
         - application: eessi-pensjon-frontend-ui
