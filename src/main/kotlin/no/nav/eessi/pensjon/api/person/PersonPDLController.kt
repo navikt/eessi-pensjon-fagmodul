@@ -1,5 +1,6 @@
 package no.nav.eessi.pensjon.api.person
 
+import jakarta.annotation.PostConstruct
 import no.nav.eessi.pensjon.eux.model.BucType.*
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
@@ -26,7 +27,6 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
-import jakarta.annotation.PostConstruct
 
 const val PERSON_IKKE_FUNNET = "Person ikke funnet"
 
@@ -55,7 +55,7 @@ class PersonPDLController(
     fun initMetrics() {
         personControllerHentPerson = metricsHelper.init("PersonControllerHentPerson")
         personControllerHentPersonNavn = metricsHelper.init("PersonControllerHentPersonNavn")
-        personControllerHentPersonAvdod = metricsHelper.init("PersonControllerHentPersonAvdod")
+        personControllerHentPersonAvdod = metricsHelper.init("PersonControllerHentPersonAvdod", ignoreHttpCodes = listOf(HttpStatus.UNAUTHORIZED))
 
     }
 
