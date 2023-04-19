@@ -30,8 +30,8 @@ spec:
           cluster: dev-fss
       external:
         - host: eessi-pensjon-onprem-proxy-q2.dev-fss-pub.nais.io
-        - host: eessi-pensjon-prefill-q2.dev.intern.nav.no
-        - host: eessi-pensjon-journalforing-q2.dev.intern.nav.no
+        - host: eessi-pensjon-prefill-q2.intern.dev.nav.no
+        - host: eessi-pensjon-journalforing-q2.intern.dev.nav.no
         - host: saf-q2.dev-fss-pub.nais.io
         - host: pdl-api.dev-fss-pub.nais.io
         - host: kodeverk.dev-fss-pub.nais.io
@@ -60,7 +60,7 @@ spec:
     - name: EESSIPEN_EUX_RINA_URL
       value: https://eux-rina-api-q2.dev-fss-pub.nais.io/cpi
     - name: EESSIPENSJON_PREFILL_GCP_URL
-      value: https://eessi-pensjon-prefill-q2.dev.intern.nav.no
+      value: https://eessi-pensjon-prefill-q2.intern.dev.nav.no
     - name: RINA_HOST_URL
       value: rina-ss1-q.adeo.no
     - name: SAF_GRAPHQL_URL
@@ -94,7 +94,7 @@ spec:
       value: q2
   image: {{ image }}
   ingresses:
-    - https://eessi-pensjon-fagmodul-q2.dev.intern.nav.no
+    - https://eessi-pensjon-fagmodul-q2.intern.dev.nav.no
   liveness:
     path: /internal/isalive
     port: 8080
