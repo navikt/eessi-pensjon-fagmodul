@@ -232,7 +232,7 @@ class PersonPDLController(
                 else -> throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, pe.message)
             }
         } catch (ex: Exception) {
-            logger.error("Excpetion: ${ex.message}")
+            logger.error("Exception: ${ex.message}")
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Feil ved Personoppslag")
         }
     }
