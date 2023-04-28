@@ -225,7 +225,7 @@ class PersonPDLController(
             logger.error("PDL Person null")
             throw ResponseStatusException(HttpStatus.NOT_FOUND, PERSON_IKKE_FUNNET)
         } catch (pe: PersonoppslagException) {
-            logger.error("PersonoppslagExcpetion: ${pe.message}")
+            logger.error("PersonoppslagException: ${pe.message}")
             when(pe.message) {
                 "not_found: Fant ikke person" -> throw ResponseStatusException(HttpStatus.NOT_FOUND, PERSON_IKKE_FUNNET)
                 "unauthorized: Ikke tilgang til å se person" -> throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Ikke tilgang til å se person")
