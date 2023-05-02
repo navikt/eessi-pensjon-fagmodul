@@ -87,7 +87,7 @@ dependencies {
         exclude module: 'ep-metrics'
     }
 
-    implementation("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:2612.db4dc68")
+    implementation("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:2616.df1f47c")
 
     testImplementation("no.nav.security:token-validation-spring-test:${tokenSupportVersion}")
 
