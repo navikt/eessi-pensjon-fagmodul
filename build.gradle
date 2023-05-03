@@ -67,7 +67,7 @@ dependencies {
     implementation("org.springframework.kafka:spring-kafka:${springKafkaVersion}")
 
     implementation("no.nav.eessi.pensjon:ep-metrics:2.0.17")
-    implementation("no.nav.eessi.pensjon:ep-logging:2.1.10")
+    implementation("no.nav.eessi.pensjon:ep-logging:2.1.12")
     implementation("no.nav.eessi.pensjon:ep-eux:2.1.24")
     implementation("no.nav.eessi.pensjon:ep-kodeverk:4.0.36") {
         exclude module: 'ep-eux'
