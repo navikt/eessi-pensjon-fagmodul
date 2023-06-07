@@ -124,6 +124,22 @@ internal class EuxInnhentingServiceRetryTest {
         }
     }
 
+    @Test
+    fun `getSedOnBucByDocumentId skal ikke gi retry når det kastes en precondition_failed`() {
+        val buc = "1111"
+        val sed = "2222"
+        repeat(1){
+            server.expect(MockRestRequestMatchers.requestTo(StringContains.containsString("/buc/$buc/sed/$sed"))).andRespond {
+                throw HttpClientErrorException(HttpStatus.PRECONDITION_FAILED, "Ikke funnet")
+            }
+        }
+
+        assertThrows<HttpClientErrorException> {
+            euxInnhentingService.getSedOnBucByDocumentId(buc, sed)
+            server.verify()
+        }
+    }
+
 }
 @Profile("retryConfigOverride")
 @Component("euxKlientRetryConfig")

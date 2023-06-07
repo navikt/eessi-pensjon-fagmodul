@@ -79,7 +79,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
     }
 
     fun getSedOnBucByDocumentId(euxCaseId: String, documentId: String): SED {
-        val json = SEDByDocumentId.measure { euxKlient.getSedOnBucByDocumentIdNotAsSystemUser(euxCaseId, documentId)}
+        val json = SEDByDocumentId.measure { euxKlient.getSedOnBucByDocumentIdNotAsSystemUser(euxCaseId, documentId, listOf(HttpStatus.PRECONDITION_FAILED))}
         return SED.fromJsonToConcrete(json)
     }
 

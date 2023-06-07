@@ -17,7 +17,6 @@ import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import no.nav.eessi.pensjon.utils.validateJson
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -141,9 +140,9 @@ internal class EuxInnhentingServiceTest {
     @Test
     fun `forventer et korrekt navsed P6000 ved kall til getSedOnBucByDocumentId`() {
         val json = javaClass.getResource("/json/nav/P6000-NAV.json")!!.readText()
-        Assertions.assertTrue(validateJson(json))
+        assertTrue(validateJson(json))
 
-        every { euxKlient.getSedOnBucByDocumentIdNotAsSystemUser(any(), any()) } returns json
+        every { euxKlient.getSedOnBucByDocumentIdNotAsSystemUser(any(), any(), any()) } returns json
 
         val result = euxInnhentingService.getSedOnBucByDocumentId("12345678900", "0bb1ad15987741f1bbf45eba4f955e80")
         assertEquals(SedType.P6000, result.type)
@@ -403,7 +402,7 @@ internal class EuxInnhentingServiceTest {
     fun `check apiRequest for prefill X010 contains X009 payload`() {
         val x009Json = javaClass.getResource("/json/nav/X009-NAV.json").readText()
         val apiRequest = EuxTestUtils.apiRequestWith("1000000", emptyList(), buc = P_BUC_01, sed = SedType.X010)
-        every { euxKlient.getSedOnBucByDocumentIdNotAsSystemUser(any(), any()) } returns x009Json
+        every { euxKlient.getSedOnBucByDocumentIdNotAsSystemUser(any(), any(), any()) } returns x009Json
 
         val json = euxInnhentingService.checkForX010AndAddX009(apiRequest, "20000000")
         println(json.payload!!.toJson())
