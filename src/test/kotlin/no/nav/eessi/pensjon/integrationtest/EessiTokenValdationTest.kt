@@ -15,6 +15,9 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.web.client.RestTemplate
 
 @SpringBootTest(classes = [RestTemplateConfig::class, UnsecuredWebMvcTestLauncher::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -41,7 +44,9 @@ class EessiTokenValdationTest {
     protected lateinit var mockMvc: MockMvc
 
     @Test
-    fun `contextTest`(){
-        //alt er vel om vi kommer hit
+    fun `se at applikasjonen starter med prod konfig og at tilstanden ok`(){
+        mockMvc.perform(get("/actuator/health"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value("UP"));
     }
 }
