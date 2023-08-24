@@ -28,7 +28,7 @@ dependencies {
 
     // Spring-boot BOM-fil spesifiserer versjoner for Spring Boot-avhengigheter
     implementation(platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}"))
-    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring=-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-aop")
     implementation("org.springframework.boot:spring-boot-starter-cache")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
@@ -68,7 +68,7 @@ dependencies {
 
     implementation("no.nav.eessi.pensjon:ep-metrics:2.0.28")
     implementation("no.nav.eessi.pensjon:ep-logging:2.1.24")
-    implementation(files("../ep-eux/build/libs/ep-eux-2.1.46.jar"))
+    implementation("no.nav.eessi.pensjon:ep-eux:2.1.46")
     implementation("no.nav.eessi.pensjon:ep-kodeverk:4.0.68") {
         exclude module: 'ep-eux'
         exclude module: 'ep-logging'
