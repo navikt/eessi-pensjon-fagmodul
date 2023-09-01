@@ -44,11 +44,16 @@ class InnhentingService(
         )
     }
 
-    private fun hentFnrfraAktoerIdfraPDL(aktoerid: String?): String {
-        if (aktoerid.isNullOrBlank()) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Fant ingen aktoerident")
+    private fun hentFnrEllerNpidForAktoerIdfraPDL(aktoerid: String?): String {
+        if (aktoerid.isNullOrBlank()) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Fant ingen aktoerident")
+
+        val fnr = personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerid)).id
+        return fnr.ifEmpty {
+            val npid = personService.hentIdent(IdentType.Npid, AktoerId(aktoerid)).id
+            if (npid.isNotEmpty()) return npid
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Fant ingen FNR eller NPID for aktoerId: $aktoerid")
         }
-        return personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerid)).id
+
     }
 
 
@@ -65,6 +70,7 @@ class InnhentingService(
                 }
                 personService.hentIdent(IdentType.AktoerId, NorskIdent(avdodIdent)).id
             }
+
             P_BUC_05, P_BUC_06, P_BUC_10 -> {
                 if (avdodIdent == null) {
                     return null
@@ -81,11 +87,12 @@ class InnhentingService(
                     throw ResponseStatusException(HttpStatus.NOT_FOUND, "Korrekt aktoerIdent ikke funnet")
                 }
             }
+
             else -> null
         }
     }
 
-    fun hentFnrfraAktoerService(aktoerid: String?): String = hentFnrfraAktoerIdfraPDL(aktoerid)
+    fun hentFnrfraAktoerService(aktoerid: String?): String = hentFnrEllerNpidForAktoerIdfraPDL(aktoerid)
 
     fun hentRinaSakIderFraJoarksMetadata(aktoerid: String): List<String> = vedleggService.hentRinaSakIderFraMetaData(aktoerid)
 
@@ -93,6 +100,7 @@ class InnhentingService(
 
     fun hentPensjoninformasjonVedtak(vedtakId: String) = pensjonsinformasjonService.hentVedtak(vedtakId)
 
-    fun hentAvdodeFnrfraPensjoninformasjon(pensjoninformasjon: Pensjonsinformasjon): List<String>? = pensjonsinformasjonService.hentGyldigAvdod(pensjoninformasjon)
+    fun hentAvdodeFnrfraPensjoninformasjon(pensjoninformasjon: Pensjonsinformasjon): List<String>? =
+        pensjonsinformasjonService.hentGyldigAvdod(pensjoninformasjon)
 
 }
