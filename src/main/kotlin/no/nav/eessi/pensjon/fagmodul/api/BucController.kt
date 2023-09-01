@@ -261,9 +261,11 @@ class BucController(
         return bucViewRina.measure {
             val start = System.currentTimeMillis()
 
+            //Når vi ikke finner noe fnr så feiler denne med 404 NOT_FOUND
             val fnr = innhentingService.hentFnrfraAktoerService(aktoerId)
             logger.info("henter rinasaker på valgt aktoerid: $aktoerId, på saknr: $pensjonSakNummer")
 
+            //Her kreves fnr fra kallet over, kan vi sjekke om vi kan bruke npid i stedet?
             val rinaSaker = euxInnhentingService.hentBucViewBruker(fnr, aktoerId, pensjonSakNummer)
             logger.info("brukerView : ${rinaSaker.toJson()}")
 
