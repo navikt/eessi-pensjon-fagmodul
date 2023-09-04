@@ -19,11 +19,13 @@ import no.nav.eessi.pensjon.utils.toJson
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.kafka.test.context.EmbeddedKafka
@@ -32,6 +34,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
 import java.time.LocalDate
 import java.time.Month
@@ -388,14 +391,15 @@ internal class BucControllerIT: BucBaseTest() {
         JSONAssert.assertEquals(expected, response, true)
     }
 
+
     @Test
     fun `Hent mulige rinasaker for NPID fra euxrina`() {
         val npid = "01220049651"
         val aktoerId = "1123123123123123"
         val pesyssaknr = "100001000"
 
+        every { personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerId)) } returns NorskIdent("")
         every { personService.hentIdent(IdentType.Npid, AktoerId(aktoerId)) } returns Npid(npid)
-        every { personService.hentIdent(IdentType.NorskIdent, AktoerId("1123123123123123")) } returns NorskIdent("")
 
         every { euxNavIdentRestTemplate.exchange("/rinasaker?fødselsnummer=01220049651&status=\"open\"", HttpMethod.GET, null, String::class.java) } .answers( FunctionAnswer { Thread.sleep(250);
             ResponseEntity.ok().body(listOf(dummyRinasak("5195021", "P_BUC_03"), dummyRinasak("5922554", "P_BUC_03") ).toJson() ) })
@@ -419,5 +423,30 @@ internal class BucControllerIT: BucBaseTest() {
 
         JSONAssert.assertEquals(expected, response, true)
     }
+
+//    @Test
+//    fun `Hva skjer når vi forsøker å hente saker for et fnr som ikke finnes`() {
+//        val aktoerId = "1123123123123123"
+//        val pesyssaknr = "100001000"
+//
+//        every { personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerId)) } returns NorskIdent("")
+//        every { personService.hentIdent(IdentType.Npid, AktoerId(aktoerId)) } returns Npid("")
+//
+//        every { euxNavIdentRestTemplate.exchange("/rinasaker?fødselsnummer=&status=\"open\"", HttpMethod.GET, null, String::class.java) } .throws(HttpClientErrorException(HttpStatus.NOT_FOUND))
+//
+//        val result = mockMvc.perform(
+//            MockMvcRequestBuilders.get("/buc/rinasaker/euxrina/$aktoerId/pesyssak/$pesyssaknr")
+//                .contentType(MediaType.APPLICATION_JSON))
+//            .andExpect(MockMvcResultMatchers.status().is4xxClientError)
+//            .andReturn()
+//
+//        val response = result.response.getContentAsString(charset("UTF-8"))
+//        println(response)
+//
+//        JSONAssert.assertEquals(response, response, true)
+//
+//    }
+
+
 
 }

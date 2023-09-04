@@ -6,14 +6,13 @@ import no.nav.eessi.pensjon.eux.model.BucType
 import no.nav.eessi.pensjon.eux.model.BucType.*
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.ActionOperation
-import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
-import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.X005
 import no.nav.eessi.pensjon.fagmodul.eux.*
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
+import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentType
 import no.nav.eessi.pensjon.shared.api.ApiRequest
 import no.nav.eessi.pensjon.shared.api.PrefillDataModel
 import no.nav.eessi.pensjon.utils.mapJsonToAny
@@ -120,9 +119,9 @@ class PrefillController(
 
         if (request.buc == null) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mangler Buc")
 
-        val norskIdent = innhentingService.hentFnrfraAktoerService(request.aktoerId)
+        val norskIdent = innhentingService.hentFnrfraAktoerService(request.aktoerId, IdentType.AktoerId)
         val avdodaktoerID = innhentingService.getAvdodId(BucType.from(request.buc.name)!!, request.riktigAvdod())
-        val dataModel = ApiRequest.buildPrefillDataModelOnExisting(request, norskIdent, avdodaktoerID)
+        val dataModel = ApiRequest.buildPrefillDataModelOnExisting(request, norskIdent.id, avdodaktoerID)
 
         //Hente metadata for valgt BUC
         val bucUtil = euxInnhentingService.kanSedOpprettes(dataModel)
@@ -170,9 +169,9 @@ class PrefillController(
     ): DocumentsItem? {
         if (request.buc == null) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mangler Buc")
 
-        val norskIdent = innhentingService.hentFnrfraAktoerService(request.aktoerId)
+        val norskIdent = innhentingService.hentFnrfraAktoerService(request.aktoerId, IdentType.AktoerId)
         val avdodaktoerID = innhentingService.getAvdodId(BucType.from(request.buc.name)!!, request.riktigAvdod())
-        val dataModel = ApiRequest.buildPrefillDataModelOnExisting(request, norskIdent, avdodaktoerID)
+        val dataModel = ApiRequest.buildPrefillDataModelOnExisting(request, norskIdent.id, avdodaktoerID)
 
         //Hente metadata for valgt BUC
         val bucUtil = addDocumentToParentBucUtils.measure {

@@ -6,9 +6,7 @@ import no.nav.eessi.pensjon.eux.model.BucType.*
 import no.nav.eessi.pensjon.fagmodul.prefill.klient.PrefillKlient
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
-import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
-import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentType
-import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
+import no.nav.eessi.pensjon.personoppslag.pdl.model.*
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonService
 import no.nav.eessi.pensjon.shared.api.ApiRequest
 import no.nav.eessi.pensjon.shared.person.Fodselsnummer
@@ -44,18 +42,34 @@ class InnhentingService(
         )
     }
 
-    private fun hentFnrEllerNpidForAktoerIdfraPDL(aktoerid: String?): String {
-        if (aktoerid.isNullOrBlank()) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Fant ingen aktoerident")
-
-        val fnr = personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerid)).id
-        return fnr.ifEmpty {
-            val npid = personService.hentIdent(IdentType.Npid, AktoerId(aktoerid)).id
-            if (npid.isNotEmpty()) return npid
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Fant ingen FNR eller NPID for aktoerId: $aktoerid")
+    private fun hentFnrfraAktoerIdfraPDL(aktoerid: String?): String {
+        if (aktoerid.isNullOrBlank()) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Fant ingen aktoerident")
         }
-
+        return personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerid)).id
     }
 
+
+//    fun <T : IdentType, R : IdentType> hentIdent(identTypeWanted: R, ident: Ident<T>): Ident<R>? {
+
+    //TODO hentFnrEllerNpidForAktoerIdfraPDL burde ikke tillate null eller tom AktoerId
+    private fun <R : IdentType>hentFnrEllerNpidForAktoerIdfraPDL(aktoerid: String?): Ident<out IdentType>? {
+        if (aktoerid.isNullOrBlank()) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Fant ingen aktoerident")
+
+        val fnr = personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerid))
+        if(fnr.id.isNotEmpty()){
+            return fnr
+        }
+        val npid = personService.hentIdent(IdentType.Npid, AktoerId(aktoerid))
+        if(npid.id.isNotEmpty()){
+            return npid
+        }
+        return null
+    }
+
+    //        if (npid != null) return npid
+    //Sjekker om feil skyldes av vi ikke fant FNR
+    //Returnerer NPID om vi finner det
 
     //Hjelpe funksjon for å validere og hente aktoerid for evt. avdodfnr fra UI (P2100) - PDL
     fun getAvdodId(bucType: BucType, avdodIdent: String?): String? {
@@ -92,9 +106,11 @@ class InnhentingService(
         }
     }
 
-    fun hentFnrfraAktoerService(aktoerid: String?): String = hentFnrEllerNpidForAktoerIdfraPDL(aktoerid)
+    fun hentFnrfraAktoerService(aktoerid: String?, identType: IdentType): Ident<*> = hentFnrEllerNpidForAktoerIdfraPDL<IdentType>(aktoerid) as Ident<*>
+    fun hentFnrEllerNpidfraAktoerService(aktoerid: String?, identType: IdentType): Ident<*> = hentFnrEllerNpidForAktoerIdfraPDL<IdentType>(aktoerid) as Ident<*>
 
-    fun hentRinaSakIderFraJoarksMetadata(aktoerid: String): List<String> = vedleggService.hentRinaSakIderFraMetaData(aktoerid)
+    fun hentRinaSakIderFraJoarksMetadata(aktoerid: String): List<String> =
+        vedleggService.hentRinaSakIderFraMetaData(aktoerid)
 
     fun hentPreutyltSed(apiRequest: ApiRequest): String = prefillKlient.hentPreutfyltSed(apiRequest)
 

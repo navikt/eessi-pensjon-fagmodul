@@ -10,6 +10,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.*
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
+import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentType
 import no.nav.eessi.pensjon.utils.mapAnyToJson
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.security.token.support.core.api.Protected
@@ -120,10 +121,10 @@ class BucController(
         auditlogger.log("getRinasaker", aktoerId)
         logger.debug("henter rinasaker på valgt aktoerid: $aktoerId")
 
-        val norskIdent = innhentingService.hentFnrfraAktoerService(aktoerId)
+        val norskIdent = innhentingService.hentFnrfraAktoerService(aktoerId, IdentType.AktoerId)
         val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
 
-        return euxInnhentingService.getRinasaker(norskIdent, rinaSakIderFraJoark)
+        return euxInnhentingService.getRinasaker(norskIdent.id, rinaSakIderFraJoark)
     }
 
     @GetMapping("/enkeldetalj/{euxcaseid}")
@@ -144,7 +145,7 @@ class BucController(
             val start = System.currentTimeMillis()
 
             logger.info("henter rinasaker på valgt aktoerid: $aktoerId, på saknr: $pensjonSakNummer")
-            val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerId)
+            val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerId, IdentType.AktoerId)
 
             val joarkstart = System.currentTimeMillis()
             val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)  //rinasak
@@ -152,7 +153,7 @@ class BucController(
             logger.debug("rinaSakIderFraJoark : ${rinaSakIderFraJoark.toJson()}")
 
             //bruker saker fra eux/rina
-            val brukerView = euxInnhentingService.hentBucViewBruker(gjenlevendeFnr, aktoerId, pensjonSakNummer)
+            val brukerView = euxInnhentingService.hentBucViewBruker(gjenlevendeFnr.id, aktoerId, pensjonSakNummer)
             logger.debug("brukerView : ${brukerView.toJson()}")
 
             //filtert bort brukersaker fra saf
@@ -262,11 +263,11 @@ class BucController(
             val start = System.currentTimeMillis()
 
             //Når vi ikke finner noe fnr så feiler denne med 404 NOT_FOUND
-            val fnr = innhentingService.hentFnrfraAktoerService(aktoerId)
+            val fnr = innhentingService.hentFnrEllerNpidfraAktoerService(aktoerId, IdentType.AktoerId)
             logger.info("henter rinasaker på valgt aktoerid: $aktoerId, på saknr: $pensjonSakNummer")
 
             //Her kreves fnr fra kallet over, kan vi sjekke om vi kan bruke npid i stedet?
-            val rinaSaker = euxInnhentingService.hentBucViewBruker(fnr, aktoerId, pensjonSakNummer)
+            val rinaSaker = euxInnhentingService.hentBucViewBruker(fnr.id, aktoerId, pensjonSakNummer)
             logger.info("brukerView : ${rinaSaker.toJson()}")
 
             //return med sort og distict (avdodfmr og caseid)
@@ -423,18 +424,18 @@ class BucController(
         return if (kilde == EuxInnhentingService.BucViewKilde.SAF) {
             bucDetaljerEnkelGjenlevende.measure {
                 logger.info("saf euxCaseId: $euxcaseid, saknr: $saknr")
-                val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerid)
+                val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerid, IdentType.AktoerId)
                 euxInnhentingService.getSingleBucAndSedView(euxcaseid)
-                .copy(subject = BucAndSedSubject(SubjectFnr(gjenlevendeFnr), SubjectFnr(avdodFnr)))
+                .copy(subject = BucAndSedSubject(SubjectFnr(gjenlevendeFnr.id), SubjectFnr(avdodFnr)))
             }
         } else {
             bucDetaljerEnkelavdod.measure {
                 logger.info("avdod med euxCaseId: $euxcaseid, saknr: $saknr")
-                val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerid)
+                val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerid, IdentType.AktoerId)
                 val bucOgDocAvdod = euxInnhentingService.hentBucOgDocumentIdAvdod(listOf(euxcaseid))
                 val listeAvSedsPaaAvdod = euxInnhentingService.hentDocumentJsonAvdod(bucOgDocAvdod)
-                val gyldigeBucs = euxInnhentingService.filterGyldigBucGjenlevendeAvdod(listeAvSedsPaaAvdod, gjenlevendeFnr)
-                val gjenlevendeBucAndSedView = euxInnhentingService.getBucAndSedViewWithBuc(gyldigeBucs, gjenlevendeFnr, avdodFnr)
+                val gyldigeBucs = euxInnhentingService.filterGyldigBucGjenlevendeAvdod(listeAvSedsPaaAvdod, gjenlevendeFnr.id)
+                val gjenlevendeBucAndSedView = euxInnhentingService.getBucAndSedViewWithBuc(gyldigeBucs, gjenlevendeFnr.id, avdodFnr)
                 gjenlevendeBucAndSedView.firstOrNull() ?: BucAndSedView.fromErr("Ingen Buc Funnet!")
             }
         }
