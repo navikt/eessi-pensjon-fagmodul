@@ -16,7 +16,8 @@ import no.nav.eessi.pensjon.integrationtest.IntegrasjonsTestConfig
 import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
-import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentType
+import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentGruppe
+import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentGruppe.*
 import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
 import no.nav.eessi.pensjon.shared.api.ApiRequest
 import no.nav.eessi.pensjon.shared.api.ApiSubject
@@ -103,9 +104,9 @@ class OpprettPrefillSedIntegrationTest {
             euxRinaid = euxRinaid
         )
 
-        val tomBucJson = javaClass.getResource("/json/buc/P_BUC_01_4.2_tom.json").readText()
+        val tomBucJson = javaClass.getResource("/json/buc/P_BUC_01_4.2_tom.json")!!.readText()
 
-        every { personService.hentIdent(IdentType.NorskIdent, AktoerId(AKTOER_ID)) } returns NorskIdent(FNR_VOKSEN)
+        every { personService.hentIdent(FOLKEREGISTERIDENT, AktoerId(AKTOER_ID)) } returns NorskIdent(FNR_VOKSEN)
 
         every { euxNavIdentRestTemplate.exchange( "/buc/$euxRinaid", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(tomBucJson)
 
@@ -143,7 +144,7 @@ class OpprettPrefillSedIntegrationTest {
             euxRinaid = euxRinaid,
             institutions = nyDeltakere)
 
-        every { personService.hentIdent(IdentType.NorskIdent, AktoerId(AKTOER_ID)) } returns NorskIdent(FNR_VOKSEN)
+        every { personService.hentIdent(FOLKEREGISTERIDENT, AktoerId(AKTOER_ID)) } returns NorskIdent(FNR_VOKSEN)
 
         val tomBucJson = javaClass.getResource("/json/buc/P_BUC_01_4.2_tom.json").readText()
         every { euxNavIdentRestTemplate.exchange( "/buc/$euxRinaid", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(tomBucJson)
@@ -212,8 +213,8 @@ class OpprettPrefillSedIntegrationTest {
             euxRinaid = euxRinaid,
             institutions = nyDeltakere)
 
-        every { personService.hentIdent(IdentType.NorskIdent, AktoerId(AKTOER_ID)) } returns NorskIdent(FNR_VOKSEN)
-        every { personService.hentIdent(IdentType.AktoerId, NorskIdent(FNR_VOKSEN_2)) } returns AktoerId("23423423423423423423423423423423423423423423423423")
+        every { personService.hentIdent(FOLKEREGISTERIDENT, AktoerId(AKTOER_ID)) } returns NorskIdent(FNR_VOKSEN)
+        every { personService.hentIdent(AKTORID, NorskIdent(FNR_VOKSEN_2)) } returns AktoerId("23423423423423423423423423423423423423423423423423")
 
         val tomBucJson = javaClass.getResource("/json/buc/buc-rina2020-P2K-X005.json").readText()
         every { euxNavIdentRestTemplate.exchange( "/buc/$euxRinaid", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(tomBucJson)

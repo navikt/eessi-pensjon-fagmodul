@@ -12,7 +12,6 @@ import no.nav.eessi.pensjon.fagmodul.eux.*
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
-import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentType
 import no.nav.eessi.pensjon.shared.api.ApiRequest
 import no.nav.eessi.pensjon.shared.api.PrefillDataModel
 import no.nav.eessi.pensjon.utils.mapJsonToAny
@@ -25,6 +24,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.server.ResponseStatusException
 
 @Protected
@@ -119,7 +119,7 @@ class PrefillController(
 
         if (request.buc == null) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mangler Buc")
 
-        val norskIdent = innhentingService.hentFnrfraAktoerService(request.aktoerId, IdentType.AktoerId)
+        val norskIdent = innhentingService.hentFnrfraAktoerService(request.aktoerId) ?: throw HttpClientErrorException(HttpStatus.BAD_REQUEST)
         val avdodaktoerID = innhentingService.getAvdodId(BucType.from(request.buc.name)!!, request.riktigAvdod())
         val dataModel = ApiRequest.buildPrefillDataModelOnExisting(request, norskIdent.id, avdodaktoerID)
 
@@ -169,7 +169,7 @@ class PrefillController(
     ): DocumentsItem? {
         if (request.buc == null) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mangler Buc")
 
-        val norskIdent = innhentingService.hentFnrfraAktoerService(request.aktoerId, IdentType.AktoerId)
+        val norskIdent = innhentingService.hentFnrfraAktoerService(request.aktoerId) ?: throw HttpClientErrorException(HttpStatus.BAD_REQUEST, "Mangler norsk fnr")
         val avdodaktoerID = innhentingService.getAvdodId(BucType.from(request.buc.name)!!, request.riktigAvdod())
         val dataModel = ApiRequest.buildPrefillDataModelOnExisting(request, norskIdent.id, avdodaktoerID)
 

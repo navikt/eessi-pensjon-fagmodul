@@ -42,26 +42,24 @@ class InnhentingService(
         )
     }
 
-    private fun hentFnrfraAktoerIdfraPDL(aktoerid: String?): String {
+    private fun hentFnrfraAktoerIdfraPDL(aktoerid: String?): String? {
         if (aktoerid.isNullOrBlank()) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Fant ingen aktoerident")
         }
-        return personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerid)).id
+        return personService.hentIdent(IdentGruppe.FOLKEREGISTERIDENT, AktoerId(aktoerid))?.id
     }
 
 
-//    fun <T : IdentType, R : IdentType> hentIdent(identTypeWanted: R, ident: Ident<T>): Ident<R>? {
-
     //TODO hentFnrEllerNpidForAktoerIdfraPDL burde ikke tillate null eller tom AktoerId
-    private fun <R : IdentType>hentFnrEllerNpidForAktoerIdfraPDL(aktoerid: String?): Ident<out IdentType>? {
-        if (aktoerid.isNullOrBlank()) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Fant ingen aktoerident")
+    private fun hentFnrEllerNpidForAktoerIdfraPDL(aktoerid: String): Ident? {
+//        if (aktoerid.isNullOrBlank()) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Fant ingen aktoerident")
 
-        val fnr = personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerid))
-        if(fnr.id.isNotEmpty()){
+        val fnr = personService.hentIdent(IdentGruppe.FOLKEREGISTERIDENT, AktoerId(aktoerid))
+        if(fnr?.id?.isNotEmpty() == true){
             return fnr
         }
-        val npid = personService.hentIdent(IdentType.Npid, AktoerId(aktoerid))
-        if(npid.id.isNotEmpty()){
+        val npid = personService.hentIdent(IdentGruppe.NPID, AktoerId(aktoerid))
+        if(npid?.id?.isNotEmpty() == true){
             return npid
         }
         return null
@@ -82,7 +80,7 @@ class InnhentingService(
                 if (avdodIdent.isBlank()) {
                     throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ident har tom input-verdi")
                 }
-                personService.hentIdent(IdentType.AktoerId, NorskIdent(avdodIdent)).id
+                personService.hentIdent(IdentGruppe.AKTORID, NorskIdent(avdodIdent))?.id
             }
 
             P_BUC_05, P_BUC_06, P_BUC_10 -> {
@@ -95,7 +93,7 @@ class InnhentingService(
 
                 val gyldigNorskIdent = Fodselsnummer.fra(avdodIdent)
                 return try {
-                    personService.hentIdent(IdentType.AktoerId, NorskIdent(avdodIdent)).id
+                    personService.hentIdent(IdentGruppe.AKTORID, NorskIdent(avdodIdent))?.id
                 } catch (ex: Exception) {
                     if (gyldigNorskIdent == null) logger.error("NorskIdent er ikke gyldig")
                     throw ResponseStatusException(HttpStatus.NOT_FOUND, "Korrekt aktoerIdent ikke funnet")
@@ -106,8 +104,8 @@ class InnhentingService(
         }
     }
 
-    fun hentFnrfraAktoerService(aktoerid: String?, identType: IdentType): Ident<*> = hentFnrEllerNpidForAktoerIdfraPDL<IdentType>(aktoerid) as Ident<*>
-    fun hentFnrEllerNpidfraAktoerService(aktoerid: String?, identType: IdentType): Ident<*> = hentFnrEllerNpidForAktoerIdfraPDL<IdentType>(aktoerid) as Ident<*>
+    fun hentFnrfraAktoerService(aktoerid: String?): Ident? = aktoerid?.let { hentFnrEllerNpidForAktoerIdfraPDL(it) }
+    fun hentFnrEllerNpidfraAktoerService(aktoerId: Ident): Ident = hentFnrEllerNpidForAktoerIdfraPDL(aktoerId.id) as Ident
 
     fun hentRinaSakIderFraJoarksMetadata(aktoerid: String): List<String> =
         vedleggService.hentRinaSakIderFraMetaData(aktoerid)

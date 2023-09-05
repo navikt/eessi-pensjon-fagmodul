@@ -80,7 +80,7 @@ internal class BucControllerIT: BucBaseTest() {
         val saksNr =  null
 
         //gjenlevende aktoerid -> gjenlevendefnr
-        every { personService.hentIdent(IdentType.NorskIdent, AktoerId(gjenlevendeAktoerId)) }returns NorskIdent(gjenlevendeFnr)
+        every { personService.hentIdent(IdentGruppe.FOLKEREGISTERIDENT, AktoerId(gjenlevendeAktoerId)) }returns NorskIdent(gjenlevendeFnr)
 
         val rinaBuc02url = dummyRinasakAvdodUrl(avdodFnr)
         every { euxNavIdentRestTemplate.exchange( rinaBuc02url.toUriString(), HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(emptyList<Rinasak>().toJson())
@@ -118,7 +118,7 @@ internal class BucControllerIT: BucBaseTest() {
 
         every { pensjonsinformasjonClient.hentAltPaaVedtak(vedtakid) } returns mockVedtak(avdodFnr, gjenlevendeAktoerId)
         //gjenlevende aktoerid -> gjenlevendefnr
-        every { personService.hentIdent(IdentType.NorskIdent, AktoerId(gjenlevendeAktoerId)) } returns NorskIdent(gjenlevendeFnr)
+        every { personService.hentIdent(IdentGruppe.FOLKEREGISTERIDENT, AktoerId(gjenlevendeAktoerId)) } returns NorskIdent(gjenlevendeFnr)
 
         //buc02 - avdød rinasak
         val rinaSakerBuc02 = listOf(dummyRinasak("1010", "P_BUC_02"), dummyRinasak("9859667", "P_BUC_01"))
@@ -164,7 +164,7 @@ internal class BucControllerIT: BucBaseTest() {
 
             every { pensjonsinformasjonClient.hentAltPaaVedtak(vedtakid) } returns mockVedtak(avdodFnr, gjenlevendeAktoerId)
             //gjenlevende aktoerid -> gjenlevendefnr
-            every { personService.hentIdent(IdentType.NorskIdent, AktoerId(gjenlevendeAktoerId)) } returns NorskIdent(gjenlevendeFnr)
+            every { personService.hentIdent(IdentGruppe.FOLKEREGISTERIDENT, AktoerId(gjenlevendeAktoerId)) } returns NorskIdent(gjenlevendeFnr)
             //buc02 - avdød rinasak
             val rinaSakerBuc02 = listOf(dummyRinasak("1010", "P_BUC_02"))
             val rinaBuc02url = dummyRinasakAvdodUrl(avdodFnr)
@@ -228,7 +228,7 @@ internal class BucControllerIT: BucBaseTest() {
         every { pensjonsinformasjonClient.hentAltPaaVedtak(vedtakid) } returns mockVedtak(avdodFnr, gjenlevendeAktoerId)
 
         //gjenlevende aktoerid -> gjenlevendefnr
-        every { personService.hentIdent(IdentType.NorskIdent, AktoerId(gjenlevendeAktoerId)) } returns NorskIdent(gjenlevendeFnr)
+        every { personService.hentIdent(IdentGruppe.FOLKEREGISTERIDENT, AktoerId(gjenlevendeAktoerId)) } returns NorskIdent(gjenlevendeFnr)
 
         //buc02 - avdød rinasak
         val rinaBuc02url = dummyRinasakAvdodUrl(avdodFnr)
@@ -292,7 +292,7 @@ internal class BucControllerIT: BucBaseTest() {
         every { pensjonsinformasjonClient.hentAltPaaVedtak(vedtakid)  } returns mockVedtak(avdodFnr, gjenlevendeAktoerId)
 
         //gjenlevende aktoerid -> gjenlevendefnr
-        every {personService.hentIdent(IdentType.NorskIdent, AktoerId(gjenlevendeAktoerId))  } returns NorskIdent(gjenlevendeFnr)
+        every {personService.hentIdent(IdentGruppe.FOLKEREGISTERIDENT, AktoerId(gjenlevendeAktoerId))  } returns NorskIdent(gjenlevendeFnr)
 
         //buc05, 06 og 10 avdød rinasaker
         val rinaSakerBuc05 = listOf(
@@ -366,7 +366,7 @@ internal class BucControllerIT: BucBaseTest() {
         val aktoerId = "1123123123123123"
         val pesyssaknr = "100001000"
 
-        every { personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerId)) } returns NorskIdent(fnr)
+        every { personService.hentIdent(IdentGruppe.FOLKEREGISTERIDENT, AktoerId(aktoerId)) } returns NorskIdent(fnr)
 
         every { euxNavIdentRestTemplate.exchange("/rinasaker?fødselsnummer=1234567890000&status=\"open\"", HttpMethod.GET, null, String::class.java) } .answers( FunctionAnswer { Thread.sleep(250);
             ResponseEntity.ok().body(listOf(dummyRinasak("5195021", "P_BUC_03"), dummyRinasak("5922554", "P_BUC_03") ).toJson() )
@@ -398,8 +398,8 @@ internal class BucControllerIT: BucBaseTest() {
         val aktoerId = "1123123123123123"
         val pesyssaknr = "100001000"
 
-        every { personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerId)) } returns NorskIdent("")
-        every { personService.hentIdent(IdentType.Npid, AktoerId(aktoerId)) } returns Npid(npid)
+        every { personService.hentIdent(IdentGruppe.FOLKEREGISTERIDENT, AktoerId(aktoerId)) } returns NorskIdent("")
+        every { personService.hentIdent(IdentGruppe.NPID, AktoerId(aktoerId)) } returns Npid(npid)
 
         every { euxNavIdentRestTemplate.exchange("/rinasaker?fødselsnummer=01220049651&status=\"open\"", HttpMethod.GET, null, String::class.java) } .answers( FunctionAnswer { Thread.sleep(250);
             ResponseEntity.ok().body(listOf(dummyRinasak("5195021", "P_BUC_03"), dummyRinasak("5922554", "P_BUC_03") ).toJson() ) })

@@ -12,7 +12,7 @@ import no.nav.eessi.pensjon.fagmodul.prefill.klient.PrefillKlient
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Ident
-import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentType
+import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentGruppe
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonService
 import no.nav.eessi.pensjon.shared.api.ApiRequest
 import no.nav.eessi.pensjon.shared.api.ApiSubject
@@ -56,7 +56,7 @@ internal class InnhentingServiceTest {
     @Test
     fun `Gitt at avdodfnr finnes paa en p2100 saa skal aktoerid for avdodfnr returneres`() {
         val apiRequest = apiRequest(SedType.P2100, P_BUC_02, AKTOER_ID, AVDOD_FNR)
-        every { personService.hentIdent(eq(IdentType.AktoerId), any<Ident<*>>()) } returns AktoerId(AKTOER_ID)
+        every { personService.hentIdent(eq(IdentGruppe.AKTORID), any()) } returns AktoerId(AKTOER_ID)
 
         val result = innhentingService.getAvdodId(BucType.from(apiRequest.buc?.name)!!, apiRequest.riktigAvdod())
 
@@ -70,7 +70,7 @@ internal class InnhentingServiceTest {
                 ApiSubject(gjenlevende = SubjectFnr(GJENLEVENDE_FNR), avdod = SubjectFnr(ADVOD_FNR2))
         )
 
-        every { personService.hentIdent(eq(IdentType.AktoerId), any<Ident<*>>()) } returns AktoerId(AKTOER_ID)
+        every { personService.hentIdent(eq(IdentGruppe.AKTORID), any()) } returns AktoerId(AKTOER_ID)
 
         val result = innhentingService.getAvdodId(BucType.from(apiRequest.buc?.name)!!, apiRequest.riktigAvdod())
         assertEquals(AKTOER_ID, result)

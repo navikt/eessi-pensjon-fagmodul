@@ -92,7 +92,7 @@ class PersonPDLControllerTest {
 
     @Test
     fun `getPerson should return Person as json`() {
-        every { pdlService.hentPerson(any<Ident<*>>()) } returns lagPerson(etternavn = "NORDMANN", fornavn = "OLA")
+        every { pdlService.hentPerson(any()) } returns lagPerson(etternavn = "NORDMANN", fornavn = "OLA")
         val response = mvc.perform(
             get("/person/pdl/$AKTOERID")
                 .accept(MediaType.APPLICATION_JSON)
@@ -104,7 +104,7 @@ class PersonPDLControllerTest {
 
     @Test
     fun `getNameOnly should return names as json`() {
-        every {pdlService.hentPerson(any<Ident<*>>())  } returns lagPerson(etternavn = "NORDMANN", fornavn = "OLA")
+        every {pdlService.hentPerson(any())  } returns lagPerson(etternavn = "NORDMANN", fornavn = "OLA")
         val response = mvc.perform(
             get("/person/pdl/info/${AKTOERID}")
                 .accept(MediaType.APPLICATION_JSON)
@@ -116,7 +116,7 @@ class PersonPDLControllerTest {
 
     @Test
     fun `should return NOT_FOUND hvis personen ikke finnes`() {
-        every { pdlService.hentPerson(any<Ident<*>>()) } throws PersonoppslagException("Fant ikke person", "not_found")
+        every { pdlService.hentPerson(any()) } throws PersonoppslagException("Fant ikke person", "not_found")
 
         mvc.perform(
             get("/person/pdl/info/${AKTOERID}")
@@ -231,7 +231,7 @@ class PersonPDLControllerTest {
         val barn = lagPerson(fnrGjenlevende, "Liten", "Blyant",
             listOf(ForelderBarnRelasjon("231231231231", Familierelasjonsrolle.MOR, Familierelasjonsrolle.BARN, mockMeta())))
 
-        every { pdlService.hentPerson(any<Ident<*>>()) } returns barn
+        every { pdlService.hentPerson(any()) } returns barn
 
         val response = mvc.perform(
             get("/person/pdl/$aktoerId/avdode/vedtak/$vedtaksId")
@@ -279,7 +279,7 @@ class PersonPDLControllerTest {
         pen.avdod = penavdod
 
         every { mockPensjonClient.hentAltPaaVedtak(any()) } returns pen
-        every { pdlService.hentPerson(any<Ident<*>>()) } returns doedsPerson
+        every { pdlService.hentPerson(any()) } returns doedsPerson
 
         val result = mvc.perform(
             get("/person/vedtak/$vedtakid/buc/$rinanr/avdodsdato")
@@ -319,7 +319,7 @@ class PersonPDLControllerTest {
         every { euxService.getBuc(any()) } returns buc
         every { euxService.getSedOnBucByDocumentId(any(), any()) } returns sedP2100
         every { mockPensjonClient.hentAltPaaVedtak(any()) } returns pen
-        every { pdlService.hentPerson(any<Ident<*>>()) } returns doedsPerson
+        every { pdlService.hentPerson(any()) } returns doedsPerson
 
         val result = mvc.perform(
             get("/person/vedtak/$vedtakid/buc/$rinanr/avdodsdato")
@@ -359,7 +359,7 @@ class PersonPDLControllerTest {
         every { euxService.getBuc(any()) } returns buc
         every { euxService.getSedOnBucByDocumentId(any(), any()) } returns sedP2100
         every { mockPensjonClient.hentAltPaaVedtak(any()) } returns pen
-        every { pdlService.hentPerson(any<Ident<*>>()) } returns doedsPerson
+        every { pdlService.hentPerson(any()) } returns doedsPerson
 
         val result = mvc.perform(
             get("/person/vedtak/$vedtakid/buc/$rinanr/avdodsdato")
@@ -398,7 +398,7 @@ class PersonPDLControllerTest {
         every { euxService.getBuc(any()) } returns buc
         every { euxService.getSedOnBucByDocumentId(any(), any()) } returns sedP5000
         every { mockPensjonClient.hentAltPaaVedtak(any()) } returns pen
-        every { pdlService.hentPerson(any<Ident<*>>()) } returns doedsPerson
+        every { pdlService.hentPerson(any()) } returns doedsPerson
 
         val result = mvc.perform(
             get("/person/vedtak/$vedtakid/buc/$rinanr/avdodsdato")

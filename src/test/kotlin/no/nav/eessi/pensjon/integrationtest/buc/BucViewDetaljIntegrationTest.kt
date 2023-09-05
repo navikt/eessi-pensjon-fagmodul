@@ -20,7 +20,8 @@ import no.nav.eessi.pensjon.integrationtest.IntegrasjonsTestConfig
 import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
-import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentType
+import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentGruppe
+import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentGruppe.*
 import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
@@ -86,7 +87,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         val kilde = BucViewKilde.AVDOD
 
         //gjenlevende aktoerid -> gjenlevendefnr
-        every { personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerid)) } returns NorskIdent(gjenlevFnr)
+        every { personService.hentIdent(FOLKEREGISTERIDENT, AktoerId(aktoerid)) } returns NorskIdent(gjenlevFnr)
 
         //dummy date
         val lastupdate = LocalDate.of(2020, Month.AUGUST, 7).toString()
@@ -136,7 +137,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         val kilde = BucViewKilde.SAF
 
         //gjenlevende aktoerid -> gjenlevendefnr
-        every { personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerid)) } returns NorskIdent(gjenlevFnr)
+        every { personService.hentIdent(FOLKEREGISTERIDENT, AktoerId(aktoerid)) } returns NorskIdent(gjenlevFnr)
 
         //dummy date
         val lastupdate = LocalDate.of(2020, Month.AUGUST, 7).toString()
@@ -179,7 +180,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         val kilde = BucViewKilde.BRUKER
 
         //aktoerid -> fnr
-        every { personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerid)) } returns NorskIdent(fnr)
+        every { personService.hentIdent(FOLKEREGISTERIDENT, AktoerId(aktoerid)) } returns NorskIdent(fnr)
 
         //dummy date
         val lastupdate = LocalDate.of(2020, Month.AUGUST, 7).toString()
@@ -220,7 +221,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         val kilde = BucViewKilde.SAF
 
         //aktoerid -> fnr
-        every { personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerid)) } returns NorskIdent(fnr)
+        every { personService.hentIdent(FOLKEREGISTERIDENT, AktoerId(aktoerid)) } returns NorskIdent(fnr)
 
         val rinabucpath = "/buc/$euxCaseId"
         every { euxNavIdentRestTemplate.exchange( rinabucpath, HttpMethod.GET, null, String::class.java) } throws HttpClientErrorException(HttpStatus.NOT_FOUND)
@@ -272,8 +273,8 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         every { pensjonsinformasjonClient.hentAltPaaVedtak(vedtakid) } .answers( FunctionAnswer { Thread.sleep(56); mockVedtak(avdodFnr,gjenlevendeAktoerId) } )
 
         //gjenlevende aktoerid -> gjenlevendefnr
-        every { personService.hentIdent(IdentType.NorskIdent, AktoerId(gjenlevendeAktoerId)) } returns NorskIdent(gjenlevendeFnr)
-        every { personService.hentIdent(IdentType.NorskIdent, AktoerId(avdodAktoerId)) } returns NorskIdent(avdodFnr)
+        every { personService.hentIdent(FOLKEREGISTERIDENT, AktoerId(gjenlevendeAktoerId)) } returns NorskIdent(gjenlevendeFnr)
+        every { personService.hentIdent(FOLKEREGISTERIDENT, AktoerId(avdodAktoerId)) } returns NorskIdent(avdodFnr)
 
         val rinaSakerBuc02 = listOf(dummyRinasak("5010", "P_BUC_02"), dummyRinasak("3202", P_BUC_03.name), dummyRinasak("5005", AD_BUC_01.name), dummyRinasak("14675", P_BUC_06.name))
         val rinaBuc02url = dummyRinasakAvdodUrl(avdodFnr)
@@ -317,7 +318,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         val saknr = "100001000"
 
         //gjenlevende aktoerid -> gjenlevendefnr
-        every { personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerId)) } returns NorskIdent(fnr)
+        every { personService.hentIdent(FOLKEREGISTERIDENT, AktoerId(aktoerId)) } returns NorskIdent(fnr)
 
         //saf (sikker arkiv fasade) (vedlegg meta) gjenlevende
         val httpEntity = dummyHeader(dummySafReqeust(aktoerId))
@@ -355,7 +356,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         val saknr = "100001000"
 
         //gjenlevende aktoerid -> gjenlevendefnr
-        every { personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerId)) } returns NorskIdent(fnr)
+        every { personService.hentIdent(FOLKEREGISTERIDENT, AktoerId(aktoerId)) } returns NorskIdent(fnr)
 
         //saf (sikker arkiv fasade) (vedlegg meta) gjenlevende
         val httpEntity = dummyHeader(dummySafReqeust(aktoerId))
@@ -400,7 +401,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         val aktoerId = "1123123123123123"
         val saknr = "100001000"
 
-        every { personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerId)) } returns NorskIdent(fnr)
+        every { personService.hentIdent(FOLKEREGISTERIDENT, AktoerId(aktoerId)) } returns NorskIdent(fnr)
         every { safGraphQlOidcRestTemplate.exchange(eq("/"), eq(HttpMethod.POST), eq(dummyHeader(dummySafReqeust(aktoerId))), eq(String::class.java)) } returns
                 ResponseEntity.ok().body(  dummySafMetaResponseMedRina("9859667") )
 
