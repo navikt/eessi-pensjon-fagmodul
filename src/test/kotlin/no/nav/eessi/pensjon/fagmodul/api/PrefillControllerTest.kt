@@ -40,7 +40,7 @@ import no.nav.eessi.pensjon.fagmodul.prefill.klient.PrefillKlient
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
-import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentType
+import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentGruppe
 import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonService
 import no.nav.eessi.pensjon.services.statistikk.StatistikkHandler
@@ -149,7 +149,7 @@ internal class PrefillControllerTest {
     fun `call addInstutionAndDocument mock adding two institusjon when X005 exists already as new will throw bad request`() {
         val euxCaseId = "1234567890"
 
-        every { personService.hentIdent(eq(IdentType.NorskIdent), any<AktoerId>()) } returns NorskIdent("12345")
+        every { personService.hentIdent(eq(IdentGruppe.FOLKEREGISTERIDENT), any<AktoerId>()) } returns NorskIdent("12345")
 
         val mockParticipants = listOf(Participant(role = "CaseOwner", organisation = Organisation(countryCode = "NO", name = "NAV", id = "NAV")))
         val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = mockParticipants)
@@ -180,7 +180,7 @@ internal class PrefillControllerTest {
     fun `Ved kall til addInstutionAndDocument med en institusjon så skal vi få en preutfylt P8000 med en deltaker`() {
         val euxCaseId = "1443996"
 
-        every { personService.hentIdent(eq(IdentType.NorskIdent), any<AktoerId>()) } returns NorskIdent("12345")
+        every { personService.hentIdent(eq(IdentGruppe.FOLKEREGISTERIDENT), any<AktoerId>()) } returns NorskIdent("12345")
 
         val mockBuc = javaClass.getResource("/json/buc/Buc.json")!!.readText()
 
@@ -217,7 +217,7 @@ internal class PrefillControllerTest {
             InstitusjonItem(country = "FI", institution = "Finland", name="Finland test"),
             InstitusjonItem(country = "DE", institution = "Tyskland", name="Tyskland test")
         )
-        every { personService.hentIdent(eq(IdentType.NorskIdent), any<AktoerId>()) } returns NorskIdent("12345")
+        every { personService.hentIdent(eq(IdentGruppe.FOLKEREGISTERIDENT), any<AktoerId>()) } returns NorskIdent("12345")
         every { mockEuxInnhentingService.getBuc(euxCaseId) } returns mockBuc
 
         val apirequest = apiRequestWith(euxCaseId, newParticipants, buc = P_BUC_01)
@@ -229,7 +229,7 @@ internal class PrefillControllerTest {
         assertThrows<ResponseStatusException> {
             prefillController.addInstutionAndDocument(apirequest)
         }
-        verify(exactly = 1 ) { personService.hentIdent(any<IdentType.NorskIdent>(), any<AktoerId>()) }
+        verify(exactly = 1 ) { personService.hentIdent(any(), any<AktoerId>()) }
         verify(exactly = 1 ) { mockEuxInnhentingService.getBuc(any()) }
         verify(exactly = 2 ) { prefillKlient.hentPreutfyltSed(any()) }
 
@@ -268,7 +268,7 @@ internal class PrefillControllerTest {
             InstitusjonItem(country = "DK", institution = "DK:213231", name="Tyskland test")
         )
 
-        every { personService.hentIdent(eq(IdentType.NorskIdent), any<AktoerId>()) } returns NorskIdent("12345")
+        every { personService.hentIdent(eq(IdentGruppe.FOLKEREGISTERIDENT), any<AktoerId>()) } returns NorskIdent("12345")
         every { mockEuxInnhentingService.getBuc(euxCaseId) } returns mockBuc
 
         assertThrows<ResponseStatusException> {
@@ -300,7 +300,7 @@ internal class PrefillControllerTest {
         val apirequest = apiRequestWith(euxCaseId, newParticipants, sed = P2000, P_BUC_01)
         val dummyPrefillData = ApiRequest.buildPrefillDataModelOnExisting(apirequest, fnr )
 
-        every { personService.hentIdent(eq(IdentType.NorskIdent), any<AktoerId>())  } returns NorskIdent("12345")
+        every { personService.hentIdent(eq(IdentGruppe.FOLKEREGISTERIDENT), any<AktoerId>())  } returns NorskIdent("12345")
         every { mockEuxInnhentingService.getBuc(euxCaseId) } returns mockBuc
         every { prefillKlient.hentPreutfyltSed(any()) } returns SED(type = dummyPrefillData.sedType).toJson()
         every { mockEuxKlient.putBucMottakere(any(), any())  } returns true
@@ -312,7 +312,7 @@ internal class PrefillControllerTest {
         verify(exactly = 1 ) { mockEuxPrefillService.opprettJsonSedOnBuc(any(), any(), euxCaseId, dummyPrefillData.vedtakId) }
         verify(exactly = 1 ) { prefillKlient.hentPreutfyltSed(any()) }
         verify(exactly = 1 ) { mockEuxKlient.putBucMottakere(any(), any()) }
-        verify(exactly = 1 ) { personService.hentIdent(any<IdentType.NorskIdent>(), any<AktoerId>())}
+        verify(exactly = 1 ) { personService.hentIdent(any(), any<AktoerId>())}
     }
 
     @Test
@@ -333,7 +333,7 @@ internal class PrefillControllerTest {
         val apirequest = apiRequestWith(euxCaseId, newParticipants, sed = P2000, P_BUC_01)
         val dummyPrefillData = ApiRequest.buildPrefillDataModelOnExisting(apirequest, fnr )
 
-        every { personService.hentIdent(eq(IdentType.NorskIdent), any<AktoerId>())  } returns NorskIdent("12345")
+        every { personService.hentIdent(eq(IdentGruppe.FOLKEREGISTERIDENT), any<AktoerId>())  } returns NorskIdent("12345")
         every { mockEuxInnhentingService.getBuc(any()) } returns mockBuc andThen mockDocBuc
         every { prefillKlient.hentPreutfyltSed(any()) } returns SED(type = dummyPrefillData.sedType).toJson()
         every { mockEuxKlient.putBucMottakere(any(), any())  } returns true
@@ -350,7 +350,7 @@ internal class PrefillControllerTest {
 *//*
         verify(exactly = 1 ) { mockEuxKlient.putBucMottakere(any(), any(),  any()) }
 *//*
-        verify(exactly = 1 ) { personService.hentIdent(any<IdentType.NorskIdent>(), any<AktoerId>())}*/
+        verify(exactly = 1 ) { personService.hentIdent(any<IdentGruppe.FOLKEREGISTERIDENT>(), any<AktoerId>())}*/
 
         assertEquals("5a61468eb8cb4fd78c5c44d75b9bb890", responseresult?.id)
         assertEquals(P2000, responseresult?.type)
@@ -372,7 +372,7 @@ internal class PrefillControllerTest {
 
         println(dummyPrefillData)
 
-        every { personService.hentIdent(eq(IdentType.NorskIdent), any<AktoerId>())  } returns NorskIdent("12345")
+        every { personService.hentIdent(eq(IdentGruppe.FOLKEREGISTERIDENT), any<AktoerId>())  } returns NorskIdent("12345")
         every { mockEuxInnhentingService.getBuc(euxCaseId) } returns mockBuc
         every { prefillKlient.hentPreutfyltSed(any()) } returns SED(type = dummyPrefillData.sedType).toJson()
         every { mockEuxPrefillService.opprettJsonSedOnBuc(any(), any(),eq(euxCaseId), dummyPrefillData.vedtakId) } returns BucSedResponse(euxCaseId, "3123123")
@@ -382,7 +382,7 @@ internal class PrefillControllerTest {
         verify( exactly = noNewParticipants.size + 1) { mockEuxPrefillService.opprettJsonSedOnBuc(any(), any(), euxCaseId, dummyPrefillData.vedtakId) }
         verify(exactly = 1 ) { mockEuxInnhentingService.getBuc(any()) }
         verify(exactly = 1 ) { prefillKlient.hentPreutfyltSed(any()) }
-        verify(exactly = 1 ) { personService.hentIdent(any<IdentType.NorskIdent>(), any<AktoerId>())}
+        verify(exactly = 1 ) { personService.hentIdent(any(), any<AktoerId>())}
 
     }
 
@@ -404,7 +404,7 @@ internal class PrefillControllerTest {
         val api = apiRequestWith(euxCaseId, sed = P9000, institutions = emptyList())
         val sed = SED(P9000)
 
-        every { personService.hentIdent(eq(IdentType.NorskIdent), any<AktoerId>()) } returns NorskIdent("12345")
+        every { personService.hentIdent(eq(IdentGruppe.FOLKEREGISTERIDENT), any<AktoerId>()) } returns NorskIdent("12345")
         every { mockEuxInnhentingService.getBuc(euxCaseId) } returns mockBuc
         every { prefillKlient.hentPreutfyltSed(any()) } returns sed.toJsonSkipEmpty()
         every { mockEuxPrefillService.opprettSvarJsonSedOnBuc(any(), euxCaseId, parentDocumentId, api.vedtakId, P9000) } returns BucSedResponse(euxCaseId, "3123123")
@@ -442,7 +442,7 @@ internal class PrefillControllerTest {
 
         verify(exactly = 2) { mockEuxInnhentingService.getBuc(any()) }
         verify(exactly = 1) { mockEuxPrefillService.opprettSvarJsonSedOnBuc(any(), any(), any(), any(), any()) }
-        verify(exactly = 1) { personService.hentIdent(any<IdentType.NorskIdent>(), any<AktoerId>()) }
+        verify(exactly = 1) { personService.hentIdent(any(), any<AktoerId>()) }
         verify(exactly = 1) { prefillKlient.hentPreutfyltSed(any()) }
 
     }
@@ -454,7 +454,7 @@ internal class PrefillControllerTest {
         val lastupdate = LocalDate.of(2020, Month.AUGUST, 7).toString()
 
 
-        every { personService.hentIdent(IdentType.NorskIdent, any<AktoerId>()) } returns NorskIdent("12345")
+        every { personService.hentIdent(IdentGruppe.FOLKEREGISTERIDENT, any<AktoerId>()) } returns NorskIdent("12345")
 
         val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = listOf(Participant()), processDefinitionVersion = "4.2")
         mockBuc.documents = listOf(
@@ -474,7 +474,7 @@ internal class PrefillControllerTest {
     fun `call addInstutionAndDocument valider om SED alt finnes i BUC kaster Exception`() {
         val euxCaseId = "1234567890"
 
-        every { personService.hentIdent(eq(IdentType.NorskIdent), any<AktoerId>()) } returns NorskIdent("12345")
+        every { personService.hentIdent(eq(IdentGruppe.FOLKEREGISTERIDENT), any<AktoerId>()) } returns NorskIdent("12345")
         val mockBucJson = javaClass.getResource("/json/buc/buc-P_BUC_06-P6000_Sendt.json")!!.readText()
         every { mockEuxInnhentingService.getBuc(euxCaseId) } returns mapJsonToAny(mockBucJson)
         val apiRequest = apiRequestWith(euxCaseId, emptyList())
@@ -489,7 +489,7 @@ internal class PrefillControllerTest {
     fun `Gitt det opprettes en SED P10000 på tom P_BUC_06 Så skal bucmodel hents på nyt og shortDocument returneres som response`() {
         val euxCaseId = "1234567890"
 
-        every { personService.hentIdent(eq(IdentType.NorskIdent), any<AktoerId>()) } returns NorskIdent("12345")
+        every { personService.hentIdent(eq(IdentGruppe.FOLKEREGISTERIDENT), any<AktoerId>()) } returns NorskIdent("12345")
         every { prefillKlient.hentPreutfyltSed(any()) } returns SED(SedType.P10000).toJson()
 
         val mockBucJson = javaClass.getResource("/json/buc/buc_P_BUC_06_4.2_tom.json")!!.readText()
@@ -517,7 +517,7 @@ internal class PrefillControllerTest {
     fun `call addInstutionAndDocument  to nye deltakere, men ingen X005`() {
         val euxCaseId = "1234567890"
 
-        every{ personService.hentIdent(eq(IdentType.NorskIdent), any<AktoerId>()) } returns NorskIdent("12345")
+        every{ personService.hentIdent(eq(IdentGruppe.FOLKEREGISTERIDENT), any<AktoerId>()) } returns NorskIdent("12345")
 
         val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = listOf(Participant()))
         mockBuc.documents = listOf(createDummyBucDocumentItem())
@@ -547,7 +547,7 @@ internal class PrefillControllerTest {
     fun `call addInstutionAndDocument  Exception eller feiler ved oppretting av SED naar X005 ikke finnes`() {
         val euxCaseId = "1234567890"
 
-        every{ personService.hentIdent(eq(IdentType.NorskIdent), any<AktoerId>()) } returns NorskIdent("12345")
+        every{ personService.hentIdent(eq(IdentGruppe.FOLKEREGISTERIDENT), any<AktoerId>()) } returns NorskIdent("12345")
 
         val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = listOf(Participant()))
         mockBuc.documents = listOf(createDummyBucDocumentItem(), DocumentsItem(direction = "OUT"))

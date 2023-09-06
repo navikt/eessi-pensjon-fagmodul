@@ -6,9 +6,7 @@ import no.nav.eessi.pensjon.eux.model.BucType.*
 import no.nav.eessi.pensjon.fagmodul.prefill.klient.PrefillKlient
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
-import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
-import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentType
-import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
+import no.nav.eessi.pensjon.personoppslag.pdl.model.*
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonService
 import no.nav.eessi.pensjon.shared.api.ApiRequest
 import no.nav.eessi.pensjon.shared.person.Fodselsnummer
@@ -44,13 +42,32 @@ class InnhentingService(
         )
     }
 
-    private fun hentFnrfraAktoerIdfraPDL(aktoerid: String?): String {
+    private fun hentFnrfraAktoerIdfraPDL(aktoerid: String?): String? {
         if (aktoerid.isNullOrBlank()) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Fant ingen aktoerident")
         }
-        return personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerid)).id
+        return personService.hentIdent(IdentGruppe.FOLKEREGISTERIDENT, AktoerId(aktoerid))?.id
     }
 
+
+    //TODO hentFnrEllerNpidForAktoerIdfraPDL burde ikke tillate null eller tom AktoerId
+    private fun hentFnrEllerNpidForAktoerIdfraPDL(aktoerid: String): Ident? {
+//        if (aktoerid.isNullOrBlank()) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Fant ingen aktoerident")
+
+        val fnr = personService.hentIdent(IdentGruppe.FOLKEREGISTERIDENT, AktoerId(aktoerid))
+        if(fnr?.id?.isNotEmpty() == true){
+            return fnr
+        }
+        val npid = personService.hentIdent(IdentGruppe.NPID, AktoerId(aktoerid))
+        if(npid?.id?.isNotEmpty() == true){
+            return npid
+        }
+        return null
+    }
+
+    //        if (npid != null) return npid
+    //Sjekker om feil skyldes av vi ikke fant FNR
+    //Returnerer NPID om vi finner det
 
     //Hjelpe funksjon for å validere og hente aktoerid for evt. avdodfnr fra UI (P2100) - PDL
     fun getAvdodId(bucType: BucType, avdodIdent: String?): String? {
@@ -63,8 +80,9 @@ class InnhentingService(
                 if (avdodIdent.isBlank()) {
                     throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ident har tom input-verdi")
                 }
-                personService.hentIdent(IdentType.AktoerId, NorskIdent(avdodIdent)).id
+                personService.hentIdent(IdentGruppe.AKTORID, NorskIdent(avdodIdent))?.id
             }
+
             P_BUC_05, P_BUC_06, P_BUC_10 -> {
                 if (avdodIdent == null) {
                     return null
@@ -75,24 +93,28 @@ class InnhentingService(
 
                 val gyldigNorskIdent = Fodselsnummer.fra(avdodIdent)
                 return try {
-                    personService.hentIdent(IdentType.AktoerId, NorskIdent(avdodIdent)).id
+                    personService.hentIdent(IdentGruppe.AKTORID, NorskIdent(avdodIdent))?.id
                 } catch (ex: Exception) {
                     if (gyldigNorskIdent == null) logger.error("NorskIdent er ikke gyldig")
                     throw ResponseStatusException(HttpStatus.NOT_FOUND, "Korrekt aktoerIdent ikke funnet")
                 }
             }
+
             else -> null
         }
     }
 
-    fun hentFnrfraAktoerService(aktoerid: String?): String = hentFnrfraAktoerIdfraPDL(aktoerid)
+    fun hentFnrfraAktoerService(aktoerid: String?): Ident? = aktoerid?.let { hentFnrEllerNpidForAktoerIdfraPDL(it) }
+    fun hentFnrEllerNpidfraAktoerService(aktoerId: Ident): Ident = hentFnrEllerNpidForAktoerIdfraPDL(aktoerId.id) as Ident
 
-    fun hentRinaSakIderFraJoarksMetadata(aktoerid: String): List<String> = vedleggService.hentRinaSakIderFraMetaData(aktoerid)
+    fun hentRinaSakIderFraJoarksMetadata(aktoerid: String): List<String> =
+        vedleggService.hentRinaSakIderFraMetaData(aktoerid)
 
     fun hentPreutyltSed(apiRequest: ApiRequest): String = prefillKlient.hentPreutfyltSed(apiRequest)
 
     fun hentPensjoninformasjonVedtak(vedtakId: String) = pensjonsinformasjonService.hentVedtak(vedtakId)
 
-    fun hentAvdodeFnrfraPensjoninformasjon(pensjoninformasjon: Pensjonsinformasjon): List<String>? = pensjonsinformasjonService.hentGyldigAvdod(pensjoninformasjon)
+    fun hentAvdodeFnrfraPensjoninformasjon(pensjoninformasjon: Pensjonsinformasjon): List<String>? =
+        pensjonsinformasjonService.hentGyldigAvdod(pensjoninformasjon)
 
 }
