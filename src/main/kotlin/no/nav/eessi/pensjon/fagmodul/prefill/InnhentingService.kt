@@ -63,7 +63,7 @@ class InnhentingService(
         return null
     }
 
-    //Hjelpe funksjon for å validere og hente aktoerid for evt. avdodfnr fra UI (P2100) - PDL
+  //Hjelpe funksjon for å validere og hente aktoerid for evt. avdodfnr fra UI (P2100) - PDL
     fun getAvdodId(bucType: BucType, avdodIdent: String?): String? {
         return when (bucType) {
             P_BUC_02 -> {
