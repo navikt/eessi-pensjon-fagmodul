@@ -52,15 +52,15 @@ class InnhentingService(
 
     //TODO hentFnrEllerNpidForAktoerIdfraPDL burde ikke tillate null eller tom AktoerId
     private fun hentFnrEllerNpidForAktoerIdfraPDL(aktoerid: String): Ident? {
-//        if (aktoerid.isNullOrBlank()) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Fant ingen aktoerident")
+        if (aktoerid.isBlank()) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Fant ingen aktoerident")
 
         val fnr = personService.hentIdent(IdentGruppe.FOLKEREGISTERIDENT, AktoerId(aktoerid))
         if(fnr?.id?.isNotEmpty() == true){
-            return fnr
+            return fnr.also { logger.info("Returnerer FNR for aktoerId: $aktoerid") }
         }
         val npid = personService.hentIdent(IdentGruppe.NPID, AktoerId(aktoerid))
         if(npid?.id?.isNotEmpty() == true){
-            return npid
+            return npid.also { logger.info("Returnerer NPID for aktoerId: $aktoerid") }
         }
         return null
     }
