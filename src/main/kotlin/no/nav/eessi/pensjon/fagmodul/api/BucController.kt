@@ -178,7 +178,7 @@ class BucController(
 
             val view = brukerView + safView
 
-            //return med sort og distict (avdodFnr og caseid)
+            //return med sort og distict (avdodfmr og caseid)
             return@measure view.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
                 .also {
                     logger.info("Total view size: ${it.size}")
