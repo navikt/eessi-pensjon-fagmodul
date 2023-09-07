@@ -52,22 +52,16 @@ class InnhentingService(
 
     //TODO hentFnrEllerNpidForAktoerIdfraPDL burde ikke tillate null eller tom AktoerId
     private fun hentFnrEllerNpidForAktoerIdfraPDL(aktoerid: String): Ident? {
-//        if (aktoerid.isNullOrBlank()) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Fant ingen aktoerident")
-
         val fnr = personService.hentIdent(IdentGruppe.FOLKEREGISTERIDENT, AktoerId(aktoerid))
-        if(fnr?.id?.isNotEmpty() == true){
-            return fnr
+        if(fnr?.id?.isNotEmpty() == true) {
+            return fnr.also { logger.info("Returnerer FNR for aktoerId: $aktoerid") }
         }
         val npid = personService.hentIdent(IdentGruppe.NPID, AktoerId(aktoerid))
-        if(npid?.id?.isNotEmpty() == true){
-            return npid
+        if(npid?.id?.isNotEmpty() == true) {
+            return npid.also { logger.info("Returnerer NPID for aktoerId: $aktoerid") }
         }
         return null
     }
-
-    //        if (npid != null) return npid
-    //Sjekker om feil skyldes av vi ikke fant FNR
-    //Returnerer NPID om vi finner det
 
     //Hjelpe funksjon for å validere og hente aktoerid for evt. avdodfnr fra UI (P2100) - PDL
     fun getAvdodId(bucType: BucType, avdodIdent: String?): String? {
