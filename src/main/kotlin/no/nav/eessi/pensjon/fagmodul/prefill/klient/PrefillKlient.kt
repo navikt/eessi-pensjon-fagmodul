@@ -1,22 +1,18 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.klient
 
+import jakarta.annotation.PostConstruct
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.shared.api.ApiRequest
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
-import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
+import org.springframework.http.*
 import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.server.ResponseStatusException
-import jakarta.annotation.PostConstruct
 
 /**
  * @param metricsHelper Usually injected by Spring Boot, can be set manually in tests - no way to read metrics if not set.
@@ -36,6 +32,7 @@ class PrefillKlient(private val prefillOAuthTemplate: RestTemplate,
 
     fun hentPreutfyltSed(request: ApiRequest): String {
         val path = "/sed/prefill"
+            logger.info("Request til preutfylling: $request")
 
         return try {
             logger.info("Henter preutfylt SED")
