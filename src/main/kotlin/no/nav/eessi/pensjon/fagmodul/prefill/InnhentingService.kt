@@ -65,10 +65,6 @@ class InnhentingService(
         return null
     }
 
-    //        if (npid != null) return npid
-    //Sjekker om feil skyldes av vi ikke fant FNR
-    //Returnerer NPID om vi finner det
-
     //Hjelpe funksjon for å validere og hente aktoerid for evt. avdodfnr fra UI (P2100) - PDL
     fun getAvdodId(bucType: BucType, avdodIdent: String?): String? {
         return when (bucType) {

@@ -79,7 +79,7 @@
                      logger.info("ALL SED on existing Rina SED: ${request.sed} -> euxCaseId: ${request.euxCaseId} -> sakNr: ${request.sakId} ")
                      PrefillDataModel(
                          penSaksnummer = request.sakId,
-                         bruker = PersonId(fodselsnr, request.aktoerId),
+                         bruker = PersonId(fodselsnr, request.aktoerId).also { logger.debug("FNR eller NPID: ${it.norskIdent}") },
                          avdod = populerAvdodHvisGjenlevendePensjonSak(request, avdodaktoerID),
                          sedType = sedType,
                          buc = request.buc,
