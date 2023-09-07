@@ -32,7 +32,7 @@ class PrefillKlient(private val prefillOAuthTemplate: RestTemplate,
 
     fun hentPreutfyltSed(request: ApiRequest): String {
         val path = "/sed/prefill"
-            logger.info("Request til preutfylling: $request")
+            logger.debug("Request til preutfylling: $request")
 
         return try {
             logger.info("Henter preutfylt SED")
