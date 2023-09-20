@@ -5,8 +5,7 @@ import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
-import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
-import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
+import no.nav.eessi.pensjon.eux.model.BucType.*
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.ActionOperation
 import no.nav.eessi.pensjon.eux.model.buc.ActionsItem
@@ -17,9 +16,7 @@ import no.nav.eessi.pensjon.eux.model.sed.Nav
 import no.nav.eessi.pensjon.eux.model.sed.P2100
 import no.nav.eessi.pensjon.eux.model.sed.P5000
 import no.nav.eessi.pensjon.eux.model.sed.PinItem
-import no.nav.eessi.pensjon.fagmodul.eux.EuxErrorHandler
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
-import no.nav.eessi.pensjon.integrationtest.buc.BucControllerTest
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
@@ -31,7 +28,6 @@ import no.nav.eessi.pensjon.personoppslag.pdl.model.Endringstype
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Familierelasjonsrolle
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Folkeregistermetadata
 import no.nav.eessi.pensjon.personoppslag.pdl.model.ForelderBarnRelasjon
-import no.nav.eessi.pensjon.personoppslag.pdl.model.Ident
 import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentGruppe
 import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentInformasjon
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Kjoenn
@@ -42,21 +38,21 @@ import no.nav.eessi.pensjon.personoppslag.pdl.model.Person
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Sivilstand
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Sivilstandstype
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Statsborgerskap
+import no.nav.eessi.pensjon.personoppslag.pdl.model.*
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonService
 import no.nav.eessi.pensjon.shared.person.FodselsnummerGenerator
-import no.nav.eessi.pensjon.shared.retry.IOExceptionRetryInterceptor
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.pensjon.v1.avdod.V1Avdod
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
 import no.nav.pensjon.v1.person.V1Person
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.context.TestConfiguration
-import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.http.MediaType
@@ -65,7 +61,6 @@ import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import org.springframework.web.client.RestTemplate
 import java.time.LocalDate
 import java.time.LocalDateTime
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Metadata as PDLMetaData
@@ -87,6 +82,9 @@ class PersonPDLControllerTest {
 
     @MockkBean
     lateinit var euxService: EuxInnhentingService
+
+    @Autowired
+    lateinit var pensjonsinformasjonService: PensjonsinformasjonService
 
     @Autowired
     lateinit var mockPensjonClient: PensjonsinformasjonClient
@@ -118,7 +116,11 @@ class PersonPDLControllerTest {
 
     @Test
     fun `getPerson should return Person as json`() {
-        every { pdlService.hentPerson(any()) } returns lagPerson(etternavn = "NORDMANN", fornavn = "OLA")
+        every { pdlService.hentPerson(any()) } returns lagPerson(
+            fornavn = "OLA",
+            etternavn = "NORDMANN",
+            doedsfall = null
+        )
         val response = mvc.perform(
             get("/person/pdl/$AKTOERID")
                 .accept(MediaType.APPLICATION_JSON)
@@ -129,8 +131,83 @@ class PersonPDLControllerTest {
     }
 
     @Test
+    fun `hent doedsdato fra PDL for npid`() {
+        val personPdlController = PersonPDLController(pdlService, mockk(), pensjonsinformasjonService, euxService)
+
+        val npid = "01220049651"
+        val euxCaseId = "12345"
+        val vedtaksId = "321"
+
+        val mockPensjoninfo = Pensjonsinformasjon()
+        mockPensjoninfo.avdod = V1Avdod()
+        mockPensjoninfo.person = V1Person()
+        mockPensjoninfo.avdod.avdodMor = npid
+        mockPensjoninfo.person.aktorId = AKTOERID
+
+        val avdodMor = lagPerson(
+            npid,
+            "Fru",
+            "NPID",
+            sivilstand = listOf(Sivilstand(Sivilstandstype.GIFT, LocalDate.of(2000, 10, 2),
+                FNR,
+                mockMeta()
+            )),
+            doedsfall = Doedsfall(
+                doedsdato = LocalDate.of(1970, 1, 1),
+                folkeregistermetadata = mockk(),
+                metadata = mockk()            )
+        )
+
+        every { mockPensjonClient.hentAltPaaVedtak(eq(vedtaksId)) } returns mockPensjoninfo
+        every { pdlService.hentPerson(eq(Npid(npid))) } returns avdodMor
+        every { euxService.getBuc(euxCaseId) } returns Buc(processDefinitionName = P_BUC_02.name)
+
+        val result = personPdlController.getAvdodDateFromVedtakOrSed(vedtaksId, euxCaseId)
+        assertTrue(result.contains("1970-01-01"))
+    }
+
+    @Test
+    fun `hent doedsdato fra PDL Norskident fnr`() {
+        val personPdlController = PersonPDLController(pdlService, mockk(), pensjonsinformasjonService, euxService)
+
+        val euxCaseId = "12345"
+        val vedtaksId = "321"
+
+        val mockPensjoninfo = Pensjonsinformasjon()
+        mockPensjoninfo.avdod = V1Avdod()
+        mockPensjoninfo.person = V1Person()
+        mockPensjoninfo.avdod.avdodMor = FNR
+        mockPensjoninfo.person.aktorId = AKTOERID
+
+        val avdodMor = lagPerson(
+            FNR,
+            "Fru",
+            "NPID",
+            sivilstand = listOf(Sivilstand(Sivilstandstype.GIFT, LocalDate.of(2000, 10, 2),
+                FNR,
+                mockMeta()
+            )),
+            doedsfall = Doedsfall(
+                doedsdato = LocalDate.of(1970, 1, 1),
+                folkeregistermetadata = mockk(),
+                metadata = mockk()            )
+        )
+
+        every { mockPensjonClient.hentAltPaaVedtak(eq(vedtaksId)) } returns mockPensjoninfo
+        every { pdlService.hentPerson(eq(NorskIdent(FNR))) } returns avdodMor
+        every { euxService.getBuc(euxCaseId) } returns Buc(processDefinitionName = P_BUC_02.name)
+
+        val result = personPdlController.getAvdodDateFromVedtakOrSed(vedtaksId, euxCaseId)
+        assertTrue(result.contains("1970-01-01"))
+    }
+
+    @Test
     fun `getNameOnly should return names as json`() {
-        every {pdlService.hentPerson(any())  } returns lagPerson(etternavn = "NORDMANN", fornavn = "OLA")
+        every {pdlService.hentPerson(any())  } returns lagPerson(
+            fornavn = "OLA",
+            etternavn = "NORDMANN",
+            doedsfall = null
+        )
         val response = mvc.perform(
             get("/person/pdl/info/${AKTOERID}")
                 .accept(MediaType.APPLICATION_JSON)
@@ -169,12 +246,14 @@ class PersonPDLControllerTest {
         val avdodMor = lagPerson(
             avdodMorfnr, "Fru", "Blyant",
             listOf(ForelderBarnRelasjon(fnrGjenlevende, Familierelasjonsrolle.BARN, Familierelasjonsrolle.MOR, mockMeta())),
-            listOf(Sivilstand(Sivilstandstype.GIFT, LocalDate.of(2000, 10, 2), avdodFarfnr, mockMeta()))
+            listOf(Sivilstand(Sivilstandstype.GIFT, LocalDate.of(2000, 10, 2), avdodFarfnr, mockMeta())),
+            null
         )
         val avdodFar = lagPerson(
             avdodFarfnr, "Hr", "Blyant",
             listOf(ForelderBarnRelasjon(fnrGjenlevende, Familierelasjonsrolle.BARN, Familierelasjonsrolle.FAR, mockMeta())),
-            listOf(Sivilstand(Sivilstandstype.GIFT, LocalDate.of(2000, 10, 2), avdodMorfnr, mockMeta()))
+            listOf(Sivilstand(Sivilstandstype.GIFT, LocalDate.of(2000, 10, 2), avdodMorfnr, mockMeta())),
+            null
         )
 
         val barn = lagPerson(
@@ -182,7 +261,8 @@ class PersonPDLControllerTest {
             listOf(
                 ForelderBarnRelasjon(avdodFarfnr, Familierelasjonsrolle.FAR, Familierelasjonsrolle.BARN, mockMeta()),
                 ForelderBarnRelasjon(avdodMorfnr, Familierelasjonsrolle.MOR, Familierelasjonsrolle.BARN, mockMeta())
-            )
+            ),
+            doedsfall = null
         )
         every { mockPensjonClient.hentAltPaaVedtak(vedtaksId) } returns mockPensjoninfo
         every { pdlService.hentPerson(NorskIdent(avdodMorfnr)) } returns avdodMor
@@ -218,10 +298,16 @@ class PersonPDLControllerTest {
         mockPensjoninfo.avdod.avdodMor = avdodMorfnr
         mockPensjoninfo.person.aktorId = aktoerId
 
-        val avdodmor = lagPerson(avdodMorfnr, "Stor", "Blyant",
-            listOf(ForelderBarnRelasjon(fnrGjenlevende, Familierelasjonsrolle.BARN, Familierelasjonsrolle.MOR, mockMeta())))
-        val barn = lagPerson(fnrGjenlevende, "Liten", "Blyant",
-            listOf(ForelderBarnRelasjon(avdodMorfnr, Familierelasjonsrolle.MOR, Familierelasjonsrolle.BARN, mockMeta())))
+        val avdodmor = lagPerson(
+            avdodMorfnr, "Stor", "Blyant",
+            listOf(ForelderBarnRelasjon(fnrGjenlevende, Familierelasjonsrolle.BARN, Familierelasjonsrolle.MOR, mockMeta())),
+            doedsfall = null
+        )
+        val barn = lagPerson(
+            fnrGjenlevende, "Liten", "Blyant",
+            listOf(ForelderBarnRelasjon(avdodMorfnr, Familierelasjonsrolle.MOR, Familierelasjonsrolle.BARN, mockMeta())),
+            doedsfall = null
+        )
 
         every {  mockPensjonClient.hentAltPaaVedtak(vedtaksId)} returns mockPensjoninfo
         every { pdlService.hentPerson(NorskIdent(avdodMorfnr)) } returns avdodmor
@@ -254,10 +340,16 @@ class PersonPDLControllerTest {
         mockPensjoninfo.avdod.avdodMor = avdodMorfnr
         mockPensjoninfo.person.aktorId = aktoerId
 
-        val avdodmor = lagPerson(avdodMorfnr, "Stor", "Blyant",
-            listOf(ForelderBarnRelasjon(npidGjenlevende, Familierelasjonsrolle.BARN, Familierelasjonsrolle.MOR, mockMeta())))
-        val barn = lagPerson(npidGjenlevende, "Liten", "Blyant",
-            listOf(ForelderBarnRelasjon(avdodMorfnr, Familierelasjonsrolle.MOR, Familierelasjonsrolle.BARN, mockMeta())))
+        val avdodmor = lagPerson(
+            avdodMorfnr, "Stor", "Blyant",
+            listOf(ForelderBarnRelasjon(npidGjenlevende, Familierelasjonsrolle.BARN, Familierelasjonsrolle.MOR, mockMeta())),
+            doedsfall = null
+        )
+        val barn = lagPerson(
+            npidGjenlevende, "Liten", "Blyant",
+            listOf(ForelderBarnRelasjon(avdodMorfnr, Familierelasjonsrolle.MOR, Familierelasjonsrolle.BARN, mockMeta())),
+            doedsfall = null
+        )
 
         every {  mockPensjonClient.hentAltPaaVedtak(vedtaksId)} returns mockPensjoninfo
         every { pdlService.hentPerson(NorskIdent(avdodMorfnr)) } returns avdodmor
@@ -290,8 +382,11 @@ class PersonPDLControllerTest {
 
         every {mockPensjonClient.hentAltPaaVedtak(vedtaksId)  } returns mockPensjoninfo
 
-        val barn = lagPerson(fnrGjenlevende, "Liten", "Blyant",
-            listOf(ForelderBarnRelasjon("231231231231", Familierelasjonsrolle.MOR, Familierelasjonsrolle.BARN, mockMeta())))
+        val barn = lagPerson(
+            fnrGjenlevende, "Liten", "Blyant",
+            listOf(ForelderBarnRelasjon("231231231231", Familierelasjonsrolle.MOR, Familierelasjonsrolle.BARN, mockMeta())),
+            doedsfall = null
+        )
 
         every { pdlService.hentPerson(any()) } returns barn
 
@@ -332,7 +427,7 @@ class PersonPDLControllerTest {
         val rinanr = "1002342345689"
         val avdodfnr = "18077443335"
 
-        val doedsPerson = lagPerson(avdodfnr).copy(doedsfall = Doedsfall(LocalDate.of(2020, 6, 20), null, mockMeta()))
+        val doedsPerson = lagPerson(avdodfnr, doedsfall = null).copy(doedsfall = Doedsfall(LocalDate.of(2020, 6, 20), null, mockMeta()))
 
 
         val pen = Pensjonsinformasjon()
@@ -368,7 +463,7 @@ class PersonPDLControllerTest {
         val avdodfnr2 = FodselsnummerGenerator.generateFnrForTest(49)
         val documentid = "23242342a234vd423452asddf"
 
-        val doedsPerson = lagPerson(avdodfnr).copy(doedsfall = Doedsfall(LocalDate.of(2020, 6, 20), null, mockMeta()))
+        val doedsPerson = lagPerson(avdodfnr, doedsfall = null).copy(doedsfall = Doedsfall(LocalDate.of(2020, 6, 20), null, mockMeta()))
         val sedP2100 = P2100(nav = Nav(bruker = Bruker(person = no.nav.eessi.pensjon.eux.model.sed.Person(pin = listOf(PinItem(land = "NO", identifikator = avdodfnr))))), pensjon = null)
         val buc = Buc(id = rinanr, processDefinitionName = "P_BUC_02", documents = listOf(DocumentsItem(id = documentid, direction = "OUT", type = SedType.P2100)))
 
@@ -408,7 +503,7 @@ class PersonPDLControllerTest {
         val avdodfnr2 = FodselsnummerGenerator.generateFnrForTest(49)
         val documentid = "23242342a234vd423452asddf"
 
-        val doedsPerson = lagPerson(avdodfnr).copy(doedsfall = Doedsfall(LocalDate.of(2010, 6, 20), null, mockMeta()))
+        val doedsPerson = lagPerson(avdodfnr, doedsfall = null).copy(doedsfall = Doedsfall(LocalDate.of(2010, 6, 20), null, mockMeta()))
         val sedP2100 = P2100(nav = Nav(bruker = Bruker(person = no.nav.eessi.pensjon.eux.model.sed.Person(pin = listOf(PinItem(land = "NO", identifikator = "18077443335"))))), pensjon = null)
         val buc = Buc(id = rinanr, processDefinitionName = "P_BUC_02", documents = listOf(DocumentsItem(id = documentid, direction = "OUT", type = SedType.P2100)))
 
@@ -442,7 +537,7 @@ class PersonPDLControllerTest {
         val avdodfnr2 = FodselsnummerGenerator.generateFnrForTest(49)
         val documentid = "23242342a234vd423452asddf"
 
-        val doedsPerson = lagPerson(avdodfnr, fornavn = "AVDØD", etternavn = "HELTAVØD").copy(doedsfall = Doedsfall(LocalDate.of(2007, 6, 20), null, mockMeta()))
+        val doedsPerson = lagPerson(avdodfnr, fornavn = "AVDØD", etternavn = "HELTAVØD", doedsfall = null).copy(doedsfall = Doedsfall(LocalDate.of(2007, 6, 20), null, mockMeta()))
         val sedP5000 = P5000(nav = Nav(bruker = Bruker(person = no.nav.eessi.pensjon.eux.model.sed.Person(pin = listOf(PinItem(land = "NO", identifikator = avdodfnr))))), p5000Pensjon = null)
         val buc = Buc(id = rinanr, processDefinitionName = "P_BUC_06",
             actions = listOf(
@@ -588,11 +683,12 @@ class PersonPDLControllerTest {
     }
 
     private fun lagPerson(
-        fnr: String = FNR ,
+        fnr: String = FNR,
         fornavn: String = "Fornavn",
         etternavn: String = "Etternavn",
         familierlasjon: List<ForelderBarnRelasjon> = emptyList(),
-        sivilstand: List<Sivilstand> = emptyList()
+        sivilstand: List<Sivilstand> = emptyList(),
+        doedsfall: Doedsfall? = null
     ) = Person(
         listOf(IdentInformasjon(fnr, IdentGruppe.FOLKEREGISTERIDENT)),
         Navn(fornavn, null,  etternavn, null, null, null, mockMeta()),
@@ -614,7 +710,7 @@ class PersonPDLControllerTest {
             Folkeregistermetadata(LocalDateTime.of(2000, 10, 1, 12, 10, 31)),
             mockMeta()
         ),
-        null,
+        doedsfall,
         familierlasjon,
         sivilstand,
         null,
