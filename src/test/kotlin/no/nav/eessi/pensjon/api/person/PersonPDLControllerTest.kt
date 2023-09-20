@@ -241,6 +241,42 @@ class PersonPDLControllerTest {
 
     }
 
+    @Test
+    fun `getDeceased with npid should return a list of one parent given a remaining, living child`() {
+        val aktoerId = "1234568"
+        val vedtaksId = "22455454"
+        val npidGjenlevende = "01220049651"
+        val avdodMorfnr = "310233213123"
+
+        val mockPensjoninfo = Pensjonsinformasjon()
+        mockPensjoninfo.avdod = V1Avdod()
+        mockPensjoninfo.person = V1Person()
+        mockPensjoninfo.avdod.avdodMor = avdodMorfnr
+        mockPensjoninfo.person.aktorId = aktoerId
+
+        val avdodmor = lagPerson(avdodMorfnr, "Stor", "Blyant",
+            listOf(ForelderBarnRelasjon(npidGjenlevende, Familierelasjonsrolle.BARN, Familierelasjonsrolle.MOR, mockMeta())))
+        val barn = lagPerson(npidGjenlevende, "Liten", "Blyant",
+            listOf(ForelderBarnRelasjon(avdodMorfnr, Familierelasjonsrolle.MOR, Familierelasjonsrolle.BARN, mockMeta())))
+
+        every {  mockPensjonClient.hentAltPaaVedtak(vedtaksId)} returns mockPensjoninfo
+        every { pdlService.hentPerson(NorskIdent(avdodMorfnr)) } returns avdodmor
+        every { pdlService.hentPerson(AktoerId(aktoerId)) } returns barn
+
+        val response = mvc.perform(
+            get("/person/pdl/$aktoerId/avdode/vedtak/$vedtaksId")
+                .accept(MediaType.APPLICATION_JSON)
+        ).andReturn().response
+
+        val result = mapJsonToAny<List<PersonPDLController.PersoninformasjonAvdode?>>(response.contentAsString)
+
+        assertEquals(1, result.size)
+        val element = result.firstOrNull()
+        assertEquals  (avdodMorfnr, element?.fnr)
+        assertEquals (Familierelasjonsrolle.MOR.name, element?.relasjon)
+
+    }
+
 
     @Test
     fun `getDeceased should return an empty list when both partents are alive`() {
