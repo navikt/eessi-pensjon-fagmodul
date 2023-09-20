@@ -77,7 +77,6 @@ class InnhentingService(
                 return try {
                     personService.hentIdent(AKTORID, ident!!)?.id
                 } catch (ex: Exception) {
-                    if (fnrEllerNpid == null) logger.error("NorskIdent er ikke gyldig")
                     throw ResponseStatusException(HttpStatus.NOT_FOUND, "Korrekt aktoerIdent ikke funnet")
                 }
             }
