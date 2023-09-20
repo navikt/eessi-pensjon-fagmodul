@@ -7,7 +7,6 @@ import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
-import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonoppslagException
 import no.nav.eessi.pensjon.personoppslag.pdl.model.*
@@ -204,8 +203,9 @@ class PersonPDLController(
     }
 
     private fun hentDoedsdatoFraPDL(avdodIdent: String?): String {
-        if (avdodIdent == null || avdodIdent.isEmpty()) return emptyList<String>().toJson()
-        val avdodperson = pdlService.hentPerson(NorskIdent(avdodIdent))
+        val ident = if (avdodIdent!= null && Fodselsnummer.fra(avdodIdent)?.erNpid == true) Npid(avdodIdent) else avdodIdent?.let { NorskIdent(it) }
+        if (avdodIdent.isNullOrEmpty()) return emptyList<String>().toJson()
+        val avdodperson = pdlService.hentPerson(ident!!)
         val avdoddato = avdodperson?.doedsfall?.doedsdato
         //returner litt metadata
         val result = listOf(mapOf("doedsdato" to avdoddato?.toString(), "sammensattNavn" to avdodperson?.navn?.sammensattNavn, "ident" to avdodIdent)).toJson()
