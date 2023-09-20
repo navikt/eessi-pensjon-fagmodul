@@ -57,37 +57,33 @@ class InnhentingService(
 
     //Hjelpe funksjon for å validere og hente aktoerid for evt. avdodfnr fra UI (P2100) - PDL
     fun getAvdodId(bucType: BucType, avdodIdent: String?): String? {
+        if (avdodIdent?.isBlank() == true) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ident har tom input-verdi")
+
+        val fnrEllerNpid = Fodselsnummer.fra(avdodIdent)
+        val ident = if (fnrEllerNpid?.erNpid != true) avdodIdent?.let { NorskIdent(it) }
+        else avdodIdent?.let { Npid(it) }
+
         return when (bucType) {
             P_BUC_02 -> {
                 if (avdodIdent == null) {
                     logger.warn("Mangler fnr for avdød")
                     throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mangler fnr for avdød")
                 }
-                if (avdodIdent.isBlank()) {
-                    throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ident har tom input-verdi")
-                }
-                personService.hentIdent(AKTORID, NorskIdent(avdodIdent))?.id
+                personService.hentIdent(AKTORID, ident!!)?.id
             }
 
             P_BUC_05, P_BUC_06, P_BUC_10 -> {
-                if (avdodIdent == null) {
-                    return null
-                }
-                if (avdodIdent.isBlank()) {
-                    throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ident har tom input-verdi")
-                }
-
-                val gyldigNorskIdent = Fodselsnummer.fra(avdodIdent)
+                if (avdodIdent == null) return null
                 return try {
-                    personService.hentIdent(AKTORID, NorskIdent(avdodIdent))?.id
+                    personService.hentIdent(AKTORID, ident!!)?.id
                 } catch (ex: Exception) {
-                    if (gyldigNorskIdent == null) logger.error("NorskIdent er ikke gyldig")
+                    if (fnrEllerNpid == null) logger.error("NorskIdent er ikke gyldig")
                     throw ResponseStatusException(HttpStatus.NOT_FOUND, "Korrekt aktoerIdent ikke funnet")
                 }
             }
-
             else -> null
         }
+
     }
 
     fun hentFnrfraAktoerService(aktoerid: String?): Ident? = aktoerid?.let { hentFnrEllerNpidForAktoerIdfraPDL(it) }
