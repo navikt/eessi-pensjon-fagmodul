@@ -46,12 +46,6 @@ class PensjonsinformasjonService(private val pensjonsinformasjonClient: Pensjons
         }
     }
 
-/*    @Suppress("DEPRECATION")
-    fun hentAltPaaVedtak(vedtaksId: String): Pensjonsinformasjon {
-        return pensjonsinformasjonClient.hentAltPaaVedtak(vedtaksId).also {
-                logger.debug("gjenlevende : ${it.toJsonSkipEmpty()}")
-            }
-    }*/
     @Suppress("DEPRECATION")
     fun hentAltPaaAktoerId(ident: String): Pensjonsinformasjon {
         return pensjonsinformasjonClient.hentAltPaaAktoerId(ident)
