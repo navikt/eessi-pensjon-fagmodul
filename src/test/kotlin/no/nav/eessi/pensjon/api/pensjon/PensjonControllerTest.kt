@@ -11,6 +11,7 @@ import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonRequestBuilder
 import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.pensjonsinformasjon.models.Pensjontype
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonService
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.pensjon.v1.brukerssakerliste.V1BrukersSakerListe
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
@@ -45,7 +46,7 @@ class PensjonControllerTest {
     private var auditLogger: AuditLogger = AuditLogger()
 
     @InjectMockKs
-    private val controller = PensjonController(pensjonsinformasjonClient, auditLogger)
+    private val controller = PensjonController(PensjonsinformasjonService(pensjonsinformasjonClient), auditLogger)
 
     private val mockMvc = MockMvcBuilders.standaloneSetup(controller).build()
 
@@ -211,7 +212,7 @@ class PensjonControllerTest {
     fun uthentingAvUforeTidspunkt() {
         val mockVedtakid = "213123333"
         val mockClient = fraFil("VEDTAK-UT-MUTP.xml")
-        val mockController = PensjonController(mockClient, auditLogger)
+        val mockController = PensjonController(PensjonsinformasjonService(mockClient), auditLogger)
         mockController.initMetrics()
         val mockMvc2 = MockMvcBuilders.standaloneSetup(mockController).build()
 
@@ -234,7 +235,7 @@ class PensjonControllerTest {
     fun uthentingAvUforeTidspunktMedGMTZ() {
         val mockVedtakid = "213123333"
         val mockClient = fraFil("VEDTAK-UT-MUTP-GMTZ.xml")
-        val mockController = PensjonController(mockClient, auditLogger)
+        val mockController = PensjonController(PensjonsinformasjonService(mockClient), auditLogger)
         mockController.initMetrics()
         val mockMvc2 = MockMvcBuilders.standaloneSetup(mockController).build()
 
@@ -258,7 +259,7 @@ class PensjonControllerTest {
     fun uthentingAvUforeTidspunktSomErTom() {
         val mockVedtakid = "213123333"
         val mockClient = fraFil("VEDTAK-UT.xml")
-        val mockController = PensjonController(mockClient, auditLogger)
+        val mockController = PensjonController(PensjonsinformasjonService(mockClient), auditLogger)
         mockController.initMetrics()
         val mockMvc2 = MockMvcBuilders.standaloneSetup(mockController).build()
 
@@ -320,7 +321,7 @@ class PensjonControllerTest {
         val mockSakid = "21841174"
         val mockClient = fraFil("ALDERP-INV-21841174.xml")
 
-        val mockController = PensjonController(mockClient, auditLogger)
+        val mockController = PensjonController(PensjonsinformasjonService(mockClient), auditLogger)
         mockController.initMetrics()
         val mockMvc2 = MockMvcBuilders.standaloneSetup(mockController).build()
 
@@ -624,7 +625,7 @@ class PensjonControllerTest {
         val mockVedtakid = "213123333"
         val mockClient = fraFil("BARNEP-PlukkBestOpptjening.xml")
 
-        val mockController = PensjonController(mockClient, auditLogger)
+        val mockController = PensjonController(PensjonsinformasjonService(mockClient), auditLogger)
         mockController.initMetrics()
         val mockMvc2 = MockMvcBuilders.standaloneSetup(mockController).build()
 

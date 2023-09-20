@@ -39,7 +39,7 @@ const val PERSON_IKKE_FUNNET = "Person ikke funnet"
 class PersonPDLController(
     private val pdlService: PersonService,
     private val auditLogger: AuditLogger,
-    private val pensjonsinformasjonClient: PensjonsinformasjonClient,
+    private val pensjonsinformasjonService: PensjonsinformasjonService,
     private val euxInnhenting: EuxInnhentingService,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
@@ -79,8 +79,9 @@ class PersonPDLController(
 
         return personControllerHentPersonAvdod.measure {
 
-            val pensjonInfo = pensjonsinformasjonClient.hentAltPaaVedtak(vedtaksId)
-            logger.debug("pensjonInfo: ${pensjonInfo.toJsonSkipEmpty()}")
+            val pensjonInfo = pensjonsinformasjonService.hentAltPaaVedtak(vedtaksId).also {
+                logger.debug("pensjonInfo: ${it.toJsonSkipEmpty()}")
+            }
 
             if (pensjonInfo.avdod == null) {
                 logger.info("Ingen avdøde return empty list")
@@ -154,8 +155,8 @@ class PersonPDLController(
         @PathVariable(value = "vedtakid", required = true) vedtakid: String,
         @PathVariable(value = "rinanr", required = true) euxCaseId: String
     ): String {
-        val vedtak = pensjonsinformasjonClient.hentAltPaaVedtak(vedtakid)
-        val avdodlist = PensjonsinformasjonService(pensjonsinformasjonClient).hentGyldigAvdod(vedtak) ?: return emptyList<String>().toJson()
+        val vedtak = pensjonsinformasjonService.hentAltPaaVedtak(vedtakid)
+        val avdodlist = pensjonsinformasjonService.hentGyldigAvdod(vedtak) ?: return emptyList<String>().toJson()
 
         //hvis 2 avdøde..
         val avdodDato = if (avdodlist.size >= 2) {

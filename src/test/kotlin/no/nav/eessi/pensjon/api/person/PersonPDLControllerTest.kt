@@ -4,6 +4,9 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.justRun
+import io.mockk.mockk
+import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
+import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.ActionOperation
 import no.nav.eessi.pensjon.eux.model.buc.ActionsItem
@@ -14,7 +17,9 @@ import no.nav.eessi.pensjon.eux.model.sed.Nav
 import no.nav.eessi.pensjon.eux.model.sed.P2100
 import no.nav.eessi.pensjon.eux.model.sed.P5000
 import no.nav.eessi.pensjon.eux.model.sed.PinItem
+import no.nav.eessi.pensjon.fagmodul.eux.EuxErrorHandler
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
+import no.nav.eessi.pensjon.integrationtest.buc.BucControllerTest
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
@@ -37,7 +42,9 @@ import no.nav.eessi.pensjon.personoppslag.pdl.model.Person
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Sivilstand
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Sivilstandstype
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Statsborgerskap
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonService
 import no.nav.eessi.pensjon.shared.person.FodselsnummerGenerator
+import no.nav.eessi.pensjon.shared.retry.IOExceptionRetryInterceptor
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.pensjon.v1.avdod.V1Avdod
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
@@ -48,17 +55,23 @@ import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.boot.web.client.RestTemplateBuilder
+import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.web.client.RestTemplate
 import java.time.LocalDate
 import java.time.LocalDateTime
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Metadata as PDLMetaData
 
 @WebMvcTest(PersonPDLController::class)
+@ContextConfiguration(classes = [PersonPDLControllerTest.Config::class])
 @ComponentScan(basePackages = ["no.nav.eessi.pensjon.api.person"])
 @ActiveProfiles("unsecured-webmvctest")
 class PersonPDLControllerTest {
@@ -70,17 +83,30 @@ class PersonPDLControllerTest {
     lateinit var auditLogger: AuditLogger
 
     @MockkBean
-    lateinit var mockPensjonClient: PensjonsinformasjonClient
-
-    @MockkBean
     lateinit var pdlService: PersonService
 
     @MockkBean
     lateinit var euxService: EuxInnhentingService
 
+    @Autowired
+    lateinit var mockPensjonClient: PensjonsinformasjonClient
+
     companion object {
         const val AKTOERID = "012345"
         const val FNR = "01010123456"
+    }
+
+    @TestConfiguration
+    class Config {
+        @Bean
+        fun mockPensjonClient(): PensjonsinformasjonClient {
+            return mockk(relaxed = true)
+        }
+
+        @Bean
+        fun pensjonsinformasjonService(): PensjonsinformasjonService {
+            return PensjonsinformasjonService(mockPensjonClient())
+        }
     }
 
     @BeforeEach

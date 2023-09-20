@@ -1,6 +1,8 @@
 package no.nav.eessi.pensjon.services.pensjonsinformasjon
 
 import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
+import no.nav.eessi.pensjon.pensjonsinformasjon.models.Pensjontype
+import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -18,9 +20,11 @@ class PensjonsinformasjonService(private val pensjonsinformasjonClient: Pensjons
     private val logger: Logger by lazy { LoggerFactory.getLogger(PensjonsinformasjonService::class.java) }
 
     //hjelemetode for Vedtak P6000 P5000
-    fun hentVedtak(vedtakId: String): Pensjonsinformasjon {
+    fun hentAltPaaVedtak(vedtakId: String): Pensjonsinformasjon {
         if (vedtakId.isBlank()) throw IkkeGyldigKallException("Mangler vedtakID")
-        return pensjonsinformasjonClient.hentAltPaaVedtak(vedtakId)
+        return pensjonsinformasjonClient.hentAltPaaVedtak(vedtakId).also {
+            logger.debug("pensjonInfo: ${it.toJsonSkipEmpty()}")
+        }
     }
 
     fun hentGyldigAvdod(peninfo: Pensjonsinformasjon) : List<String>? {
@@ -42,6 +46,26 @@ class PensjonsinformasjonService(private val pensjonsinformasjonClient: Pensjons
         }
     }
 
+/*    @Suppress("DEPRECATION")
+    fun hentAltPaaVedtak(vedtaksId: String): Pensjonsinformasjon {
+        return pensjonsinformasjonClient.hentAltPaaVedtak(vedtaksId).also {
+                logger.debug("gjenlevende : ${it.toJsonSkipEmpty()}")
+            }
+    }*/
+    @Suppress("DEPRECATION")
+    fun hentAltPaaAktoerId(ident: String): Pensjonsinformasjon {
+        return pensjonsinformasjonClient.hentAltPaaAktoerId(ident)
+    }
+
+    @Suppress("DEPRECATION")
+    fun hentKunSakType(sakId: String, aktoerId: String): Pensjontype {
+        return pensjonsinformasjonClient.hentKunSakType(sakId, aktoerId)
+    }
+
+    @Suppress("DEPRECATION")
+    fun hentKravDatoFraAktor(aktorId: String, kravId: String, saksId: String): String? {
+        return pensjonsinformasjonClient.hentKravDatoFraAktor(aktorId, saksId, kravId)
+    }
 }
 
 class IkkeGyldigKallException(reason: String): ResponseStatusException(HttpStatus.BAD_REQUEST, reason)

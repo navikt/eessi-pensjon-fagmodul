@@ -14,6 +14,7 @@ import no.nav.eessi.pensjon.pensjonsinformasjon.FinnSak
 import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjoninformasjonException
 import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjoninformasjonValiderKrav
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonService
 import no.nav.eessi.pensjon.utils.*
 import no.nav.pensjon.v1.vilkarsvurdering.V1Vilkarsvurdering
 import no.nav.security.token.support.core.api.Protected
@@ -35,7 +36,7 @@ import javax.xml.datatype.XMLGregorianCalendar
 @RestController
 @RequestMapping("/pensjon")
 class PensjonController(
-    private val pensjonsinformasjonClient: PensjonsinformasjonClient,
+    private val pensjonsinformasjonService: PensjonsinformasjonService,
     private val auditlogger: AuditLogger,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
@@ -62,8 +63,7 @@ class PensjonController(
         return PensjonControllerHentSakType.measure {
             logger.info("Henter sakstype på $sakId / $aktoerId")
 
-            @Suppress("DEPRECATION")
-            ResponseEntity.ok(mapAnyToJson(pensjonsinformasjonClient.hentKunSakType(sakId, aktoerId)))
+            ResponseEntity.ok(mapAnyToJson(pensjonsinformasjonService.hentKunSakType(sakId, aktoerId)))
         }
     }
 
@@ -76,8 +76,7 @@ class PensjonController(
                 ResponseEntity.status(HttpStatus.BAD_REQUEST).body("")
             }
             try {
-                @Suppress("DEPRECATION")
-                pensjonsinformasjonClient.hentKravDatoFraAktor(aktorId = aktoerId, kravId = kravId, saksId = sakId)?.let {
+                pensjonsinformasjonService.hentKravDatoFraAktor(aktorId = aktoerId, kravId = kravId, saksId = sakId)?.let {
                    return@measure ResponseEntity.ok("""{ "kravDato": "$it" }""")
                }
                return@measure ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorBody("Feiler å hente kravDato", xid))
@@ -94,8 +93,7 @@ class PensjonController(
     fun validerKravPensjon(@PathVariable("aktoerId", required = true) aktoerId: String, @PathVariable("sakId", required = true) sakId: String, @PathVariable("buctype", required = true) bucType: String): Boolean {
         return PensjonControllerValidateSak.measure {
 
-            @Suppress("DEPRECATION")
-            val pendata = pensjonsinformasjonClient.hentAltPaaAktoerId(aktoerId)
+            val pendata = pensjonsinformasjonService.hentAltPaaAktoerId(aktoerId)
             if (pendata.brukersSakerListe == null) {
                 logger.warn("Ingen gyldig brukerSakerListe funnet")
                 throw PensjoninformasjonException("Ingen gyldig brukerSakerListe, mangler data fra pesys")
@@ -119,7 +117,9 @@ class PensjonController(
 
     @GetMapping("/vedtak/{vedtakid}/vilkarsvurdering")
     fun hentVedtakforVilkarsVurderingList(@PathVariable("vedtakid", required = true) vedtakId: String): List<V1Vilkarsvurdering> {
-        val pensjonsinformasjon = pensjonsinformasjonClient.hentAltPaaVedtak(vedtakId)
+        val pensjonsinformasjon = pensjonsinformasjonService.hentAltPaaVedtak(vedtakId).also {
+            logger.debug("pensjonInfo: ${it.toJsonSkipEmpty()}")
+        }
         logger.debug("--".repeat(100))
         logger.debug("vilkarsliste sizze : ${pensjonsinformasjon.vilkarsvurderingListe.vilkarsvurderingListe.size}")
 
@@ -142,7 +142,9 @@ class PensjonController(
 
     @GetMapping("/vedtak/{vedtakid}/pensjoninfo")
     fun hentVedtakforPensjonsinformasjon(@PathVariable("vedtakid", required = true) vedtakId: String): String {
-        val vedtak = pensjonsinformasjonClient.hentAltPaaVedtak(vedtakId)
+        val vedtak = pensjonsinformasjonService.hentAltPaaVedtak(vedtakId).also {
+            logger.debug("pensjonInfo: ${it.toJsonSkipEmpty()}")
+        }
         val mapper = ObjectMapper()
             .registerModule(JavaTimeModule())
             .registerModule(SimpleModule().addSerializer(XMLGregorianCalendar::class.java, LocalDateSerializer()))
@@ -152,8 +154,7 @@ class PensjonController(
 
     @GetMapping("/sak/aktoer/{ident}/sakid/{sakid}/pensjonsak")
     fun hentSakPensjonsinformasjon(@PathVariable("ident", required = true) ident: String, @PathVariable("sakid", required = true) sakid: String): String {
-        @Suppress("DEPRECATION")
-        val saker = pensjonsinformasjonClient.hentAltPaaAktoerId(ident)
+        val saker = pensjonsinformasjonService.hentAltPaaAktoerId(ident)
         logger.info("saker: ${saker.brukersSakerListe.brukersSakerListe.size}")
         val sak = saker.let { FinnSak.finnSak(sakid, it) }
         logger.info("den fakiske sak: ${sak != null}")
@@ -183,7 +184,9 @@ class PensjonController(
 
     @GetMapping("/vedtak/{vedtakid}/uforetidspunkt")
     fun hentVedtakforForUfor(@PathVariable("vedtakid", required = true) vedtakId: String): String? {
-        val pensjonsinformasjon = pensjonsinformasjonClient.hentAltPaaVedtak(vedtakId)
+        val pensjonsinformasjon = pensjonsinformasjonService.hentAltPaaVedtak(vedtakId).also {
+            logger.debug("pensjonInfo: ${it.toJsonSkipEmpty()}")
+        }
 
         val vilkarsvurderingListe = pensjonsinformasjon.vilkarsvurderingListe.vilkarsvurderingListe
         val vilkarsvurderingUforetrygdListe = vilkarsvurderingListe.mapNotNull { it.vilkarsvurderingUforetrygd }
@@ -229,8 +232,7 @@ class PensjonController(
         return PensjonControllerHentSakListe.measure {
             logger.info("henter sakliste for aktoer: $aktoerId")
             return@measure try {
-                @Suppress("DEPRECATION")
-                val pensjonInformasjon = pensjonsinformasjonClient.hentAltPaaAktoerId(aktoerId)
+                val pensjonInformasjon = pensjonsinformasjonService.hentAltPaaAktoerId(aktoerId)
                 val brukersSakerListe = pensjonInformasjon.brukersSakerListe.brukersSakerListe
                 if (brukersSakerListe == null) {
                     logger.error("Ingen brukersSakerListe funnet i pensjoninformasjon for aktoer: $aktoerId")

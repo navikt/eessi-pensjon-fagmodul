@@ -108,7 +108,7 @@ class InnhentingService(
 
     fun hentPreutyltSed(apiRequest: ApiRequest): String = prefillKlient.hentPreutfyltSed(apiRequest)
 
-    fun hentPensjoninformasjonVedtak(vedtakId: String) = pensjonsinformasjonService.hentVedtak(vedtakId)
+    fun hentPensjoninformasjonVedtak(vedtakId: String) = pensjonsinformasjonService.hentAltPaaVedtak(vedtakId)
 
     fun hentAvdodeFnrfraPensjoninformasjon(pensjoninformasjon: Pensjonsinformasjon): List<String>? =
         pensjonsinformasjonService.hentGyldigAvdod(pensjoninformasjon)
