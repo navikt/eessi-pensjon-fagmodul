@@ -13,6 +13,7 @@ import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Ident
 import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentGruppe
+import no.nav.eessi.pensjon.personoppslag.pdl.model.Npid
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonService
 import no.nav.eessi.pensjon.shared.api.ApiRequest
 import no.nav.eessi.pensjon.shared.api.ApiSubject
@@ -25,6 +26,7 @@ import org.junit.jupiter.api.assertThrows
 import org.springframework.web.server.ResponseStatusException
 
 private const val AVDOD_FNR = "12345566"
+private const val NPID = "01220049651"
 private const val AKTOER_ID = "1122334455"
 private const val GJENLEVENDE_FNR = "23123123"
 private const val ADVOD_FNR2 = "46784678467"
@@ -57,6 +59,16 @@ internal class InnhentingServiceTest {
     fun `Gitt at avdodfnr finnes paa en p2100 saa skal aktoerid for avdodfnr returneres`() {
         val apiRequest = apiRequest(SedType.P2100, P_BUC_02, AKTOER_ID, AVDOD_FNR)
         every { personService.hentIdent(eq(IdentGruppe.AKTORID), any()) } returns AktoerId(AKTOER_ID)
+
+        val result = innhentingService.getAvdodId(BucType.from(apiRequest.buc?.name)!!, apiRequest.riktigAvdod())
+
+        assertEquals(AKTOER_ID, result)
+    }
+
+    @Test
+    fun `Gitt at avdod npid finnes paa en p2100 saa skal aktoerid for avdod npid returneres`() {
+        val apiRequest = apiRequest(SedType.P2100, P_BUC_02, AKTOER_ID, NPID)
+        every { personService.hentIdent((IdentGruppe.AKTORID), Npid(NPID)) } returns AktoerId(AKTOER_ID)
 
         val result = innhentingService.getAvdodId(BucType.from(apiRequest.buc?.name)!!, apiRequest.riktigAvdod())
 

@@ -7,14 +7,11 @@ import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
-import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonoppslagException
-import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
-import no.nav.eessi.pensjon.personoppslag.pdl.model.Familierelasjonsrolle
-import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
-import no.nav.eessi.pensjon.personoppslag.pdl.model.Person
+import no.nav.eessi.pensjon.personoppslag.pdl.model.*
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonService
+import no.nav.eessi.pensjon.shared.person.Fodselsnummer
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import no.nav.security.token.support.core.api.Protected
@@ -117,7 +114,8 @@ class PersonPDLController(
     ): PersoninformasjonAvdode {
 
         logger.debug("Henter avdød person")
-        val avdode = pdlService.hentPerson(NorskIdent(avdodFnr))
+        val ident = if (Fodselsnummer.fra(avdodFnr)?.erNpid == true) Npid(avdodFnr) else NorskIdent(avdodFnr)
+        val avdode = pdlService.hentPerson(ident)
         val avdodNavn = avdode?.navn
 
         val relasjon = avdodRolle ?: gjenlevende?.sivilstand?.firstOrNull { it.relatertVedSivilstand == avdodFnr }?.type
@@ -205,8 +203,9 @@ class PersonPDLController(
     }
 
     private fun hentDoedsdatoFraPDL(avdodIdent: String?): String {
-        if (avdodIdent == null || avdodIdent.isEmpty()) return emptyList<String>().toJson()
-        val avdodperson = pdlService.hentPerson(NorskIdent(avdodIdent))
+        val ident = if (avdodIdent!= null && Fodselsnummer.fra(avdodIdent)?.erNpid == true) Npid(avdodIdent) else avdodIdent?.let { NorskIdent(it) }
+        if (avdodIdent.isNullOrEmpty()) return emptyList<String>().toJson()
+        val avdodperson = pdlService.hentPerson(ident!!)
         val avdoddato = avdodperson?.doedsfall?.doedsdato
         //returner litt metadata
         val result = listOf(mapOf("doedsdato" to avdoddato?.toString(), "sammensattNavn" to avdodperson?.navn?.sammensattNavn, "ident" to avdodIdent)).toJson()
