@@ -11,34 +11,14 @@ import no.nav.eessi.pensjon.eux.model.buc.ActionOperation
 import no.nav.eessi.pensjon.eux.model.buc.ActionsItem
 import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
-import no.nav.eessi.pensjon.eux.model.sed.Bruker
-import no.nav.eessi.pensjon.eux.model.sed.Nav
-import no.nav.eessi.pensjon.eux.model.sed.P2100
-import no.nav.eessi.pensjon.eux.model.sed.P5000
-import no.nav.eessi.pensjon.eux.model.sed.PinItem
+import no.nav.eessi.pensjon.eux.model.sed.*
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonoppslagException
-import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
-import no.nav.eessi.pensjon.personoppslag.pdl.model.Doedsfall
-import no.nav.eessi.pensjon.personoppslag.pdl.model.Endring
-import no.nav.eessi.pensjon.personoppslag.pdl.model.Endringstype
-import no.nav.eessi.pensjon.personoppslag.pdl.model.Familierelasjonsrolle
-import no.nav.eessi.pensjon.personoppslag.pdl.model.Folkeregistermetadata
-import no.nav.eessi.pensjon.personoppslag.pdl.model.ForelderBarnRelasjon
-import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentGruppe
-import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentInformasjon
-import no.nav.eessi.pensjon.personoppslag.pdl.model.Kjoenn
-import no.nav.eessi.pensjon.personoppslag.pdl.model.KjoennType
-import no.nav.eessi.pensjon.personoppslag.pdl.model.Navn
-import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
-import no.nav.eessi.pensjon.personoppslag.pdl.model.Person
-import no.nav.eessi.pensjon.personoppslag.pdl.model.Sivilstand
-import no.nav.eessi.pensjon.personoppslag.pdl.model.Sivilstandstype
-import no.nav.eessi.pensjon.personoppslag.pdl.model.Statsborgerskap
 import no.nav.eessi.pensjon.personoppslag.pdl.model.*
+import no.nav.eessi.pensjon.personoppslag.pdl.model.Person
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonService
 import no.nav.eessi.pensjon.shared.person.FodselsnummerGenerator
 import no.nav.eessi.pensjon.utils.mapJsonToAny
@@ -63,6 +43,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDate
 import java.time.LocalDateTime
+import no.nav.eessi.pensjon.eux.model.sed.Person as Person1
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Metadata as PDLMetaData
 
 @WebMvcTest(PersonPDLController::class)
@@ -131,7 +112,7 @@ class PersonPDLControllerTest {
     }
 
     @Test
-    fun `hent doedsdato fra PDL for npid`() {
+    fun `hent doedsdato fra PDL for en person npid`() {
         val personPdlController = PersonPDLController(pdlService, mockk(), pensjonsinformasjonService, euxService)
 
         val npid = "01220049651"
@@ -164,6 +145,65 @@ class PersonPDLControllerTest {
 
         val result = personPdlController.getAvdodDateFromVedtakOrSed(vedtaksId, euxCaseId)
         assertTrue(result.contains("1970-01-01"))
+    }
+
+    @Test
+    fun `Hent doedsdato fra PDL for person med npid der det finnes to avdøde i seden saa returnerer vi doedsdato på far`() {
+        val personPdlController = PersonPDLController(pdlService, mockk(), pensjonsinformasjonService, euxService)
+
+        val npidMor = "01220049651"
+        val npidFar = "03220049651"
+        val euxCaseId = "12345"
+        val vedtaksId = "321"
+
+        val buc = listOf(DocumentsItem(type = SedType.P2100, id = "1234", direction = "OUT"))
+        val sed = SED(
+            type = SedType.P2100,
+            nav = Nav(bruker = Bruker(person = Person1(pin = listOf(PinItem(land = "NO", identifikator = npidFar))))))
+
+        val mockPensjoninfo = Pensjonsinformasjon()
+        mockPensjoninfo.avdod = V1Avdod()
+        mockPensjoninfo.person = V1Person()
+        mockPensjoninfo.avdod.avdodMor = npidMor
+        mockPensjoninfo.avdod.avdodFar = npidFar
+        mockPensjoninfo.person.aktorId = AKTOERID
+
+        val avdodMor = lagPerson(
+            npidMor,
+            "Fru",
+            "NPID",
+            sivilstand = listOf(Sivilstand(Sivilstandstype.GIFT, LocalDate.of(2000, 10, 2),
+                FNR,
+                mockMeta()
+            )),
+            doedsfall = Doedsfall(
+                doedsdato = LocalDate.of(1970, 1, 1),
+                folkeregistermetadata = mockk(),
+                metadata = mockk()            )
+        )
+
+        val avdodFar = lagPerson(
+            npidFar,
+            "Herr",
+            "NPID",
+            sivilstand = listOf(Sivilstand(Sivilstandstype.GIFT, LocalDate.of(2000, 10, 2),
+                npidMor,
+                mockMeta()
+            )),
+            doedsfall = Doedsfall(
+                doedsdato = LocalDate.of(1971, 1, 1),
+                folkeregistermetadata = mockk(),
+                metadata = mockk()            )
+        )
+
+        every { mockPensjonClient.hentAltPaaVedtak(eq(vedtaksId)) } returns mockPensjoninfo
+        every { pdlService.hentPerson(Npid(npidMor)) } returns avdodMor
+        every { pdlService.hentPerson(any()) } returns avdodFar
+        every { euxService.getBuc(euxCaseId) } returns Buc(processDefinitionName = P_BUC_02.name, documents = buc)
+        every { euxService.getSedOnBucByDocumentId(eq(euxCaseId), any()) } returns sed
+
+        val result = personPdlController.getAvdodDateFromVedtakOrSed(vedtaksId, euxCaseId).also {  println(it) }
+        assertTrue(result.contains("1971-01-01"))
     }
 
     @Test
@@ -464,7 +504,7 @@ class PersonPDLControllerTest {
         val documentid = "23242342a234vd423452asddf"
 
         val doedsPerson = lagPerson(avdodfnr, doedsfall = null).copy(doedsfall = Doedsfall(LocalDate.of(2020, 6, 20), null, mockMeta()))
-        val sedP2100 = P2100(nav = Nav(bruker = Bruker(person = no.nav.eessi.pensjon.eux.model.sed.Person(pin = listOf(PinItem(land = "NO", identifikator = avdodfnr))))), pensjon = null)
+        val sedP2100 = P2100(nav = Nav(bruker = Bruker(person = Person1(pin = listOf(PinItem(land = "NO", identifikator = avdodfnr))))), pensjon = null)
         val buc = Buc(id = rinanr, processDefinitionName = "P_BUC_02", documents = listOf(DocumentsItem(id = documentid, direction = "OUT", type = SedType.P2100)))
 
         val pen = Pensjonsinformasjon()
@@ -504,7 +544,7 @@ class PersonPDLControllerTest {
         val documentid = "23242342a234vd423452asddf"
 
         val doedsPerson = lagPerson(avdodfnr, doedsfall = null).copy(doedsfall = Doedsfall(LocalDate.of(2010, 6, 20), null, mockMeta()))
-        val sedP2100 = P2100(nav = Nav(bruker = Bruker(person = no.nav.eessi.pensjon.eux.model.sed.Person(pin = listOf(PinItem(land = "NO", identifikator = "18077443335"))))), pensjon = null)
+        val sedP2100 = P2100(nav = Nav(bruker = Bruker(person = Person1(pin = listOf(PinItem(land = "NO", identifikator = "18077443335"))))), pensjon = null)
         val buc = Buc(id = rinanr, processDefinitionName = "P_BUC_02", documents = listOf(DocumentsItem(id = documentid, direction = "OUT", type = SedType.P2100)))
 
         val pen = Pensjonsinformasjon()
@@ -538,7 +578,7 @@ class PersonPDLControllerTest {
         val documentid = "23242342a234vd423452asddf"
 
         val doedsPerson = lagPerson(avdodfnr, fornavn = "AVDØD", etternavn = "HELTAVØD", doedsfall = null).copy(doedsfall = Doedsfall(LocalDate.of(2007, 6, 20), null, mockMeta()))
-        val sedP5000 = P5000(nav = Nav(bruker = Bruker(person = no.nav.eessi.pensjon.eux.model.sed.Person(pin = listOf(PinItem(land = "NO", identifikator = avdodfnr))))), p5000Pensjon = null)
+        val sedP5000 = P5000(nav = Nav(bruker = Bruker(person = Person1(pin = listOf(PinItem(land = "NO", identifikator = avdodfnr))))), p5000Pensjon = null)
         val buc = Buc(id = rinanr, processDefinitionName = "P_BUC_06",
             actions = listOf(
                 ActionsItem(SedType.P5000, documentId = documentid, operation = ActionOperation.Send),
