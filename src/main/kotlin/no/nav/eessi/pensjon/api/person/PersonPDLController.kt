@@ -7,12 +7,10 @@ import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
-import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonoppslagException
 import no.nav.eessi.pensjon.personoppslag.pdl.model.*
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonService
-import no.nav.eessi.pensjon.shared.person.Fodselsnummer
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import no.nav.security.token.support.core.api.Protected
@@ -115,8 +113,7 @@ class PersonPDLController(
     ): PersoninformasjonAvdode {
 
         logger.debug("Henter avdød person")
-        val ident = if (Fodselsnummer.fra(avdodFnr)?.erNpid == true) Npid(avdodFnr) else NorskIdent(avdodFnr)
-        val avdode = pdlService.hentPerson(ident)
+        val avdode = pdlService.hentPerson(Ident.bestemIdent(avdodFnr))
         val avdodNavn = avdode?.navn
 
         val relasjon = avdodRolle ?: gjenlevende?.sivilstand?.firstOrNull { it.relatertVedSivilstand == avdodFnr }?.type
