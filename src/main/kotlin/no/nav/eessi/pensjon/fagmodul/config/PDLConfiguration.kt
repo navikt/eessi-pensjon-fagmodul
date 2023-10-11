@@ -8,6 +8,7 @@ import no.nav.eessi.pensjon.personoppslag.pdl.PdlTokenCallBack
 import no.nav.eessi.pensjon.personoppslag.pdl.PdlTokenImp
 import no.nav.eessi.pensjon.utils.getToken
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -18,6 +19,9 @@ import org.springframework.web.client.RestTemplate
 @Configuration
 class PDLConfiguration(private val tokenValidationContextHolder: TokenValidationContextHolder,
                        @Value("\${AZURE_APP_PDL_CLIENT_ID}") private val pdlClientId: String): PdlTokenCallBack {
+
+    private val logger = LoggerFactory.getLogger(PDLConfiguration::class.java)
+
 
     override fun callBack(): PdlToken {
 
@@ -31,6 +35,9 @@ class PDLConfiguration(private val tokenValidationContextHolder: TokenValidation
             "api://$pdlClientId/.default",
             navidentTokenFromUI
         )
+
+        logger.debug("On Behalf accessToken: $accessToken")
+
         return PdlTokenImp(accessToken)
     }
 
