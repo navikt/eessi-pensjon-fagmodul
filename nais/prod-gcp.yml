@@ -25,15 +25,6 @@ spec:
         - application: eessi-pensjon-prefill
           namespace: eessipensjon
           cluster: prod-gcp
-        - application: eessi-pensjon-frontend-ui
-          namespace: eessipensjon
-          cluster: prod-gcp
-        - application: eessi-pensjon-journalforing
-          namespace: eessipensjon
-          cluster: prod-gcp
-        - application: eessi-pensjon-saksbehandling-api
-          namespace: eessipensjon
-          cluster: prod-gcp
         - application: eessi-pensjon-onprem-proxy
           namespace: eessipensjon
           cluster: prod-fss
