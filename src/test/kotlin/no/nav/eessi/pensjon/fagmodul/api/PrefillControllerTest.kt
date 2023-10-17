@@ -1,34 +1,19 @@
 
 package no.nav.eessi.pensjon.fagmodul.api
 
-import io.mockk.MockKAnnotations
-import io.mockk.every
+import io.mockk.*
 import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.SpyK
-import io.mockk.justRun
-import io.mockk.mockk
-import io.mockk.verify
 import no.nav.eessi.pensjon.eux.klient.BucSedResponse
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.klient.SedDokumentIkkeOpprettetException
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_01
+import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_03
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.SedType.*
-import no.nav.eessi.pensjon.eux.model.buc.ActionOperation
-import no.nav.eessi.pensjon.eux.model.buc.ActionsItem
-import no.nav.eessi.pensjon.eux.model.buc.Buc
-import no.nav.eessi.pensjon.eux.model.buc.ConversationsItem
-import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
-import no.nav.eessi.pensjon.eux.model.buc.Organisation
-import no.nav.eessi.pensjon.eux.model.buc.Participant
-import no.nav.eessi.pensjon.eux.model.buc.Sender
-import no.nav.eessi.pensjon.eux.model.buc.UserMessagesItem
-import no.nav.eessi.pensjon.eux.model.sed.InstitusjonX005
-import no.nav.eessi.pensjon.eux.model.sed.Leggtilinstitusjon
-import no.nav.eessi.pensjon.eux.model.sed.Navsak
-import no.nav.eessi.pensjon.eux.model.sed.SED
+import no.nav.eessi.pensjon.eux.model.buc.*
+import no.nav.eessi.pensjon.eux.model.sed.*
 import no.nav.eessi.pensjon.eux.model.sed.X005
-import no.nav.eessi.pensjon.eux.model.sed.XNav
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.eux.EuxPrefillService
@@ -119,28 +104,27 @@ internal class PrefillControllerTest {
 
     @Test
     fun `createBuc run ok and return id`() {
-        val gyldigBuc = javaClass.getResource("/json/buc/buc-279020big.json").readText()
+        val gyldigBuc = javaClass.getResource("/json/buc/buc-279020big.json")!!.readText()
         val buc : Buc =  mapJsonToAny(gyldigBuc)
 
-        every { mockEuxPrefillService.createBuc("P_BUC_03") } returns "1231231"
+        every { mockEuxPrefillService.createdBucForType(P_BUC_03.name) } returns "1231231"
         every { mockEuxInnhentingService.getBuc(any()) } returns buc
 
-        val excpeted = BucAndSedView.from(buc)
-        val actual = prefillController.createBuc("P_BUC_03")
-        println(actual)
+        val expected = BucAndSedView.from(buc)
+        val actual = prefillController.createBuc(P_BUC_03.name)
 
-        assertEquals(excpeted.toJson(), actual.toJson())
+        assertEquals(expected.toJson(), actual.toJson())
     }
 
     @Test
     fun `createBuc run ok and does not run statistics in default namespace`() {
-        val gyldigBuc = javaClass.getResource("/json/buc/buc-279020big.json").readText()
+        val gyldigBuc = javaClass.getResource("/json/buc/buc-279020big.json")!!.readText()
         val buc : Buc =  mapJsonToAny(gyldigBuc)
 
-        every {  mockEuxPrefillService.createBuc("P_BUC_03")} returns "1231231"
+        every {  mockEuxPrefillService.createdBucForType(P_BUC_03.name)} returns "1231231"
         every { mockEuxInnhentingService.getBuc(any()) } returns buc
 
-        prefillController.createBuc("P_BUC_03")
+        prefillController.createBuc(P_BUC_03.name)
 
         verify(exactly = 0) { kafkaTemplate.sendDefault(any(), any()) }
     }
@@ -171,19 +155,13 @@ internal class PrefillControllerTest {
 
     }
 
-    private fun createDummyX005(newParticipants: InstitusjonItem): String {
-        return X005(xnav = XNav(sak = Navsak(leggtilinstitusjon = Leggtilinstitusjon(institusjon = InstitusjonX005(id = newParticipants.institution, navn = newParticipants.name ?: "" ))))).toJson()
-    }
-
 
     @Test
     fun `Ved kall til addInstutionAndDocument med en institusjon så skal vi få en preutfylt P8000 med en deltaker`() {
         val euxCaseId = "1443996"
-
-        every { personService.hentIdent(eq(IdentGruppe.FOLKEREGISTERIDENT), any<AktoerId>()) } returns NorskIdent("12345")
-
         val mockBuc = javaClass.getResource("/json/buc/Buc.json")!!.readText()
 
+        every { personService.hentIdent(eq(IdentGruppe.FOLKEREGISTERIDENT), any<AktoerId>()) } returns NorskIdent("12345")
         every {  prefillKlient.hentPreutfyltSed(any())} returns javaClass.getResource("/json/nav/P8000_NO-NAV.json")!!.readText()
 
 
@@ -193,16 +171,19 @@ internal class PrefillControllerTest {
         )
 
         val buc = mapJsonToAny<Buc>(mockBuc, false)
-        every { mockEuxKlient.getBucJsonAsNavIdent(euxCaseId) } returns buc.toJson()
 
+        every { mockEuxKlient.getBucJsonAsNavIdent(euxCaseId) } returns buc.toJson()
         every { mockEuxKlient.opprettSed(any(), any()) } returns BucSedResponse(euxCaseId, "0aa6a0d67e4046e38aa126987ab2763f")
 
-        val docItem = prefillController.addInstutionAndDocument(apiRequest)!!.toJson()
+        val docItem = prefillController.addInstutionAndDocument(apiRequest)!!
 
-        println("***${docItem}***")
+        val participant = docItem.participants
+            ?.filter { it?.organisation?.name == "The Swedish Pensions Agency" }
+
+        assertEquals(1, participant?.size)
+        assertEquals("P8000", docItem.type.toString())
 
     }
-
 
     @Test
     fun `call addInstutionAndDocument mock adding two institusjon when we are not CaseOwner badrequest execption is thrown`() {
@@ -233,6 +214,10 @@ internal class PrefillControllerTest {
         verify(exactly = 1 ) { mockEuxInnhentingService.getBuc(any()) }
         verify(exactly = 2 ) { prefillKlient.hentPreutfyltSed(any()) }
 
+    }
+
+    private fun createDummyX005(newParticipants: InstitusjonItem): String {
+        return X005(xnav = XNav(sak = Navsak(leggtilinstitusjon = Leggtilinstitusjon(institusjon = InstitusjonX005(id = newParticipants.institution, navn = newParticipants.name ?: "" ))))).toJson()
     }
 
     @Test
@@ -275,7 +260,6 @@ internal class PrefillControllerTest {
             prefillController.addInstutionAndDocument(apiRequestWith(euxCaseId, newParticipants))
         }
         verify(exactly = 1 ) { mockEuxInnhentingService.getBuc(any()) }
-
 
     }
 
@@ -344,19 +328,10 @@ internal class PrefillControllerTest {
 
         val responseresult = prefillController.addInstutionAndDocument(apirequest)
 
-/*        verify(exactly = 2 ) { mockEuxInnhentingService.getBuc(any()) }
-        verify(exactly = 1 ) { mockEuxPrefillService.opprettJsonSedOnBuc(any(), any(), euxCaseId, dummyPrefillData.vedtakId) }
-        verify(exactly = 1 ) { prefillKlient.hentPreutfyltSed(any()) }
-*//*
-        verify(exactly = 1 ) { mockEuxKlient.putBucMottakere(any(), any(),  any()) }
-*//*
-        verify(exactly = 1 ) { personService.hentIdent(any<IdentGruppe.FOLKEREGISTERIDENT>(), any<AktoerId>())}*/
-
         assertEquals("5a61468eb8cb4fd78c5c44d75b9bb890", responseresult?.id)
         assertEquals(P2000, responseresult?.type)
 
     }
-
 
     @Test
     fun `call addInstutionAndDocument ingen ny Deltaker kun hovedsed`() {

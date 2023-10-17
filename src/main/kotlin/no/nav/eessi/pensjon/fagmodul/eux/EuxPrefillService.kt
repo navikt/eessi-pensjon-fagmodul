@@ -1,12 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
 import jakarta.annotation.PostConstruct
-import no.nav.eessi.pensjon.eux.klient.BucSedResponse
-import no.nav.eessi.pensjon.eux.klient.EuxConflictException
-import no.nav.eessi.pensjon.eux.klient.EuxGenericServerException
-import no.nav.eessi.pensjon.eux.klient.EuxKlientLib
-import no.nav.eessi.pensjon.eux.klient.EuxRinaServerException
-import no.nav.eessi.pensjon.eux.klient.SedDokumentIkkeOpprettetException
+import no.nav.eessi.pensjon.eux.klient.*
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.eux.model.sed.SED
@@ -77,7 +72,7 @@ class EuxPrefillService (private val euxKlient: EuxKlientLib,
         PutMottaker.measure { euxKlient.putBucMottakere(euxCaseID, nyeInstitusjoner) }
     }
 
-    fun createBuc(buctype: String): String {
+    fun createdBucForType(buctype: String): String {
         val euxCaseId = GetBUC.measure { euxKlient.createBuc(buctype) }
         try {
             statistikk.produserBucOpprettetHendelse(euxCaseId, null)

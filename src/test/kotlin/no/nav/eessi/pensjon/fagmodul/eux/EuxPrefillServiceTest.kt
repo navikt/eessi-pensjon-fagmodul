@@ -78,7 +78,7 @@ class EuxPrefillServiceTest {
 
         assertEquals(
             euxRinaId,
-            euxPrefillService.createBuc(
+            euxPrefillService.createdBucForType(
                 javaClass.getResource("/json/buc/buc-4326040-rina2020docs-P_BUC_01.json")?.readText()!!
             )
         )

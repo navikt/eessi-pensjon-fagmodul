@@ -62,7 +62,7 @@ class PrefillController(
         logger.info("Prøver å opprette en ny BUC i RINA av type: $buctype")
 
         //rinaid
-        val euxCaseId = euxPrefillService.createBuc(buctype)
+        val euxCaseId = euxPrefillService.createdBucForType(buctype)
         logger.info("Mottatt følgende euxCaseId(RinaID): $euxCaseId")
 
         //create bucDetail back from newly created buc call eux-rina-api to get data.
