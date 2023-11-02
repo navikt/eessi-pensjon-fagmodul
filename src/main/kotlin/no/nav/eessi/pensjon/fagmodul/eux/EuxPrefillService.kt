@@ -21,21 +21,17 @@ import org.springframework.web.server.ResponseStatusException
 class EuxPrefillService (private val euxKlient: EuxKlientLib,
                          private val statistikk: StatistikkHandler,
                          @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()) {
-
     private val logger = LoggerFactory.getLogger(EuxPrefillService::class.java)
 
     private lateinit var opprettSvarSED: MetricsHelper.Metric
     private lateinit var opprettSED: MetricsHelper.Metric
     private lateinit var PutMottaker: MetricsHelper.Metric
     private lateinit var GetBUC: MetricsHelper.Metric
-
-    @PostConstruct
-    fun initMetrics() {
+    init {
         opprettSvarSED = metricsHelper.init("OpprettSvarSED")
         opprettSED = metricsHelper.init("OpprettSED")
         PutMottaker = metricsHelper.init("PutMottaker", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         GetBUC = metricsHelper.init("GetBUC", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
-
     }
 
     @Throws(EuxGenericServerException::class, SedDokumentIkkeOpprettetException::class)

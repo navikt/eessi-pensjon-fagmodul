@@ -52,10 +52,7 @@ class SedControllerTest {
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this, relaxed = true)
-        mockEuxPrefillService.initMetrics()
-
-        val innhentingService = InnhentingService(personService, vedleggService, prefillKlient, pensjonsinformasjonService)
-        innhentingService.initMetrics()
+        InnhentingService(personService, vedleggService, prefillKlient, pensjonsinformasjonService)
 
         this.sedController = SedController(
             mockEuxInnhentingService,

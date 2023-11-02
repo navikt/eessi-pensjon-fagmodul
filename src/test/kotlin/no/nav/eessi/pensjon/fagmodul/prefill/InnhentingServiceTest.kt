@@ -52,7 +52,6 @@ internal class InnhentingServiceTest {
     fun before() {
         MockKAnnotations.init(this)
         innhentingService = InnhentingService(personService, vedleggService, prefillKlient, pensjonsinformasjonService)
-        innhentingService.initMetrics()
     }
 
     @Test

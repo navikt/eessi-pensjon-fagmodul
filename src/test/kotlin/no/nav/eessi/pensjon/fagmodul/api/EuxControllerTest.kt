@@ -33,7 +33,7 @@ class EuxControllerTest {
         euxController = EuxController(
             euxInnhentingService = mockEuxInnhentingService
         )
-        euxController.initMetrics()
+//        euxController.initMetrics()
 
     }
 

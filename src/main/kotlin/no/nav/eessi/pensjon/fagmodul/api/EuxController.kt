@@ -1,6 +1,5 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
-import jakarta.annotation.PostConstruct
 import no.nav.eessi.pensjon.eux.model.BucType
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.metrics.MetricsHelper
@@ -25,7 +24,6 @@ class EuxController(
     private val euxInnhentingService: EuxInnhentingService,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
-
     private val logger = LoggerFactory.getLogger(EuxController::class.java)
 
     private lateinit var paakobledeland: MetricsHelper.Metric
@@ -33,18 +31,17 @@ class EuxController(
     private lateinit var euxKodeverkLand: MetricsHelper.Metric
     private lateinit var euxInstitusjoner: MetricsHelper.Metric
     private lateinit var rinaUrl: MetricsHelper.Metric
+    init {
+            paakobledeland = metricsHelper.init("paakobledeland", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
+            euxKodeverk = metricsHelper.init("euxKodeverk", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
+            euxKodeverkLand = metricsHelper.init("euxKodeverkLand", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
+            euxInstitusjoner  = metricsHelper.init("euxInstitusjoner", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
+            rinaUrl = metricsHelper.init("RinaUrl")
+    }
+
 
     val backupList = listOf("AT", "BE", "BG", "CH", "CZ", "DE", "DK", "EE", "ES", "FI", "FR", "HR", "HU", "IE", "IS", "IT", "LI", "LT", "LU", "LV", "MT", "NL", "NO", "PL", "PT", "RO", "SE", "SI", "SK", "UK")
 
-    @PostConstruct
-    fun initMetrics() {
-        paakobledeland = metricsHelper.init("paakobledeland", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
-        euxKodeverk = metricsHelper.init("euxKodeverk", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
-        euxKodeverkLand = metricsHelper.init("euxKodeverkLand", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
-        euxInstitusjoner  = metricsHelper.init("euxInstitusjoner", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
-        rinaUrl = metricsHelper.init("RinaUrl")
-
-    }
 
     @Unprotected
     @GetMapping("/rinaurl")

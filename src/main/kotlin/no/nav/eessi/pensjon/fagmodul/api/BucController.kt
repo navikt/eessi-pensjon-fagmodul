@@ -33,7 +33,6 @@ class BucController(
     private val innhentingService: InnhentingService,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
-
     private val logger = LoggerFactory.getLogger(BucController::class.java)
     private lateinit var bucDetaljer: MetricsHelper.Metric
     private lateinit var bucDetaljerVedtak: MetricsHelper.Metric
@@ -47,10 +46,7 @@ class BucController(
     private lateinit var bucerJoark: MetricsHelper.Metric
     private lateinit var bucViewRina: MetricsHelper.Metric
     private lateinit var getBUC: MetricsHelper.Metric
-
-
-    @PostConstruct
-    fun initMetrics() {
+    init {
         bucDetaljer = metricsHelper.init("BucDetaljer", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         bucDetaljerVedtak = metricsHelper.init("BucDetaljerVedtak", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         bucDetaljerEnkel = metricsHelper.init("BucDetaljerEnkel", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
@@ -62,9 +58,9 @@ class BucController(
         bucViewJoark = metricsHelper.init("BucViewJoark", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         bucerJoark = metricsHelper.init("BucerJoark", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         bucViewRina = metricsHelper.init("BucViewRina", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
-        getBUC = metricsHelper.init("GetBUC", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
+        getBUC = metricsHelper.init("GetBUC", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))    }
 
-    }
+
 
     @GetMapping("/bucs/{sakId}", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getBucs(@PathVariable(value = "sakId", required = false) sakId: String? = "") = ValidBucAndSed.pensjonsBucer()

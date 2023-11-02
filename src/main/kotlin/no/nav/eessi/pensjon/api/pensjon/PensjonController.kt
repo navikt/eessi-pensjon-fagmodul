@@ -40,16 +40,13 @@ class PensjonController(
     private val auditlogger: AuditLogger,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
-
     private val logger = LoggerFactory.getLogger(PensjonController::class.java)
 
     private lateinit var PensjonControllerHentSakType: MetricsHelper.Metric
     private lateinit var PensjonControllerHentSakListe: MetricsHelper.Metric
     private lateinit var PensjonControllerValidateSak: MetricsHelper.Metric
     private lateinit var PensjonControllerKravDato: MetricsHelper.Metric
-
-    @PostConstruct
-    fun initMetrics() {
+    init {
         PensjonControllerHentSakType = metricsHelper.init("PensjonControllerHentSakType")
         PensjonControllerHentSakListe = metricsHelper.init("PensjonControllerHentSakListe")
         PensjonControllerValidateSak = metricsHelper.init("PensjonControllerValidateSak")

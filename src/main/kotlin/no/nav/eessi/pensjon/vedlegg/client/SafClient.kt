@@ -30,8 +30,7 @@ class SafClient(private val safGraphQlOidcRestTemplate: RestTemplate,
     private lateinit var HentDokumentInnhold: MetricsHelper.Metric
     private lateinit var HentRinaSakIderFraDokumentMetadata: MetricsHelper.Metric
 
-    @PostConstruct
-    fun initMetrics() {
+    init {
         HentDokumentMetadata = metricsHelper.init("HentDokumentMetadata", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         HentDokumentInnhold = metricsHelper.init("HentDokumentInnhold", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN, HttpStatus.UNAUTHORIZED))
         HentRinaSakIderFraDokumentMetadata = metricsHelper.init("HentRinaSakIderFraDokumentMetadata", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))

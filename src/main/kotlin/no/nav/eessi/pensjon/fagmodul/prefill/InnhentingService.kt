@@ -28,14 +28,11 @@ class InnhentingService(
     private val pensjonsinformasjonService: PensjonsinformasjonService,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
-
     private lateinit var HentPerson: MetricsHelper.Metric
     private lateinit var addInstutionAndDocumentBucUtils: MetricsHelper.Metric
 
     private val logger = LoggerFactory.getLogger(InnhentingService::class.java)
-
-    @PostConstruct
-    fun initMetrics() {
+    init {
         HentPerson = metricsHelper.init("HentPerson", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
         addInstutionAndDocumentBucUtils = metricsHelper.init(
             "AddInstutionAndDocumentBucUtils",

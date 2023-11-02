@@ -36,7 +36,6 @@ class PrefillController(
     private val auditlogger: AuditLogger,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
-
     private val logger = LoggerFactory.getLogger(PrefillController::class.java)
 
     private lateinit var addInstution: MetricsHelper.Metric
@@ -44,9 +43,7 @@ class PrefillController(
     private lateinit var addDocumentToParent: MetricsHelper.Metric
     private lateinit var addInstutionAndDocumentBucUtils: MetricsHelper.Metric
     private lateinit var addDocumentToParentBucUtils: MetricsHelper.Metric
-
-    @PostConstruct
-    fun initMetrics() {
+    init {
         addInstution = metricsHelper.init("AddInstution", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
         addInstutionAndDocument = metricsHelper.init("AddInstutionAndDocument", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
         addDocumentToParent = metricsHelper.init("AddDocumentToParent", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
