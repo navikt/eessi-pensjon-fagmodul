@@ -39,10 +39,6 @@ dependencies {
 
     implementation("org.yaml:snakeyaml:2.2") // Pga https://security.snyk.io/package/maven/org.yaml:snakeyaml
 
-    implementation 'javax.xml.bind:jaxb-api:2.2.4'
-    implementation('jakarta.annotation:jakarta.annotation-api:2.1.1')
-    implementation('org.glassfish.jaxb:jaxb-runtime:2.3.6')
-
     // Kotlin
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonModuleKotlinVersion")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonModuleKotlinVersion")
@@ -87,6 +83,8 @@ dependencies {
         exclude module: 'ep-metrics'
     }
 
+    implementation 'javax.xml.bind:jaxb-api:2.3.1'
+    implementation('org.glassfish.jaxb:jaxb-runtime:2.3.3')
     implementation("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:2618.0448179")
 
     testImplementation("no.nav.security:token-validation-spring-test:${tokenSupportVersion}")
