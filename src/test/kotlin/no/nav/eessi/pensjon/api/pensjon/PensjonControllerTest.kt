@@ -50,10 +50,10 @@ class PensjonControllerTest {
 
     private val mockMvc = MockMvcBuilders.standaloneSetup(controller).build()
 
-    @BeforeEach
-    fun setup() {
-        controller.initMetrics()
-    }
+//    @BeforeEach
+//    fun setup() {
+//        controller.initMetrics()
+//    }
 
     @Test
     fun `hentPensjonSakType gitt en aktoerId saa slaa opp fnr og hent deretter sakstype`() {
@@ -213,7 +213,7 @@ class PensjonControllerTest {
         val mockVedtakid = "213123333"
         val mockClient = fraFil("VEDTAK-UT-MUTP.xml")
         val mockController = PensjonController(PensjonsinformasjonService(mockClient), auditLogger)
-        mockController.initMetrics()
+//        mockController.initMetrics()
         val mockMvc2 = MockMvcBuilders.standaloneSetup(mockController).build()
 
         val result = mockMvc2.perform(
@@ -236,7 +236,6 @@ class PensjonControllerTest {
         val mockVedtakid = "213123333"
         val mockClient = fraFil("VEDTAK-UT-MUTP-GMTZ.xml")
         val mockController = PensjonController(PensjonsinformasjonService(mockClient), auditLogger)
-        mockController.initMetrics()
         val mockMvc2 = MockMvcBuilders.standaloneSetup(mockController).build()
 
         val result = mockMvc2.perform(
@@ -260,7 +259,6 @@ class PensjonControllerTest {
         val mockVedtakid = "213123333"
         val mockClient = fraFil("VEDTAK-UT.xml")
         val mockController = PensjonController(PensjonsinformasjonService(mockClient), auditLogger)
-        mockController.initMetrics()
         val mockMvc2 = MockMvcBuilders.standaloneSetup(mockController).build()
 
         val result = mockMvc2.perform(
@@ -322,7 +320,6 @@ class PensjonControllerTest {
         val mockClient = fraFil("ALDERP-INV-21841174.xml")
 
         val mockController = PensjonController(PensjonsinformasjonService(mockClient), auditLogger)
-        mockController.initMetrics()
         val mockMvc2 = MockMvcBuilders.standaloneSetup(mockController).build()
 
         val result = mockMvc2.perform(
@@ -626,7 +623,6 @@ class PensjonControllerTest {
         val mockClient = fraFil("BARNEP-PlukkBestOpptjening.xml")
 
         val mockController = PensjonController(PensjonsinformasjonService(mockClient), auditLogger)
-        mockController.initMetrics()
         val mockMvc2 = MockMvcBuilders.standaloneSetup(mockController).build()
 
         val result = mockMvc2.perform(

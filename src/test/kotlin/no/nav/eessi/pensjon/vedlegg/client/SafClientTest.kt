@@ -36,7 +36,7 @@ class SafClientTest {
     @BeforeEach
     fun setup() {
         safClient = SafClient(safGraphQlOidcRestTemplate, safRestOidcRestTemplate)
-        safClient.initMetrics()
+//        safClient.initMetrics()
     }
 
     @Test

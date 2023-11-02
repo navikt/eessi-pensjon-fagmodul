@@ -39,20 +39,15 @@ class PersonPDLController(
     private val euxInnhenting: EuxInnhentingService,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
-
     private val logger = LoggerFactory.getLogger(PersonPDLController::class.java)
 
     private lateinit var personControllerHentPerson: MetricsHelper.Metric
     private lateinit var personControllerHentPersonNavn: MetricsHelper.Metric
     private lateinit var personControllerHentPersonAvdod: MetricsHelper.Metric
-
-
-    @PostConstruct
-    fun initMetrics() {
+    init {
         personControllerHentPerson = metricsHelper.init("PersonControllerHentPerson")
         personControllerHentPersonNavn = metricsHelper.init("PersonControllerHentPersonNavn")
         personControllerHentPersonAvdod = metricsHelper.init("PersonControllerHentPersonAvdod", ignoreHttpCodes = listOf(HttpStatus.UNAUTHORIZED))
-
     }
 
     @GetMapping("/person/pdl/{aktoerid}", produces = [MediaType.APPLICATION_JSON_VALUE])

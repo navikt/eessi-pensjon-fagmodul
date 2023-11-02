@@ -47,8 +47,8 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
     private lateinit var HentRinasaker: MetricsHelper.Metric
     private lateinit var PutDocument: MetricsHelper.Metric
     private lateinit var PingEux: MetricsHelper.Metric
-    @PostConstruct
-    fun initMetrics(){
+
+    init {
         SEDByDocumentId = metricsHelper.init("SEDByDocumentId", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         BUCDeltakere = metricsHelper.init("BUCDeltakere", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         CreateBUC = metricsHelper.init("CreateBUC", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))

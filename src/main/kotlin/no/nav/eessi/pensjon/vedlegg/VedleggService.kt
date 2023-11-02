@@ -31,8 +31,7 @@ class VedleggService(private val safClient: SafClient,
 
     private lateinit var HentRinaSakIderFraDokumentMetadata: MetricsHelper.Metric
 
-    @PostConstruct
-    fun initMetrics() {
+    init {
         HentRinaSakIderFraDokumentMetadata = metricsHelper.init("HentRinaSakIderFraDokumentMetadata", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
     }
 

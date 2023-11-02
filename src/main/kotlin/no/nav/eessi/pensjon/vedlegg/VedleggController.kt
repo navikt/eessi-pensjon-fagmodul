@@ -22,14 +22,11 @@ import jakarta.annotation.PostConstruct
 class VedleggController(private val vedleggService: VedleggService,
                         private val auditlogger: AuditLogger,
                         @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()) {
-
     private val logger = LoggerFactory.getLogger(VedleggController::class.java)
 
     private lateinit var VedleggControllerMetadata: MetricsHelper.Metric
     private lateinit var VedleggControllerInnhold: MetricsHelper.Metric
-
-    @PostConstruct
-    fun initMetrics() {
+    init {
         VedleggControllerMetadata = metricsHelper.init("VedleggControllerMetadata", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         VedleggControllerInnhold = metricsHelper.init("VedleggControllerInnhold", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
     }

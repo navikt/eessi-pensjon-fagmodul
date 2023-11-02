@@ -29,7 +29,7 @@ class EuxPrefillServiceTest {
         MockKAnnotations.init(this)
         euxPrefillService = EuxPrefillService(euxKlientForSystemUser, statistikkHandler)
         euxinnhentingService = EuxInnhentingService("q2", euxKlientForSystemUser)
-        euxPrefillService.initMetrics()
+//        euxPrefillService.initMetrics()
     }
 
     @Test

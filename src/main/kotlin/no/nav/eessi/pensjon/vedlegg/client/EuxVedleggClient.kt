@@ -37,11 +37,9 @@ class EuxVedleggClient(private val euxNavIdentRestTemplate: RestTemplate,
 
     private lateinit var VedleggPaaDokument: MetricsHelper.Metric
 
-    @PostConstruct
-    fun initMetrics() {
+    init {
         VedleggPaaDokument = metricsHelper.init("VedleggPaaDokument")
     }
-
     fun leggTilVedleggPaaDokument(aktoerId: String,
                                   rinaSakId: String,
                                   rinaDokumentId: String,

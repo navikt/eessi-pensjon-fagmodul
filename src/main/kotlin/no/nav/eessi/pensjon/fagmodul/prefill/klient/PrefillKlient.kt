@@ -21,12 +21,9 @@ import org.springframework.web.server.ResponseStatusException
 class PrefillKlient(private val prefillOAuthTemplate: RestTemplate,
         @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
-
     private val logger: Logger by lazy { LoggerFactory.getLogger(PrefillKlient::class.java) }
     private lateinit var prefillSed: MetricsHelper.Metric
-
-    @PostConstruct
-    fun initMetrics() {
+    init {
         prefillSed = metricsHelper.init("prefillSed", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
     }
 

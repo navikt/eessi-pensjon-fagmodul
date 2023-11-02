@@ -25,11 +25,11 @@ class PensjonsinformasjonUtlandController(
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()) {
 
     private lateinit var pensjonUtland: MetricsHelper.Metric
-
-    @PostConstruct
-    fun initMetrics() {
+    init {
         pensjonUtland = metricsHelper.init("pensjonUtland")
     }
+
+
 
     @GetMapping("/hentKravUtland/{bucId}")
     @JsonInclude(JsonInclude.Include.NON_NULL)
