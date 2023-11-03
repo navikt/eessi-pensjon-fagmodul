@@ -66,7 +66,7 @@ class PersonPDLController(
     fun getAktoerid(@PathVariable("fnr", required = true) fnr: String): ResponseEntity<String> {
         auditLogger.log("getAktoerid", fnr)
 
-        return personControllerHentPerson.measure {
+        return personControllerHentAktoerid.measure {
             val aktorid = pdlService.hentAktorId(fnr).id
             ResponseEntity.ok(aktorid)
         }
