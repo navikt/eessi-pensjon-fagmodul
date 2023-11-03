@@ -47,7 +47,6 @@ internal class EuxInnhentingServiceTest {
     fun setUp() {
         MockKAnnotations.init(this)
         euxInnhentingService = EuxInnhentingService("q2", euxKlient)
-//        euxInnhentingService.initMetrics()
     }
 
     @Test

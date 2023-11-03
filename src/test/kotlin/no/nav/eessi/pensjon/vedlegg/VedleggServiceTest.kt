@@ -25,7 +25,6 @@ internal class VedleggServiceTest  {
     fun setup() {
         val euxVedleggClient = EuxVedleggClient(RestTemplate())
         vedleggService = VedleggService(safClient, euxVedleggClient)
-//        vedleggService.initMetrics()
     }
 
     @Test
