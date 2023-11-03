@@ -38,6 +38,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -88,6 +89,18 @@ class PersonPDLControllerTest {
         justRun { auditLogger.log(any(), any()) }
     }
 
+    @Test
+    fun testGetAktoeridEndpoint() {
+        val fnr = "1234567890"
+        val expectedAktorid = "1234"
+
+        every { pdlService.hentAktorId(fnr) } returns AktoerId(expectedAktorid)
+
+        mvc.perform(get("/person/pdl/aktoerid/$fnr")
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().string(expectedAktorid))
+    }
 
     @Test
     fun `getPerson should return Person as json`() {
