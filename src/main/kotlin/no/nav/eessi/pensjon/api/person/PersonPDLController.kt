@@ -44,8 +44,10 @@ class PersonPDLController(
     private lateinit var personControllerHentPerson: MetricsHelper.Metric
     private lateinit var personControllerHentPersonNavn: MetricsHelper.Metric
     private lateinit var personControllerHentPersonAvdod: MetricsHelper.Metric
+    private lateinit var personControllerHentAktoerid: MetricsHelper.Metric
     init {
         personControllerHentPerson = metricsHelper.init("PersonControllerHentPerson")
+        personControllerHentAktoerid = metricsHelper.init("PersonControllerHentAktoerId")
         personControllerHentPersonNavn = metricsHelper.init("PersonControllerHentPersonNavn")
         personControllerHentPersonAvdod = metricsHelper.init("PersonControllerHentPersonAvdod", ignoreHttpCodes = listOf(HttpStatus.UNAUTHORIZED))
     }
@@ -57,6 +59,16 @@ class PersonPDLController(
         return personControllerHentPerson.measure {
             val person = hentPerson(aktoerid)
             ResponseEntity.ok(person)
+        }
+    }
+
+    @GetMapping("/person/pdl/aktoerid/{fnr}", produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun getAktoerid(@PathVariable("fnr", required = true) fnr: String): ResponseEntity<String> {
+        auditLogger.log("getAktoerid", fnr)
+
+        return personControllerHentPerson.measure {
+            val aktorid = pdlService.hentAktorId(fnr).id
+            ResponseEntity.ok(aktorid)
         }
     }
 
