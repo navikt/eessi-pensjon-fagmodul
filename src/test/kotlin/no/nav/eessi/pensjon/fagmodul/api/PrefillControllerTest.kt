@@ -85,17 +85,12 @@ internal class PrefillControllerTest {
         MockKAnnotations.init(this, relaxed = true)
 
         val innhentingService = InnhentingService(personService, vedleggService, prefillKlient, pensjonsinformasjonService)
-//        innhentingService.initMetrics()
-//
-//        mockEuxInnhentingService.initMetrics()
         prefillController = PrefillController(
             mockEuxPrefillService,
             mockEuxInnhentingService,
             innhentingService,
             auditLogger
         )
-//        prefillController.initMetrics()
-//        mockEuxPrefillService.initMetrics()
     }
 
 
