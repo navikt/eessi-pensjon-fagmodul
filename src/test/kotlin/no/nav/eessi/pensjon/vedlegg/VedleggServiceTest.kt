@@ -5,11 +5,7 @@ package no.nav.eessi.pensjon.vedlegg
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.eessi.pensjon.utils.mapJsonToAny
-import no.nav.eessi.pensjon.vedlegg.client.Data
-import no.nav.eessi.pensjon.vedlegg.client.DokumentoversiktBruker
-import no.nav.eessi.pensjon.vedlegg.client.EuxVedleggClient
-import no.nav.eessi.pensjon.vedlegg.client.HentMetadataResponse
-import no.nav.eessi.pensjon.vedlegg.client.SafClient
+import no.nav.eessi.pensjon.vedlegg.client.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.web.client.RestTemplate

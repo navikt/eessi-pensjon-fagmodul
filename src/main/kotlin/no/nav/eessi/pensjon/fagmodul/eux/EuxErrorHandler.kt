@@ -1,12 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
-import no.nav.eessi.pensjon.eux.klient.EuxConflictException
-import no.nav.eessi.pensjon.eux.klient.EuxRinaServerException
-import no.nav.eessi.pensjon.eux.klient.ForbiddenException
-import no.nav.eessi.pensjon.eux.klient.GatewayTimeoutException
-import no.nav.eessi.pensjon.eux.klient.GenericUnprocessableEntity
-import no.nav.eessi.pensjon.eux.klient.IkkeFunnetException
-import no.nav.eessi.pensjon.eux.klient.RinaIkkeAutorisertBrukerException
+import no.nav.eessi.pensjon.eux.klient.*
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.client.ClientHttpResponse

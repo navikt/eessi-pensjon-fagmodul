@@ -2,11 +2,11 @@ package no.nav.eessi.pensjon.fagmodul.models
 
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.utils.eessiRequire
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.web.server.ResponseStatusException
-import org.junit.jupiter.api.Assertions.assertFalse
 
 class SedTypeTest {
     @Test

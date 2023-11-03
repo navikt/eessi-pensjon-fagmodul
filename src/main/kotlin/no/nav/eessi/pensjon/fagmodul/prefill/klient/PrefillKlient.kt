@@ -1,6 +1,5 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.klient
 
-import jakarta.annotation.PostConstruct
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.shared.api.ApiRequest
 import no.nav.eessi.pensjon.utils.mapJsonToAny

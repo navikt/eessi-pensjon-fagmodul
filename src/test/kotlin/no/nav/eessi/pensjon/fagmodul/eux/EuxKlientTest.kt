@@ -2,13 +2,7 @@ package no.nav.eessi.pensjon.fagmodul.eux
 
 
 import io.mockk.mockk
-import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
-import no.nav.eessi.pensjon.eux.klient.EuxRinaServerException
-import no.nav.eessi.pensjon.eux.klient.ForbiddenException
-import no.nav.eessi.pensjon.eux.klient.GatewayTimeoutException
-import no.nav.eessi.pensjon.eux.klient.GenericUnprocessableEntity
-import no.nav.eessi.pensjon.eux.klient.IkkeFunnetException
-import no.nav.eessi.pensjon.eux.klient.RinaIkkeAutorisertBrukerException
+import no.nav.eessi.pensjon.eux.klient.*
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_01
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_03
 import no.nav.eessi.pensjon.eux.model.SedType
@@ -24,7 +18,6 @@ import no.nav.eessi.pensjon.shared.retry.IOExceptionRetryInterceptor
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
-import org.hamcrest.core.StringContains
 import org.hamcrest.core.StringContains.containsString
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -42,7 +35,6 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig
 import org.springframework.test.web.client.ExpectedCount
 import org.springframework.test.web.client.MockRestServiceServer
-import org.springframework.test.web.client.match.MockRestRequestMatchers
 import org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo
 import org.springframework.test.web.client.response.MockRestResponseCreators.withStatus
 import org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess
