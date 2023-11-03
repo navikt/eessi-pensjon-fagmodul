@@ -3,12 +3,12 @@ package no.nav.eessi.pensjon.integrationtest.buc
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
-import no.nav.eessi.pensjon.eux.model.BucType.*
+import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_01
 import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.fagmodul.api.BucController
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.beans.factory.annotation.Autowired

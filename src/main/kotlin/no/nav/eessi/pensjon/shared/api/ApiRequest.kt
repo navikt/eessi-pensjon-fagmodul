@@ -2,10 +2,7 @@
 
  import com.fasterxml.jackson.annotation.JsonIgnoreProperties
  import no.nav.eessi.pensjon.eux.model.BucType
- import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_02
- import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_05
- import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_06
- import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_10
+ import no.nav.eessi.pensjon.eux.model.BucType.*
  import no.nav.eessi.pensjon.eux.model.SedType
  import no.nav.eessi.pensjon.eux.model.sed.KravType
  import org.slf4j.LoggerFactory

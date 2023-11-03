@@ -2,11 +2,7 @@ package no.nav.eessi.pensjon.fagmodul.eux
 
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_01
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_06
-import no.nav.eessi.pensjon.eux.model.SedType.P10000
-import no.nav.eessi.pensjon.eux.model.SedType.P2000
-import no.nav.eessi.pensjon.eux.model.SedType.P5000
-import no.nav.eessi.pensjon.eux.model.SedType.P6000
-import no.nav.eessi.pensjon.eux.model.SedType.P7000
+import no.nav.eessi.pensjon.eux.model.SedType.*
 import no.nav.eessi.pensjon.utils.toJson
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test

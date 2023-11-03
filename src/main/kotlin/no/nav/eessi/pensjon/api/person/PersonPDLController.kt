@@ -1,7 +1,7 @@
 package no.nav.eessi.pensjon.api.person
 
-import jakarta.annotation.PostConstruct
-import no.nav.eessi.pensjon.eux.model.BucType.*
+import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_02
+import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_06
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService

@@ -1,23 +1,10 @@
 package no.nav.eessi.pensjon.vedlegg.client
 
-import jakarta.annotation.PostConstruct
-import no.nav.eessi.pensjon.eux.klient.EuxRinaServerException
-import no.nav.eessi.pensjon.eux.klient.ForbiddenException
-import no.nav.eessi.pensjon.eux.klient.GatewayTimeoutException
-import no.nav.eessi.pensjon.eux.klient.GenericUnprocessableEntity
-import no.nav.eessi.pensjon.eux.klient.IkkeFunnetException
-import no.nav.eessi.pensjon.eux.klient.RinaIkkeAutorisertBrukerException
-import no.nav.eessi.pensjon.eux.klient.ServerException
+import no.nav.eessi.pensjon.eux.klient.*
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.ContentDisposition
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
-import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
-import org.springframework.http.ResponseEntity
+import org.springframework.http.*
 import org.springframework.stereotype.Component
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.HttpClientErrorException

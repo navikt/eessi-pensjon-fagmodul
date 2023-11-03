@@ -1,6 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
-import no.nav.eessi.pensjon.eux.model.buc.*
+import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import org.junit.jupiter.api.Test
 

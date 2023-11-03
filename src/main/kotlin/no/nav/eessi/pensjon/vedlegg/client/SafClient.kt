@@ -1,6 +1,5 @@
 package no.nav.eessi.pensjon.vedlegg.client
 
-import jakarta.annotation.PostConstruct
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import org.slf4j.LoggerFactory

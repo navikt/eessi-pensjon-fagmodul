@@ -1,6 +1,5 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
-import jakarta.annotation.PostConstruct
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.klient.ForbiddenException
 import no.nav.eessi.pensjon.eux.klient.Rinasak
@@ -18,7 +17,10 @@ import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.shared.api.ApiRequest
 import no.nav.eessi.pensjon.shared.api.InstitusjonItem
 import no.nav.eessi.pensjon.shared.api.PrefillDataModel
-import no.nav.eessi.pensjon.utils.*
+import no.nav.eessi.pensjon.utils.mapAnyToJson
+import no.nav.eessi.pensjon.utils.mapJsonToAny
+import no.nav.eessi.pensjon.utils.toJson
+import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value

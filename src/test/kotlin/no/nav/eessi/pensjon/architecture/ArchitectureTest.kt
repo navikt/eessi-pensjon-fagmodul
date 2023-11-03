@@ -1,20 +1,10 @@
 package no.nav.eessi.pensjon.architecture
 
 import com.tngtech.archunit.base.DescribedPredicate
-import com.tngtech.archunit.core.domain.JavaAnnotation
-import com.tngtech.archunit.core.domain.JavaClass
-import com.tngtech.archunit.core.domain.JavaClasses
-import com.tngtech.archunit.core.domain.JavaCodeUnit
-import com.tngtech.archunit.core.domain.JavaFieldAccess
-import com.tngtech.archunit.core.domain.JavaMethod
-import com.tngtech.archunit.core.domain.JavaModifier
+import com.tngtech.archunit.core.domain.*
 import com.tngtech.archunit.core.importer.ClassFileImporter
 import com.tngtech.archunit.core.importer.ImportOption
-import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes
-import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods
-import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses
-import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noFields
-import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noMethods
+import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*
 import com.tngtech.archunit.library.Architectures.layeredArchitecture
 import com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.slices
 import no.nav.eessi.pensjon.EessiFagmodulApplication

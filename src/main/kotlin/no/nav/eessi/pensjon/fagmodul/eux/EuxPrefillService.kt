@@ -1,6 +1,5 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
-import jakarta.annotation.PostConstruct
 import no.nav.eessi.pensjon.eux.klient.*
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.Buc
