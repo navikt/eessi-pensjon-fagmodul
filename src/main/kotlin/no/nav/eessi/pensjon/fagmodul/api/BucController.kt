@@ -174,8 +174,10 @@ class BucController(
             //return med sort og distict (avdodfmr og caseid)
             return@measure view.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
                 .also {
-                    logger.info("Total view size: ${it.size}")
-                    logger.info("BrukerRinasaker total tid: ${System.currentTimeMillis()-start} i ms")
+                    logger.info("""
+                        Total view size: ${it.size}
+                        GetRinasakerBrukerkontekst -> BrukerRinasaker total tid: ${System.currentTimeMillis()-start} i ms
+                        """.trimIndent())
                 }
         }
     }
@@ -210,10 +212,12 @@ class BucController(
 
             //return med sort og distict (avdodfmr og caseid)
             return@measure safView.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
-                    .also {
-                        logger.info("Total view size: ${it.size}")
-                        logger.info("BrukerRinasaker total tid: ${System.currentTimeMillis()-start} i ms")
-                    }
+                .also {
+                    logger.info("""
+                        Total view size: ${it.size}
+                        GetRinasakerJoark -> BrukerRinasaker total tid: ${System.currentTimeMillis()-start} i ms
+                        """.trimIndent())
+                }
         }
     }
 
@@ -245,10 +249,12 @@ class BucController(
 
             //return med sort og distict (avdodfmr og caseid)
             return@measure bucer
-                    .also {
-                        logger.info("Buc count: ${it.size}")
-                        logger.info("hentBucerMedJournalforteSeder: buc count: ${it.size} - total tid: ${System.currentTimeMillis()-start} ms")
-                    }
+                .also {
+                    logger.info("""
+                        Buc count: ${it.size}
+                        HentBucerMedJournalforteSeder: buc count: ${it.size} - total tid: ${System.currentTimeMillis()-start} ms
+                        """.trimIndent())
+                }
         }
     }
 
@@ -273,10 +279,12 @@ class BucController(
 
             //return med sort og distict (avdodfmr og caseid)
             return@measure rinaSaker.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
-                    .also {
-                        logger.info("Total view size: ${it.size}")
-                        logger.info("BrukerRinasaker total tid: ${System.currentTimeMillis()-start} i ms")
-                    }
+                .also {
+                    logger.info("""
+                        Total view size: ${it.size}
+                        GetRinasakerFraRina -> BrukerRinasaker total tid: ${System.currentTimeMillis()-start} i ms
+                    """.trimMargin())
+                }
         }
     }
 
@@ -296,8 +304,10 @@ class BucController(
             if (avdodeFraPesysVedtak.isEmpty()) {
                 return@measure emptyList<EuxInnhentingService.BucView>()
                     .also {
-                        logger.info("Total view size is zero")
-                        logger.info("BrukerRinasaker total tid: ${System.currentTimeMillis() - start} i ms")
+                        logger.info("""
+                            Total view size is zero
+                            GetGjenlevendeRinasakerVedtak -> BrukerRinasaker total tid: ${System.currentTimeMillis() - start} i ms
+                            """.trimIndent())
                     }
             }
 
@@ -359,13 +369,7 @@ class BucController(
 
             //return med sort og distinct (avdodfnr og caseid)
             return@measure view.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
-                .also { logger.info("Total view size: ${it.size}") }
-                .also { if (avdodeFraPesysVedtak.isEmpty()) {
-                        logger.info("BrukerRinasaker total tid: ${System.currentTimeMillis()-start} i ms")
-                    } else {
-                        logger.info("GjenlevendeRinasakerVedtak total tid: ${System.currentTimeMillis()-start} i ms")
-                    }
-                }
+                .also { logger.info("GjenlevendeRinasakerVedtak: view size: ${it.size}, total tid: ${System.currentTimeMillis()-start} i ms") }
         }
     }
 
