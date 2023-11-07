@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import kotlin.time.ExperimentalTime
+import kotlin.time.measureTimedValue
 
 
 @Protected
@@ -135,6 +137,7 @@ class BucController(
             return@measure euxInnhentingService.getSingleBucAndSedView(euxcaseid)
         }
 
+    @OptIn(ExperimentalTime::class)
     @Deprecated("Utgår til fordel for hentBucerMedJournalforteSeder og getRinasakerFraRina")
     @GetMapping("/rinasaker/{aktoerId}/saknr/{saknr}")
     fun getRinasakerBrukerkontekst(
@@ -147,7 +150,9 @@ class BucController(
 
             logger.info("henter rinasaker på valgt aktoerid: $aktoerId, på saknr: $pensjonSakNummer")
             val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerId)
+            measureTimedValue{
 
+            }
             val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
                 .also { timeTracking.add("rinaSakIderFraJoark tid: ${System.currentTimeMillis()-start} i ms") }
 
