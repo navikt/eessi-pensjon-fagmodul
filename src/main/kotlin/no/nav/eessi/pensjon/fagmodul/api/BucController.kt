@@ -143,19 +143,18 @@ class BucController(
     ): List<EuxInnhentingService.BucView> {
         return bucView.measure {
             val start = System.currentTimeMillis()
+            val timeTracking = mutableListOf<String>()
 
             logger.info("henter rinasaker på valgt aktoerid: $aktoerId, på saknr: $pensjonSakNummer")
             val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerId)
 
-            val joarkstart = System.currentTimeMillis()
-            val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)  //rinasak
-            logger.info("hentRinaSakIderFraMetaData tid: ${System.currentTimeMillis()-joarkstart} i ms")
-            logger.debug("rinaSakIderFraJoark : ${rinaSakIderFraJoark.toJson()}")
+            val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
+                .also { timeTracking.add("rinaSakIderFraJoark tid: ${System.currentTimeMillis()-start} i ms") }
 
             //bruker saker fra eux/rina
-            val brukerView = gjenlevendeFnr?.let { euxInnhentingService.hentBucViewBruker(it.id, aktoerId, pensjonSakNummer) }
-                ?: emptyList()
-            logger.debug("brukerView : ${brukerView.toJson()}")
+            val brukerView = gjenlevendeFnr?.let { euxInnhentingService.hentBucViewBruker(it.id, aktoerId, pensjonSakNummer) }.also {
+                timeTracking.add("hentBucViewBruker, gjenlevendeFnr tid: ${System.currentTimeMillis()-start} i ms")
+            }?: emptyList()
 
             //filtert bort brukersaker fra saf
             val filterBrukerRinaSakIderFraJoark = rinaSakIderFraJoark.filterNot { rinaid -> rinaid in brukerView.map { it.euxCaseId }  }
@@ -166,8 +165,7 @@ class BucController(
                 pensjonSakNummer,
                 filterBrukerRinaSakIderFraJoark,
                 EuxInnhentingService.BucViewKilde.SAF
-            )
-            logger.debug("safView : ${safView.toJson()}")
+            ).also {timeTracking.add("hentBucViews tid: ${System.currentTimeMillis()-start} i ms")}
 
             val view = brukerView + safView
 
@@ -176,7 +174,7 @@ class BucController(
                 .also {
                     logger.info("""
                         Total view size: ${it.size}
-                        GetRinasakerBrukerkontekst -> BrukerRinasaker total tid: ${System.currentTimeMillis()-start} i ms
+                        ${timeTracking.joinToString("\n")}
                         """.trimIndent())
                 }
         }
