@@ -317,6 +317,10 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
         }
     }
 
+    fun hentBucerGjenny(fnr: String): List<Rinasak> {
+        return euxKlient.getRinasaker(fnr)
+    }
+
     fun lagBucViews(aktoerId: String, pesysSaksnr: String, rinaSakIder: List<String>, rinaSakIdKilde: BucViewKilde): List<BucView> {
         val start = System.currentTimeMillis()
 
