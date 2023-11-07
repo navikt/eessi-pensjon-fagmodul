@@ -172,15 +172,12 @@ class BucController(
                 EuxInnhentingService.BucViewKilde.SAF
             ).also {timeTracking.add("hentBucViews tid: ${System.currentTimeMillis()-start} i ms")}
 
-            val view = brukerView + safView
+            val view = (brukerView + safView).also { logger.info("Antall for brukerview+safView: ${it.size}") }
 
             //return med sort og distict (avdodfmr og caseid)
             return@measure view.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
                 .also {
-                    logger.info("""
-                        Total view size: ${it.size}
-                        ${timeTracking.joinToString("\n")}
-                        """.trimIndent())
+                    logger.info("Tidsbruk for getRinasakerBrukerkontekst: \n"+timeTracking.joinToString("\n").trimIndent())
                 }
         }
     }
