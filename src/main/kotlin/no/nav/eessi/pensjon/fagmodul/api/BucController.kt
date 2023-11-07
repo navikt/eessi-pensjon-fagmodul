@@ -166,7 +166,7 @@ class BucController(
             val filterBrukerRinaSakIderFraJoark = rinaSakIderFraJoark.filterNot { rinaid -> rinaid in brukerView.map { it.euxCaseId }  }
 
             //saker fra saf og eux/rina
-            val safView = euxInnhentingService.hentBucViews(
+            val safView = euxInnhentingService.lagBucViews(
                 aktoerId,
                 pensjonSakNummer,
                 filterBrukerRinaSakIderFraJoark,
@@ -202,7 +202,7 @@ class BucController(
 
             //saker fra saf og eux/rina
             val (safView, hentBucViewsVarighet) = measureTimedValue {
-                euxInnhentingService.hentBucViews(
+                euxInnhentingService.lagBucViews(
                     aktoerId,
                     pensjonSakNummer,
                     rinaSakIderFraJoark,
@@ -340,7 +340,7 @@ class BucController(
             val filterAvodRinaSakIderFraJoark = brukerRinaSakIderFraJoark.filterNot { rinaid -> rinaid in avdodView.map { it.euxCaseId }  }
 
             //saker fra saf og eux/rina
-            val safView = euxInnhentingService.hentBucViews(
+            val safView = euxInnhentingService.lagBucViews(
                 aktoerId,
                 sakNr,
                 filterAvodRinaSakIderFraJoark,
