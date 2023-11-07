@@ -25,6 +25,7 @@ import kotlin.time.ExperimentalTime
 import kotlin.time.measureTimedValue
 
 
+@OptIn(ExperimentalTime::class)
 @Protected
 @RestController
 @RequestMapping("/buc")
@@ -192,31 +193,34 @@ class BucController(
             @PathVariable("saknr", required = false) pensjonSakNummer: String
     ): List<EuxInnhentingService.BucView> {
         return bucViewJoark.measure {
-            val start = System.currentTimeMillis()
 
             logger.info("henter rinasaker på valgt aktoerid: $aktoerId, på saknr: $pensjonSakNummer")
 
-            val joarkstart = System.currentTimeMillis()
-            val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
-            logger.info("hentRinaSakIderFraMetaData tid: ${System.currentTimeMillis()-joarkstart} i ms")
-            logger.debug("rinaSakIderFraJoark : ${rinaSakIderFraJoark.toJson()}")
+            val (rinaSakIderFraJoark, hentRinaSakerForJoarkTid) = measureTimedValue {
+                innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
+            }.also { logger.debug("rinaSakIderFraJoark : ${it.value}")}
 
             //saker fra saf og eux/rina
-            val safView = euxInnhentingService.hentBucViews(
-                aktoerId,
-                pensjonSakNummer,
-                rinaSakIderFraJoark,
-                EuxInnhentingService.BucViewKilde.SAF
-            )
-            logger.debug("safView : ${safView.toJson()}")
+            val (safView, hentBucViewsVarighet) = measureTimedValue {
+                euxInnhentingService.hentBucViews(
+                    aktoerId,
+                    pensjonSakNummer,
+                    rinaSakIderFraJoark,
+                    EuxInnhentingService.BucViewKilde.SAF
+                )
+            }.also { logger.debug("safView : ${it.toJson()}") }
 
             //return med sort og distict (avdodfmr og caseid)
             return@measure safView.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
                 .also {
-                    logger.info("""
-                        Total view size: ${it.size}
-                        GetRinasakerJoark -> BrukerRinasaker total tid: ${System.currentTimeMillis()-start} i ms
-                        """.trimIndent())
+                    logger.info(
+                        """
+                        GetRinasakerJoark
+                        SafView størrelse: ${it.size}
+                        hentRinaSakIderFraJoarksMetadata: ${hentRinaSakerForJoarkTid.inWholeSeconds}
+                        hentBucViews: ${hentBucViewsVarighet.inWholeSeconds}
+                        """.trimIndent()
+                    )
                 }
         }
     }
