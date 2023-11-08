@@ -10,7 +10,6 @@ import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
-import no.nav.eessi.pensjon.utils.mapAnyToJson
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
@@ -88,13 +87,6 @@ class BucController(
             logger.debug("Henter ut Creator på valgt Buc")
             return@measure euxInnhentingService.getBuc(rinanr).creator
         }
-
-    @GetMapping("/{rinanr}/bucdeltakere",  produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getBucDeltakere(@PathVariable(value = "rinanr", required = true) rinanr: String): String {
-        auditlogger.log("getBucDeltakere")
-        logger.debug("Henter ut Buc deltakere data fra rina via eux-rina-api")
-        return mapAnyToJson(euxInnhentingService.getBucDeltakere(rinanr))
-    }
 
     @GetMapping("/{rinanr}/allDocuments",  produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getAllDocuments(@PathVariable(value = "rinanr", required = true) rinanr: String): List<DocumentsItem> =
