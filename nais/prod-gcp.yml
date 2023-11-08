@@ -10,6 +10,8 @@ spec:
     pool: nav-prod
   envFrom:
     - secret: fagmodul-prod #secret name in Google Secret Manager
+  secureLogs:
+    enabled: true
   azure:
     application:
       enabled: true
