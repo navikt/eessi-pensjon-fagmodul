@@ -3,7 +3,6 @@ package no.nav.eessi.pensjon.fagmodul.api
 import no.nav.eessi.pensjon.eux.klient.Rinasak
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.Buc
-import no.nav.eessi.pensjon.eux.model.buc.Creator
 import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
 import no.nav.eessi.pensjon.fagmodul.eux.*
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
@@ -79,13 +78,6 @@ class BucController(
         getBUC.measure {
             logger.debug("Henter ut definisjonsnavn (type type) på valgt Buc")
             return@measure euxInnhentingService.getBuc(rinanr).processDefinitionName
-        }
-
-    @GetMapping("/{rinanr}/creator",  produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getCreator(@PathVariable(value = "rinanr", required = true) rinanr: String): Creator? =
-        getBUC.measure {
-            logger.debug("Henter ut Creator på valgt Buc")
-            return@measure euxInnhentingService.getBuc(rinanr).creator
         }
 
     @GetMapping("/{rinanr}/allDocuments",  produces = [MediaType.APPLICATION_JSON_VALUE])
