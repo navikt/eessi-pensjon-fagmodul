@@ -386,6 +386,29 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
         }
     }
 
+    fun hentBucViewAvdodGjenny(avdodFnr: String, aktoerId: String): List<BucView> {
+        val start = System.currentTimeMillis()
+
+        return HentRinasaker.measure {
+            euxKlient.getRinasaker(fnr = avdodFnr, euxCaseId = null)
+                .also { logger.info("hentBucViewAvdod, rinasaker for $aktoerId, size: ${it.size}") }
+                .filter { rinasak -> rinasak.processDefinitionId in bucTyperSomKanHaAvdod.map { it.name } }
+                .filter { erRelevantForVisningIEessiPensjon(it) }
+                .map { rinasak ->
+                    BucView(
+                        rinasak.id!!,
+                        BucType.from(rinasak.processDefinitionId)!!,
+                        aktoerId,
+                        avdodFnr,
+                        kilde = BucViewKilde.AVDOD
+                    )
+                }.also {
+                    val end = System.currentTimeMillis()
+                    logger.info("hentBucViewAvdod tid ${end - start} i ms")
+                }
+        }
+    }
+
     //** hente rinasaker fra RINA og SAF
     @Retryable(
         exclude = [IOException::class],
@@ -465,7 +488,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
         val euxCaseId: String,
         val buctype: BucType?,
         val aktoerId: String,
-        val saknr: String,
+        val saknr: String? = null,
         val avdodFnr: String? = null,
         val kilde: BucViewKilde
     )
