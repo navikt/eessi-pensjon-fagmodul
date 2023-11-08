@@ -33,6 +33,8 @@ class BucController(
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
     private val logger = LoggerFactory.getLogger(BucController::class.java)
+    private val secureLog = LoggerFactory.getLogger("secureLog")
+
     private lateinit var bucDetaljer: MetricsHelper.Metric
     private lateinit var bucDetaljerVedtak: MetricsHelper.Metric
     private lateinit var bucDetaljerEnkel: MetricsHelper.Metric
@@ -117,9 +119,6 @@ class BucController(
 
             logger.info("henter rinasaker på valgt aktoerid: $aktoerId, på saknr: $pensjonSakNummer")
             val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerId)
-            measureTimedValue{
-
-            }
             val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
                 .also { timeTracking.add("rinaSakIderFraJoark tid: ${System.currentTimeMillis()-start} i ms") }
 
@@ -240,15 +239,20 @@ class BucController(
             }
 
             //hent avdod saker fra eux/rina
-            val avdodView = avdodeFraPesysVedtak.map { avdod ->
-                euxInnhentingService.hentBucViewAvdod(avdod, aktoerId, sakNr)
-            }.flatten()
-
-            val joarkstart = System.currentTimeMillis()
+            val (avdodView, _) = measureTimedValue {
+                avdodeFraPesysVedtak.map { avdod -> euxInnhentingService.hentBucViewAvdod(avdod, aktoerId, sakNr) }.flatten()
+            }.also {
+                logger.info("hentBucViewAvdod tid: ${it.duration.inWholeSeconds}, size ${it.value}")
+                secureLog.info("hentBucViewAvdod: ${it.value.toJson()}" )
+            }
 
             //brukersaker fra Joark/saf
-            val brukerRinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
-            logger.info("hentRinaSakIderFraMetaData tid: ${System.currentTimeMillis()-joarkstart} i ms")
+            val (brukerRinaSakIderFraJoark, _) = measureTimedValue {
+                innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
+            }.also {
+                logger.info("hentRinaSakIderFraJoarksMetadata tid: ${it.duration.inWholeSeconds}")
+                secureLog.info("hentRinaSakIderFraJoarksMetadata: ${it.value.toJson()}" )
+            }
 
             //filter avdodview for match på filterBrukersakerRina
             val avdodViewSaf = avdodView
@@ -315,7 +319,7 @@ class BucController(
         val avdodlist = pensjonsinformasjon?.let { peninfo -> innhentingService.hentAvdodeFnrfraPensjoninformasjon(peninfo) } ?: emptyList()
         return avdodlist.also {
             val end = System.currentTimeMillis()
-            logger.debug("Hent avdod fra vedtak tid: ${end-start} i ms") }
+            logger.debug("Hent avdod fra vedtak tid: ${end-start} i ms, med ${avdodlist.size} avdode") }
     }
 
     @GetMapping("/rinasaker/{aktoerId}/saknr/{saknr}/avdod/{avdodfnr}")

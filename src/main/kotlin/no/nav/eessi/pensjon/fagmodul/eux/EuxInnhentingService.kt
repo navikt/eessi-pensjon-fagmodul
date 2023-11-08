@@ -367,6 +367,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
 
         return HentRinasaker.measure {
             euxKlient.getRinasaker(fnr = avdodFnr, euxCaseId = null)
+                .also { logger.info("hentBucViewAvdod, rinasaker for $aktoerId, size: ${it.size}") }
                 .filter { rinasak -> rinasak.processDefinitionId in bucTyperSomKanHaAvdod.map { it.name } }
                 .filter { erRelevantForVisningIEessiPensjon(it) }
                 .map { rinasak ->
