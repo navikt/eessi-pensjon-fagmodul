@@ -184,48 +184,6 @@ class BucController(
     }
 
     /**
-     * Rina-saker der det finnes journalførte dokumenter
-     */
-    @Deprecated("Bruk hentBucerMedJournalforteSeder()")
-    @GetMapping("/rinasaker/joark/{aktoerId}/pesyssak/{saknr}")
-    fun getRinasakerJoark(
-            @PathVariable("aktoerId", required = true) aktoerId: String,
-            @PathVariable("saknr", required = false) pensjonSakNummer: String
-    ): List<EuxInnhentingService.BucView> {
-        return bucViewJoark.measure {
-
-            logger.info("henter rinasaker på valgt aktoerid: $aktoerId, på saknr: $pensjonSakNummer")
-
-            val (rinaSakIderFraJoark, hentRinaSakerForJoarkTid) = measureTimedValue {
-                innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
-            }.also { logger.debug("rinaSakIderFraJoark : ${it.value}")}
-
-            //saker fra saf og eux/rina
-            val (safView, hentBucViewsVarighet) = measureTimedValue {
-                euxInnhentingService.lagBucViews(
-                    aktoerId,
-                    pensjonSakNummer,
-                    rinaSakIderFraJoark,
-                    EuxInnhentingService.BucViewKilde.SAF
-                )
-            }.also { logger.debug("safView : ${it.toJson()}") }
-
-            //return med sort og distict (avdodfmr og caseid)
-            return@measure safView.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
-                .also {
-                    logger.info(
-                        """
-                        GetRinasakerJoark
-                        SafView størrelse: ${it.size}
-                        hentRinaSakIderFraJoarksMetadata: ${hentRinaSakerForJoarkTid.inWholeSeconds}
-                        hentBucViews: ${hentBucViewsVarighet.inWholeSeconds}
-                        """.trimIndent()
-                    )
-                }
-        }
-    }
-
-    /**
      * Liste med buc'er for aktør & pesys-sakssnr - som det finnes journalførte dokumenter på
      */
     @GetMapping("/joark/aktoer/{aktoerId}/pesyssak/{saknr}")
