@@ -73,13 +73,6 @@ class BucController(
             return@measure euxInnhentingService.getBuc(rinanr)
         }
 
-    @GetMapping("/{rinanr}/name",  produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getProcessDefinitionName(@PathVariable(value = "rinanr", required = true) rinanr: String): String? =
-        getBUC.measure {
-            logger.debug("Henter ut definisjonsnavn (type type) på valgt Buc")
-            return@measure euxInnhentingService.getBuc(rinanr).processDefinitionName
-        }
-
     @GetMapping("/{rinanr}/allDocuments",  produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getAllDocuments(@PathVariable(value = "rinanr", required = true) rinanr: String): List<DocumentsItem> =
         getBUC.measure {
