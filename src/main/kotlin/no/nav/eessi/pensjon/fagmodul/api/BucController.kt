@@ -3,7 +3,6 @@ package no.nav.eessi.pensjon.fagmodul.api
 import no.nav.eessi.pensjon.eux.klient.Rinasak
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.Buc
-import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
 import no.nav.eessi.pensjon.fagmodul.eux.*
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.logging.AuditLogger
@@ -73,15 +72,6 @@ class BucController(
             return@measure euxInnhentingService.getBuc(rinanr)
         }
 
-    @GetMapping("/{rinanr}/allDocuments",  produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getAllDocuments(@PathVariable(value = "rinanr", required = true) rinanr: String): List<DocumentsItem> =
-        getBUC.measure {
-            auditlogger.logBuc("getAllDocuments", rinanr)
-            logger.debug("Henter ut documentId på alle dokumenter som finnes på valgt type")
-            val buc = euxInnhentingService.getBuc(rinanr)
-            return@measure BucUtils(buc).getAllDocuments()
-        }
-
     @GetMapping("/{rinanr}/aksjoner")
     fun getMuligeAksjoner(@PathVariable(value = "rinanr", required = true) rinanr: String): List<SedType> =
         getBUC.measure {
@@ -89,7 +79,6 @@ class BucController(
             val bucUtil = BucUtils(euxInnhentingService.getBuc(rinanr))
             return@measure bucUtil.filterSektorPandRelevantHorizontalAndXSeds(bucUtil.getSedsThatCanBeCreated())
         }
-
 
     @GetMapping("/rinasaker/{aktoerId}")
     fun getRinasaker(@PathVariable("aktoerId", required = true) aktoerId: String): List<Rinasak> {
