@@ -10,6 +10,26 @@
                 <includeCallerData>true</includeCallerData>
             </encoder>
         </appender>
+
+        <appender name="secureLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>/secure-logs/secure.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+                <fileNamePattern>/secure-logs/secure.log.%i</fileNamePattern>
+                <minIndex>1</minIndex>
+                <maxIndex>1</maxIndex>
+            </rollingPolicy>
+            <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+                <maxFileSize>50MB</maxFileSize>
+            </triggeringPolicy>
+            <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+                <includeCallerData>true</includeCallerData>
+            </encoder>
+        </appender>
+
+        <logger name="secureLog" level="DEBUG" additivity="false">
+            <appender-ref ref="secureLog"/>
+        </logger>
+
         <appender name="auditLogger" class="com.papertrailapp.logback.Syslog4jAppender">
             <layout class="ch.qos.logback.classic.PatternLayout">
                 <pattern>[%d{"yyyy-MM-dd'T'HH:mm:ss,SSSXXX", UTC} %level] %logger{15} : %m%n%xEx</pattern>
@@ -50,6 +70,26 @@
                 <includeCallerData>true</includeCallerData>
             </encoder>
         </appender>
+
+        <appender name="secureLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>/secure-logs/secure.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+                <fileNamePattern>/secure-logs/secure.log.%i</fileNamePattern>
+                <minIndex>1</minIndex>
+                <maxIndex>1</maxIndex>
+            </rollingPolicy>
+            <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+                <maxFileSize>50MB</maxFileSize>
+            </triggeringPolicy>
+            <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+                <includeCallerData>true</includeCallerData>
+            </encoder>
+        </appender>
+
+        <logger name="secureLog" level="DEBUG"  additivity="false">
+            <appender-ref ref="secureLog"/>
+        </logger>
+
         <appender name="auditLogger" class="com.papertrailapp.logback.Syslog4jAppender">
             <layout class="ch.qos.logback.classic.PatternLayout">
                 <pattern>[%d{"yyyy-MM-dd'T'HH:mm:ss,SSSXXX", UTC} %level] %logger{15} : %mdc - %m%n%xEx</pattern>
