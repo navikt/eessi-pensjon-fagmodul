@@ -90,6 +90,9 @@ class InnhentingService(
     fun hentRinaSakIderFraJoarksMetadata(aktoerid: String): List<String> =
         vedleggService.hentRinaSakIderFraMetaData(aktoerid)
 
+    fun hentRinaSakIderFraJoarksMetadataForOmstilling(aktoerid: String): List<String> =
+        vedleggService.hentRinaSakerFraMetaForOmstillingstonad(aktoerid)
+
     fun hentPreutyltSed(apiRequest: ApiRequest): String = prefillKlient.hentPreutfyltSed(apiRequest)
 
     fun hentPensjoninformasjonVedtak(vedtakId: String) = pensjonsinformasjonService.hentAltPaaVedtak(vedtakId)
