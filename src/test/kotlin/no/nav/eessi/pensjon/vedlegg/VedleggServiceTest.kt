@@ -4,6 +4,7 @@ package no.nav.eessi.pensjon.vedlegg
 
 import io.mockk.every
 import io.mockk.mockk
+import junit.framework.TestCase.assertEquals
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.vedlegg.client.*
 import org.junit.jupiter.api.BeforeEach
@@ -122,6 +123,36 @@ internal class VedleggServiceTest  {
 
         val result = vedleggService.hentRinaSakIderFraMetaData(aktoerId)
         assert(result.isEmpty())
+    }
+    @Test
+    fun `hentRinaSakerFraMetaForOmstillingstonad should filter and map correctly`() {
+        val rinaSakId = "12345678"
+        val mockDokumentMetadata = createMockDokumentMetadata(rinaSakId)
+        every { safClient.hentDokumentMetadata(any()) } returns mockDokumentMetadata
+
+        val result = vedleggService.hentRinaSakerFraMetaForOmstillingstonad("mockActorId")
+
+        assertEquals(rinaSakId, result.firstOrNull())
+    }
+
+    private fun createMockDokumentMetadata(rinaSakId: String): HentMetadataResponse {
+        return HentMetadataResponse(
+            data = Data(
+                dokumentoversiktBruker = DokumentoversiktBruker(
+                    journalposter = listOf(mockk<Journalpost>().apply {
+                            every { tema } returns "omstilling"
+                            every { tilleggsopplysninger } returns listOf(
+                                mapOf("nokkel" to "eessi_pensjon_bucid", "verdi" to rinaSakId)
+                            )
+                            every { journalpostId } returns "123456"
+                            every { datoOpprettet } returns "2023-11-09"
+                            every { tittel } returns "Test Journalpost"
+                            every { dokumenter } returns emptyList()
+                        }
+                    )
+                )
+            )
+        )
     }
 }
 

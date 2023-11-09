@@ -78,6 +78,23 @@ class VedleggService(private val safClient: SafClient,
             }.filterNot { MissingBuc.checkForMissingBuc(it) }
             .distinct()
             .also { logger.info("Fant følgende RINAID fra dokument Metadata: ${it.map { str -> str }}") }
+
+    @Retryable(
+        exclude = [IOException::class],
+        backoff = Backoff(delayExpression = "@euxKlientVedleggServiceRetryConfig.initialRetryMillis", maxDelay = 200000L, multiplier = 3.0),
+        listeners  = ["euxKlientVedleggServiceRetryLogger"]
+    )
+    fun hentRinaSakerFraMetaForOmstillingstonad(aktoerId: String): List<String> =
+        hentDokumentMetadata(aktoerId).data.dokumentoversiktBruker.journalposter
+            .filter { it.tema.contains("omstilling") }
+            .flatMap { journalpost ->
+                journalpost.tilleggsopplysninger
+                    .filter { it["nokkel"].equals(TILLEGGSOPPLYSNING_RINA_SAK_ID_KEY) }
+                    .filter { it["verdi"] != null }
+                    .map { it["verdi"]!! }
+            }.filterNot { MissingBuc.checkForMissingBuc(it) }
+            .distinct()
+            .also { logger.info("Fant følgende RINAID fra dokument Metadata: ${it.map { str -> str }}") }
 }
 
 
