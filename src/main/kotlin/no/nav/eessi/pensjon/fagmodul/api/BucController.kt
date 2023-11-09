@@ -305,7 +305,6 @@ class BucController(
         }
     }
 
-
     private fun hentAvdodFraVedtak(vedtakId: String?, sakNr: String): List<String> {
         if (vedtakId == null || vedtakId.all { char -> !char.isDigit() }) return emptyList()
 

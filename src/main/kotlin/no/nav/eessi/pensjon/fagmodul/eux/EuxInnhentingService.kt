@@ -321,7 +321,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
         return euxKlient.getRinasaker(fnr)
     }
 
-    fun lagBucViews(aktoerId: String, pesysSaksnr: String, rinaSakIder: List<String>, rinaSakIdKilde: BucViewKilde): List<BucView> {
+    fun lagBucViews(aktoerId: String, pesysSaksnr: String?, rinaSakIder: List<String>, rinaSakIdKilde: BucViewKilde): List<BucView> {
         val start = System.currentTimeMillis()
 
         return rinaSakIder
@@ -362,7 +362,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
     }
 
 
-    fun hentBucViewAvdod(avdodFnr: String, aktoerId: String, pesysSaksnr: String): List<BucView> {
+    fun hentBucViewAvdod(avdodFnr: String, aktoerId: String, pesysSaksnr: String? = null): List<BucView> {
         val start = System.currentTimeMillis()
 
         return HentRinasaker.measure {
@@ -378,29 +378,6 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
                         pesysSaksnr,
                         avdodFnr,
                         BucViewKilde.AVDOD
-                    )
-                }.also {
-                    val end = System.currentTimeMillis()
-                    logger.info("hentBucViewAvdod tid ${end - start} i ms")
-                }
-        }
-    }
-
-    fun hentBucViewAvdodGjenny(avdodFnr: String, aktoerId: String): List<BucView> {
-        val start = System.currentTimeMillis()
-
-        return HentRinasaker.measure {
-            euxKlient.getRinasaker(fnr = avdodFnr, euxCaseId = null)
-                .also { logger.info("hentBucViewAvdod, rinasaker for $aktoerId, size: ${it.size}") }
-                .filter { rinasak -> rinasak.processDefinitionId in bucTyperSomKanHaAvdod.map { it.name } }
-                .filter { erRelevantForVisningIEessiPensjon(it) }
-                .map { rinasak ->
-                    BucView(
-                        rinasak.id!!,
-                        BucType.from(rinasak.processDefinitionId)!!,
-                        aktoerId,
-                        avdodFnr,
-                        kilde = BucViewKilde.AVDOD
                     )
                 }.also {
                     val end = System.currentTimeMillis()
