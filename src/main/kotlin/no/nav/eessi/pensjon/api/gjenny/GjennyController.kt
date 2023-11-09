@@ -3,6 +3,7 @@ package no.nav.eessi.pensjon.api.gjenny
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.metrics.MetricsHelper
+import no.nav.security.token.support.core.api.Unprotected
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import kotlin.time.ExperimentalTime
 
+@Unprotected
 @RestController
 @RequestMapping("/gjenny")
 class GjennyController (
