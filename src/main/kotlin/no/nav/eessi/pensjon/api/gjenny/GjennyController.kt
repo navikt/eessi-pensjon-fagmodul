@@ -53,7 +53,7 @@ class GjennyController (
             }
 
             //api: brukersaker fra Joark/saf
-            val brukerRinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
+            val brukerRinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadataForOmstilling(aktoerId)
 
             //filter: avdodview for match på filterBrukersakerRina
             val avdodViewSaf = avdodesSakerFraRina
@@ -76,7 +76,7 @@ class GjennyController (
                 EuxInnhentingService.BucViewKilde.SAF
             )
 
-            //filter: saf for avdod
+            //filter: saf saker begrenset til bucTyperSomKanHaAvdod, legger til avdodfnr //TODO Hvorfor legger vi til avdodfnr?
             val safViewAvdod = safView
                 .filter { view -> view.buctype in EuxInnhentingService.bucTyperSomKanHaAvdod }
                 .map { view -> view.copy(avdodFnr = avdodfnr) }
