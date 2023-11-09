@@ -39,6 +39,7 @@ class GjennyController (
 
             logger.info("henter rinasaker på valgt aktoerid: $aktoerId")
 
+            //api: henter rinasaker fra eux
             val avdodesSakerFraRina = euxInnhentingService.hentBucViewAvdod(avdodfnr, aktoerId)
 
             if (avdodesSakerFraRina.isEmpty()) {
@@ -51,23 +52,23 @@ class GjennyController (
                     }
             }
 
-            //brukersaker fra Joark/saf
+            //api: brukersaker fra Joark/saf
             val brukerRinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
 
-            //filter avdodview for match på filterBrukersakerRina
+            //filter: avdodview for match på filterBrukersakerRina
             val avdodViewSaf = avdodesSakerFraRina
                 .filter { view -> view.euxCaseId in brukerRinaSakIderFraJoark }
                 .map { view ->
                     view.copy(kilde = EuxInnhentingService.BucViewKilde.SAF)
                 }
 
-            //avdod saker view uten saf
+            //filer: avdod saker view uten saf
             val avdodViewUtenSaf = avdodesSakerFraRina.filterNot { view -> view.euxCaseId in avdodViewSaf.map { it.euxCaseId  } }
 
-            //liste over saker fra saf som kan hentes
+            //filter: liste over saker fra saf som kan hentes
             val filterAvdodRinaSakIderFraJoark = brukerRinaSakIderFraJoark.filterNot { rinaid -> rinaid in avdodesSakerFraRina.map { it.euxCaseId }  }
 
-            //saker fra saf og eux/rina
+            //api: henter buc fra exu for hver rinasak i brukerRinaSakIderFraJoark listen
             val safView = euxInnhentingService.lagBucViews(
                 aktoerId,
                 null,
@@ -75,13 +76,13 @@ class GjennyController (
                 EuxInnhentingService.BucViewKilde.SAF
             )
 
-            //saf filter mot avdod
+            //filter: saf for avdod
             val safViewAvdod = safView
                 .filter { view -> view.buctype in EuxInnhentingService.bucTyperSomKanHaAvdod }
                 .map { view -> view.copy(avdodFnr = avdodfnr) }
                 .also { if (avdodesSakerFraRina.size == 2) logger.warn("finnes 2 avdod men valgte første, ingen koblinger")}
 
-            //saf filter mot bruker
+            //filter: saf for bruker
             val safViewBruker = safView
                 .filterNot { view -> view.euxCaseId in safViewAvdod.map { it.euxCaseId } }
 
@@ -104,9 +105,4 @@ class GjennyController (
                 .also { logger.info("getGjenlevendeRinasakerAvdodGjenny: view size: ${it.size}, total tid: ${System.currentTimeMillis()-start} i ms") }
         }
     }
-//    export const BUC_GET_BUCSLIST_WITH_AVDODFNR_URL = BUC_URL + '/rinasaker/%(aktoerId)s/saknr/%(sakId)s/avdod/%(avdodFnr)s'
-
-
-
-
 }
