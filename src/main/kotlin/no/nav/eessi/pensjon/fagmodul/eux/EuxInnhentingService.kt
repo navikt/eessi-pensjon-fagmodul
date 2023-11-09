@@ -296,7 +296,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
     }
 
 
-    fun hentBucViewBruker(fnr: String, aktoerId: String, pesysSaksnr: String): List<BucView> {
+    fun hentBucViewBruker(fnr: String, aktoerId: String, pesysSaksnr: String?): List<BucView> {
         val start = System.currentTimeMillis()
 
         return HentRinasaker.measure {  euxKlient.getRinasaker(fnr = fnr, euxCaseId = null)
