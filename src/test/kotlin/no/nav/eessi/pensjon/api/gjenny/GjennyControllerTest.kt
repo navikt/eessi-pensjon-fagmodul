@@ -1,9 +1,13 @@
 package no.nav.eessi.pensjon.api.gjenny
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
+import no.nav.security.mock.oauth2.http.objectMapper
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
@@ -48,15 +52,21 @@ class GjennyControllerTest {
 //    }
 
     @Test
-    fun `test getRinasakerBrukerkontekstGjenny`() {
+    fun `getRinasakerBrukerkontekstGjenny burde gi en OK og en tom liste`() {
         every { innhentingService.hentFnrfraAktoerService(any()) } returns null
         every { innhentingService.hentRinaSakIderFraJoarksMetadata(any()) } returns listOf("12345")
         every { euxInnhentingService.lagBucViews(any(), any(), any(), any()) } returns emptyList()
 
-        mockMvc.get("/gjenny/rinasaker/$123")
+        val result = mockMvc.get("/gjenny/rinasaker/123456")
             .andExpect {
                 status { isOk() }
                 content { contentType(MediaType.APPLICATION_JSON) }
             }
+            .andReturn()
+
+        val responseContent = result.response.contentAsString
+        val bucViews: List<EuxInnhentingService.BucView> = ObjectMapper().readValue(responseContent)
+
+        assertTrue(bucViews.isEmpty(), "Expected an empty list in the response")
     }
 }
