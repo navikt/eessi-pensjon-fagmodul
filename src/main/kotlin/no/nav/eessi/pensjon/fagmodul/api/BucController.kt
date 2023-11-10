@@ -63,8 +63,8 @@ class BucController(
 
 
 
-    @GetMapping("/bucs/{sakId}", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getBucs(@PathVariable(value = "sakId", required = false) sakId: String? = "") = ValidBucAndSed.pensjonsBucer()
+    @GetMapping("/bucs", produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun getBucs() = ValidBucAndSed.pensjonsBucer()
 
     @GetMapping("/{rinanr}")
     fun getBuc(@PathVariable(value = "rinanr", required = true) rinanr: String): Buc =
