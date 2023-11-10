@@ -94,7 +94,7 @@ class VedleggService(private val safClient: SafClient,
                     .map { it["verdi"]!! }
             }.filterNot { MissingBuc.checkForMissingBuc(it) }
             .distinct()
-            .also { logger.info("Fant følgende RINAID fra dokument Metadata: ${it.map { str -> str }}") }
+            .also { logger.info("Fant følgende RINAID for omstilling fra dokument Metadata: ${it.map { str -> str }}") }
 }
 
 
