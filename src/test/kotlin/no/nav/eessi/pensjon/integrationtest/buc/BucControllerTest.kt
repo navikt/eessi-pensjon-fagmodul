@@ -85,6 +85,12 @@ class BucControllerTest {
         JSONAssert.assertEquals(expected, result, false)
     }
 
+    @Test
+    fun `getbucs skal gi en liste både med og uten saksId`() {
+        mvcPerform("/buc/bucs/12445")
+        mvcPerform("/buc/bucs")
+    }
+
     private fun mvcPerform(endpointUrl: String) : String {
         val result = mockMvc.perform(
             MockMvcRequestBuilders.get(endpointUrl)

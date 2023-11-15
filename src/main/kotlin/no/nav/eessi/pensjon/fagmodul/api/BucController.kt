@@ -59,11 +59,14 @@ class BucController(
         bucViewJoark = metricsHelper.init("BucViewJoark", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         bucerJoark = metricsHelper.init("BucerJoark", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         bucViewRina = metricsHelper.init("BucViewRina", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
-        getBUC = metricsHelper.init("GetBUC", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))    }
-
+        getBUC = metricsHelper.init("GetBUC", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
+    }
 
     @GetMapping("/bucs/{sakId}", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getBucs(@PathVariable(value = "sakId", required = false) sakId: String? = "") = ValidBucAndSed.pensjonsBucer()
+
+    @GetMapping("/bucs", produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun getBucsUtenSaksId() = ValidBucAndSed.pensjonsBucer()
 
     @GetMapping("/{rinanr}")
     fun getBuc(@PathVariable(value = "rinanr", required = true) rinanr: String): Buc =
