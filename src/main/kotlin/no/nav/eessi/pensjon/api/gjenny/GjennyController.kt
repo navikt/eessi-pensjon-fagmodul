@@ -16,6 +16,9 @@ import kotlin.time.ExperimentalTime
 @Unprotected
 @RestController
 @RequestMapping("/gjenny")
+/**
+ * Endepunkter for Gjenny
+ */
 class GjennyController (
     private val euxInnhentingService: EuxInnhentingService,
     private val innhentingService: InnhentingService,
