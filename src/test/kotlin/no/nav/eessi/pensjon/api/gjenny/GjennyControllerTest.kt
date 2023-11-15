@@ -4,8 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
-import no.nav.eessi.pensjon.eux.model.BucType
+import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_02
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
+import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucViewKilde.AVDOD
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.utils.toJson
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -18,6 +19,9 @@ import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
+
+private const val AKTOERID = "12345678901"
+private const val AVDOD_FNR = "12345678900"
 
 @ActiveProfiles(profiles = ["unsecured-webmvctest"])
 @ComponentScan(basePackages = ["no.nav.eessi.pensjon.api.gjenny"])
@@ -35,15 +39,8 @@ class GjennyControllerTest {
 
     @Test
     fun `returnerer bucer for avdød`() {
-        val aktoerId = "12345678901"
-        val avdodfnr = "12345678900"
-        val endpointUrl = "/gjenny/rinasaker/$aktoerId/avdodfnr/$avdodfnr"
-
-        val listeOverBucerForAvdod = listOf(
-            EuxInnhentingService.BucView(
-                "12345678901", BucType.P_BUC_02, "12345678900", "12345678900", "12345678900", EuxInnhentingService.BucViewKilde.AVDOD
-            )
-        )
+        val endpointUrl = "/gjenny/rinasaker/$AKTOERID/avdodfnr/$AVDOD_FNR"
+        val listeOverBucerForAvdod = listOf(EuxInnhentingService.BucView(AKTOERID, P_BUC_02, AVDOD_FNR, AVDOD_FNR, AVDOD_FNR, AVDOD))
 
         every { euxInnhentingService.hentBucViewAvdod(any(), any()) } returns listeOverBucerForAvdod
         every { innhentingService.hentRinaSakIderFraJoarksMetadataForOmstilling(any()) } returns listOf("123456", "1234567")
