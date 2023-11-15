@@ -21,7 +21,7 @@
  //Samme som SedRequest i frontend-api
  @JsonIgnoreProperties(ignoreUnknown = true)
  data class ApiRequest(
-     val sakId: String,
+     val sakId: String? = null,
      val vedtakId: String? = null,
      val kravId: String? = null,
      val kravDato: String? = null,
