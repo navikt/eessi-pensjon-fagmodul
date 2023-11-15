@@ -15,7 +15,7 @@ class PersonId(val norskIdent: String,
                val aktorId: String)
 
 data class PrefillDataModel(
-    val penSaksnummer: String,
+    val penSaksnummer: String? = null,
     val bruker: PersonId,
     val avdod: PersonId?,
     val sedType: SedType,
