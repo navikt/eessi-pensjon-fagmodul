@@ -244,7 +244,7 @@ class BucController(
             val (avdodView, _) = measureTimedValue {
                 avdodeFraPesysVedtak.map { avdod -> euxInnhentingService.hentBucViewAvdod(avdod, aktoerId, sakNr) }.flatten()
             }.also {
-                logger.info("hentBucViewAvdod tid: ${it.duration.inWholeSeconds}, size ${it.value}")
+                secureLog.info("hentBucViewAvdod tid: ${it.duration.inWholeSeconds}, size ${it.value}")
                 secureLog.info("hentBucViewAvdod: ${it.value.toJson()}" )
             }
 
