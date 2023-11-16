@@ -1,7 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
 import no.nav.eessi.pensjon.eux.klient.Rinasak
-import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.*
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
@@ -63,14 +62,6 @@ class BucController(
             auditlogger.log("getBuc")
             logger.debug("Henter ut hele Buc data fra rina via eux-rina-api")
             return@measure euxInnhentingService.getBuc(rinanr)
-        }
-
-    @GetMapping("/{rinanr}/aksjoner")
-    fun getMuligeAksjoner(@PathVariable(value = "rinanr", required = true) rinanr: String): List<SedType> =
-        getBUC.measure {
-            logger.debug("Henter ut muligeaksjoner på valgt buc med rinanummer: $rinanr")
-            val bucUtil = BucUtils(euxInnhentingService.getBuc(rinanr))
-            return@measure bucUtil.filterSektorPandRelevantHorizontalAndXSeds(bucUtil.getSedsThatCanBeCreated())
         }
 
     @GetMapping("/rinasaker/{aktoerId}")
