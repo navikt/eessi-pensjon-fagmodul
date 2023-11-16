@@ -38,7 +38,7 @@ class GjennyController (
     }
 
     @GetMapping("/bucs", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getBucs() = ValidBucAndSed.pensjonsBucer()
+    fun getBucs() = ValidBucAndSed.pensjonsBucerForGjenny()
 
     @GetMapping("/rinasaker/{aktoerId}/avdodfnr/{avdodfnr}")
     fun getGjenlevendeRinasakerAvdodGjenny(

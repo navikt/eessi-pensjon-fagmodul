@@ -21,6 +21,19 @@ object ValidBucAndSed {
         return map[bucType].orEmpty()
     }
 
+    private fun getAvailableBucForGjenny(): MutableList<Pair<String, List<SedType>>> {
+        val map = initSedOnBuc()
+        val set = mutableListOf<Pair<String, List<SedType>>>()
+        map["P_BUC_02"]?.let { set.add(Pair("P_BUC_02", it)) }
+        map["P_BUC_04"]?.let { set.add(Pair("P_BUC_04", it)) }
+        map["P_BUC_05"]?.let { set.add(Pair("P_BUC_05", it)) }
+        map["P_BUC_06"]?.let { set.add(Pair("P_BUC_06", it)) }
+        map["P_BUC_07"]?.let { set.add(Pair("P_BUC_07", it)) }
+        map["P_BUC_08"]?.let { set.add(Pair("P_BUC_08", it)) }
+        map["P_BUC_09"]?.let { set.add(Pair("P_BUC_09", it)) }
+        return set
+    }
+
     /**
      * Own impl. no list from eux that contains list of SED to a speific BUC
      */
@@ -41,6 +54,10 @@ object ValidBucAndSed {
 
     fun pensjonsBucer() : List<String> {
         return initSedOnBuc().map { it.key }
+    }
+
+    fun pensjonsBucerForGjenny() : List<String> {
+        return getAvailableBucForGjenny().map { it.first }
     }
 
 }

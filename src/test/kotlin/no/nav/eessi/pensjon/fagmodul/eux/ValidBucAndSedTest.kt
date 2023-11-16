@@ -31,4 +31,10 @@ class ValidBucAndSedTest {
         Assertions.assertEquals(expected, actual.toJson())
     }
 
+    @Test
+    fun `Calling getAvailableBucForGjenny gives a list of available bucs for gjenny`() {
+        val expected = """[ "P_BUC_02", "P_BUC_04", "P_BUC_05", "P_BUC_06", "P_BUC_07", "P_BUC_08", "P_BUC_09" ]""".trimIndent()
+        val actual = ValidBucAndSed.pensjonsBucerForGjenny()
+        Assertions.assertEquals(expected, actual.toJson())
+    }
 }

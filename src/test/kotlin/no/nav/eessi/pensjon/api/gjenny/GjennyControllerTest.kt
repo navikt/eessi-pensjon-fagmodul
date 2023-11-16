@@ -72,4 +72,13 @@ class GjennyControllerTest {
 
         assertTrue(bucViews.isEmpty(), "Expected an empty list in the response")
     }
+
+    @Test
+    fun `getbucs burde gi en liste av godkjente bucs `() {
+        mockMvc.get("/gjenny/bucs")
+            .andExpect {
+                status { isOk() }
+                content { string("[\"P_BUC_02\",\"P_BUC_04\",\"P_BUC_05\",\"P_BUC_06\",\"P_BUC_07\",\"P_BUC_08\",\"P_BUC_09\"]") }
+            }
+    }
 }
