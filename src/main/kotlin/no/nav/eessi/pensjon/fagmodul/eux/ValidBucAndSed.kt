@@ -4,6 +4,16 @@ import no.nav.eessi.pensjon.eux.model.BucType
 import no.nav.eessi.pensjon.eux.model.SedType
 
 object ValidBucAndSed {
+    private fun bucForGjenny(): List<BucType> = listOf(
+        BucType.P_BUC_02,
+        BucType.P_BUC_04,
+        BucType.P_BUC_05,
+        BucType.P_BUC_06,
+        BucType.P_BUC_07,
+        BucType.P_BUC_08,
+        BucType.P_BUC_09,
+        BucType.P_BUC_10
+    )
 
     fun getAvailableSedOnBuc(bucType: String?): List<SedType> {
         val map = initSedOnBuc()
@@ -22,20 +32,12 @@ object ValidBucAndSed {
         return map[bucType].orEmpty()
     }
 
-    private fun getAvailableBucForGjenny(): MutableList<Pair<String, List<SedType>>> {
-        val set = mutableListOf<Pair<String, List<SedType>>>().apply {  }
-        listOf(
-            BucType.P_BUC_02,
-            BucType.P_BUC_04,
-            BucType.P_BUC_05,
-            BucType.P_BUC_06,
-            BucType.P_BUC_07,
-            BucType.P_BUC_08,
-            BucType.P_BUC_09,
-            BucType.P_BUC_10
-        ).forEach { bucName ->  initSedOnBuc()[bucName.name]?.let { set.add(Pair(bucName.name, it)) } }
-        return set
-    }
+    private fun getAvailableBucForGjenny(): MutableList<Pair<String, List<SedType>>> =
+        mutableListOf<Pair<String, List<SedType>>>().apply {
+            this@ValidBucAndSed.bucForGjenny().forEach { bucType ->
+                initSedOnBuc()[bucType.name]?.let { add(bucType.name to it) }
+            }
+        }
 
     /**
      * Own impl. no list from eux that contains list of SED to a speific BUC
@@ -60,7 +62,7 @@ object ValidBucAndSed {
     }
 
     fun pensjonsBucerForGjenny() : List<String> {
-        return getAvailableBucForGjenny().map { it.first }
+        return this.getAvailableBucForGjenny().map { it.first }
     }
 
 }
