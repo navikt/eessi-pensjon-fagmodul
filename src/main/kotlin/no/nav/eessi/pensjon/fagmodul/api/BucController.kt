@@ -35,28 +35,20 @@ class BucController(
     private val logger = LoggerFactory.getLogger(BucController::class.java)
     private val secureLog = LoggerFactory.getLogger("secureLog")
 
-    private lateinit var bucDetaljer: MetricsHelper.Metric
-    private lateinit var bucDetaljerVedtak: MetricsHelper.Metric
     private lateinit var bucDetaljerEnkel: MetricsHelper.Metric
     private lateinit var bucDetaljerEnkelGjenlevende: MetricsHelper.Metric
     private lateinit var bucDetaljerEnkelavdod: MetricsHelper.Metric
-    private lateinit var bucDetaljerGjenlev: MetricsHelper.Metric
     private lateinit var bucViewForVedtak: MetricsHelper.Metric
     private lateinit var bucView: MetricsHelper.Metric
-    private lateinit var bucViewJoark: MetricsHelper.Metric
     private lateinit var bucerJoark: MetricsHelper.Metric
     private lateinit var bucViewRina: MetricsHelper.Metric
     private lateinit var getBUC: MetricsHelper.Metric
     init {
-        bucDetaljer = metricsHelper.init("BucDetaljer", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
-        bucDetaljerVedtak = metricsHelper.init("BucDetaljerVedtak", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         bucDetaljerEnkel = metricsHelper.init("BucDetaljerEnkel", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         bucDetaljerEnkelGjenlevende = metricsHelper.init("bucDetaljerEnkelGjenlevende", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
-        bucDetaljerGjenlev  = metricsHelper.init("BucDetaljerGjenlev", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         bucDetaljerEnkelavdod = metricsHelper.init("bucDetaljerEnkelavdod", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         bucViewForVedtak = metricsHelper.init("bucViewForVedtak", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         bucView = metricsHelper.init("BucView", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
-        bucViewJoark = metricsHelper.init("BucViewJoark", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         bucerJoark = metricsHelper.init("BucerJoark", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         bucViewRina = metricsHelper.init("BucViewRina", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         getBUC = metricsHelper.init("GetBUC", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
