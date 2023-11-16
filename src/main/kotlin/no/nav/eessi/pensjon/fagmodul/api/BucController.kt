@@ -1,6 +1,5 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
-import no.nav.eessi.pensjon.eux.klient.Rinasak
 import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.*
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
@@ -63,22 +62,6 @@ class BucController(
             logger.debug("Henter ut hele Buc data fra rina via eux-rina-api")
             return@measure euxInnhentingService.getBuc(rinanr)
         }
-
-    @GetMapping("/rinasaker/{aktoerId}")
-    fun getRinasaker(@PathVariable("aktoerId", required = true) aktoerId: String): List<Rinasak> {
-        auditlogger.log("getRinasaker", aktoerId)
-        logger.debug("henter rinasaker på valgt aktoerid: $aktoerId")
-
-        val norskIdent = innhentingService.hentFnrfraAktoerService(aktoerId)
-        if (norskIdent == null) {
-            logger.error("Finner ikke aktoerId for oppgitt fnr!")
-            return emptyList()
-        }
-
-        val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
-
-        return euxInnhentingService.getRinasaker(norskIdent.id, rinaSakIderFraJoark)
-    }
 
     @GetMapping("/enkeldetalj/{euxcaseid}")
     fun hentSingleBucAndSedView(@PathVariable("euxcaseid") euxcaseid: String): BucAndSedView =
