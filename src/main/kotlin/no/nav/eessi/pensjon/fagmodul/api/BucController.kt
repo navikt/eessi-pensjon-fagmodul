@@ -62,9 +62,6 @@ class BucController(
         getBUC = metricsHelper.init("GetBUC", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
     }
 
-    @GetMapping("/bucs/{sakId}", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getBucs(@PathVariable(value = "sakId", required = false) sakId: String? = "") = ValidBucAndSed.pensjonsBucer()
-
     @GetMapping("/bucs", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getBucsUtenSaksId() = ValidBucAndSed.pensjonsBucer()
 

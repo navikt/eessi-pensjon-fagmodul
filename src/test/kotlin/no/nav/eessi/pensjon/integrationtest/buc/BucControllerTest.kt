@@ -87,7 +87,6 @@ class BucControllerTest {
 
     @Test
     fun `getbucs skal gi en liste både med og uten saksId`() {
-        mvcPerform("/buc/bucs/12445")
         mvcPerform("/buc/bucs")
     }
 
