@@ -1,5 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
+import no.nav.eessi.pensjon.eux.model.BucType
 import no.nav.eessi.pensjon.eux.model.SedType
 
 object ValidBucAndSed {
@@ -22,15 +23,17 @@ object ValidBucAndSed {
     }
 
     private fun getAvailableBucForGjenny(): MutableList<Pair<String, List<SedType>>> {
-        val map = initSedOnBuc()
-        val set = mutableListOf<Pair<String, List<SedType>>>()
-        map["P_BUC_02"]?.let { set.add(Pair("P_BUC_02", it)) }
-        map["P_BUC_04"]?.let { set.add(Pair("P_BUC_04", it)) }
-        map["P_BUC_05"]?.let { set.add(Pair("P_BUC_05", it)) }
-        map["P_BUC_06"]?.let { set.add(Pair("P_BUC_06", it)) }
-        map["P_BUC_07"]?.let { set.add(Pair("P_BUC_07", it)) }
-        map["P_BUC_08"]?.let { set.add(Pair("P_BUC_08", it)) }
-        map["P_BUC_09"]?.let { set.add(Pair("P_BUC_09", it)) }
+        val set = mutableListOf<Pair<String, List<SedType>>>().apply {  }
+        listOf(
+            BucType.P_BUC_02,
+            BucType.P_BUC_04,
+            BucType.P_BUC_05,
+            BucType.P_BUC_06,
+            BucType.P_BUC_07,
+            BucType.P_BUC_08,
+            BucType.P_BUC_09,
+            BucType.P_BUC_10
+        ).forEach { bucName ->  initSedOnBuc()[bucName.name]?.let { set.add(Pair(bucName.name, it)) } }
         return set
     }
 
