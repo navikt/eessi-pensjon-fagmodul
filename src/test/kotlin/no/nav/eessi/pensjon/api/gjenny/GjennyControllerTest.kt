@@ -3,11 +3,15 @@ package no.nav.eessi.pensjon.api.gjenny
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.ninjasquad.springmockk.MockkBean
+import com.ninjasquad.springmockk.MockkBeans
+import com.ninjasquad.springmockk.SpykBean
 import io.mockk.every
+import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_02
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucViewKilde.AVDOD
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
+import no.nav.eessi.pensjon.kodeverk.KodeverkClient
 import no.nav.eessi.pensjon.utils.toJson
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -26,9 +30,12 @@ private const val AVDOD_FNR = "12345678900"
 @ActiveProfiles(profiles = ["unsecured-webmvctest"])
 @ComponentScan(basePackages = ["no.nav.eessi.pensjon.api.gjenny"])
 @WebMvcTest(GjennyController::class)
-class GjennyControllerTest {
+@MockkBeans(
+    MockkBean(name = "euxKlient", classes = [EuxKlientAsSystemUser::class], relaxed = true),
+    MockkBean(name = "kodeverkClient", classes = [KodeverkClient::class], relaxed = true)
+)class GjennyControllerTest {
 
-    @MockkBean
+    @SpykBean
     private lateinit var euxInnhentingService: EuxInnhentingService
 
     @MockkBean
