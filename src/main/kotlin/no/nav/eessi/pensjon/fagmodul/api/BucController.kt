@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import kotlin.time.ExperimentalTime
-import kotlin.time.measureTimedValue
 
 
 @OptIn(ExperimentalTime::class)
@@ -71,7 +70,6 @@ class BucController(
             return@measure euxInnhentingService.getSingleBucAndSedView(euxcaseid)
         }
 
-    @OptIn(ExperimentalTime::class)
     @Deprecated("Utgår til fordel for hentBucerMedJournalforteSeder og getRinasakerFraRina")
     @GetMapping("/rinasaker/{aktoerId}/saknr/{saknr}")
     fun getRinasakerBrukerkontekst(
@@ -191,83 +189,38 @@ class BucController(
 
             logger.info("henter rinasaker på valgt aktoerid: $aktoerId, saknr: $sakNr, vedtaksId:$vedtakId")
 
+            //api
             val avdodeFraPesysVedtak = hentAvdodFraVedtak(vedtakId, sakNr)
 
             if (avdodeFraPesysVedtak.isEmpty()) {
                 return@measure emptyList<EuxInnhentingService.BucView>()
-                    .also {
-                        logger.info("""
-                            Total view size is zero
-                            GetGjenlevendeRinasakerVedtak -> BrukerRinasaker total tid: ${System.currentTimeMillis() - start} i ms
-                            """.trimIndent())
-                    }
+                    .also { loggTimeAndViewSize("GjenlevendeRinasakerVedtak", start, 0) }
             }
 
-            //hent avdod saker fra eux/rina
-            val (avdodView, _) = measureTimedValue {
-                avdodeFraPesysVedtak.map { avdod -> euxInnhentingService.hentBucViewAvdod(avdod, aktoerId, sakNr) }.flatten()
-            }.also {
-                secureLog.info("hentBucViewAvdod tid: ${it.duration.inWholeSeconds}, size ${it.value}")
-                secureLog.info("hentBucViewAvdod: ${it.value.toJson()}" )
-            }
+            //api: brukersaker fra Joark/saf
+            val brukerRinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
+                .also { loggTimeAndViewSize("brukerRinaSakIderFraJoark", start, 0) }
 
-            //brukersaker fra Joark/saf
-            val (brukerRinaSakIderFraJoark, _) = measureTimedValue {
-                innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
-            }.also {
-                logger.info("hentRinaSakIderFraJoarksMetadata tid: ${it.duration.inWholeSeconds}")
-                secureLog.info("hentRinaSakIderFraJoarksMetadata: ${it.value.toJson()}" )
-            }
-
-            //filter avdodview for match på filterBrukersakerRina
-            val avdodViewSaf = avdodView
-                .filter { view -> view.euxCaseId in brukerRinaSakIderFraJoark }
-                .map { view ->
-                    view.copy(kilde = EuxInnhentingService.BucViewKilde.SAF)
-                }
-
-            //avdod saker view uten saf
-            val avdodViewUtenSaf = avdodView.filterNot { view -> view.euxCaseId in avdodViewSaf.map { it.euxCaseId  } }
-
-            //liste over saker fra saf som kan hentes
-            val filterAvodRinaSakIderFraJoark = brukerRinaSakIderFraJoark.filterNot { rinaid -> rinaid in avdodView.map { it.euxCaseId }  }
-
-            //saker fra saf og eux/rina
-            val safView = euxInnhentingService.lagBucViews(
+            //api: avdødSaf + avdødUtenSaf + avdødsaf + safBruker
+            val view = euxInnhentingService.hentViewsForSafOgRinaForAvdode(
+                avdodeFraPesysVedtak,
                 aktoerId,
                 sakNr,
-                filterAvodRinaSakIderFraJoark,
-                EuxInnhentingService.BucViewKilde.SAF
+                brukerRinaSakIderFraJoark
             )
-
-            //saf filter mot avdod
-            val safViewAvdod = safView
-                .filter { view -> view.buctype in EuxInnhentingService.bucTyperSomKanHaAvdod }
-                .map { view -> view.copy(avdodFnr = avdodeFraPesysVedtak.firstOrNull()) }
-                .also { if (avdodeFraPesysVedtak.size == 2) logger.warn("finnes 2 avdod men valgte første, ingen koblinger")}
-
-            //saf filter mot bruker
-            val safViewBruker = safView
-                .filterNot { view -> view.euxCaseId in safViewAvdod.map { it.euxCaseId } }
-
-            //samkjøre til megaview
-            val view = avdodViewSaf + avdodViewUtenSaf + safViewAvdod + safViewBruker  // avdødSaf + avdødUtenSaf + avdødsaf + safBruker
-
-            logger.info("""getGjenlevendeRinasakerVedtak resultat: 
-                avdodView : ${avdodView.size}
-                brukerRinaSakIderFraJoark: ${brukerRinaSakIderFraJoark.size}
-                avdodViewUtenSaf: ${avdodViewUtenSaf.size}
-                filterAvodRinaSakIderFraJoark: ${filterAvodRinaSakIderFraJoark.size}
-                safView: ${safView.size}
-                safViewAvdod: ${safViewAvdod.size}
-                safViewBruker: ${safViewBruker.size}
-                view : ${view.size}
-            """.trimMargin())
 
             //return med sort og distinct (avdodfnr og caseid)
             return@measure view.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
                 .also { logger.info("GjenlevendeRinasakerVedtak: view size: ${it.size}, total tid: ${System.currentTimeMillis()-start} i ms") }
         }
+    }
+
+    private fun loggTimeAndViewSize(servicename: String, start: Long, viewsize: Long = 0) {
+        logger.info("""
+                Total view size is $viewsize
+                $servicename -> total tid: ${System.currentTimeMillis() - start} in ms
+                """.trimIndent()
+        )
     }
 
     private fun hentAvdodFraVedtak(vedtakId: String?, sakNr: String): List<String> {

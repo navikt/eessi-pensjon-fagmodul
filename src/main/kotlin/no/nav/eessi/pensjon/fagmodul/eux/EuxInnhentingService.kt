@@ -316,6 +316,64 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
             }
         }
     }
+    fun hentViewsForSafOgRinaForAvdode(
+        avdodListe: List<String>,
+        aktoerId: String,
+        sakNr: String?,
+        brukerIdFraJoark: List<String>
+    ): List<BucView> {
+
+        //api: hent avdod saker fra eux/rina
+        val avdodView = avdodListe.map { avdod -> hentBucViewAvdod(avdod, aktoerId, sakNr) }.flatten()
+
+        //filter: avdodview for match på filterBrukersakerRina
+        val avdodViewSaf = avdodView
+            .filter { view -> view.euxCaseId in brukerIdFraJoark }
+            .map { view ->
+                view.copy(kilde = BucViewKilde.SAF)
+            }
+
+        //filter: avdod saker view uten saf
+        val avdodViewUtenSaf = avdodView.filterNot { view -> view.euxCaseId in avdodViewSaf.map { it.euxCaseId } }
+
+        //filter: saker fra saf som kan hentes
+        val filterAvodRinaSakIderFraJoark =
+            brukerIdFraJoark.filterNot { rinaid -> rinaid in avdodView.map { it.euxCaseId } }
+
+        //api: saker fra saf og eux/rina
+        val safView = lagBucViews(
+            aktoerId,
+            sakNr,
+            filterAvodRinaSakIderFraJoark,
+            BucViewKilde.SAF
+        )
+
+        //filter: saf mot avdod
+        val safViewAvdod = safView
+            .filter { view -> view.buctype in bucTyperSomKanHaAvdod }
+            .map { view -> view.copy(avdodFnr = avdodListe.firstOrNull()) }
+            .also { if (avdodListe.size == 2) logger.warn("finnes 2 avdod men valgte første, ingen koblinger") }
+
+        //filter: saf mot bruker
+        val safViewBruker = safView
+            .filterNot { view -> view.euxCaseId in safViewAvdod.map { it.euxCaseId } }
+
+        val view = avdodViewSaf + avdodViewUtenSaf + safViewAvdod + safViewBruker
+
+        logger.info(
+            """hentViewsForSafOgRinaForAvdode resultat: 
+                    safView: ${safView.size}
+                    avdodView : ${avdodView.size}
+                    safViewAvdod: ${safViewAvdod.size}
+                    safViewBruker: ${safViewBruker.size}
+                    avdodViewUtenSaf: ${avdodViewUtenSaf.size}
+                    brukerRinaSakIderFraJoark: ${brukerIdFraJoark.size}
+                    filterAvodRinaSakIderFraJoark: ${filterAvodRinaSakIderFraJoark.size}
+                    totalview : ${view.size}
+                """.trimMargin()
+        )
+        return view
+    }
 
     fun hentBucerGjenny(fnr: String): List<Rinasak> {
         return euxKlient.getRinasaker(fnr)

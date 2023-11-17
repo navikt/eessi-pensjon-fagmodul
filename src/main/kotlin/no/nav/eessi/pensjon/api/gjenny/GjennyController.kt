@@ -55,63 +55,19 @@ class GjennyController (
 
             if (avdodesSakerFraRina.isEmpty()) {
                 return@measure emptyList<EuxInnhentingService.BucView>()
-                    .also {
-                        logger.info("""
-                            Total view size is zero
-                            GetGjenlevendeRinasakerVedtak -> BrukerRinasaker total tid: ${System.currentTimeMillis() - start} i ms
-                            """.trimIndent())
-                    }
+                    .also { loggTimeAndViewSize("Get gjenlevende Rinasaker for Gjenny", start, 0) }
             }
-
             //api: brukersaker fra Joark/saf
             val brukerRinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadataForOmstilling(aktoerId)
 
-            //filter: avdodview for match på filterBrukersakerRina
-            val avdodViewSaf = avdodesSakerFraRina
-                .filter { view -> view.euxCaseId in brukerRinaSakIderFraJoark }
-                .map { view ->
-                    view.copy(kilde = EuxInnhentingService.BucViewKilde.SAF)
-                }
-
-            //filer: avdod saker view uten saf
-            val avdodViewUtenSaf = avdodesSakerFraRina.filterNot { view -> view.euxCaseId in avdodViewSaf.map { it.euxCaseId  } }
-
-            //filter: liste over saker fra saf som kan hentes
-            val filterAvdodRinaSakIderFraJoark = brukerRinaSakIderFraJoark.filterNot { rinaid -> rinaid in avdodesSakerFraRina.map { it.euxCaseId }  }
-
-            //api: henter buc fra exu for hver rinasak i brukerRinaSakIderFraJoark listen
-            val safView = euxInnhentingService.lagBucViews(
+            //api: avdødSaf + avdødUtenSaf + avdødsaf + safBruker
+            val viewTotal = euxInnhentingService.hentViewsForSafOgRinaForAvdode(
+                listOf(avdodfnr),
                 aktoerId,
                 null,
-                filterAvdodRinaSakIderFraJoark,
-                EuxInnhentingService.BucViewKilde.SAF
+                brukerRinaSakIderFraJoark
             )
 
-            //filter: saf saker begrenset til bucTyperSomKanHaAvdod, legger til avdodfnr //TODO Hvorfor legger vi til avdodfnr?
-            val safViewAvdod = safView
-                .filter { view -> view.buctype in EuxInnhentingService.bucTyperSomKanHaAvdod }
-                .map { view -> view.copy(avdodFnr = avdodfnr) }
-                .also { if (avdodesSakerFraRina.size == 2) logger.warn("finnes 2 avdod men valgte første, ingen koblinger")}
-
-            //filter: saf for bruker
-            val safViewBruker = safView
-                .filterNot { view -> view.euxCaseId in safViewAvdod.map { it.euxCaseId } }
-
-            //samkjøre til megaview
-            val viewTotal = avdodViewSaf + avdodViewUtenSaf + safViewAvdod + safViewBruker  // avdødSaf + avdødUtenSaf + avdødsaf + safBruker
-
-            logger.info("""getGjenlevendeRinasakerAvdodGjenny GJENNY resultat: 
-                avdodView : ${avdodesSakerFraRina.size}
-                brukerRinaSakIderFraJoark: ${brukerRinaSakIderFraJoark.size}
-                avdodViewUtenSaf: ${avdodViewUtenSaf.size}
-                filterAvodRinaSakIderFraJoark: ${filterAvdodRinaSakIderFraJoark.size}
-                safView: ${safView.size}
-                safViewAvdod: ${safViewAvdod.size}
-                safViewBruker: ${safViewBruker.size}
-                view : ${viewTotal.size}
-            """.trimMargin())
-
-            //return med sort og distinct (avdodfnr og caseid)
             return@measure viewTotal.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
                 .also { logger.info("getGjenlevendeRinasakerAvdodGjenny: view size: ${it.size}, total tid: ${System.currentTimeMillis()-start} i ms") }
         }
@@ -155,5 +111,12 @@ class GjennyController (
                     logger.info("Tidsbruk for getRinasakerBrukerkontekst: \n"+timeTracking.joinToString("\n").trimIndent())
                 }
         }
+    }
+    private fun loggTimeAndViewSize(servicename: String, start: Long, viewsize: Long = 0) {
+        logger.info("""
+                Total view size is $viewsize
+                $servicename -> total tid: ${System.currentTimeMillis() - start} in ms
+                """.trimIndent()
+        )
     }
 }
