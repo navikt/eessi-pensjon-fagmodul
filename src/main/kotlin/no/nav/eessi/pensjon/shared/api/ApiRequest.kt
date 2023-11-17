@@ -24,8 +24,8 @@
      val sakId: String? = null,
      val vedtakId: String? = null,
      val kravId: String? = null,
-     val kravDato: String? = null,
-     val kravType: KravType? = null,
+     val kravDato: String? = null,   // Brukes bare av P15000 yyyy-MM-dd
+     val kravType: KravType? = null, // Brukes bare av P15000
      val aktoerId: String? = null,
      val fnr: String? = null,
      val payload: String? = null,
