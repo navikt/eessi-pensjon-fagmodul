@@ -62,7 +62,7 @@ dependencies {
     implementation ("no.nav.common:token-client:3.2023.09.13_04.55-a8ff452fbd94")
     implementation("org.springframework.kafka:spring-kafka:${springKafkaVersion}")
 
-    implementation("no.nav.eessi.pensjon:ep-metrics:2.0.43")
+    implementation("no.nav.eessi.pensjon:ep-metrics:2.0.44")
     implementation("no.nav.eessi.pensjon:ep-logging:2.1.38")
     implementation("no.nav.eessi.pensjon:ep-eux:2.1.76")
     implementation("no.nav.eessi.pensjon:ep-kodeverk:4.0.94") {
