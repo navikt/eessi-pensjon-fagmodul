@@ -121,13 +121,13 @@ class GjennyController (
     }
 
     @PostMapping("/sed/add")
-    fun leggTilInstitusjon(@RequestBody request: ApiRequest): DocumentsItem?  = prefillController.addInstutionAndDocument(request)
+    fun leggTilInstitusjon(@RequestBody request: ApiRequest): DocumentsItem?  = prefillController.addInstutionAndDocument(request.copy(gjenny = true))
 
     @PostMapping("/sed/replysed/{parentid}")
     fun prefillSed(
         @RequestBody(required = true) request: ApiRequest,
         @PathVariable("parentid", required = true) parentId: String
-    ): DocumentsItem? = prefillController.addDocumentToParent(request, parentId)
+    ): DocumentsItem? = prefillController.addDocumentToParent(request.copy(gjenny = true), parentId)
 
     @PutMapping("/sed/document/{euxcaseid}/{documentid}")
     fun oppdaterSed(
