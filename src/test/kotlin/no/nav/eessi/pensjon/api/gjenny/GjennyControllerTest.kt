@@ -8,6 +8,8 @@ import com.ninjasquad.springmockk.SpykBean
 import io.mockk.every
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_02
+import no.nav.eessi.pensjon.fagmodul.api.PrefillController
+import no.nav.eessi.pensjon.fagmodul.api.SedController
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucViewKilde.AVDOD
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
@@ -24,16 +26,16 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 
-private const val AKTOERID = "12345678901"
-private const val AVDOD_FNR = "12345678900"
-
 @ActiveProfiles(profiles = ["unsecured-webmvctest"])
 @ComponentScan(basePackages = ["no.nav.eessi.pensjon.api.gjenny"])
 @WebMvcTest(GjennyController::class)
 @MockkBeans(
+    MockkBean(name = "sedController", classes = [SedController::class], relaxed = true),
+    MockkBean(name = "kodeverkClient", classes = [KodeverkClient::class], relaxed = true),
     MockkBean(name = "euxKlient", classes = [EuxKlientAsSystemUser::class], relaxed = true),
-    MockkBean(name = "kodeverkClient", classes = [KodeverkClient::class], relaxed = true)
-)class GjennyControllerTest {
+    MockkBean(name = "prefillController", classes = [PrefillController::class], relaxed = true)
+)
+class GjennyControllerTest {
 
     @SpykBean
     private lateinit var euxInnhentingService: EuxInnhentingService
@@ -89,3 +91,6 @@ private const val AVDOD_FNR = "12345678900"
             }
     }
 }
+private const val AKTOERID = "12345678901"
+
+private const val AVDOD_FNR = "12345678900"
