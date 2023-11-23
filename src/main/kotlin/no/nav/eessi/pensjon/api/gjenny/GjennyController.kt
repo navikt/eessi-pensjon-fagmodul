@@ -127,18 +127,14 @@ class GjennyController (
     fun prefillSed(
         @RequestBody(required = true) request: ApiRequest,
         @PathVariable("parentid", required = true) parentId: String
-    ): DocumentsItem? {
-        return prefillController.addDocumentToParent(request, parentId)
-    }
+    ): DocumentsItem? = prefillController.addDocumentToParent(request, parentId)
 
     @PutMapping("/sed/document/{euxcaseid}/{documentid}")
     fun oppdaterSed(
         @PathVariable("euxcaseid", required = true) euxcaseid: String,
         @PathVariable("documentid", required = true) documentid: String,
         @RequestBody sedPayload: String
-    ): Boolean {
-        return sedController.putDocument(euxcaseid, documentid, sedPayload)
-    }
+    ): Boolean = sedController.putDocument(euxcaseid, documentid, sedPayload)
 
 
     private fun loggTimeAndViewSize(servicename: String, start: Long, viewsize: Long = 0) {
