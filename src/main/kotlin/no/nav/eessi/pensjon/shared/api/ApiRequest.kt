@@ -39,6 +39,7 @@
      val subject: ApiSubject? = null, //P_BUC_02 alle andre seder etter P2100
      //P8000-P_BUC_05
      val referanseTilPerson: ReferanseTilPerson? = null,
+     val gjenny: Boolean = false
 
      ) {
 
