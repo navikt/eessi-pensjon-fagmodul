@@ -1,18 +1,20 @@
 package no.nav.eessi.pensjon.api.gjenny
 
+import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
+import no.nav.eessi.pensjon.fagmodul.api.PrefillController
+import no.nav.eessi.pensjon.fagmodul.api.SedController
+import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.eux.ValidBucAndSed
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.metrics.MetricsHelper
+import no.nav.eessi.pensjon.shared.api.ApiRequest
 import no.nav.security.token.support.core.api.Unprotected
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @Unprotected
 @RestController
@@ -23,6 +25,8 @@ import org.springframework.web.bind.annotation.RestController
 class GjennyController (
     private val euxInnhentingService: EuxInnhentingService,
     private val innhentingService: InnhentingService,
+    private val prefillController: PrefillController,
+    private val sedController: SedController,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
     private val logger = LoggerFactory.getLogger(GjennyController::class.java)
@@ -39,6 +43,9 @@ class GjennyController (
 
     @GetMapping("/bucs", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getBucs() = ValidBucAndSed.pensjonsBucerForGjenny()
+
+    @PostMapping("/buc/{buctype}")
+    fun createBuc( @PathVariable("buctype", required = true) buctype: String ): BucAndSedView = prefillController.createBuc(buctype)
 
     @GetMapping("/rinasaker/{aktoerId}/avdodfnr/{avdodfnr}")
     fun getGjenlevendeRinasakerAvdodGjenny(
@@ -112,6 +119,28 @@ class GjennyController (
                 }
         }
     }
+
+    @PostMapping("/sed/add")
+    fun leggTilInstitusjon(@RequestBody request: ApiRequest): DocumentsItem?  = prefillController.addInstutionAndDocument(request)
+
+    @PostMapping("/sed/replysed/{parentid}")
+    fun prefillSed(
+        @RequestBody(required = true) request: ApiRequest,
+        @PathVariable("parentid", required = true) parentId: String
+    ): DocumentsItem? {
+        return prefillController.addDocumentToParent(request, parentId)
+    }
+
+    @PutMapping("/sed/document/{euxcaseid}/{documentid}")
+    fun oppdaterSed(
+        @PathVariable("euxcaseid", required = true) euxcaseid: String,
+        @PathVariable("documentid", required = true) documentid: String,
+        @RequestBody sedPayload: String
+    ): Boolean {
+        return sedController.putDocument(euxcaseid, documentid, sedPayload)
+    }
+
+
     private fun loggTimeAndViewSize(servicename: String, start: Long, viewsize: Long = 0) {
         logger.info("""
                 Total view size is $viewsize
