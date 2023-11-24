@@ -136,7 +136,9 @@ class PrefillController(
 
         //Preutfyll av SED, pensjon og personer samt oppdatering av versjon
         //sjekk på P7000-- hente nødvendige P6000 sed fra eux.. legg til på request->prefilll
-        val sed = innhentingService.hentPreutyltSed(euxInnhentingService.checkForP7000AndAddP6000(request))
+        val requestMedGjenlevendeFnr = request.copy(fnr = norskIdent.id)
+        logger.debug("***Request med gjenlevende fnr: ${requestMedGjenlevendeFnr.toJson()} ***")
+        val sed = innhentingService.hentPreutyltSed(euxInnhentingService.checkForP7000AndAddP6000(requestMedGjenlevendeFnr))
 
         //val institusjonerFraRequest = request.institutions
         //Sjekk og opprette deltaker og legge sed på valgt BUC
