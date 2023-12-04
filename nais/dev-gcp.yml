@@ -26,7 +26,7 @@ spec:
       - name: eessi-pensjon-gjenny-dev
         retentionPeriodDays: 30
         lifecycleCondition:
-          age: 7
+          age: 365
           createdBefore: 2020-01-01
           numNewerVersions: 2
           withState: ANY
