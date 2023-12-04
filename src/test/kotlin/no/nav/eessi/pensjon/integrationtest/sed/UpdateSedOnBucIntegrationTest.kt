@@ -5,6 +5,7 @@ import com.ninjasquad.springmockk.MockkBeans
 import io.mockk.every
 import jakarta.servlet.ServletException
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
+import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.integrationtest.IntegrasjonsTestConfig
 import no.nav.eessi.pensjon.kodeverk.KodeverkClient
 import org.hamcrest.Matchers
@@ -31,12 +32,13 @@ import java.nio.charset.Charset
 @EmbeddedKafka
 @MockkBeans(
     MockkBean(name = "pdlRestTemplate", classes = [RestTemplate::class]),
+    MockkBean(name = "kodeverkRestTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "prefillOAuthTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "euxSystemRestTemplate", classes = [RestTemplate::class]),
-    MockkBean(name = "safGraphQlOidcRestTemplate", classes = [RestTemplate::class]),
+    MockkBean(name = "gcpStorageService", classes = [GcpStorageService::class]),
     MockkBean(name = "safRestOidcRestTemplate", classes = [RestTemplate::class]),
-    MockkBean(name = "pensjoninformasjonRestTemplate", classes = [RestTemplate::class]),
-    MockkBean(name = "kodeverkRestTemplate", classes = [RestTemplate::class])
+    MockkBean(name = "safGraphQlOidcRestTemplate", classes = [RestTemplate::class]),
+    MockkBean(name = "pensjoninformasjonRestTemplate", classes = [RestTemplate::class])
 )
 class UpdateSedOnBucIntegrationTest {
 
