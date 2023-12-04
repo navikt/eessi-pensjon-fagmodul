@@ -21,6 +21,16 @@ spec:
           - id: 79c6b5b5-1144-495c-a2c9-78aebfb5faf4 #Tilgang til 0000-ga-eessi-clerk-ufore
         extra:
           - NAVident
+  gcp:
+    buckets:
+      - name: eessi-pensjon-gjenny-dev
+        retentionPeriodDays: 30
+        lifecycleCondition:
+          age: 7
+          createdBefore: 2020-01-01
+          numNewerVersions: 2
+          withState: ANY
+        uniformBucketLevelAccess: true
   accessPolicy:
     outbound:
       rules:
@@ -57,6 +67,8 @@ spec:
   env:
     - name: SPRING_PROFILES_ACTIVE
       value: test
+    - name: GCP_BUCKET_NAME
+      value: eessi-pensjon-gjenny-dev
     - name: PENSJONSINFORMASJON_URL
       value: https://eessi-pensjon-onprem-proxy-q2.dev-fss-pub.nais.io/pen/api/pensjonsinformasjon/v1
     - name: EESSIPEN_EUX_RINA_URL
