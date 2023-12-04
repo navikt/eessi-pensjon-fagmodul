@@ -7,6 +7,7 @@ import io.mockk.justRun
 import io.mockk.verify
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
+import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.vedlegg.client.Dokument
@@ -33,6 +34,7 @@ import org.springframework.web.client.RestTemplate
     MockkBean(name = "euxKlient", classes = [EuxKlientAsSystemUser::class]),
     MockkBean(name = "kodeverkRestTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "prefillOAuthTemplate", classes = [RestTemplate::class]),
+    MockkBean(name = "gcpStorageService", classes = [GcpStorageService::class]),
     MockkBean(name = "euxSystemRestTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "safRestOidcRestTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "euxNavIdentRestTemplate", classes = [RestTemplate::class]),

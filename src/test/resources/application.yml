@@ -14,6 +14,9 @@ PDL_URL: 'http://example.com:8090'
 AZURE_APP_WELL_KNOWN_URL: 'http://example.com:8090'
 KODEVERK_URL: 'http://example.com:8093'
 
+GCP_STORAGE_API_URL: "http://some.strange.place"
+GCP_BUCKET_NAME: 'dummyBucket'
+
 eessi-pensjon-active-profiles: ${spring.profiles.active}
 
 eessi-pensjon-institusjon: 'NO:noinst002'
