@@ -5,6 +5,7 @@ import com.ninjasquad.springmockk.MockkBeans
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.fagmodul.config.RestTemplateConfig
+import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
@@ -36,6 +37,7 @@ import org.springframework.web.client.RestTemplate
     MockkBean(name = "safGraphQlOidcRestTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "pensjonsinformasjonClient", classes = [PensjonsinformasjonClient::class]),
     MockkBean(name = "personService", classes = [PersonService::class]),
+    MockkBean(name = "gcpStorageService", classes = [GcpStorageService::class]),
     MockkBean(name = "euxKlient", classes = [EuxKlientAsSystemUser::class])
 )
 class EessiTokenValdationTest {

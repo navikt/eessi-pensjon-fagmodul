@@ -121,7 +121,9 @@ class GjennyController (
     }
 
     @PostMapping("/sed/add")
-    fun leggTilInstitusjon(@RequestBody request: ApiRequest): DocumentsItem?  = prefillController.addInstutionAndDocument(request.copy(gjenny = true))
+    fun leggTilInstitusjon(@RequestBody request: ApiRequest): DocumentsItem? {
+        return prefillController.addInstutionAndDocument(request.copy(gjenny = true))
+    }
 
     @PostMapping("/sed/replysed/{parentid}")
     fun prefillSed(

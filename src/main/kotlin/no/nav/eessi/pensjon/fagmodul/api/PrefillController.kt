@@ -12,6 +12,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.eux.EuxPrefillService
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
+import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.shared.api.ApiRequest
@@ -35,6 +36,7 @@ class PrefillController(
     private val euxPrefillService: EuxPrefillService,
     private val euxInnhentingService: EuxInnhentingService,
     private val innhentingService: InnhentingService,
+    private val gcpStorageService: GcpStorageService,
     private val auditlogger: AuditLogger,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
@@ -85,14 +87,15 @@ class PrefillController(
                 """.trimIndent())
 
                 if (x005docs.isEmpty()) {
+                    if (request.gjenny){
+                        request.euxCaseId?.let { gcpStorageService.lagre(it) }
+                    }
                     euxPrefillService.checkAndAddInstitution(dataModel, bucUtil, emptyList(), nyeInstitusjoner)
                 } else if (x005docs.firstOrNull { it.status == "empty"} != null ) {
-                    //hvis finnes som draft.. kaste bad request til sb..
-
-                    val x005Liste = nyeInstitusjoner.map {
-                        logger.debug("Prefiller X005, legger til Institusjon på X005 ${it.institution}")
+                    val x005Liste = nyeInstitusjoner.map { nyeInstitusjonerMap ->
+                        logger.debug("Prefiller X005, legger til Institusjon på X005 ${nyeInstitusjonerMap.institution}")
                         // ID og Navn på X005 er påkrevd må hente innn navn fra UI.
-                        val x005request = request.copy(avdodfnr = null, sed = SedType.X005, institutions = listOf(it))
+                        val x005request = request.copy(avdodfnr = null, sed = SedType.X005, institutions = listOf(nyeInstitusjonerMap))
                         mapJsonToAny<X005>(innhentingService.hentPreutyltSed(x005request))
                     }
                     euxPrefillService.checkAndAddInstitution(dataModel, bucUtil, x005Liste, nyeInstitusjoner)
@@ -196,6 +199,9 @@ class PrefillController(
                 request.vedtakId,
                 dataModel.sedType
             )
+            if (request.gjenny) {
+                gcpStorageService.lagre(request.euxCaseId!!)
+            }
 
             val parent = bucUtil.findDocument(parentId)
             val result = bucUtil.findDocument(docresult.documentId)
