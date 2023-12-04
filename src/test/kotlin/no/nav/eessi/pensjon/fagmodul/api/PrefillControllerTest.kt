@@ -89,6 +89,7 @@ internal class PrefillControllerTest {
             mockEuxPrefillService,
             mockEuxInnhentingService,
             innhentingService,
+            mockk(relaxed = true),
             auditLogger
         )
     }

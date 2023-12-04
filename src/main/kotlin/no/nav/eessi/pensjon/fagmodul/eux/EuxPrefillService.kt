@@ -77,8 +77,11 @@ class EuxPrefillService (private val euxKlient: EuxKlientLib,
         return euxCaseId
     }
 
-    //sjekk for ekisternede deltakere og nye fra UI. samt legge til deltakere på vanlig måte dersom buc er ny
-    //legger til evt. x005 dersom det finens.
+    /**
+     * Ved opprettelse av ny Buc, kan det legges til deltakere uten at man trenger å opprette en X005.
+     * Dersom Bucen allerede eksisterer må det opprettes en X005 for å legge til ny institusjon.
+     */
+    //ny/nye deltakere så må det opprettes en X005 for den nye institusjonen.
     fun checkAndAddInstitution(dataModel: PrefillDataModel, bucUtil: BucUtils, x005Liste: List<X005>, nyeInstitusjoner: List<InstitusjonItem>) {
         val navCaseOwner = bucUtil.getCaseOwner()?.country == "NO"
         logger.debug(

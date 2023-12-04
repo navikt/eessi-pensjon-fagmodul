@@ -265,7 +265,7 @@ class ArchitectureTest {
             .haveNameMatching("set[A-Z]+.*")
             .and().doNotHaveRawParameterTypes(MetricsHelper.Metric::class.java)
             .and().areDeclaredInClassesThat().areNotAnnotatedWith(Scope::class.java) // If scope is not singleton it might be ok
-            .and().areDeclaredInClassesThat().haveNameNotMatching(".*(STSService|Template|Config)") // these use setter injection
+            .and().areDeclaredInClassesThat().haveNameNotMatching(".*(STSService|Template|Config|GcpStorageService)") // these use setter injection
             .should().beDeclaredInClassesThat().areAnnotatedWith(springStereotype)
             .because("Spring-components (usually singletons) must not have mutable instance fields " +
                     "as they can easily be misused and create 'race conditions'")
@@ -275,7 +275,7 @@ class ArchitectureTest {
             .areNotFinal()
             .and().doNotHaveRawType(MetricsHelper.Metric::class.java)
             .and().areDeclaredInClassesThat().areNotAnnotatedWith(Scope::class.java)// If scope is not singleton it might be ok
-            .and().areDeclaredInClassesThat().haveNameNotMatching(".*(STSService|Template|Config)") // these use setter injection
+            .and().areDeclaredInClassesThat().haveNameNotMatching(".*(STSService|Template|Config|GcpStorageService)") // these use setter injection
             .should().beDeclaredInClassesThat().areAnnotatedWith(springStereotype)
             .because("Spring-components (usually singletons) must not have mutable instance fields " +
                     "as they can easily be misused and create 'race conditions'")
