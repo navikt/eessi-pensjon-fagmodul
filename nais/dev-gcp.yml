@@ -32,6 +32,12 @@ spec:
           withState: ANY
         uniformBucketLevelAccess: true
         publicAccessPrevention: false
+        accessPolicies:
+          - application: eessi-pensjon-journalforing-q2
+            namespace: eessipensjon
+            permissions:
+              - read
+              - write
   accessPolicy:
     outbound:
       rules:
