@@ -21,6 +21,8 @@ import no.nav.eessi.pensjon.fagmodul.eux.EuxTestUtils.Companion.createDummyBucDo
 import no.nav.eessi.pensjon.fagmodul.eux.SedDokumentKanIkkeOpprettesException
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.fagmodul.prefill.klient.PrefillKlient
+import no.nav.eessi.pensjon.gcp.GcpStorageService
+import no.nav.eessi.pensjon.gcp.GjennySak
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
@@ -69,6 +71,9 @@ internal class PrefillControllerTest {
     private lateinit var personService: PersonService
 
     @MockK
+    private lateinit var gcpStorageService: GcpStorageService
+
+    @MockK
     private lateinit var pensjonsinformasjonService: PensjonsinformasjonService
 
     @MockK
@@ -89,7 +94,7 @@ internal class PrefillControllerTest {
             mockEuxPrefillService,
             mockEuxInnhentingService,
             innhentingService,
-            mockk(relaxed = true),
+            gcpStorageService,
             auditLogger
         )
     }
@@ -104,7 +109,22 @@ internal class PrefillControllerTest {
         every { mockEuxInnhentingService.getBuc(any()) } returns buc
 
         val expected = BucAndSedView.from(buc)
-        val actual = prefillController.createBuc(P_BUC_03.name, null)
+        val actual = prefillController.createBuc(P_BUC_03.name)
+
+        assertEquals(expected.toJson(), actual.toJson())
+    }
+
+    @Test
+    fun `createBuc med gjennysak run ok and return id`() {
+        val gyldigBuc = javaClass.getResource("/json/buc/buc-279020big.json")!!.readText()
+        val buc : Buc =  mapJsonToAny(gyldigBuc)
+
+        every { mockEuxPrefillService.createdBucForType(P_BUC_03.name) } returns "1231231"
+        every { mockEuxInnhentingService.getBuc(any()) } returns buc
+
+        val expected = BucAndSedView.from(buc)
+        val actual = prefillController.createBuc(P_BUC_03.name, GjennySak("321321", "BARNEP"))
+        println(actual.toJson())
 
         assertEquals(expected.toJson(), actual.toJson())
     }
@@ -117,7 +137,7 @@ internal class PrefillControllerTest {
         every {  mockEuxPrefillService.createdBucForType(P_BUC_03.name)} returns "1231231"
         every { mockEuxInnhentingService.getBuc(any()) } returns buc
 
-        prefillController.createBuc(P_BUC_03.name, null)
+        prefillController.createBuc(P_BUC_03.name)
 
         verify(exactly = 0) { kafkaTemplate.sendDefault(any(), any()) }
     }
