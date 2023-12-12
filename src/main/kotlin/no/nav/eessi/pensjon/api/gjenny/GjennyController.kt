@@ -7,6 +7,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.eux.ValidBucAndSed
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
+import no.nav.eessi.pensjon.gcp.GjennySak
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.shared.api.ApiRequest
 import no.nav.security.token.support.core.api.Unprotected
@@ -45,7 +46,9 @@ class GjennyController (
     fun getBucs() = ValidBucAndSed.pensjonsBucerForGjenny()
 
     @PostMapping("/buc/{buctype}")
-    fun createBuc( @PathVariable("buctype", required = true) buctype: String ): BucAndSedView = prefillController.createBuc(buctype)
+    fun createBuc(@PathVariable("buctype", required = true) buctype: String,
+                   @RequestBody(required = true) gjennySak: GjennySak):
+    BucAndSedView = prefillController.createBuc(buctype).also { println(it) }
 
     @GetMapping("/rinasaker/{aktoerId}/avdodfnr/{avdodfnr}")
     fun getGjenlevendeRinasakerAvdodGjenny(
@@ -124,6 +127,8 @@ class GjennyController (
     fun leggTilInstitusjon(@RequestBody request: ApiRequest): DocumentsItem? {
         return prefillController.addInstutionAndDocument(request.copy(gjenny = true))
     }
+
+
 
     @PostMapping("/sed/replysed/{parentid}")
     fun prefillSed(
