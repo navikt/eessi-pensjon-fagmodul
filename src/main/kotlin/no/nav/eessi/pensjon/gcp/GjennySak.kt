@@ -5,5 +5,5 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class GjennySak (
     val sakId: String,
-    val saktype: String
+    val sakType: String
 )
