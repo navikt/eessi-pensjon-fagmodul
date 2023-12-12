@@ -3,6 +3,7 @@ package no.nav.eessi.pensjon.gcp
 import com.google.cloud.storage.BlobId
 import com.google.cloud.storage.BlobInfo
 import com.google.cloud.storage.Storage
+import no.nav.eessi.pensjon.kodeverk.KodeverkClient.Companion.toJson
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
@@ -25,12 +26,12 @@ class GcpStorageService(
         }
     }
 
-    fun lagre(euxCaseId: String) {
+    fun lagre(euxCaseId: String, gjennysak: GjennySak) {
         if (eksisterer(euxCaseId)) return
         val blobInfo =  BlobInfo.newBuilder(BlobId.of(bucketname, euxCaseId)).setContentType("application/json").build()
         kotlin.runCatching {
             gcpStorage.writer(blobInfo).use {
-                it.write(ByteBuffer.wrap(euxCaseId.toByteArray()))
+                it.write(ByteBuffer.wrap(gjennysak.toJson().toByteArray()))
             }
         }.onFailure { e ->
             logger.error("Feilet med å lagre dokument med id: ${blobInfo.blobId.name}", e)

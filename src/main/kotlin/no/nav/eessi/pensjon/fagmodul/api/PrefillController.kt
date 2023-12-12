@@ -13,6 +13,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.eux.EuxPrefillService
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
+import no.nav.eessi.pensjon.gcp.GjennySak
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.shared.api.ApiRequest
@@ -74,6 +75,19 @@ class PrefillController(
         return BucAndSedView.from(buc)
     }
 
+    fun createBuc(
+        buctype: String,
+        gjennySak: GjennySak? = null
+    ): BucAndSedView {
+        auditlogger.log("createBuc")
+        logger.info("Prøver å opprette en ny BUC $buctype i RINA med GjennySakId: ${gjennySak?.sakId} med saktype: ${gjennySak?.sakType}.")
+
+        return createBuc(buctype).also {
+            gcpStorageService.lagre(it.caseId, GjennySak(gjennySak?.sakId!!, gjennySak.sakType))
+        }
+
+    }
+
     private fun addInstitution(request: ApiRequest, dataModel: PrefillDataModel, bucUtil: BucUtils) {
         addInstution.measure {
             logger.info("*** Sjekker og legger til Instiusjoner på BUC eller X005 ***")
@@ -88,7 +102,7 @@ class PrefillController(
 
                 if (x005docs.isEmpty()) {
                     if (request.gjenny){
-                        request.euxCaseId?.let { gcpStorageService.lagre(it) }
+                        request.euxCaseId?.let {gcpStorageService.lagre(request.euxCaseId, GjennySak(request.sakId!!, request.sakType!!)) }
                     }
                     euxPrefillService.checkAndAddInstitution(dataModel, bucUtil, emptyList(), nyeInstitusjoner)
                 } else if (x005docs.firstOrNull { it.status == "empty"} != null ) {
@@ -200,7 +214,7 @@ class PrefillController(
                 dataModel.sedType
             )
             if (request.gjenny) {
-                gcpStorageService.lagre(request.euxCaseId!!)
+                gcpStorageService.lagre(request.euxCaseId!!, GjennySak(request.sakId!!, request.sakType!!))
             }
 
             val parent = bucUtil.findDocument(parentId)

@@ -104,7 +104,7 @@ internal class PrefillControllerTest {
         every { mockEuxInnhentingService.getBuc(any()) } returns buc
 
         val expected = BucAndSedView.from(buc)
-        val actual = prefillController.createBuc(P_BUC_03.name)
+        val actual = prefillController.createBuc(P_BUC_03.name, null)
 
         assertEquals(expected.toJson(), actual.toJson())
     }
@@ -117,7 +117,7 @@ internal class PrefillControllerTest {
         every {  mockEuxPrefillService.createdBucForType(P_BUC_03.name)} returns "1231231"
         every { mockEuxInnhentingService.getBuc(any()) } returns buc
 
-        prefillController.createBuc(P_BUC_03.name)
+        prefillController.createBuc(P_BUC_03.name, null)
 
         verify(exactly = 0) { kafkaTemplate.sendDefault(any(), any()) }
     }

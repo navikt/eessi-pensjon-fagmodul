@@ -48,7 +48,7 @@ class GjennyController (
     @PostMapping("/buc/{buctype}")
     fun createBuc(@PathVariable("buctype", required = true) buctype: String,
                    @RequestBody(required = true) gjennySak: GjennySak):
-    BucAndSedView = prefillController.createBuc(buctype).also { println(it) }
+        BucAndSedView = prefillController.createBuc(buctype, gjennySak).also { println(it) }
 
     @GetMapping("/rinasaker/{aktoerId}/avdodfnr/{avdodfnr}")
     fun getGjenlevendeRinasakerAvdodGjenny(
@@ -127,8 +127,6 @@ class GjennyController (
     fun leggTilInstitusjon(@RequestBody request: ApiRequest): DocumentsItem? {
         return prefillController.addInstutionAndDocument(request.copy(gjenny = true))
     }
-
-
 
     @PostMapping("/sed/replysed/{parentid}")
     fun prefillSed(
