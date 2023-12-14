@@ -287,10 +287,10 @@ class BucController(
             bucDetaljerEnkelavdod.measure {
                 logger.info("avdod med euxCaseId: $euxcaseid, saknr: $saknr")
                 val gjenlevendeFnr = hentFnrfraAktoerService
-                val bucOgDocAvdod = euxInnhentingService.hentBucOgDocumentIdAvdod(listOf(euxcaseid)).also { secureLog.info("bucOgDocAvdod: ${it.toJson()}") }
-                val listeAvSedsPaaAvdod = euxInnhentingService.hentDocumentJsonAvdod(bucOgDocAvdod).also { secureLog.info("listeAvSedsPaaAvdod: ${it.toJson()}")}
-                val gyldigeBucs = gjenlevendeFnr?.let { euxInnhentingService.filterGyldigBucGjenlevendeAvdod(listeAvSedsPaaAvdod, it.id) }.also { secureLog.info("gyldigeBucs: ${it?.toJson()}") }
-                val gjenlevendeBucAndSedView = gyldigeBucs?.let { gjenlevendeFnr?.let { it1 -> euxInnhentingService.getBucAndSedViewWithBuc(it, it1.id, avdodFnr) } }.also { secureLog.info("gjenlevendeBucAndSedView: ${it?.toJson()}") }
+                val bucOgDocAvdod = euxInnhentingService.hentBucOgDocumentIdAvdod(listOf(euxcaseid))
+                val listeAvSedsPaaAvdod = euxInnhentingService.hentDocumentJsonAvdod(bucOgDocAvdod)
+                val gyldigeBucs = gjenlevendeFnr?.let { euxInnhentingService.filterGyldigBucGjenlevendeAvdod(listeAvSedsPaaAvdod, it.id) }
+                val gjenlevendeBucAndSedView = gyldigeBucs?.let { euxInnhentingService.getBucAndSedViewWithBuc(it, gjenlevendeFnr.id, avdodFnr) }
                 gjenlevendeBucAndSedView?.firstOrNull() ?: BucAndSedView.fromErr("Ingen Buc Funnet!")
             }
         }
