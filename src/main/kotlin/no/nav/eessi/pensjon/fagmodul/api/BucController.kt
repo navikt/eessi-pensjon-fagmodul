@@ -281,8 +281,8 @@ class BucController(
             return bucDetaljerEnkelGjenlevende.measure {
                 val gjenlevendeFnr = hentFnrfraAktoerService
                 logger.info("GJENNY: gjenlevende med euxCaseId: $euxcaseid, saknr: $saknr, gjenny")
-                euxInnhentingService.getSingleBucAndSedViewForGjenny(euxcaseid)
-                    .copy(subject = BucAndSedSubject(SubjectFnr(gjenlevendeFnr?.id), SubjectFnr(avdodFnr)))
+                euxInnhentingService.getSingleBucAndSedView(euxcaseid).takeIf { it.type in ValidBucAndSed.pensjonsBucerForGjenny() }
+                    ?.copy(subject = BucAndSedSubject(SubjectFnr(gjenlevendeFnr?.id), SubjectFnr(avdodFnr))) ?: BucAndSedView.fromErr("Ingen Buc Funnet!")
             }
         }
 
