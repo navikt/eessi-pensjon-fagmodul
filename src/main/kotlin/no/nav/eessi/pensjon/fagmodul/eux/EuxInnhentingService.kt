@@ -114,6 +114,16 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
         }
     }
 
+    fun getSingleBucAndSedViewForGjenny(euxCaseId: String): BucAndSedView {
+        return try {
+            BucAndSedView.from(getBuc(euxCaseId)).takeIf { it.type in ValidBucAndSed.pensjonsBucerForGjenny() }
+                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "BucType er ikke gyldig for Gjenny")
+        } catch (ex: Exception) {
+            logger.error("Feiler ved utlevering av enkel bucandsedview for Gjenny ${ex.message}", ex)
+            BucAndSedView.fromErr(ex.message)
+        }
+    }
+
     fun getBucAndSedViewWithBuc(bucs: List<Buc>, gjenlevndeFnr: String, avdodFnr: String): List<BucAndSedView> {
         return bucs
                 .map { buc ->

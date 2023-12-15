@@ -281,7 +281,7 @@ class BucController(
             return bucDetaljerEnkelGjenlevende.measure {
                 val gjenlevendeFnr = hentFnrfraAktoerService
                 logger.info("GJENNY: gjenlevende med euxCaseId: $euxcaseid, saknr: $saknr, gjenny")
-                euxInnhentingService.getSingleBucAndSedView(euxcaseid)
+                euxInnhentingService.getSingleBucAndSedViewForGjenny(euxcaseid)
                     .copy(subject = BucAndSedSubject(SubjectFnr(gjenlevendeFnr?.id), SubjectFnr(avdodFnr)))
             }
         }
