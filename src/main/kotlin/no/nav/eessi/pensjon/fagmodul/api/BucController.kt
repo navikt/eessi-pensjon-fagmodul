@@ -276,15 +276,25 @@ class BucController(
         logger.info("Henter ut en enkel buc for gjenlevende")
 
         val hentFnrfraAktoerService = innhentingService.hentFnrfraAktoerService(aktoerid)
-        return if (kilde == EuxInnhentingService.BucViewKilde.SAF) {
-            bucDetaljerEnkelGjenlevende.measure {
+        if (kilde == EuxInnhentingService.BucViewKilde.AVDOD || EuxInnhentingService.BucViewKilde.SAF == kilde) {
+            if (saknr == "null")
+            return bucDetaljerEnkelGjenlevende.measure {
+                val gjenlevendeFnr = hentFnrfraAktoerService
+                logger.info("GJENNY: gjenlevende med euxCaseId: $euxcaseid, saknr: $saknr, gjenny")
+                euxInnhentingService.getSingleBucAndSedView(euxcaseid)
+                    .copy(subject = BucAndSedSubject(SubjectFnr(gjenlevendeFnr?.id), SubjectFnr(avdodFnr)))
+            }
+        }
+
+        if (saknr != "null" && kilde == EuxInnhentingService.BucViewKilde.SAF) {
+            return bucDetaljerEnkelGjenlevende.measure {
                 logger.info("saf euxCaseId: $euxcaseid, saknr: $saknr")
                 val gjenlevendeFnr = hentFnrfraAktoerService
                 euxInnhentingService.getSingleBucAndSedView(euxcaseid)
-                .copy(subject = BucAndSedSubject(SubjectFnr(gjenlevendeFnr?.id), SubjectFnr(avdodFnr)))
+                    .copy(subject = BucAndSedSubject(SubjectFnr(gjenlevendeFnr?.id), SubjectFnr(avdodFnr)))
             }
         } else {
-            bucDetaljerEnkelavdod.measure {
+            return bucDetaljerEnkelavdod.measure {
                 logger.info("avdod med euxCaseId: $euxcaseid, saknr: $saknr")
                 val gjenlevendeFnr = hentFnrfraAktoerService
                 val bucOgDocAvdod = euxInnhentingService.hentBucOgDocumentIdAvdod(listOf(euxcaseid))
