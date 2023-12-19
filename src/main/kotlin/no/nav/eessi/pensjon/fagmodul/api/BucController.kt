@@ -1,5 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
+import no.nav.eessi.pensjon.eux.model.BucType.*
 import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.*
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
@@ -277,15 +278,18 @@ class BucController(
 
         val hentFnrfraAktoerService = innhentingService.hentFnrfraAktoerService(aktoerid)
         if (kilde == EuxInnhentingService.BucViewKilde.AVDOD || EuxInnhentingService.BucViewKilde.SAF == kilde) {
-            if (saknr == "null")
-            return bucDetaljerEnkelGjenlevende.measure {
-                val gjenlevendeFnr = hentFnrfraAktoerService
-                logger.info("GJENNY: gjenlevende med euxCaseId: $euxcaseid, saknr: $saknr, gjenny")
-                val bucOgDocAvdod = euxInnhentingService.hentBucOgDocumentIdAvdod(listOf(euxcaseid))
-                val listeAvSedsPaaAvdod = euxInnhentingService.hentDocumentJsonAvdod(bucOgDocAvdod)
-                val gyldigeBucs = gjenlevendeFnr?.let { euxInnhentingService.filterGyldigBucGjenlevendeAvdod(listeAvSedsPaaAvdod, it.id) }
-                val gjenlevendeBucAndSedView = gyldigeBucs?.let { euxInnhentingService.getBucAndSedViewWithBuc(it, gjenlevendeFnr.id, avdodFnr) }
-                gjenlevendeBucAndSedView?.firstOrNull() ?: BucAndSedView.fromErr("Ingen Buc Funnet!")
+            if (saknr == "null") {
+                val sedPaaGjenlevende = euxInnhentingService.getSingleBucAndSedView(euxcaseid)
+                if (sedPaaGjenlevende.type in listOf(P_BUC_02.name, P_BUC_06.name, P_BUC_10.name))
+                    return bucDetaljerEnkelGjenlevende.measure {
+                        val gjenlevendeFnr = hentFnrfraAktoerService
+                        logger.info("GJENNY: gjenlevende med euxCaseId: $euxcaseid, saknr: $saknr, gjenny")
+                        val bucOgDocAvdod = euxInnhentingService.hentBucOgDocumentIdAvdod(listOf(euxcaseid))
+                        val listeAvSedsPaaAvdod = euxInnhentingService.hentDocumentJsonAvdod(bucOgDocAvdod)
+                        val gyldigeBucs = gjenlevendeFnr?.let { euxInnhentingService.filterGyldigBucGjenlevendeAvdod(listeAvSedsPaaAvdod, it.id) }
+                        val gjenlevendeBucAndSedView = gyldigeBucs?.let { euxInnhentingService.getBucAndSedViewWithBuc(it, gjenlevendeFnr.id, avdodFnr) }
+                        gjenlevendeBucAndSedView?.firstOrNull() ?: BucAndSedView.fromErr("Ingen Buc Funnet!")
+                    }
             }
         }
 
