@@ -4,10 +4,13 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_01
+import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_02
 import no.nav.eessi.pensjon.eux.model.buc.Buc
+import no.nav.eessi.pensjon.eux.model.buc.Subject
 import no.nav.eessi.pensjon.fagmodul.api.BucController
-import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
+import no.nav.eessi.pensjon.fagmodul.eux.*
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
+import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
@@ -101,4 +104,67 @@ class BucControllerTest {
 
         return result.response.getContentAsString(charset("UTF-8"))
     }
+
+    @Test
+    fun `Get gjenny cases for gjenlevende and avdod with kilde avdod`() {
+        val aktoerId = "12345678901"
+        val avdodFnr = "12345678900"
+        val gjenlevendeFnr = "13084526251"
+        val kilde = "AVDOD"
+        val euxcaseIdAvdod = "123456"
+        val euxcaseIdGjenlev = "2222222"
+        val saknr = "null"
+
+        val endpointUrl = "/buc/enkeldetalj/$euxcaseIdAvdod/aktoerid/$aktoerId/saknr/$saknr/avdodfnr/$avdodFnr/kilde/$kilde"
+
+        val bucs01 = Buc(id = euxcaseIdGjenlev, subject = Subject(pid = gjenlevendeFnr), processDefinitionName = P_BUC_01.name)
+        val bucs02 = Buc(id = euxcaseIdAvdod, subject = Subject(pid = avdodFnr), processDefinitionName = P_BUC_02.name)
+
+        every { innhentingService.hentFnrfraAktoerService(any() ) } returns NorskIdent(avdodFnr)
+        every { euxInnhentingService.hentBucOgDocumentIdAvdod(any()) } returns listOf(BucOgDocumentAvdod(euxcaseIdAvdod, bucs02, ""))
+        every { euxInnhentingService.hentDocumentJsonAvdod(any()) } returns listOf(BucOgDocumentAvdod(euxcaseIdAvdod, bucs02, ""))
+        every { euxInnhentingService.filterGyldigBucGjenlevendeAvdod(any(), any()) } returns listOf(bucs01, bucs02)
+        every { euxInnhentingService.getBucAndSedViewWithBuc(any(), any(), any()) } returns listOf(
+            BucAndSedView(
+            type = "P_BUC_02",
+            caseId = euxcaseIdAvdod,
+            internationalId = "",
+            subject = BucAndSedSubject(avdod = SubjectFnr( avdodFnr))
+            ),
+            BucAndSedView(
+                type = "P_BUC_01",
+                caseId = euxcaseIdGjenlev,
+                internationalId = "",
+                subject = BucAndSedSubject(avdod = SubjectFnr( avdodFnr))
+            )
+        )
+
+        val result = mvcPerform(endpointUrl)
+
+        val expected = """
+            {"type":"P_BUC_02",
+            "caseId":"123456",
+            "internationalId":"",
+            "creator":null,
+            "sakType":null,
+            "status":null,
+            "startDate":null,
+            "lastUpdate":null,
+            "institusjon":null,
+            "seds":null,
+            "error":null,
+            "readOnly":false,
+            "subject":{
+                "gjenlevende":null,
+                "avdod":{
+                    "fnr":"12345678900"
+                    }
+                }
+            }
+        """.trimIndent()
+
+        JSONAssert.assertEquals(expected, result, false)
+
+    }
+
 }
