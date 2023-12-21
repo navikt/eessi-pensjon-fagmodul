@@ -13,6 +13,10 @@ import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
 import no.nav.eessi.pensjon.eux.model.sed.P6000
+import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucView
+import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucViewKilde
+import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucViewKilde.BRUKER
+import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucViewKilde.SAF
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
@@ -40,7 +44,6 @@ internal class EuxInnhentingServiceTest {
 
     @MockkBean( relaxed = true)
     private lateinit var euxKlient: EuxKlientAsSystemUser
-
     private lateinit var euxInnhentingService: EuxInnhentingService
 
     @BeforeEach
@@ -84,7 +87,6 @@ internal class EuxInnhentingServiceTest {
             }
         """.trimIndent()
 
-
         assertEquals(creator, result.creator?.toJsonSkipEmpty())
         assertEquals(subject, result.subject?.toJsonSkipEmpty())
         assertEquals(INTERNATIONAL_ID, result.internationalId)
@@ -93,47 +95,31 @@ internal class EuxInnhentingServiceTest {
         assertEquals("v4.2", result.processDefinitionVersion)
         assertEquals("2020-04-14T09:11:37.000+0000", result.lastUpdate)
         assertEquals("2020-04-14T09:01:39.537+0000", result.startDate)
-
     }
 
     @Test
     fun getBucViewBruker() {
         val euxCaseId = "3893690"
         val rinaSaker = listOf(Rinasak(euxCaseId, P_BUC_02.name, Traits(), "", Properties(), "open"))
-        every { euxKlient.getRinasaker(eq(FNR), any()) } returns rinaSaker
 
+        every { euxKlient.getRinasaker(eq(FNR), any()) } returns rinaSaker
         every { euxKlient.getBucJsonAsNavIdent(euxCaseId) } returns Buc(id = "3893690", processDefinitionName = "P_BUC_03").toJson()
 
         val result = euxInnhentingService.hentBucViewBruker(FNR, AKTOERID, SAKSNR)
         assertEquals(1, result.size)
-        assertEquals(
-            EuxInnhentingService.BucView(
-                euxCaseId = euxCaseId,
-                buctype = P_BUC_02,
-                aktoerId = AKTOERID,
-                saknr = SAKSNR,
-                avdodFnr = null,
-                kilde = EuxInnhentingService.BucViewKilde.BRUKER
-            ), result[0])
+        assertEquals(bucView(euxCaseId, BRUKER), result[0])
     }
 
     @Test
     fun getBucViewBrukerSaf() {
         val euxCaseId = "3893690"
         val json = javaClass.getResource("/json/buc/P_BUC_02_4.2_P2100.json")!!.readText()
+
         every { euxKlient.getBucJsonAsNavIdent(any()) } returns json
 
-        val result = euxInnhentingService.lagBucViews(AKTOERID, SAKSNR, listOf(euxCaseId), EuxInnhentingService.BucViewKilde.SAF)
+        val result = euxInnhentingService.lagBucViews(AKTOERID, SAKSNR, listOf(euxCaseId), SAF)
         assertEquals(1, result.size)
-        assertEquals(
-            EuxInnhentingService.BucView(
-                euxCaseId = euxCaseId,
-                buctype = P_BUC_02,
-                aktoerId = AKTOERID,
-                saknr = SAKSNR,
-                avdodFnr = null,
-                kilde = EuxInnhentingService.BucViewKilde.SAF
-            ), result[0])
+        assertEquals(bucView(euxCaseId, SAF), result[0])
     }
 
     @Test
@@ -149,7 +135,6 @@ internal class EuxInnhentingServiceTest {
 
         assertEquals("234", result.p6000Pensjon?.vedtak?.firstOrNull()?.delvisstans?.utbetaling?.beloepBrutto)
         assertEquals("BE", result.p6000Pensjon?.tilleggsinformasjon?.annen?.institusjonsadresse?.land)
-
     }
 
     @Test
@@ -260,7 +245,6 @@ internal class EuxInnhentingServiceTest {
         assert(actual[0].rinaidAvdod == euxCaseId)
         assert(actual[0].buc.id == buc.id)
         assert(actual[0].buc.internationalId == "e94e1be2daff414f8a49c3149ec00e66")
-
     }
 
     @Test
@@ -275,9 +259,7 @@ internal class EuxInnhentingServiceTest {
     @Test
     fun `Henter buc og dokumentID feiler ved henting av buc fra eux`() {
         every { euxKlient.getBucJsonAsNavIdent(any()) } throws HttpClientErrorException(HttpStatus.UNAUTHORIZED)
-        assertThrows<Exception> {
-            euxInnhentingService.hentBucOgDocumentIdAvdod(listOf("123"))
-        }
+        assertThrows<Exception> { euxInnhentingService.hentBucOgDocumentIdAvdod(listOf("123")) }
     }
 
     @Test
@@ -305,11 +287,9 @@ internal class EuxInnhentingServiceTest {
         val buc = Buc(processDefinitionName = "P_BUC_02", documents = documentsItem)
         val docs = listOf(BucOgDocumentAvdod(rinaid, buc, dokumentid))
 
-        every {euxKlient.getSedOnBucByDocumentIdNotAsSystemUser(rinaid, dokumentid)  } throws  HttpClientErrorException(HttpStatus.MULTI_STATUS)
+        every {euxKlient.getSedOnBucByDocumentIdNotAsSystemUser(rinaid, dokumentid) } throws HttpClientErrorException(HttpStatus.MULTI_STATUS)
 
-        assertThrows<Exception> {
-            euxInnhentingService.hentDocumentJsonAvdod(docs)
-        }
+        assertThrows<Exception> { euxInnhentingService.hentDocumentJsonAvdod(docs) }
     }
 
     @Test
@@ -320,7 +300,6 @@ internal class EuxInnhentingServiceTest {
         val docs = listOf(BucOgDocumentAvdod(rinaid, Buc(id = rinaid, processDefinitionName = "P_BUC_02"), sedjson))
 
         val actual = euxInnhentingService.filterGyldigBucGjenlevendeAvdod(docs, gjenlevendeFnr)
-
         assertEquals(1, actual.size)
     }
 
@@ -332,7 +311,6 @@ internal class EuxInnhentingServiceTest {
         val docs = listOf(BucOgDocumentAvdod(rinaid, Buc(id = rinaid, processDefinitionName = "P_BUC_02"), sedjson))
 
         val actual = euxInnhentingService.filterGyldigBucGjenlevendeAvdod(docs, gjenlevendeFnr)
-
         assertEquals(0, actual.size)
     }
 
@@ -375,29 +353,25 @@ internal class EuxInnhentingServiceTest {
         val data = listOf(BucOgDocumentAvdod("2321", Buc(), manglerPinGjenlevende))
         val result = euxInnhentingService.filterGyldigBucGjenlevendeAvdod(data, "23123")
         assertEquals(0, result.size)
-
     }
 
     @Test
     fun `check apiRequest for prefill X010 contains X009 payload`() {
         val x009Json = javaClass.getResource("/json/nav/X009-NAV.json").readText()
         val apiRequest = EuxTestUtils.apiRequestWith("1000000", emptyList(), buc = P_BUC_01, sed = SedType.X010)
+
         every { euxKlient.getSedOnBucByDocumentIdNotAsSystemUser(any(), any(), any()) } returns x009Json
 
         val json = euxInnhentingService.checkForX010AndAddX009(apiRequest, "20000000")
-        println(json.payload!!.toJson())
-
         val payload = """
             "{\n  \"sed\" : \"X009\",\n  \"nav\" : {\n    \"sak\" : {\n      \"kontekst\" : {\n        \"bruker\" : {\n          \"mor\" : null,\n          \"far\" : null,\n          \"person\" : {\n            \"pin\" : null,\n            \"pinland\" : null,\n            \"statsborgerskap\" : null,\n            \"etternavn\" : \"æøå\",\n            \"etternavnvedfoedsel\" : null,\n            \"fornavn\" : \"æøå\",\n            \"fornavnvedfoedsel\" : null,\n            \"tidligerefornavn\" : null,\n            \"tidligereetternavn\" : null,\n            \"kjoenn\" : \"M\",\n            \"foedested\" : null,\n            \"foedselsdato\" : \"æøå\",\n            \"sivilstand\" : null,\n            \"relasjontilavdod\" : null,\n            \"rolle\" : null,\n            \"kontakt\" : null\n          },\n          \"adresse\" : null,\n          \"arbeidsforhold\" : null,\n          \"bank\" : null\n        },\n        \"refusjonskrav\" : {\n          \"antallkrav\" : \"æøå\",\n          \"id\" : \"æøå\"\n        },\n        \"arbeidsgiver\" : {\n          \"identifikator\" : [ {\n            \"id\" : \"æøå\",\n            \"type\" : \"registrering\"\n          } ],\n          \"adresse\" : {\n            \"gate\" : \"æøå\",\n            \"bygning\" : \"æøå\",\n            \"by\" : \"æøå\",\n            \"postnummer\" : \"æøå\",\n            \"postkode\" : null,\n            \"region\" : \"æøå\",\n            \"land\" : \"NO\",\n            \"kontaktpersonadresse\" : null,\n            \"datoforadresseendring\" : null,\n            \"postadresse\" : null,\n            \"startdato\" : null,\n            \"type\" : null,\n            \"annen\" : null\n          },\n          \"navn\" : \"æøå\"\n        }\n      },\n      \"leggtilinstitusjon\" : null,\n      \"paaminnelse\" : {\n        \"svar\" : null,\n        \"sende\" : [ {\n          \"type\" : \"dokument\",\n          \"detaljer\" : \"æøå\"\n        } ]\n      }\n    }\n  },\n  \"sedGVer\" : \"4\",\n  \"sedVer\" : \"2\",\n  \"pensjon\" : null\n}"
         """.trimIndent()
-
 
         assert(json.toJson().contains(payload))
     }
 
     @Test
     fun `Sjekk om Pin node finnes i Sed returnerer BUC`() {
-
         val sedfilepath = "src/test/resources/json/nav/P2100-PinNO-NAV.json"
         val sedjson = String(Files.readAllBytes(Paths.get(sedfilepath)))
 
@@ -405,4 +379,13 @@ internal class EuxInnhentingServiceTest {
         val result = euxInnhentingService.filterGyldigBucGjenlevendeAvdod(data, "1234567890000")
         assertEquals(1, result.size)
     }
+
+    private fun bucView(euxCaseId: String, bucViewKilde: BucViewKilde) = BucView(
+        euxCaseId = euxCaseId,
+        buctype = P_BUC_02,
+        aktoerId = AKTOERID,
+        saknr = SAKSNR,
+        avdodFnr = null,
+        kilde = bucViewKilde
+    )
 }
