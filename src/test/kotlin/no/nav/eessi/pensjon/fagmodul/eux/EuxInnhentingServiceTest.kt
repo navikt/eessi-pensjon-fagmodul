@@ -21,6 +21,8 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig
 import org.springframework.web.client.HttpClientErrorException
@@ -173,52 +175,33 @@ internal class EuxInnhentingServiceTest {
         assertEquals(euxCaseId, result.first().caseId)
     }
 
-//    @Test
-//    fun callingEuxServiceForSinglemenuUI_AllOK() {
-//        val euxCaseId = "158123"
-//        val bucStr = javaClass.getResource("/json/buc/buc-158123_2_v4.1.json")!!.readText()
-//
-//        every { euxKlient.getBucJsonAsNavIdent(any()) } returns bucStr
-//
-//        val firstJson = euxInnhentingService.getSingleBucAndSedView(euxCaseId)
-//
-//        var lastUpdate: String = ""
-//        firstJson.lastUpdate?.let { lastUpdate = it }
-//
-//        assertEquals(euxCaseId, firstJson.caseId)
-//        assertTrue(validateJson(bucStr))
-//        assertEquals("2019-05-20T16:35:34", lastUpdate)
-//        assertEquals(18, firstJson.seds?.size)
-//    }
-
     @Test
-    fun `Test filter list av rinasak ta bort elementer av archived`() {
-        assertTrue(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("723", "P_BUC_01", null, "PO", null, "open")))
-        assertTrue(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("2123", "P_BUC_03", null, "PO", null, "open")))
-        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("423", "H_BUC_01", null, "PO", null, "archived")))
-        assertTrue(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("234", "P_BUC_06", null, "PO", null, "closed")))
-        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("8423", "P_BUC_07", null, "PO", null, "archived")))
+    fun callingEuxServiceForSinglemenuUI_AllOK() {
+        val euxCaseId = "158123"
+        val bucStr = javaClass.getResource("/json/buc/buc-158123_2_v4.1.json")!!.readText()
+
+        every { euxKlient.getBucJsonAsNavIdent(any()) } returns bucStr
+
+        val firstJson = euxInnhentingService.getSingleBucAndSedView(euxCaseId)
+
+        assertEquals(euxCaseId, firstJson.caseId)
+        assertTrue(validateJson(bucStr))
+        assertEquals(18, firstJson.seds?.size)
     }
 
-    @Test
-    fun `Test filter list av rinasak ta bort elementer av archived og ugyldige buc`() {
-        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("723", "FP_BUC_01", null, "PO", null, "open")))
-        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("2123", "H_BUC_02", null, "PO", null, "open")))
-        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("423", "P_BUC_01", null, "PO", null, "archived")))
-        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("234", "FF_BUC_01", null, "PO", null, "closed")))
-        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("8423", "FF_BUC_01", null, "PO", null, "archived")))
-        assertTrue(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("8223", "H_BUC_07", null, "PO", null, "open")))
+    @ParameterizedTest
+    @CsvSource("M_BUC_03a, open", "M_BUC_03b, open", "P_BUC_01, open", "H_BUC_07, open", "P_BUC_03, open", "P_BUC_06, closed")
+    fun `Test filter list av rinasak ta bort elementer av archived og ugyldige buc samt spesielle a og b bucer`(bucType: String, status: String) {
+        assertTrue(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("723", bucType, null, "PO", null, status)))
     }
 
-    @Test
-    fun `Test filter list av rinasak ta bort elementer av archived og ugyldige buc samt spesielle a og b bucer`() {
-        assertTrue(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("723", "M_BUC_03a", null, "PO", null, "open")))
-        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("2123", "H_BUC_02", null, "PO", null, "open")))
-        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("423", "P_BUC_01", null, "PO", null, "archived")))
-        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("234", "FF_BUC_01", null, "PO", null, "closed")))
-        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("8423", "M_BUC_02", null, "PO", null, "archived")))
-        assertTrue(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("8223", "M_BUC_03b", null, "PO", null, "open")))
-        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("6006777", "P_BUC_01", null, "PO", null, "open")))
+    @ParameterizedTest
+    @CsvSource(
+        "H_BUC_02, open", "P_BUC_01, archived", "FF_BUC_01, closed", "M_BUC_02, archived", "FP_BUC_01, open", "H_BUC_02, open",
+        "P_BUC_01, archived", "FF_BUC_01, closed", "FF_BUC_01, archived", "H_BUC_01, archived", "P_BUC_07, archived",
+        )
+    fun `Test filter lister rinasaker ta bort elementer av archived og ugyldige buc samt spesielle a og b bucer`(bucType: String, status: String) {
+        assertFalse(euxInnhentingService.erRelevantForVisningIEessiPensjon(Rinasak("723", bucType, null, "PO", null, status)))
     }
 
     @Test
