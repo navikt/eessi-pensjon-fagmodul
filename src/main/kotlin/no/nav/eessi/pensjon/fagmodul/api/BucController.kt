@@ -262,13 +262,7 @@ class BucController(
     ): BucAndSedView {
         return bucDetaljerEnkel.measure {
             logger.info("Henter ut en enkel buc med euxCaseId: $euxcaseid, saknr: $saknr, kilde: $kilde")
-            val sedPaaGjenlevende = euxInnhentingService.getSingleBucAndSedView(euxcaseid)
-            if (saknr == "null" && sedPaaGjenlevende.type in listOf(P_BUC_02.name, P_BUC_05.name, P_BUC_06.name, P_BUC_10.name)) {
-                 return@measure sedPaaGjenlevende
-                } else if (saknr == "null") {
-                 return@measure BucAndSedView.fromErr("Ingen Buc Funnet!")
-             }
-            return@measure sedPaaGjenlevende
+            euxInnhentingService.getSingleBucAndSedView(euxcaseid)
         }
     }
 
