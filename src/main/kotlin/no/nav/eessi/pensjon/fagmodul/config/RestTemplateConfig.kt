@@ -108,9 +108,7 @@ class RestTemplateConfig(
                 tokenIntercetor
             )
             .build().apply {
-                requestFactory = BufferingClientHttpRequestFactory(SimpleClientHttpRequestFactory()
-                    .apply { setOutputStreaming(false) }
-                )
+                requestFactory = BufferingClientHttpRequestFactory(SimpleClientHttpRequestFactory())
        }
     }
 
