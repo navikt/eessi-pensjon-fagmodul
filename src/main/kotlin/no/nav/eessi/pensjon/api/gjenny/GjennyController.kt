@@ -1,6 +1,5 @@
 package no.nav.eessi.pensjon.api.gjenny
 
-import no.nav.eessi.pensjon.eux.model.BucType
 import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
 import no.nav.eessi.pensjon.fagmodul.api.PrefillController
 import no.nav.eessi.pensjon.fagmodul.api.SedController
@@ -34,8 +33,6 @@ class GjennyController (
     private val logger = LoggerFactory.getLogger(GjennyController::class.java)
     private val secureLog = LoggerFactory.getLogger("secureLog")
     private lateinit var bucerForGjenny: MetricsHelper.Metric
-    private lateinit var bucDetaljerEnkelGjenny: MetricsHelper.Metric
-
     private lateinit var bucerForAvdodGjenny: MetricsHelper.Metric
     private lateinit var bucViewGjenny: MetricsHelper.Metric
 
@@ -85,17 +82,6 @@ class GjennyController (
                 .also { logger.info("getGjenlevendeRinasakerAvdodGjenny: view size: ${it.size}, total tid: ${System.currentTimeMillis()-start} i ms") }
         }
     }
-
-    @GetMapping("/enkeldetalj/{euxcaseid}")
-    fun hentSingleBucAndSedView(@PathVariable("euxcaseid") euxcaseid: String): BucAndSedView =
-        bucDetaljerEnkelGjenny.measure {
-            logger.debug(" prøver å hente ut en enkel buc med euxCaseId: $euxcaseid")
-            val sedPaaGjenlevende = euxInnhentingService.getSingleBucAndSedView(euxcaseid)
-            if (sedPaaGjenlevende.type in listOf(BucType.P_BUC_02.name, BucType.P_BUC_05.name, BucType.P_BUC_06.name, BucType.P_BUC_10.name)) {
-                return@measure sedPaaGjenlevende
-            }
-            return@measure BucAndSedView.fromErr("Ingen BUCer funnet for euxCaseId: $euxcaseid")
-        }
 
     @GetMapping("/rinasaker/{aktoerId}")
     fun getRinasakerBrukerkontekstGjenny(
