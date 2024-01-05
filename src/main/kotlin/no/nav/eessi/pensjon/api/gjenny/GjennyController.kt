@@ -114,10 +114,11 @@ class GjennyController (
                 null,
                 filterBrukerRinaSakIderFraJoark,
                 EuxInnhentingService.BucViewKilde.SAF
-            ).filter { it.buctype !in listOf(P_BUC_01, P_BUC_03) }
-                .also {timeTracking.add("hentBucViews tid: ${System.currentTimeMillis()-start} i ms")}
+            ).also {timeTracking.add("hentBucViews tid: ${System.currentTimeMillis()-start} i ms")}
 
-            val view = (brukerView + safView).also { logger.info("Antall for brukerview+safView: ${it.size}") }
+            val view = (brukerView + safView)
+                .filter { it.buctype !in listOf(P_BUC_01, P_BUC_03) }
+                .also { logger.info("Antall for brukerview+safView: ${it.size}") }
 
             return@measure view.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
                 .also {
