@@ -329,6 +329,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
         //filter: avdodview for match på filterBrukersakerRina
         val avdodViewSaf = avdodView
             .filter { view -> view.euxCaseId in brukerIdFraJoark }
+            //TODO: Hvorfor er det nødvendig å sette kilde her?
             .map { view ->
                 view.copy(kilde = BucViewKilde.SAF)
             }

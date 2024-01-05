@@ -7,6 +7,7 @@ import com.ninjasquad.springmockk.MockkBeans
 import com.ninjasquad.springmockk.SpykBean
 import io.mockk.every
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
+import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_01
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_02
 import no.nav.eessi.pensjon.fagmodul.api.PrefillController
 import no.nav.eessi.pensjon.fagmodul.api.SedController
@@ -57,6 +58,27 @@ class GjennyControllerTest {
 
         val expected = """
            "[{\"euxCaseId\":\"12345678901\",\"buctype\":\"P_BUC_02\",\"aktoerId\":\"12345678900\",\"saknr\":\"12345678900\",\"avdodFnr\":\"12345678900\",\"kilde\":\"AVDOD\"}]"
+        """.trimIndent()
+
+        val result = mockMvc.get(endpointUrl).andReturn().response.contentAsString.toJson()
+        assertEquals(expected, result)
+    }
+
+    @Test
+    fun `Ved innhenting av bucer for gjennybrukere returneres alle bucer utenom pbuc01 og pbuc03 for avdod og gjenlevende`() {
+        val endpointUrl = "/gjenny/rinasaker/$AKTOERID/avdodfnr/$AVDOD_FNR"
+        val euxCaseId = "123456"
+        val listeOverBucerForAvdod = listOf(
+            EuxInnhentingService.BucView(euxCaseId, P_BUC_02, AKTOERID, null, AVDOD_FNR, AVDOD),
+            EuxInnhentingService.BucView(euxCaseId, P_BUC_01, AKTOERID, null, AVDOD_FNR, AVDOD)
+        )
+
+        every { euxInnhentingService.hentBucViewAvdod(any(), any()) } returns listeOverBucerForAvdod
+        every { innhentingService.hentRinaSakIderFraJoarksMetadataForOmstilling(any()) } returns listOf("123456", "1234567")
+        every { euxInnhentingService.lagBucViews(any(), any(), any(), any()) } returns listeOverBucerForAvdod
+
+        val expected = """
+           "[{\"euxCaseId\":\"123456\",\"buctype\":\"P_BUC_02\",\"aktoerId\":\"12345678901\",\"saknr\":null,\"avdodFnr\":\"12345678900\",\"kilde\":\"SAF\"}]"
         """.trimIndent()
 
         val result = mockMvc.get(endpointUrl).andReturn().response.contentAsString.toJson()

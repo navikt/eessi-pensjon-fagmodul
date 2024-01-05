@@ -1,5 +1,7 @@
 package no.nav.eessi.pensjon.api.gjenny
 
+import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_01
+import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_03
 import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
 import no.nav.eessi.pensjon.fagmodul.api.PrefillController
 import no.nav.eessi.pensjon.fagmodul.api.SedController
@@ -76,7 +78,7 @@ class GjennyController (
                 aktoerId,
                 null,
                 brukerRinaSakIderFraJoark
-            )
+            ).filter { it.buctype !in listOf(P_BUC_01, P_BUC_03) }
 
             return@measure viewTotal.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
                 .also { logger.info("getGjenlevendeRinasakerAvdodGjenny: view size: ${it.size}, total tid: ${System.currentTimeMillis()-start} i ms") }
