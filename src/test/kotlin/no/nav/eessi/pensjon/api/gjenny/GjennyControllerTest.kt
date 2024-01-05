@@ -15,6 +15,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucViewKilde.AVDOD
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.kodeverk.KodeverkClient
+import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
 import no.nav.eessi.pensjon.utils.toJson
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -79,6 +80,33 @@ class GjennyControllerTest {
 
         val expected = """
            "[{\"euxCaseId\":\"123456\",\"buctype\":\"P_BUC_02\",\"aktoerId\":\"12345678901\",\"saknr\":null,\"avdodFnr\":\"12345678900\",\"kilde\":\"SAF\"}]"
+        """.trimIndent()
+
+        val result = mockMvc.get(endpointUrl).andReturn().response.contentAsString.toJson()
+        assertEquals(expected, result)
+    }
+
+    @Test
+    fun `Ved innhenting av bucer for gjennybrukere returneres alle bucer utenom pbuc01 og pbuc03 `() {
+        val endpointUrl = "/gjenny/rinasaker/$AKTOERID"
+        val euxCaseId = "123456"
+        val listeOverBucerForAvdod = listOf(
+            EuxInnhentingService.BucView(euxCaseId, P_BUC_02, AKTOERID, null, AVDOD_FNR, AVDOD),
+            EuxInnhentingService.BucView(euxCaseId, P_BUC_01, AKTOERID, null, AVDOD_FNR, AVDOD)
+        )
+
+        val listeOverBucViews = listOf(
+            EuxInnhentingService.BucView("123456", P_BUC_02, AKTOERID, null, AVDOD_FNR, AVDOD),
+            EuxInnhentingService.BucView("1234567", P_BUC_01, AKTOERID, null, AVDOD_FNR, AVDOD)
+        )
+
+        every { innhentingService.hentFnrfraAktoerService(any()) } returns NorskIdent(AVDOD_FNR)
+        every { innhentingService.hentRinaSakIderFraJoarksMetadata(any()) } returns listOf("123456", "1234567")
+        every { euxInnhentingService.hentBucViewBruker(any(), any(), null) } returns listeOverBucViews
+        every { euxInnhentingService.lagBucViews(any(), any(), any(), any()) } returns listeOverBucerForAvdod
+
+        val expected = """
+           "[{\"euxCaseId\":\"123456\",\"buctype\":\"P_BUC_02\",\"aktoerId\":\"12345678901\",\"saknr\":null,\"avdodFnr\":\"12345678900\",\"kilde\":\"AVDOD\"}]"
         """.trimIndent()
 
         val result = mockMvc.get(endpointUrl).andReturn().response.contentAsString.toJson()
