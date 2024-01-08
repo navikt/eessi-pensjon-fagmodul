@@ -275,18 +275,16 @@ class BucController(
     ): BucAndSedView {
         logger.info("Henter ut en enkel buc for gjenlevende")
 
-        val hentFnrfraAktoerService = innhentingService.hentFnrfraAktoerService(aktoerid)
+        val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerid)
         return if (kilde == EuxInnhentingService.BucViewKilde.SAF) {
             bucDetaljerEnkelGjenlevende.measure {
                 logger.info("saf euxCaseId: $euxcaseid, saknr: $saknr")
-                val gjenlevendeFnr = hentFnrfraAktoerService
                 euxInnhentingService.getSingleBucAndSedView(euxcaseid)
                 .copy(subject = BucAndSedSubject(SubjectFnr(gjenlevendeFnr?.id), SubjectFnr(avdodFnr)))
             }
         } else {
             bucDetaljerEnkelavdod.measure {
                 logger.info("avdod med euxCaseId: $euxcaseid, saknr: $saknr")
-                val gjenlevendeFnr = hentFnrfraAktoerService
                 val bucOgDocAvdod = euxInnhentingService.hentBucOgDocumentIdAvdod(listOf(euxcaseid))
                 val listeAvSedsPaaAvdod = euxInnhentingService.hentDocumentJsonAvdod(bucOgDocAvdod)
                 val gyldigeBucs = gjenlevendeFnr?.let { euxInnhentingService.filterGyldigBucGjenlevendeAvdod(listeAvSedsPaaAvdod, it.id) }
