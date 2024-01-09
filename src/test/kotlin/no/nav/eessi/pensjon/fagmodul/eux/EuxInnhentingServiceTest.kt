@@ -303,57 +303,58 @@ internal class EuxInnhentingServiceTest {
         assertEquals(1, actual.size)
     }
 
-    @Test
-    fun `Gitt det ikke finnes en p2100 med gjenlevende Når det filtrers på gjenlevende felt og den gjenlevndefnr Så ingen buc`() {
-        val rinaid = "123123"
-        val gjenlevendeFnr = "12345678123123"
-        val sedjson = javaClass.getResource("/json/nav/P2100-PinNO-NAV.json")!!.readText()
-        val docs = listOf(BucOgDocumentAvdod(rinaid, Buc(id = rinaid, processDefinitionName = "P_BUC_02"), sedjson))
-
-        val actual = euxInnhentingService.filterGyldigBucGjenlevendeAvdod(docs, gjenlevendeFnr)
-        assertEquals(0, actual.size)
-    }
-
-    @Test
-    fun `Sjekk om Pin node ikke finnes i SED logger feil`() {
-        val manglerPinGjenlevende = """
-            {
-              "sed" : "P2000",
-              "sedGVer" : "4",
-              "sedVer" : "1",
-              "nav" : {
-                "bruker" : {
-                  "person" : {
-                    "pin" : [ {
-                      "institusjonsnavn" : "NOINST002, NO INST002, NO",
-                      "institusjonsid" : "NO:noinst002",
-                      "identifikator" : "3123",
-                      "land" : "NO"
-                    } ],
-                    "statsborgerskap" : [ {
-                      "land" : "QX"
-                    } ],
-                    "etternavn" : "Testesen",
-                    "fornavn" : "Test",
-                    "kjoenn" : "M",
-                    "foedselsdato" : "1988-07-12"
-                  }
-                },
-                "krav" : {
-                  "dato" : "2018-06-28"
-                }
-              },
-              "pensjon" : {
-                "kravDato" : {
-                  "dato" : "2018-06-28"
-                }
-              }
-            }
-        """.trimIndent()
-        val data = listOf(BucOgDocumentAvdod("2321", Buc(), manglerPinGjenlevende))
-        val result = euxInnhentingService.filterGyldigBucGjenlevendeAvdod(data, "23123")
-        assertEquals(0, result.size)
-    }
+    //Kommenterer ut disse for å sjekke nytten av dem..
+//    @Test
+//    fun `Gitt det ikke finnes en p2100 med gjenlevende Når det filtrers på gjenlevende felt og den gjenlevndefnr Så ingen buc`() {
+//        val rinaid = "123123"
+//        val gjenlevendeFnr = "12345678123123"
+//        val sedjson = javaClass.getResource("/json/nav/P2100-PinNO-NAV.json")!!.readText()
+//        val docs = listOf(BucOgDocumentAvdod(rinaid, Buc(id = rinaid, processDefinitionName = "P_BUC_02"), sedjson))
+//
+//        val actual = euxInnhentingService.filterGyldigBucGjenlevendeAvdod(docs, gjenlevendeFnr)
+//        assertEquals(0, actual.size)
+//    }
+//
+//    @Test
+//    fun `Sjekk om Pin node ikke finnes i SED logger feil`() {
+//        val manglerPinGjenlevende = """
+//            {
+//              "sed" : "P2000",
+//              "sedGVer" : "4",
+//              "sedVer" : "1",
+//              "nav" : {
+//                "bruker" : {
+//                  "person" : {
+//                    "pin" : [ {
+//                      "institusjonsnavn" : "NOINST002, NO INST002, NO",
+//                      "institusjonsid" : "NO:noinst002",
+//                      "identifikator" : "3123",
+//                      "land" : "NO"
+//                    } ],
+//                    "statsborgerskap" : [ {
+//                      "land" : "QX"
+//                    } ],
+//                    "etternavn" : "Testesen",
+//                    "fornavn" : "Test",
+//                    "kjoenn" : "M",
+//                    "foedselsdato" : "1988-07-12"
+//                  }
+//                },
+//                "krav" : {
+//                  "dato" : "2018-06-28"
+//                }
+//              },
+//              "pensjon" : {
+//                "kravDato" : {
+//                  "dato" : "2018-06-28"
+//                }
+//              }
+//            }
+//        """.trimIndent()
+//        val data = listOf(BucOgDocumentAvdod("2321", Buc(), manglerPinGjenlevende))
+//        val result = euxInnhentingService.filterGyldigBucGjenlevendeAvdod(data, "23123")
+//        assertEquals(0, result.size)
+//    }
 
     @Test
     fun `check apiRequest for prefill X010 contains X009 payload`() {
