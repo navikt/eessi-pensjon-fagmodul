@@ -71,7 +71,7 @@ class PrefillKlient(private val prefillOAuthTemplate: RestTemplate,
     ) {
         companion object {
             fun from(hsce: HttpStatusCodeException): ResponseErrorData {
-                return mapJsonToAny(hsce.getResponseBodyAsString())
+                return mapJsonToAny(hsce.responseBodyAsString)
             }
             fun fromJson(json: String): ResponseErrorData {
                 return mapJsonToAny(json)

@@ -166,14 +166,15 @@ class PensjonController(
         return "NA"
     }
 
-    private class LocalDateSerializer(): JsonSerializer<XMLGregorianCalendar>() {
+    private class LocalDateSerializer : JsonSerializer<XMLGregorianCalendar>() {
         override fun serialize(value: XMLGregorianCalendar?, gen: JsonGenerator?, serializers: SerializerProvider?) {
             gen?.let { jGen ->
                 value?.let { xmldate ->
                     val localDate = LocalDate.of(
-                        xmldate.getYear(),
-                        xmldate.getMonth(),
-                        xmldate.getDay())
+                        xmldate.year,
+                        xmldate.month,
+                        xmldate.day
+                    )
                     jGen.writeString(localDate.toString())
                 } ?: jGen.writeNull()
             }
@@ -221,7 +222,7 @@ class PensjonController(
         }
 
         if (uforetidspunkt?.dayOfMonth != 1) logger.error("Feiler ved uføretidspunkt: $uforetidspunkt, Dag er ikke første i mnd")
-        logger.debug("utføretidspunkt: ${uforetidspunkt.toString()}")
+        logger.debug("utføretidspunkt: $uforetidspunkt")
         return uforetidspunkt
     }
 

@@ -49,6 +49,6 @@ class EessiTokenValdationTest {
     fun `se at applikasjonen starter med prod konfig og at tilstanden ok`(){
         mockMvc.perform(get("/actuator/health"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.status").value("UP"));
+            .andExpect(jsonPath("$.status").value("UP"))
     }
 }

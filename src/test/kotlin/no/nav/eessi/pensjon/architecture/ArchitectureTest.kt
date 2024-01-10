@@ -209,7 +209,7 @@ class ArchitectureTest {
         rule.check(productionClasses)
 
     }
-    private fun dontAccessMemberVariables(): DescribedPredicate<JavaMethod?>? {
+    private fun dontAccessMemberVariables(): DescribedPredicate<JavaMethod?> {
         return object : DescribedPredicate<JavaMethod?>("don't access member variables") {
             override fun test(input: JavaMethod?): Boolean {
                 return !input!!.fieldAccesses.stream().filter { access: JavaFieldAccess ->
@@ -225,10 +225,10 @@ class ArchitectureTest {
         }
     }
 
-    private fun dontAccessInstanceMethods(): DescribedPredicate<JavaMethod?>? {
+    private fun dontAccessInstanceMethods(): DescribedPredicate<JavaMethod?> {
         return object : DescribedPredicate<JavaMethod?>("don't access instance methods") {
             override fun test(input: JavaMethod?): Boolean {
-                return !input!!.getCallsFromSelf().stream().filter { access ->
+                return !input!!.callsFromSelf.stream().filter { access ->
                     val targets: Optional<out JavaCodeUnit>? = access.target.resolveMember()
                     if (targets == null || !targets.isPresent) {
                         return@filter false
