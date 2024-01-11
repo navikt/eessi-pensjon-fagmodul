@@ -56,7 +56,7 @@ dependencies {
 
     //auth
     implementation("no.nav.security:token-client-spring:${tokenSupportVersion}")
-        implementation("no.nav.security:token-validation-spring:${tokenSupportVersion}")
+    implementation("no.nav.security:token-validation-spring:${tokenSupportVersion}")
     implementation("no.nav.security:token-validation-jaxrs:${tokenSupportVersion}")
 
     implementation ("no.nav.common:token-client:3.2023.09.13_04.55-a8ff452fbd94")
