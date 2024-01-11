@@ -75,7 +75,7 @@ class VedleggService(private val safClient: SafClient,
                     .filter { it["nokkel"].equals(TILLEGGSOPPLYSNING_RINA_SAK_ID_KEY) }
                     .filter { it["verdi"] != null }
                     .map { it["verdi"]!! }
-            }.filterNot { MissingBuc.checkForMissingBuc(it) }
+            }.filterNot { rinaId -> MissingBuc.checkForMissingBuc(rinaId).also { if(it) logger.info("Fjernet missing buc") } }
             .distinct()
             .also { logger.info("Fant følgende RINAID fra dokument Metadata: ${it.map { str -> str }}") }
 
