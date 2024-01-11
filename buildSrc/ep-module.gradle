@@ -39,8 +39,6 @@ dependencies {
     implementation(platform("org.jetbrains.kotlin:kotlin-bom:${kotlinVersion}"))
 }
 
-assert JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_21): "Java 21 or newer is required"
-
 java {
     sourceCompatibility = JavaVersion.VERSION_21
     targetCompatibility = JavaVersion.VERSION_21
