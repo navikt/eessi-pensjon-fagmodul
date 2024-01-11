@@ -25,8 +25,6 @@ import java.util.*
 
 }
 
- fun getNavIdent(tokenValidationContextHolder: TokenValidationContextHolder) = getClaims(tokenValidationContextHolder).get("NAVident")?.toString()
-
  fun getToken(tokenValidationContextHolder: TokenValidationContextHolder): JwtToken {
     val context = tokenValidationContextHolder.getTokenValidationContext()
     if(context.issuers.isEmpty())
