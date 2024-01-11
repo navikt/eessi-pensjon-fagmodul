@@ -29,6 +29,8 @@ import org.springframework.http.client.SimpleClientHttpRequestFactory
 import org.springframework.web.client.DefaultResponseErrorHandler
 import org.springframework.web.client.ResponseErrorHandler
 import org.springframework.web.client.RestTemplate
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 import java.time.Duration
 
 @Configuration
@@ -121,7 +123,7 @@ class RestTemplateConfig(
     ): ClientHttpRequestInterceptor {
         return ClientHttpRequestInterceptor { request: HttpRequest, body: ByteArray?, execution: ClientHttpRequestExecution ->
             val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
-            request.headers.setBearerAuth(response.accessToken)
+            response?.accessToken?.let { request.headers.setBearerAuth(it) }
             execution.execute(request, body!!)
         }
     }
@@ -129,7 +131,7 @@ class RestTemplateConfig(
     private fun onBehalfOfBearerTokenInterceptor(clientId: String): ClientHttpRequestInterceptor {
         logger.info("init onBehalfOfBearerTokenInterceptor: $clientId")
         return ClientHttpRequestInterceptor { request: HttpRequest, body: ByteArray?, execution: ClientHttpRequestExecution ->
-            val navidentTokenFromUI = getToken(tokenValidationContextHolder).tokenAsString
+            val decodedToken = URLDecoder.decode(getToken(tokenValidationContextHolder).encodedToken, StandardCharsets.UTF_8)
 
             logger.info("NAVIdent: ${getClaims(tokenValidationContextHolder).get("NAVident")?.toString()}")
 
@@ -139,7 +141,7 @@ class RestTemplateConfig(
 
             val accessToken: String = tokenClient.exchangeOnBehalfOfToken(
                 "api://$clientId/.default",
-                navidentTokenFromUI
+                decodedToken
             )
 
             request.headers.setBearerAuth(accessToken)
