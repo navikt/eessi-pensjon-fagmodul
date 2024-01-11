@@ -6,7 +6,7 @@ buildscript {
         springKafkaVersion = '3.1.1'
         springfoxVersion = '3.0.0'
         jacksonModuleKotlinVersion = '2.16.1'
-        tokenSupportVersion = '3.2.0'
+        tokenSupportVersion = '4.0.3'
     }
 }
 
@@ -60,7 +60,7 @@ dependencies {
 
     //auth
     implementation("no.nav.security:token-client-spring:${tokenSupportVersion}")
-    implementation("no.nav.security:token-validation-spring:${tokenSupportVersion}")
+        implementation("no.nav.security:token-validation-spring:${tokenSupportVersion}")
     implementation("no.nav.security:token-validation-jaxrs:${tokenSupportVersion}")
 
     implementation ("no.nav.common:token-client:3.2023.09.13_04.55-a8ff452fbd94")
