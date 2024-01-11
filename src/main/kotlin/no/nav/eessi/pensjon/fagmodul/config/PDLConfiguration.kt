@@ -21,7 +21,7 @@ class PDLConfiguration(private val tokenValidationContextHolder: TokenValidation
 
     override fun callBack(): PdlToken {
 
-        val navidentTokenFromUI = getToken(tokenValidationContextHolder)?.tokenAsString
+        val navidentTokenFromUI = getToken(tokenValidationContextHolder).tokenAsString
 
         val tokenClient: AzureAdOnBehalfOfTokenClient = AzureAdTokenClientBuilder.builder()
             .withNaisDefaults()
