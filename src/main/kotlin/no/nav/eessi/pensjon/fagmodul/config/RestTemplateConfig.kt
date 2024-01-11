@@ -29,6 +29,8 @@ import org.springframework.http.client.SimpleClientHttpRequestFactory
 import org.springframework.web.client.DefaultResponseErrorHandler
 import org.springframework.web.client.ResponseErrorHandler
 import org.springframework.web.client.RestTemplate
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 import java.time.Duration
 
 @Configuration
@@ -129,8 +131,8 @@ class RestTemplateConfig(
     private fun onBehalfOfBearerTokenInterceptor(clientId: String): ClientHttpRequestInterceptor {
         logger.info("init onBehalfOfBearerTokenInterceptor: $clientId")
         return ClientHttpRequestInterceptor { request: HttpRequest, body: ByteArray?, execution: ClientHttpRequestExecution ->
-            val navidentTokenFromUI = getToken(tokenValidationContextHolder)?.tokenAsString
-
+            val navidentTokenFromUI = getToken(tokenValidationContextHolder)?.encodedToken
+            val decodedToken = URLDecoder.decode(navidentTokenFromUI, StandardCharsets.UTF_8)
             logger.info("NAVIdent: ${getClaims(tokenValidationContextHolder).get("NAVident")?.toString()}")
 
             val tokenClient: AzureAdOnBehalfOfTokenClient = AzureAdTokenClientBuilder.builder()
@@ -139,7 +141,7 @@ class RestTemplateConfig(
 
             val accessToken: String = tokenClient.exchangeOnBehalfOfToken(
                 "api://$clientId/.default",
-                navidentTokenFromUI
+                decodedToken
             )
 
             request.headers.setBearerAuth(accessToken)

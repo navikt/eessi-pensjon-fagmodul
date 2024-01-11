@@ -13,6 +13,8 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
 import org.springframework.web.client.RestTemplate
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 
 @Profile("prod", "test")
 @Configuration
@@ -21,15 +23,15 @@ class PDLConfiguration(private val tokenValidationContextHolder: TokenValidation
 
     override fun callBack(): PdlToken {
 
-        val navidentTokenFromUI = getToken(tokenValidationContextHolder)?.tokenAsString
-
+        val navidentTokenFromUI = getToken(tokenValidationContextHolder)?.encodedToken
+        val decodedToken = URLDecoder.decode(navidentTokenFromUI, StandardCharsets.UTF_8)
         val tokenClient: AzureAdOnBehalfOfTokenClient = AzureAdTokenClientBuilder.builder()
             .withNaisDefaults()
             .buildOnBehalfOfTokenClient()
 
         val accessToken: String = tokenClient.exchangeOnBehalfOfToken(
             "api://$pdlClientId/.default",
-            navidentTokenFromUI
+            decodedToken
         )
         return PdlTokenImp(accessToken)
     }
