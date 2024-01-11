@@ -88,7 +88,7 @@ class SedController(
         @PathVariable(value = "rinanr", required = true) euxCaseId: String
     ): ResponseEntity<String?> {
         val resultListe = BucUtils(euxInnhentingService.getBuc(euxCaseId)).getFiltrerteGyldigSedAksjonListAsString()
-        logger.info("Henter lite over SED som kan opprettes på buctype: $bucType seds: $resultListe")
+        logger.info("Henter liste over SED som kan opprettes på buctype: $bucType seds: $resultListe")
         return ResponseEntity.ok().body(resultListe.toJsonSkipEmpty())
     }
 
