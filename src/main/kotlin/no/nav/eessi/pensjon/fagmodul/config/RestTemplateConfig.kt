@@ -121,7 +121,7 @@ class RestTemplateConfig(
     ): ClientHttpRequestInterceptor {
         return ClientHttpRequestInterceptor { request: HttpRequest, body: ByteArray?, execution: ClientHttpRequestExecution ->
             val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
-            request.headers.setBearerAuth(response.accessToken)
+            response?.accessToken?.let { request.headers.setBearerAuth(it) }
             execution.execute(request, body!!)
         }
     }
@@ -129,7 +129,7 @@ class RestTemplateConfig(
     private fun onBehalfOfBearerTokenInterceptor(clientId: String): ClientHttpRequestInterceptor {
         logger.info("init onBehalfOfBearerTokenInterceptor: $clientId")
         return ClientHttpRequestInterceptor { request: HttpRequest, body: ByteArray?, execution: ClientHttpRequestExecution ->
-            val navidentTokenFromUI = getToken(tokenValidationContextHolder).tokenAsString
+            val navidentTokenFromUI = getToken(tokenValidationContextHolder)?.tokenAsString
 
             logger.info("NAVIdent: ${getClaims(tokenValidationContextHolder).get("NAVident")?.toString()}")
 

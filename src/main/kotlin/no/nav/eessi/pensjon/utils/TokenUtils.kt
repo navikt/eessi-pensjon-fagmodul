@@ -7,7 +7,7 @@ import java.util.*
 
 
  fun getClaims(tokenValidationContextHolder: TokenValidationContextHolder): JwtTokenClaims {
-    val context = tokenValidationContextHolder.tokenValidationContext
+    val context = tokenValidationContextHolder.getTokenValidationContext()
     if(context.issuers.isEmpty())
         throw RuntimeException("No issuer found in context")
 
@@ -27,8 +27,8 @@ import java.util.*
 
  fun getNavIdent(tokenValidationContextHolder: TokenValidationContextHolder) = getClaims(tokenValidationContextHolder).get("NAVident")?.toString()
 
- fun getToken(tokenValidationContextHolder: TokenValidationContextHolder): JwtToken {
-    val context = tokenValidationContextHolder.tokenValidationContext
+ fun getToken(tokenValidationContextHolder: TokenValidationContextHolder): JwtToken? {
+    val context = tokenValidationContextHolder.getTokenValidationContext()
     if(context.issuers.isEmpty())
         throw RuntimeException("No issuer found in context")
     val issuer = context.issuers.first()
