@@ -107,6 +107,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         val rinabucdocumentidpath = "/buc/$euxCaseId/sed/1"
         val sedjson = javaClass.getResource("/json/nav/P2100-PinNO-NAV.json").readText()
         every { euxNavIdentRestTemplate.exchange( rinabucdocumentidpath, HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( sedjson )
+        every { gcpStorageService.eksisterer(any()) } returns false
 
 
         val result = mockMvc.perform(
