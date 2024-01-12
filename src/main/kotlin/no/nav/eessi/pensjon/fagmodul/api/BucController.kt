@@ -220,8 +220,11 @@ class BucController(
                 brukerRinaSakIderFraJoark
             )
 
+            val rinaIder = view.map { it.euxCaseId }.filter { gcpStorageService.eksisterer(it) }
+
             //return med sort og distinct (avdodfnr og caseid)
             return@measure view.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
+                .filterNot { rinaIder.contains(it.euxCaseId) }
                 .also { logger.info("GjenlevendeRinasakerVedtak: view size: ${it.size}, total tid: ${System.currentTimeMillis()-start} i ms") }
         }
     }

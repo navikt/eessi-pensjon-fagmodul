@@ -138,6 +138,7 @@ internal class BucControllerIT: BucBaseTest() {
         //buc02 sed
         val rinabucdocumentidpath = "/buc/1010/sed/1"
         every { euxNavIdentRestTemplate.exchange( rinabucdocumentidpath, HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( sedjson )
+        every { gcpStorageService.eksisterer(any()) } returns false
 
         val result = mockMvc.perform(get("/buc/rinasaker/$gjenlevendeAktoerId/saknr/$saknr/vedtak/$vedtakid")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -199,7 +200,7 @@ internal class BucControllerIT: BucBaseTest() {
             every { euxNavIdentRestTemplate.exchange( rinabucdocumentidpath, HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( sedjson )
 
             every { euxNavIdentRestTemplate.exchange( "/rinasaker?fødselsnummer=01010100001&status=\"open\"", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(emptyList<Rinasak>().toJson())
-
+            every { gcpStorageService.eksisterer(any()) } returns false
 
             val response = mockMvc.perform(get("/buc/rinasaker/$gjenlevendeAktoerId/saknr/$saknr/vedtak/$vedtakid")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -266,6 +267,7 @@ internal class BucControllerIT: BucBaseTest() {
         every { euxNavIdentRestTemplate.exchange( rinabucdocumentidpath, HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( sedjson )
 
         every { euxNavIdentRestTemplate.exchange( "/rinasaker?fødselsnummer=01010100001&status=\"open\"", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(emptyList<Rinasak>().toJson())
+        every { gcpStorageService.eksisterer(any()) } returns false
 
         val result = mockMvc.perform(get("/buc/rinasaker/$gjenlevendeAktoerId/saknr/$saknr/vedtak/$vedtakid")
             .contentType(MediaType.APPLICATION_JSON))
@@ -311,7 +313,7 @@ internal class BucControllerIT: BucBaseTest() {
         //saf (vedlegg meta) gjenlevende
         val httpEntity = dummyHeader(dummySafReqeust(gjenlevendeAktoerId))
         every { restSafTemplate.exchange(eq("/"), eq(HttpMethod.POST), eq(httpEntity), eq(String::class.java)) } returns ResponseEntity.ok().body(  dummySafMetaResponseMedRina("2020") )
-
+        every { gcpStorageService.eksisterer(any()) } returns false
 
         val expected = """
             [
