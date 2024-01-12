@@ -3,6 +3,7 @@ package no.nav.eessi.pensjon.fagmodul.api
 import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.*
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
+import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
@@ -27,6 +28,7 @@ class BucController(
     private val euxInnhentingService: EuxInnhentingService,
     private val auditlogger: AuditLogger,
     private val innhentingService: InnhentingService,
+    private val gcpStorageService: GcpStorageService,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
     private val logger = LoggerFactory.getLogger(BucController::class.java)
@@ -102,9 +104,13 @@ class BucController(
             ).also {timeTracking.add("hentBucViews tid: ${System.currentTimeMillis()-start} i ms")}
 
             val view = (brukerView + safView).also { logger.info("Antall for brukerview+safView: ${it.size}") }
+            //rinaIder inneholder bucer som ikke er gjenny bucer
+            val rinaIder = brukerView.map { it.euxCaseId }.filter { gcpStorageService.eksisterer(it) }
 
-            //return med sort og distict (avdodfmr og caseid)
+            //return med sort og distict (avdodfnr og caseid)
             return@measure view.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
+                //Viser ep-bucer som ikke er gjenny-bucer
+                .filterNot { rinaIder.contains(it.euxCaseId) }
                 .also {
                     logger.info("Tidsbruk for getRinasakerBrukerkontekst: \n"+timeTracking.joinToString("\n").trimIndent())
                 }

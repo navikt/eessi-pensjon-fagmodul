@@ -73,6 +73,9 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
     private lateinit var personService: PersonService
 
     @Autowired
+    private lateinit var gcpStorageService: GcpStorageService
+
+    @Autowired
     private lateinit var mockMvc: MockMvc
 
     @Test
@@ -326,6 +329,51 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         every { euxNavIdentRestTemplate.exchange("/rinasaker?fødselsnummer=1234567890000&status=\"open\"", HttpMethod.GET, null, String::class.java) } .answers( FunctionAnswer { Thread.sleep(250);  ResponseEntity.ok().body( listOf(dummyRinasak("5195021", "P_BUC_05") ).toJson() ) } )
         every { euxNavIdentRestTemplate.exchange( "/buc/5922554", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "5922554", processDefinitionName = "P_BUC_03").toJson() )
         every { euxNavIdentRestTemplate.exchange( "/buc/5195021", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "5195021", processDefinitionName = "P_BUC_03").toJson() )
+        every { gcpStorageService.eksisterer("5195021") } returns false
+        every { gcpStorageService.eksisterer("5922554") } returns false
+
+        val result = mockMvc.perform(
+            MockMvcRequestBuilders.get("/buc/rinasaker/$aktoerId/saknr/$saknr")
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andReturn()
+
+        val response = result.response.getContentAsString(charset("UTF-8"))
+
+        verify (exactly = 1) { euxNavIdentRestTemplate.exchange("/rinasaker?fødselsnummer=1234567890000&status=\"open\"", HttpMethod.GET, null, String::class.java) }
+        verify (exactly = 1) { safGraphQlOidcRestTemplate.exchange("/", HttpMethod.POST, httpEntity, String::class.java) }
+
+        val expected = """
+                [{"euxCaseId":"5195021","buctype":"P_BUC_05","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":null,"kilde":"BRUKER"},
+                {"euxCaseId":"5922554","buctype":"P_BUC_03","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":null,"kilde":"SAF"}]
+        """.trimIndent()
+
+        JSONAssert.assertEquals(expected, response, true)
+    }
+
+    @Test
+    fun `Hent mulige rinasaker for aktoer og saf uten å vise gjennybuc`() {
+        val fnr = "1234567890000"
+        val aktoerId = "1123123123123123"
+        val saknr = "100001000"
+
+        //gjenlevende aktoerid -> gjenlevendefnr
+        every { personService.hentIdent(FOLKEREGISTERIDENT, AktoerId(aktoerId)) } returns NorskIdent(fnr)
+
+        //saf (sikker arkiv fasade) (vedlegg meta) gjenlevende
+        val httpEntity = dummyHeader(dummySafReqeust(aktoerId))
+        every { safGraphQlOidcRestTemplate.exchange(eq("/"), eq(HttpMethod.POST), eq(httpEntity), eq(String::class.java)) } returns ResponseEntity.ok().body(  dummySafMetaResponseMedRina( "5195021", "5922554" ) )
+
+        //gjenlevende rinasak
+        every { euxNavIdentRestTemplate.exchange("/rinasaker?fødselsnummer=1234567890000&status=\"open\"", HttpMethod.GET, null, String::class.java) } .answers( FunctionAnswer { Thread.sleep(250);  ResponseEntity.ok().body( listOf(dummyRinasak("5195021", "P_BUC_05") ).toJson() ) } )
+        every { euxNavIdentRestTemplate.exchange( "/buc/5922554", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "5922554", processDefinitionName = "P_BUC_03").toJson() )
+        every { euxNavIdentRestTemplate.exchange( "/buc/5195021", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "5195021", processDefinitionName = "P_BUC_03").toJson() )
+        every { euxNavIdentRestTemplate.exchange( "/buc/000001", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "000001", processDefinitionName = "P_BUC_02").toJson() )
+
+        every { gcpStorageService.eksisterer("5922554") } returns false
+        every { gcpStorageService.eksisterer("5195021") } returns false
+        every { gcpStorageService.eksisterer("000001") } returns true
 
         val result = mockMvc.perform(
             MockMvcRequestBuilders.get("/buc/rinasaker/$aktoerId/saknr/$saknr")
@@ -367,7 +415,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
         every { euxNavIdentRestTemplate.exchange( "/buc/3010", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "3010", processDefinitionName = "P_BUC_03").toJson() )
         every { euxNavIdentRestTemplate.exchange( "/buc/75312", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "75312", processDefinitionName = "P_BUC_03").toJson() )
-
+        every { gcpStorageService.eksisterer(any()) } returns false
 
         val result = mockMvc.perform(
             MockMvcRequestBuilders.get("/buc/rinasaker/$aktoerId/saknr/$saknr")
@@ -409,7 +457,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
         every { euxNavIdentRestTemplate.exchange( "/buc/3010", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "3010", processDefinitionName = "P_BUC_03").toJson() )
         every { euxNavIdentRestTemplate.exchange( "/buc/75312", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "75312", processDefinitionName = "P_BUC_03").toJson() )
-
+        every { gcpStorageService.eksisterer(any()) } returns false
 
         val result = mockMvc.perform(
                 MockMvcRequestBuilders.get("/buc/rinasaker/$aktoerId/saknr/$saknr")
