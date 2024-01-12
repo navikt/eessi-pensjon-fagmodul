@@ -173,8 +173,13 @@ class BucController(
             val rinaSaker = euxInnhentingService.hentBucViewBruker(fnr.id, aktoerId, pensjonSakNummer)
             logger.info("brukerView : ${rinaSaker.toJson()}")
 
-            //return med sort og distict (avdodfmr og caseid)
+            val rinaIder = rinaSaker.map { it.euxCaseId }.filter { gcpStorageService.eksisterer(it) }
+
+
+            //return med sort og distict (avdodfnr og caseid)
             return@measure rinaSaker.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
+                // Viser ikke Gjenny bucer
+                .filterNot { rinaIder.contains(it.euxCaseId) }
                 .also {
                     logger.info("""
                         Total view size: ${it.size}

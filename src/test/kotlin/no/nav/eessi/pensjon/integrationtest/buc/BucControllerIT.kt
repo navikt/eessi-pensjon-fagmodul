@@ -71,6 +71,9 @@ internal class BucControllerIT: BucBaseTest() {
     private lateinit var personService: PersonService
 
     @Autowired
+    private lateinit var gcpStorageService: GcpStorageService
+
+    @Autowired
     private lateinit var mockMvc: MockMvc
 
     @Test
@@ -346,6 +349,7 @@ internal class BucControllerIT: BucBaseTest() {
         })
         every { euxNavIdentRestTemplate.exchange( "/buc/5922554", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "5922554", processDefinitionName = "P_BUC_03").toJson() )
         every { euxNavIdentRestTemplate.exchange( "/buc/5195021", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "5195021", processDefinitionName = "P_BUC_03").toJson() )
+        every { gcpStorageService.eksisterer(any()) } returns false
 
         val result = mockMvc.perform(
                 get("/buc/rinasaker/euxrina/$aktoerId/pesyssak/$pesyssaknr")
@@ -379,6 +383,43 @@ internal class BucControllerIT: BucBaseTest() {
 
         every { euxNavIdentRestTemplate.exchange( "/buc/5922554", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "5922554", processDefinitionName = "P_BUC_03").toJson() )
         every { euxNavIdentRestTemplate.exchange( "/buc/5195021", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "5195021", processDefinitionName = "P_BUC_03").toJson() )
+        every { gcpStorageService.eksisterer(any()) } returns false
+
+        val result = mockMvc.perform(
+            get("/buc/rinasaker/euxrina/$aktoerId/pesyssak/$pesyssaknr")
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andReturn()
+
+        val response = result.response.getContentAsString(charset("UTF-8"))
+
+        val expected = """
+                [{"euxCaseId":"5195021","buctype":"P_BUC_03","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":null,"kilde":"BRUKER"},
+                {"euxCaseId":"5922554","buctype":"P_BUC_03","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":null,"kilde":"BRUKER"}]
+        """.trimIndent()
+
+        JSONAssert.assertEquals(expected, response, true)
+    }
+
+    @Test
+    fun `Hent mulige rinasaker for NPID fra euxrina uten å vise gjenny saker`() {
+        val npid = "01220049651"
+        val aktoerId = "1123123123123123"
+        val pesyssaknr = "100001000"
+
+        every { personService.hentIdent(IdentGruppe.FOLKEREGISTERIDENT, AktoerId(aktoerId)) } returns NorskIdent("")
+        every { personService.hentIdent(IdentGruppe.NPID, AktoerId(aktoerId)) } returns Npid(npid)
+
+        every { euxNavIdentRestTemplate.exchange("/rinasaker?fødselsnummer=01220049651&status=\"open\"", HttpMethod.GET, null, String::class.java) } .answers( FunctionAnswer { Thread.sleep(250)
+            ResponseEntity.ok().body(listOf(dummyRinasak("5195021", "P_BUC_03"), dummyRinasak("5922554", "P_BUC_03"), dummyRinasak("000001", "P_BUC_02") ).toJson() ) })
+
+        every { euxNavIdentRestTemplate.exchange( "/buc/5922554", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "5922554", processDefinitionName = "P_BUC_03").toJson() )
+        every { euxNavIdentRestTemplate.exchange( "/buc/5195021", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "5195021", processDefinitionName = "P_BUC_03").toJson() )
+        every { euxNavIdentRestTemplate.exchange( "/buc/000001", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "000001", processDefinitionName = "P_BUC_02").toJson() )
+        every { gcpStorageService.eksisterer("5922554") } returns false
+        every { gcpStorageService.eksisterer("5195021") } returns false
+        every { gcpStorageService.eksisterer("000001") } returns true
 
         val result = mockMvc.perform(
             get("/buc/rinasaker/euxrina/$aktoerId/pesyssak/$pesyssaknr")
