@@ -220,7 +220,7 @@ class BucController(
                 brukerRinaSakIderFraJoark
             )
 
-            val rinaIder = view.map { it.euxCaseId }.filter { gcpStorageService.eksisterer(it) }
+            val rinaIder = view.map { it.euxCaseId }.filter { gcpStorageService.eksisterer(it) }.also { logger.info("Det finnes ${it.size} SED som kommer fra GJENNY") }
 
             //return med sort og distinct (avdodfnr og caseid)
             return@measure view.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
