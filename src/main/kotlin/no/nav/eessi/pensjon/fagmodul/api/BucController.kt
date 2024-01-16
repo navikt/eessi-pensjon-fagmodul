@@ -105,7 +105,7 @@ class BucController(
 
             val view = (brukerView + safView).also { logger.info("Antall for brukerview+safView: ${it.size}") }
             //rinaIder inneholder bucer som ikke er gjenny bucer
-            val rinaIder = brukerView.map { it.euxCaseId }.filter { gcpStorageService.eksisterer(it) }
+            val rinaIder = brukerView.map { it.euxCaseId }.filter { gcpStorageService.eksisterer(it) }.also { logger.info("Det finnes ${it.size} SED som kommer fra GJENNY") }
 
             //return med sort og distict (avdodfnr og caseid)
             return@measure view.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
