@@ -31,11 +31,6 @@ spec:
           numNewerVersions: 2
           withState: ANY
         uniformBucketLevelAccess: true
-        accessPolicies:
-          - application: eessi-pensjon-journalforing-q2
-            namespace: eessipensjon
-            permissions:
-              - read
   accessPolicy:
     outbound:
       rules:
