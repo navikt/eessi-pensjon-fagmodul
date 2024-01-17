@@ -303,10 +303,7 @@ class BucController(
                 val listeAvSedsPaaAvdod = euxInnhentingService.hentDocumentJsonAvdod(bucOgDocAvdod)
                 val gyldigeBucs = gjenlevendeFnr?.let { euxInnhentingService.filterGyldigBucGjenlevendeAvdod(listeAvSedsPaaAvdod, it.id) }
 
-                val rinasaker = gyldigeBucs?.map { it.id }?.filter { gcpStorageService.eksisterer(it!!) }
-
                 val gjenlevendeBucAndSedView = gyldigeBucs?.let { euxInnhentingService.getBucAndSedViewWithBuc(it, gjenlevendeFnr.id, avdodFnr) }
-                    ?.filterNot { rinasaker?.contains(it.caseId) == true }
                 gjenlevendeBucAndSedView?.firstOrNull() ?: BucAndSedView.fromErr("Ingen Buc Funnet!")
             }
         }
