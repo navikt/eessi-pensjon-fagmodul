@@ -440,29 +440,4 @@ internal class BucControllerIT: BucBaseTest() {
         JSONAssert.assertEquals(expected, response, true)
     }
 
-//    @Test
-//    fun `Hva skjer når vi forsøker å hente saker for et fnr som ikke finnes`() {
-//        val aktoerId = "1123123123123123"
-//        val pesyssaknr = "100001000"
-//
-//        every { personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerId)) } returns NorskIdent("")
-//        every { personService.hentIdent(IdentType.Npid, AktoerId(aktoerId)) } returns Npid("")
-//
-//        every { euxNavIdentRestTemplate.exchange("/rinasaker?fødselsnummer=&status=\"open\"", HttpMethod.GET, null, String::class.java) } .throws(HttpClientErrorException(HttpStatus.NOT_FOUND))
-//
-//        val result = mockMvc.perform(
-//            MockMvcRequestBuilders.get("/buc/rinasaker/euxrina/$aktoerId/pesyssak/$pesyssaknr")
-//                .contentType(MediaType.APPLICATION_JSON))
-//            .andExpect(MockMvcResultMatchers.status().is4xxClientError)
-//            .andReturn()
-//
-//        val response = result.response.getContentAsString(charset("UTF-8"))
-//        println(response)
-//
-//        JSONAssert.assertEquals(response, response, true)
-//
-//    }
-
-
-
 }
