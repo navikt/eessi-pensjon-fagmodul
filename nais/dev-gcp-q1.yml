@@ -83,6 +83,8 @@ spec:
       value: https://saf-q1.dev-fss-pub.nais.io/rest/hentdokument
     - name: PDL_URL
       value: https://pdl-api.dev-fss-pub.nais.io/graphql
+    - name: KAFKA_STATISTIKK_TOPICNAME
+      value: eessipensjon.privat-statistikk-q1
     - name: KAFKA_AUTOMATISERING_TOPIC
       value: eessipensjon.public-automatisering-q1
     - name: KODEVERK_URL
