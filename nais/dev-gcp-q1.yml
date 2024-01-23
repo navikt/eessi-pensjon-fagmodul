@@ -102,7 +102,7 @@ spec:
     - name: AZURE_APP_KODEVERK_CLIENT_ID
       value: dev-fss.org.kodeverk
     - name: AZURE_APP_SAF_CLIENT_ID
-      value: dev-fss.teamdokumenthandtering.saf
+      value: dev-fss.teamdokumenthandtering.saf-q1
 
     - name: ENV
       value: q1
