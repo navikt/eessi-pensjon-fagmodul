@@ -23,7 +23,7 @@ spec:
           - NAVident
   gcp:
     buckets:
-      - name: eessi-pensjon-journal-dev-q1
+      - name: eessi-pensjon-gjenny-dev-q1
         retentionPeriodDays: 40
         lifecycleCondition:
           age: 365
@@ -68,7 +68,7 @@ spec:
     - name: SPRING_PROFILES_ACTIVE
       value: test
     - name: GCP_BUCKET_NAME
-      value: eessi-pensjon-journal-dev-q1
+      value: eessi-pensjon-gjenny-dev-q1
     - name: PENSJONSINFORMASJON_URL
       value: https://eessi-pensjon-onprem-proxy-q1.dev-fss-pub.nais.io/pen/api/pensjonsinformasjon/v1
     - name: EESSIPEN_EUX_RINA_URL
