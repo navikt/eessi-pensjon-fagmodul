@@ -50,7 +50,7 @@ class GjennyController (
     @PostMapping("/buc/{buctype}")
     fun createBuc(@PathVariable("buctype", required = true) buctype: String,
                    @RequestBody(required = true) gjennySak: GjennySak):
-        BucAndSedView = prefillController.createBuc(buctype, gjennySak).also { println(it) }
+        BucAndSedView = prefillController.createBuc(buctype, gjennySak).also { logger.info("Create buc for gjenny: ${it.caseId}") }
 
     @GetMapping("/rinasaker/{aktoerId}/avdodfnr/{avdodfnr}")
     fun getGjenlevendeRinasakerAvdodGjenny(
