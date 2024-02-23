@@ -51,7 +51,7 @@ open class EuxErrorHandler : DefaultResponseErrorHandler() {
 
     @Throws(IOException::class)
     private fun logResponse(response: ClientHttpResponse) {
-        logger.warn("""
+        logger.error("""
             Status code  : ${response.statusCode}
             Status text  : ${response.statusText}
             Headers      : ${response.headers}
