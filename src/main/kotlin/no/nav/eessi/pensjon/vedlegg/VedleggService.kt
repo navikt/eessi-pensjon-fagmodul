@@ -92,7 +92,14 @@ class VedleggService(private val safClient: SafClient,
                     .filter { it["nokkel"].equals(TILLEGGSOPPLYSNING_RINA_SAK_ID_KEY) }
                     .filter { it["verdi"] != null }
                     .map { it["verdi"]!! }
-            }.filterNot { MissingBuc.checkForMissingBuc(it) }
+            }.filterNot {
+                if (MissingBuc.checkForMissingBuc(it)) {
+                    logger.info("$it ligger i listen MissingBuc.checkForMissingBuc og filtreres bort")
+                    true
+                } else {
+                    false
+                }
+            }
             .distinct()
             .also { logger.info("Fant følgende RINAID for omstilling fra dokument Metadata: ${it.map { str -> str }}") }
 }
