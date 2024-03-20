@@ -73,7 +73,7 @@ class SafClient(private val safGraphQlOidcRestTemplate: RestTemplate,
     }
 
     @Retryable(
-        exclude = [HttpClientErrorException.NotFound::class],
+        exclude = [HttpClientErrorException.NotFound::class, HttpClientErrorException.Forbidden::class],
         backoff = Backoff(delayExpression = "@retrySafConfig.initialRetryMillis", delay = 10000L, maxDelay = 100000L, multiplier = 3.0),
         listeners  = ["retrySafLogger"]
     )
