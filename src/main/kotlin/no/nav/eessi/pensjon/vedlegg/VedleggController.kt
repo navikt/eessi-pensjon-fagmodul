@@ -76,11 +76,13 @@ class VedleggController(private val vedleggService: VedleggService,
                     dokument.contentType.split("/")[1])
             return ResponseEntity.ok().body(successBody())
         } catch (ex: Exception) {
+            logger.warn("PutVedleggTilDokument feiler med ${ex.message}")
             if (ex.message?.contains("403") == true) {
-                val messageWithReplacedNumbers: String = ex.message!!.replace("\\d+", "")
+                val messageWithReplacedNumbers = ex.message!!.replace("\\d+", "")
                 ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorBody(messageWithReplacedNumbers, UUID.randomUUID().toString()))
+            } else {
+                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorBody(ex.message!!, UUID.randomUUID().toString()))
             }
-            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorBody(ex.message!!, UUID.randomUUID().toString()))
         }
     }
 }
