@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.client.HttpClientErrorException
 import java.util.*
 
 @Protected
@@ -75,9 +76,12 @@ class VedleggController(private val vedleggService: VedleggService,
                     "$documentName.pdf",
                     dokument.contentType.split("/")[1])
             return ResponseEntity.ok().body(successBody())
-        } catch(ex: Exception) {
+        } catch (ex: HttpClientErrorException.Forbidden) {
+            ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(errorBody(ex.statusText, UUID.randomUUID().toString()))
+        } catch (ex: Exception) {
             ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(errorBody(ex.message!!, UUID.randomUUID().toString()))
+                .body(errorBody(ex.message!!, UUID.randomUUID().toString()))
         }
     }
 }
