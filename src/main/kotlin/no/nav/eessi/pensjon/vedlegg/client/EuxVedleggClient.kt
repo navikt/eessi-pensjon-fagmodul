@@ -34,6 +34,7 @@ class EuxVedleggClient(private val euxNavIdentRestTemplate: RestTemplate,
                                   fileName: String,
                                   filtype: String) {
         try {
+            logger.info("Legger til vedlegg i buc: $rinaSakId, sed: $rinaDokumentId, filType: $filtype, filnavn: $fileName")
 
             val headers = HttpHeaders()
             headers.contentType = MediaType.MULTIPART_FORM_DATA
@@ -64,7 +65,6 @@ class EuxVedleggClient(private val euxNavIdentRestTemplate: RestTemplate,
                     .queryParam("Filtype", filtype)
                     .queryParam("synkron", true)
                     .build().toUriString()
-            logger.info("Legger til vedlegg i buc: $rinaSakId, sed: $rinaDokumentId")
 
             restTemplateErrorhandler(
                     {
@@ -139,26 +139,3 @@ class EuxVedleggClient(private val euxNavIdentRestTemplate: RestTemplate,
         throw failException!!
     }
 }
-
-/*
-@ResponseStatus(value = HttpStatus.NOT_FOUND)
-class IkkeFunnetException(message: String) : RuntimeException(message)
-
-@ResponseStatus(value = HttpStatus.UNAUTHORIZED)
-class RinaIkkeAutorisertBrukerException(message: String?) : RuntimeException(message)
-
-@ResponseStatus(value = HttpStatus.FORBIDDEN)
-class ForbiddenException(message: String?) : RuntimeException(message)
-
-@ResponseStatus(value = HttpStatus.NOT_FOUND)
-class EuxRinaServerException(message: String?) : RuntimeException(message)
-
-@ResponseStatus(value = HttpStatus.UNPROCESSABLE_ENTITY)
-class GenericUnprocessableEntity(message: String) : RuntimeException(message)
-
-@ResponseStatus(value = HttpStatus.GATEWAY_TIMEOUT)
-class GatewayTimeoutException(message: String?) : RuntimeException(message)
-
-@ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
-class ServerException(message: String?) : RuntimeException(message)
-*/
