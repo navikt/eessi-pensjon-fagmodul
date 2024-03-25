@@ -2,6 +2,7 @@ package no.nav.eessi.pensjon.vedlegg.client
 
 import no.nav.eessi.pensjon.eux.klient.*
 import no.nav.eessi.pensjon.metrics.MetricsHelper
+import no.nav.eessi.pensjon.utils.toJson
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.*
@@ -66,7 +67,8 @@ class EuxVedleggClient(private val euxNavIdentRestTemplate: RestTemplate,
                     .queryParam("synkron", true)
                     .build().toUriString()
 
-            restTemplateErrorhandler(
+            logger.info("Oppdaterer $rinaSakId med vedlegg")
+            val responseFraEux = restTemplateErrorhandler(
                     {
                         euxNavIdentRestTemplate.exchange(
                                 queryUrl,
@@ -78,6 +80,7 @@ class EuxVedleggClient(private val euxNavIdentRestTemplate: RestTemplate,
                     , VedleggPaaDokument
                     ,"En feil opppstod under tilknytning av vedlegg rinaid: $rinaSakId, sed: $rinaDokumentId"
             )
+            logger.info("Resulat fra vedlegg oppdatering \n " + responseFraEux.toJson())
 
         } catch (ex: Exception) {
             logger.error("En feil opppstod under tilknytning av vedlegg, ${ex.message}", ex)
