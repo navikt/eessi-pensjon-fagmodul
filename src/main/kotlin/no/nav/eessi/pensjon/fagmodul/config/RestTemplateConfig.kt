@@ -1,5 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.config
 
+import com.fasterxml.jackson.core.StreamReadConstraints
 import io.micrometer.core.instrument.MeterRegistry
 import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
 import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
@@ -43,6 +44,12 @@ class RestTemplateConfig(
         ) {
 
     private val logger = LoggerFactory.getLogger(RestTemplateConfig::class.java)
+
+    init {
+        StreamReadConstraints.overrideDefaultStreamReadConstraints(
+            StreamReadConstraints.builder().maxStringLength(100000000).build()
+        )
+    }
 
     @Value("\${AZURE_APP_EUX_CLIENT_ID}")
     lateinit var euxClientId: String

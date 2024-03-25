@@ -19,10 +19,12 @@ open class EuxErrorHandler : DefaultResponseErrorHandler() {
 
     @Throws(IOException::class)
     override fun hasError(response: ClientHttpResponse): Boolean {
+        logger.error("******************* EuxErrorHandler: ${response.statusCode} ********************")
         return response.statusCode.is4xxClientError || response.statusCode.is5xxServerError
     }
     @Throws(IOException::class)
     override fun handleError(httpResponse: ClientHttpResponse) {
+        logger.error("******************* EuxErrorHandler ********************")
         logResponse(httpResponse)
 
         if (httpResponse.statusCode.is5xxServerError) {

@@ -77,7 +77,7 @@ class VedleggController(private val vedleggService: VedleggService,
             logger.info("Vedlegg er lagt til for rinasak. $rinaSakId")
             return ResponseEntity.ok().body(successBody())
         } catch (ex: Exception) {
-            logger.warn("PutVedleggTilDokument feiler med ${ex.message}")
+            logger.error("PutVedleggTilDokument feiler med ${ex.message}")
             if (ex.message?.contains("403") == true) {
                 val messageWithReplacedNumbers = ex.message!!.replace(Regex("\\d+"), "").trim()
                 ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorBody(messageWithReplacedNumbers, UUID.randomUUID().toString()))
