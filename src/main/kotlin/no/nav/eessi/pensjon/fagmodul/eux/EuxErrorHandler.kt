@@ -3,6 +3,7 @@ package no.nav.eessi.pensjon.fagmodul.eux
 import no.nav.eessi.pensjon.eux.klient.*
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatusCode
 import org.springframework.http.client.ClientHttpResponse
 import org.springframework.util.StreamUtils
 import org.springframework.web.client.DefaultResponseErrorHandler
@@ -19,7 +20,9 @@ open class EuxErrorHandler : DefaultResponseErrorHandler() {
 
     @Throws(IOException::class)
     override fun hasError(response: ClientHttpResponse): Boolean {
-        logger.error("******************* EuxErrorHandler: ${response.statusCode} ********************")
+        if(response.statusCode != HttpStatus.OK) {
+            logger.error("******************* EuxErrorHandler: ${response.statusCode} ********************")
+        }
         return response.statusCode.is4xxClientError || response.statusCode.is5xxServerError
     }
     @Throws(IOException::class)
