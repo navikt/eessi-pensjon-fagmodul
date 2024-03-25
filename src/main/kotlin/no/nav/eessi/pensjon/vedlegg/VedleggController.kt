@@ -74,6 +74,7 @@ class VedleggController(private val vedleggService: VedleggService,
                     dokument.filInnhold,
                     "$documentName.pdf",
                     dokument.contentType.split("/")[1])
+            logger.info("Vedlegg er lagt til for rinasak. $rinaSakId")
             return ResponseEntity.ok().body(successBody())
         } catch (ex: Exception) {
             logger.warn("PutVedleggTilDokument feiler med ${ex.message}")
