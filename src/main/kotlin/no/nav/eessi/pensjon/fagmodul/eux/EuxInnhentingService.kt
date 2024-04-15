@@ -517,6 +517,22 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
             request.copy(payload = x009.toJson())
         } else request
     }
+
+    /**
+     * Returnerer en list av buc
+     *  @param rinaIds
+     */
+    fun hentBucListe(rinaIds: List<String>): List<Buc> {
+        return rinaIds.mapNotNull { rinaId ->
+            try {
+                getBuc(rinaId)
+            } catch (e: Exception) {
+                logger.warn("Det har skjedd en feil med henting av buc:$rinaId: ${e.message}")
+                null
+            }
+        }
+    }
+
     /**
      * Utvalgt informasjon om en rinasak/Buc.
      */

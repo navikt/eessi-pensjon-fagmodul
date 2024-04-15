@@ -15,6 +15,8 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import kotlin.time.ExperimentalTime
@@ -42,6 +44,8 @@ class BucController(
     private lateinit var bucerJoark: MetricsHelper.Metric
     private lateinit var bucViewRina: MetricsHelper.Metric
     private lateinit var getBUC: MetricsHelper.Metric
+    private lateinit var hentBucListe: MetricsHelper.Metric
+
     init {
         bucDetaljerEnkel = metricsHelper.init("BucDetaljerEnkel", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         bucDetaljerEnkelGjenlevende = metricsHelper.init("bucDetaljerEnkelGjenlevende", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
@@ -51,6 +55,8 @@ class BucController(
         bucerJoark = metricsHelper.init("BucerJoark", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         bucViewRina = metricsHelper.init("BucViewRina", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         getBUC = metricsHelper.init("GetBUC", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
+        hentBucListe = metricsHelper.init("hentBucListe", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
+
     }
 
     @GetMapping("/bucs", produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -60,15 +66,24 @@ class BucController(
     fun getBuc(@PathVariable(value = "rinanr", required = true) rinanr: String): Buc =
         getBUC.measure {
             auditlogger.log("getBuc")
-            logger.debug("Henter ut hele Buc data fra rina via eux-rina-api")
+            logger.info("Henter ut hele Buc data fra rina via eux-rina-api")
             return@measure euxInnhentingService.getBuc(rinanr)
         }
+
+    @PostMapping("/bucliste")
+    fun getBucs(@RequestBody rinaIds: List<String>): List<Buc> {
+        return hentBucListe.measure {
+            auditlogger.log("hentBucListe")
+            logger.info("Henter ut liste med bucs for rinaid: $rinaIds")
+            return@measure euxInnhentingService.hentBucListe(rinaIds)
+        }
+    }
 
     @GetMapping("/enkeldetalj/{euxcaseid}")
     fun hentSingleBucAndSedView(@PathVariable("euxcaseid") euxcaseid: String): BucAndSedView =
         bucDetaljerEnkel.measure {
             auditlogger.log("hentSingleBucAndSedView")
-            logger.debug(" prøver å hente ut en enkel buc med euxCaseId: $euxcaseid")
+            logger.info("Henter ut en enkel buc med euxCaseId: $euxcaseid")
             return@measure euxInnhentingService.getSingleBucAndSedView(euxcaseid)
         }
 

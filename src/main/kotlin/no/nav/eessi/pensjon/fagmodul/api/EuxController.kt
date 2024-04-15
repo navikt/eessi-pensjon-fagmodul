@@ -39,9 +39,7 @@ class EuxController(
             rinaUrl = metricsHelper.init("RinaUrl")
     }
 
-
     val backupList = listOf("AT", "BE", "BG", "CH", "CZ", "DE", "DK", "EE", "ES", "FI", "FR", "HR", "HU", "IE", "IS", "IT", "LI", "LT", "LU", "LV", "MT", "NL", "NO", "PL", "PT", "RO", "SE", "SI", "SK", "UK")
-
 
     @Unprotected
     @GetMapping("/rinaurl")
