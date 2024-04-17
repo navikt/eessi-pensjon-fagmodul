@@ -384,7 +384,14 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
         val start = System.currentTimeMillis()
 
         return rinaSakIder
-            .map { getBuc(it) }
+            .mapNotNull {
+                try {
+                    getBuc(it)
+                } catch (e: Exception) {
+                    logger.error("Henting av buc for:$it feiler med melding: ${e.message}")
+                    null
+                }
+            }
             .filter { it.processDefinitionName in relevanteBucTyperForVisningIEessiPensjon() }
             .filter { !MissingBuc.checkForMissingBuc(it.id!!) }
             .map { buc ->
