@@ -1,0 +1,42 @@
+{
+  "data": {
+    "dokumentoversiktBruker": {
+      "journalposter": [
+        {
+          "tilleggsopplysninger": [
+            {
+            "nokkel":"eessi_pensjon_bucid",
+            "verdi":"1111"
+            }
+          ],
+          "journalpostId": "439532144",
+          "datoOpprettet": "2018-06-08T17:06:58",
+          "tittel": "MASKERT_FELT",
+          "tema": "SYK",
+          "dokumenter": [
+            {
+              "dokumentInfoId": "453708906",
+              "tittel": "MASKERT_FELT",
+              "dokumentvarianter": [
+                {
+                  "filnavn": "enfil.pdf",
+                  "variantformat": "ARKIV"
+                },
+                {
+                  "filnavn": "enfil.png",
+                  "variantformat": "PRODUKSJON"
+                }
+              ]
+            }
+          ],
+          "relevanteDatoer": [
+            {
+              "dato": "2024-02-06T08:56:15",
+              "datotype": "DATO_DOKUMENT"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -67,17 +67,23 @@ class VedleggController(private val vedleggService: VedleggService,
             val dokument = vedleggService.hentDokumentInnhold(joarkJournalpostId, joarkDokumentInfoId, variantFormat)
 
             val documentName = dokumentMetadata?.tittel ?: dokument.fileName
-
+            logger.info("Legger til vedlegg: $documentName for rinasak: $rinaSakId")
             vedleggService.leggTilVedleggPaaDokument(aktoerId,
                     rinaSakId,
                     rinaDokumentId,
                     dokument.filInnhold,
                     "$documentName.pdf",
                     dokument.contentType.split("/")[1])
+            logger.info("Vedlegg er lagt til for rinasak. $rinaSakId")
             return ResponseEntity.ok().body(successBody())
-        } catch(ex: Exception) {
-            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(errorBody(ex.message!!, UUID.randomUUID().toString()))
+        } catch (ex: Exception) {
+            logger.error("PutVedleggTilDokument feiler med ${ex.message}")
+            if (ex.message?.contains("403") == true) {
+                val messageWithReplacedNumbers = ex.message!!.replace(Regex("\\d+"), "").trim()
+                ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorBody(messageWithReplacedNumbers, UUID.randomUUID().toString()))
+            } else {
+                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorBody(ex.message!!, UUID.randomUUID().toString()))
+            }
         }
     }
 }

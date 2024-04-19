@@ -46,7 +46,7 @@ spec:
         - host: eessi-pensjon-journalforing-q2.intern.dev.nav.no
         - host: saf-q2.dev-fss-pub.nais.io
         - host: pdl-api.dev-fss-pub.nais.io
-        - host: kodeverk.dev-fss-pub.nais.io
+        - host: kodeverk-api.nav.no
         - host: eux-rina-api-q2.dev-fss-pub.nais.io
         - host: rina-ss1-q.adeo.no
     inbound:
@@ -88,7 +88,7 @@ spec:
     - name: KAFKA_AUTOMATISERING_TOPIC
       value: eessipensjon.public-automatisering-q2
     - name: KODEVERK_URL
-      value: https://kodeverk.dev-fss-pub.nais.io
+      value: https://kodeverk-api.nav.no
     - name: EESSI_PEN_ONPREM_PROXY_URL
       value: https://eessi-pensjon-onprem-proxy-q2.dev-fss-pub.nais.io
     - name: AZURE_APP_PDL_CLIENT_ID
@@ -100,7 +100,7 @@ spec:
     - name: AZURE_APP_PROXY_CLIENT_ID
       value: dev-fss.eessipensjon.eessi-pensjon-onprem-proxy-q2
     - name: AZURE_APP_KODEVERK_CLIENT_ID
-      value: dev-fss.org.kodeverk
+      value: kodeverk-api.nav.no
     - name: AZURE_APP_SAF_CLIENT_ID
       value: dev-fss.teamdokumenthandtering.saf
 

@@ -6,6 +6,7 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -47,6 +48,23 @@ class SafClientTest {
 
         val mapper = jacksonObjectMapper()
         JSONAssert.assertEquals(mapper.writeValueAsString(resp), responseJson, true)
+    }
+
+    @Test
+    fun `henterMetaData skal kunne gi informasjon om relevante datoer`() {
+        // given
+        val responseJson = javaClass.getResource("/json/saf/hentMetadataResponseMedRelevanteDatoer.json")!!.readText()
+        val expectedDate = "2024-02-06T08:56:15"
+
+        every { safGraphQlOidcRestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), eq(String::class.java)) } returns ResponseEntity(responseJson, HttpStatus.OK)
+
+        // when
+        val resp = safClient.hentDokumentMetadata("1234567891000")
+        val relevantDate = resp.data.dokumentoversiktBruker.journalposter.firstOrNull()?.relevanteDatoer?.firstOrNull()
+
+        // then
+        assertEquals("DATO_DOKUMENT", relevantDate?.datotype)
+        assertEquals(expectedDate, relevantDate?.dato)
     }
 
     @Test

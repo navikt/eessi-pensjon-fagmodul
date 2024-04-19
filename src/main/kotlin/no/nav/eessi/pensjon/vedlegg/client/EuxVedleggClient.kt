@@ -2,6 +2,7 @@ package no.nav.eessi.pensjon.vedlegg.client
 
 import no.nav.eessi.pensjon.eux.klient.*
 import no.nav.eessi.pensjon.metrics.MetricsHelper
+import no.nav.eessi.pensjon.utils.toJson
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.*
@@ -34,6 +35,7 @@ class EuxVedleggClient(private val euxNavIdentRestTemplate: RestTemplate,
                                   fileName: String,
                                   filtype: String) {
         try {
+            logger.info("Legger til vedlegg i buc: $rinaSakId, sed: $rinaDokumentId, filType: $filtype, filnavn: $fileName")
 
             val headers = HttpHeaders()
             headers.contentType = MediaType.MULTIPART_FORM_DATA
@@ -64,9 +66,9 @@ class EuxVedleggClient(private val euxNavIdentRestTemplate: RestTemplate,
                     .queryParam("Filtype", filtype)
                     .queryParam("synkron", true)
                     .build().toUriString()
-            logger.info("Legger til vedlegg i buc: $rinaSakId, sed: $rinaDokumentId")
 
-            restTemplateErrorhandler(
+            logger.info("Oppdaterer $rinaSakId med vedlegg")
+            val responseFraEux = restTemplateErrorhandler(
                     {
                         euxNavIdentRestTemplate.exchange(
                                 queryUrl,
@@ -78,6 +80,7 @@ class EuxVedleggClient(private val euxNavIdentRestTemplate: RestTemplate,
                     , VedleggPaaDokument
                     ,"En feil opppstod under tilknytning av vedlegg rinaid: $rinaSakId, sed: $rinaDokumentId"
             )
+            logger.info("Resulat fra vedlegg oppdatering \n " + responseFraEux.toJson())
 
         } catch (ex: Exception) {
             logger.error("En feil opppstod under tilknytning av vedlegg, ${ex.message}", ex)
@@ -139,26 +142,3 @@ class EuxVedleggClient(private val euxNavIdentRestTemplate: RestTemplate,
         throw failException!!
     }
 }
-
-/*
-@ResponseStatus(value = HttpStatus.NOT_FOUND)
-class IkkeFunnetException(message: String) : RuntimeException(message)
-
-@ResponseStatus(value = HttpStatus.UNAUTHORIZED)
-class RinaIkkeAutorisertBrukerException(message: String?) : RuntimeException(message)
-
-@ResponseStatus(value = HttpStatus.FORBIDDEN)
-class ForbiddenException(message: String?) : RuntimeException(message)
-
-@ResponseStatus(value = HttpStatus.NOT_FOUND)
-class EuxRinaServerException(message: String?) : RuntimeException(message)
-
-@ResponseStatus(value = HttpStatus.UNPROCESSABLE_ENTITY)
-class GenericUnprocessableEntity(message: String) : RuntimeException(message)
-
-@ResponseStatus(value = HttpStatus.GATEWAY_TIMEOUT)
-class GatewayTimeoutException(message: String?) : RuntimeException(message)
-
-@ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
-class ServerException(message: String?) : RuntimeException(message)
-*/
