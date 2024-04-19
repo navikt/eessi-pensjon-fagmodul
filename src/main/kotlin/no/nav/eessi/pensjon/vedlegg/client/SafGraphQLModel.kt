@@ -1,5 +1,7 @@
 package no.nav.eessi.pensjon.vedlegg.client
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
 import no.nav.eessi.pensjon.utils.mapAnyToJson
 
 /**
@@ -26,6 +28,10 @@ data class SafRequest(
                             "variantformat" +
                         "} " +
                     "} " +
+                    "relevanteDatoer {" +
+                        "dato " +
+                        "datotype " +
+                    "}" +
                 "}}}",
         val variables: Variables
 ) {
@@ -73,13 +79,22 @@ data class Data(val dokumentoversiktBruker: DokumentoversiktBruker)
 
 data class DokumentoversiktBruker(val journalposter: List<Journalpost>)
 
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 data class Journalpost(
         val tilleggsopplysninger: List<Map<String, String>>,
         val journalpostId: String,
         val datoOpprettet: String,
         val tittel: String?,
         val tema: String,
-        val dokumenter: List<Dokument>
+        val dokumenter: List<Dokument>,
+        val relevanteDatoer: List<RelevantDato>? = null
+)
+
+// https://confluence.adeo.no/display/BOA/Type%3A+RelevantDato
+class RelevantDato (
+    val dato: String,
+    val datotype: String
 )
 
 data class Dokument(
