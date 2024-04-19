@@ -28,6 +28,10 @@ data class SafRequest(
                             "variantformat" +
                         "} " +
                     "} " +
+                    "relevanteDatoer {" +
+                        "dato " +
+                        "datotype " +
+                    "}" +
                 "}}}",
         val variables: Variables
 ) {
