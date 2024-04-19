@@ -44,11 +44,11 @@ spec:
         - host: eessi-pensjon-onprem-proxy-q1.dev-fss-pub.nais.io
         - host: eessi-pensjon-prefill-q1.intern.dev.nav.no
         - host: eessi-pensjon-journalforing-q1.intern.dev.nav.no
-        - host: saf-q1.dev-fss-pub.nais.io
+        - host: saf-q2.dev-fss-pub.nais.io
         - host: pdl-api.dev-fss-pub.nais.io
         - host: kodeverk-api.nav.no
         - host: eux-rina-api-q1.dev-fss-pub.nais.io
-        - host: rina-ss1-q.adeo.no
+        - host: rina-ss2-q.adeo.no
     inbound:
       rules:
         - application: eessi-pensjon-frontend-ui-q1
@@ -78,9 +78,9 @@ spec:
     - name: RINA_HOST_URL
       value: rina-ss1-q.adeo.no
     - name: SAF_GRAPHQL_URL
-      value: https://saf-q1.dev-fss-pub.nais.io/graphql
+      value: https://saf-q2.dev-fss-pub.nais.io/graphql
     - name: SAF_HENTDOKUMENT_URL
-      value: https://saf-q1.dev-fss-pub.nais.io/rest/hentdokument
+      value: https://saf-q2.dev-fss-pub.nais.io/rest/hentdokument
     - name: PDL_URL
       value: https://pdl-api.dev-fss-pub.nais.io/graphql
     - name: KAFKA_STATISTIKK_TOPICNAME
