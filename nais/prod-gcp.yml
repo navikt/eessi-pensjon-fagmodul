@@ -24,7 +24,7 @@ spec:
   gcp:
     buckets:
       - name: eessi-pensjon-gjenny
-        retentionPeriodDays: 180
+        retentionPeriodDays: 30
         lifecycleCondition:
           age: 365
           createdBefore: 2020-01-01
