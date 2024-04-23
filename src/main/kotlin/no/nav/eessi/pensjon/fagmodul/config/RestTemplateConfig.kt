@@ -131,7 +131,7 @@ class RestTemplateConfig(
         return ClientHttpRequestInterceptor { request: HttpRequest, body: ByteArray?, execution: ClientHttpRequestExecution ->
             val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
             response.accessToken?.let { request.headers.setBearerAuth(it) }
-            execution.execute(request, body!!)
+            execution.execute(request, body!!).also { logger.debug("Bearer token: ${response.accessToken}")}
         }
     }
 
