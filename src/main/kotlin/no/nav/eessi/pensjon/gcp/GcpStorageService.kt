@@ -36,7 +36,7 @@ class GcpStorageService(
         }.onFailure { e ->
             logger.error("Feilet med å lagre dokument med id: ${blobInfo.blobId.name}", e)
         }.onSuccess {
-            logger.info("Lagret fil med blobid:  ${blobInfo.blobId.name} og bytes: $it")
+            logger.info("Lagret info på S3 med rinaID: $euxCaseId for gjenny: ${gjennysak.toJson()}")
         }
     }
 
