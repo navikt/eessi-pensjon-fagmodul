@@ -129,8 +129,8 @@ class PrefillController(
                 "aktoerId: ${request.aktoerId} " +
                 "sakId: ${request.sakId} " +
                 "vedtak: ${request.vedtakId}" +
-                "institusjoner: ${request.institutions}"
-
+                "institusjoner: ${request.institutions}",
+                "gjenny: ${request.gjenny}"
         )
 
         if (request.buc == null) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mangler Buc")
