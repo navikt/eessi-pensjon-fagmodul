@@ -76,7 +76,7 @@ spec:
     - name: EESSIPENSJON_PREFILL_GCP_URL
       value: https://eessi-pensjon-prefill-q1.intern.dev.nav.no
     - name: RINA_HOST_URL
-      value: rina-ss1-q.adeo.no
+      value: rina-ss2-q.adeo.no
     - name: SAF_GRAPHQL_URL
       value: https://saf-q2.dev-fss-pub.nais.io/graphql
     - name: SAF_HENTDOKUMENT_URL
