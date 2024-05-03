@@ -7,6 +7,7 @@ import no.nav.eessi.pensjon.utils.successBody
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -17,6 +18,7 @@ import java.util.*
 @RequestMapping("/saf")
 class VedleggController(private val vedleggService: VedleggService,
                         private val auditlogger: AuditLogger,
+                        @Value("\${ENV}") private val environment: String,
                         @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()) {
     private val logger = LoggerFactory.getLogger(VedleggController::class.java)
 
@@ -37,7 +39,12 @@ class VedleggController(private val vedleggService: VedleggService,
     }
 
     @GetMapping("/rinaiderframetadata/{aktoerId}")
-    fun hentRinaIderFraMetadata(@PathVariable("aktoerId", required = true) aktoerId: String) =vedleggService.hentRinaSakIderFraMetaData(aktoerId)
+    fun hentRinaIderFraMetadata(@PathVariable("aktoerId", required = true) aktoerId: String): List<String> {
+        if (environment == "q1") {
+            return emptyList()
+        }
+        return vedleggService.hentRinaSakIderFraMetaData(aktoerId)
+    }
 
     @GetMapping("/hentdokument/{journalpostId}/{dokumentInfoId}/{variantFormat}")
     fun getDokumentInnhold(@PathVariable("journalpostId", required = true) journalpostId: String,
