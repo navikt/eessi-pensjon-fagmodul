@@ -70,6 +70,7 @@ class VedleggService(private val safClient: SafClient,
     )
     fun hentRinaSakIderFraMetaData(aktoerId: String): List<String> =
         hentDokumentMetadata(aktoerId).data.dokumentoversiktBruker.journalposter
+            .also { logger.info("$it") }
             .flatMap { journalpost ->
                 journalpost.tilleggsopplysninger
                     .filter { it["nokkel"].equals(TILLEGGSOPPLYSNING_RINA_SAK_ID_KEY) }

@@ -86,6 +86,7 @@ class BucController(
             val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerId)
             val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
                 .also { timeTracking.add("rinaSakIderFraJoark tid: ${System.currentTimeMillis()-start} i ms") }
+                .also { logger.info("skal hente rina sakIder fra Joark Metadata") }
 
             //bruker saker fra eux/rina
             val brukerView = gjenlevendeFnr?.let { euxInnhentingService.hentBucViewBruker(it.id, aktoerId, pensjonSakNummer) }.also {

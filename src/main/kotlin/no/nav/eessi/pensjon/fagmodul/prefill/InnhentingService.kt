@@ -88,7 +88,7 @@ class InnhentingService(
     fun hentFnrEllerNpidfraAktoerService(aktoerId: Ident): Ident = hentFnrEllerNpidForAktoerIdfraPDL(aktoerId.id) as Ident
 
     fun hentRinaSakIderFraJoarksMetadata(aktoerid: String): List<String> =
-        vedleggService.hentRinaSakIderFraMetaData(aktoerid)
+        vedleggService.hentRinaSakIderFraMetaData(aktoerid).also { logger.info("Vedleggservice, aktoerId: $aktoerid") }
 
     fun hentRinaSakIderFraJoarksMetadataForOmstilling(aktoerid: String): List<String> =
         vedleggService.hentRinaSakerFraMetaForOmstillingstonad(aktoerid)
