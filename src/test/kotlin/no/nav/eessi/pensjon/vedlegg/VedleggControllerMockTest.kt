@@ -32,7 +32,7 @@ class VedleggControllerMockTest {
 
     @BeforeEach
     fun setup() {
-        vedleggController = VedleggController(vedleggService, auditLogger, "q2")
+        vedleggController = VedleggController(vedleggService, auditLogger)
     }
 
     @Test

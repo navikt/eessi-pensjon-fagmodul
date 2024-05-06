@@ -5,6 +5,7 @@ import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.vedlegg.client.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Profile
 import org.springframework.http.HttpStatus
 import org.springframework.retry.RetryCallback
@@ -19,6 +20,7 @@ import java.io.IOException
 @Service
 class VedleggService(private val safClient: SafClient,
                      private val euxVedleggClient: EuxVedleggClient,
+                     @Value("\${ENV}") private val environment: String,
                      @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()) {
 
     private final val TILLEGGSOPPLYSNING_RINA_SAK_ID_KEY = "eessi_pensjon_bucid"
@@ -68,17 +70,23 @@ class VedleggService(private val safClient: SafClient,
         backoff = Backoff(delayExpression = "@euxKlientVedleggServiceRetryConfig.initialRetryMillis", maxDelay = 200000L, multiplier = 3.0),
         listeners  = ["euxKlientVedleggServiceRetryLogger"]
     )
-    fun hentRinaSakIderFraMetaData(aktoerId: String): List<String> =
-        hentDokumentMetadata(aktoerId).data.dokumentoversiktBruker.journalposter
+    fun hentRinaSakIderFraMetaData(aktoerId: String): List<String> {
+        if (environment == "q1") {
+            return emptyList()
+        }
+        return hentDokumentMetadata(aktoerId).data.dokumentoversiktBruker.journalposter
             .also { logger.info("$it") }
             .flatMap { journalpost ->
                 journalpost.tilleggsopplysninger
                     .filter { it["nokkel"].equals(TILLEGGSOPPLYSNING_RINA_SAK_ID_KEY) }
                     .filter { it["verdi"] != null }
                     .map { it["verdi"]!! }
-            }.filterNot { rinaId -> MissingBuc.checkForMissingBuc(rinaId).also { if(it) logger.info("Fjernet missing buc") } }
+            }.filterNot { rinaId ->
+                MissingBuc.checkForMissingBuc(rinaId).also { if (it) logger.info("Fjernet missing buc") }
+            }
             .distinct()
             .also { logger.info("Fant følgende RINAID fra dokument Metadata: ${it.map { str -> str }}") }
+    }
 
     @Retryable(
         exclude = [IOException::class],

@@ -18,7 +18,6 @@ import java.util.*
 @RequestMapping("/saf")
 class VedleggController(private val vedleggService: VedleggService,
                         private val auditlogger: AuditLogger,
-                        @Value("\${ENV}") private val environment: String,
                         @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()) {
     private val logger = LoggerFactory.getLogger(VedleggController::class.java)
 
@@ -40,9 +39,6 @@ class VedleggController(private val vedleggService: VedleggService,
 
     @GetMapping("/rinaiderframetadata/{aktoerId}")
     fun hentRinaIderFraMetadata(@PathVariable("aktoerId", required = true) aktoerId: String): List<String> {
-        if (environment == "q1") {
-            return emptyList()
-        }
         return vedleggService.hentRinaSakIderFraMetaData(aktoerId)
     }
 
