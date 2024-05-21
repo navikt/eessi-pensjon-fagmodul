@@ -128,8 +128,8 @@ class PrefillController(
                 "sedType: ${request.sed} " +
                 "aktoerId: ${request.aktoerId} " +
                 "sakId: ${request.sakId} " +
-                "vedtak: ${request.vedtakId}" +
-                "institusjoner: ${request.institutions}",
+                "vedtak: ${request.vedtakId} " +
+                "institusjoner: ${request.institutions} " +
                 "gjenny: ${request.gjenny}"
         )
 
