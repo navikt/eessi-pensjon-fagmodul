@@ -372,56 +372,38 @@ class BucUtilsTest {
         assertEquals(0, bucUtils.findNewParticipants(candidates).size)
     }
 
-//    @Test
-//    fun `sjekk deltakere mot buc og om den er fjernet i x007`() {
-//        val bucjson = javaClass.getResource("/json/buc/buc-4929378.json").readText()
-//        val buc = mapJsonToAny<Buc>(bucjson)
-//        val bucUtils = BucUtils(buc)
-//
-//        val list = listOf(InstitusjonItem(FI, "FI:0200000010", ""), InstitusjonItem(FI, FI_INSTITUSJON, ""))
-//        assertThrows<ResponseStatusException> {
-//            bucUtils.checkForParticipantsNoLongerActiveFromXSEDAsInstitusjonItem(list)
-//        }
-//
-//        val result = bucUtils.checkForParticipantsNoLongerActiveFromXSEDAsInstitusjonItem(listOf(InstitusjonItem(FI,
-//            FI_INSTITUSJON, "")))
-//        assertEquals(true, result)
-//
-//    }
+    @Test
+    fun `sjekk deltakere mot buc og om den er fjernet i x007`() {
+        val bucjson = getTestJsonFile("buc-4929378.json")
+        val buc = mapJsonToAny<Buc>(bucjson)
+        val bucUtils = BucUtils(buc)
 
-//    @Test
-//    fun `Fjerne riktig deltakere ved to mottatte X007 i en BUC`() {
-//        val bucjson = javaClass.getResource("/kladd.json").readText()
-//        val buc = mapJsonToAny<Buc>(bucjson)
-//        val bucUtils = BucUtils(buc)
-//
-////        val list = listOf(InstitusjonItem("DE", "DE:DRV25001", ""), InstitusjonItem("DE", "DE:DRV70001", ""))
-////        assertThrows<ResponseStatusException> {
-////            bucUtils.checkForParticipantsNoLongerActiveFromXSEDAsInstitusjonItem(list)
-////        }
-//
-//        val result = bucUtils.checkForParticipantsNoLongerActiveFromXSEDAsInstitusjonItem(listOf(InstitusjonItem("DE",
-//            "DE:DRV70001", "")))
-//
-//        assertEquals(true, result)
-//
-//    }
+        val list = listOf(InstitusjonItem(FI, "FI:0200000010", ""), InstitusjonItem(FI, FI_INSTITUSJON, ""))
+        assertThrows<ResponseStatusException> {
+            bucUtils.checkForParticipantsNoLongerActiveFromXSEDAsInstitusjonItem(list)
+        }
 
-//    @Test
-//    fun `sjekk for om x100 inneholder avsender ikke lenger i bruk`() {
-//        val bucjson = javaClass.getResource("/json/buc/buc-3059699-x100.json")!!.readText()
-//        val buc = mapJsonToAny<Buc>(bucjson)
-//        val bucUtils = BucUtils(buc)
-//
-//        val lists = listOf(InstitusjonItem(FI, FI_INSTITUSJON, ""), InstitusjonItem(DE, DE_INSTITUSJON, "German Federal Pension"))
-//        assertThrows<ResponseStatusException> {
-//            bucUtils.checkForParticipantsNoLongerActiveFromXSEDAsInstitusjonItem(lists)
-//        }
-//
-//        val result = bucUtils.checkForParticipantsNoLongerActiveFromXSEDAsInstitusjonItem(listOf(InstitusjonItem(FI, FI_INSTITUSJON, "")))
-//        assertEquals(true, result)
-//
-//    }
+        val result = bucUtils.checkForParticipantsNoLongerActiveFromXSEDAsInstitusjonItem(listOf(InstitusjonItem(FI,
+            FI_INSTITUSJON, "")))
+        assertEquals(true, result)
+
+    }
+
+    @Test
+    fun `sjekk for om x100 inneholder avsender ikke lenger i bruk`() {
+        val bucjson = getTestJsonFile("buc-3059699-x100.json")
+        val buc = mapJsonToAny<Buc>(bucjson)
+        val bucUtils = BucUtils(buc)
+
+        val lists = listOf(InstitusjonItem(FI, FI_INSTITUSJON, ""), InstitusjonItem(DE, DE_INSTITUSJON, "German Federal Pension"))
+        assertThrows<ResponseStatusException> {
+            bucUtils.checkForParticipantsNoLongerActiveFromXSEDAsInstitusjonItem(lists)
+        }
+
+        val result = bucUtils.checkForParticipantsNoLongerActiveFromXSEDAsInstitusjonItem(listOf(InstitusjonItem(FI, FI_INSTITUSJON, "")))
+        assertEquals(true, result)
+
+    }
 
     @Test
     fun findNewParticipantsMockwithExternalCaseOwnerResultExpectedToBeZero(){
