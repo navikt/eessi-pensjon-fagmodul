@@ -279,7 +279,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
         val annenperson = sed.nav?.annenperson?.person
         val rolle = annenperson?.rolle
         val type = sed.pensjon?.kravDato?.type
-        return if (type == KravType.GJENLEV || rolle == "01") {
+        return if (type == KravType.GJENLEV.name || rolle == "01") {
             filterPinGjenlevendePin(annenperson, sed.type, rinaidAvdod)
         } else {
             null
