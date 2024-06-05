@@ -299,6 +299,7 @@ class BucUtils(private val buc: Buc) {
 
     fun getParticipants() = buc.participants ?: emptyList()
 
+    //x100 er en SED som automatisk videresender til annen institusjon, mens x007 er en SED som manuelt legger til ny institusjon
     fun checkForParticipantsNoLongerActiveFromXSEDAsInstitusjonItem(list: List<InstitusjonItem>): Boolean {
         val result = try {
             logger.debug("Sjekk på om newInstitusjonItem er dekativert ved mottatt x100")
@@ -307,14 +308,24 @@ class BucUtils(private val buc: Buc) {
                 ?.asSequence()
                 ?.filter { doc -> (doc.type == SedType.X100 || doc.type == SedType.X007) && doc.status == "received" }
                 ?.mapNotNull { doc -> doc.conversations }?.flatten()
-                ?.mapNotNull { con -> con.userMessages?.map { um -> um.sender?.id } }?.flatten()
-                ?.firstOrNull { senderId -> newlistId.contains(senderId) }
+                ?.mapNotNull { con -> con.userMessages?.map { um -> um.sender?.id } }?.flatten().also { logger.debug("SenderId: ${it?.toList()}")}
+                ?.firstOrNull { senderId ->
+                    if (newlistId.size > 1) {
+                        newlistId.last() == senderId
+                    } else {
+                        newlistId.contains(senderId)
+
+                    }
+                }
         } catch (ex: Exception) {
             logger.error("En feil under sjekk av X100/X007", ex)
             return true
         }
         if (result != null) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Institusjon med id: $result, er ikke lenger i bruk. Da den er endret via en X100/X007")
+            throw ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Institusjon med id: $result, er ikke lenger i bruk. Da den er endret via en X100/X007"
+            )
         }
         return true
     }
