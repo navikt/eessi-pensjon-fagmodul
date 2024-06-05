@@ -196,7 +196,7 @@ class PrefillController(
             logger.info("******* Hent BUC sjekk om svarSed kan opprettes *******")
             BucUtils(euxInnhentingService.getBuc(dataModel.euxCaseID)).also { bucUtil ->
                 //sjekk for om deltakere alt er fjernet med x007 eller x100 sed
-//                bucUtil.checkForParticipantsNoLongerActiveFromXSEDAsInstitusjonItem(dataModel.getInstitutionsList())
+                bucUtil.checkForParticipantsNoLongerActiveFromXSEDAsInstitusjonItem(dataModel.getInstitutionsList())
                 //sjekk om en svarsed kan opprettes eller om den alt finnes
                 bucUtil.isChildDocumentByParentIdBeCreated(parentId, dataModel.sedType)
             }
