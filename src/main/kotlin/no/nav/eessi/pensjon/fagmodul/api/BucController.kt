@@ -84,7 +84,7 @@ class BucController(
 
             logger.info("henter rinasaker på valgt aktoerid: $aktoerId, på saknr: $pensjonSakNummer")
             val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerId)
-            val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
+//            val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
                 .also { timeTracking.add("rinaSakIderFraJoark tid: ${System.currentTimeMillis()-start} i ms") }
 
             //bruker saker fra eux/rina
@@ -93,13 +93,13 @@ class BucController(
             }?: emptyList()
 
             //filtert bort brukersaker fra saf
-            val filterBrukerRinaSakIderFraJoark = rinaSakIderFraJoark.filterNot { rinaid -> rinaid in brukerView.map { it.euxCaseId }  }
+//            val filterBrukerRinaSakIderFraJoark = rinaSakIderFraJoark.filterNot { rinaid -> rinaid in brukerView.map { it.euxCaseId }  }
 
             //saker fra saf og eux/rina
             val safView = euxInnhentingService.lagBucViews(
                 aktoerId,
                 pensjonSakNummer,
-                filterBrukerRinaSakIderFraJoark,
+                emptyList(),
                 EuxInnhentingService.BucViewKilde.SAF
             ).also {timeTracking.add("hentBucViews tid: ${System.currentTimeMillis()-start} i ms")}
 
@@ -131,15 +131,14 @@ class BucController(
             logger.info("henter journalførte bucer for valgt aktoerid: $aktoerId, på saknr: $pensjonSakNummer")
 
             val joarkstart = System.currentTimeMillis()
-            val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
-            logger.debug("rinaSakIderFraJoark : ${rinaSakIderFraJoark.toJson()}")
+//            val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
             logger.info("hentBucerMedJournalforteSeder tid: ${System.currentTimeMillis()-joarkstart} i ms")
 
             //saker fra saf og eux/rina
             val bucer = euxInnhentingService.hentBucer(
                 aktoerId,
                 pensjonSakNummer,
-                rinaSakIderFraJoark
+                emptyList()
             )
             logger.debug("bucer : ${bucer.toJson()}")
 
@@ -206,10 +205,12 @@ class BucController(
             if (avdodeFraPesysVedtak.isEmpty()) {
                 return@measure emptyList<EuxInnhentingService.BucView>()
                     .also { loggTimeAndViewSize("GjenlevendeRinasakerVedtak", start, 0) }
+            } else {
+                logger.info("avdodeFraPesysVedtak er ikke tom")
             }
 
             //api: brukersaker fra Joark/saf
-            val brukerRinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
+//            val brukerRinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
                 .also { loggTimeAndViewSize("brukerRinaSakIderFraJoark", start, 0) }
 
             //api: avdødSaf + avdødUtenSaf + avdødsaf + safBruker
@@ -217,7 +218,7 @@ class BucController(
                 avdodeFraPesysVedtak,
                 aktoerId,
                 sakNr,
-                brukerRinaSakIderFraJoark
+                emptyList()
             )
 
             val rinaIder = view.map { it.euxCaseId }.filter { gcpStorageService.eksisterer(it) }.also { logger.info("Det finnes ${it.size} SED som kommer fra GJENNY") }

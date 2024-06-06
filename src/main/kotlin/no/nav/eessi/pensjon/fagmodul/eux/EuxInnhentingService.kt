@@ -339,14 +339,14 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
         val avdodViewUtenSaf = avdodView.filterNot { view -> view.euxCaseId in avdodViewSaf.map { it.euxCaseId } }
 
         //filter: saker fra saf som kan hentes
-        val filterAvodRinaSakIderFraJoark =
-            brukerIdFraJoark.filterNot { rinaid -> rinaid in avdodView.map { it.euxCaseId } }
+//        val filterAvodRinaSakIderFraJoark =
+//            brukerIdFraJoark.filterNot { rinaid -> rinaid in avdodView.map { it.euxCaseId } }
 
         //api: saker fra saf og eux/rina
         val safView = lagBucViews(
             aktoerId,
             sakNr,
-            filterAvodRinaSakIderFraJoark,
+            emptyList(),
             BucViewKilde.SAF
         )
 
@@ -370,7 +370,6 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
                     safViewBruker: ${safViewBruker.size}
                     avdodViewUtenSaf: ${avdodViewUtenSaf.size}
                     brukerRinaSakIderFraJoark: ${brukerIdFraJoark.size}
-                    filterAvodRinaSakIderFraJoark: ${filterAvodRinaSakIderFraJoark.size}
                     totalview : ${view.size}
                 """.trimMargin()
         )

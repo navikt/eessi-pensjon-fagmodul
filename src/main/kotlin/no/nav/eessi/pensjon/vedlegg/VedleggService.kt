@@ -60,24 +60,24 @@ class VedleggService(private val safClient: SafClient,
         euxVedleggClient.leggTilVedleggPaaDokument(aktoerId, rinaSakId, rinaDokumentId, filInnhold, fileName, filtype)
     }
 
-    /**
-     * Returnerer en distinct liste av rinaSakIDer basert på tilleggsinformasjon i journalposter for en aktør
-     */
-    @Retryable(
-        exclude = [IOException::class],
-        backoff = Backoff(delayExpression = "@euxKlientVedleggServiceRetryConfig.initialRetryMillis", maxDelay = 200000L, multiplier = 3.0),
-        listeners  = ["euxKlientVedleggServiceRetryLogger"]
-    )
-    fun hentRinaSakIderFraMetaData(aktoerId: String): List<String> =
-        hentDokumentMetadata(aktoerId).data.dokumentoversiktBruker.journalposter
-            .flatMap { journalpost ->
-                journalpost.tilleggsopplysninger
-                    .filter { it["nokkel"].equals(TILLEGGSOPPLYSNING_RINA_SAK_ID_KEY) }
-                    .filter { it["verdi"] != null }
-                    .map { it["verdi"]!! }
-            }.filterNot { rinaId -> MissingBuc.checkForMissingBuc(rinaId).also { if(it) logger.info("Fjernet missing buc") } }
-            .distinct()
-            .also { logger.info("Fant følgende RINAID fra dokument Metadata: ${it.map { str -> str }}") }
+//    /**
+//     * Returnerer en distinct liste av rinaSakIDer basert på tilleggsinformasjon i journalposter for en aktør
+//     */
+//    @Retryable(
+//        exclude = [IOException::class],
+//        backoff = Backoff(delayExpression = "@euxKlientVedleggServiceRetryConfig.initialRetryMillis", maxDelay = 200000L, multiplier = 3.0),
+//        listeners  = ["euxKlientVedleggServiceRetryLogger"]
+//    )
+//    fun hentRinaSakIderFraMetaData(aktoerId: String): List<String> =
+//        hentDokumentMetadata(aktoerId).data.dokumentoversiktBruker.journalposter
+//            .flatMap { journalpost ->
+//                journalpost.tilleggsopplysninger
+//                    .filter { it["nokkel"].equals(TILLEGGSOPPLYSNING_RINA_SAK_ID_KEY) }
+//                    .filter { it["verdi"] != null }
+//                    .map { it["verdi"]!! }
+//            }.filterNot { rinaId -> MissingBuc.checkForMissingBuc(rinaId).also { if(it) logger.info("Fjernet missing buc") } }
+//            .distinct()
+//            .also { logger.info("Fant følgende RINAID fra dokument Metadata: ${it.map { str -> str }}") }
 
     @Retryable(
         exclude = [IOException::class],

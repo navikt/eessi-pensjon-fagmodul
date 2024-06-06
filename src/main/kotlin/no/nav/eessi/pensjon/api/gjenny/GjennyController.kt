@@ -70,14 +70,14 @@ class GjennyController (
                     .also { loggTimeAndViewSize("Get gjenlevende Rinasaker for Gjenny", start, 0) }
             }
             //api: brukersaker fra Joark/saf
-            val brukerRinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadataForOmstilling(aktoerId)
+//            val brukerRinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadataForOmstilling(aktoerId)
 
             //api: avdødSaf + avdødUtenSaf + avdødsaf + safBruker
             val viewTotal = euxInnhentingService.hentViewsForSafOgRinaForAvdode(
                 listOf(avdodfnr),
                 aktoerId,
                 null,
-                brukerRinaSakIderFraJoark
+                emptyList()
             ).filter { it.buctype !in listOf(P_BUC_01, P_BUC_03) }
 
             return@measure viewTotal.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
@@ -97,7 +97,7 @@ class GjennyController (
             val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerId)
 
             //api: henter rinasaker basert på tidligere journalførte saker
-            val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
+//            val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
                 .also { timeTracking.add("rinaSakIderFraJoark tid: ${System.currentTimeMillis()-start} i ms") }
 
             //api: bruker saker fra eux/rina
@@ -106,13 +106,13 @@ class GjennyController (
             }?: emptyList()
 
             //filter: brukersaker fra saf
-            val filterBrukerRinaSakIderFraJoark = rinaSakIderFraJoark.filterNot { rinaid -> rinaid in brukerView.map { it.euxCaseId }  }
+//            val filterBrukerRinaSakIderFraJoark = rinaSakIderFraJoark.filterNot { rinaid -> rinaid in brukerView.map { it.euxCaseId }  }
 
             //api: saker fra saf og eux/rina
             val safView = euxInnhentingService.lagBucViews(
                 aktoerId,
                 null,
-                filterBrukerRinaSakIderFraJoark,
+                emptyList(),
                 EuxInnhentingService.BucViewKilde.SAF
             ).also {timeTracking.add("hentBucViews tid: ${System.currentTimeMillis()-start} i ms")}
 

@@ -36,8 +36,8 @@ class VedleggController(private val vedleggService: VedleggService,
         }
     }
 
-    @GetMapping("/rinaiderframetadata/{aktoerId}")
-    fun hentRinaIderFraMetadata(@PathVariable("aktoerId", required = true) aktoerId: String) =vedleggService.hentRinaSakIderFraMetaData(aktoerId)
+//    @GetMapping("/rinaiderframetadata/{aktoerId}")
+//    fun hentRinaIderFraMetadata(@PathVariable("aktoerId", required = true) aktoerId: String) =vedleggService.hentRinaSakIderFraMetaData(aktoerId)
 
     @GetMapping("/hentdokument/{journalpostId}/{dokumentInfoId}/{variantFormat}")
     fun getDokumentInnhold(@PathVariable("journalpostId", required = true) journalpostId: String,
