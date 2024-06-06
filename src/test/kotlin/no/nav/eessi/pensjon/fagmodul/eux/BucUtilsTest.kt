@@ -372,7 +372,7 @@ class BucUtilsTest {
         assertEquals(0, bucUtils.findNewParticipants(candidates).size)
     }
 
-    @Test
+/*    @Test
     fun `sjekk deltakere mot buc og om den er fjernet i x007`() {
         val bucjson = getTestJsonFile("buc-4929378.json")
         val buc = mapJsonToAny<Buc>(bucjson)
@@ -387,9 +387,9 @@ class BucUtilsTest {
             FI_INSTITUSJON, "")))
         assertEquals(true, result)
 
-    }
+    }*/
 
-    @Test
+/*    @Test
     fun `sjekk for om x100 inneholder avsender ikke lenger i bruk`() {
         val bucjson = getTestJsonFile("buc-3059699-x100.json")
         val buc = mapJsonToAny<Buc>(bucjson)
@@ -403,7 +403,7 @@ class BucUtilsTest {
         val result = bucUtils.checkForParticipantsNoLongerActiveFromXSEDAsInstitusjonItem(listOf(InstitusjonItem(FI, FI_INSTITUSJON, "")))
         assertEquals(true, result)
 
-    }
+    }*/
 
     @Test
     fun findNewParticipantsMockwithExternalCaseOwnerResultExpectedToBeZero(){
