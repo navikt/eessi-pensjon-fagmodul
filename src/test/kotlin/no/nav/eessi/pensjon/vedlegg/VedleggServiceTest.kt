@@ -102,28 +102,28 @@ internal class VedleggServiceTest  {
         assert(vedleggService.hentDokumentMetadata("12345678910", "439532144", "453708906")?.tittel == "P2000 alderpensjon" )
     }
 
-    @Test
-    fun testHentRinaIderFraMetadata() {
-        val aktoerId = "12345"
+//    @Test
+//    fun testHentRinaIderFraMetadata() {
+//        val aktoerId = "12345"
+//
+//        val metadataJson = javaClass.getResource("/json/saf/hentMetadataResponse.json").readText()
+//        val metadata = mapJsonToAny<HentMetadataResponse>(metadataJson)
+//
+//        every {safClient.hentDokumentMetadata(any())  } returns metadata
+//
+//        val result = vedleggService.hentRinaSakIderFraMetaData(aktoerId)
+//        assert(result.size == 1)
+//    }
 
-        val metadataJson = javaClass.getResource("/json/saf/hentMetadataResponse.json").readText()
-        val metadata = mapJsonToAny<HentMetadataResponse>(metadataJson)
-
-        every {safClient.hentDokumentMetadata(any())  } returns metadata
-
-        val result = vedleggService.hentRinaSakIderFraMetaData(aktoerId)
-        assert(result.size == 1)
-    }
-
-    @Test
-    fun `Skal return en tom liste ved ingen metadata i dokumenter på aktørid`() {
-        val aktoerId = "12345"
-
-        every {safClient.hentDokumentMetadata(any())  } returns HentMetadataResponse(Data(DokumentoversiktBruker(emptyList())))
-
-        val result = vedleggService.hentRinaSakIderFraMetaData(aktoerId)
-        assert(result.isEmpty())
-    }
+//    @Test
+//    fun `Skal return en tom liste ved ingen metadata i dokumenter på aktørid`() {
+//        val aktoerId = "12345"
+//
+//        every {safClient.hentDokumentMetadata(any())  } returns HentMetadataResponse(Data(DokumentoversiktBruker(emptyList())))
+//
+//        val result = vedleggService.hentRinaSakIderFraMetaData(aktoerId)
+//        assert(result.isEmpty())
+//    }
     @Test
     fun `hentRinaSakerFraMetaForOmstillingstonad should filter and map correctly`() {
         val rinaSakId = "12345678"

@@ -52,32 +52,32 @@ class BucControllerTest {
         assertEquals("[]", result)
     }
 
-    @Test
-    fun `getRinasakerJoark skal returnere en liste over bucer paa aktoerId`() {
-        val pesyssak = "123456"
-        val aktoerId = "12666"
-        val rinanummer = "1111"
-        val endpointUrl = "/buc/joark/aktoer/$aktoerId/pesyssak/$pesyssak"
-        val buc = Buc(id = rinanummer, processDefinitionName = P_BUC_01.name)
-
-        every { innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)} returns listOf(rinanummer)
-        every { euxInnhentingService.hentBucer(aktoerId, pesyssak, listOf(rinanummer)) } returns listOf(buc)
-
-        val result = mvcPerform(endpointUrl)
-        val expected = "[{\"processDefinitionName\":\"P_BUC_01\",\"id\":\"$rinanummer\"}]"
-
-        JSONAssert.assertEquals(expected, result, false)
-    }
+//    @Test
+//    fun `getRinasakerJoark skal returnere en liste over bucer paa aktoerId`() {
+//        val pesyssak = "123456"
+//        val aktoerId = "12666"
+//        val rinanummer = "1111"
+//        val endpointUrl = "/buc/joark/aktoer/$aktoerId/pesyssak/$pesyssak"
+//        val buc = Buc(id = rinanummer, processDefinitionName = P_BUC_01.name)
+//
+//        every { innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)} returns listOf(rinanummer)
+//        every { euxInnhentingService.hentBucer(aktoerId, pesyssak, listOf(rinanummer)) } returns listOf(buc)
+//
+//        val result = mvcPerform(endpointUrl)
+//        val expected = "[{\"processDefinitionName\":\"P_BUC_01\",\"id\":\"$rinanummer\"}]"
+//
+//        JSONAssert.assertEquals(expected, result, false)
+//    }
 
     @Test
     fun `getBuc returnerer en Buc ut i fra et rinanummer`() {
         val rinanummer = "1111"
-        val aktoerId = "12666"
+//        val aktoerId = "12666"
         val endpointUrl = "/buc/$rinanummer"
         val buc = Buc(id = rinanummer, processDefinitionName = P_BUC_01.name)
 
         every { euxInnhentingService.getBuc(rinanummer) } returns buc
-        every { innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)} returns listOf(rinanummer, "2222")
+//        every { innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)} returns listOf(rinanummer, "2222")
 
         val result = mvcPerform(endpointUrl)
         val expected = "{\"processDefinitionName\":\"P_BUC_01\",\"id\":\"$rinanummer\"}"

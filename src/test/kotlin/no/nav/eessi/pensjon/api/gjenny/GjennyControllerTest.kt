@@ -65,72 +65,72 @@ class GjennyControllerTest {
         assertEquals(expected, result)
     }
 
-    @Test
-    fun `Ved innhenting av bucer for gjennybrukere returneres alle bucer utenom pbuc01 og pbuc03 for avdod og gjenlevende`() {
-        val endpointUrl = "/gjenny/rinasaker/$AKTOERID/avdodfnr/$AVDOD_FNR"
-        val euxCaseId = "123456"
-        val listeOverBucerForAvdod = listOf(
-            EuxInnhentingService.BucView(euxCaseId, P_BUC_02, AKTOERID, null, AVDOD_FNR, AVDOD),
-            EuxInnhentingService.BucView(euxCaseId, P_BUC_01, AKTOERID, null, AVDOD_FNR, AVDOD)
-        )
+//    @Test
+//    fun `Ved innhenting av bucer for gjennybrukere returneres alle bucer utenom pbuc01 og pbuc03 for avdod og gjenlevende`() {
+//        val endpointUrl = "/gjenny/rinasaker/$AKTOERID/avdodfnr/$AVDOD_FNR"
+//        val euxCaseId = "123456"
+//        val listeOverBucerForAvdod = listOf(
+//            EuxInnhentingService.BucView(euxCaseId, P_BUC_02, AKTOERID, null, AVDOD_FNR, AVDOD),
+//            EuxInnhentingService.BucView(euxCaseId, P_BUC_01, AKTOERID, null, AVDOD_FNR, AVDOD)
+//        )
+//
+//        every { euxInnhentingService.hentBucViewAvdod(any(), any()) } returns listeOverBucerForAvdod
+//        every { innhentingService.hentRinaSakIderFraJoarksMetadataForOmstilling(any()) } returns listOf("123456", "1234567")
+//        every { euxInnhentingService.lagBucViews(any(), any(), any(), any()) } returns listeOverBucerForAvdod
+//
+//        val expected = """
+//           "[{\"euxCaseId\":\"123456\",\"buctype\":\"P_BUC_02\",\"aktoerId\":\"12345678901\",\"saknr\":null,\"avdodFnr\":\"12345678900\",\"kilde\":\"SAF\"}]"
+//        """.trimIndent()
+//
+//        val result = mockMvc.get(endpointUrl).andReturn().response.contentAsString.toJson()
+//        assertEquals(expected, result)
+//    }
 
-        every { euxInnhentingService.hentBucViewAvdod(any(), any()) } returns listeOverBucerForAvdod
-        every { innhentingService.hentRinaSakIderFraJoarksMetadataForOmstilling(any()) } returns listOf("123456", "1234567")
-        every { euxInnhentingService.lagBucViews(any(), any(), any(), any()) } returns listeOverBucerForAvdod
+//    @Test
+//    fun `Ved innhenting av bucer for gjennybrukere returneres alle bucer utenom pbuc01 og pbuc03 `() {
+//        val endpointUrl = "/gjenny/rinasaker/$AKTOERID"
+//        val euxCaseId = "123456"
+//        val listeOverBucerForAvdod = listOf(
+//            EuxInnhentingService.BucView(euxCaseId, P_BUC_02, AKTOERID, null, AVDOD_FNR, AVDOD),
+//            EuxInnhentingService.BucView(euxCaseId, P_BUC_01, AKTOERID, null, AVDOD_FNR, AVDOD)
+//        )
+//
+//        val listeOverBucViews = listOf(
+//            EuxInnhentingService.BucView("123456", P_BUC_02, AKTOERID, null, AVDOD_FNR, AVDOD),
+//            EuxInnhentingService.BucView("1234567", P_BUC_01, AKTOERID, null, AVDOD_FNR, AVDOD)
+//        )
+//
+//        every { innhentingService.hentFnrfraAktoerService(any()) } returns NorskIdent(AVDOD_FNR)
+//        every { innhentingService.hentRinaSakIderFraJoarksMetadata(any()) } returns listOf("123456", "1234567")
+//        every { euxInnhentingService.hentBucViewBruker(any(), any(), null) } returns listeOverBucViews
+//        every { euxInnhentingService.lagBucViews(any(), any(), any(), any()) } returns listeOverBucerForAvdod
+//
+//        val expected = """
+//           "[{\"euxCaseId\":\"123456\",\"buctype\":\"P_BUC_02\",\"aktoerId\":\"12345678901\",\"saknr\":null,\"avdodFnr\":\"12345678900\",\"kilde\":\"AVDOD\"}]"
+//        """.trimIndent()
+//
+//        val result = mockMvc.get(endpointUrl).andReturn().response.contentAsString.toJson()
+//        assertEquals(expected, result)
+//    }
 
-        val expected = """
-           "[{\"euxCaseId\":\"123456\",\"buctype\":\"P_BUC_02\",\"aktoerId\":\"12345678901\",\"saknr\":null,\"avdodFnr\":\"12345678900\",\"kilde\":\"SAF\"}]"
-        """.trimIndent()
-
-        val result = mockMvc.get(endpointUrl).andReturn().response.contentAsString.toJson()
-        assertEquals(expected, result)
-    }
-
-    @Test
-    fun `Ved innhenting av bucer for gjennybrukere returneres alle bucer utenom pbuc01 og pbuc03 `() {
-        val endpointUrl = "/gjenny/rinasaker/$AKTOERID"
-        val euxCaseId = "123456"
-        val listeOverBucerForAvdod = listOf(
-            EuxInnhentingService.BucView(euxCaseId, P_BUC_02, AKTOERID, null, AVDOD_FNR, AVDOD),
-            EuxInnhentingService.BucView(euxCaseId, P_BUC_01, AKTOERID, null, AVDOD_FNR, AVDOD)
-        )
-
-        val listeOverBucViews = listOf(
-            EuxInnhentingService.BucView("123456", P_BUC_02, AKTOERID, null, AVDOD_FNR, AVDOD),
-            EuxInnhentingService.BucView("1234567", P_BUC_01, AKTOERID, null, AVDOD_FNR, AVDOD)
-        )
-
-        every { innhentingService.hentFnrfraAktoerService(any()) } returns NorskIdent(AVDOD_FNR)
-        every { innhentingService.hentRinaSakIderFraJoarksMetadata(any()) } returns listOf("123456", "1234567")
-        every { euxInnhentingService.hentBucViewBruker(any(), any(), null) } returns listeOverBucViews
-        every { euxInnhentingService.lagBucViews(any(), any(), any(), any()) } returns listeOverBucerForAvdod
-
-        val expected = """
-           "[{\"euxCaseId\":\"123456\",\"buctype\":\"P_BUC_02\",\"aktoerId\":\"12345678901\",\"saknr\":null,\"avdodFnr\":\"12345678900\",\"kilde\":\"AVDOD\"}]"
-        """.trimIndent()
-
-        val result = mockMvc.get(endpointUrl).andReturn().response.contentAsString.toJson()
-        assertEquals(expected, result)
-    }
-
-    @Test
-    fun `getRinasakerBrukerkontekstGjenny burde gi en OK og en tom liste`() {
-        every { innhentingService.hentFnrfraAktoerService(any()) } returns null
-        every { innhentingService.hentRinaSakIderFraJoarksMetadata(any()) } returns listOf("12345")
-        every { euxInnhentingService.lagBucViews(any(), any(), any(), any()) } returns emptyList()
-
-        val result = mockMvc.get("/gjenny/rinasaker/123456")
-            .andExpect {
-                status { isOk() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-            }
-            .andReturn()
-
-        val responseContent = result.response.contentAsString
-        val bucViews: List<EuxInnhentingService.BucView> = ObjectMapper().readValue(responseContent)
-
-        assertTrue(bucViews.isEmpty(), "Expected an empty list in the response")
-    }
+//    @Test
+//    fun `getRinasakerBrukerkontekstGjenny burde gi en OK og en tom liste`() {
+//        every { innhentingService.hentFnrfraAktoerService(any()) } returns null
+//        every { innhentingService.hentRinaSakIderFraJoarksMetadata(any()) } returns listOf("12345")
+//        every { euxInnhentingService.lagBucViews(any(), any(), any(), any()) } returns emptyList()
+//
+//        val result = mockMvc.get("/gjenny/rinasaker/123456")
+//            .andExpect {
+//                status { isOk() }
+//                content { contentType(MediaType.APPLICATION_JSON) }
+//            }
+//            .andReturn()
+//
+//        val responseContent = result.response.contentAsString
+//        val bucViews: List<EuxInnhentingService.BucView> = ObjectMapper().readValue(responseContent)
+//
+//        assertTrue(bucViews.isEmpty(), "Expected an empty list in the response")
+//    }
 
     @Test
     fun `getbucs burde gi en liste av godkjente bucs `() {

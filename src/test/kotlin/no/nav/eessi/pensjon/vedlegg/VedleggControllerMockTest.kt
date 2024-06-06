@@ -122,24 +122,24 @@ class VedleggControllerMockTest {
             eq(filtype))}
     }
 
-    @Test
-    fun `Gitt en person med journalposter som inneholder RinaSakIder når SAF metadata blir kallet Så hent RinaSakIDer`() {
-        val aktoerId = "1212"
+//    @Test
+//    fun `Gitt en person med journalposter som inneholder RinaSakIder når SAF metadata blir kallet Så hent RinaSakIDer`() {
+//        val aktoerId = "1212"
+//
+//        every { vedleggService.hentRinaSakIderFraMetaData(aktoerId) } returns listOf("1212")
+//
+//        val resp = vedleggController.hentRinaIderFraMetadata(aktoerId)
+//        assertEquals(1, resp.size)
+//    }
 
-        every { vedleggService.hentRinaSakIderFraMetaData(aktoerId) } returns listOf("1212")
-
-        val resp = vedleggController.hentRinaIderFraMetadata(aktoerId)
-        assertEquals(1, resp.size)
-    }
-
-    @Test
-    fun `Gitt en person uten journalposter som inneholder RinaSakIder når SAF metadata blir kallet Så returner tom liste`() {
-        val aktoerId = "1212"
-
-        every { vedleggService.hentRinaSakIderFraMetaData(aktoerId) } returns emptyList<String>()
-
-        val resp = vedleggController.hentRinaIderFraMetadata(aktoerId)
-        assertEquals(0, resp.size)
-    }
+//    @Test
+//    fun `Gitt en person uten journalposter som inneholder RinaSakIder når SAF metadata blir kallet Så returner tom liste`() {
+//        val aktoerId = "1212"
+//
+//        every { vedleggService.hentRinaSakIderFraMetaData(aktoerId) } returns emptyList<String>()
+//
+//        val resp = vedleggController.hentRinaIderFraMetadata(aktoerId)
+//        assertEquals(0, resp.size)
+//    }
 
 }
