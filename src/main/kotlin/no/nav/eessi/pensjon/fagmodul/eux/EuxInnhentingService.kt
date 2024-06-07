@@ -9,6 +9,7 @@ import no.nav.eessi.pensjon.eux.model.InstitusjonDetalj
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.*
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
+import no.nav.eessi.pensjon.eux.model.sed.KravType
 import no.nav.eessi.pensjon.eux.model.sed.Person
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.X009
@@ -278,7 +279,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
         val annenperson = sed.nav?.annenperson?.person
         val rolle = annenperson?.rolle
         val type = sed.pensjon?.kravDato?.type
-        return if (type == "02" || rolle == "01") {
+        return if (type == KravType.GJENLEV || rolle == "01") {
             filterPinGjenlevendePin(annenperson, sed.type, rinaidAvdod)
         } else {
             null
@@ -502,7 +503,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
         logger.info("******* Hent BUC sjekk om sed kan opprettes *******")
         return BucUtils(getBuc(dataModel.euxCaseID)).also { bucUtil ->
             //sjekk for om deltakere alt er fjernet med x007 eller x100 sed
-            bucUtil.checkForParticipantsNoLongerActiveFromXSEDAsInstitusjonItem(dataModel.getInstitutionsList())
+//            bucUtil.checkForParticipantsNoLongerActiveFromXSEDAsInstitusjonItem(dataModel.getInstitutionsList())
             //gyldig sed kan opprettes
             bucUtil.checkIfSedCanBeCreated(dataModel.sedType, dataModel.penSaksnummer)
         }

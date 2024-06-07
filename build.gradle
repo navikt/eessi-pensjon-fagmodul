@@ -1,11 +1,11 @@
 buildscript {
 
     ext {
-        kotlinVersion = '1.9.23'
+        kotlinVersion = '1.9.24'
         springBootVersion = '3.2.5'
         springKafkaVersion = '3.1.4'
         springfoxVersion = '3.0.0'
-        jacksonModuleKotlinVersion = '2.17.0'
+        jacksonModuleKotlinVersion = '2.17.1'
         tokenSupportVersion = '4.1.4'
     }
 }
@@ -35,7 +35,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-actuator")
 
     // Spring Framework BOM-fil overstyrer så vi får siste patch-versjon av Spring Framework
-    implementation(platform("org.springframework:spring-framework-bom:6.1.6"))
+    implementation(platform("org.springframework:spring-framework-bom:6.1.8"))
 
     implementation("org.yaml:snakeyaml:2.2") // Pga https://security.snyk.io/package/maven/org.yaml:snakeyaml
 
@@ -59,28 +59,28 @@ dependencies {
     implementation("no.nav.security:token-validation-spring:${tokenSupportVersion}")
     implementation("no.nav.security:token-validation-jaxrs:${tokenSupportVersion}")
 
-    implementation ("no.nav.common:token-client:3.2024.04.10_12.03-fddb587e3a68")
+    implementation ("no.nav.common:token-client:3.2024.04.22_13.50-7815154a2573")
     implementation("org.springframework.kafka:spring-kafka:${springKafkaVersion}")
 
     //GCP
-    implementation("com.google.cloud:google-cloud-storage:2.37.0")
+    implementation("com.google.cloud:google-cloud-storage:2.38.0")
 
-    implementation("no.nav.eessi.pensjon:ep-metrics:2.0.62")
-    implementation("no.nav.eessi.pensjon:ep-logging:2.1.62")
-    implementation("no.nav.eessi.pensjon:ep-eux:2.2.39")
-    implementation("no.nav.eessi.pensjon:ep-kodeverk:4.0.136") {
+    implementation("no.nav.eessi.pensjon:ep-metrics:2.0.65")
+    implementation("no.nav.eessi.pensjon:ep-logging:2.1.64")
+    implementation("no.nav.eessi.pensjon:ep-eux:2.2.47")
+    implementation("no.nav.eessi.pensjon:ep-kodeverk:4.0.143") {
         exclude module: 'ep-eux'
         exclude module: 'ep-logging'
         exclude module: 'ep-metrics'
     }
 
-    implementation("no.nav.eessi.pensjon:ep-personoppslag:13.1.111") {
+    implementation("no.nav.eessi.pensjon:ep-personoppslag:13.1.125") {
         exclude module: 'ep-eux'
         exclude module: 'ep-logging'
         exclude module: 'ep-metrics'
     }
 
-    implementation("no.nav.eessi.pensjon:ep-pensjonsinformasjon:3.0.113") {
+    implementation("no.nav.eessi.pensjon:ep-pensjonsinformasjon:3.0.125") {
         exclude module: 'ep-eux'
         exclude module: 'ep-logging'
         exclude module: 'ep-metrics'
@@ -88,7 +88,7 @@ dependencies {
 
     implementation 'javax.xml.bind:jaxb-api:2.3.1'
     implementation('org.glassfish.jaxb:jaxb-runtime:2.3.3')
-    implementation("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:2618.0448179")
+    implementation("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:2633.1685ed5")
 
     testImplementation("no.nav.security:token-validation-spring-test:${tokenSupportVersion}")
 
