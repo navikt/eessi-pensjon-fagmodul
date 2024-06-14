@@ -1,6 +1,10 @@
  package no.nav.eessi.pensjon.shared.api
 
  import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+ import com.fasterxml.jackson.core.JsonParser
+ import com.fasterxml.jackson.databind.DeserializationContext
+ import com.fasterxml.jackson.databind.JsonDeserializer
+ import com.fasterxml.jackson.databind.annotation.JsonDeserialize
  import no.nav.eessi.pensjon.eux.model.BucType
  import no.nav.eessi.pensjon.eux.model.BucType.*
  import no.nav.eessi.pensjon.eux.model.SedType
@@ -25,6 +29,7 @@
      val vedtakId: String? = null,
      val kravId: String? = null,
      val kravDato: String? = null,   // Brukes bare av P15000 yyyy-MM-dd
+     @JsonDeserialize(using = KravTypeDeserializer::class)
      val kravType: KravType? = null, // Brukes bare av P15000
      val aktoerId: String? = null,
      val fnr: String? = null,
@@ -122,3 +127,9 @@
      }
  }
 
+ class KravTypeDeserializer : JsonDeserializer<KravType>() {
+     override fun deserialize(p: JsonParser, ctxt: DeserializationContext?): KravType? {
+         val value = p.text
+         return KravType.fraNavnEllerVerdi(value)
+     }
+ }
