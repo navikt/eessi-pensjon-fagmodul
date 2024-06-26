@@ -1,5 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
+import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
+import no.nav.eessi.pensjon.eux.model.BucType
 import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.*
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
@@ -11,6 +13,7 @@ import no.nav.eessi.pensjon.utils.toJson
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.GetMapping
@@ -25,6 +28,8 @@ import kotlin.time.ExperimentalTime
 @RestController
 @RequestMapping("/buc")
 class BucController(
+    @Value("\${ENV}") private val environment: String,
+    private val euxKlient: EuxKlientAsSystemUser,
     private val euxInnhentingService: EuxInnhentingService,
     private val auditlogger: AuditLogger,
     private val innhentingService: InnhentingService,
@@ -82,6 +87,24 @@ class BucController(
             val start = System.currentTimeMillis()
             val timeTracking = mutableListOf<String>()
 
+            if (environment == "q1") {
+                val fnr = innhentingService.hentFnrfraAktoerService(aktoerId)
+                euxKlient.getRinasaker(fnr = fnr?.id)
+                    .map { rinasak ->
+                        EuxInnhentingService.BucView(
+                            rinasak.id!!,
+                            BucType.from(rinasak.processDefinitionId)!!,
+                            aktoerId,
+                            null,
+                            null,
+                            EuxInnhentingService.BucViewKilde.BRUKER
+                        )
+                    }.also {
+                        val end = System.currentTimeMillis()
+                        logger.info("hentBucViewBruker tid ${end - start} i ms")
+                    }
+            }
+
             logger.info("henter rinasaker på valgt aktoerid: $aktoerId, på saknr: $pensjonSakNummer")
             val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerId)
             val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
@@ -123,8 +146,8 @@ class BucController(
      */
     @GetMapping("/joark/aktoer/{aktoerId}/pesyssak/{saknr}")
     fun hentBucerMedJournalforteSeder(
-            @PathVariable("aktoerId", required = true) aktoerId: String,
-            @PathVariable("saknr", required = false) pensjonSakNummer: String
+        @PathVariable("aktoerId", required = true) aktoerId: String,
+        @PathVariable("saknr", required = false) pensjonSakNummer: String
     ): List<Buc> {
         return bucerJoark.measure {
             val start = System.currentTimeMillis()
@@ -160,8 +183,8 @@ class BucController(
      */
     @GetMapping("/rinasaker/euxrina/{aktoerId}/pesyssak/{saknr}")
     fun getRinasakerFraRina(
-            @PathVariable("aktoerId", required = true) aktoerId: String,
-            @PathVariable("saknr", required = false) pensjonSakNummer: String
+        @PathVariable("aktoerId", required = true) aktoerId: String,
+        @PathVariable("saknr", required = false) pensjonSakNummer: String
     ): List<EuxInnhentingService.BucView> {
         return bucViewRina.measure {
             val start = System.currentTimeMillis()
@@ -295,7 +318,7 @@ class BucController(
             bucDetaljerEnkelGjenlevende.measure {
                 logger.info("saf euxCaseId: $euxcaseid, saknr: $saknr")
                 euxInnhentingService.getSingleBucAndSedView(euxcaseid)
-                .copy(subject = BucAndSedSubject(SubjectFnr(gjenlevendeFnr?.id), SubjectFnr(avdodFnr)))
+                    .copy(subject = BucAndSedSubject(SubjectFnr(gjenlevendeFnr?.id), SubjectFnr(avdodFnr)))
             }
         } else {
             bucDetaljerEnkelavdod.measure {
