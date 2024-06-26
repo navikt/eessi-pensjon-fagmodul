@@ -3,6 +3,7 @@ package no.nav.eessi.pensjon.integrationtest.buc
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
+import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_01
 import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.fagmodul.api.BucController
@@ -39,11 +40,13 @@ class BucControllerTest {
     @TestConfiguration
     class Config {
         @Bean
+        fun euxKlient() : EuxKlientAsSystemUser = mockk(relaxed = true)
+        @Bean
         fun euxInnhentingService() : EuxInnhentingService = mockk(relaxed = true)
         @Bean
         fun innhentingService() : InnhentingService = mockk(relaxed = true)
         @Bean
-        fun bucController() = BucController(euxInnhentingService(), mockk( relaxed = true), innhentingService(), mockk())
+        fun bucController() = BucController("", euxKlient(), euxInnhentingService(), mockk( relaxed = true), innhentingService(), mockk())
     }
 
     @Test
