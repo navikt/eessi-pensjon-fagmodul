@@ -28,7 +28,6 @@ import kotlin.time.ExperimentalTime
 @RestController
 @RequestMapping("/buc")
 class BucController(
-    @Value("\${ENV}") private val environment: String,
     private val euxKlient: EuxKlientAsSystemUser,
     private val euxInnhentingService: EuxInnhentingService,
     private val auditlogger: AuditLogger,
@@ -87,9 +86,10 @@ class BucController(
             val start = System.currentTimeMillis()
             val timeTracking = mutableListOf<String>()
 
-            if (environment == "q1") {
+            val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerId)
+
                 val fnr = innhentingService.hentFnrfraAktoerService(aktoerId)
-                euxKlient.getRinasaker(fnr = fnr?.id)
+                val rinasakerBrukerq1 = euxKlient.getRinasaker(fnr = fnr?.id)
                     .map { rinasak ->
                         EuxInnhentingService.BucView(
                             rinasak.id!!,
@@ -103,31 +103,15 @@ class BucController(
                         val end = System.currentTimeMillis()
                         logger.info("hentBucViewBruker tid ${end - start} i ms")
                     }
-            }
 
             logger.info("henter rinasaker på valgt aktoerid: $aktoerId, på saknr: $pensjonSakNummer")
-            val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerId)
-            val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
-                .also { timeTracking.add("rinaSakIderFraJoark tid: ${System.currentTimeMillis()-start} i ms") }
-                .also { logger.info("skal hente rina sakIder fra Joark Metadata") }
 
             //bruker saker fra eux/rina
             val brukerView = gjenlevendeFnr?.let { euxInnhentingService.hentBucViewBruker(it.id, aktoerId, pensjonSakNummer) }.also {
                 timeTracking.add("hentBucViewBruker, gjenlevendeFnr tid: ${System.currentTimeMillis()-start} i ms")
             }?: emptyList()
 
-            //filtert bort brukersaker fra saf
-            val filterBrukerRinaSakIderFraJoark = rinaSakIderFraJoark.filterNot { rinaid -> rinaid in brukerView.map { it.euxCaseId }  }
-
-            //saker fra saf og eux/rina
-            val safView = euxInnhentingService.lagBucViews(
-                aktoerId,
-                pensjonSakNummer,
-                filterBrukerRinaSakIderFraJoark,
-                EuxInnhentingService.BucViewKilde.SAF
-            ).also {timeTracking.add("hentBucViews tid: ${System.currentTimeMillis()-start} i ms")}
-
-            val view = (brukerView + safView).also { logger.info("Antall for brukerview+safView: ${it.size}") }
+            val view = (brukerView + rinasakerBrukerq1).also { logger.info("Antall for brukerview+safView: ${it.size}") }
             //rinaIder inneholder bucer som ikke er gjenny bucer
             val rinaIder = view.map { it.euxCaseId }.filter { gcpStorageService.eksisterer(it) }.also { logger.info("Det finnes ${it.size} SED som kommer fra GJENNY") }
 
