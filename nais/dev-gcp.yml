@@ -48,7 +48,7 @@ spec:
         - host: pdl-api.dev-fss-pub.nais.io
         - host: kodeverk-api.nav.no
         - host: eux-rina-api-q1.dev-fss-pub.nais.io
-        - host: rina-ss1-q.adeo.no
+        - host: rina-ss4-q.adeo.no
     inbound:
       rules:
         - application: eessi-pensjon-frontend-ui-q2
@@ -76,7 +76,7 @@ spec:
     - name: EESSIPENSJON_PREFILL_GCP_URL
       value: https://eessi-pensjon-prefill-q2.intern.dev.nav.no
     - name: RINA_HOST_URL
-      value: rina-ss2-q.adeo.no
+      value: rina-ss4-q.adeo.no
     - name: SAF_GRAPHQL_URL
       value: https://saf-q2.dev-fss-pub.nais.io/graphql
     - name: SAF_HENTDOKUMENT_URL
