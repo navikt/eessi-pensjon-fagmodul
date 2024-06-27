@@ -47,7 +47,7 @@ spec:
         - host: saf-q2.dev-fss-pub.nais.io
         - host: pdl-api.dev-fss-pub.nais.io
         - host: kodeverk-api.nav.no
-        - host: eux-rina-api-q2.dev-fss-pub.nais.io
+        - host: eux-rina-api-q1.dev-fss-pub.nais.io
         - host: rina-ss1-q.adeo.no
     inbound:
       rules:
@@ -72,7 +72,7 @@ spec:
     - name: PENSJONSINFORMASJON_URL
       value: https://eessi-pensjon-onprem-proxy-q2.dev-fss-pub.nais.io/pen/api/pensjonsinformasjon/v1
     - name: EESSIPEN_EUX_RINA_URL
-      value: https://eux-rina-api-q2.dev-fss-pub.nais.io/cpi
+      value: https://eux-rina-api-q1.dev-fss-pub.nais.io/cpi
     - name: EESSIPENSJON_PREFILL_GCP_URL
       value: https://eessi-pensjon-prefill-q2.intern.dev.nav.no
     - name: RINA_HOST_URL
@@ -96,7 +96,7 @@ spec:
     - name: AZURE_APP_PREFILL_CLIENT_ID
       value: dev-gcp.eessipensjon.eessi-pensjon-prefill-q2
     - name: AZURE_APP_EUX_CLIENT_ID
-      value: dev-fss.eessibasis.eux-rina-api-q2
+      value: dev-fss.eessibasis.eux-rina-api-q1
     - name: AZURE_APP_PROXY_CLIENT_ID
       value: dev-fss.eessipensjon.eessi-pensjon-onprem-proxy-q2
     - name: AZURE_APP_KODEVERK_CLIENT_ID
