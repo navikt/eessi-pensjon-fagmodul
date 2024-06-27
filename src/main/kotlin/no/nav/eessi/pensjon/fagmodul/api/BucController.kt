@@ -88,39 +88,44 @@ class BucController(
 
             val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerId)
 
-                val fnr = innhentingService.hentFnrfraAktoerService(aktoerId)
-                val rinasakerBrukerq1 = euxKlient.getRinasaker(fnr = fnr?.id)
-                    .map { rinasak ->
-                        EuxInnhentingService.BucView(
-                            rinasak.id!!,
-                            BucType.from(rinasak.processDefinitionId)!!,
-                            aktoerId,
-                            null,
-                            null,
-                            EuxInnhentingService.BucViewKilde.BRUKER
-                        )
-                    }.also {
-                        val end = System.currentTimeMillis()
-                        logger.info("hentBucViewBruker tid ${end - start} i ms")
-                    }
+            val fnr = innhentingService.hentFnrfraAktoerService(aktoerId)
+            val rinasakerBrukerq1 = euxKlient.getRinasaker(fnr = fnr?.id)
+                .map { rinasak ->
+                    EuxInnhentingService.BucView(
+                        rinasak.id!!,
+                        BucType.from(rinasak.processDefinitionId)!!,
+                        aktoerId,
+                        null,
+                        null,
+                        EuxInnhentingService.BucViewKilde.BRUKER
+                    )
+                }.also {
+                    val end = System.currentTimeMillis()
+                    logger.info("hentBucViewBruker tid ${end - start} i ms")
+                }
 
             logger.info("henter rinasaker på valgt aktoerid: $aktoerId, på saknr: $pensjonSakNummer")
 
             //bruker saker fra eux/rina
-            val brukerView = gjenlevendeFnr?.let { euxInnhentingService.hentBucViewBruker(it.id, aktoerId, pensjonSakNummer) }.also {
-                timeTracking.add("hentBucViewBruker, gjenlevendeFnr tid: ${System.currentTimeMillis()-start} i ms")
-            }?: emptyList()
+            val brukerView =
+                gjenlevendeFnr?.let { euxInnhentingService.hentBucViewBruker(it.id, aktoerId, pensjonSakNummer) }.also {
+                    timeTracking.add("hentBucViewBruker, gjenlevendeFnr tid: ${System.currentTimeMillis() - start} i ms")
+                } ?: emptyList()
 
-            val view = (brukerView + rinasakerBrukerq1).also { logger.info("Antall for brukerview+safView: ${it.size}") }
+            val view =
+                (brukerView + rinasakerBrukerq1).also { logger.info("Antall for brukerview+safView: ${it.size}") }
             //rinaIder inneholder bucer som ikke er gjenny bucer
-            val rinaIder = view.map { it.euxCaseId }.filter { gcpStorageService.eksisterer(it) }.also { logger.info("Det finnes ${it.size} SED som kommer fra GJENNY") }
+            val rinaIder = view.map { it.euxCaseId }.filter { gcpStorageService.eksisterer(it) }
+                .also { logger.info("Det finnes ${it.size} SED som kommer fra GJENNY") }
 
             //return med sort og distict (avdodfnr og caseid)
             return@measure view.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
                 //Viser ep-bucer som ikke er gjenny-bucer
                 .filterNot { rinaIder.contains(it.euxCaseId) }
                 .also {
-                    logger.info("Tidsbruk for getRinasakerBrukerkontekst: \n"+timeTracking.joinToString("\n").trimIndent())
+                    logger.info(
+                        "Tidsbruk for getRinasakerBrukerkontekst: \n" + timeTracking.joinToString("\n").trimIndent()
+                    )
                 }
         }
     }
