@@ -46,7 +46,7 @@ class BucControllerTest {
         @Bean
         fun innhentingService() : InnhentingService = mockk(relaxed = true)
         @Bean
-        fun bucController() = BucController("", euxKlient(), euxInnhentingService(), mockk( relaxed = true), innhentingService(), mockk())
+        fun bucController() = BucController(euxKlient(), euxInnhentingService(), mockk( relaxed = true), innhentingService(), mockk())
     }
 
     @Test

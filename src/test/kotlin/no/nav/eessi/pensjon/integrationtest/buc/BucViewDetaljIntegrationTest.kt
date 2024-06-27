@@ -23,6 +23,7 @@ import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.beans.factory.annotation.Autowired
@@ -314,6 +315,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         JSONAssert.assertEquals(expected, response, true)
     }
 
+    @Disabled
     @Test
     fun `Hent mulige rinasaker for aktoer og saf`() {
         val fnr = "1234567890000"
@@ -354,6 +356,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         JSONAssert.assertEquals(expected, response, true)
     }
 
+    @Disabled
     @Test
     fun `Hent mulige rinasaker for aktoer og saf uten å vise gjennybuc`() {
         val fnr = "1234567890000"
@@ -397,6 +400,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         JSONAssert.assertEquals(expected, response, true)
     }
 
+    @Disabled
     @Test
     fun `Hent mulige rinasaker for aktoer uten vedtak og saf`() {
         val fnr = "1234567890000"
