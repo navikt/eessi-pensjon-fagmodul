@@ -47,7 +47,7 @@ class InnhentingService(
         if (aktoerid.isBlank()) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Fant ingen aktoerident")
 
         val fnr = personService.hentIdent(FOLKEREGISTERIDENT, AktoerId(aktoerid))
-        if(fnr?.id?.isNotEmpty() == true) return fnr.also { logger.info("Returnerer FNR for aktoerId: $aktoerid") }
+        if(fnr?.id?.isNotEmpty() == true) return fnr.also { logger.debug("Returnerer FNR for aktoerId: $aktoerid") }
 
         val npid = personService.hentIdent(NPID, AktoerId(aktoerid))
         if(npid?.id?.isNotEmpty() == true) return npid.also { logger.info("Returnerer NPID for aktoerId: $aktoerid") }
