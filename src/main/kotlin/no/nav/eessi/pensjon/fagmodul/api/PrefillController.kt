@@ -122,7 +122,7 @@ class PrefillController(
                 "rinaId: ${request.euxCaseId} " +
                 "bucType: ${request.buc} " +
                 "sedType: ${request.sed} " +
-                "aktoerId: ${request.aktoerId} " +
+                "aktoerId: ${request.aktoerId?.substring(0,5)} " +
                 "sakId: ${request.sakId} " +
                 "vedtak: ${request.vedtakId} " +
                 "institusjoner: ${request.institutions} " +
