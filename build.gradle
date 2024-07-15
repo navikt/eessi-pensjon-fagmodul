@@ -101,7 +101,7 @@ dependencies {
 
     //mock - test
     testImplementation('io.mockk:mockk:1.13.11')
-    testImplementation("org.skyscreamer:jsonassert:1.5.2")
+    testImplementation("org.skyscreamer:jsonassert:1.5.3")
 
     //Kafka
     testImplementation("org.springframework.kafka:spring-kafka-test:${springKafkaVersion}")
