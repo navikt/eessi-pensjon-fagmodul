@@ -2,17 +2,17 @@ buildscript {
 
     ext {
         kotlinVersion = '1.9.24'
-        springBootVersion = '3.2.5'
-        springKafkaVersion = '3.1.4'
+        springBootVersion = '3.3.2'
+        springKafkaVersion = '3.2.2'
         springfoxVersion = '3.0.0'
-        jacksonModuleKotlinVersion = '2.17.1'
+        jacksonModuleKotlinVersion = '2.17.2'
         tokenSupportVersion = '4.1.4'
     }
 }
 
 plugins {
     id "org.springframework.boot" version "$springBootVersion"
-    id "io.spring.dependency-management" version "1.1.4"
+    id "io.spring.dependency-management" version "1.1.5"
     id "org.openrepose.gradle.plugins.jaxb" version "2.5.0"
     id "com.vanniktech.dependency.graph.generator" version "0.8.0"
     id "org.jetbrains.kotlin.jvm" version "$kotlinVersion"
@@ -35,7 +35,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-actuator")
 
     // Spring Framework BOM-fil overstyrer så vi får siste patch-versjon av Spring Framework
-    implementation(platform("org.springframework:spring-framework-bom:6.1.8"))
+    implementation(platform("org.springframework:spring-framework-bom:6.1.11"))
 
     implementation("org.yaml:snakeyaml:2.2") // Pga https://security.snyk.io/package/maven/org.yaml:snakeyaml
 
@@ -48,7 +48,7 @@ dependencies {
     // Logging
     implementation("net.logstash.logback:logstash-logback-encoder:7.4")
     configurations { all*.exclude group: 'commons-logging', module: 'commons-logging' }
-    implementation("org.slf4j:jcl-over-slf4j:2.0.12")
+    implementation("org.slf4j:jcl-over-slf4j:2.0.13")
 
     // auditlogger syslog la stå i 1.0.0 / 0.9.30
     implementation("com.papertrailapp:logback-syslog4j:1.0.0")
@@ -60,28 +60,28 @@ dependencies {
     implementation("no.nav.security:token-validation-spring:${tokenSupportVersion}")
     implementation("no.nav.security:token-validation-jaxrs:${tokenSupportVersion}")
 
-    implementation ("no.nav.common:token-client:3.2024.04.22_13.50-7815154a2573")
+    implementation ("no.nav.common:token-client:3.2024.05.23_05.46-2b29fa343e8e")
     implementation("org.springframework.kafka:spring-kafka:${springKafkaVersion}")
 
     //GCP
-    implementation("com.google.cloud:google-cloud-storage:2.38.0")
+    implementation("com.google.cloud:google-cloud-storage:2.40.1")
 
-    implementation("no.nav.eessi.pensjon:ep-metrics:2.0.65")
-    implementation("no.nav.eessi.pensjon:ep-logging:2.1.64")
-    implementation("no.nav.eessi.pensjon:ep-eux:2.2.47")
-    implementation("no.nav.eessi.pensjon:ep-kodeverk:4.0.143") {
+    implementation("no.nav.eessi.pensjon:ep-metrics:2.0.73")
+    implementation("no.nav.eessi.pensjon:ep-logging:2.1.70")
+    implementation("no.nav.eessi.pensjon:ep-eux:2.2.62")
+    implementation("no.nav.eessi.pensjon:ep-kodeverk:4.0.149") {
         exclude module: 'ep-eux'
         exclude module: 'ep-logging'
         exclude module: 'ep-metrics'
     }
 
-    implementation("no.nav.eessi.pensjon:ep-personoppslag:13.1.125") {
+    implementation("no.nav.eessi.pensjon:ep-personoppslag:13.1.144") {
         exclude module: 'ep-eux'
         exclude module: 'ep-logging'
         exclude module: 'ep-metrics'
     }
 
-    implementation("no.nav.eessi.pensjon:ep-pensjonsinformasjon:3.0.125") {
+    implementation("no.nav.eessi.pensjon:ep-pensjonsinformasjon:3.0.141") {
         exclude module: 'ep-eux'
         exclude module: 'ep-logging'
         exclude module: 'ep-metrics'
@@ -97,12 +97,12 @@ dependencies {
     testImplementation("com.ninja-squad:springmockk:4.0.2")
     testImplementation('org.pac4j:spring-webmvc-pac4j:8.0.0')
 
-    testImplementation(platform("org.junit:junit-bom:5.10.2"))
+    testImplementation(platform("org.junit:junit-bom:5.10.3"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 
     //mock - test
-    testImplementation('io.mockk:mockk:1.13.10')
-    testImplementation("org.skyscreamer:jsonassert:1.5.1")
+    testImplementation('io.mockk:mockk:1.13.12')
+    testImplementation("org.skyscreamer:jsonassert:1.5.3")
 
     //Kafka
     testImplementation("org.springframework.kafka:spring-kafka-test:${springKafkaVersion}")

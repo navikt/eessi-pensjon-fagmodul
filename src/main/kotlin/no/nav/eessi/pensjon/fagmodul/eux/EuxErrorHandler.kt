@@ -21,7 +21,7 @@ open class EuxErrorHandler : DefaultResponseErrorHandler() {
     @Throws(IOException::class)
     override fun hasError(response: ClientHttpResponse): Boolean {
         if(response.statusCode != HttpStatus.OK) {
-            logger.error("******************* EuxErrorHandler: ${response.statusCode} ********************")
+            logger.warn("******************* EuxErrorHandler: ${response.statusCode} ********************")
         }
         return response.statusCode.is4xxClientError || response.statusCode.is5xxServerError
     }
@@ -55,11 +55,19 @@ open class EuxErrorHandler : DefaultResponseErrorHandler() {
 
     @Throws(IOException::class)
     private fun logResponse(response: ClientHttpResponse) {
-        logger.error("""
-            Status code  : ${response.statusCode}
-            Status text  : ${response.statusText}
-            Headers      : ${response.headers}
-            Response body: ${StreamUtils.copyToString(response.body, Charset.defaultCharset())}
-        """.trimIndent())
+        val errorMsg = StreamUtils.copyToString(response.body, Charset.defaultCharset())
+        val statusCode = response.statusCode
+        val statusText = response.statusText
+
+        val logMessage = """
+        Status code  : $statusCode
+        Status text  : $statusText
+        Response body: $errorMsg """.trimIndent()
+
+        if (errorMsg.contains("Could not find RINA case with id")) {
+            logger.warn(logMessage)
+        } else {
+            logger.error(logMessage)
+        }
     }
 }
