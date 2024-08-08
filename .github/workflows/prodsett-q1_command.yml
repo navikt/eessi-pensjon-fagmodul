@@ -9,7 +9,7 @@
 name: Manuell deploy
 on:
   repository_dispatch:
-    types: [prodsett-q1-command]
+    types: [prodsett-command]
 
 jobs:
   deploy_manuelt:
