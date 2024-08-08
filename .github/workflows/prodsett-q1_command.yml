@@ -30,6 +30,6 @@ jobs:
         uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: gcp-dev
+          CLUSTER: dev-gcp
           RESOURCE: nais/dev-gcp-q1.yml
           IMAGE: europe-north1-docker.pkg.dev/${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}/eessipensjon/${{ github.event.repository.name }}:${{ github.event.client_payload.slash_command.arg1 }}
