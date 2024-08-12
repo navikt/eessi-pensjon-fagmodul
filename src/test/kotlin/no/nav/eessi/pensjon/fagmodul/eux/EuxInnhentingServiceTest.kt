@@ -367,6 +367,85 @@ internal class EuxInnhentingServiceTest {
 
         val json = euxInnhentingService.checkForX010AndAddX009(apiRequest, "20000000")
         assert(json.toJson().contains("X009"))
+        JSONAssert.assertEquals(json.payload, payload(), JSONCompareMode.LENIENT)
+    }
+
+    private fun payload(): String {
+        val payload = """
+                {
+                  "sed" : "X009",
+                  "nav" : {
+                    "sak" : {
+                      "kontekst" : {
+                        "bruker" : {
+                          "mor" : null,
+                          "far" : null,
+                          "person" : {
+                            "pin" : null,
+                            "pinland" : null,
+                            "statsborgerskap" : null,
+                            "etternavn" : "æøå",
+                            "etternavnvedfoedsel" : null,
+                            "fornavn" : "æøå",
+                            "fornavnvedfoedsel" : null,
+                            "tidligerefornavn" : null,
+                            "tidligereetternavn" : null,
+                            "kjoenn" : "M",
+                            "foedested" : null,
+                            "foedselsdato" : "æøå",
+                            "sivilstand" : null,
+                            "relasjontilavdod" : null,
+                            "rolle" : null,
+                            "kontakt" : null,
+                            "doedsdato" : null
+                          },
+                          "adresse" : null,
+                          "arbeidsforhold" : null,
+                          "bank" : null
+                        },
+                        "refusjonskrav" : {
+                          "antallkrav" : "æøå",
+                          "id" : "æøå"
+                        },
+                        "arbeidsgiver" : {
+                          "identifikator" : [ {
+                            "id" : "æøå",
+                            "type" : "registrering"
+                          } ],
+                          "adresse" : {
+                            "gate" : "æøå",
+                            "bygning" : "æøå",
+                            "by" : "æøå",
+                            "postnummer" : "æøå",
+                            "postkode" : null,
+                            "region" : "æøå",
+                            "land" : "NO",
+                            "kontaktpersonadresse" : null,
+                            "datoforadresseendring" : null,
+                            "postadresse" : null,
+                            "startdato" : null,
+                            "type" : null,
+                            "annen" : null
+                          },
+                          "navn" : "æøå"
+                        }
+                      },
+                      "leggtilinstitusjon" : null,
+                      "paaminnelse" : {
+                        "svar" : null,
+                        "sende" : [ {
+                          "type" : "dokument",
+                          "detaljer" : "æøå"
+                        } ]
+                      }
+                    }
+                  },
+                  "sedGVer" : "4",
+                  "sedVer" : "2",
+                  "pensjon" : null
+                }
+            """.trimIndent()
+        return payload
     }
 
     @Test

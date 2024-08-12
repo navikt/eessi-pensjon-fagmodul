@@ -85,7 +85,6 @@ class PrefillController(
         return createBuc(buctype).also {
             gcpStorageService.lagre(it.caseId, GjennySak(gjennySak?.sakId!!, gjennySak.sakType))
         }
-
     }
 
     private fun addInstitution(request: ApiRequest, dataModel: PrefillDataModel, bucUtil: BucUtils) {
@@ -101,9 +100,6 @@ class PrefillController(
                 """.trimIndent())
 
                 if (x005docs.isEmpty()) {
-                    if (request.gjenny){
-                        request.euxCaseId?.let {gcpStorageService.lagre(request.euxCaseId, GjennySak(request.sakId!!, request.sakType!!)) }
-                    }
                     euxPrefillService.checkAndAddInstitution(dataModel, bucUtil, emptyList(), nyeInstitusjoner)
                 } else if (x005docs.firstOrNull { it.status == "empty"} != null ) {
                     val x005Liste = nyeInstitusjoner.map { nyeInstitusjonerMap ->
@@ -126,10 +122,10 @@ class PrefillController(
                 "rinaId: ${request.euxCaseId} " +
                 "bucType: ${request.buc} " +
                 "sedType: ${request.sed} " +
-                "aktoerId: ${request.aktoerId} " +
+                "aktoerId: ${request.aktoerId?.substring(0,5)} " +
                 "sakId: ${request.sakId} " +
-                "vedtak: ${request.vedtakId}" +
-                "institusjoner: ${request.institutions}",
+                "vedtak: ${request.vedtakId} " +
+                "institusjoner: ${request.institutions} " +
                 "gjenny: ${request.gjenny}"
         )
 
@@ -144,6 +140,10 @@ class PrefillController(
 
         if (bucUtil.getProcessDefinitionName() != request.buc.name) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Rina Buctype og request buctype må være samme")
+        }
+
+        if (request.gjenny){
+            request.euxCaseId?.let {gcpStorageService.lagre(request.euxCaseId, GjennySak(request.sakId!!, request.sakType!!)) }
         }
 
         logger.debug("bucUtil BucType: ${bucUtil.getBuc().processDefinitionName} apiRequest Buc: ${request.buc}")
@@ -196,7 +196,7 @@ class PrefillController(
             logger.info("******* Hent BUC sjekk om svarSed kan opprettes *******")
             BucUtils(euxInnhentingService.getBuc(dataModel.euxCaseID)).also { bucUtil ->
                 //sjekk for om deltakere alt er fjernet med x007 eller x100 sed
-                bucUtil.checkForParticipantsNoLongerActiveFromXSEDAsInstitusjonItem(dataModel.getInstitutionsList())
+//                bucUtil.checkForParticipantsNoLongerActiveFromXSEDAsInstitusjonItem(dataModel.getInstitutionsList())
                 //sjekk om en svarsed kan opprettes eller om den alt finnes
                 bucUtil.isChildDocumentByParentIdBeCreated(parentId, dataModel.sedType)
             }

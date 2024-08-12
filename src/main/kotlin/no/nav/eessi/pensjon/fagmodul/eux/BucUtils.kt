@@ -299,7 +299,7 @@ class BucUtils(private val buc: Buc) {
 
     fun getParticipants() = buc.participants ?: emptyList()
 
-    fun checkForParticipantsNoLongerActiveFromXSEDAsInstitusjonItem(list: List<InstitusjonItem>): Boolean {
+   /* fun checkForParticipantsNoLongerActiveFromXSEDAsInstitusjonItem(list: List<InstitusjonItem>): Boolean {
         val result = try {
             logger.debug("Sjekk på om newInstitusjonItem er dekativert ved mottatt x100")
             val newlistId = list.map { it.institution }
@@ -318,7 +318,7 @@ class BucUtils(private val buc: Buc) {
         }
         return true
     }
-
+*/
     fun getGyldigeOpprettSedAksjonList() : List<SedType> {
         val action = getRinaAksjon()
         return action.filter { it.operation == ActionOperation.Create }
