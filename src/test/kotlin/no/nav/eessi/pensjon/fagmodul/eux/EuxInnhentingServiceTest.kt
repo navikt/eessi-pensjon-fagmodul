@@ -366,6 +366,7 @@ internal class EuxInnhentingServiceTest {
         every { euxKlient.getSedOnBucByDocumentIdNotAsSystemUser(any(), any(), any()) } returns x009Json
 
         val json = euxInnhentingService.checkForX010AndAddX009(apiRequest, "20000000")
+        assert(json.toJson().contains("X009"))
         JSONAssert.assertEquals(json.payload, payload(), JSONCompareMode.LENIENT)
     }
 
