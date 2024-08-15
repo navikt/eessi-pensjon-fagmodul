@@ -225,11 +225,11 @@ class SedControllerTest {
 
         val mockP5000Rina = mapJsonToAny<P5000>(javaClass.getResource("/json/nav/P5000OppdateringRinaNav.json").readText())
 
-        val trygdetidberegning = mockP5000.p5000Pensjon?.trygdetid?.map { it.beregning }
-        val medlemskapsberegning = mockP5000.p5000Pensjon?.medlemskapboarbeid?.medlemskap?.map { it.beregning }
+        val trygdetidberegning = mockP5000.pensjon?.trygdetid?.map { it.beregning }
+        val medlemskapsberegning = mockP5000.pensjon?.medlemskapboarbeid?.medlemskap?.map { it.beregning }
 
-        val trygdetidberegningRina = mockP5000Rina.p5000Pensjon?.trygdetid?.map { it.beregning }
-        val medlemskapsberegningRina = mockP5000Rina.p5000Pensjon?.medlemskapboarbeid?.medlemskap?.map { it.beregning }
+        val trygdetidberegningRina = mockP5000Rina.pensjon?.trygdetid?.map { it.beregning }
+        val medlemskapsberegningRina = mockP5000Rina.pensjon?.medlemskapboarbeid?.medlemskap?.map { it.beregning }
 
         assertEquals(3, trygdetidberegning?.size)
         assertEquals(6, medlemskapsberegning?.size)
@@ -248,8 +248,8 @@ class SedControllerTest {
 
         val mockP5000 = SED.fromJsonToConcrete(json) as P5000
 
-        val trygdetidberegning = mockP5000.p5000Pensjon?.trygdetid?.map { it.beregning }
-        val medlemskapsberegning = mockP5000.p5000Pensjon?.medlemskapboarbeid?.medlemskap?.map { it.beregning }
+        val trygdetidberegning = mockP5000.pensjon?.trygdetid?.map { it.beregning }
+        val medlemskapsberegning = mockP5000.pensjon?.medlemskapboarbeid?.medlemskap?.map { it.beregning }
 
         assertEquals(3, trygdetidberegning?.size)
         assertEquals(6, medlemskapsberegning?.size)
