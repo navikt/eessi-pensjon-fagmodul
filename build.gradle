@@ -112,6 +112,14 @@ dependencies {
         exclude module: "mockito-core"
         exclude module: 'junit-vintage-engine'
     }
+
+    testImplementation("org.mock-server:mockserver-netty:5.15.0") {
+        exclude module: 'junit'
+    }
+}
+
+test {
+    systemProperty 'docker.host', 'unix:///var/run/docker.sock'
 }
 
 repositories {
