@@ -95,13 +95,13 @@ class SedController(
     //Ektend P5000 updateFromUI før den sendes og oppdateres i Rina.
     //punkt 5.2.1.3.1 i settes til "0" når gyldigperiode == "0"
     fun P5000.updateFromUI(): P5000 {
-        val pensjon = this.p5000Pensjon
+        val pensjon = this.pensjon
         val medlemskapboarbeid = pensjon?.medlemskapboarbeid
         val gyldigperiode = medlemskapboarbeid?.gyldigperiode
-        val erTom = medlemskapboarbeid?.medlemskap.let { it == null || it.isEmpty() }
+        val erTom = medlemskapboarbeid?.medlemskap.let { it.isNullOrEmpty() }
         if (gyldigperiode == "0" && erTom) {
            logger.info("P5000 setter 5.2.1.3.1 til 0 ")
-            return this.copy(p5000Pensjon = P5000Pensjon(
+            return this.copy(pensjon = P5000Pensjon(
                 trygdetid = listOf(MedlemskapItem(sum = TotalSum(aar = "0"))),
                 medlemskapboarbeid = medlemskapboarbeid,
                 separatP5000sendes = "0"
