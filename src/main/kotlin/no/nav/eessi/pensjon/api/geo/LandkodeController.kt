@@ -1,18 +1,16 @@
 package no.nav.eessi.pensjon.api.geo
 
+import com.google.api.client.json.Json
 import no.nav.eessi.pensjon.kodeverk.KodeverkClient
 import no.nav.security.token.support.core.api.Unprotected
 import org.slf4j.LoggerFactory
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 
 @Unprotected
 @RestController
 @RequestMapping("/landkoder")
-class LandkodeController(private val kodeverkClient: KodeverkClient) {
+class LandkodeController(private val kodeverkClient: KodeverkClient, private val kodeverkService: KodeverkService) {
 
     private val logger = LoggerFactory.getLogger(LandkodeController::class.java)
 
@@ -37,6 +35,12 @@ class LandkodeController(private val kodeverkClient: KodeverkClient) {
     fun getLandKoderAlpha2(@PathVariable("land3", required = true) land3: String): String? {
         logger.info("Henter Alpha2 landkode for Alpha3")
         return kodeverkClient.finnLandkode(land3)
+    }
+
+    @GetMapping("/rina")
+    fun landkoderAkseptertAvRina(
+        @RequestParam(required = false) format: String?): String? {
+        return kodeverkService.getLandkoderAkseptertAvRina(format)
     }
 }
 
