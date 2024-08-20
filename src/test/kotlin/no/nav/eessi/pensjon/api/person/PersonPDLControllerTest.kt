@@ -429,7 +429,7 @@ class PersonPDLControllerTest {
         val documentid = "23242342a234vd423452asddf"
 
         val doedsPerson = lagPerson(avdodfnr, fornavn = "AVDØD", etternavn = "HELTAVØD").copy(doedsfall = Doedsfall(LocalDate.of(2007, 6, 20), null, mockMeta()))
-        val sedP5000 = P5000(nav = Nav(bruker = Bruker(person = no.nav.eessi.pensjon.eux.model.sed.Person(pin = listOf(PinItem(land = "NO", identifikator = avdodfnr))))), p5000Pensjon = null)
+        val sedP5000 = P5000(nav = Nav(bruker = Bruker(person = no.nav.eessi.pensjon.eux.model.sed.Person(pin = listOf(PinItem(land = "NO", identifikator = avdodfnr))))), pensjon = null)
         val buc = Buc(id = rinanr, processDefinitionName = "P_BUC_06",
             actions = listOf(
                 ActionsItem(SedType.P5000, documentId = documentid, operation = ActionOperation.Send),

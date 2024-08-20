@@ -135,8 +135,8 @@ internal class EuxInnhentingServiceTest {
         assertEquals(SedType.P6000, result.type)
         result as P6000
 
-        assertEquals("234", result.p6000Pensjon?.vedtak?.firstOrNull()?.delvisstans?.utbetaling?.beloepBrutto)
-        assertEquals("BE", result.p6000Pensjon?.tilleggsinformasjon?.annen?.institusjonsadresse?.land)
+        assertEquals("234", result.pensjon?.vedtak?.firstOrNull()?.delvisstans?.utbetaling?.beloepBrutto)
+        assertEquals("BE", result.pensjon?.tilleggsinformasjon?.annen?.institusjonsadresse?.land)
     }
 
     @Test
