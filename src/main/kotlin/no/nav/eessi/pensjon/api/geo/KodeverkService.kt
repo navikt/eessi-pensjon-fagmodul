@@ -1,5 +1,6 @@
 package no.nav.eessi.pensjon.api.geo
 
+import no.nav.eessi.pensjon.utils.toJson
 import org.slf4j.LoggerFactory
 import org.springframework.http.*
 import org.springframework.stereotype.Service
@@ -21,8 +22,9 @@ class KodeverkService(private val euxNavIdentRestTemplate: RestTemplate) {
             }),
             String::class.java
         )
-        logger.debug("getLandkoderAkseptertAvRina response body: ${response.body}")
-
+        logger.debug("""getLandkoderAkseptertAvRina response body:
+            | url: $url
+            | response: ${response.toJson()}""".trimMargin())
         return response.body
     }
 }
