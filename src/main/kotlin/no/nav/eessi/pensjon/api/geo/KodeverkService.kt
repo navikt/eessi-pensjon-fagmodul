@@ -13,6 +13,7 @@ class KodeverkService(private val euxNavIdentRestTemplate: RestTemplate) {
 
     fun getLandkoderAkseptertAvRina(format: String? = null): String? {
         val url = "/cpi/landkoder/rina"
+        logger.debug("KodeverkService getLandkoderAkseptertAvRina: $url ")
 
         val response: ResponseEntity<String> = euxNavIdentRestTemplate.exchange(
             if (format != null) "$url?format=$format" else url,
