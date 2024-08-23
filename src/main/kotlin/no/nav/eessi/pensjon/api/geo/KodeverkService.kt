@@ -9,7 +9,7 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.server.ResponseStatusException
 
 @Service
-class KodeverkService(private val euxNavIdentRestTemplate: RestTemplate) {
+class KodeverkService(private val euxSystemRestTemplate: RestTemplate) {
 
     private val logger = LoggerFactory.getLogger(KodeverkService::class.java)
 
@@ -18,7 +18,7 @@ class KodeverkService(private val euxNavIdentRestTemplate: RestTemplate) {
         logger.debug("KodeverkService getLandkoderAkseptertAvRina: $url")
 
         return try {
-            val response = euxNavIdentRestTemplate.exchange(
+            val response = euxSystemRestTemplate.exchange(
                 url,
                 HttpMethod.GET,
                 HttpEntity<String>(HttpHeaders().apply {
@@ -26,7 +26,7 @@ class KodeverkService(private val euxNavIdentRestTemplate: RestTemplate) {
                 }),
                 String::class.java
             )
-            logger.debug("Hent landkode API, response: ${response.toJson()}".trimMargin())
+            logger.debug("Hent landkode API response: ${response.toJson()}".trimMargin())
             response.body
         } catch (e: HttpStatusCodeException) {
             logger.error("HttpStatusCodeException oppstod under henting av landkoder: ${e.message}")
