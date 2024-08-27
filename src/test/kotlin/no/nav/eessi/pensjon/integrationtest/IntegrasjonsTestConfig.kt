@@ -1,6 +1,7 @@
 package no.nav.eessi.pensjon.integrationtest
 
 import io.mockk.mockk
+import no.nav.eessi.pensjon.api.geo.KodeverkService
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.producer.ProducerConfig
@@ -63,5 +64,7 @@ class IntegrasjonsTestConfig(
     @Bean
     fun euxKlient(): EuxKlientAsSystemUser = EuxKlientAsSystemUser(euxNavIdentRestTemplate, euxSystemRestTemplate)
 
+    @Bean
+    fun kodeverkService(): KodeverkService = KodeverkService(euxNavIdentRestTemplate)
 
 }
