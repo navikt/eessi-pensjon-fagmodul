@@ -8,7 +8,7 @@ import org.springframework.web.client.RestTemplate
 class KodeverkService(private val euxNavIdentRestTemplate: RestTemplate) {
 
     fun getLandkoderAkseptertAvRina(format: String? = null): String? {
-        val url = "/cpi/landkoder/rina"
+        val url = "/landkoder/rina"
 
         val response: ResponseEntity<String> = euxNavIdentRestTemplate.exchange(
             if (format != null) "$url?format=$format" else url,
