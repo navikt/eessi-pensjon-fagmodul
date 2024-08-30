@@ -1,24 +1,38 @@
 package no.nav.eessi.pensjon.api.geo
 
+import no.nav.eessi.pensjon.utils.toJson
+import org.slf4j.LoggerFactory
 import org.springframework.http.*
 import org.springframework.stereotype.Service
+import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.client.RestTemplate
 
 @Service
 class KodeverkService(private val euxNavIdentRestTemplate: RestTemplate) {
 
+    private val logger = LoggerFactory.getLogger(KodeverkService::class.java)
+
     fun getLandkoderAkseptertAvRina(format: String? = null): String? {
-        val url = "/landkoder/rina"
+        val url = "/landkoder/rina${format?.let { "?format=$it" } ?: ""}"
+        logger.debug("KodeverkService getLandkoderAkseptertAvRina: $url")
 
-        val response: ResponseEntity<String> = euxNavIdentRestTemplate.exchange(
-            if (format != null) "$url?format=$format" else url,
-            HttpMethod.GET,
-            HttpEntity<String>(HttpHeaders().apply {
-                contentType = MediaType.APPLICATION_JSON
-            }),
-            String::class.java
-        )
-
-        return response.body
+        return try {
+            val response = euxNavIdentRestTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                HttpEntity<String>(HttpHeaders().apply {
+                    contentType = MediaType.APPLICATION_JSON
+                }),
+                String::class.java
+            )
+            logger.debug("Hent landkode API: response: ${response.toJson()}".trimMargin())
+            response.body
+        } catch (e: HttpStatusCodeException) {
+            logger.error("HttpStatusCodeException oppstod under henting av landkoder: ${e.message}")
+            throw RuntimeException(e)
+        } catch (e: Exception) {
+            logger.error("En feil oppstod under henting av landkoder: ${e.message}")
+            throw RuntimeException(e)
+        }
     }
 }
