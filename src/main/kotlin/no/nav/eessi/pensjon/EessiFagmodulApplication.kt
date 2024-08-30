@@ -23,4 +23,5 @@ class EessiFagmodulApplication
  */
 fun main(args: Array<String>) {
     runApplication<EessiFagmodulApplication>(*args)
+
 }
