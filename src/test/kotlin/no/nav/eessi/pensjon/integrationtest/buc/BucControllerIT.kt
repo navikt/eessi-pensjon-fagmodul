@@ -8,7 +8,12 @@ import io.mockk.every
 import io.mockk.verify
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
 import no.nav.eessi.pensjon.eux.klient.Rinasak
+import no.nav.eessi.pensjon.eux.model.BucType
+import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_02
+import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_03
 import no.nav.eessi.pensjon.eux.model.SedType
+import no.nav.eessi.pensjon.eux.model.SedType.P2100
+import no.nav.eessi.pensjon.eux.model.SedType.P4000
 import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
 import no.nav.eessi.pensjon.gcp.GcpStorageService
@@ -33,12 +38,20 @@ import org.springframework.http.ResponseEntity
 import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.web.client.RestTemplate
 import java.time.LocalDate
 import java.time.Month
+
+private const val NPID = "01220049651"
+private const val SAKNR = "1203201322"
+private const val AVDOD_FNR = "01010100001"
+private const val VEDTAKID = "2312123123123"
+private const val GJENLEVENDE_FNR = "1234567890000"
+private const val GJENLEV_AKTOERID = "1123123123123123"
+
+private val lastupdate = LocalDate.of(2020, Month.AUGUST, 7).toString()
 
 @SpringBootTest(classes = [IntegrasjonsTestConfig::class, UnsecuredWebMvcTestLauncher::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(profiles = ["unsecured-webmvctest"])
@@ -77,30 +90,24 @@ internal class BucControllerIT: BucBaseTest() {
     private lateinit var mockMvc: MockMvc
 
     @Test
-    fun `Gitt det ikke finnes en P_BUC_02 uten noen SED med avdød så skal det vies et tomt resultat`() {
-
-        val gjenlevendeFnr = "1234567890000"
-        val gjenlevendeAktoerId = "1123123123123123"
-        val avdodFnr = "01010100001"
-        val saksNr =  null
-
+    fun `Gitt det ikke finnes en P_BUC_02 med SED der avdød ikke finnes så skal det returneres et tomt resultat`() {
         //gjenlevende aktoerid -> gjenlevendefnr
-        every { personService.hentIdent(IdentGruppe.FOLKEREGISTERIDENT, AktoerId(gjenlevendeAktoerId)) }returns NorskIdent(gjenlevendeFnr)
+        every { personService.hentIdent(IdentGruppe.FOLKEREGISTERIDENT, AktoerId(GJENLEV_AKTOERID)) }returns NorskIdent(GJENLEVENDE_FNR)
 
-        val rinaBuc02url = dummyRinasakAvdodUrl(avdodFnr)
+        val rinaBuc02url = dummyRinasakAvdodUrl(AVDOD_FNR)
         every { euxNavIdentRestTemplate.exchange( rinaBuc02url.toUriString(), HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(emptyList<Rinasak>().toJson())
 
         //gjenlevende rinasak
-        val rinaGjenlevUrl = dummyRinasakUrl(avdodFnr)
+        val rinaGjenlevUrl = dummyRinasakUrl(AVDOD_FNR)
         every { euxNavIdentRestTemplate.exchange( rinaGjenlevUrl.toUriString(), HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( emptyList<Rinasak>().toJson())
 
         //saf (vedlegg meta) gjenlevende
-        val httpEntity = dummyHeader(dummySafReqeust(gjenlevendeAktoerId))
+        val httpEntity = dummyHeader(dummySafReqeust(GJENLEV_AKTOERID))
 
         every { restSafTemplate.exchange(eq("/"), HttpMethod.POST, httpEntity, String::class.java) } returns ResponseEntity.ok().body(  dummySafMetaResponse() )
 
 
-        val result = mockMvc.perform(get("/buc/rinasaker/$gjenlevendeAktoerId/saknr/$saksNr/avdod/$avdodFnr")
+        val result = mockMvc.perform(get("/buc/rinasaker/$GJENLEV_AKTOERID/saknr/null/avdod/$AVDOD_FNR")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
@@ -112,35 +119,28 @@ internal class BucControllerIT: BucBaseTest() {
 
     @Test
     fun `Gitt det finnes gjenlevende og en avdød på P_BUC_02 så skal det hentes og returneres en liste av buc`() {
-
         val sedjson = javaClass.getResource("/json/nav/P2100-PinNO-NAV.json")!!.readText()
 
-        val gjenlevendeFnr = "1234567890000"
-        val gjenlevendeAktoerId = "1123123123123123"
-        val avdodFnr = "01010100001"
-        val vedtakid = "2312123123123"
-        val saknr = "1203201322"
+        every { pensjonsinformasjonClient.hentAltPaaVedtak(VEDTAKID) } returns mockVedtak(AVDOD_FNR, GJENLEV_AKTOERID)
 
-        every { pensjonsinformasjonClient.hentAltPaaVedtak(vedtakid) } returns mockVedtak(avdodFnr, gjenlevendeAktoerId)
         //gjenlevende aktoerid -> gjenlevendefnr
-        every { personService.hentIdent(IdentGruppe.FOLKEREGISTERIDENT, AktoerId(gjenlevendeAktoerId)) } returns NorskIdent(gjenlevendeFnr)
+        every { personService.hentIdent(IdentGruppe.FOLKEREGISTERIDENT, AktoerId(GJENLEV_AKTOERID)) } returns NorskIdent(GJENLEVENDE_FNR)
 
         //buc02 - avdød rinasak
         val rinaSakerBuc02 = listOf(dummyRinasak("1010", "P_BUC_02"), dummyRinasak("9859667", "P_BUC_01"))
-        val rinaBuc02url = dummyRinasakUrl(avdodFnr)
-
+        val rinaBuc02url = dummyRinasakUrl(AVDOD_FNR)
 
         every { euxNavIdentRestTemplate.exchange( rinaBuc02url.toUriString(), HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(rinaSakerBuc02.toJson())
 
         //saf (vedlegg meta) gjenlevende
-        val httpEntity = dummyHeader(dummySafReqeust(gjenlevendeAktoerId))
+        val httpEntity = dummyHeader(dummySafReqeust(GJENLEV_AKTOERID))
         every { restSafTemplate.exchange("/", HttpMethod.POST, httpEntity, String::class.java) } returns ResponseEntity.ok().body(  dummySafMetaResponse() )
         //buc02 sed
         val rinabucdocumentidpath = "/buc/1010/sed/1"
         every { euxNavIdentRestTemplate.exchange( rinabucdocumentidpath, HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( sedjson )
         every { gcpStorageService.eksisterer(any()) } returns false
 
-        val result = mockMvc.perform(get("/buc/rinasaker/$gjenlevendeAktoerId/saknr/$saknr/vedtak/$vedtakid")
+        val result = mockMvc.perform(get("/buc/rinasaker/$GJENLEV_AKTOERID/saknr/$SAKNR/vedtak/$VEDTAKID")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
@@ -160,36 +160,27 @@ internal class BucControllerIT: BucBaseTest() {
 
         @Test
         fun `Gitt det finnes gjenlevende og en avdød på buc02 og fra SAF så skal det hentes og lever en liste av buc`() {
-            val sedjson = javaClass.getResource("/json/nav/P2100-PinNO-NAV.json").readText()
+            val sedjson = javaClass.getResource("/json/nav/P2100-PinNO-NAV.json")!!.readText()
 
-            val gjenlevendeFnr = "1234567890000"
-            val gjenlevendeAktoerId = "1123123123123123"
-            val avdodFnr = "01010100001"
-            val vedtakid = "2312123123123"
-            val saknr = "1203201322"
-
-            every { pensjonsinformasjonClient.hentAltPaaVedtak(vedtakid) } returns mockVedtak(avdodFnr, gjenlevendeAktoerId)
+            every { pensjonsinformasjonClient.hentAltPaaVedtak(VEDTAKID) } returns mockVedtak(AVDOD_FNR, GJENLEV_AKTOERID)
             //gjenlevende aktoerid -> gjenlevendefnr
-            every { personService.hentIdent(IdentGruppe.FOLKEREGISTERIDENT, AktoerId(gjenlevendeAktoerId)) } returns NorskIdent(gjenlevendeFnr)
+            every { personService.hentIdent(IdentGruppe.FOLKEREGISTERIDENT, AktoerId(GJENLEV_AKTOERID)) } returns NorskIdent(GJENLEVENDE_FNR)
             //buc02 - avdød rinasak
             val rinaSakerBuc02 = listOf(dummyRinasak("1010", "P_BUC_02"))
-            val rinaBuc02url = dummyRinasakAvdodUrl(avdodFnr)
+            val rinaBuc02url = dummyRinasakAvdodUrl(AVDOD_FNR)
             every { euxNavIdentRestTemplate.exchange( rinaBuc02url.toUriString(), HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(rinaSakerBuc02.toJson())
-
-            //dummy date
-            val lastupdate = LocalDate.of(2020, Month.AUGUST, 7).toString()
 
             //buc02
             val docItems = listOf(
-                DocumentsItem(id = "1", creationDate = lastupdate, lastUpdate = lastupdate, status = "sent", type = SedType.P2100, direction = "OUT"),
-                DocumentsItem(id = "2", creationDate = lastupdate,  lastUpdate = lastupdate, status = "draft", type = SedType.P4000, direction = "OUT"))
+                documentsItem("1", "sent", P2100),
+                documentsItem("2", "draft", P4000))
             val buc02 = Buc(id = "1010", internationalId = "1000100010001000", processDefinitionName = "P_BUC_02", startDate = lastupdate, lastUpdate = lastupdate,  documents = docItems)
 
             val rinabucpath = "/buc/1010"
             every { euxNavIdentRestTemplate.exchange( rinabucpath, HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( buc02.toJson() )
 
             //saf (vedlegg meta) gjenlevende
-            val httpEntity = dummyHeader(dummySafReqeust(gjenlevendeAktoerId))
+            val httpEntity = dummyHeader(dummySafReqeust(GJENLEV_AKTOERID))
             every { restSafTemplate.exchange(eq("/"), eq(HttpMethod.POST), eq(httpEntity), eq(String::class.java)) } returns ResponseEntity.ok().body(  dummySafMetaResponseMedRina("1010"))
 
             val rinaSafUrl = dummyRinasakUrl(euxCaseId =  "1010")
@@ -202,18 +193,17 @@ internal class BucControllerIT: BucBaseTest() {
             every { euxNavIdentRestTemplate.exchange( "/rinasaker?fødselsnummer=01010100001&status=\"open\"", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(emptyList<Rinasak>().toJson())
             every { gcpStorageService.eksisterer(any()) } returns false
 
-            val response = mockMvc.perform(get("/buc/rinasaker/$gjenlevendeAktoerId/saknr/$saknr/vedtak/$vedtakid")
+            val response = mockMvc.perform(get("/buc/rinasaker/$GJENLEV_AKTOERID/saknr/$SAKNR/vedtak/$VEDTAKID")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andReturn().response.contentAsString
 
-
             val bucViewResponse = """
                 [{"euxCaseId":"1010","buctype":"P_BUC_02","aktoerId":"1123123123123123","saknr":"1203201322","avdodFnr":"01010100001","kilde":"SAF","internationalId":"1000100010001000"}]
             """.trimIndent()
 
-            assertTrue {response.contains(avdodFnr)}
+            assertTrue {response.contains(AVDOD_FNR)}
             JSONAssert.assertEquals(response, bucViewResponse, false)
 
             verify (exactly = 1) { euxNavIdentRestTemplate.exchange("/rinasaker?fødselsnummer=01010100001&status=\"open\"", HttpMethod.GET, null, String::class.java) }
@@ -223,34 +213,25 @@ internal class BucControllerIT: BucBaseTest() {
 
     @Test
     fun `Gitt det finnes gjenlevende og en avdød kun fra SAF så skal det hentes og lever en liste av buc med subject`() {
-        val sedjson = javaClass.getResource("/json/nav/P2100-PinNO-NAV.json").readText()
+        val sedjson = javaClass.getResource("/json/nav/P2100-PinNO-NAV.json")!!.readText()
 
-        val gjenlevendeFnr = "1234567890000"
-        val gjenlevendeAktoerId = "1123123123123123"
-        val avdodFnr = "01010100001"
-        val vedtakid = "2312123123123"
-        val saknr = "1203201322"
-
-        every { pensjonsinformasjonClient.hentAltPaaVedtak(vedtakid) } returns mockVedtak(avdodFnr, gjenlevendeAktoerId)
+        every { pensjonsinformasjonClient.hentAltPaaVedtak(VEDTAKID) } returns mockVedtak(AVDOD_FNR, GJENLEV_AKTOERID)
 
         //gjenlevende aktoerid -> gjenlevendefnr
-        every { personService.hentIdent(IdentGruppe.FOLKEREGISTERIDENT, AktoerId(gjenlevendeAktoerId)) } returns NorskIdent(gjenlevendeFnr)
+        every { personService.hentIdent(IdentGruppe.FOLKEREGISTERIDENT, AktoerId(GJENLEV_AKTOERID)) } returns NorskIdent(GJENLEVENDE_FNR)
 
         //buc02 - avdød rinasak
-        val rinaBuc02url = dummyRinasakAvdodUrl(avdodFnr)
+        val rinaBuc02url = dummyRinasakAvdodUrl(AVDOD_FNR)
         every { euxNavIdentRestTemplate.exchange( eq(rinaBuc02url.toUriString()), eq(HttpMethod.GET), null, eq(String::class.java)) } returns ResponseEntity.ok().body(emptyList<Rinasak>().toJson())
 
         //gjenlevende rinasak
-        val rinaGjenlevUrl = dummyRinasakUrl(gjenlevendeFnr)
+        val rinaGjenlevUrl = dummyRinasakUrl(GJENLEVENDE_FNR)
         every { euxNavIdentRestTemplate.exchange(rinaGjenlevUrl.toUriString(), HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( emptyList<Rinasak>().toJson())
-
-        //dummy date
-        val lastupdate = LocalDate.of(2020, Month.AUGUST, 7).toString()
 
         //buc02
         val docItems = listOf(
-            DocumentsItem(id = "1", creationDate = lastupdate, lastUpdate = lastupdate, status = "sent", type = SedType.P2100, direction = "OUT", receiveDate = null),
-            DocumentsItem(id = "2", creationDate = lastupdate,  lastUpdate = lastupdate, status = "draft", type = SedType.P4000, direction = "OUT", receiveDate = null)
+            documentsItem("1", "sent", P2100),
+            documentsItem("2", "draft", P4000),
         )
         val buc02 = Buc(id = "1010", internationalId = "1000100010001000", processDefinitionName = "P_BUC_02", startDate = lastupdate, lastUpdate = lastupdate,  documents = docItems)
 
@@ -258,7 +239,7 @@ internal class BucControllerIT: BucBaseTest() {
         every { euxNavIdentRestTemplate.exchange( rinabucpath, HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( buc02.toJson() )
 
         //saf (vedlegg meta) gjenlevende
-        val httpEntity = dummyHeader(dummySafReqeust(gjenlevendeAktoerId))
+        val httpEntity = dummyHeader(dummySafReqeust(GJENLEV_AKTOERID))
 
         every { restSafTemplate.exchange(eq("/"), eq(HttpMethod.POST), eq(httpEntity), eq(String::class.java)) } returns  ResponseEntity.ok().body(  dummySafMetaResponseMedRina("1010") )
 
@@ -269,7 +250,7 @@ internal class BucControllerIT: BucBaseTest() {
         every { euxNavIdentRestTemplate.exchange( "/rinasaker?fødselsnummer=01010100001&status=\"open\"", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(emptyList<Rinasak>().toJson())
         every { gcpStorageService.eksisterer(any()) } returns false
 
-        val result = mockMvc.perform(get("/buc/rinasaker/$gjenlevendeAktoerId/saknr/$saknr/vedtak/$vedtakid")
+        val result = mockMvc.perform(get("/buc/rinasaker/$GJENLEV_AKTOERID/saknr/$SAKNR/vedtak/$VEDTAKID")
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
@@ -283,7 +264,7 @@ internal class BucControllerIT: BucBaseTest() {
         verify (exactly = 1) { euxNavIdentRestTemplate.exchange("/rinasaker?fødselsnummer=01010100001&status=\"open\"", HttpMethod.GET, null, String::class.java) }
         verify (exactly = 1) { euxNavIdentRestTemplate.exchange("/buc/1010", HttpMethod.GET, null, String::class.java) }
         verify (exactly = 1) { restSafTemplate.exchange("/", HttpMethod.POST, httpEntity, String::class.java) }
-        assertTrue { response.contains(avdodFnr) }
+        assertTrue { response.contains(AVDOD_FNR) }
         JSONAssert.assertEquals(response, bucViewResponse, false)
 
     }
@@ -291,15 +272,10 @@ internal class BucControllerIT: BucBaseTest() {
     @Test
     fun `Gitt det finnes en gjenlevende og avdød hvor buc05 buc06 og buc10 finnes Så skal det returneres en liste av buc`() {
 
-        val gjenlevendeFnr = "1234567890000"
-        val gjenlevendeAktoerId = "1123123123123123"
-        val avdodFnr = "01010100001"
-        val vedtakid = "2312123123123"
-
-        every { pensjonsinformasjonClient.hentAltPaaVedtak(vedtakid)  } returns mockVedtak(avdodFnr, gjenlevendeAktoerId)
+        every { pensjonsinformasjonClient.hentAltPaaVedtak(VEDTAKID)  } returns mockVedtak(AVDOD_FNR, GJENLEV_AKTOERID)
 
         //gjenlevende aktoerid -> gjenlevendefnr
-        every {personService.hentIdent(IdentGruppe.FOLKEREGISTERIDENT, AktoerId(gjenlevendeAktoerId))  } returns NorskIdent(gjenlevendeFnr)
+        every {personService.hentIdent(IdentGruppe.FOLKEREGISTERIDENT, AktoerId(GJENLEV_AKTOERID))  } returns NorskIdent(GJENLEVENDE_FNR)
 
         //buc05, 06 og 10 avdød rinasaker
         val rinaSakerBuc05 = listOf(
@@ -311,7 +287,7 @@ internal class BucControllerIT: BucBaseTest() {
         every { euxNavIdentRestTemplate.exchange( eq("/rinasaker?fødselsnummer=01010100001&status=\"open\""), eq(HttpMethod.GET), null, eq(String::class.java))  } returns ResponseEntity.ok().body( rinaSakerBuc05.toJson())
 
         //saf (vedlegg meta) gjenlevende
-        val httpEntity = dummyHeader(dummySafReqeust(gjenlevendeAktoerId))
+        val httpEntity = dummyHeader(dummySafReqeust(GJENLEV_AKTOERID))
         every { restSafTemplate.exchange(eq("/"), eq(HttpMethod.POST), eq(httpEntity), eq(String::class.java)) } returns ResponseEntity.ok().body(  dummySafMetaResponseMedRina("2020") )
         every { gcpStorageService.eksisterer(any()) } returns false
 
@@ -324,7 +300,7 @@ internal class BucControllerIT: BucBaseTest() {
 
         """.trimIndent()
 
-        val result = mockMvc.perform(get("/buc/rinasaker/$gjenlevendeAktoerId/saknr/2020/vedtak/$vedtakid")
+        val result = mockMvc.perform(get("/buc/rinasaker/$GJENLEV_AKTOERID/saknr/2020/vedtak/$VEDTAKID")
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
@@ -340,21 +316,19 @@ internal class BucControllerIT: BucBaseTest() {
 
     @Test
     fun `Hent mulige rinasaker for fnr fra euxrina`() {
-        val fnr = "1234567890000"
-        val aktoerId = "1123123123123123"
         val pesyssaknr = "100001000"
 
-        every { personService.hentIdent(IdentGruppe.FOLKEREGISTERIDENT, AktoerId(aktoerId)) } returns NorskIdent(fnr)
+        every { personService.hentIdent(IdentGruppe.FOLKEREGISTERIDENT, AktoerId(GJENLEV_AKTOERID)) } returns NorskIdent(GJENLEVENDE_FNR)
 
         every { euxNavIdentRestTemplate.exchange("/rinasaker?fødselsnummer=1234567890000&status=\"open\"", HttpMethod.GET, null, String::class.java) } .answers( FunctionAnswer { Thread.sleep(250)
             ResponseEntity.ok().body(listOf(dummyRinasak("5195021", "P_BUC_03"), dummyRinasak("5922554", "P_BUC_03") ).toJson() )
         })
-        every { euxNavIdentRestTemplate.exchange( "/buc/5922554", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "5922554", processDefinitionName = "P_BUC_03").toJson() )
-        every { euxNavIdentRestTemplate.exchange( "/buc/5195021", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "5195021", processDefinitionName = "P_BUC_03").toJson() )
+        every { euxNavIdentRestTemplate.exchange( "/buc/5922554", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( buc("5922554", documents = null, internasjonalId = null) )
+        every { euxNavIdentRestTemplate.exchange( "/buc/5195021", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( buc("5195021", documents = null, internasjonalId = null) )
         every { gcpStorageService.eksisterer(any()) } returns false
 
         val result = mockMvc.perform(
-                get("/buc/rinasaker/euxrina/$aktoerId/pesyssak/$pesyssaknr")
+                get("/buc/rinasaker/euxrina/$GJENLEV_AKTOERID/pesyssak/$pesyssaknr")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
@@ -373,22 +347,28 @@ internal class BucControllerIT: BucBaseTest() {
 
     @Test
     fun `Hent mulige rinasaker for NPID fra euxrina`() {
-        val npid = "01220049651"
-        val aktoerId = "1123123123123123"
         val pesyssaknr = "100001000"
 
-        every { personService.hentIdent(IdentGruppe.FOLKEREGISTERIDENT, AktoerId(aktoerId)) } returns NorskIdent("")
-        every { personService.hentIdent(IdentGruppe.NPID, AktoerId(aktoerId)) } returns Npid(npid)
+        every { personService.hentIdent(IdentGruppe.FOLKEREGISTERIDENT, AktoerId(GJENLEV_AKTOERID)) } returns NorskIdent("")
+        every { personService.hentIdent(IdentGruppe.NPID, AktoerId(GJENLEV_AKTOERID)) } returns Npid(NPID)
 
         every { euxNavIdentRestTemplate.exchange("/rinasaker?fødselsnummer=01220049651&status=\"open\"", HttpMethod.GET, null, String::class.java) } .answers( FunctionAnswer { Thread.sleep(250)
             ResponseEntity.ok().body(listOf(dummyRinasak("5195021", "P_BUC_03"), dummyRinasak("5922554", "P_BUC_03") ).toJson() ) })
 
-        every { euxNavIdentRestTemplate.exchange( "/buc/5922554", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "5922554", processDefinitionName = "P_BUC_03").toJson() )
-        every { euxNavIdentRestTemplate.exchange( "/buc/5195021", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "5195021", processDefinitionName = "P_BUC_03").toJson() )
+        every { euxNavIdentRestTemplate.exchange( "/buc/5922554", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( buc(
+            "5922554",
+            documents = null,
+            internasjonalId = null
+        ) )
+        every { euxNavIdentRestTemplate.exchange( "/buc/5195021", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( buc(
+            "5195021",
+            documents = null,
+            internasjonalId = null
+        ) )
         every { gcpStorageService.eksisterer(any()) } returns false
 
         val result = mockMvc.perform(
-            get("/buc/rinasaker/euxrina/$aktoerId/pesyssak/$pesyssaknr")
+            get("/buc/rinasaker/euxrina/$GJENLEV_AKTOERID/pesyssak/$pesyssaknr")
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
@@ -406,25 +386,23 @@ internal class BucControllerIT: BucBaseTest() {
 
     @Test
     fun `Hent mulige rinasaker for NPID fra euxrina uten å vise gjenny saker`() {
-        val npid = "01220049651"
-        val aktoerId = "1123123123123123"
         val pesyssaknr = "100001000"
 
-        every { personService.hentIdent(IdentGruppe.FOLKEREGISTERIDENT, AktoerId(aktoerId)) } returns NorskIdent("")
-        every { personService.hentIdent(IdentGruppe.NPID, AktoerId(aktoerId)) } returns Npid(npid)
+        every { personService.hentIdent(IdentGruppe.FOLKEREGISTERIDENT, AktoerId(GJENLEV_AKTOERID)) } returns NorskIdent("")
+        every { personService.hentIdent(IdentGruppe.NPID, AktoerId(GJENLEV_AKTOERID)) } returns Npid(NPID)
 
         every { euxNavIdentRestTemplate.exchange("/rinasaker?fødselsnummer=01220049651&status=\"open\"", HttpMethod.GET, null, String::class.java) } .answers( FunctionAnswer { Thread.sleep(250)
             ResponseEntity.ok().body(listOf(dummyRinasak("5195021", "P_BUC_03"), dummyRinasak("5922554", "P_BUC_03"), dummyRinasak("000001", "P_BUC_02") ).toJson() ) })
 
-        every { euxNavIdentRestTemplate.exchange( "/buc/5922554", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "5922554", processDefinitionName = "P_BUC_03").toJson() )
-        every { euxNavIdentRestTemplate.exchange( "/buc/5195021", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "5195021", processDefinitionName = "P_BUC_03").toJson() )
-        every { euxNavIdentRestTemplate.exchange( "/buc/000001", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "000001", processDefinitionName = "P_BUC_02").toJson() )
+        every { euxNavIdentRestTemplate.exchange( "/buc/5922554", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( buc("592254", documents = null, internasjonalId = null) )
+        every { euxNavIdentRestTemplate.exchange( "/buc/5195021", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( buc("5195021", documents = null, internasjonalId = null) )
+        every { euxNavIdentRestTemplate.exchange( "/buc/000001", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( buc("000001", P_BUC_02, null, null) )
         every { gcpStorageService.eksisterer("5922554") } returns false
         every { gcpStorageService.eksisterer("5195021") } returns false
         every { gcpStorageService.eksisterer("000001") } returns true
 
         val result = mockMvc.perform(
-            get("/buc/rinasaker/euxrina/$aktoerId/pesyssak/$pesyssaknr")
+            get("/buc/rinasaker/euxrina/$GJENLEV_AKTOERID/pesyssak/$pesyssaknr")
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
@@ -439,30 +417,28 @@ internal class BucControllerIT: BucBaseTest() {
 
         JSONAssert.assertEquals(expected, response, true)
     }
+    private fun documentsItem(id: String, status: String, sedType: SedType) =
+        DocumentsItem(
+            id = id,
+            creationDate = lastupdate,
+            lastUpdate = lastupdate,
+            status = status,
+            type = sedType,
+            direction = "OUT",
+            receiveDate = null
+        )
 
-//    @Test
-//    fun `Hva skjer når vi forsøker å hente saker for et fnr som ikke finnes`() {
-//        val aktoerId = "1123123123123123"
-//        val pesyssaknr = "100001000"
-//
-//        every { personService.hentIdent(IdentType.NorskIdent, AktoerId(aktoerId)) } returns NorskIdent("")
-//        every { personService.hentIdent(IdentType.Npid, AktoerId(aktoerId)) } returns Npid("")
-//
-//        every { euxNavIdentRestTemplate.exchange("/rinasaker?fødselsnummer=&status=\"open\"", HttpMethod.GET, null, String::class.java) } .throws(HttpClientErrorException(HttpStatus.NOT_FOUND))
-//
-//        val result = mockMvc.perform(
-//            MockMvcRequestBuilders.get("/buc/rinasaker/euxrina/$aktoerId/pesyssak/$pesyssaknr")
-//                .contentType(MediaType.APPLICATION_JSON))
-//            .andExpect(MockMvcResultMatchers.status().is4xxClientError)
-//            .andReturn()
-//
-//        val response = result.response.getContentAsString(charset("UTF-8"))
-//        println(response)
-//
-//        JSONAssert.assertEquals(response, response, true)
-//
-//    }
-
-
+    private fun buc(
+        id: String?,
+        bucType: BucType? = P_BUC_03,
+        documents: List<DocumentsItem>?,
+        internasjonalId: String?
+    ) =
+        Buc(
+            id,
+            bucType.toString(),
+            documents = documents,
+            internationalId = internasjonalId
+        ).toJson()
 
 }
