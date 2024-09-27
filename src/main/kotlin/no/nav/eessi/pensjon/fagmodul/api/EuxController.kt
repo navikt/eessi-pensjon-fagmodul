@@ -12,11 +12,11 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.client.HttpStatusCodeException
+import org.springframework.web.server.ResponseStatusException
+
+
 
 @RestController
 @RequestMapping("/eux")
@@ -26,29 +26,29 @@ class EuxController(
 ) {
     private val logger = LoggerFactory.getLogger(EuxController::class.java)
 
-    private lateinit var paakobledeland: MetricsHelper.Metric
+    private lateinit var rinaUrl: MetricsHelper.Metric
+    private lateinit var sedsendt: MetricsHelper.Metric
     private lateinit var euxKodeverk: MetricsHelper.Metric
+    private lateinit var paakobledeland: MetricsHelper.Metric
     private lateinit var euxKodeverkLand: MetricsHelper.Metric
     private lateinit var euxInstitusjoner: MetricsHelper.Metric
-    private lateinit var rinaUrl: MetricsHelper.Metric
+
     init {
-            paakobledeland = metricsHelper.init("paakobledeland", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
+            rinaUrl = metricsHelper.init("RinaUrl")
+            sedsendt = metricsHelper.init("sedsendt")
             euxKodeverk = metricsHelper.init("euxKodeverk", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
+            paakobledeland = metricsHelper.init("paakobledeland", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
             euxKodeverkLand = metricsHelper.init("euxKodeverkLand", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
             euxInstitusjoner  = metricsHelper.init("euxInstitusjoner", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
-            rinaUrl = metricsHelper.init("RinaUrl")
     }
 
-
     val backupList = listOf("AT", "BE", "BG", "CH", "CZ", "DE", "DK", "EE", "ES", "FI", "FR", "HR", "HU", "IE", "IS", "IT", "LI", "LT", "LU", "LV", "MT", "NL", "NO", "PL", "PT", "RO", "SE", "SI", "SK", "UK")
-
 
     @Unprotected
     @GetMapping("/rinaurl")
     fun getRinaUrl2020(): ResponseEntity<Map<String, String>> = rinaUrl.measure {
         return@measure ResponseEntity.ok(mapOf("rinaUrl" to euxInnhentingService.getRinaUrl()))
     }
-
 
     @Protected
     @GetMapping("/countries/{buctype}")
@@ -83,5 +83,29 @@ class EuxController(
             return@measure euxInnhentingService.getInstitutions(buctype, landkode)
         }
     }
+
+    @Protected
+    @PostMapping("/buc/{rinasakId}/sed/{dokumentId}/send")
+    fun sendSeden(
+        @PathVariable("rinasakId", required = true) rinaSakId: String,
+        @PathVariable("dokumentId", required = false) dokumentId: String
+    ): ResponseEntity<String> {
+        return sedsendt.measure {
+            return@measure try {
+                val response = euxInnhentingService.sendSed(rinaSakId, dokumentId)
+                if (response) {
+                    logger.info("Sed er sendt til Rina")
+                    ResponseEntity.ok().body("Sed er sendt til Rina")
+                } else {
+                    logger.error("Sed ble ikke sendt til Rina")
+                    ResponseEntity.badRequest().body("Sed ble IKKE sendt til Rina")
+                }
+            } catch (ex: Exception) {
+                logger.error("Sed ble ikke sendt til Rina")
+                ResponseEntity.badRequest().body("Sed ble IKKE sendt til Rina")
+            }
+        }
+    }
+
 
 }
