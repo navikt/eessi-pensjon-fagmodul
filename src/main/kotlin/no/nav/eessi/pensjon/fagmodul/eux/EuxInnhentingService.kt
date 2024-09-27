@@ -525,6 +525,12 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
             request.copy(payload = x009.toJson())
         } else request
     }
+
+    fun sendSed(rinaSakId: String, dokumentId: String): Boolean {
+        logger.info("Sender sed til Rina: $rinaSakId, sedId: $dokumentId")
+        return euxKlient.sendSed(rinaSakId, dokumentId)
+    }
+
     /**
      * Utvalgt informasjon om en rinasak/Buc.
      */
