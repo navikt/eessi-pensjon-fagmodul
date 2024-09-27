@@ -4,9 +4,12 @@ package no.nav.eessi.pensjon.fagmodul.api
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.SpyK
+import io.mockk.mockk
+import io.mockk.verify
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_06
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
+import no.nav.eessi.pensjon.fagmodul.eux.EuxKlientTest
 import no.nav.eessi.pensjon.shared.api.InstitusjonItem
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -49,12 +52,21 @@ class EuxControllerTest {
 
     @Test
     fun `gitt en liste over landkoder over instusjoner fra eux med liste så retureres den`() {
-        every { mockEuxInnhentingService.getInstitutions(any(), "") } returns listOf(InstitusjonItem("NO", "31231","3123"))
 
         val result = euxController.getPaakobledeland(P_BUC_06)
 
         val list = mapJsonToAny<List<String>>(result.body!!)
         assertEquals(1, list.size)
+    }
+
+    @Test
+    fun `Gitt at vi skal sende en P2000 saa returneres true etter sending`() {
+        every { mockEuxInnhentingService.sendSed(any(), any()) } returns true
+
+        val result = euxController.sendSeden("12345", "P2000dokid")
+
+        assertEquals(true, result.statusCode.is2xxSuccessful)
+
     }
 }
 
