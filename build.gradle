@@ -48,7 +48,7 @@ dependencies {
     // Logging
     implementation("net.logstash.logback:logstash-logback-encoder:8.0")
     configurations { all*.exclude group: 'commons-logging', module: 'commons-logging' }
-    implementation("org.slf4j:jcl-over-slf4j:2.0.13")
+    implementation("org.slf4j:jcl-over-slf4j:2.0.16")
 
     // auditlogger syslog la stå i 1.0.0 / 0.9.30
     implementation("com.papertrailapp:logback-syslog4j:1.0.0")
