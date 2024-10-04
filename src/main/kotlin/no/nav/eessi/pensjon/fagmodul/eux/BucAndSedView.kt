@@ -27,7 +27,8 @@ data class BucAndSedView(
     val seds: List<DocumentsItem>? = null,
     val error: String? = null,
     val readOnly: Boolean? = false,
-    val subject: BucAndSedSubject? = null
+    val subject: BucAndSedSubject? = null,
+    val cdm: String? = null
 ) {
     override fun toString(): String {
         return toJson()
@@ -76,7 +77,8 @@ data class BucAndSedView(
                     )
                 },
                 seds = bucUtil.getAllDocuments(),
-                subject = subject
+                subject = subject,
+                cdm = buc.processDefinitionVersion
             )
         }
 
