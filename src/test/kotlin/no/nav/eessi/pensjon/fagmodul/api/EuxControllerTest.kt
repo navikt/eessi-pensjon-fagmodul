@@ -69,7 +69,7 @@ class EuxControllerTest {
     fun `Gitt at vi skal sende en P2000 saa returneres true etter sending`() {
         val euxCaseId = "111"
         val dokumentId = "222"
-        val path = "/buc/{$euxCaseId}/sed/{$dokumentId}/send?ventePaAksjon=false"
+        val path = "/buc/$euxCaseId/sed/$dokumentId/send?ventePaAksjon=false"
         every {
             euxRestTemplate.postForEntity(path, any<HttpEntity<String>>(), String::class.java)
         } returns ResponseEntity("", HttpStatus.OK)
