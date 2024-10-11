@@ -71,7 +71,7 @@ class EuxControllerTest {
         val dokumentId = "222"
         val path = "/buc/{$euxCaseId}/sed/{$dokumentId}/send?ventePaAksjon=false"
         every {
-            euxRestTemplate.exchange(path, HttpMethod.POST, any<HttpEntity<String>>(), String::class.java)
+            euxRestTemplate.postForEntity(path, any<HttpEntity<String>>(), String::class.java)
         } returns ResponseEntity("", HttpStatus.OK)
 
         val result = euxController.sendSeden(euxCaseId, dokumentId)
