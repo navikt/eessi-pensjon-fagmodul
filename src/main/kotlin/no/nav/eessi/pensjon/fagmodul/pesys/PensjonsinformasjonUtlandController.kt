@@ -19,18 +19,13 @@ class PensjonsinformasjonUtlandController(
     private val pensjonsinformasjonUtlandService: PensjonsinformasjonUtlandService,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()) {
 
-    private lateinit var pensjonUtland: MetricsHelper.Metric
-    init {
-        pensjonUtland = metricsHelper.init("pensjonUtland")
-    }
-
-
+    private var pensjonUtland: MetricsHelper.Metric = metricsHelper.init("pensjonUtland")
 
     @GetMapping("/hentKravUtland/{bucId}")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     fun hentKravUtland(@PathVariable("bucId", required = true) bucId: Int): KravUtland {
         return pensjonUtland.measure {
-            pensjonsinformasjonUtlandService.hentKravUtland(bucId)
+            pensjonsinformasjonUtlandService.hentKravUtland(bucId)!!
         }
     }
 }
