@@ -439,7 +439,7 @@ class EuxKlientTest {
 
     @Test
     fun `gitt at det finnes en gydlig euxCaseid og Buc, ved feil skal det prøves noen ganger også returneres en liste over sedid`() {
-        val gyldigBuc = javaClass.getResource("/json/buc/buc-279020big.json").readText()
+        val gyldigBuc = javaClass.getResource("/json/buc/buc-279020big.json")!!.readText()
 
         val euxCaseId = "279029"
         server.expect(requestTo("/buc/$euxCaseId")).andRespond { throw IOException("This did not work 1") }
@@ -447,7 +447,7 @@ class EuxKlientTest {
         server.expect(requestTo("/buc/$euxCaseId")).andRespond(withSuccess(gyldigBuc, MediaType.APPLICATION_JSON))
 
         val actual = euxKlient.getBucJsonAsNavIdent(euxCaseId)
-        assertEquals(euxCaseId, mapJsonToAny<Buc>(actual).id)
+        assertEquals(euxCaseId, mapJsonToAny<Buc>(actual!!).id)
     }
 
     @Test

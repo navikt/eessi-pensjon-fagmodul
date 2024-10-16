@@ -72,13 +72,18 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
         backoff = Backoff(delayExpression = "@euxKlientRetryConfig.initialRetryMillis", maxDelay = 200000L, multiplier = 3.0),
         listeners  = ["euxKlientRetryLogger"]
     )
-    fun getBuc(euxCaseId: String) = mapJsonToAny<Buc>(euxKlient.getBucJsonAsNavIdent(euxCaseId))
+    fun getBuc(euxCaseId: String) = mapJsonToAny<Buc>(euxKlient.getBucJsonAsNavIdent(euxCaseId)!!)
 
     //hent buc for Pesys/tjeneste kjør som systembruker
-    fun getBucAsSystemuser(euxCaseId: String): Buc {
-        val body =  euxKlient.getBucJsonAsSystemuser(euxCaseId)
-        logger.debug("mapper buc om til BUC objekt-model")
-        return mapJsonToAny(body)
+    fun getBucAsSystemuser(euxCaseId: String): Buc? {
+        val resultat = euxKlient.getBucJsonAsSystemuser(euxCaseId)
+
+        if (resultat == null) {
+            logger.error("Kunne ikke hente Buc for euxCaseId: $euxCaseId som systembruker")
+            return null
+        }
+        logger.debug("Mapper Buc string til Buc modell")
+        return mapJsonToAny(resultat)
     }
 
     fun getSedOnBucByDocumentId(euxCaseId: String, documentId: String): SED {
