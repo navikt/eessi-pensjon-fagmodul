@@ -7,9 +7,6 @@ buildscript {
         springfoxVersion = '3.0.0'
         jacksonModuleKotlinVersion = '2.17.2'
         tokenSupportVersion = '4.1.4'
-
-        //test
-        jupiterVersion = '5.11.2'
     }
 }
 
@@ -99,8 +96,8 @@ dependencies {
     testImplementation("com.ninja-squad:springmockk:4.0.2")
     testImplementation('org.pac4j:spring-webmvc-pac4j:8.0.0')
 
-    testImplementation(platform("org.junit:junit-bom:$jupiterVersion"))
-    testImplementation("org.junit.jupiter:junit-jupiter:$jupiterVersion")
+    
+    testImplementation("org.junit.jupiter:junit-jupiter:5.11.2")
 
     //mock - test
     testImplementation("io.mockk:mockk:1.13.13")
