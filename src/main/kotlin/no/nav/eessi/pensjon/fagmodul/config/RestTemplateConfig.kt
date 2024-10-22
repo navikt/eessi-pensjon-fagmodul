@@ -44,6 +44,8 @@ class RestTemplateConfig(
         ) {
 
     private val logger = LoggerFactory.getLogger(RestTemplateConfig::class.java)
+    private val secureLog = LoggerFactory.getLogger("secureLog")
+
 
     init {
         StreamReadConstraints.overrideDefaultStreamReadConstraints(
@@ -140,7 +142,7 @@ class RestTemplateConfig(
         return ClientHttpRequestInterceptor { request: HttpRequest, body: ByteArray?, execution: ClientHttpRequestExecution ->
             val decodedToken = URLDecoder.decode(getToken(tokenValidationContextHolder).encodedToken, StandardCharsets.UTF_8)
 
-            logger.info("NAVIdent: ${getClaims(tokenValidationContextHolder).get("NAVident")?.toString()}")
+            secureLog.info("NAVIdent: ${getClaims(tokenValidationContextHolder).get("NAVident")?.toString()}")
 
             val tokenClient: AzureAdOnBehalfOfTokenClient = AzureAdTokenClientBuilder.builder()
                 .withNaisDefaults()
