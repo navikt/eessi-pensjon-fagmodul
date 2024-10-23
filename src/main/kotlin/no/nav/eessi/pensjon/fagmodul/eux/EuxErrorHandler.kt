@@ -29,9 +29,6 @@ open class EuxErrorHandler : DefaultResponseErrorHandler() {
 
     @Throws(IOException::class)
     override fun hasError(response: ClientHttpResponse): Boolean {
-        if (response.statusCode != OK) {
-            logger.warn("******************* EuxErrorHandler: ${response.statusCode} ********************")
-        }
         return response.statusCode.isError
     }
 
