@@ -47,7 +47,7 @@ open class EuxErrorHandler : DefaultResponseErrorHandler() {
             UNAUTHORIZED -> throw RinaIkkeAutorisertBrukerException("Authorization token required for Rina.")
             GATEWAY_TIMEOUT -> throw GatewayTimeoutException("Venting på respons fra Rina resulterte i en timeout")
             INTERNAL_SERVER_ERROR -> throw EuxRinaServerException("Rina serverfeil, kan også skyldes ugyldig input")
-            else -> handleUnknownError(httpResponse)
+            else -> handleBadRequest(httpResponse)
         }
     }
 
@@ -58,11 +58,6 @@ open class EuxErrorHandler : DefaultResponseErrorHandler() {
             throw KanIkkeOppretteSedFeilmelding("Postnummer overskrider maks antall tegn (25) i PDL.")
         }
         throw GenericUnprocessableEntity("Bad request, en feil har oppstått")
-    }
-
-    @Throws(IOException::class)
-    private fun handleUnknownError(httpResponse: ClientHttpResponse) {
-        throw Exception("Ukjent Feil oppstod: ${httpResponse.statusText}")
     }
 
     @Throws(IOException::class)
