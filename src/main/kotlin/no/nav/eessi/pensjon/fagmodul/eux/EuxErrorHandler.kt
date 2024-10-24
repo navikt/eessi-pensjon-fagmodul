@@ -75,23 +75,17 @@ open class EuxErrorHandler : DefaultResponseErrorHandler() {
     private fun getCallingClass(): String {
         val stackTrace = Thread.currentThread().stackTrace
 
-        val packgeName = "no.nav.eessi.pensjon"  // Replace with your actual package name
-        val maxDepth = 5
+        val excludedClasses = setOf(this::class.java.name, "ResponseErrorHandler", "RestTemplate")
 
-        for (i in 2 until minOf(stackTrace.size, maxDepth)) {
-            val element = stackTrace[i]
-
-            if (element.className.startsWith(packgeName)) {
+        stackTrace.drop(2)
+            .take(15)
+            // filterer bort classer som ikke er relevant for logging
+            .firstOrNull { element ->
+                excludedClasses.none { excluded -> element.className.contains(excluded) }
+            }?.let { element ->
                 return "${element.className}.${element.methodName}"
             }
-        }
 
-        for (i in 2 until minOf(stackTrace.size, maxDepth)) {
-            val element = stackTrace[i]
-            if (element.className != this::class.java.name) {
-                return "${element.className}.${element.methodName}"
-            }
-        }
         return "Ukjent kallende klasse"
     }
 }
