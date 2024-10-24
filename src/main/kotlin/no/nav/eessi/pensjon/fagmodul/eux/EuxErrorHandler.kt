@@ -62,7 +62,6 @@ open class EuxErrorHandler : DefaultResponseErrorHandler() {
         val logMessage = """
             Calling class: $callingClass
             Status code  : ${response.statusCode}
-            Status text  : ${response.statusText}
             Response body: $errorMsg""".trimIndent()
 
         if (errorMsg.contains("Could not find RINA case with id")) {
