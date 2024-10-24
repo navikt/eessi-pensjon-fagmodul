@@ -2,9 +2,7 @@ package no.nav.eessi.pensjon.fagmodul.eux
 
 import no.nav.eessi.pensjon.eux.klient.*
 import org.slf4j.LoggerFactory
-import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.*
-import org.springframework.http.HttpStatusCode
 import org.springframework.http.client.ClientHttpResponse
 import org.springframework.util.StreamUtils
 import org.springframework.web.client.DefaultResponseErrorHandler
@@ -76,7 +74,19 @@ open class EuxErrorHandler : DefaultResponseErrorHandler() {
 
     private fun getCallingClass(): String {
         val stackTrace = Thread.currentThread().stackTrace
-        for (i in 2 until stackTrace.size) {
+
+        val packgeName = "no.nav.eessi.pensjon"  // Replace with your actual package name
+        val maxDepth = 5
+
+        for (i in 2 until minOf(stackTrace.size, maxDepth)) {
+            val element = stackTrace[i]
+
+            if (element.className.startsWith(packgeName)) {
+                return "${element.className}.${element.methodName}"
+            }
+        }
+
+        for (i in 2 until minOf(stackTrace.size, maxDepth)) {
             val element = stackTrace[i]
             if (element.className != this::class.java.name) {
                 return "${element.className}.${element.methodName}"
