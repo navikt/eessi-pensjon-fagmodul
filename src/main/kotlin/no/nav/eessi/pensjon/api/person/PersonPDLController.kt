@@ -53,7 +53,7 @@ class PersonPDLController(
     }
 
     @GetMapping("/person/pdl/{aktoerid}", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getPerson(@PathVariable("aktoerid", required = true) aktoerid: String): ResponseEntity<Person> {
+    fun getPerson(@PathVariable("aktoerid", required = true) aktoerid: String): ResponseEntity<PdlPerson> {
         auditLogger.log("getPerson", aktoerid)
 
         return personControllerHentPerson.measure {
@@ -116,7 +116,7 @@ class PersonPDLController(
     private fun pairPersonFnr(
         avdodFnr: String,
         avdodRolle: Familierelasjonsrolle?,
-        gjenlevende: Person?
+        gjenlevende: PdlPerson?
     ): PersoninformasjonAvdode {
 
         logger.debug("Henter avdød person")
@@ -217,7 +217,7 @@ class PersonPDLController(
         return result
     }
 
-    private fun hentPerson(aktoerid: String): Person {
+    private fun hentPerson(aktoerid: String): PdlPerson {
         logger.info("Henter personinformasjon for aktørId: $aktoerid")
         if (aktoerid.isBlank()) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Tom input-verdi")
