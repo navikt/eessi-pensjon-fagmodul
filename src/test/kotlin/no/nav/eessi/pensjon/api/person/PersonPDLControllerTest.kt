@@ -17,7 +17,6 @@ import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClien
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonoppslagException
 import no.nav.eessi.pensjon.personoppslag.pdl.model.*
-import no.nav.eessi.pensjon.personoppslag.pdl.model.Person
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonService
 import no.nav.eessi.pensjon.shared.person.FodselsnummerGenerator
 import no.nav.eessi.pensjon.utils.mapJsonToAny
@@ -579,7 +578,7 @@ class PersonPDLControllerTest {
         etternavn: String = "Etternavn",
         familierlasjon: List<ForelderBarnRelasjon> = emptyList(),
         sivilstand: List<Sivilstand> = emptyList()
-    ) = Person(
+    ) = PdlPerson(
         listOf(IdentInformasjon(fnr, IdentGruppe.FOLKEREGISTERIDENT)),
         Navn(fornavn, null,  etternavn, null, null, null, mockMeta()),
         emptyList(),
