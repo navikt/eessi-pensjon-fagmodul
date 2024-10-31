@@ -45,9 +45,8 @@
      //P8000-P_BUC_05
      val referanseTilPerson: ReferanseTilPerson? = null,
      val gjenny: Boolean = false,
-     val sakType: String? = null
-
-
+     val sakType: String? = null,
+     val processDefinitionVersion: String? = null //buc version, 4.1, 4.2, 4.3
      ) {
 
      fun toAudit(): String {
