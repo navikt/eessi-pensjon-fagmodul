@@ -1,6 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
 import no.nav.eessi.pensjon.eux.klient.*
+import no.nav.eessi.pensjon.kodeverk.KodeverkClient.Companion.toJson
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus.*
 import org.springframework.http.client.ClientHttpResponse
@@ -58,9 +59,9 @@ open class EuxErrorHandler : DefaultResponseErrorHandler() {
     @Throws(IOException::class)
     private fun logResponse(response: ClientHttpResponse) {
         val errorMsg = StreamUtils.copyToString(response.body, Charset.defaultCharset())
-        val callingClass = getCallingClass()
+        val callingClass = getCallingClasses()
         val logMessage = """
-            Calling class: $callingClass
+            Calling class: ${callingClass}
             Status code  : ${response.statusCode}
             Response body: $errorMsg""".trimIndent()
 
@@ -71,20 +72,20 @@ open class EuxErrorHandler : DefaultResponseErrorHandler() {
         }
     }
 
-    private fun getCallingClass(): String {
+    private fun getCallingClasses(): List<String> {
         val stackTrace = Thread.currentThread().stackTrace
 
         val excludedClasses = setOf(this::class.java.name, "ResponseErrorHandler", "RestTemplate")
 
-        stackTrace.drop(2)
+        return stackTrace.drop(2)
             .take(15)
             // filterer bort classer som ikke er relevant for logging
-            .firstOrNull { element ->
-                excludedClasses.none { excluded -> element.className.contains(excluded) }
-            }?.let { element ->
-                return "${element.className}.${element.methodName}"
+            .filter { element ->
+                excludedClasses.none { excluded -> element.className.contains(excluded) } &&
+                        element.className.contains("eessi")  // Includes only results containing "eessi"
             }
-
-        return "Ukjent kallende klasse"
+            .map { element ->
+                "${element.className}.${element.methodName}"
+            }
     }
 }
