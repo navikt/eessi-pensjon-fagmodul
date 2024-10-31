@@ -75,7 +75,7 @@ open class EuxErrorHandler : DefaultResponseErrorHandler() {
     private fun getCallingClasses(): List<String> {
         val stackTrace = Thread.currentThread().stackTrace
 
-        val excludedClasses = setOf(this::class.java.name, "ResponseErrorHandler", "RestTemplate", "MetricsHelper")
+        val excludedClasses = setOf(this::class.java.name, "ResponseErrorHandler", "RestTemplate", "MetricsHelper", "Metric")
 
         return stackTrace.drop(2)
             .take(15)
