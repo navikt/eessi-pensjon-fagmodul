@@ -106,7 +106,10 @@ class PrefillController(
                         logger.debug("Prefiller X005, legger til Institusjon på X005 ${nyeInstitusjonerMap.institution}")
                         // ID og Navn på X005 er påkrevd må hente innn navn fra UI.
                         val x005request = request.copy(avdodfnr = null, sed = SedType.X005, institutions = listOf(nyeInstitusjonerMap))
-                        mapJsonToAny<X005>(innhentingService.hentPreutyltSed(x005request))
+                        mapJsonToAny<X005>(innhentingService.hentPreutyltSed(
+                            x005request,
+                            bucUtil.getProcessDefinitionVersion()
+                        ))
                     }
                     euxPrefillService.checkAndAddInstitution(dataModel, bucUtil, x005Liste, nyeInstitusjoner)
                 } else if (!bucUtil.isValidSedtypeOperation(SedType.X005, ActionOperation.Create)) { /* nada */  }
@@ -155,7 +158,10 @@ class PrefillController(
         //sjekk på P7000-- hente nødvendige P6000 sed fra eux.. legg til på request->prefilll
         val requestMedGjenlevendeFnr = request.copy(fnr = norskIdent.id)
         logger.debug("***Request med gjenlevende fnr: ${requestMedGjenlevendeFnr.toJson()} ***")
-        val sed = innhentingService.hentPreutyltSed(euxInnhentingService.checkForP7000AndAddP6000(requestMedGjenlevendeFnr))
+        val sed = innhentingService.hentPreutyltSed(
+            euxInnhentingService.checkForP7000AndAddP6000(requestMedGjenlevendeFnr),
+            bucUtil.getProcessDefinitionVersion()
+        )
 
         //val institusjonerFraRequest = request.institutions
         //Sjekk og opprette deltaker og legge sed på valgt BUC
@@ -203,7 +209,10 @@ class PrefillController(
         }
 
         logger.info("Prøver å prefillSED (svarSED) parentId: $parentId")
-        val sed = innhentingService.hentPreutyltSed(euxInnhentingService.checkForX010AndAddX009(request, parentId))
+        val sed = innhentingService.hentPreutyltSed(
+            euxInnhentingService.checkForX010AndAddX009(request, parentId),
+            bucUtil.getProcessDefinitionVersion()
+        )
 
         return addDocumentToParent.measure {
             logger.info("Prøver å sende SED: ${dataModel.sedType} inn på BUC: ${dataModel.euxCaseID}")
