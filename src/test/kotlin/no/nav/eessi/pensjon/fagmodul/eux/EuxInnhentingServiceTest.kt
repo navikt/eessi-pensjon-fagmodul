@@ -272,7 +272,7 @@ internal class EuxInnhentingServiceTest {
         val buc = Buc(processDefinitionName = "P_BUC_02", documents = documentsItem)
         val docs = listOf(BucOgDocumentAvdod(rinaid, buc, dokumentid))
 
-        every { euxKlient.getSedOnBucByDocumentIdNotAsSystemUser(rinaid, dokumentid) } returns SedType.P2100.name
+        every { euxKlient.getSedOnBucByDocumentIdNotAsSystemUser(rinaid, dokumentid, any()) } returns SedType.P2100.name
 
         val actual = euxInnhentingService.hentDocumentJsonAvdod(docs)
 
