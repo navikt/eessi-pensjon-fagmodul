@@ -77,7 +77,7 @@ class EuxErrorHandlerTest {
     }
 
     @Test
-    fun `logging av calling class skal inneholde informasjon kallende klient`() {
+    fun `logging fra errorhandler skal inneholde en liste av alle klasser som kalles fra eessi`() {
         val euxCaseId = "123456"
         server.expect(ExpectedCount.times(3), MockRestRequestMatchers.requestTo(StringContains.containsString("/buc/$euxCaseId"))).andRespond(
             MockRestResponseCreators.withStatus(HttpStatus.NOT_FOUND)
@@ -85,7 +85,7 @@ class EuxErrorHandlerTest {
         assertThrows<IkkeFunnetException> {
             euxInnhentingService.getBuc(euxCaseId)
         }
-        assertTrue(inneholderMelding("Calling class: no.nav.eessi.pensjon.eux.klient.EuxKlientLib.getBucJson"))
+        assertTrue(inneholderMelding("Calling class: [no.nav.eessi.pensjon.eux.klient.EuxKlientLib.getBucJson, no.nav.eessi.pensjon.eux.klient.EuxKlientLib.getBucJsonAsNavIdent, no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.getBuc]"))
     }
 
     fun inneholderMelding(melding: String): Boolean {
