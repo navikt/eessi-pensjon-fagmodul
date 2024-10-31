@@ -244,7 +244,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
 
             logger.debug("Henter sedJson fra document: ${shortDoc?.type}, ${shortDoc?.status}, ${shortDoc?.id}")
             val sedJson = shortDoc?.let {
-                SEDByDocumentId.measure { euxKlient.getSedOnBucByDocumentIdNotAsSystemUser(docs.rinaidAvdod, it.id!!) }
+                SEDByDocumentId.measure { euxKlient.getSedOnBucByDocumentIdNotAsSystemUser(docs.rinaidAvdod, it.id!!, listOf(HttpStatus.PRECONDITION_FAILED)) }
             }
             docs.dokumentJson = sedJson ?: ""
             docs
