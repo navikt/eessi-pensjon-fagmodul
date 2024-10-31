@@ -360,7 +360,7 @@ internal class EuxInnhentingServiceTest {
 
     @Test
     fun `check apiRequest for prefill X010 contains X009 payload`() {
-        val x009Json = javaClass.getResource("/json/nav/X009-NAV.json").readText()
+        val x009Json = javaClass.getResource("/json/nav/X009-NAV.json")!!.readText()
         val apiRequest = EuxTestUtils.apiRequestWith("1000000", emptyList(), buc = P_BUC_01, sed = SedType.X010)
 
         every { euxKlient.getSedOnBucByDocumentIdNotAsSystemUser(any(), any(), any()) } returns x009Json
