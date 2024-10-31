@@ -289,7 +289,7 @@ internal class EuxInnhentingServiceTest {
         val buc = Buc(processDefinitionName = "P_BUC_02", documents = documentsItem)
         val docs = listOf(BucOgDocumentAvdod(rinaid, buc, dokumentid))
 
-        every {euxKlient.getSedOnBucByDocumentIdNotAsSystemUser(rinaid, dokumentid) } throws HttpClientErrorException(HttpStatus.MULTI_STATUS)
+        every {euxKlient.getSedOnBucByDocumentIdNotAsSystemUser(rinaid, dokumentid, any()) } throws HttpClientErrorException(HttpStatus.MULTI_STATUS)
 
         assertThrows<Exception> { euxInnhentingService.hentDocumentJsonAvdod(docs) }
     }
