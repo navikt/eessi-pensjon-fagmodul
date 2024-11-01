@@ -13,6 +13,7 @@
  import org.springframework.http.HttpStatus
  import org.springframework.web.server.ResponseStatusException
 
+
  class ApiSubject(
      val gjenlevende: SubjectFnr? = null,
      val avdod: SubjectFnr? = null
