@@ -66,6 +66,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
     }
 
     private val logger = LoggerFactory.getLogger(EuxInnhentingService::class.java)
+    private val secureLog = LoggerFactory.getLogger("secureLog")
 
     @Retryable(
         exclude = [IOException::class],
@@ -506,6 +507,7 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
 
     fun updateSedOnBuc(euxcaseid: String, documentid: String, sedPayload: String): Boolean {
         logger.info("Oppdaterer eksisterende sed på rina: $euxcaseid. docid: $documentid")
+        secureLog.info("updateSedOnBuc, rina: $euxcaseid. docid: $documentid, payload: $sedPayload")
         return PutDocument.measure { euxKlient.updateSedOnBuc(euxcaseid, documentid, sedPayload) }
     }
 
