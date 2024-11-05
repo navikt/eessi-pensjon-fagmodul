@@ -39,8 +39,7 @@ dependencies {
 
     implementation("org.yaml:snakeyaml:2.3") // Pga https://security.snyk.io/package/maven/org.yaml:snakeyaml
 
-    // Kotlin
-    implementation("com.fasterxml.jackson.core:jackson-core:$jacksonModuleKotlinVersion")
+    implementation("com.fasterxml.jackson.core:jackson-core:${jacksonModuleKotlinVersion}")
 
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
 
@@ -66,20 +65,20 @@ dependencies {
 
     implementation("no.nav.eessi.pensjon:ep-metrics:2.0.89")
     implementation("no.nav.eessi.pensjon:ep-logging:2.1.87")
-    implementation("no.nav.eessi.pensjon:ep-eux:2.3.36")
-    implementation("no.nav.eessi.pensjon:ep-kodeverk:4.0.182") {
+    implementation("no.nav.eessi.pensjon:ep-eux:2.3.37")
+    implementation("no.nav.eessi.pensjon:ep-kodeverk:4.0.183") {
         exclude module: 'ep-eux'
         exclude module: 'ep-logging'
         exclude module: 'ep-metrics'
     }
 
-    implementation("no.nav.eessi.pensjon:ep-personoppslag:13.2.7") {
+    implementation("no.nav.eessi.pensjon:ep-personoppslag:13.2.8") {
         exclude module: 'ep-eux'
         exclude module: 'ep-logging'
         exclude module: 'ep-metrics'
     }
 
-    implementation("no.nav.eessi.pensjon:ep-pensjonsinformasjon:3.0.164") {
+    implementation("no.nav.eessi.pensjon:ep-pensjonsinformasjon:3.0.165") {
         exclude module: 'ep-eux'
         exclude module: 'ep-logging'
         exclude module: 'ep-metrics'
