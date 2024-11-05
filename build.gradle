@@ -40,8 +40,7 @@ dependencies {
     implementation("org.yaml:snakeyaml:2.3") // Pga https://security.snyk.io/package/maven/org.yaml:snakeyaml
 
     // Kotlin
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonModuleKotlinVersion")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonModuleKotlinVersion")
+    implementation("com.fasterxml.jackson.core:jackson-core:$jacksonModuleKotlinVersion")
 
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
 
