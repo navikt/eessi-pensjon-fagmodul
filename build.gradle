@@ -5,7 +5,7 @@ buildscript {
         springBootVersion = '3.3.5'
         springKafkaVersion = '3.2.4'
         springfoxVersion = '3.0.0'
-        jacksonModuleKotlinVersion = '2.17.2'
+        jacksonModuleKotlinVersion = '2.18.1'
         tokenSupportVersion = '4.1.4'
     }
 }
@@ -67,14 +67,14 @@ dependencies {
 
     implementation("no.nav.eessi.pensjon:ep-metrics:2.0.89")
     implementation("no.nav.eessi.pensjon:ep-logging:2.1.87")
-    implementation("no.nav.eessi.pensjon:ep-eux:2.3.35")
-    implementation("no.nav.eessi.pensjon:ep-kodeverk:4.0.181") {
+    implementation("no.nav.eessi.pensjon:ep-eux:2.3.36")
+    implementation("no.nav.eessi.pensjon:ep-kodeverk:4.0.182") {
         exclude module: 'ep-eux'
         exclude module: 'ep-logging'
         exclude module: 'ep-metrics'
     }
 
-    implementation("no.nav.eessi.pensjon:ep-personoppslag:13.2.5") {
+    implementation("no.nav.eessi.pensjon:ep-personoppslag:13.2.7") {
         exclude module: 'ep-eux'
         exclude module: 'ep-logging'
         exclude module: 'ep-metrics'
