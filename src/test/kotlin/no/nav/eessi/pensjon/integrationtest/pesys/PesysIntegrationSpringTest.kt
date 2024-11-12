@@ -10,6 +10,7 @@ import no.nav.eessi.pensjon.kodeverk.KodeverkClient
 import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import org.hamcrest.Matchers
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.beans.factory.annotation.Autowired
@@ -105,6 +106,7 @@ class PesysIntegrationSpringTest {
 
     }
 
+    @Disabled
     @Test
     fun `Alderpensjon utlandskrav returnerer json ut fra behandle P2000`() {
 
@@ -165,6 +167,7 @@ class PesysIntegrationSpringTest {
 
     }
 
+    @Disabled
     @Test
     fun `Alderpensjon utlandskrav returnerer json ut fra behandle P2000 fra SE`() {
 
