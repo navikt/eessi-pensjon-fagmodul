@@ -183,7 +183,7 @@
             "valuta": "ISK"
           }
         ],
-        "basertPaa": "02",
+        "basertPaa": "basert_på_arbeid",
         "virkningsdato": "2020-10-01",
         "artikkel": "02",
         "type": "02",
@@ -249,7 +249,7 @@
           }
         },
         "virkningsdato": "2030-10-01",
-        "basertPaa": "01"
+        "basertPaa": "basert_på_botid"
       }
     ],
     "tilleggsinformasjon": {
