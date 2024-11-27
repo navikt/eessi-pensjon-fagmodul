@@ -12,8 +12,8 @@ import no.nav.eessi.pensjon.eux.model.BucType
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_02
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_03
 import no.nav.eessi.pensjon.eux.model.SedType
-import no.nav.eessi.pensjon.eux.model.SedType.P2100
-import no.nav.eessi.pensjon.eux.model.SedType.P4000
+import no.nav.eessi.pensjon.eux.model.SedType.SEDTYPE_P2100
+import no.nav.eessi.pensjon.eux.model.SedType.SEDTYPE_P4000
 import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
 import no.nav.eessi.pensjon.gcp.GcpStorageService
@@ -172,8 +172,8 @@ internal class BucControllerIT: BucBaseTest() {
 
             //buc02
             val docItems = listOf(
-                documentsItem("1", "sent", P2100),
-                documentsItem("2", "draft", P4000))
+                documentsItem("1", "sent", SEDTYPE_P2100),
+                documentsItem("2", "draft", SEDTYPE_P4000))
             val buc02 = Buc(id = "1010", internationalId = "1000100010001000", processDefinitionName = "P_BUC_02", startDate = lastupdate, lastUpdate = lastupdate,  documents = docItems)
 
             val rinabucpath = "/buc/1010"
@@ -230,8 +230,8 @@ internal class BucControllerIT: BucBaseTest() {
 
         //buc02
         val docItems = listOf(
-            documentsItem("1", "sent", P2100),
-            documentsItem("2", "draft", P4000),
+            documentsItem("1", "sent", SEDTYPE_P2100),
+            documentsItem("2", "draft", SEDTYPE_P4000),
         )
         val buc02 = Buc(id = "1010", internationalId = "1000100010001000", processDefinitionName = "P_BUC_02", startDate = lastupdate, lastUpdate = lastupdate,  documents = docItems)
 

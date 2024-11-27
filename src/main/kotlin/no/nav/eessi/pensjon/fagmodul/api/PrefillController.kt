@@ -105,14 +105,14 @@ class PrefillController(
                     val x005Liste = nyeInstitusjoner.map { nyeInstitusjonerMap ->
                         logger.debug("Prefiller X005, legger til Institusjon på X005 ${nyeInstitusjonerMap.institution}")
                         // ID og Navn på X005 er påkrevd må hente innn navn fra UI.
-                        val x005request = request.copy(avdodfnr = null, sed = SedType.X005, institutions = listOf(nyeInstitusjonerMap))
+                        val x005request = request.copy(avdodfnr = null, sed = SedType.SEDTYPE_X005, institutions = listOf(nyeInstitusjonerMap))
                         mapJsonToAny<X005>(innhentingService.hentPreutyltSed(
                             x005request,
                             bucUtil.getProcessDefinitionVersion()
                         ))
                     }
                     euxPrefillService.checkAndAddInstitution(dataModel, bucUtil, x005Liste, nyeInstitusjoner)
-                } else if (!bucUtil.isValidSedtypeOperation(SedType.X005, ActionOperation.Create)) { /* nada */  }
+                } else if (!bucUtil.isValidSedtypeOperation(SedType.SEDTYPE_X005, ActionOperation.Create)) { /* nada */  }
             }
         }
     }
@@ -168,7 +168,7 @@ class PrefillController(
         return addInstutionAndDocument.measure {
             logger.info("******* Legge til ny SED - start *******")
 
-            val sedType = SedType.from(request.sed?.name!!)!!
+            val sedType = SedType.fromJson(request.sed?.name!!)
             logger.info("Prøver å sende SED: $sedType inn på BUC: ${dataModel.euxCaseID}")
 
             val bucAndSedResponse = euxPrefillService.opprettJsonSedOnBuc(sed, sedType, dataModel.euxCaseID, request.vedtakId)

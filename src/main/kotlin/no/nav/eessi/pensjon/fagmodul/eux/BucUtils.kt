@@ -61,16 +61,16 @@ class BucUtils(private val buc: Buc) {
     private fun createEmptyDocumentsForRina2020() : List<DocumentsItem> {
         logger.debug("Kjører hjelpemetode for RINA2020")
         return when(getProcessDefinitionName()) {
-            P_BUC_01.name -> createEmptyDocument(SedType.P2000)
-            P_BUC_02.name -> createEmptyDocument(SedType.P2100)
-            P_BUC_03.name -> createEmptyDocument(SedType.P2200)
-            P_BUC_04.name -> createEmptyDocument(SedType.P1000)
-            P_BUC_05.name -> createEmptyDocument(SedType.P8000)
-            P_BUC_06.name -> createEmptyDocument(SedType.DummyChooseParts)
-            P_BUC_07.name -> createEmptyDocument(SedType.P11000)
-            P_BUC_08.name -> createEmptyDocument(SedType.P12000)
-            P_BUC_09.name -> createEmptyDocument(SedType.P14000)
-            P_BUC_10.name -> createEmptyDocument(SedType.P15000)
+            P_BUC_01.name -> createEmptyDocument(SedType.SEDTYPE_P2000)
+            P_BUC_02.name -> createEmptyDocument(SedType.SEDTYPE_P2100)
+            P_BUC_03.name -> createEmptyDocument(SedType.SEDTYPE_P2200)
+            P_BUC_04.name -> createEmptyDocument(SedType.SEDTYPE_P1000)
+            P_BUC_05.name -> createEmptyDocument(SedType.SEDTYPE_P8000)
+            P_BUC_06.name -> createEmptyDocument(SedType.SEDTYPE_DummyChooseParts)
+            P_BUC_07.name -> createEmptyDocument(SedType.SEDTYPE_P11000)
+            P_BUC_08.name -> createEmptyDocument(SedType.SEDTYPE_P12000)
+            P_BUC_09.name -> createEmptyDocument(SedType.SEDTYPE_P14000)
+            P_BUC_10.name -> createEmptyDocument(SedType.SEDTYPE_P15000)
             else ->  emptyList()
         }
     }
@@ -78,7 +78,7 @@ class BucUtils(private val buc: Buc) {
     fun createEmptyDocument(sedType: SedType) : List<DocumentsItem> {
         return listOf(
             DocumentsItem(
-            displayName = sedType.name,
+            displayName = sedType.jsonValue,
             type = sedType,
             status = "empty",
             direction = "OUT" // DUMMY verdi
@@ -144,7 +144,7 @@ class BucUtils(private val buc: Buc) {
     fun getProcessDefinitionVersion() = buc.processDefinitionVersion ?: ""
 
     fun findX005DocumentByTypeAndStatus() = getDocuments()
-        .filter { SedType.X005 == it.type && (it.status != "sent" || it.status != "received" || it.status != "cancelled" || it.status != "active") }
+        .filter { SedType.SEDTYPE_X005 == it.type && (it.status != "sent" || it.status != "received" || it.status != "cancelled" || it.status != "active") }
 
     fun findFirstDocumentItemByType(SedType: SedType) = getDocuments().find { SedType == it.type }?.let { createShortDocument(it) }
 
@@ -172,16 +172,16 @@ class BucUtils(private val buc: Buc) {
     private fun checkParentDocumentId(type: SedType?, parentDocumentId: String?): String? {
         //fjerne parentid for ikke å opprette svarsed
         return when(type) {
-            SedType.X009 -> null
-            SedType.X012 -> null
+            SedType.SEDTYPE_X009 -> null
+            SedType.SEDTYPE_X012 -> null
             else -> parentDocumentId
         }
     }
 
     private fun overrideAllowAttachemnts(documentItem: DocumentsItem): Boolean? {
         return when(documentItem.type) {
-            SedType.P5000 -> false // støtter ikke vedlegg
-            SedType.X010 -> false  // støtter ikke vedlegg
+            SedType.SEDTYPE_P5000 -> false // støtter ikke vedlegg
+            SedType.SEDTYPE_X010 -> false  // støtter ikke vedlegg
             else -> documentItem.allowsAttachments
         }
     }
@@ -262,7 +262,7 @@ class BucUtils(private val buc: Buc) {
             }.orEmpty()
 
     fun getAllP6000AsDocumentItem(pdfurl: String) : List<P6000Dokument> {
-        val documents = getAllDocuments().filter { doc -> doc.type == SedType.P6000 }.filter { it.status == "sent" || it.status == "received" }
+        val documents = getAllDocuments().filter { doc -> doc.type == SedType.SEDTYPE_P6000 }.filter { it.status == "sent" || it.status == "received" }
         return documents.map { doc ->
                 P6000Dokument(
                     type = doc.type!!,
@@ -331,7 +331,7 @@ class BucUtils(private val buc: Buc) {
         val gyldigeSedList = getSedsThatCanBeCreated()
         val aksjonsliste = getGyldigeOpprettSedAksjonList()
 
-        return if (SedType.DummyChooseParts in gyldigeSedList && gyldigeSedList.size == 1) {
+        return if (SedType.SEDTYPE_DummyChooseParts in gyldigeSedList && gyldigeSedList.size == 1) {
             ValidBucAndSed.getAvailableSedOnBuc(buc.processDefinitionName)
                 .also { logger.debug("benytter backupList : ${it.toJsonSkipEmpty()}") }
         } else if (aksjonsliste.isNotEmpty()) {

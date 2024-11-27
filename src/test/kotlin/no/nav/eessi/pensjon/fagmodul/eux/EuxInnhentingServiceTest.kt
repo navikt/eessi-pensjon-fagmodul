@@ -132,7 +132,7 @@ internal class EuxInnhentingServiceTest {
         every { euxKlient.getSedOnBucByDocumentIdNotAsSystemUser(any(), any(), any()) } returns json
 
         val result = euxInnhentingService.getSedOnBucByDocumentId("12345678900", "0bb1ad15987741f1bbf45eba4f955e80")
-        assertEquals(SedType.P6000, result.type)
+        assertEquals(SedType.SEDTYPE_P6000, result.type)
         result as P6000
 
         assertEquals("234", result.pensjon?.vedtak?.firstOrNull()?.delvisstans?.utbetaling?.beloepBrutto)
@@ -268,16 +268,16 @@ internal class EuxInnhentingServiceTest {
     fun `Gitt det finnes et json dokument p2100 når avdod buc inneholder en dokumentid så hentes sed p2100 fra eux`() {
         val rinaid = "12344"
         val dokumentid = "3423432453255"
-        val documentsItem = listOf(DocumentsItem(type = SedType.P2100, id = dokumentid, direction = "OUT"))
+        val documentsItem = listOf(DocumentsItem(type = SedType.SEDTYPE_P2100, id = dokumentid, direction = "OUT"))
         val buc = Buc(processDefinitionName = "P_BUC_02", documents = documentsItem)
         val docs = listOf(BucOgDocumentAvdod(rinaid, buc, dokumentid))
 
-        every { euxKlient.getSedOnBucByDocumentIdNotAsSystemUser(rinaid, dokumentid, any()) } returns SedType.P2100.name
+        every { euxKlient.getSedOnBucByDocumentIdNotAsSystemUser(rinaid, dokumentid, any()) } returns SedType.SEDTYPE_P2100.name
 
         val actual = euxInnhentingService.hentDocumentJsonAvdod(docs)
 
         assertEquals(1, actual.size)
-        assertEquals(SedType.P2100.name, actual.single().dokumentJson)
+        assertEquals(SedType.SEDTYPE_P2100.name, actual.single().dokumentJson)
         assertEquals(rinaid, actual.single().rinaidAvdod)
     }
 
@@ -285,7 +285,7 @@ internal class EuxInnhentingServiceTest {
     fun `Gitt det finnes et json dokument p2100 når avdød buc inneholder en dokumentid så feiler det ved hentig fra eux`() {
         val rinaid = "12344"
         val dokumentid = "3423432453255"
-        val documentsItem = listOf(DocumentsItem(type = SedType.P2100, id = dokumentid, direction = "OUT"))
+        val documentsItem = listOf(DocumentsItem(type = SedType.SEDTYPE_P2100, id = dokumentid, direction = "OUT"))
         val buc = Buc(processDefinitionName = "P_BUC_02", documents = documentsItem)
         val docs = listOf(BucOgDocumentAvdod(rinaid, buc, dokumentid))
 
@@ -361,7 +361,7 @@ internal class EuxInnhentingServiceTest {
     @Test
     fun `check apiRequest for prefill X010 contains X009 payload`() {
         val x009Json = javaClass.getResource("/json/nav/X009-NAV.json")!!.readText()
-        val apiRequest = EuxTestUtils.apiRequestWith("1000000", emptyList(), buc = P_BUC_01, sed = SedType.X010)
+        val apiRequest = EuxTestUtils.apiRequestWith("1000000", emptyList(), buc = P_BUC_01, sed = SedType.SEDTYPE_X010)
 
         every { euxKlient.getSedOnBucByDocumentIdNotAsSystemUser(any(), any(), any()) } returns x009Json
 

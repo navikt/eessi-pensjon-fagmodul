@@ -3,7 +3,7 @@ package no.nav.eessi.pensjon.fagmodul.eux
 import no.nav.eessi.pensjon.eux.model.BucType
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_06
 import no.nav.eessi.pensjon.eux.model.SedType
-import no.nav.eessi.pensjon.eux.model.SedType.P6000
+import no.nav.eessi.pensjon.eux.model.SedType.SEDTYPE_P6000
 import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
 import no.nav.eessi.pensjon.shared.api.ApiRequest
 import no.nav.eessi.pensjon.shared.api.InstitusjonItem
@@ -14,7 +14,7 @@ open class EuxTestUtils {
         fun apiRequestWith(
             euxCaseId: String,
             institutions: List<InstitusjonItem> = listOf(),
-            sed: SedType? = P6000,
+            sed: SedType? = SEDTYPE_P6000,
             buc: BucType? = P_BUC_06
         ): ApiRequest {
             return ApiRequest(
@@ -32,7 +32,7 @@ open class EuxTestUtils {
         fun createDummyBucDocumentItem(): DocumentsItem {
             return DocumentsItem(
                 id = "3123123",
-                type = P6000,
+                type = SEDTYPE_P6000,
                 status = "empty",
                 allowsAttachments = true,
                 direction = "OUT"

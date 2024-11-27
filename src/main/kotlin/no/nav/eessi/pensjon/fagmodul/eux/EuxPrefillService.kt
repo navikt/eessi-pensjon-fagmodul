@@ -89,7 +89,7 @@ class EuxPrefillService (private val euxKlient: EuxKlientLib,
             Hvem er CaseOwner: ${bucUtil.getCaseOwner()?.toJson()} på buc: ${bucUtil.getProcessDefinitionName()}
             Hvem er Deltakere: ${bucUtil.getParticipants().filterNot { it.role == "CaseOwner" }.toJson()}
             x005liste: ${ x005Liste.mapNotNull { it.xnav?.sak }.map{ it.leggtilinstitusjon }.toList().toJson()}
-            x005 i buc null: ${bucUtil.findFirstDocumentItemByType(SedType.X005) == null}
+            x005 i buc null: ${bucUtil.findFirstDocumentItemByType(SedType.SEDTYPE_X005) == null}
             """.trimIndent()
         )
 

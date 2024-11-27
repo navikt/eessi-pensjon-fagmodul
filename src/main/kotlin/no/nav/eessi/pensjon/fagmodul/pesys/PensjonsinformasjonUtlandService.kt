@@ -21,7 +21,7 @@ class PensjonsinformasjonUtlandService(
     private val logger = LoggerFactory.getLogger(PensjonsinformasjonUtlandService::class.java)
 
     private final val validBuc = listOf("P_BUC_01", "P_BUC_03")
-    private final val kravSedBucmap = mapOf("P_BUC_01" to SedType.P2000, "P_BUC_03" to SedType.P2200)
+    private final val kravSedBucmap = mapOf("P_BUC_01" to SedType.SEDTYPE_P2000, "P_BUC_03" to SedType.SEDTYPE_P2200)
 
     /**
      * funksjon for å hente buc-metadata fra RINA (eux-rina-api)
@@ -81,8 +81,8 @@ class PensjonsinformasjonUtlandService(
     fun getKravSedDocument(bucUtils: BucUtils, SedType: SedType?) =
         bucUtils.getAllDocuments().firstOrNull { it.status == "received" && it.type == SedType }
 
-    fun erAlderpensjon(sed: SED) = sed.type == SedType.P2000
+    fun erAlderpensjon(sed: SED) = sed.type == SedType.SEDTYPE_P2000
 
-    fun erUforepensjon(sed: SED) = sed.type == SedType.P2200
+    fun erUforepensjon(sed: SED) = sed.type == SedType.SEDTYPE_P2200
 
 }

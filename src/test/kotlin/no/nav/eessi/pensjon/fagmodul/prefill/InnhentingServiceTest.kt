@@ -55,7 +55,7 @@ internal class InnhentingServiceTest {
 
     @Test
     fun `Gitt at avdodfnr finnes paa en p2100 saa skal aktoerid for avdodfnr returneres`() {
-        val apiRequest = apiRequest(SedType.P2100, P_BUC_02, AKTOER_ID, AVDOD_FNR)
+        val apiRequest = apiRequest(SedType.SEDTYPE_P2100, P_BUC_02, AKTOER_ID, AVDOD_FNR)
         every { personService.hentIdent(eq(IdentGruppe.AKTORID), any()) } returns AktoerId(AKTOER_ID)
 
         val result = innhentingService.getAvdodId(BucType.from(apiRequest.buc?.name)!!, apiRequest.riktigAvdod())
@@ -65,7 +65,7 @@ internal class InnhentingServiceTest {
 
     @Test
     fun `Gitt at avdod npid finnes paa en p2100 saa skal aktoerid for avdod npid returneres`() {
-        val apiRequest = apiRequest(SedType.P2100, P_BUC_02, AKTOER_ID, NPID)
+        val apiRequest = apiRequest(SedType.SEDTYPE_P2100, P_BUC_02, AKTOER_ID, NPID)
         every { personService.hentIdent((IdentGruppe.AKTORID), Npid(NPID)) } returns AktoerId(AKTOER_ID)
 
         val result = innhentingService.getAvdodId(BucType.from(apiRequest.buc?.name)!!, apiRequest.riktigAvdod())
@@ -76,7 +76,7 @@ internal class InnhentingServiceTest {
     @Test
     fun `Gitt at avdodfnr finnes paa en p5000 saa skal aktoerid for avdodfnr returneres`() {
         val apiRequest = apiRequest(
-                SedType.P5000, P_BUC_02, AKTOER_ID, AVDOD_FNR, GJENLEVENDE_FNR,
+                SedType.SEDTYPE_P5000, P_BUC_02, AKTOER_ID, AVDOD_FNR, GJENLEVENDE_FNR,
                 ApiSubject(gjenlevende = SubjectFnr(GJENLEVENDE_FNR), avdod = SubjectFnr(ADVOD_FNR2))
         )
 
@@ -88,7 +88,7 @@ internal class InnhentingServiceTest {
 
     @Test
     fun `Gitt en P2100 mangler fnr saa skal vi kaste en ResponseStatusException`() {
-        val apiRequest = apiRequest(SedType.P2100, P_BUC_02, AKTOER_ID)
+        val apiRequest = apiRequest(SedType.SEDTYPE_P2100, P_BUC_02, AKTOER_ID)
         assertThrows<ResponseStatusException> {
             innhentingService.getAvdodId(BucType.from(apiRequest.buc?.name)!!, apiRequest.riktigAvdod())
         }
@@ -96,7 +96,7 @@ internal class InnhentingServiceTest {
 
     @Test
     fun `Gitt en P15000 inneholder et ugyldig avdodfnr saa kastes det en ResponseStatusException`() {
-        val apiRequest = apiRequest(SedType.P15000, P_BUC_10, AKTOER_ID, AVDOD_FNR)
+        val apiRequest = apiRequest(SedType.SEDTYPE_P15000, P_BUC_10, AKTOER_ID, AVDOD_FNR)
 
         assertThrows<ResponseStatusException> {
             innhentingService.getAvdodId(BucType.from(apiRequest.buc?.name)!!, apiRequest.riktigAvdod())
@@ -105,13 +105,13 @@ internal class InnhentingServiceTest {
 
     @Test
     fun `Gitt en P2000 saa skal getAvdodAktoerId returnere null da det ikke skal finnes avdod på en p2000`() {
-        val apiRequest = apiRequest(SedType.P2000, P_BUC_01, AKTOER_ID, AVDOD_FNR)
+        val apiRequest = apiRequest(SedType.SEDTYPE_P2000, P_BUC_01, AKTOER_ID, AVDOD_FNR)
 
         val result = innhentingService.getAvdodId(BucType.from(apiRequest.buc?.name)!!, apiRequest.avdodfnr)
         assertEquals(null, result)
     }
 
-    private fun apiRequest(sedType: SedType = SedType.P2100, bucType: BucType, aktoerId: String = AKTOER_ID, avdodfnr : String? = null,  vedtakId : String? = null, subject: ApiSubject? = null) =
+    private fun apiRequest(sedType: SedType = SedType.SEDTYPE_P2100, bucType: BucType, aktoerId: String = AKTOER_ID, avdodfnr : String? = null, vedtakId : String? = null, subject: ApiSubject? = null) =
             ApiRequest(
                     subjectArea = "Pensjon",
                     sakId = "EESSI-PEN-123",

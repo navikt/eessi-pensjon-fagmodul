@@ -6,8 +6,8 @@ import no.nav.eessi.pensjon.eux.klient.*
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_01
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_03
 import no.nav.eessi.pensjon.eux.model.SedType
-import no.nav.eessi.pensjon.eux.model.SedType.P2000
-import no.nav.eessi.pensjon.eux.model.SedType.P2200
+import no.nav.eessi.pensjon.eux.model.SedType.SEDTYPE_P2000
+import no.nav.eessi.pensjon.eux.model.SedType.SEDTYPE_P2200
 import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
 import no.nav.eessi.pensjon.eux.model.buc.Organisation
@@ -404,7 +404,7 @@ class EuxKlientTest {
         this.server.expect(requestTo(containsString("/buc/123456/sed?ventePaAksjon=false"))).andRespond(
             withSuccess("323413415dfvsdfgq343145sdfsdfg34135", MediaType.APPLICATION_JSON))
 
-        val result = euxKlient.opprettSed( SED(P2000).toJsonSkipEmpty(), euxCaseId)
+        val result = euxKlient.opprettSed( SED(SEDTYPE_P2000).toJsonSkipEmpty(), euxCaseId)
 
         assertEquals(euxCaseId, result.caseId)
         assertEquals("323413415dfvsdfgq343145sdfsdfg34135", result.documentId)
@@ -414,7 +414,7 @@ class EuxKlientTest {
     fun `Calling EuxService  feiler med svar tilbake fra et kall til opprettSedOnBuc`() {
         server.expect(requestTo(containsString("/buc/1231233/sed?ventePaAksjon=false"))).andRespond(withStatus(HttpStatus.BAD_REQUEST))
         assertThrows<GenericUnprocessableEntity> {
-            euxKlient.opprettSed(SED(P2200).toJsonSkipEmpty(), "1231233")
+            euxKlient.opprettSed(SED(SEDTYPE_P2200).toJsonSkipEmpty(), "1231233")
         }
     }
 
@@ -422,7 +422,7 @@ class EuxKlientTest {
     fun `Calling EuxService  feiler med kontakt fra eux med kall til opprettSedOnBuc forventer GatewayTimeoutException`() {
         this.server.expect(requestTo(containsString("/buc/213123/sed?ventePaAksjon=false"))).andRespond(withStatus(HttpStatus.GATEWAY_TIMEOUT))
         assertThrows<GatewayTimeoutException> {
-            euxKlient.opprettSed(SED(P2000).toJsonSkipEmpty(), "213123")
+            euxKlient.opprettSed(SED(SEDTYPE_P2000).toJsonSkipEmpty(), "213123")
         }
     }
 
@@ -431,7 +431,7 @@ class EuxKlientTest {
         val euxCaseId = "123456"
         val parentDocumentId = "11111"
         server.expect(requestTo("/buc/$euxCaseId/sed/$parentDocumentId/svar")).andRespond(withSuccess("323413415dfvsdfgq343145sdfsdfg34135", MediaType.APPLICATION_JSON))
-        val result = euxKlient.opprettSvarSed(SED(P2000).toJsonSkipEmpty(), euxCaseId, parentDocumentId)
+        val result = euxKlient.opprettSvarSed(SED(SEDTYPE_P2000).toJsonSkipEmpty(), euxCaseId, parentDocumentId)
 
         assertEquals(euxCaseId, result.caseId)
         assertEquals("323413415dfvsdfgq343145sdfsdfg34135", result.documentId)
@@ -508,7 +508,7 @@ class EuxKlientTest {
                     direction = direction,
                     receiveDate = 1567178490000,
                     lastUpdate = 1567178490000,
-                    type = SedType.P8000
+                    type = SedType.SEDTYPE_P8000
                 )
             )
         )

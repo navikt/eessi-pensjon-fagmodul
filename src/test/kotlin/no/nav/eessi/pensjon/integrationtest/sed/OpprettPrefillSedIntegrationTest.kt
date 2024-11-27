@@ -7,8 +7,8 @@ import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
 import no.nav.eessi.pensjon.eux.model.BucType
 import no.nav.eessi.pensjon.eux.model.BucType.*
 import no.nav.eessi.pensjon.eux.model.SedType
-import no.nav.eessi.pensjon.eux.model.SedType.P2000
-import no.nav.eessi.pensjon.eux.model.SedType.P6000
+import no.nav.eessi.pensjon.eux.model.SedType.SEDTYPE_P2000
+import no.nav.eessi.pensjon.eux.model.SedType.SEDTYPE_P6000
 import no.nav.eessi.pensjon.eux.model.sed.KravType
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.integrationtest.IntegrasjonsTestConfig
@@ -91,7 +91,7 @@ class OpprettPrefillSedIntegrationTest {
             "120012",
             AKTOER_ID,
             null,
-            P2000,
+            SEDTYPE_P2000,
             P_BUC_01,
             null,
             KravType.ALDER,
@@ -202,7 +202,7 @@ class OpprettPrefillSedIntegrationTest {
             "120012",
             AKTOER_ID,
             null,
-            P6000,
+            SEDTYPE_P6000,
             P_BUC_02,
             FNR_VOKSEN_2,
             KravType.GJENLEV,
@@ -238,7 +238,7 @@ class OpprettPrefillSedIntegrationTest {
         vedtakid: String? = null,
         aktoerId: String,
         fnr: String? = null,
-        sedType: SedType = P2000,
+        sedType: SedType = SEDTYPE_P2000,
         buc: BucType? = P_BUC_06,
         fnravdod: String? = null,
         kravtype: KravType? = null,

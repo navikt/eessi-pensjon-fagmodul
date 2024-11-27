@@ -58,13 +58,13 @@ class BucUtilsTest {
 
     @Test
     fun findFirstDocumentItemByType() {
-        val result = bucUtils.findFirstDocumentItemByType(P2000)
-        assertEquals(P2000, result?.type)
+        val result = bucUtils.findFirstDocumentItemByType(SEDTYPE_P2000)
+        assertEquals(SEDTYPE_P2000, result?.type)
         assertEquals("sent", result?.status)
         assertEquals("1b934260853d49ec98080da433a6ef91", result?.id)
 
-        val result2 = bucUtils.findFirstDocumentItemByType(P6000)
-        assertEquals(P6000, result2?.type)
+        val result2 = bucUtils.findFirstDocumentItemByType(SEDTYPE_P6000)
+        assertEquals(SEDTYPE_P6000, result2?.type)
         assertEquals("empty", result2?.status)
         assertEquals("85db6f21f01541899cc80ffc80dff88b", result2?.id)
 
@@ -84,7 +84,7 @@ class BucUtilsTest {
 
         val expected = listOf(
             P6000Dokument(
-                type = P6000,
+                type = SEDTYPE_P6000,
                 bucid = "1362305",
                 documentID = "a550606682f24785adf0919a1147f7f2",
                 fraLand = NO,
@@ -151,7 +151,7 @@ class BucUtilsTest {
         val result = bucUtils.getRinaAksjon()
         assertEquals(16, result.size)
         val rinaaksjon = result[1]
-        assertEquals(P2000, rinaaksjon.documentType)
+        assertEquals(SEDTYPE_P2000, rinaaksjon.documentType)
         assertEquals(ActionOperation.Update, rinaaksjon.operation)
     }
 
@@ -162,12 +162,12 @@ class BucUtilsTest {
         val result = bucUtils.getRinaAksjon()
         assertEquals(16, result.size)
         val rinaaksjon = result[1]
-        assertEquals(P2000, rinaaksjon.documentType)
+        assertEquals(SEDTYPE_P2000, rinaaksjon.documentType)
         assertEquals(ActionOperation.Update, rinaaksjon.operation)
         val filterlist = result.filter { it.documentType?.name?.startsWith("P")!! }
         assertEquals(9, filterlist.size)
         val rinaaksjon2 = filterlist[4]
-        assertEquals(P5000, rinaaksjon2.documentType)
+        assertEquals(SEDTYPE_P5000, rinaaksjon2.documentType)
         assertEquals(ActionOperation.Create, rinaaksjon2.operation)
     }
 
@@ -182,7 +182,7 @@ class BucUtilsTest {
 
         bucUtils.getAllDocuments().forEach {
 
-            if (it.type == P8000) {
+            if (it.type == SEDTYPE_P8000) {
                 assertEquals("1557825747269", it.creationDate.toString())
                 assertEquals("1558362934400", it.lastUpdate.toString())
                 assertEquals(2, it.attachments?.size)
@@ -213,7 +213,7 @@ class BucUtilsTest {
     fun `getGyldigSedAksjonListAsString   returns sorted list ok`(){
         val actualOutput = bucUtils.getSedsThatCanBeCreated()
         assertEquals(14, actualOutput.size)
-        assertEquals(P5000, actualOutput[6])
+        assertEquals(SEDTYPE_P5000, actualOutput[6])
     }
 
     @Test
@@ -250,7 +250,7 @@ class BucUtilsTest {
         val actualOutput = bucUtils.getFiltrerteGyldigSedAksjonListAsString()
 
         assertEquals(10, actualOutput.size)
-        assertEquals(P6000, actualOutput[7])
+        assertEquals(SEDTYPE_P6000, actualOutput[7])
     }
 
     @Test
@@ -258,40 +258,40 @@ class BucUtilsTest {
         val actualOutput = bucUtils.getSedsThatCanBeCreated()
 
         assertEquals(14, actualOutput.size)
-        assertEquals(P6000, actualOutput[7])
+        assertEquals(SEDTYPE_P6000, actualOutput[7])
     }
 
     @Test
     fun `Test liste med SED kun PensjonSED skal returneres`() {
-        val list = listOf(X005, P2000, P4000, H021, P9000)
+        val list = listOf(SEDTYPE_X005, SEDTYPE_P2000, SEDTYPE_P4000, SEDTYPE_H021, SEDTYPE_P9000)
 
         val result = bucUtils.filterSektorPandRelevantHorizontalAndXSeds(list)
         assertEquals(4, result.size)
 
-        val expected = listOf(H021, P2000, P4000, P9000)
+        val expected = listOf(SEDTYPE_H021, SEDTYPE_P2000, SEDTYPE_P4000, SEDTYPE_P9000)
         assertEquals(expected, result)
     }
 
     @Test
     fun `Test liste med SED som skal returneres`() {
         val list =
-            listOf(X005, P2000, P4000, H020, H070, H121, P9000)
+            listOf(SEDTYPE_X005, SEDTYPE_P2000, SEDTYPE_P4000, SEDTYPE_H020, SEDTYPE_H070, SEDTYPE_H121, SEDTYPE_P9000)
 
         val result = bucUtils.filterSektorPandRelevantHorizontalAndXSeds(list)
         assertEquals(6, result.size)
 
-        val expected = listOf(H020, H070, H121, P2000, P4000, P9000)
+        val expected = listOf(SEDTYPE_H020, SEDTYPE_H070, SEDTYPE_H121, SEDTYPE_P2000, SEDTYPE_P4000, SEDTYPE_P9000)
         assertEquals(expected, result)
     }
 
     @Test
     fun `Test av liste med SEDer der kun PensjonSEDer skal returneres`() {
-        val list = listOf(X005, P2000, P4000, H020, P9000)
+        val list = listOf(SEDTYPE_X005, SEDTYPE_P2000, SEDTYPE_P4000, SEDTYPE_H020, SEDTYPE_P9000)
 
         val result = bucUtils.filterSektorPandRelevantHorizontalAndXSeds(list)
         assertEquals(4, result.size)
 
-        val expected = listOf(H020, P2000, P4000, P9000)
+        val expected = listOf(SEDTYPE_H020, SEDTYPE_P2000, SEDTYPE_P4000, SEDTYPE_P9000)
         assertEquals(expected, result)
     }
 
@@ -541,7 +541,7 @@ class BucUtilsTest {
         assertEquals("2019-08-29T14:27:12.589+0000", buc.startDate)
         assertEquals("2019-08-30T15:21:30.000+0000", buc.lastUpdate)
 
-        val exception = mapOf<SedType, Boolean?>(P7000 to false, P2200 to true, P8000 to true, P9000 to true, P6000 to true, H070 to false)
+        val exception = mapOf<SedType, Boolean?>(SEDTYPE_P7000 to false, SEDTYPE_P2200 to true, SEDTYPE_P8000 to true, SEDTYPE_P9000 to true, SEDTYPE_P6000 to true, SEDTYPE_H070 to false)
         val result = seds.distinctBy { it.type }.filter { exception.contains(it.type) }.map { it }
         //utvalg av sed som støtter eller ikke støtter vedlegg
         result.forEach {
@@ -557,7 +557,7 @@ class BucUtilsTest {
         val bucAndSedView = BucAndSedView.from(buc)
         val seds = bucAndSedView.seds
 
-        val single = seds!!.filter { it.type == P12000 }.map { it }.first()
+        val single = seds!!.filter { it.type == SEDTYPE_P12000 }.map { it }.first()
         assertEquals(false , single.allowsAttachments)
 
     }
@@ -569,7 +569,7 @@ class BucUtilsTest {
         val bucUtils = BucUtils(buc)
 
         assertThrows<SedDokumentKanIkkeOpprettesException> {
-            bucUtils.checkIfSedCanBeCreated(P12000, RINASAK_ID)
+            bucUtils.checkIfSedCanBeCreated(SEDTYPE_P12000, RINASAK_ID)
         }
     }
 
@@ -580,7 +580,7 @@ class BucUtilsTest {
         val bucUtils = BucUtils(buc)
 
         assertThrows<SedDokumentKanIkkeOpprettesException> {
-            bucUtils.checkIfSedCanBeCreated(P10000, RINASAK_ID)
+            bucUtils.checkIfSedCanBeCreated(SEDTYPE_P10000, RINASAK_ID)
         }
     }
 
@@ -591,7 +591,7 @@ class BucUtilsTest {
         val bucUtils = BucUtils(buc)
 
         assertThrows<SedDokumentKanIkkeOpprettesException> {
-            bucUtils.checkIfSedCanBeCreated(P5000, RINASAK_ID)
+            bucUtils.checkIfSedCanBeCreated(SEDTYPE_P5000, RINASAK_ID)
         }
     }
 
@@ -601,13 +601,13 @@ class BucUtilsTest {
         val buc = mapJsonToAny<Buc>(bucjson)
         val bucUtils = BucUtils(buc)
 
-        val allowed = listOf(P5000, P6000, P8000, P10000, H121, H020)
+        val allowed = listOf(SEDTYPE_P5000, SEDTYPE_P6000, SEDTYPE_P8000, SEDTYPE_P10000, SEDTYPE_H121, SEDTYPE_H020)
 
         allowed.forEach {
             assertEquals(true, bucUtils.checkIfSedCanBeCreated(it, RINASAK_ID) )
         }
 
-        val notAllowd = listOf(P2200, P4000, P3000_NO, P9000)
+        val notAllowd = listOf(SEDTYPE_P2200, SEDTYPE_P4000, SEDTYPE_P3000_NO, SEDTYPE_P9000)
         notAllowd.forEach {
             assertThrows<SedDokumentKanIkkeOpprettesException> {
                 bucUtils.checkIfSedCanBeCreated(it, RINASAK_ID)
@@ -621,7 +621,7 @@ class BucUtilsTest {
         val buc = mapJsonToAny<Buc>(bucjson)
         val bucUtils = BucUtils(buc)
 
-        val notAllowd = listOf(P2000, P4000, P3000_NO, P9000)
+        val notAllowd = listOf(SEDTYPE_P2000, SEDTYPE_P4000, SEDTYPE_P3000_NO, SEDTYPE_P9000)
         notAllowd.forEach {
             assertThrows<SedDokumentKanIkkeOpprettesException> {
                 bucUtils.checkIfSedCanBeCreated(it, RINASAK_ID)
@@ -635,13 +635,13 @@ class BucUtilsTest {
         val buc = mapJsonToAny<Buc>(bucjson)
         val bucUtils = BucUtils(buc)
 
-        val allowed = listOf(P4000, P5000, P6000, P8000, P7000, P10000, H120, H020)
+        val allowed = listOf(SEDTYPE_P4000, SEDTYPE_P5000, SEDTYPE_P6000, SEDTYPE_P8000, SEDTYPE_P7000, SEDTYPE_P10000, SEDTYPE_H120, SEDTYPE_H020)
 
         allowed.forEach {
             assertEquals(true, bucUtils.checkIfSedCanBeCreated(it, RINASAK_ID) )
         }
 
-        val notAllowd = listOf(P2000)
+        val notAllowd = listOf(SEDTYPE_P2000)
         notAllowd.forEach {
             assertThrows<SedDokumentKanIkkeOpprettesException> {
                 bucUtils.checkIfSedCanBeCreated(it, RINASAK_ID)
@@ -767,10 +767,10 @@ class BucUtilsTest {
         val bucUtils = BucUtils(buc)
         val result = bucUtils.getAllDocuments()
 
-        assertEquals(DummyChooseParts, result.first().type)
+        assertEquals(SEDTYPE_DummyChooseParts, result.first().type)
 
         val seds = bucUtils.getFiltrerteGyldigSedAksjonListAsString()
-        val validsed = listOf(P5000, P6000, P7000, P10000)
+        val validsed = listOf(SEDTYPE_P5000, SEDTYPE_P6000, SEDTYPE_P7000, SEDTYPE_P10000)
 
         assertEquals(seds.toString(), validsed.toString())
         assertThat(seds.containsAll(validsed) )
@@ -782,10 +782,10 @@ class BucUtilsTest {
         val bucUtils = BucUtils(buc)
         val result = bucUtils.getAllDocuments()
 
-        assertEquals(DummyChooseParts, result.first().type)
+        assertEquals(SEDTYPE_DummyChooseParts, result.first().type)
 
         val seds = bucUtils.getFiltrerteGyldigSedAksjonListAsString()
-        val validsed = listOf(P5000, P6000, P7000, P10000)
+        val validsed = listOf(SEDTYPE_P5000, SEDTYPE_P6000, SEDTYPE_P7000, SEDTYPE_P10000)
 
         assertEquals(seds.toString(), validsed.toString())
         assertThat(seds.containsAll(validsed) )
@@ -799,8 +799,8 @@ class BucUtilsTest {
         val result = bucUtils.getAllDocuments()
         val seds = bucUtils.getFiltrerteGyldigSedAksjonListAsString()
 
-        assertEquals(P2000, result.first().type)
-        assertEquals(listOf(P2000).toString(), seds.toString())
+        assertEquals(SEDTYPE_P2000, result.first().type)
+        assertEquals(listOf(SEDTYPE_P2000).toString(), seds.toString())
     }
 
     @Test
@@ -883,19 +883,19 @@ class BucUtilsTest {
         val bucUtils = BucUtils(buc)
 
         try {
-            bucUtils.isValidSedtypeOperation(P2100, ActionOperation.Create)
+            bucUtils.isValidSedtypeOperation(SEDTYPE_P2100, ActionOperation.Create)
         } catch (ex: Exception) {
             assertEquals("400 BAD_REQUEST \"Utkast av type P2100, finnes allerede i BUC\"", ex.message)
         }
 
         try {
-            bucUtils.isValidSedtypeOperation(P6000, ActionOperation.Send)
+            bucUtils.isValidSedtypeOperation(SEDTYPE_P6000, ActionOperation.Send)
         } catch (ex: Exception) {
             assertEquals("400 BAD_REQUEST \"Du kan ikke uføre action: Send. for SED av type P6000\"", ex.message)
         }
 
         try {
-            assertEquals(true, bucUtils.isValidSedtypeOperation(P6000, ActionOperation.Create))
+            assertEquals(true, bucUtils.isValidSedtypeOperation(SEDTYPE_P6000, ActionOperation.Create))
         } catch (ex: Exception) {
             fail("skal ikke komme hit!")
         }
@@ -907,9 +907,9 @@ class BucUtilsTest {
         val buc = mapJsonToAny<Buc>(javaClass.getResource("/json/buc/buc-3059699-x100.json").readText())
         val bucUtils = BucUtils(buc)
 
-        assertTrue(bucUtils.isChildDocumentByParentIdBeCreated("aac5ac5d6a2b47019ea606114c96cf50", P9000))
+        assertTrue(bucUtils.isChildDocumentByParentIdBeCreated("aac5ac5d6a2b47019ea606114c96cf50", SEDTYPE_P9000))
         assertThrows<ResponseStatusException> {
-            bucUtils.isChildDocumentByParentIdBeCreated("add6d09bdcf74f0e897ecdbe8a8420a4", P9000)
+            bucUtils.isChildDocumentByParentIdBeCreated("add6d09bdcf74f0e897ecdbe8a8420a4", SEDTYPE_P9000)
         }
 
     }
@@ -924,7 +924,7 @@ class BucUtilsTest {
                     direction = direction,
                     receiveDate = 1567178490000,
                     lastUpdate = 1567178490000,
-                    type = P8000
+                    type = SEDTYPE_P8000
                 )
             )
         )

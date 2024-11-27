@@ -75,7 +75,7 @@
              val sedType = if (request.sed == null)
                  throw ResponseStatusException(HttpStatus.BAD_REQUEST,"SedType mangler")
              else
-                 SedType.from(request.sed.name) ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST,"SedType ${request.sed} er ikke gyldig")
+                 SedType.fromJson(request.sed.jsonValue) ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST,"SedType ${request.sed} er ikke gyldig")
 
              return when {
                  request.buc == null -> throw ResponseStatusException(HttpStatus.BAD_REQUEST,"Mangler BUC")
@@ -98,7 +98,7 @@
                          kravType = request.kravType,
                          kravId = request.kravId
                      ).apply {
-                         partSedAsJson[sedType.name] = request.payload ?: "{}"
+                         partSedAsJson[sedType.jsonValue] = request.payload ?: "{}"
                      }
                  }
              }

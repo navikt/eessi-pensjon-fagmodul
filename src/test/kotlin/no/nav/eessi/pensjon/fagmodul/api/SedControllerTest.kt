@@ -78,7 +78,7 @@ class SedControllerTest {
 
     @Test
     fun getDocumentfromRina() {
-        val sed = SED(SedType.P2000)
+        val sed = SED(SedType.SEDTYPE_P2000)
         every { mockEuxInnhentingService.getSedOnBucByDocumentId("2313", "23123123123") } returns sed
 
         val result = sedController.getDocument("2313", "23123123123")
@@ -103,7 +103,7 @@ class SedControllerTest {
 
         val actualResponse = sedController.getSeds(buc, rinanr)
 
-        val expectedResponse = ResponseEntity.ok().body(mapAnyToJson(listOf(SedType.P2000)))
+        val expectedResponse = ResponseEntity.ok().body(mapAnyToJson(listOf(SedType.SEDTYPE_P2000)))
 
         assertEquals(expectedResponse, actualResponse)
 
@@ -122,7 +122,7 @@ class SedControllerTest {
         val actualResponse = sedController.getSeds(buc, rinanr)
 
         val expectedResponse =
-            ResponseEntity.ok(mapAnyToJson(listOf(SedType.P5000, SedType.P6000, SedType.P7000, SedType.P10000)))
+            ResponseEntity.ok(mapAnyToJson(listOf(SedType.SEDTYPE_P5000, SedType.SEDTYPE_P6000, SedType.SEDTYPE_P7000, SedType.SEDTYPE_P10000)))
 
         assertEquals(expectedResponse, actualResponse)
 
@@ -139,7 +139,7 @@ class SedControllerTest {
         every { mockEuxInnhentingService.getBuc(rinanr) } returns mockBuc
 
         val actualResponse = sedController.getSeds(buc, rinanr)
-        val expectedResponse = ResponseEntity.ok(mapAnyToJson(listOf(SedType.P5000, SedType.P6000, SedType.P7000, SedType.P10000)))
+        val expectedResponse = ResponseEntity.ok(mapAnyToJson(listOf(SedType.SEDTYPE_P5000, SedType.SEDTYPE_P6000, SedType.SEDTYPE_P7000, SedType.SEDTYPE_P10000)))
 
         assertEquals(expectedResponse, actualResponse)
 
@@ -161,7 +161,7 @@ class SedControllerTest {
         val actualResponse = sedController.getSeds(buc, rinanr)
 
         val expectedResponse =
-            ResponseEntity.ok().body(mapAnyToJson(listOf(SedType.P10000, SedType.P6000, SedType.P7000)))
+            ResponseEntity.ok().body(mapAnyToJson(listOf(SedType.SEDTYPE_P10000, SedType.SEDTYPE_P6000, SedType.SEDTYPE_P7000)))
 
         assertEquals(expectedResponse, actualResponse)
 
@@ -180,16 +180,16 @@ class SedControllerTest {
         val actualResponse = sedController.getSeds(buc, rinanr)
 
         val sedList = listOf(
-            SedType.H020,
-            SedType.H070,
-            SedType.H120,
-            SedType.P10000,
-            SedType.P3000_NO,
-            SedType.P4000,
-            SedType.P5000,
-            SedType.P6000,
-            SedType.P7000,
-            SedType.P8000
+            SedType.SEDTYPE_H020,
+            SedType.SEDTYPE_H070,
+            SedType.SEDTYPE_H120,
+            SedType.SEDTYPE_P10000,
+            SedType.SEDTYPE_P3000_NO,
+            SedType.SEDTYPE_P4000,
+            SedType.SEDTYPE_P5000,
+            SedType.SEDTYPE_P6000,
+            SedType.SEDTYPE_P7000,
+            SedType.SEDTYPE_P8000
         )
         val expectedResponse = ResponseEntity.ok().body(mapAnyToJson(sedList))
 

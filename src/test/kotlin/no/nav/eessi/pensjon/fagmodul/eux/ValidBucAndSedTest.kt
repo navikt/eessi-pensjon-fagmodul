@@ -12,12 +12,12 @@ class ValidBucAndSedTest {
     @Test
     fun `Calling euxService getAvailableSEDonBuc returns BuC lists`() {
         var buc = P_BUC_01.name
-        var expectedResponse = listOf(P2000)
+        var expectedResponse = listOf(SEDTYPE_P2000)
         var generatedResponse = ValidBucAndSed.getAvailableSedOnBuc (buc)
         Assertions.assertEquals(generatedResponse, expectedResponse)
 
         buc = P_BUC_06.name
-        expectedResponse = listOf(P5000, P6000, P7000, P10000)
+        expectedResponse = listOf(SEDTYPE_P5000, SEDTYPE_P6000, SEDTYPE_P7000, SEDTYPE_P10000)
         generatedResponse = ValidBucAndSed.getAvailableSedOnBuc(buc)
         Assertions.assertEquals(generatedResponse, expectedResponse)
     }

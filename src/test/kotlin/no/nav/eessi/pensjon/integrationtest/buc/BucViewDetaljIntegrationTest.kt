@@ -6,7 +6,6 @@ import io.mockk.FunctionAnswer
 import io.mockk.every
 import io.mockk.verify
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
-import no.nav.eessi.pensjon.eux.model.BucType
 import no.nav.eessi.pensjon.eux.model.BucType.*
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.SedType.*
@@ -101,8 +100,8 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
         //buc02
         val docItems = listOf(
-            documentsItem("1","sent", P2100),
-            documentsItem("2","draft", P4000)
+            documentsItem("1","sent", SEDTYPE_P2100),
+            documentsItem("2","draft", SEDTYPE_P4000)
         )
         val buc02 = Buc(id = EUXCASE_ID, processDefinitionName = "P_BUC_02", startDate = lastupdate, lastUpdate = lastupdate,  documents = docItems)
 
@@ -142,8 +141,8 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
         //buc02
         val docItems = listOf(
-            documentsItem("1","sent", P15000, "IN"),
-            documentsItem( "2", "draft", P4000)
+            documentsItem("1","sent", SEDTYPE_P15000, "IN"),
+            documentsItem( "2", "draft", SEDTYPE_P4000)
         )
         val buc10 = Buc(id = EUXCASE_ID, processDefinitionName = "P_BUC_10", startDate = lastupdate, lastUpdate = lastupdate,  documents = docItems)
 
@@ -175,8 +174,8 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
         //buc01
         val docItems = listOf(
-            documentsItem("1", "sent", P2000),
-            documentsItem("2", "draft", P4000)
+            documentsItem("1", "sent", SEDTYPE_P2000),
+            documentsItem("2", "draft", SEDTYPE_P4000)
         )
         val buc01 = Buc(id = EUXCASE_ID2, processDefinitionName = "P_BUC_01", startDate = lastupdate, lastUpdate = lastupdate,  documents = docItems)
 

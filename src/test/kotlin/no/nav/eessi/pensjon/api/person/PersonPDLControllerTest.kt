@@ -355,7 +355,7 @@ class PersonPDLControllerTest {
 
         val doedsPerson = lagPerson(avdodfnr).copy(doedsfall = Doedsfall(LocalDate.of(2020, 6, 20), null, mockMeta()))
         val sedP2100 = P2100(nav = Nav(bruker = Bruker(person = no.nav.eessi.pensjon.eux.model.sed.Person(pin = listOf(PinItem(land = "NO", identifikator = avdodfnr))))), pensjon = null)
-        val buc = Buc(id = rinanr, processDefinitionName = "P_BUC_02", documents = listOf(DocumentsItem(id = documentid, direction = "OUT", type = SedType.P2100)))
+        val buc = Buc(id = rinanr, processDefinitionName = "P_BUC_02", documents = listOf(DocumentsItem(id = documentid, direction = "OUT", type = SedType.SEDTYPE_P2100)))
 
         val pen = Pensjonsinformasjon()
         val penavdod = V1Avdod()
@@ -395,7 +395,7 @@ class PersonPDLControllerTest {
 
         val doedsPerson = lagPerson(avdodfnr).copy(doedsfall = Doedsfall(LocalDate.of(2010, 6, 20), null, mockMeta()))
         val sedP2100 = P2100(nav = Nav(bruker = Bruker(person = no.nav.eessi.pensjon.eux.model.sed.Person(pin = listOf(PinItem(land = "NO", identifikator = "18077443335"))))), pensjon = null)
-        val buc = Buc(id = rinanr, processDefinitionName = "P_BUC_02", documents = listOf(DocumentsItem(id = documentid, direction = "OUT", type = SedType.P2100)))
+        val buc = Buc(id = rinanr, processDefinitionName = "P_BUC_02", documents = listOf(DocumentsItem(id = documentid, direction = "OUT", type = SedType.SEDTYPE_P2100)))
 
         val pen = Pensjonsinformasjon()
         val penavdod = V1Avdod()
@@ -431,10 +431,10 @@ class PersonPDLControllerTest {
         val sedP5000 = P5000(nav = Nav(bruker = Bruker(person = no.nav.eessi.pensjon.eux.model.sed.Person(pin = listOf(PinItem(land = "NO", identifikator = avdodfnr))))), pensjon = null)
         val buc = Buc(id = rinanr, processDefinitionName = "P_BUC_06",
             actions = listOf(
-                ActionsItem(SedType.P5000, documentId = documentid, operation = ActionOperation.Send),
-                ActionsItem(SedType.P5000, documentId = documentid, operation = ActionOperation.Update)
+                ActionsItem(SedType.SEDTYPE_P5000, documentId = documentid, operation = ActionOperation.Send),
+                ActionsItem(SedType.SEDTYPE_P5000, documentId = documentid, operation = ActionOperation.Update)
             ),
-            documents = listOf(DocumentsItem(id = documentid, direction = "OUT", type = SedType.P5000)))
+            documents = listOf(DocumentsItem(id = documentid, direction = "OUT", type = SedType.SEDTYPE_P5000)))
 
         val pen = Pensjonsinformasjon()
         val penavdod = V1Avdod()

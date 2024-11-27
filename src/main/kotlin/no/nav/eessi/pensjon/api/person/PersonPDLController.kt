@@ -172,7 +172,7 @@ class PersonPDLController(
                 P_BUC_02.name -> {
                     logger.debug("2 avdøde fra vedtak, henter buc for å kunne velge ut den avdod som finnes i P2100")
                     val bucUtils = BucUtils(buc)
-                    val p2100id = bucUtils.getAllDocuments().firstOrNull { doc -> doc.type == SedType.P2100 && doc.direction == "OUT" }?.id
+                    val p2100id = bucUtils.getAllDocuments().firstOrNull { doc -> doc.type == SedType.SEDTYPE_P2100 && doc.direction == "OUT" }?.id
                     val sedAvdodident = p2100id?.let { docid -> hentSedAvdodIdent(euxCaseId, docid ) }
                     //valider sedident mot vedtakident på avdøde
                     val korrektid = avdodlist.firstOrNull { it == sedAvdodident }
@@ -181,7 +181,7 @@ class PersonPDLController(
                 }
                 P_BUC_06.name -> {
                     val bucUtils = BucUtils(buc)
-                    val p5000id = bucUtils.getAllDocuments().firstOrNull { doc -> doc.type == SedType.P5000 && doc.direction == "OUT" }?.id
+                    val p5000id = bucUtils.getAllDocuments().firstOrNull { doc -> doc.type == SedType.SEDTYPE_P5000 && doc.direction == "OUT" }?.id
                     logger.debug("2 avdøde fra vedtak, henter buc for å kunne velge ut den avdod som finnes i P5000")
                     val sedAvdodident = p5000id?.let { docid -> hentSedAvdodIdent(euxCaseId, docid ) }
                     val korrektid = avdodlist.firstOrNull { it == sedAvdodident }

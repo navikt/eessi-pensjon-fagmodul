@@ -55,7 +55,7 @@ class ApiRequestTest {
                 "}"
         val datamodel = ApiRequest.buildPrefillDataModelOnExisting( mapJsonToAny(req), "", "")
         assertNotNull(datamodel)
-        assertEquals(P2000, datamodel.sedType)
+        assertEquals(SEDTYPE_P2000, datamodel.sedType)
         assertEquals(P_BUC_01, datamodel.buc)
     }
 
@@ -67,7 +67,7 @@ class ApiRequestTest {
                 subjectArea = "Pensjon",
                 sakId = "EESSI-PEN-123",
                 institutions = listOf(InstitusjonItem("NO", "DUMMY")),
-                sed = X003,
+                sed = SEDTYPE_X003,
                 buc = P_BUC_06,
                 aktoerId = "0105094340092"
         )
@@ -95,7 +95,7 @@ class ApiRequestTest {
     fun `check on minimum valid request to model`() {
         val mockData = ApiRequest(
                 sakId = "12234",
-                sed = P6000,
+                sed = SEDTYPE_P6000,
                 buc = P_BUC_01,
                 euxCaseId = "1231",
                 aktoerId = "0105094340092",
@@ -107,14 +107,14 @@ class ApiRequestTest {
         assertEquals("12345", model.bruker.norskIdent)
         assertEquals("12234", model.penSaksnummer)
         assertEquals("0105094340092", model.bruker.aktorId)
-        assertEquals(P6000, model.sedType)
+        assertEquals(SEDTYPE_P6000, model.sedType)
     }
 
     @Test
     fun `check on minimum valid request to model on P2100`() {
         val mockData = ApiRequest(
                 sakId = "12234",
-                sed = P2100,
+                sed = SEDTYPE_P2100,
                 buc = P_BUC_02,
                 aktoerId = "0105094340092",
                 avdodfnr = "010244212312",
@@ -127,7 +127,7 @@ class ApiRequestTest {
         assertEquals("12345", model.bruker.norskIdent)
         assertEquals("12234", model.penSaksnummer)
         assertEquals("0105094340092", model.bruker.aktorId)
-        assertEquals(P2100, model.sedType)
+        assertEquals(SEDTYPE_P2100, model.sedType)
         assertEquals("2223312", model.avdod?.aktorId)
         assertEquals("010244212312", model.avdod?.norskIdent)
 
@@ -138,7 +138,7 @@ class ApiRequestTest {
         val mockData = ApiRequest(
                 sakId = "12234",
                 euxCaseId = "2345",
-                sed = P5000,
+                sed = SEDTYPE_P5000,
                 buc = P_BUC_02,
                 aktoerId = "0105094340092",
                 avdodfnr = null,
@@ -151,7 +151,7 @@ class ApiRequestTest {
         assertEquals("23123", model.bruker.norskIdent)
         assertEquals("12234", model.penSaksnummer)
         assertEquals("0105094340092", model.bruker.aktorId)
-        assertEquals(P5000, model.sedType)
+        assertEquals(SEDTYPE_P5000, model.sedType)
         assertEquals("113123123123", model.avdod?.aktorId)
         assertEquals("576567567567", model.avdod?.norskIdent)
 
@@ -162,7 +162,7 @@ class ApiRequestTest {
     fun `request to model without avdod on P_BUC_02 P5000 should throw execptin`() {
         val mockData = ApiRequest(
                 sakId = "12234",
-                sed = P5000,
+                sed = SEDTYPE_P5000,
                 buc = P_BUC_02,
                 aktoerId = "0105094340092",
                 avdodfnr = null,
@@ -179,7 +179,7 @@ class ApiRequestTest {
     fun `check on aktoerId is null`() {
         val mockData = ApiRequest(
                 sakId = "1213123123",
-                sed = P6000,
+                sed = SEDTYPE_P6000,
                 aktoerId = null
         )
         assertThrows<ResponseStatusException> {
