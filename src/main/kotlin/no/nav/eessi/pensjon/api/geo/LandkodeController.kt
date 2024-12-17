@@ -1,6 +1,5 @@
 package no.nav.eessi.pensjon.api.geo
 
-import com.google.api.client.json.Json
 import no.nav.eessi.pensjon.kodeverk.KodeverkClient
 import no.nav.security.token.support.core.api.Unprotected
 import org.slf4j.LoggerFactory
