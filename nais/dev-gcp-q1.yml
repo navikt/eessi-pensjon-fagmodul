@@ -100,7 +100,7 @@ spec:
     - name: AZURE_APP_PROXY_CLIENT_ID
       value: dev-fss.eessipensjon.eessi-pensjon-onprem-proxy-q1
     - name: AZURE_APP_KODEVERK_CLIENT_ID
-      value: kodeverk-api.nav.no
+      value: dev-gcp.team-rocket.kodeverk-api
     - name: AZURE_APP_SAF_CLIENT_ID
       value: dev-fss.teamdokumenthandtering.saf
 
