@@ -47,7 +47,7 @@ spec:
         - host: saf-q2.dev-fss-pub.nais.io
         - host: pdl-api.dev-fss-pub.nais.io
         - host: kodeverk-api.nav.no
-        - host: eux-rina-api-gcp-q2.intern.dev.nav.no
+        - host: eux-rina-api-q2.intern.dev.nav.no
         - host: rina-ss1-q.adeo.no
     inbound:
       rules:
@@ -72,7 +72,7 @@ spec:
     - name: PENSJONSINFORMASJON_URL
       value: https://eessi-pensjon-onprem-proxy-q2.dev-fss-pub.nais.io/pen/api/pensjonsinformasjon/v1
     - name: EESSIPEN_EUX_RINA_URL
-      value: https://eux-rina-api-gcp-q2.intern.dev.nav.no/cpi
+      value: https://eux-rina-api-q2.intern.dev.nav.noo/cpi
     - name: EESSIPENSJON_PREFILL_GCP_URL
       value: https://eessi-pensjon-prefill-q2.intern.dev.nav.no
     - name: RINA_HOST_URL
