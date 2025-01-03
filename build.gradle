@@ -98,7 +98,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter:5.11.2")
 
     //mock - test
-    testImplementation("io.mockk:mockk:1.13.13")
+    testImplementation("io.mockk:mockk:1.13.14")
     testImplementation("org.skyscreamer:jsonassert:1.5.3")
 
     //Kafka
