@@ -109,8 +109,8 @@ class RestTemplateConfig(
         return RestTemplateBuilder()
             .rootUri(url)
             .errorHandler(defaultErrorHandler)
-            .setReadTimeout(Duration.ofSeconds(120))
-            .setConnectTimeout(Duration.ofSeconds(120))
+            .readTimeout(Duration.ofSeconds(120))
+            .connectTimeout(Duration.ofSeconds(120))
             .additionalInterceptors(
                 RequestIdHeaderInterceptor(),
                 IOExceptionRetryInterceptor(),

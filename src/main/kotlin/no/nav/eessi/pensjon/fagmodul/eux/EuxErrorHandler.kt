@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus.*
 import org.springframework.http.client.ClientHttpResponse
 import org.springframework.util.StreamUtils
 import org.springframework.web.client.DefaultResponseErrorHandler
+import org.springframework.web.client.ResponseErrorHandler
 import java.io.IOException
 import java.nio.charset.Charset
 
@@ -22,7 +23,7 @@ import java.nio.charset.Charset
  *    500 (Internal Server Error), 404 (Not Found), 401 (Unauthorized) osv.
  *  - Fange opp ukjente feil og logge disse for videre debugging.
  */
-open class EuxErrorHandler : DefaultResponseErrorHandler() {
+open class EuxErrorHandler : ResponseErrorHandler {
 
     private val logger = LoggerFactory.getLogger(EuxErrorHandler::class.java)
 
