@@ -11,8 +11,12 @@ import no.nav.eessi.pensjon.utils.mapJsonToAny
  *
  * services:  pdl, person, pen, maybe joark, eux-basis.
  */
-class PersonId(val norskIdent: String,
-               val aktorId: String)
+data class PersonId(val norskIdent: String,
+                      val aktorId: String? = null,
+                      val reservert: Boolean? = true,
+                      val epostKrr: String? = null,
+                      val telefonKrr:String? = null
+)
 
 data class PrefillDataModel(
     val penSaksnummer: String? = null,
@@ -29,7 +33,7 @@ data class PrefillDataModel(
     val refTilPerson: ReferanseTilPerson? = null,
     var melding: String? = null,
     val partSedAsJson: MutableMap<String, String> = mutableMapOf()
-    ) {
+) {
 
     override fun toString(): String {
         return "DataModel: SedType: ${sedType.name}, bucType: $buc, penSakId: $penSaksnummer, vedtakId: $vedtakId, euxCaseId: $euxCaseID"
@@ -40,7 +44,7 @@ data class PrefillDataModel(
     }
 
     fun getBankOgArbeidFromRequest(): BankOgArbeid? {
-        val personInfo = getPartSEDasJson("PersonInfo") ?: return null
+        val personInfo = getPartSEDasJson("PersonId") ?: return null
         return mapJsonToAny(personInfo)
     }
 
