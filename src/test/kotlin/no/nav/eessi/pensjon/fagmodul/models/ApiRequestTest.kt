@@ -4,10 +4,7 @@ import no.nav.eessi.pensjon.eux.model.BucType
 import no.nav.eessi.pensjon.eux.model.BucType.*
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.SedType.*
-import no.nav.eessi.pensjon.shared.api.ApiRequest
-import no.nav.eessi.pensjon.shared.api.ApiSubject
-import no.nav.eessi.pensjon.shared.api.InstitusjonItem
-import no.nav.eessi.pensjon.shared.api.SubjectFnr
+import no.nav.eessi.pensjon.shared.api.*
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -53,7 +50,7 @@ class ApiRequestTest {
                 "  \"skipSEDkey\" : null,\n" +
                 "  \"mockSED\" : true\n" +
                 "}"
-        val datamodel = ApiRequest.buildPrefillDataModelOnExisting( mapJsonToAny(req), "", "")
+        val datamodel = ApiRequest.buildPrefillDataModelOnExisting( mapJsonToAny(req), PersonInfo(""), "")
         assertNotNull(datamodel)
         assertEquals(P2000, datamodel.sedType)
         assertEquals(P_BUC_01, datamodel.buc)
@@ -72,7 +69,7 @@ class ApiRequestTest {
                 aktoerId = "0105094340092"
         )
         assertThrows<ResponseStatusException> {
-            ApiRequest.buildPrefillDataModelOnExisting(mockData, "12345", null)
+            ApiRequest.buildPrefillDataModelOnExisting(mockData, PersonInfo("12345"), null)
         }
     }
 
@@ -87,7 +84,7 @@ class ApiRequestTest {
                 aktoerId = "0105094340092"
         )
         assertThrows< ResponseStatusException> {
-            ApiRequest.buildPrefillDataModelOnExisting(mockData, "12345", null)
+            ApiRequest.buildPrefillDataModelOnExisting(mockData, PersonInfo("12345"), null)
         }
     }
 
@@ -102,7 +99,7 @@ class ApiRequestTest {
                 institutions = emptyList()
         )
 
-        val model = ApiRequest.buildPrefillDataModelOnExisting(mockData, "12345", null)
+        val model = ApiRequest.buildPrefillDataModelOnExisting(mockData, PersonInfo("12345", mockData.aktoerId), null)
 
         assertEquals("12345", model.bruker.norskIdent)
         assertEquals("12234", model.penSaksnummer)
@@ -122,7 +119,7 @@ class ApiRequestTest {
                 institutions = emptyList()
         )
 
-        val model = ApiRequest.buildPrefillDataModelOnExisting(mockData, "12345", "2223312")
+        val model = ApiRequest.buildPrefillDataModelOnExisting(mockData, PersonInfo("12345", mockData.aktoerId), "2223312")
 
         assertEquals("12345", model.bruker.norskIdent)
         assertEquals("12234", model.penSaksnummer)
@@ -146,7 +143,7 @@ class ApiRequestTest {
                 subject = ApiSubject(gjenlevende = SubjectFnr("23123"), avdod = SubjectFnr("576567567567"))
         )
 
-        val model = ApiRequest.buildPrefillDataModelOnExisting(mockData, "23123", "113123123123")
+        val model = ApiRequest.buildPrefillDataModelOnExisting(mockData, PersonInfo("23123", mockData.aktoerId), "113123123123")
 
         assertEquals("23123", model.bruker.norskIdent)
         assertEquals("12234", model.penSaksnummer)
@@ -169,7 +166,7 @@ class ApiRequestTest {
                 subject = null
         )
         assertThrows<ResponseStatusException> {
-            ApiRequest.buildPrefillDataModelOnExisting(mockData, "23123", null)
+            ApiRequest.buildPrefillDataModelOnExisting(mockData, PersonInfo("23123"), null)
         }
 
     }
@@ -183,7 +180,7 @@ class ApiRequestTest {
                 aktoerId = null
         )
         assertThrows<ResponseStatusException> {
-            ApiRequest.buildPrefillDataModelOnExisting(mockData, "12345", null)
+            ApiRequest.buildPrefillDataModelOnExisting(mockData, PersonInfo("12345"), null)
         }
     }
 

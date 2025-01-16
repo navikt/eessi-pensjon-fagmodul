@@ -70,7 +70,7 @@ data class ApiRequest(
         private val logger = LoggerFactory.getLogger(ApiRequest::class.java)
 
         //validatate request and convert to PrefillDataModel
-        fun buildPrefillDataModelOnExisting(request: ApiRequest, fodselsnr: String, avdodaktoerID: String? = null): PrefillDataModel {
+        fun buildPrefillDataModelOnExisting(request: ApiRequest, personInfo: PersonInfo, avdodaktoerID: String? = null): PrefillDataModel {
             logger.debug("*** apirequest: $request ***")
             val sedType = if (request.sed == null)
                 throw ResponseStatusException(HttpStatus.BAD_REQUEST, "SedType mangler")
@@ -88,7 +88,7 @@ data class ApiRequest(
                     logger.info("ALL SED on existing Rina SED: ${request.sed} -> euxCaseId: ${request.euxCaseId} -> sakNr: ${request.sakId} ")
                     PrefillDataModel(
                         penSaksnummer = request.sakId,
-                        bruker = PersonId(fodselsnr, request.aktoerId).also { logger.debug("FNR eller NPID: ${it.norskIdent}") },
+                        bruker = personInfo.also { logger.debug("FNR eller NPID: ${it.norskIdent}") },
                         avdod = populerAvdodHvisGjenlevendePensjonSak(request, avdodaktoerID),
                         sedType = sedType,
                         buc = request.buc,
@@ -106,7 +106,7 @@ data class ApiRequest(
             }
         }
 
-        private fun populerAvdodHvisGjenlevendePensjonSak(request: ApiRequest, avdodaktoerID: String?): PersonId? {
+        private fun populerAvdodHvisGjenlevendePensjonSak(request: ApiRequest, avdodaktoerID: String?): PersonInfo? {
             return when (request.buc) {
                 P_BUC_02 -> populerAvdodPersonId(request, avdodaktoerID, true)
                 P_BUC_05, P_BUC_06, P_BUC_10 -> populerAvdodPersonId(request, avdodaktoerID)
@@ -114,7 +114,7 @@ data class ApiRequest(
             }
         }
 
-        private fun populerAvdodPersonId(request: ApiRequest, avdodaktoerID: String?, kreverAvdod: Boolean = false): PersonId? {
+        private fun populerAvdodPersonId(request: ApiRequest, avdodaktoerID: String?, kreverAvdod: Boolean = false): PersonInfo? {
             if (kreverAvdod && avdodaktoerID == null) {
                 logger.error("Mangler fnr for avdød")
                 throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mangler fnr for avdød")
@@ -122,7 +122,7 @@ data class ApiRequest(
             request.riktigAvdod() ?: return null
             val avdodNorskIdent1 = request.riktigAvdod() ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mangler Personnr på Avdød")
             val avdodAktorId1 = avdodaktoerID ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mangler AktoerId på Avdød")
-            return PersonId(avdodNorskIdent1, avdodAktorId1)
+            return PersonInfo(avdodNorskIdent1, avdodAktorId1)
         }
 
     }
