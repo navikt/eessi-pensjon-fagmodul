@@ -546,6 +546,12 @@ class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
         return euxKlient.sendSed(rinaSakId, dokumentId)
     }
 
+    fun lagPdf(pdfJson: String): Boolean {
+        logger.info("Lager pdf fra json")
+        return euxKlient.lagPdf(pdfJson)
+
+    }
+
     /**
      * Utvalgt informasjon om en rinasak/Buc.
      */

@@ -6,10 +6,12 @@ import no.nav.eessi.pensjon.eux.model.sed.*
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.logging.AuditLogger
+import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -23,10 +25,18 @@ class SedController(
     private val euxInnhentingService: EuxInnhentingService,
     private val auditlogger: AuditLogger,
     @Value("\${eessipen-eux-rina.url}")
-    private val euxrinaurl: String
+    private val euxrinaurl: String,
+    @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
 
     private val logger = LoggerFactory.getLogger(SedController::class.java)
+
+    private lateinit var pdfGenerert: MetricsHelper.Metric
+    private lateinit var sedsendt: MetricsHelper.Metric
+
+    init {
+        pdfGenerert = metricsHelper.init("PdfGenerert")
+    }
 
     @GetMapping("/getP6000/{euxcaseid}")
     fun getDocumentP6000list(@PathVariable("euxcaseid", required = true) euxcaseid: String): List<P6000Dokument>? {
@@ -109,5 +119,26 @@ class SedController(
         }
         return this
     }
+
+    @Protected
+    @PostMapping("/sed/pdf")
+    fun lagPdf(@RequestBody pdfJson: String): ResponseEntity<String> {
+        return pdfGenerert.measure {
+            return@measure try {
+                val response = euxInnhentingService.lagPdf(pdfJson)
+                if (response) {
+                    logger.info("Lager PDF")
+                    ResponseEntity.ok().body("Sed er sendt til Rina")
+                } else {
+                    logger.error("Noe gikk galt under oppretting av PDF")
+                    ResponseEntity.badRequest().body("PDF ble IKKE laget")
+                }
+            } catch (ex: Exception) {
+                logger.error("Noe uforutsett skjedde ved generering av Pdf for Sed")
+                ResponseEntity.badRequest().body("PDF ble IKKE generert")
+            }
+        }
+    }
+
 
 }
