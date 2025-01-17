@@ -121,7 +121,7 @@ class SedController(
     }
 
     @Protected
-    @PostMapping("/sed/pdf")
+    @PostMapping("/post/pdf")
     fun lagPdf(@RequestBody pdfJson: String): ResponseEntity<String> {
         return pdfGenerert.measure {
             return@measure try {
@@ -139,6 +139,4 @@ class SedController(
             }
         }
     }
-
-
 }
