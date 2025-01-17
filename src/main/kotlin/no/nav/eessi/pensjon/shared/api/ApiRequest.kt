@@ -81,7 +81,6 @@ data class ApiRequest(
                 request.buc == null -> throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mangler BUC")
                 request.aktoerId == null -> throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mangler AktoerID")
                 request.euxCaseId == null -> throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mangler euxCaseId (RINANR)")
-
                 request.institutions == null -> throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mangler Institusjoner")
 
                 else -> {
