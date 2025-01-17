@@ -1,7 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.models
 
 import no.nav.eessi.pensjon.eux.model.SedType
-import no.nav.eessi.pensjon.shared.api.PersonId
+import no.nav.eessi.pensjon.shared.api.PersonInfo
 import no.nav.eessi.pensjon.shared.api.PrefillDataModel
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -20,7 +20,7 @@ class PrefillDataModelTest {
             sedType = SedType.P2000,
             vedtakId = "323232",
             euxCaseId = "231233213123",
-            avdod = PersonId("12312312", "23123")
+            avdod = PersonInfo("12312312", "23123")
         )
     }
 
