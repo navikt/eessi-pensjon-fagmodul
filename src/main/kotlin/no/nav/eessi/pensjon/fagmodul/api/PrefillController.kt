@@ -17,6 +17,7 @@ import no.nav.eessi.pensjon.gcp.GjennySak
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.shared.api.ApiRequest
+import no.nav.eessi.pensjon.shared.api.PersonInfo
 import no.nav.eessi.pensjon.shared.api.PrefillDataModel
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
@@ -136,7 +137,7 @@ class PrefillController(
 
         val norskIdent = innhentingService.hentFnrfraAktoerService(request.aktoerId) ?: throw HttpClientErrorException(HttpStatus.BAD_REQUEST)
         val avdodaktoerID = innhentingService.getAvdodId(BucType.from(request.buc.name)!!, request.riktigAvdod())
-        val dataModel = ApiRequest.buildPrefillDataModelOnExisting(request, norskIdent.id, avdodaktoerID)
+        val dataModel = ApiRequest.buildPrefillDataModelOnExisting(request, PersonInfo(norskIdent.id, request.aktoerId), avdodaktoerID)
 
         //Hente metadata for valgt BUC
         val bucUtil = euxInnhentingService.kanSedOpprettes(dataModel)
@@ -195,7 +196,7 @@ class PrefillController(
 
         val norskIdent = innhentingService.hentFnrfraAktoerService(request.aktoerId) ?: throw HttpClientErrorException(HttpStatus.BAD_REQUEST, "Mangler norsk fnr")
         val avdodaktoerID = innhentingService.getAvdodId(BucType.from(request.buc.name)!!, request.riktigAvdod())
-        val dataModel = ApiRequest.buildPrefillDataModelOnExisting(request, norskIdent.id, avdodaktoerID)
+        val dataModel = ApiRequest.buildPrefillDataModelOnExisting(request, PersonInfo(norskIdent.id, request.aktoerId), avdodaktoerID)
 
         //Hente metadata for valgt BUC
         val bucUtil = addDocumentToParentBucUtils.measure {
