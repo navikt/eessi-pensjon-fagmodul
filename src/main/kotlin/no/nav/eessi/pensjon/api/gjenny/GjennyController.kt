@@ -33,7 +33,6 @@ class GjennyController (
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
     private val logger = LoggerFactory.getLogger(GjennyController::class.java)
-    private val secureLog = LoggerFactory.getLogger("secureLog")
     private lateinit var bucerForGjenny: MetricsHelper.Metric
     private lateinit var bucerForAvdodGjenny: MetricsHelper.Metric
     private lateinit var bucViewGjenny: MetricsHelper.Metric
