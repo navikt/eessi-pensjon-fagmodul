@@ -124,6 +124,7 @@ class SedController(
     @PostMapping("/pdf")
     fun lagPdf(@RequestBody pdfJson: String): ResponseEntity<String> {
         return pdfGenerert.measure {
+            logger.info("Lager PDF")
             return@measure try {
                 val response = euxInnhentingService.lagPdf(pdfJson)
                 if (response) {
