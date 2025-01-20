@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController
 import kotlin.time.ExperimentalTime
 
 
-@OptIn(ExperimentalTime::class)
 @Protected
 @RestController
 @RequestMapping("/buc")
@@ -32,7 +31,6 @@ class BucController(
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
     private val logger = LoggerFactory.getLogger(BucController::class.java)
-    private val secureLog = LoggerFactory.getLogger("secureLog")
 
     private lateinit var bucDetaljerEnkel: MetricsHelper.Metric
     private lateinit var bucDetaljerEnkelGjenlevende: MetricsHelper.Metric
