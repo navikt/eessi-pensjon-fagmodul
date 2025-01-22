@@ -1,6 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.config
 
 import com.fasterxml.jackson.core.StreamReadConstraints
+import com.nimbusds.jwt.JWTClaimsSet
 import io.micrometer.core.instrument.MeterRegistry
 import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
 import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
@@ -33,6 +34,7 @@ import org.springframework.web.client.RestTemplate
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import java.time.Duration
+import java.util.*
 
 @Configuration
 @Profile("prod", "test")
@@ -152,6 +154,7 @@ class RestTemplateConfig(
                 "api://$clientId/.default",
                 decodedToken
             )
+            logger.debug("accessToken: $accessToken")
 
             request.headers.setBearerAuth(accessToken)
             execution.execute(request, body!!)
