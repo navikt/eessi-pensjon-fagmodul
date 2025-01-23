@@ -120,7 +120,6 @@ class SedController(
         return this
     }
 
-    @Protected
     @PostMapping("/pdf")
     fun lagPdf(@RequestBody pdfJson: String): PreviewPdf? {
         logger.info("Lager PDF")
