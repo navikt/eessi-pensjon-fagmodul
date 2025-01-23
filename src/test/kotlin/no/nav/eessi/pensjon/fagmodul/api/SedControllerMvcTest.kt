@@ -4,6 +4,7 @@ import com.ninjasquad.springmockk.MockkBean
 import com.ninjasquad.springmockk.MockkBeans
 import com.ninjasquad.springmockk.SpykBean
 import io.mockk.every
+import io.mockk.mockk
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.logging.AuditLogger
@@ -42,21 +43,21 @@ class SedControllerMvcTest {
     @Test
     fun `Gitt at vi forsøker å lage pdf så skal vi gi ok melding ved ok`() {
         val endpointUrl = "/sed/pdf"
-        every { euxKlient.lagPdf(any()) } returns true
+        every { euxKlient.lagPdf(any()) } returns mockk(relaxed = true)
 
         mockMvc.perform(
             post(endpointUrl)
                 .content("Sed er sendt til Rina")
         )
             .andExpect(status().isOk())
-            .andExpect(content().string("Sed er sendt til Rina"))
+            .andExpect(content().string("{\"filInnhold\":\"\",\"fileName\":\"\",\"contentType\":\"\"}"))
 
     }
 
     @Test
     fun `Gitt at vi forsøker å lage pdf med en tom String så skal vi kaste en exception`() {
         val endpointUrl = "/sed/pdf"
-        every { euxKlient.lagPdf(any()) } returns true
+        every { euxKlient.lagPdf(any()) } returns mockk()
 
         mockMvc.perform(
             post(endpointUrl)
@@ -76,8 +77,8 @@ class SedControllerMvcTest {
             post(endpointUrl)
                 .content("Sed er sendt til Rina")
         )
-            .andExpect(status().is4xxClientError())
-            .andExpect(content().string("PDF ble IKKE generert"))
+            .andExpect(status().is5xxServerError())
+            .andExpect(content().string(""))
             .andReturn()
     }
 }
