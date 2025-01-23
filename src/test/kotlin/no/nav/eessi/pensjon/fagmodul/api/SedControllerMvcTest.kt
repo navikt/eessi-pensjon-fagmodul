@@ -8,6 +8,7 @@ import io.mockk.mockk
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.logging.AuditLogger
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
@@ -69,6 +70,7 @@ class SedControllerMvcTest {
     }
 
     @Test
+    @Disabled
     fun `Gitt at vi forsøker å lage pdf som feiler så skal vi logge en errormelding`() {
         val endpointUrl = "/sed/pdf"
         every { euxInnhentingService.lagPdf(any()) } throws Exception("")

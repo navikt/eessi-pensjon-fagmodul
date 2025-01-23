@@ -122,16 +122,10 @@ class SedController(
 
     @Protected
     @PostMapping("/pdf")
-    fun lagPdf(@RequestBody pdfJson: String): ResponseEntity<PreviewPdf>? {
+    fun lagPdf(@RequestBody pdfJson: String): PreviewPdf? {
         return pdfGenerert.measure {
             logger.info("Lager PDF")
-            return@measure try {
-                val previewPdf  = euxInnhentingService.lagPdf(pdfJson).also { logger.info("SED for generering av PDF: $it") }
-                ResponseEntity.ok(previewPdf)
-            } catch (ex: Exception) {
-                logger.error("Noe uforutsett skjedde ved generering av Pdf for Sed")
-                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
-            }
+            euxInnhentingService.lagPdf(pdfJson).also { logger.info("SED for generering av PDF: $it") }
         }
     }
 }
