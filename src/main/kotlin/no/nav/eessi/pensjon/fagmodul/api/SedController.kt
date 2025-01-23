@@ -126,7 +126,7 @@ class SedController(
         return pdfGenerert.measure {
             logger.info("Lager PDF")
             return@measure try {
-                val response = euxInnhentingService.lagPdf(pdfJson)
+                val response = euxInnhentingService.lagPdf(pdfJson).also { logger.info("SED for generering av PDF: $it") }
                 if (response) {
                     logger.info("Lager PDF")
                     ResponseEntity.ok().body("Sed er sendt til Rina")
