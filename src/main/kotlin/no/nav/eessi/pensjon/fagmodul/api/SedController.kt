@@ -123,9 +123,7 @@ class SedController(
     @Protected
     @PostMapping("/pdf")
     fun lagPdf(@RequestBody pdfJson: String): PreviewPdf? {
-        return pdfGenerert.measure {
-            logger.info("Lager PDF")
-            euxInnhentingService.lagPdf(pdfJson).also { logger.info("SED for generering av PDF: $it") }
-        }
+        logger.info("Lager PDF")
+        return euxInnhentingService.lagPdf(pdfJson).also { logger.info("SED for generering av PDF: $it") }
     }
 }
