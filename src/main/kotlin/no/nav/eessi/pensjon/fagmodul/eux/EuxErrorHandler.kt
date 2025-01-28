@@ -33,6 +33,7 @@ open class EuxErrorHandler : ResponseErrorHandler {
     }
 
     @Throws(IOException::class)
+    @Deprecated("Deprecated i ResponseErrorHandler" )
     override fun handleError(httpResponse: ClientHttpResponse) {
         logResponse(httpResponse)
 
