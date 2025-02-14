@@ -524,7 +524,8 @@ class PersonPDLControllerTest {
               }
             }
           ],
-          "foedsel": null,
+          "foedested" : null,
+          "foedselsdato" : null,
           "geografiskTilknytning": null,
           "kjoenn": {
             "kjoenn": "MANN",
@@ -592,6 +593,7 @@ class PersonPDLControllerTest {
                 mockMeta()
             )
         ),
+        null,
         null,
         null,
         Kjoenn(
