@@ -64,6 +64,9 @@ class RestTemplateConfig(
     @Value("\${AZURE_APP_PREFILL_CLIENT_ID}")
     lateinit var prefillClientId: String
 
+    @Value("\${AZURE_APP_PEN_CLIENT_ID}")
+    lateinit var penClientId: String
+
     @Value("\${EESSIPEN_EUX_RINA_URL}")
     lateinit var euxUrl: String
 
@@ -95,7 +98,7 @@ class RestTemplateConfig(
     fun prefillOAuthTemplate() = restTemplate(prefillUrl, onBehalfOfBearerTokenInterceptor(prefillClientId))
 
     @Bean
-    fun pensjoninformasjonRestTemplate() = restTemplate(pensjonUrl, oAuth2BearerTokenInterceptor(clientProperties("proxy-credentials"), oAuth2AccessTokenService))
+    fun pensjoninformasjonRestTemplate() = restTemplate(pensjonUrl, onBehalfOfBearerTokenInterceptor(penClientId))
 
     @Bean
     fun safGraphQlOidcRestTemplate() = restTemplate(graphQlUrl, oAuth2BearerTokenInterceptor(clientProperties("saf-credentials"), oAuth2AccessTokenService))
