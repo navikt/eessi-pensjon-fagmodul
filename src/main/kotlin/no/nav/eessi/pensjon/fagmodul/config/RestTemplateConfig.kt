@@ -70,9 +70,6 @@ class RestTemplateConfig(
     @Value("\${EESSIPEN_EUX_RINA_URL}")
     lateinit var euxUrl: String
 
-    @Value("\${EESSI_PEN_ONPREM_PROXY_URL}")
-    lateinit var proxyUrl: String
-
     @Value("\${EESSIPENSJON_PREFILL_GCP_URL}")
     lateinit var prefillUrl: String
 
@@ -90,9 +87,6 @@ class RestTemplateConfig(
 
     @Bean
     fun euxSystemRestTemplate() = restTemplate(euxUrl, oAuth2BearerTokenInterceptor(clientProperties("eux-credentials"), oAuth2AccessTokenService), EuxErrorHandler())
-
-    @Bean
-    fun proxyOAuthRestTemplate() = restTemplate(proxyUrl, oAuth2BearerTokenInterceptor(clientProperties("proxy-credentials"), oAuth2AccessTokenService))
 
     @Bean
     fun prefillOAuthTemplate() = restTemplate(prefillUrl, onBehalfOfBearerTokenInterceptor(prefillClientId))
