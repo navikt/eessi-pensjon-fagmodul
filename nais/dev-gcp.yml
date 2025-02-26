@@ -94,7 +94,7 @@ spec:
       value: dev-gcp.eessipensjon.eessi-pensjon-prefill-q2
     - name: AZURE_APP_EUX_CLIENT_ID
       value: dev-gcp.eessibasis.eux-rina-api-q2
-    - name: AZURE_APP_EUX_CLIENT_ID
+    - name: AZURE_APP_PEN_CLIENT_ID
       value: dev-fss.pensjon-q2.pensjon-pen-q2
 
     - name: AZURE_APP_KODEVERK_CLIENT_ID
