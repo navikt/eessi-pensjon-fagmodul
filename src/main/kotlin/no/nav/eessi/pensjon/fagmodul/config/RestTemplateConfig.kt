@@ -64,11 +64,11 @@ class RestTemplateConfig(
     @Value("\${AZURE_APP_PREFILL_CLIENT_ID}")
     lateinit var prefillClientId: String
 
+    @Value("\${AZURE_APP_PEN_CLIENT_ID}")
+    lateinit var penClientId: String
+
     @Value("\${EESSIPEN_EUX_RINA_URL}")
     lateinit var euxUrl: String
-
-    @Value("\${EESSI_PEN_ONPREM_PROXY_URL}")
-    lateinit var proxyUrl: String
 
     @Value("\${EESSIPENSJON_PREFILL_GCP_URL}")
     lateinit var prefillUrl: String
@@ -89,13 +89,10 @@ class RestTemplateConfig(
     fun euxSystemRestTemplate() = restTemplate(euxUrl, oAuth2BearerTokenInterceptor(clientProperties("eux-credentials"), oAuth2AccessTokenService), EuxErrorHandler())
 
     @Bean
-    fun proxyOAuthRestTemplate() = restTemplate(proxyUrl, oAuth2BearerTokenInterceptor(clientProperties("proxy-credentials"), oAuth2AccessTokenService))
-
-    @Bean
     fun prefillOAuthTemplate() = restTemplate(prefillUrl, onBehalfOfBearerTokenInterceptor(prefillClientId))
 
     @Bean
-    fun pensjoninformasjonRestTemplate() = restTemplate(pensjonUrl, oAuth2BearerTokenInterceptor(clientProperties("proxy-credentials"), oAuth2AccessTokenService))
+    fun pensjoninformasjonRestTemplate() = restTemplate(pensjonUrl, onBehalfOfBearerTokenInterceptor(penClientId))
 
     @Bean
     fun safGraphQlOidcRestTemplate() = restTemplate(graphQlUrl, oAuth2BearerTokenInterceptor(clientProperties("saf-credentials"), oAuth2AccessTokenService))

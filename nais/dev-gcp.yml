@@ -37,18 +37,14 @@ spec:
         - application: eessi-pensjon-prefill-q2
           namespace: eessipensjon
           cluster: dev-gcp
-        - application: eessi-pensjon-onprem-proxy-q2
-          namespace: eessipensjon
-          cluster: dev-fss
       external:
-        - host: eessi-pensjon-onprem-proxy-q2.dev-fss-pub.nais.io
-        - host: eessi-pensjon-prefill-q2.intern.dev.nav.no
-        - host: eessi-pensjon-journalforing-q2.intern.dev.nav.no
+        - host: rina-ss1-q.adeo.no
+        - host: kodeverk-api.nav.no
         - host: saf-q2.dev-fss-pub.nais.io
         - host: pdl-api.dev-fss-pub.nais.io
-        - host: kodeverk-api.nav.no
         - host: eux-rina-api-gcp-q2.intern.dev.nav.no
-        - host: rina-ss1-q.adeo.no
+        - host: eessi-pensjon-prefill-q2.intern.dev.nav.no
+        - host: eessi-pensjon-journalforing-q2.intern.dev.nav.no
     inbound:
       rules:
         - application: eessi-pensjon-frontend-ui-q2
@@ -69,8 +65,9 @@ spec:
       value: test
     - name: GCP_BUCKET_NAME
       value: eessi-pensjon-gjenny-dev
+
     - name: PENSJONSINFORMASJON_URL
-      value: https://eessi-pensjon-onprem-proxy-q2.dev-fss-pub.nais.io/pen/api/pensjonsinformasjon/v1
+      value: https://pensjon-pen-q2.dev-fss-pub.nais.io
     - name: EESSIPEN_EUX_RINA_URL
       value: https://eux-rina-api-gcp-q2.intern.dev.nav.no/cpi
     - name: EESSIPENSJON_PREFILL_GCP_URL
@@ -83,22 +80,21 @@ spec:
       value: https://saf-q2.dev-fss-pub.nais.io/rest/hentdokument
     - name: PDL_URL
       value: https://pdl-api.dev-fss-pub.nais.io/graphql
+    - name: KODEVERK_URL
+      value: https://kodeverk-api.nav.no
+
     - name: KAFKA_STATISTIKK_TOPICNAME
       value: eessipensjon.privat-statistikk-q2
     - name: KAFKA_AUTOMATISERING_TOPIC
       value: eessipensjon.public-automatisering-q2
-    - name: KODEVERK_URL
-      value: https://kodeverk-api.nav.no
-    - name: EESSI_PEN_ONPREM_PROXY_URL
-      value: https://eessi-pensjon-onprem-proxy-q2.dev-fss-pub.nais.io
+
     - name: AZURE_APP_PDL_CLIENT_ID
       value: dev-fss.pdl.pdl-api
     - name: AZURE_APP_PREFILL_CLIENT_ID
       value: dev-gcp.eessipensjon.eessi-pensjon-prefill-q2
     - name: AZURE_APP_EUX_CLIENT_ID
       value: dev-gcp.eessibasis.eux-rina-api-q2
-    - name: AZURE_APP_PROXY_CLIENT_ID
-      value: dev-fss.eessipensjon.eessi-pensjon-onprem-proxy-q2
+
     - name: AZURE_APP_KODEVERK_CLIENT_ID
       value: dev-gcp.team-rocket.kodeverk-api
     - name: AZURE_APP_SAF_CLIENT_ID
