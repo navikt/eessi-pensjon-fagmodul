@@ -37,6 +37,9 @@ spec:
         - application: eessi-pensjon-prefill-q2
           namespace: eessipensjon
           cluster: dev-gcp
+        - application: eessi-pensjon-onprem-proxy-q2
+          namespace: eessipensjon
+          cluster: dev-fss
       external:
         - host: rina-ss1-q.adeo.no
         - host: kodeverk-api.nav.no
@@ -45,6 +48,7 @@ spec:
         - host: eux-rina-api-gcp-q2.intern.dev.nav.no
         - host: eessi-pensjon-prefill-q2.intern.dev.nav.no
         - host: eessi-pensjon-journalforing-q2.intern.dev.nav.no
+        - host: eessi-pensjon-onprem-proxy-q2.dev-fss-pub.nais.io
     inbound:
       rules:
         - application: eessi-pensjon-frontend-ui-q2
@@ -67,7 +71,7 @@ spec:
       value: eessi-pensjon-gjenny-dev
 
     - name: PENSJONSINFORMASJON_URL
-      value: https://pensjon-pen-q2.dev-fss-pub.nais.io
+      value: https://eessi-pensjon-onprem-proxy-q2.dev-fss-pub.nais.io/pen/api/pensjonsinformasjon/v1
     - name: EESSIPEN_EUX_RINA_URL
       value: https://eux-rina-api-gcp-q2.intern.dev.nav.no/cpi
     - name: EESSIPENSJON_PREFILL_GCP_URL
@@ -87,6 +91,9 @@ spec:
       value: eessipensjon.privat-statistikk-q2
     - name: KAFKA_AUTOMATISERING_TOPIC
       value: eessipensjon.public-automatisering-q2
+
+    - name: EESSI_PEN_ONPREM_PROXY_URL
+      value: https://eessi-pensjon-onprem-proxy-q2.dev-fss-pub.nais.io
 
     - name: AZURE_APP_PDL_CLIENT_ID
       value: dev-fss.pdl.pdl-api
