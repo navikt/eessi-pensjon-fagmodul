@@ -43,9 +43,9 @@ spec:
       external:
         - host: rina-ss1-q.adeo.no
         - host: kodeverk-api.nav.no
-        - host: pensjon-q2.pensjon-pen-q2
         - host: saf-q2.dev-fss-pub.nais.io
         - host: pdl-api.dev-fss-pub.nais.io
+        - host: pensjon-pen-q2.dev-fss-pub.nais.io
         - host: eux-rina-api-gcp-q2.intern.dev.nav.no
         - host: eessi-pensjon-prefill-q2.intern.dev.nav.no
         - host: eessi-pensjon-journalforing-q2.intern.dev.nav.no
