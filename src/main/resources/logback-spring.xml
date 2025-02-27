@@ -30,7 +30,7 @@
             <appender-ref ref="secureLog"/>
         </logger>
 
-        <appender name="auditLogger" class="com.papertrailapp.logback.Syslog4jAppender">
+        <appender name="auditLogger" class="no.nav.eessi.pensjon.logging.appender.Syslog4jAppender">
             <layout class="ch.qos.logback.classic.PatternLayout">
                 <pattern>[%d{"yyyy-MM-dd'T'HH:mm:ss,SSSXXX", UTC} %level] %logger{15} : %m%n%xEx</pattern>
             </layout>
@@ -90,7 +90,7 @@
             <appender-ref ref="secureLog"/>
         </logger>
 
-        <appender name="auditLogger" class="com.papertrailapp.logback.Syslog4jAppender">
+        <appender name="auditLogger" class="no.nav.eessi.pensjon.logging.appender.Syslog4jAppender">
             <layout class="ch.qos.logback.classic.PatternLayout">
                 <pattern>[%d{"yyyy-MM-dd'T'HH:mm:ss,SSSXXX", UTC} %level] %logger{15} : %mdc - %m%n%xEx</pattern>
             </layout>
