@@ -136,7 +136,7 @@ class EuxKlientTest {
         val exception = assertThrows<RinaIkkeAutorisertBrukerException> {
             euxKlient.getBucJsonAsNavIdent(P_BUC_99 )
         }
-        assertEquals("Authorization token required for Rina.", exception.reason)
+        assertEquals("Authorization token mangler eller er ugyldig", exception.reason)
     }
 
     @Test
@@ -176,7 +176,7 @@ class EuxKlientTest {
         val exception = assertThrows<GatewayTimeoutException> {
             euxKlient.getBucJsonAsNavIdent(P_BUC_99 )
         }
-        assertEquals("Venting på respons fra Rina resulterte i en timeout", exception.reason)
+        assertEquals("Gateway timeout", exception.reason)
     }
 
     @Test
@@ -214,7 +214,7 @@ class EuxKlientTest {
         val exception = assertThrows<RinaIkkeAutorisertBrukerException> {
             euxKlient.getRinasaker("12345678900", null)
         }
-        assertEquals("Authorization token required for Rina.", exception.reason)
+        assertEquals("Authorization token mangler eller er ugyldig", exception.reason)
     }
 
     @Test
