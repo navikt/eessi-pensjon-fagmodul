@@ -41,9 +41,9 @@ open class EuxErrorHandler : ResponseErrorHandler {
             BAD_REQUEST -> handleBadRequest(httpResponse)
             NOT_FOUND -> throw IkkeFunnetException("Ikke funnet")
             FORBIDDEN -> throw ForbiddenException("Forbidden, Ikke tilgang")
-            CONFLICT -> throw EuxConflictException("En konflikt oppstod under kall til Rina")
-            UNAUTHORIZED -> throw RinaIkkeAutorisertBrukerException("Authorization token required for Rina.")
-            GATEWAY_TIMEOUT -> throw GatewayTimeoutException("Venting på respons fra Rina resulterte i en timeout")
+            CONFLICT -> throw EuxConflictException("En konflikt oppstod under oppdatering av data")
+            UNAUTHORIZED -> throw RinaIkkeAutorisertBrukerException("Authorization token mangler eller er ugyldig")
+            GATEWAY_TIMEOUT -> throw GatewayTimeoutException("Gateway timeout")
             INTERNAL_SERVER_ERROR -> throw EuxRinaServerException("Rina serverfeil, kan også skyldes ugyldig input")
             else -> handleBadRequest(httpResponse)
         }
