@@ -92,7 +92,7 @@ class RestTemplateConfig(
     fun prefillOAuthTemplate() = restTemplate(prefillUrl, onBehalfOfBearerTokenInterceptor(prefillClientId))
 
     @Bean
-    fun pensjoninformasjonRestTemplate() = opprettRestTemplatePensjonsInformasjon(pensjonUrl, "pensjon-credentials")
+    fun pensjoninformasjonRestTemplate() = restTemplate(pensjonUrl, oAuth2BearerTokenInterceptor(clientProperties("pensjon-credentials"), oAuth2AccessTokenService), EuxErrorHandler())
 
     @Bean
     fun safGraphQlOidcRestTemplate() = restTemplate(graphQlUrl, oAuth2BearerTokenInterceptor(clientProperties("saf-credentials"), oAuth2AccessTokenService))
@@ -102,36 +102,6 @@ class RestTemplateConfig(
 
     @Bean
     fun euxKlient() = EuxKlientAsSystemUser(euxNavIdentRestTemplate(), euxSystemRestTemplate())
-
-    fun opprettRestTemplatePensjonsInformasjon(url: String, oAuthKey: String) : RestTemplate {
-        return RestTemplateBuilder()
-            .rootUri(url)
-            .errorHandler(DefaultResponseErrorHandler())
-            .additionalInterceptors(
-                RequestIdHeaderInterceptor(),
-                IOExceptionRetryInterceptor(),
-                RequestCountInterceptor(meterRegistry),
-                bearerTokenInterceptor(clientProperties(oAuthKey), oAuth2AccessTokenService!!)
-            )
-            .build().apply {
-                requestFactory = BufferingClientHttpRequestFactory(SimpleClientHttpRequestFactory())
-            }
-    }
-
-    private fun bearerTokenInterceptor(
-        clientProperties: ClientProperties,
-        oAuth2AccessTokenService: OAuth2AccessTokenService
-    ): ClientHttpRequestInterceptor {
-        return ClientHttpRequestInterceptor { request: HttpRequest, body: ByteArray?, execution: ClientHttpRequestExecution ->
-            val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
-            val tokenChunks = response.access_token!!.split(".")
-            val tokenBody =  tokenChunks[1]
-            logger.debug("subject: " + JWTClaimsSet.parse(Base64.getDecoder().decode(tokenBody).decodeToString()).subject + "/n + $response.accessToken")
-
-            request.headers.setBearerAuth(response.access_token!!)
-            execution.execute(request, body!!)
-        }
-    }
 
     private fun restTemplate(url: String, tokenIntercetor: ClientHttpRequestInterceptor?, defaultErrorHandler: ResponseErrorHandler = DefaultResponseErrorHandler()) : RestTemplate {
         logger.info("init restTemplate: $url")
