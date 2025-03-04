@@ -37,9 +37,6 @@ spec:
         - application: eessi-pensjon-prefill
           namespace: eessipensjon
           cluster: prod-gcp
-        - application: eessi-pensjon-onprem-proxy
-          namespace: eessipensjon
-          cluster: prod-fss
       external:
         - host: rina-ss1.adeo.no
         - host: kodeverk-api.nav.no
