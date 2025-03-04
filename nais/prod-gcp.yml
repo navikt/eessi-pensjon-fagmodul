@@ -45,18 +45,15 @@ spec:
         - application: eessi-pensjon-prefill
           namespace: eessipensjon
           cluster: prod-gcp
-        - application: eessi-pensjon-onprem-proxy
-          namespace: eessipensjon
-          cluster: prod-fss
       external:
-        - host: eessi-pensjon-onprem-proxy.prod-fss-pub.nais.io
+        - host: rina-ss1.adeo.no
+        - host: kodeverk-api.nav.no
+        - host: saf.prod-fss-pub.nais.io
+        - host: eux-rina-api.intern.nav.no
+        - host: pdl-api.prod-fss-pub.nais.io
+        - host: prod-fss.prod-fss-pub.nais.io
         - host: eessi-pensjon-prefill.intern.nav.no
         - host: eessi-pensjon-journalforing.intern.nav.no
-        - host: saf.prod-fss-pub.nais.io
-        - host: pdl-api.prod-fss-pub.nais.io
-        - host: kodeverk-api.nav.no
-        - host: eux-rina-api.intern.nav.no
-        - host: rina-ss1.adeo.no
     inbound:
       rules:
         - application: eessi-pensjon-frontend-ui
@@ -68,9 +65,6 @@ spec:
         - application: eessi-pensjon-journalforing
           namespace: eessipensjon
           cluster: prod-gcp
-        - application: eessi-pensjon-onprem-proxy
-          namespace: eessipensjon
-          cluster: prod-fss
   webproxy: true
   env:
     - name: SPRING_PROFILES_ACTIVE
@@ -79,8 +73,9 @@ spec:
       value: eessi-pensjon-gjenny
     - name: GCP_BUCKET_NAME_P8000
       value: eessi-pensjon-p8000
+
     - name: PENSJONSINFORMASJON_URL
-      value: https://eessi-pensjon-onprem-proxy.prod-fss-pub.nais.io/pen/api/pensjonsinformasjon/v1
+      value: https://pensjon-pen.prod-fss-pub.nais.io/pen/api/pensjonsinformasjon/v1
     - name: EESSIPEN_EUX_RINA_URL
       value: https://eux-rina-api.intern.nav.no/cpi
     - name: EESSIPENSJON_PREFILL_GCP_URL
@@ -93,26 +88,26 @@ spec:
       value: https://saf.prod-fss-pub.nais.io/rest/hentdokument
     - name: PDL_URL
       value: https://pdl-api.prod-fss-pub.nais.io/graphql
+    - name: KODEVERK_URL
+      value: https://kodeverk-api.nav.no
+
     - name: KAFKA_STATISTIKK_TOPICNAME
       value: eessipensjon.privat-statistikk
     - name: KAFKA_AUTOMATISERING_TOPIC
       value: eessipensjon.public-automatisering
-    - name: KODEVERK_URL
-      value: https://kodeverk-api.nav.no
-    - name: EESSI_PEN_ONPREM_PROXY_URL
-      value: https://eessi-pensjon-onprem-proxy.prod-fss-pub.nais.io
+
     - name: AZURE_APP_PDL_CLIENT_ID
       value: prod-fss.pdl.pdl-api
     - name: AZURE_APP_PREFILL_CLIENT_ID
       value: prod-gcp.eessipensjon.eessi-pensjon-prefill
     - name: AZURE_APP_EUX_CLIENT_ID
       value: prod-gcp.eessibasis.eux-rina-api
-    - name: AZURE_APP_PROXY_CLIENT_ID
-      value: prod-fss.eessipensjon.eessi-pensjon-onprem-proxy
     - name: AZURE_APP_KODEVERK_CLIENT_ID
       value: prod-gcp.team-rocket.kodeverk-api
     - name: AZURE_APP_SAF_CLIENT_ID
       value: prod-fss.teamdokumenthandtering.saf
+    - name: AZURE_APP_PEN_CLIENT_ID
+      value: prod-fss.pensjondeployer.pensjon-pen
 
     - name: ENV
       value: p
