@@ -31,6 +31,14 @@ spec:
           numNewerVersions: 2
           withState: ANY
         uniformBucketLevelAccess: true
+      - name: eessi-pensjon-p8000-dev
+        retentionPeriodDays: 40
+        lifecycleCondition:
+          age: 365
+          createdBefore: 2020-01-01
+          numNewerVersions: 2
+          withState: ANY
+        uniformBucketLevelAccess: true
   accessPolicy:
     outbound:
       rules:
@@ -58,49 +66,48 @@ spec:
         - application: eessi-pensjon-journalforing-q2
           namespace: eessipensjon
           cluster: dev-gcp
-
+        - application: eessi-pensjon-onprem-proxy-q2
+          namespace: eessipensjon
+          cluster: dev-fss
   webproxy: true
   env:
     - name: SPRING_PROFILES_ACTIVE
       value: test
     - name: GCP_BUCKET_NAME
       value: eessi-pensjon-gjenny-dev
+    - name: GCP_BUCKET_NAME_P8000
+      value: eessi-pensjon-p8000-dev
 
     - name: PENSJONSINFORMASJON_URL
-      value: https://pensjon-pen-q2.dev-fss-pub.nais.io
-
+      value: https://pensjon-pen-q2.dev-fss-pub.nais.io/pen/api/pensjonsinformasjon/v1
     - name: EESSIPEN_EUX_RINA_URL
       value: https://eux-rina-api-gcp-q2.intern.dev.nav.no/cpi
-
     - name: EESSIPENSJON_PREFILL_GCP_URL
       value: https://eessi-pensjon-prefill-q2.intern.dev.nav.no
-
     - name: RINA_HOST_URL
       value: rina-ss1-q.adeo.no
-
     - name: SAF_GRAPHQL_URL
       value: https://saf-q2.dev-fss-pub.nais.io/graphql
     - name: SAF_HENTDOKUMENT_URL
       value: https://saf-q2.dev-fss-pub.nais.io/rest/hentdokument
-
     - name: PDL_URL
       value: https://pdl-api.dev-fss-pub.nais.io/graphql
-
-    - name: KODEVERK_URL
-      value: https://kodeverk-api.nav.no
-
     - name: KAFKA_STATISTIKK_TOPICNAME
       value: eessipensjon.privat-statistikk-q2
-
     - name: KAFKA_AUTOMATISERING_TOPIC
       value: eessipensjon.public-automatisering-q2
-
+    - name: KODEVERK_URL
+      value: https://kodeverk-api.nav.no
+    - name: EESSI_PEN_ONPREM_PROXY_URL
+      value: https://eessi-pensjon-onprem-proxy-q2.dev-fss-pub.nais.io
     - name: AZURE_APP_PDL_CLIENT_ID
       value: dev-fss.pdl.pdl-api
     - name: AZURE_APP_PREFILL_CLIENT_ID
       value: dev-gcp.eessipensjon.eessi-pensjon-prefill-q2
     - name: AZURE_APP_EUX_CLIENT_ID
       value: dev-gcp.eessibasis.eux-rina-api-q2
+    - name: AZURE_APP_PROXY_CLIENT_ID
+      value: dev-fss.eessipensjon.eessi-pensjon-onprem-proxy-q2
     - name: AZURE_APP_KODEVERK_CLIENT_ID
       value: dev-gcp.team-rocket.kodeverk-api
     - name: AZURE_APP_SAF_CLIENT_ID

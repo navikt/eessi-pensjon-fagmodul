@@ -31,6 +31,14 @@ spec:
           numNewerVersions: 2
           withState: ANY
         uniformBucketLevelAccess: true
+      - name: eessi-pensjon-p8000
+        retentionPeriodDays: 40
+        lifecycleCondition:
+          age: 365
+          createdBefore: 2020-01-01
+          numNewerVersions: 2
+          withState: ANY
+        uniformBucketLevelAccess: true
   accessPolicy:
     outbound:
       rules:
@@ -63,6 +71,8 @@ spec:
       value: prod
     - name: GCP_BUCKET_NAME
       value: eessi-pensjon-gjenny
+    - name: GCP_BUCKET_NAME_P8000
+      value: eessi-pensjon-p8000
 
     - name: PENSJONSINFORMASJON_URL
       value: https://pensjon-pen.prod-fss-pub.nais.io/pen/api/pensjonsinformasjon/v1

@@ -5,7 +5,7 @@ buildscript {
         springBootVersion = '3.4.3'
         springKafkaVersion = '3.3.3'
         springfoxVersion = '3.0.0'
-        tokenSupportVersion = '5.0.16'
+        tokenSupportVersion = '5.0.17'
     }
 }
 
@@ -47,10 +47,6 @@ dependencies {
     configurations { all*.exclude group: 'commons-logging', module: 'commons-logging' }
     implementation("org.slf4j:jcl-over-slf4j:2.0.16")
 
-    // auditlogger syslog la stå i 1.0.0 / 0.9.30
-    implementation("com.papertrailapp:logback-syslog4j:1.0.0")
-    implementation("org.syslog4j:syslog4j:0.9.46")
-
     //auth
     implementation("no.nav.security:token-client-spring:${tokenSupportVersion}")
     implementation("no.nav.security:token-validation-spring:${tokenSupportVersion}")
@@ -60,10 +56,10 @@ dependencies {
     implementation("org.springframework.kafka:spring-kafka:${springKafkaVersion}")
 
     //GCP
-    implementation("com.google.cloud:google-cloud-storage:2.48.2")
+    implementation("com.google.cloud:google-cloud-storage:2.49.0")
 
     implementation("no.nav.eessi.pensjon:ep-metrics:2.0.102")
-    implementation("no.nav.eessi.pensjon:ep-logging:2.2.7")
+    implementation("no.nav.eessi.pensjon:ep-logging:2.2.10")
     implementation("no.nav.eessi.pensjon:ep-eux:2.4.33")
     implementation("no.nav.eessi.pensjon:ep-kodeverk:4.1.33") {
         exclude module: 'ep-eux'
