@@ -69,6 +69,11 @@ spec:
         - application: eessi-pensjon-onprem-proxy-q2
           namespace: eessipensjon
           cluster: dev-fss
+
+        - application: pensjon-pen-q2
+          namespace: pensjon-q2
+          cluster: dev-fss
+
   webproxy: true
   env:
     - name: SPRING_PROFILES_ACTIVE
