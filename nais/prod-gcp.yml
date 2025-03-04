@@ -65,6 +65,10 @@ spec:
         - application: eessi-pensjon-journalforing
           namespace: eessipensjon
           cluster: prod-gcp
+        - application: pensjon-pen
+          namespace: pensjondeployer
+          cluster: prod-fss
+
   webproxy: true
   env:
     - name: SPRING_PROFILES_ACTIVE
