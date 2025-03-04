@@ -45,19 +45,16 @@ spec:
         - application: eessi-pensjon-prefill-q2
           namespace: eessipensjon
           cluster: dev-gcp
-        - application: eessi-pensjon-onprem-proxy-q2
-          namespace: eessipensjon
-          cluster: dev-fss
       external:
-        - host: eessi-pensjon-onprem-proxy-q2.dev-fss-pub.nais.io
-        - host: eessi-pensjon-prefill-q2.intern.dev.nav.no
-        - host: eessi-pensjon-journalforing-q2.intern.dev.nav.no
+        - host: rina-ss1-q.adeo.no
+        - host: kodeverk-api.nav.no
+        - host: pensjon-q2.pensjon-pen-q2
         - host: saf-q2.dev-fss-pub.nais.io
         - host: pdl-api.dev-fss-pub.nais.io
-        - host: kodeverk-api.nav.no
-        - host: eux-rina-api-gcp-q2.intern.dev.nav.no
-        - host: rina-ss1-q.adeo.no
         - host: pensjon-pen-q2.dev-fss-pub.nais.io
+        - host: eux-rina-api-gcp-q2.intern.dev.nav.no
+        - host: eessi-pensjon-prefill-q2.intern.dev.nav.no
+        - host: eessi-pensjon-journalforing-q2.intern.dev.nav.no
     inbound:
       rules:
         - application: eessi-pensjon-frontend-ui-q2
