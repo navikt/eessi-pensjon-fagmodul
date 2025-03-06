@@ -11,46 +11,69 @@ import java.nio.ByteBuffer
 
 @Component
 class GcpStorageService(
-    @param:Value("\${GCP_BUCKET_GJENNY}") var bucketname: String,
+    @param:Value("\${GCP_BUCKET_GJENNY}") var gjennyBucket: String,
+    @param:Value("\${GCP_BUCKET_P8000}") var p8000Bucket: String,
     private val gcpStorage: Storage) {
+
     private val logger = LoggerFactory.getLogger(GcpStorageService::class.java)
 
     init {
-        ensureBucketExists()
+        listOf(gjennyBucket, p8000Bucket).forEach { ensureBucketExists(it)}
     }
 
-    private fun ensureBucketExists() {
-        when (gcpStorage.get(bucketname) != null) {
-            false -> throw IllegalStateException("Fant ikke bucket med navn $bucketname. Må provisjoneres")
-            true -> logger.info("Bucket $bucketname funnet.")
+    private fun ensureBucketExists(bucketNavn: String): Boolean {
+        when (gcpStorage.get(bucketNavn) != null) {
+            false -> throw IllegalStateException("Fant ikke bucket med navn $bucketNavn. Må provisjoneres")
+            true -> logger.info("Bucket $bucketNavn funnet.")
         }
+        return false
     }
 
-    fun lagre(euxCaseId: String, gjennysak: GjennySak) {
-        if (eksisterer(euxCaseId)) return
-        val blobInfo =  BlobInfo.newBuilder(BlobId.of(bucketname, euxCaseId)).setContentType("application/json").build()
+    fun lagreGjennySak(euxCaseId: String, gjennysak: GjennySak) {
+        lagre(euxCaseId, gjennysak.toJson(), gjennyBucket)
+    }
+
+    fun lagreP8000Options(euxCaseId: String, options: String) {
+        lagre(euxCaseId, options, p8000Bucket)
+    }
+
+    private fun lagre(euxCaseId: String, informasjon: String, bucketNavn: String) {
+        if(bucketNavn == bucketNavn) {
+            if (gjennySakFinnes(euxCaseId)) return
+        }
+        else {
+            if (p8000SakFinnes(euxCaseId)) return
+        }
+
+        val blobInfo =  BlobInfo.newBuilder(BlobId.of(bucketNavn, euxCaseId)).setContentType("application/json").build()
         kotlin.runCatching {
             gcpStorage.writer(blobInfo).use {
-                it.write(ByteBuffer.wrap(gjennysak.toJson().toByteArray()))
+                it.write(ByteBuffer.wrap(informasjon.toByteArray()))
             }
         }.onFailure { e ->
-            logger.error("Feilet med å lagre dokument med id: ${blobInfo.blobId.name}", e)
+            logger.error("Feilet med å lagre dokument med id: ${blobInfo.blobId.name} for bucket: $bucketNavn", e)
         }.onSuccess {
-            logger.info("Lagret info på S3 med rinaID: $euxCaseId for gjenny: ${gjennysak.toJson()}")
+            logger.info("Lagret info på S3 med rinaID: $euxCaseId for $bucketNavn: $informasjon")
         }
     }
 
-    fun eksisterer(storageKey: String): Boolean{
-        logger.debug("sjekker om $storageKey finnes i bucket: $bucketname")
-        val obj = gcpStorage.get(BlobId.of(bucketname, storageKey))
+    fun gjennySakFinnes(euxCaseId: String): Boolean {
+        return eksisterer(euxCaseId, gjennyBucket)
+    }
+    fun p8000SakFinnes(euxCaseId: String): Boolean {
+        return eksisterer(euxCaseId, p8000Bucket)
+    }
+
+    private fun eksisterer(storageKey:String, bucketNavn: String): Boolean {
+        logger.debug("sjekker om $storageKey finnes i bucket: $bucketNavn")
 
         kotlin.runCatching {
-            obj.exists()
+            gcpStorage.get(BlobId.of(bucketNavn, storageKey)).exists()
         }.onFailure {
+            return false
         }.onSuccess {
             return true
         }
         return false
     }
-
 }
