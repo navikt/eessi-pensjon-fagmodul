@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import kotlin.time.ExperimentalTime
 
 
 @Protected
@@ -103,7 +102,7 @@ class BucController(
 
             val view = (brukerView + safView).also { logger.info("Antall for brukerview+safView: ${it.size}") }
             //rinaIder inneholder bucer som ikke er gjenny bucer
-            val rinaIder = view.map { it.euxCaseId }.filter { gcpStorageService.eksisterer(it) }.also { logger.info("Det finnes ${it.size} SED som kommer fra GJENNY") }
+            val rinaIder = view.map { it.euxCaseId }.filter { gcpStorageService.gjennySakFinnes(it) }.also { logger.info("Det finnes ${it.size} SED som kommer fra GJENNY") }
 
             //return med sort og distict (avdodfnr og caseid)
             return@measure view.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
@@ -171,7 +170,7 @@ class BucController(
             val rinaSaker = euxInnhentingService.hentBucViewBruker(fnr.id, aktoerId, pensjonSakNummer)
             logger.info("brukerView : ${rinaSaker.toJson()}")
 
-            val rinaIder = rinaSaker.map { it.euxCaseId }.filter { gcpStorageService.eksisterer(it) }
+            val rinaIder = rinaSaker.map { it.euxCaseId }.filter { gcpStorageService.gjennySakFinnes(it) }
 
 
             //return med sort og distict (avdodfnr og caseid)
@@ -218,7 +217,7 @@ class BucController(
                 brukerRinaSakIderFraJoark
             )
 
-            val rinaIder = view.map { it.euxCaseId }.filter { gcpStorageService.eksisterer(it) }.also { logger.info("Det finnes ${it.size} SED som kommer fra GJENNY") }
+            val rinaIder = view.map { it.euxCaseId }.filter { gcpStorageService.gjennySakFinnes(it) }.also { logger.info("Det finnes ${it.size} SED som kommer fra GJENNY") }
 
             //return med sort og distinct (avdodfnr og caseid)
             return@measure view.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
