@@ -8,6 +8,7 @@ import io.mockk.mockk
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_06
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
+import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.shared.api.InstitusjonItem
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -15,7 +16,6 @@ import org.junit.jupiter.api.Assertions.assertIterableEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpEntity
-import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestTemplate
@@ -24,7 +24,7 @@ class EuxControllerTest {
 
     @SpyK
     private lateinit var mockEuxInnhentingService: EuxInnhentingService
-
+    private var gcpStorageService: GcpStorageService = mockk()
     private lateinit var euxController: EuxController
 
     private val backupList = listOf("AT", "BE", "BG", "CH", "CZ", "DE", "DK", "EE", "ES", "FI", "FR", "HR", "HU", "IE", "IS", "IT", "LI", "LT", "LU", "LV", "MT", "NL", "NO", "PL", "PT", "RO", "SE", "SI", "SK", "UK")
@@ -34,7 +34,11 @@ class EuxControllerTest {
     @BeforeEach
     fun before() {
 
-        mockEuxInnhentingService = EuxInnhentingService("Q2", EuxKlientAsSystemUser(euxRestTemplate, euxSystemRestTemplate))
+        mockEuxInnhentingService = EuxInnhentingService(
+            "Q2",
+            EuxKlientAsSystemUser(euxRestTemplate, euxSystemRestTemplate),
+            gcpStorageService
+        )
 
         MockKAnnotations.init(this, relaxed = true, relaxUnitFun = true)
 

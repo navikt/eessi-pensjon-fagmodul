@@ -138,7 +138,7 @@ internal class BucControllerIT: BucBaseTest() {
         //buc02 sed
         val rinabucdocumentidpath = "/buc/1010/sed/1"
         every { euxNavIdentRestTemplate.exchange( rinabucdocumentidpath, HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( sedjson )
-        every { gcpStorageService.eksisterer(any()) } returns false
+        every { gcpStorageService.gjennySakFinnes(any()) } returns false
 
         val result = mockMvc.perform(get("/buc/rinasaker/$GJENLEV_AKTOERID/saknr/$SAKNR/vedtak/$VEDTAKID")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -191,7 +191,7 @@ internal class BucControllerIT: BucBaseTest() {
             every { euxNavIdentRestTemplate.exchange( rinabucdocumentidpath, HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( sedjson )
 
             every { euxNavIdentRestTemplate.exchange( "/rinasaker?fødselsnummer=01010100001&status=\"open\"", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(emptyList<Rinasak>().toJson())
-            every { gcpStorageService.eksisterer(any()) } returns false
+            every { gcpStorageService.gjennySakFinnes(any()) } returns false
 
             val response = mockMvc.perform(get("/buc/rinasaker/$GJENLEV_AKTOERID/saknr/$SAKNR/vedtak/$VEDTAKID")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -248,7 +248,7 @@ internal class BucControllerIT: BucBaseTest() {
         every { euxNavIdentRestTemplate.exchange( rinabucdocumentidpath, HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( sedjson )
 
         every { euxNavIdentRestTemplate.exchange( "/rinasaker?fødselsnummer=01010100001&status=\"open\"", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(emptyList<Rinasak>().toJson())
-        every { gcpStorageService.eksisterer(any()) } returns false
+        every { gcpStorageService.gjennySakFinnes(any()) } returns false
 
         val result = mockMvc.perform(get("/buc/rinasaker/$GJENLEV_AKTOERID/saknr/$SAKNR/vedtak/$VEDTAKID")
             .contentType(MediaType.APPLICATION_JSON))
@@ -289,7 +289,7 @@ internal class BucControllerIT: BucBaseTest() {
         //saf (vedlegg meta) gjenlevende
         val httpEntity = dummyHeader(dummySafReqeust(GJENLEV_AKTOERID))
         every { restSafTemplate.exchange(eq("/"), eq(HttpMethod.POST), eq(httpEntity), eq(String::class.java)) } returns ResponseEntity.ok().body(  dummySafMetaResponseMedRina("2020") )
-        every { gcpStorageService.eksisterer(any()) } returns false
+        every { gcpStorageService.gjennySakFinnes(any()) } returns false
 
         val expected = """
             [
@@ -325,7 +325,7 @@ internal class BucControllerIT: BucBaseTest() {
         })
         every { euxNavIdentRestTemplate.exchange( "/buc/5922554", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( buc("5922554", documents = null, internasjonalId = null) )
         every { euxNavIdentRestTemplate.exchange( "/buc/5195021", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( buc("5195021", documents = null, internasjonalId = null) )
-        every { gcpStorageService.eksisterer(any()) } returns false
+        every { gcpStorageService.gjennySakFinnes(any()) } returns false
 
         val result = mockMvc.perform(
                 get("/buc/rinasaker/euxrina/$GJENLEV_AKTOERID/pesyssak/$pesyssaknr")
@@ -365,7 +365,7 @@ internal class BucControllerIT: BucBaseTest() {
             documents = null,
             internasjonalId = null
         ) )
-        every { gcpStorageService.eksisterer(any()) } returns false
+        every { gcpStorageService.gjennySakFinnes(any()) } returns false
 
         val result = mockMvc.perform(
             get("/buc/rinasaker/euxrina/$GJENLEV_AKTOERID/pesyssak/$pesyssaknr")
@@ -397,9 +397,9 @@ internal class BucControllerIT: BucBaseTest() {
         every { euxNavIdentRestTemplate.exchange( "/buc/5922554", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( buc("592254", documents = null, internasjonalId = null) )
         every { euxNavIdentRestTemplate.exchange( "/buc/5195021", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( buc("5195021", documents = null, internasjonalId = null) )
         every { euxNavIdentRestTemplate.exchange( "/buc/000001", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( buc("000001", P_BUC_02, null, null) )
-        every { gcpStorageService.eksisterer("5922554") } returns false
-        every { gcpStorageService.eksisterer("5195021") } returns false
-        every { gcpStorageService.eksisterer("000001") } returns true
+        every { gcpStorageService.gjennySakFinnes("5922554") } returns false
+        every { gcpStorageService.gjennySakFinnes("5195021") } returns false
+        every { gcpStorageService.gjennySakFinnes("000001") } returns true
 
         val result = mockMvc.perform(
             get("/buc/rinasaker/euxrina/$GJENLEV_AKTOERID/pesyssak/$pesyssaknr")

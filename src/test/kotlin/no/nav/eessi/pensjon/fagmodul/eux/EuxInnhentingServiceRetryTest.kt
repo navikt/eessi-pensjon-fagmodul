@@ -1,9 +1,12 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
+import com.ninjasquad.springmockk.MockkBean
+import com.ninjasquad.springmockk.MockkBeans
 import io.mockk.mockk
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.klient.IkkeFunnetException
 import no.nav.eessi.pensjon.eux.model.BucType
+import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.shared.retry.IOExceptionRetryInterceptor
 import org.hamcrest.core.StringContains
 import org.junit.jupiter.api.BeforeEach
@@ -40,6 +43,9 @@ import java.io.IOException
 /**
  * Ser til at retry for metoder i EuxInnhentingService slår inn, og at EuxErrorHandler behandler typen
  */
+@MockkBeans(
+    MockkBean(name = "gcpStorageService", classes = [GcpStorageService::class], relaxed = true)
+)
 internal class EuxInnhentingServiceRetryTest {
 
     @Autowired

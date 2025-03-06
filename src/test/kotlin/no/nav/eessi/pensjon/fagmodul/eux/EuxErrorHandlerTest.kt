@@ -3,9 +3,12 @@ package no.nav.eessi.pensjon.fagmodul.eux
 import ch.qos.logback.classic.Logger
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.read.ListAppender
+import com.ninjasquad.springmockk.MockkBean
+import com.ninjasquad.springmockk.MockkBeans
 import io.mockk.mockk
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.klient.IkkeFunnetException
+import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.shared.retry.IOExceptionRetryInterceptor
 import org.hamcrest.core.StringContains
 import org.junit.jupiter.api.AfterEach
@@ -36,6 +39,9 @@ import org.springframework.web.client.RestTemplate
     EuxErrorHandlerTest.Config::class]
 )
 @EnableRetry
+@MockkBeans(
+    MockkBean(name = "gcpStorageService", classes = [GcpStorageService::class], relaxed = true)
+)
 class EuxErrorHandlerTest {
 
     @Autowired

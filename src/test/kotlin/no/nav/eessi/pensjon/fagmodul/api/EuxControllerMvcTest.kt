@@ -6,6 +6,7 @@ import com.ninjasquad.springmockk.SpykBean
 import io.mockk.every
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
+import no.nav.eessi.pensjon.gcp.GcpStorageService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -22,10 +23,10 @@ import org.springframework.test.web.servlet.post
     MockkBean(name = "euxKlient", classes = [EuxKlientAsSystemUser::class], relaxed = true),
     MockkBean(name = "bucController", classes = [BucController::class], relaxed = true),
     MockkBean(name = "prefillController", classes = [PrefillController::class], relaxed = true),
+    MockkBean(name = "gcpStorageService", classes = [GcpStorageService::class], relaxed = true),
     MockkBean(name = "sedController", classes = [SedController::class], relaxed = true)
     )
 class EuxControllerMvcTest {
-
 
     @SpykBean
     private lateinit var euxInnhentingService: EuxInnhentingService
