@@ -10,7 +10,6 @@ import no.nav.eessi.pensjon.eux.klient.SedDokumentIkkeOpprettetException
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_01
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_03
 import no.nav.eessi.pensjon.eux.model.SedType
-import no.nav.eessi.pensjon.eux.model.SedType.X007
 import no.nav.eessi.pensjon.eux.model.buc.*
 import no.nav.eessi.pensjon.eux.model.sed.*
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
@@ -58,9 +57,10 @@ internal class PrefillControllerTest {
     private lateinit var mockEuxPrefillService: EuxPrefillService
 
     private  val mockEuxKlient: EuxKlientAsSystemUser = mockk()
+    private var gcpStorageService: GcpStorageService = mockk(relaxed = true)
 
     @SpyK
-    private var mockEuxInnhentingService: EuxInnhentingService = EuxInnhentingService("Q2", mockEuxKlient)
+    private var mockEuxInnhentingService: EuxInnhentingService = EuxInnhentingService("Q2", mockEuxKlient, gcpStorageService)
 
     @MockK
     private lateinit var kafkaTemplate: KafkaTemplate<String, String>
@@ -70,9 +70,6 @@ internal class PrefillControllerTest {
 
     @MockK
     private lateinit var personService: PersonService
-
-    @MockK
-    private lateinit var gcpStorageService: GcpStorageService
 
     @MockK
     private lateinit var pensjonsinformasjonService: PensjonsinformasjonService
