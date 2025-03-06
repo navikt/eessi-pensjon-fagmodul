@@ -1,8 +1,11 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
 import com.ninjasquad.springmockk.MockkBean
+import com.ninjasquad.springmockk.MockkBeans
 import io.mockk.MockKAnnotations
 import io.mockk.every
+import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.klient.Properties
 import no.nav.eessi.pensjon.eux.klient.Rinasak
@@ -13,10 +16,15 @@ import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
 import no.nav.eessi.pensjon.eux.model.sed.P6000
+import no.nav.eessi.pensjon.fagmodul.api.BucController
+import no.nav.eessi.pensjon.fagmodul.api.EuxController
+import no.nav.eessi.pensjon.fagmodul.api.PrefillController
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucView
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucViewKilde
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucViewKilde.BRUKER
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucViewKilde.SAF
+import no.nav.eessi.pensjon.gcp.GcpStorageService
+import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
@@ -29,6 +37,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import org.skyscreamer.jsonassert.JSONAssert
 import org.skyscreamer.jsonassert.JSONCompareMode
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig
 import org.springframework.web.client.HttpClientErrorException
@@ -42,16 +51,21 @@ private const val AKTOERID = "1234568"
 private const val INTERNATIONAL_ID = "e94e1be2daff414f8a49c3149ec00e66"
 
 @SpringJUnitConfig(classes = [EuxInnhentingService::class ])
+@MockkBeans(
+    MockkBean(name = "gcpStorageService", classes = [GcpStorageService::class], relaxed = true)
+)
 internal class EuxInnhentingServiceTest {
 
     @MockkBean( relaxed = true)
     private lateinit var euxKlient: EuxKlientAsSystemUser
+    @Autowired
+    private lateinit var gcpStorageService: GcpStorageService
     private lateinit var euxInnhentingService: EuxInnhentingService
 
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this)
-        euxInnhentingService = EuxInnhentingService("q2", euxKlient)
+        euxInnhentingService = EuxInnhentingService("q2", euxKlient, gcpStorageService)
     }
 
     @Test

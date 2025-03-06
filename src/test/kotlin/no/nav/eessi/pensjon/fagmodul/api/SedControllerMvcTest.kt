@@ -7,6 +7,7 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
+import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
@@ -27,8 +28,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
     MockkBean(name = "bucController", classes = [BucController::class], relaxed = true),
     MockkBean(name = "euxController", classes = [EuxController::class], relaxed = true),
     MockkBean(name = "euxKlient", classes = [EuxKlientAsSystemUser::class], relaxed = true),
-    MockkBean(name = "prefillController", classes = [PrefillController::class], relaxed = true)
-    )
+    MockkBean(name = "prefillController", classes = [PrefillController::class], relaxed = true),
+    MockkBean(name = "gcpStorageService", classes = [GcpStorageService::class], relaxed = true)
+)
 class SedControllerMvcTest {
 
     @SpykBean

@@ -8,6 +8,7 @@ import io.mockk.mockk
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.model.SedType.P2000
 import no.nav.eessi.pensjon.eux.model.sed.SED
+import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.services.statistikk.StatistikkHandler
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -22,13 +23,16 @@ class EuxPrefillServiceTest {
     @MockK(relaxed = true)
     lateinit var euxKlientForSystemUser: EuxKlientAsSystemUser
 
+    @MockK
+    private lateinit var gcpStorageService: GcpStorageService
+
     var statistikkHandler: StatistikkHandler = mockk()
 
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
         euxPrefillService = EuxPrefillService(euxKlientForSystemUser, statistikkHandler)
-        euxinnhentingService = EuxInnhentingService("q2", euxKlientForSystemUser)
+        euxinnhentingService = EuxInnhentingService("q2", euxKlientForSystemUser, gcpStorageService)
     }
 
     @Test
