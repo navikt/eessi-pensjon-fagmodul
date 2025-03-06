@@ -77,7 +77,7 @@ spec:
       value: test
     - name: GCP_BUCKET_NAME
       value: eessi-pensjon-gjenny-dev
-    - name: GCP_BUCKET_NAME_P8000
+    - name: GCP_BUCKET_P8000
       value: eessi-pensjon-p8000-dev
 
     - name: PENSJONSINFORMASJON_URL
