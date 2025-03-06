@@ -14,6 +14,7 @@ import no.nav.eessi.pensjon.eux.model.sed.Person
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.X009
 import no.nav.eessi.pensjon.fagmodul.config.INSTITUTION_CACHE
+import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.shared.api.ApiRequest
 import no.nav.eessi.pensjon.shared.api.InstitusjonItem
@@ -39,9 +40,12 @@ import org.springframework.web.server.ResponseStatusException
 import java.io.IOException
 
 @Service
-class EuxInnhentingService (@Value("\${ENV}") private val environment: String,
-                            @Autowired private val euxKlient: EuxKlientAsSystemUser,
-                            @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()) {
+class EuxInnhentingService(
+    @Value("\${ENV}") private val environment: String,
+    private val euxKlient: EuxKlientAsSystemUser,
+    private val gcpService: GcpStorageService,
+    @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
+) {
 
     private lateinit var SEDByDocumentId: MetricsHelper.Metric
     private lateinit var BUCDeltakere: MetricsHelper.Metric

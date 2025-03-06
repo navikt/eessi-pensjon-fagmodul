@@ -84,7 +84,7 @@ class PrefillController(
         logger.info("Prøver å opprette en ny BUC $buctype i RINA med GjennySakId: ${gjennySak?.sakId} med saktype: ${gjennySak?.sakType}.")
 
         return createBuc(buctype).also {
-            gcpStorageService.lagre(it.caseId, GjennySak(gjennySak?.sakId!!, gjennySak.sakType))
+            gcpStorageService.lagreGjennySak(it.caseId, GjennySak(gjennySak?.sakId!!, gjennySak.sakType))
         }
     }
 
@@ -147,7 +147,7 @@ class PrefillController(
         }
 
         if (request.gjenny){
-            request.euxCaseId?.let {gcpStorageService.lagre(request.euxCaseId, GjennySak(request.sakId!!, request.sakType!!)) }
+            request.euxCaseId?.let {gcpStorageService.lagreGjennySak(request.euxCaseId, GjennySak(request.sakId!!, request.sakType!!)) }
         }
 
         logger.debug("bucUtil BucType: ${bucUtil.getBuc().processDefinitionName} apiRequest Buc: ${request.buc}")
@@ -226,7 +226,7 @@ class PrefillController(
                 dataModel.sedType
             )
             if (request.gjenny) {
-                gcpStorageService.lagre(request.euxCaseId!!, GjennySak(request.sakId!!, request.sakType!!))
+                gcpStorageService.lagreGjennySak(request.euxCaseId!!, GjennySak(request.sakId!!, request.sakType!!))
             }
 
             val parent = bucUtil.findDocument(parentId)
