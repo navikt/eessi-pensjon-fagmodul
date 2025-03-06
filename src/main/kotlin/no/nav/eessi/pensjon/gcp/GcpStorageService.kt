@@ -11,7 +11,7 @@ import java.nio.ByteBuffer
 
 @Component
 class GcpStorageService(
-    @param:Value("\${GCP_BUCKET_NAME}") var bucketname: String,
+    @param:Value("\${GCP_BUCKET_GJENNY}") var bucketname: String,
     private val gcpStorage: Storage) {
     private val logger = LoggerFactory.getLogger(GcpStorageService::class.java)
 
