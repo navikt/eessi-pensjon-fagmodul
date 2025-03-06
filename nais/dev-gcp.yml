@@ -66,9 +66,6 @@ spec:
         - application: eessi-pensjon-journalforing-q2
           namespace: eessipensjon
           cluster: dev-gcp
-        - application: eessi-pensjon-onprem-proxy-q2
-          namespace: eessipensjon
-          cluster: dev-fss
 
         - application: pensjon-pen-q2
           namespace: pensjon-q2
@@ -103,16 +100,12 @@ spec:
       value: eessipensjon.public-automatisering-q2
     - name: KODEVERK_URL
       value: https://kodeverk-api.nav.no
-    - name: EESSI_PEN_ONPREM_PROXY_URL
-      value: https://eessi-pensjon-onprem-proxy-q2.dev-fss-pub.nais.io
     - name: AZURE_APP_PDL_CLIENT_ID
       value: dev-fss.pdl.pdl-api
     - name: AZURE_APP_PREFILL_CLIENT_ID
       value: dev-gcp.eessipensjon.eessi-pensjon-prefill-q2
     - name: AZURE_APP_EUX_CLIENT_ID
       value: dev-gcp.eessibasis.eux-rina-api-q2
-    - name: AZURE_APP_PROXY_CLIENT_ID
-      value: dev-fss.eessipensjon.eessi-pensjon-onprem-proxy-q2
     - name: AZURE_APP_KODEVERK_CLIENT_ID
       value: dev-gcp.team-rocket.kodeverk-api
     - name: AZURE_APP_SAF_CLIENT_ID
