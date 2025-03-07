@@ -76,4 +76,18 @@ class GcpStorageService(
         }
         return false
     }
+
+    fun hentP8000(storageKey:String): String? {
+        kotlin.runCatching {
+            val options =  gcpStorage.get(BlobId.of(p8000Bucket, storageKey))
+            if (options.exists()) {
+                logger.info("Henter melding med rinanr $storageKey, for bucket $p8000Bucket")
+                return options.getContent().decodeToString()
+            }
+        }.onFailure {
+            logger.info("Henter melding med rinanr $storageKey, for bucket $p8000Bucket")
+
+        }
+        return null
+    }
 }
