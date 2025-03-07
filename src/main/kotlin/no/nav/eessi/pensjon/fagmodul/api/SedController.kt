@@ -2,7 +2,6 @@ package no.nav.eessi.pensjon.fagmodul.api
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
-import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.PreviewPdf
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.sed.*
@@ -74,6 +73,7 @@ class SedController(
                     options =  lagretP8000Options.let { ObjectMapper().readValue(it, object : TypeReference<Map<String, Any>>() {}) }
                 }
                 logger.info("Henter options for: ${sed.type}, rinaid: $euxcaseid, options: ${p8000Frontend.options}")
+                return p8000Frontend.toJsonSkipEmpty()
             }
         }
 
