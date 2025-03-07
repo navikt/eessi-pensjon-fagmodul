@@ -1,10 +1,12 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
+import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.PreviewPdf
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.sed.*
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
+import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.utils.toJson
@@ -26,6 +28,7 @@ class SedController(
     private val auditlogger: AuditLogger,
     @Value("\${eessipen-eux-rina.url}")
     private val euxrinaurl: String,
+    private val gcpStorageService: GcpStorageService,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
 
@@ -74,6 +77,13 @@ class SedController(
 
             val sed = SED.fromJsonToConcrete(sedPayload)
             logger.info("Følgende SED prøves å oppdateres: ${sed.type}, rinaid: $euxcaseid")
+
+            if(sed is P8000){
+                sed.options?.let {
+                    logger.info("Lagrer options for: ${sed.type}, rinaid: $euxcaseid, options: $it")
+                    gcpStorageService.lagreP8000Options(documentid, it)
+                }
+            }
 
             //hvis P5000.. .
             val validSed = if (sed is P5000)  {

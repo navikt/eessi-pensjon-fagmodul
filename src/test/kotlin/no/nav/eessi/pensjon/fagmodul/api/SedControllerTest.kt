@@ -14,6 +14,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.eux.EuxPrefillService
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.fagmodul.prefill.klient.PrefillKlient
+import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonService
 import no.nav.eessi.pensjon.shared.api.ApiRequest
@@ -47,6 +48,9 @@ class SedControllerTest {
     @MockK
     lateinit var prefillKlient: PrefillKlient
 
+    @MockK
+    lateinit var gcpStorageService: GcpStorageService
+
     private lateinit var sedController: SedController
 
     @BeforeEach
@@ -57,7 +61,8 @@ class SedControllerTest {
         this.sedController = SedController(
             mockEuxInnhentingService,
             mockk(relaxed = true),
-            "http://rinaurl/cpi"
+            "http://rinaurl/cpi",
+            gcpStorageService
         )
     }
 
