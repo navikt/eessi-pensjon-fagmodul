@@ -79,7 +79,7 @@ class SedController(
             logger.info("Følgende SED prøves å oppdateres: ${sed.type}, rinaid: $euxcaseid")
 
             if(sed is P8000){
-                sed.options?.let {
+                sed.getOptions()?.let {
                     logger.info("Lagrer options for: ${sed.type}, rinaid: $euxcaseid, options: $it")
                     gcpStorageService.lagreP8000Options(documentid, it)
                 }
