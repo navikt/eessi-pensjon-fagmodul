@@ -9,6 +9,8 @@ import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_06
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.eux.model.sed.P5000
+import no.nav.eessi.pensjon.eux.model.sed.P8000
+import no.nav.eessi.pensjon.eux.model.sed.P8000Frontend
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.eux.EuxPrefillService
@@ -96,6 +98,12 @@ class SedControllerTest {
         val uriParams = mapOf("rinanr" to "123456789", "documentid" to "DOC1223213234234")
         val builder = UriComponentsBuilder.fromUriString(path).buildAndExpand(uriParams)
         assertEquals("/sed/get/123456789/DOC1223213234234", builder.path)
+    }
+
+    @Test
+    fun `putDokument skal lagre p8000 med options`() {
+        val p8000sed = mapJsonToAny<P8000Frontend>(javaClass.getResource("/json/sed/P8000-NAV.json")!!.readText())
+        sedController.putDocument("123456", "222222", p8000sed.toJson())
     }
 
     @Test
