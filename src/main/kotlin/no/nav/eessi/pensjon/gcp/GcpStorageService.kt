@@ -38,7 +38,7 @@ class GcpStorageService(
     }
 
     private fun lagre(euxCaseId: String, informasjon: String, bucketNavn: String) {
-        if(bucketNavn == bucketNavn) {
+        if(bucketNavn == gjennyBucket) {
             if (gjennySakFinnes(euxCaseId)) return
         }
         else {
