@@ -9,6 +9,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
+import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import no.nav.security.token.support.core.api.Protected
@@ -79,7 +80,9 @@ class SedController(
             logger.info("Følgende SED prøves å oppdateres: ${sed.type}, rinaid: $euxcaseid")
 
             if(sed is P8000){
-                sed._options?.let {
+                val sedP8000Frontend = mapJsonToAny<P8000Frontend>(sedPayload)
+                logger.info("Lagrer options P8000 for: ${sed.type}, rinaid: $euxcaseid, options: ${sedP8000Frontend.options}")
+                sedP8000Frontend.options?.let {
                     logger.info("Lagrer options for: ${sed.type}, rinaid: $euxcaseid, options: $it")
                     gcpStorageService.lagreP8000Options(documentid, it.toString())
                 }
