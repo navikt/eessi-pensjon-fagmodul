@@ -23,10 +23,12 @@ import no.nav.eessi.pensjon.shared.api.ApiRequest
 import no.nav.eessi.pensjon.utils.mapAnyToJson
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
+import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import no.nav.eessi.pensjon.vedlegg.VedleggService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.http.ResponseEntity
 import org.springframework.web.util.UriComponentsBuilder
 
@@ -105,6 +107,19 @@ class SedControllerTest {
         val p8000sed = mapJsonToAny<P8000Frontend>(javaClass.getResource("/json/sed/P8000-NAV.json")!!.readText())
         sedController.putDocument("123456", "222222", p8000sed.toJson())
     }
+
+    @Test
+    fun `getDocument skal hente p8000 med options`() {
+        val p8000sed = mapJsonToAny<P8000>(javaClass.getResource("/json/nav/P8000_NO-NAV.json")!!.readText())
+        every { mockEuxInnhentingService.getSedOnBucByDocumentId(any(), any()) } returns p8000sed
+        every { gcpStorageService.hentP8000(any()) } returns mockP8000()
+        val p8000Frontend = sedController.getDocument("123456", "222222")
+
+        // verifiserer at options blir hentet og konvertert til json
+        val p8000FromJson = mapJsonToAny<P8000Frontend>(p8000Frontend)
+        JSONAssert.assertEquals(p8000FromJson.options?.toJsonSkipEmpty(), mockP8000(), false)
+    }
+
 
     @Test
     fun `getFiltrerteGyldigSedAksjonListAsString   buc_01 returns 1 sed`() {
@@ -249,9 +264,6 @@ class SedControllerTest {
 
         assertEquals(3, trygdetidberegningRina?.size)
         assertEquals(6, medlemskapsberegningRina?.size)
-
-//        JSONAssert.assertEquals(trygdetidberegning?.toJsonSkipEmpty(), trygdetidberegningRina?.toJsonSkipEmpty(), false)
-
     }
 
     @Test
@@ -267,6 +279,33 @@ class SedControllerTest {
         assertEquals(3, trygdetidberegning?.size)
         assertEquals(6, medlemskapsberegning?.size)
 
+    }
+
+
+    fun mockP8000() :String {
+        return """
+              {
+                "type": {
+                  "spraak": "nb",
+                  "bosettingsstatus": "UTL",
+                  "ytelse": "UT"
+                },
+                "ofteEtterspurtInformasjon": {
+                  "medisinskInformasjon": {
+                    "value": true
+                  },
+                  "tiltak": {
+                    "value": true
+                  },
+                  "naavaerendeArbeid": {
+                    "value": true
+                  },
+                  "dokumentasjonPaaArbeidINorge": {
+                    "value": true
+                  }
+                }
+              },
+        """.trimIndent()
     }
 
 }

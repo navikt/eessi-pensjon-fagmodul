@@ -1,7 +1,5 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.eessi.pensjon.eux.model.buc.PreviewPdf
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.sed.*
@@ -67,15 +65,15 @@ class SedController(
         val sed = euxInnhentingService.getSedOnBucByDocumentId(euxcaseid, documentid)
 
         if(sed is P8000){
+            val p8000Frontend = P8000Frontend(sed.type, sed.nav, sed.p8000Pensjon)
+
+            logger.info("Henter options for: ${p8000Frontend.type}, rinaid: $euxcaseid, options: ${p8000Frontend.options}")
             val lagretP8000Options = gcpStorageService.hentP8000(documentid)
-            lagretP8000Options?.let { it ->
-                val p8000Frontend = mapJsonToAny<P8000Frontend>(it).apply {
-                    options =  lagretP8000Options.let { ObjectMapper().readValue(it, object : TypeReference<Map<String, Any>>() {}) }
-                }
-                logger.info("Henter options for: ${sed.type}, rinaid: $euxcaseid, options: ${p8000Frontend.options}")
-                return p8000Frontend.toJsonSkipEmpty()
+            if (lagretP8000Options != null) {
+                p8000Frontend.options = mapJsonToAny<Options>(lagretP8000Options)
             }
-        }
+            return p8000Frontend.toJsonSkipEmpty()
+       }
 
         return sed.toJson()
     }
