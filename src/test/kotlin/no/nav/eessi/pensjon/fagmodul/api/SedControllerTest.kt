@@ -1,10 +1,8 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import io.mockk.MockKAnnotations
-import io.mockk.every
+import io.mockk.*
 import io.mockk.impl.annotations.MockK
-import io.mockk.mockk
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_06
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.Buc
@@ -283,29 +281,27 @@ class SedControllerTest {
 
 
     fun mockP8000() :String {
-        return """
-              {
-                "type": {
-                  "spraak": "nb",
-                  "bosettingsstatus": "UTL",
-                  "ytelse": "UT"
-                },
-                "ofteEtterspurtInformasjon": {
-                  "medisinskInformasjon": {
-                    "value": true
-                  },
-                  "tiltak": {
-                    "value": true
-                  },
-                  "naavaerendeArbeid": {
-                    "value": true
-                  },
-                  "dokumentasjonPaaArbeidINorge": {
-                    "value": true
-                  }
-                }
+        return """{
+              "type" : {
+                "bosettingsstatus" : "UTL",
+                "spraak" : "nb",
+                "ytelse" : "UT"
               },
-        """.trimIndent()
+              "ofteEtterspurtInformasjon" : {
+                "tiltak" : {
+                  "value" : true
+                },
+                "medisinskInformasjon" : {
+                  "value" : true
+                },
+                "naavaerendeArbeid" : {
+                  "value" : true
+                },
+                "dokumentasjonPaaArbeidINorge" : {
+                  "value" : true
+                }
+              }
+            }""".trimIndent()
     }
 
 }
