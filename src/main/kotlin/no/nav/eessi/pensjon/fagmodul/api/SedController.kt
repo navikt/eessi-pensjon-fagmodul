@@ -82,31 +82,27 @@ class SedController(
     fun putDocument(
         @PathVariable("euxcaseid", required = true) euxcaseid: String,
         @PathVariable("documentid", required = true) documentid: String,
-        @RequestBody sedPayload: String): Boolean {
-
+        @RequestBody sedPayload: String
+    ): Boolean {
         val validsed = try {
             logger.debug("Følgende SED payload: $sedPayload")
 
             val sed = SED.fromJsonToConcrete(sedPayload)
             logger.info("Følgende SED prøves å oppdateres: ${sed.type}, rinaid: $euxcaseid")
 
-            if(sed is P8000){
-                val sedP8000Frontend = mapJsonToAny<P8000Frontend>(sedPayload)
-                logger.info("Lagrer options P8000 for: ${sed.type}, rinaid: $euxcaseid, options: ${sedP8000Frontend.options}")
-                sedP8000Frontend.options?.let {
-                    logger.info("Lagrer options for: ${sed.type}, rinaid: $euxcaseid, options: $it")
-                    gcpStorageService.lagreP8000Options(documentid, it.toJsonSkipEmpty())
+            when (sed) {
+                is P8000 -> {
+                    val sedP8000Frontend = mapJsonToAny<P8000Frontend>(sedPayload)
+                    logger.info("Lagrer options P8000 for: ${sed.type}, rinaid: $euxcaseid, options: ${sedP8000Frontend.options}")
+                    sedP8000Frontend.options?.let {
+                        logger.info("Lagrer options for: ${sed.type}, rinaid: $euxcaseid, options: $it")
+                        gcpStorageService.lagreP8000Options(documentid, it.toJsonSkipEmpty())
+                    }
+                    sed
                 }
+                is P5000 -> sed.updateFromUI()
+                else -> sed
             }
-
-            //hvis P5000.. .
-            val validSed = if (sed is P5000)  {
-                sed.updateFromUI() //må alltid kjøres. sjekk og oppdatert trydetid. punkt 5.2.1.3.1
-            } else {
-                sed
-            }
-            validSed
-
         } catch (ex: Exception) {
             logger.error("Feil ved oppdatering av SED", ex)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Data er ikke gyldig SEDformat")
