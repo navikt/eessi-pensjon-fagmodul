@@ -31,7 +31,6 @@ spec:
           withState: ANY
         uniformBucketLevelAccess: true
       - name: eessi-pensjon-p8000-dev
-        retentionPeriodDays: 40
         lifecycleCondition:
           age: 365
           createdBefore: 2020-01-01
