@@ -93,7 +93,6 @@ class SedController(
             when (sed) {
                 is P8000 -> {
                     val sedP8000Frontend = mapJsonToAny<P8000Frontend>(sedPayload)
-                    logger.info("Lagrer options P8000 for: ${sed.type}, rinaid: $euxcaseid, options: ${sedP8000Frontend.options}")
                     sedP8000Frontend.options?.let {
                         logger.info("Lagrer options for: ${sed.type}, rinaid: $euxcaseid, options: $it")
                         gcpStorageService.lagreP8000Options(documentid, it.toJsonSkipEmpty())
