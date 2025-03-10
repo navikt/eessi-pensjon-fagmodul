@@ -102,8 +102,14 @@ class SedControllerTest {
 
     @Test
     fun `putDokument skal lagre p8000 med options`() {
+        val slot = slot<String>()
+        every { gcpStorageService.lagreP8000Options(any(), capture(slot)) } just Runs
+
         val p8000sed = mapJsonToAny<P8000Frontend>(javaClass.getResource("/json/sed/P8000-NAV.json")!!.readText())
         sedController.putDocument("123456", "222222", p8000sed.toJson())
+
+        val expectedJson = mockP8000()
+        JSONAssert.assertEquals(expectedJson, slot.captured, false)
     }
 
     @Test
@@ -116,6 +122,8 @@ class SedControllerTest {
         // verifiserer at options blir hentet og konvertert til json
         val p8000FromJson = mapJsonToAny<P8000Frontend>(p8000Frontend)
         JSONAssert.assertEquals(p8000FromJson.options?.toJsonSkipEmpty(), mockP8000(), false)
+
+        assertEquals(p8000FromJson.nav?.bruker?.person?.pin?.firstOrNull()?.identifikator, "9876543210")
     }
 
 
