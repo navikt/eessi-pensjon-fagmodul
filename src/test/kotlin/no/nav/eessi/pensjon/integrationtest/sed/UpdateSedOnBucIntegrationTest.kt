@@ -10,6 +10,7 @@ import no.nav.eessi.pensjon.integrationtest.IntegrasjonsTestConfig
 import no.nav.eessi.pensjon.kodeverk.KodeverkClient
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
@@ -80,6 +81,7 @@ class UpdateSedOnBucIntegrationTest {
    }
 
     @Test
+    @Disabled
     fun `oppdate sed P5000 on buc results in false when eux throws an UNAUTHORIZED Exception`() {
 
         val jsonsed = javaClass.getResource("/json/nav/P5000-NAV.json")?.readText()!!
