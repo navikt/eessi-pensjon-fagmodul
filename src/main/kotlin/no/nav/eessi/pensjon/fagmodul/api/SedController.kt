@@ -107,7 +107,11 @@ class SedController(
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Data er ikke gyldig SEDformat")
         }
         logger.debug("Følgende SED prøves å oppdateres til RINA: rinaID: $euxcaseid, documentid: $documentid, validsed: ${validsed.toJsonSkipEmpty()}")
-        return  euxInnhentingService.updateSedOnBuc(euxcaseid, documentid, validsed.toJsonSkipEmpty()).also { logger.info("Oppdatering av SED: $it") }
+        Thread {
+            val result = euxInnhentingService.updateSedOnBuc(euxcaseid, documentid, validsed.toJsonSkipEmpty())
+            logger.info("Oppdatering av SED: $result")
+        }.start()
+        return true
     }
 
     @GetMapping("/seds/{buctype}/{rinanr}")
