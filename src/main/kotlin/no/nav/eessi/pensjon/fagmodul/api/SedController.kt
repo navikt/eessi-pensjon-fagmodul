@@ -111,7 +111,7 @@ class SedController(
             val result = euxInnhentingService.updateSedOnBuc(euxcaseid, documentid, validsed.toJsonSkipEmpty())
             logger.info("Oppdatering av SED: $result")
         }.start()
-        return true
+        return euxInnhentingService.updateSedOnBuc(euxcaseid, documentid, validsed.toJsonSkipEmpty())
     }
 
     @GetMapping("/seds/{buctype}/{rinanr}")
