@@ -109,7 +109,7 @@ class SedController(
         logger.debug("Følgende SED prøves å oppdateres til RINA: rinaID: $euxcaseid, documentid: $documentid, validsed: ${validsed.toJsonSkipEmpty()}")
         val sedModJson = validsed.toJsonSkipEmpty().replace(
             Regex("\"sendFolgendeSEDer\"\\s*:\\s*\\[.*?\\]"), "\"sendFolgendeSEDer\": [\"06\", \"08\"]"
-        ).also { logger.info("Følgende SED prøves å oppdateres til RINA: rinaID: $it") }
+        )
         return  euxInnhentingService.updateSedOnBuc(euxcaseid, documentid, sedModJson).also { logger.info("Oppdatering av SED: $it") }
     }
 
