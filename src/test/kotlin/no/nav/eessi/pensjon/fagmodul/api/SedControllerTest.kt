@@ -100,19 +100,19 @@ class SedControllerTest {
     @Test
     fun `putDokument skal lagre p8000 med options`() {
         val slot = slot<String>()
-            every { gcpStorageService.lagreP8000Options(any(), capture(slot)) } just Runs
+        every { gcpStorageService.lagreP8000Options(any(), capture(slot)) } just Runs
 
         val p8000sed = mapJsonToAny<P8000Frontend>(javaClass.getResource("/json/sed/P8000-NAV.json")!!.readText())
         sedController.putDocument("123456", "222222", p8000sed.toJson())
 
-        assertEquals(mockP8000(), slot.captured)
+        assertEquals(p8000Lagret(), slot.captured)
     }
 
     @Test
     fun `getDocument skal hente p8000 med options`() {
         val p8000sed = mapJsonToAny<P8000>(javaClass.getResource("/json/nav/P8000_NO-NAV.json")!!.readText())
         every { mockEuxInnhentingService.getSedOnBucByDocumentId(any(), any()) } returns p8000sed
-        every { gcpStorageService.hentP8000(any()) } returns mockP8000()
+        every { gcpStorageService.hentP8000(any()) } returns p8000Lagret()
         val p8000Frontend = sedController.getDocument("123456", "222222")
 
         // verifiserer at options blir hentet og konvertert til json
@@ -286,8 +286,8 @@ class SedControllerTest {
     fun mockP8000() :String {
         return "%7B%22type%22:%7B%22bosettingsstatus%22:%22UTL%22,%22spraak%22:%22nb%22,%22ytelse%22:%22UT%22%7D,%22ofteEtterspurtInformasjon%22:%7B%22tiltak%22:%7B%22value%22:true%7D,%22inntektFoerUfoerhetIUtlandet%22:%7B%22value%22:true,%22landkode%22:%22NO%22,%22periodeFra%22:%221980%22,%22periodeTil%22:%222025%22%7D%7D%7D".trimIndent()
     }
-//    fun p8000Lagret() :String {
-//        return """{"type":{"bosettingsstatus":"UTL","spraak":"nb","ytelse":"UT"},"ofteEtterspurtInformasjon":{"tiltak":{"value":true},"inntektFoerUfoerhetIUtlandet":{"value":true,"landkode":"NO","periodeFra":"1980","periodeTil":"2025"}}}""".trimIndent()
-//    }
+    fun p8000Lagret() :String {
+        return """{"type":{"bosettingsstatus":"UTL","spraak":"nb","ytelse":"UT"},"ofteEtterspurtInformasjon":{"tiltak":{"value":true},"inntektFoerUfoerhetIUtlandet":{"value":true,"landkode":"NO","periodeFra":"1980","periodeTil":"2025"}}}""".trimIndent()
+    }
 
 }

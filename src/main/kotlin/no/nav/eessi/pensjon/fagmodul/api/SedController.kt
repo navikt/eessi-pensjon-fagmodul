@@ -2,7 +2,6 @@ package no.nav.eessi.pensjon.fagmodul.api
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.nimbusds.jose.util.Base64URL
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.PreviewPdf
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
@@ -25,6 +24,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import java.net.URLDecoder
 import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 @Protected
 @RestController
@@ -76,7 +76,8 @@ class SedController(
             logger.info("Henter options for: ${p8000Frontend.type}, rinaid: $euxcaseid, options: ${p8000Frontend.options}")
             val lagretP8000Options = gcpStorageService.hentP8000(documentid)
             if (lagretP8000Options != null) {
-                p8000Frontend.options = lagretP8000Options
+                p8000Frontend.options = URLEncoder.encode(lagretP8000Options, StandardCharsets.UTF_8.toString())
+                    .replace("%2C", ",").replace("%3A", ":")
             }
             return p8000Frontend.toJsonSkipEmpty()
        }
@@ -100,8 +101,9 @@ class SedController(
                 is P8000 -> {
                     val sedP8000Frontend = mapJsonToAny<P8000Frontend>(sedPayload)
                     sedP8000Frontend.options?.let {
-                        logger.info("Lagrer options for: ${sed.type}, rinaid: $euxcaseid, options: $it")
-                        gcpStorageService.lagreP8000Options(documentid, it)
+                        val jsonDecoded = URLDecoder.decode(it, "UTF-8")
+                        logger.info("Lagrer options for: ${sed.type}, rinaid: $euxcaseid, options: $jsonDecoded")
+                        gcpStorageService.lagreP8000Options(documentid, jsonDecoded)
                     }
                     sed
                 }
