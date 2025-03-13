@@ -8,7 +8,6 @@ import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.eux.model.sed.P5000
 import no.nav.eessi.pensjon.eux.model.sed.P8000
-import no.nav.eessi.pensjon.eux.model.sed.P8000Frontend
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.eux.EuxPrefillService
@@ -21,12 +20,10 @@ import no.nav.eessi.pensjon.shared.api.ApiRequest
 import no.nav.eessi.pensjon.utils.mapAnyToJson
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
-import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import no.nav.eessi.pensjon.vedlegg.VedleggService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.http.ResponseEntity
 import org.springframework.web.util.UriComponentsBuilder
 
@@ -108,8 +105,7 @@ class SedControllerTest {
         val p8000sed = mapJsonToAny<P8000Frontend>(javaClass.getResource("/json/sed/P8000-NAV.json")!!.readText())
         sedController.putDocument("123456", "222222", p8000sed.toJson())
 
-        val expectedJson = mockP8000()
-        JSONAssert.assertEquals(expectedJson, slot.captured, false)
+        assertEquals(mockP8000(), slot.captured)
     }
 
     @Test
@@ -121,8 +117,7 @@ class SedControllerTest {
 
         // verifiserer at options blir hentet og konvertert til json
         val p8000FromJson = mapJsonToAny<P8000Frontend>(p8000Frontend)
-        JSONAssert.assertEquals(p8000FromJson.options?.toJsonSkipEmpty(), mockP8000(), false)
-
+        assertEquals(mockP8000(), p8000FromJson.options)
         assertEquals(p8000FromJson.nav?.bruker?.person?.pin?.firstOrNull()?.identifikator, "9876543210")
     }
 
@@ -289,28 +284,10 @@ class SedControllerTest {
 
 
     fun mockP8000() :String {
-        return """{
-              "type" : {
-                "bosettingsstatus" : "UTL",
-                "spraak" : "nb",
-                "ytelse" : "UT"
-              },
-              "ofteEtterspurtInformasjon" : {
-                "tiltak" : {
-                  "value" : true
-                },
-                "medisinskInformasjon" : {
-                  "value" : true
-                },
-                "naavaerendeArbeid" : {
-                  "value" : true
-                },
-                "dokumentasjonPaaArbeidINorge" : {
-                  "value" : true
-                }
-              }
-            }""".trimIndent()
+        return "%7B%22type%22:%7B%22bosettingsstatus%22:%22UTL%22,%22spraak%22:%22nb%22,%22ytelse%22:%22UT%22%7D,%22ofteEtterspurtInformasjon%22:%7B%22tiltak%22:%7B%22value%22:true%7D,%22inntektFoerUfoerhetIUtlandet%22:%7B%22value%22:true,%22landkode%22:%22NO%22,%22periodeFra%22:%221980%22,%22periodeTil%22:%222025%22%7D%7D%7D".trimIndent()
     }
+//    fun p8000Lagret() :String {
+//        return """{"type":{"bosettingsstatus":"UTL","spraak":"nb","ytelse":"UT"},"ofteEtterspurtInformasjon":{"tiltak":{"value":true},"inntektFoerUfoerhetIUtlandet":{"value":true,"landkode":"NO","periodeFra":"1980","periodeTil":"2025"}}}""".trimIndent()
+//    }
 
 }
-

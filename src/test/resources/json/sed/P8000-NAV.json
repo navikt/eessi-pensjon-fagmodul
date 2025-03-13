@@ -65,27 +65,7 @@
       "fødselsattest"
     ]
   },
-  "options": {
-    "type": {
-      "spraak": "nb",
-      "bosettingsstatus": "UTL",
-      "ytelse": "UT"
-    },
-    "ofteEtterspurtInformasjon": {
-      "medisinskInformasjon": {
-        "value": true
-      },
-      "tiltak": {
-        "value": true
-      },
-      "naavaerendeArbeid": {
-        "value": true
-      },
-      "dokumentasjonPaaArbeidINorge": {
-        "value": true
-      }
-    }
-  },
+  "options": "%7B%22type%22:%7B%22bosettingsstatus%22:%22UTL%22,%22spraak%22:%22nb%22,%22ytelse%22:%22UT%22%7D,%22ofteEtterspurtInformasjon%22:%7B%22tiltak%22:%7B%22value%22:true%7D,%22inntektFoerUfoerhetIUtlandet%22:%7B%22value%22:true,%22landkode%22:%22NO%22,%22periodeFra%22:%221980%22,%22periodeTil%22:%222025%22%7D%7D%7D",
   "sedGVer": "4",
   "sedVer": "3"
 }
