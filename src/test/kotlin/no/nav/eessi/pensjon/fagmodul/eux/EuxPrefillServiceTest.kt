@@ -23,6 +23,9 @@ class EuxPrefillServiceTest {
     @MockK(relaxed = true)
     lateinit var euxKlientForSystemUser: EuxKlientAsSystemUser
 
+    @MockK(relaxed = true)
+    lateinit var euxKlientForSystemUserV2: EuxKlientAsSystemUser
+
     @MockK
     private lateinit var gcpStorageService: GcpStorageService
 
@@ -32,7 +35,7 @@ class EuxPrefillServiceTest {
     fun setup() {
         MockKAnnotations.init(this)
         euxPrefillService = EuxPrefillService(euxKlientForSystemUser, statistikkHandler)
-        euxinnhentingService = EuxInnhentingService("q2", euxKlientForSystemUser, gcpStorageService)
+        euxinnhentingService = EuxInnhentingService("q2", euxKlientForSystemUser, euxKlientForSystemUserV2, gcpStorageService)
     }
 
     @Test

@@ -43,6 +43,7 @@ import java.io.IOException
 class EuxInnhentingService(
     @Value("\${ENV}") private val environment: String,
     private val euxKlient: EuxKlientAsSystemUser,
+    private val euxKlientV2: EuxKlientAsSystemUser,
     private val gcpService: GcpStorageService,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
@@ -510,7 +511,7 @@ class EuxInnhentingService(
 
     fun updateSedOnBuc(euxcaseid: String, documentid: String, sedPayload: String): Boolean {
         logger.info("Oppdaterer eksisterende sed på rina: $euxcaseid. docid: $documentid")
-        return PutDocument.measure { euxKlient.updateSedOnBuc(euxcaseid, documentid, sedPayload) }
+        return PutDocument.measure { euxKlientV2.updateSedOnBuc(euxcaseid, documentid, sedPayload) }
     }
 
 
