@@ -1,7 +1,9 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonRawValue
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.PreviewPdf
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
@@ -70,17 +72,17 @@ class SedController(
         logger.info("Hente SED innhold for /${euxcaseid}/${documentid} ")
         val sed = euxInnhentingService.getSedOnBucByDocumentId(euxcaseid, documentid)
 
-        if(sed is P8000){
+        if (sed is P8000) {
             val p8000Frontend = P8000Frontend(sed.type, sed.nav, sed.p8000Pensjon)
 
             logger.info("Henter options for: ${p8000Frontend.type}, rinaid: $euxcaseid, options: ${p8000Frontend.options}")
             val lagretP8000Options = gcpStorageService.hentP8000(documentid)
             if (lagretP8000Options != null) {
-                p8000Frontend.options = lagretP8000Options
+                //p8000Frontend.options = lagretP8000Options
+                val p8000Json = p8000Frontend.toJsonSkipEmpty()
+                return p8000Json.replace("\"options\" : null", "\"options\":\"$lagretP8000Options\"")
             }
-            return p8000Frontend.toJsonSkipEmpty()
-       }
-
+        }
         return sed.toJson()
     }
 
@@ -159,5 +161,6 @@ class P8000Frontend(
     nav: Nav? = null,
     @JsonProperty("pensjon")
     p8000Pensjon: P8000Pensjon?,
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     var options: String? = null,
 ) : P8000(type, nav, p8000Pensjon)
