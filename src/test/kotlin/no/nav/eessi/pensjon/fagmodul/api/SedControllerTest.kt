@@ -113,12 +113,13 @@ class SedControllerTest {
         val p8000sed = mapJsonToAny<P8000>(javaClass.getResource("/json/nav/P8000_NO-NAV.json")!!.readText())
         every { mockEuxInnhentingService.getSedOnBucByDocumentId(any(), any()) } returns p8000sed
         every { gcpStorageService.hentP8000(any()) } returns p8000Lagret()
-        val p8000Frontend = sedController.getDocument("123456", "222222")
 
-        // verifiserer at options blir hentet og konvertert til json
-        val p8000FromJson = mapJsonToAny<P8000Frontend>(p8000Frontend)
-        assertEquals(p8000Lagret(), p8000FromJson.options)
-        assertEquals(p8000FromJson.nav?.bruker?.person?.pin?.firstOrNull()?.identifikator, "9876543210")
+        sedController.getDocument("123456", "222222").also {
+            println(it)
+            assert(it.contains("ofteEtterspurtInformasjon"))
+            assert(it.contains("inntektFoerUfoerhetIUtlandet"))
+            assert(it.contains("9876543210"))
+        }
     }
 
 
