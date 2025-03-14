@@ -77,11 +77,12 @@ class SedController(
 
             logger.info("Henter options for: ${p8000Frontend.type}, rinaid: $euxcaseid, options: ${p8000Frontend.options}")
             val lagretP8000Options = gcpStorageService.hentP8000(documentid)
+            val p8000Json = p8000Frontend.toJsonSkipEmpty()
+
             if (lagretP8000Options != null) {
-                //p8000Frontend.options = lagretP8000Options
-                val p8000Json = p8000Frontend.toJsonSkipEmpty()
                 return p8000Json.replace("\"options\" : null", "\"options\":\"$lagretP8000Options\"")
             }
+            return p8000Json.also { logger.warn("Henter P8000 uten options") }
         }
         return sed.toJson()
     }
