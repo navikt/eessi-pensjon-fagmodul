@@ -76,8 +76,7 @@ class SedController(
             logger.info("Henter options for: ${p8000Frontend.type}, rinaid: $euxcaseid, options: ${p8000Frontend.options}")
             val lagretP8000Options = gcpStorageService.hentP8000(documentid)
             if (lagretP8000Options != null) {
-                p8000Frontend.options = URLEncoder.encode(lagretP8000Options, StandardCharsets.UTF_8.toString())
-                    .replace("%2C", ",").replace("%3A", ":")
+                p8000Frontend.options = lagretP8000Options
             }
             return p8000Frontend.toJsonSkipEmpty()
        }

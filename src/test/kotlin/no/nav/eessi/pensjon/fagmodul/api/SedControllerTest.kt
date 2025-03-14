@@ -117,7 +117,7 @@ class SedControllerTest {
 
         // verifiserer at options blir hentet og konvertert til json
         val p8000FromJson = mapJsonToAny<P8000Frontend>(p8000Frontend)
-        assertEquals(mockP8000(), p8000FromJson.options)
+        assertEquals(p8000Lagret(), p8000FromJson.options)
         assertEquals(p8000FromJson.nav?.bruker?.person?.pin?.firstOrNull()?.identifikator, "9876543210")
     }
 
