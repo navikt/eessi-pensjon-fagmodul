@@ -89,7 +89,7 @@ class SedController(
         return sed.toJson()
     }
 
-    fun prettifyJson(jsonString: String): String {
+    private fun prettifyJson(jsonString: String): String {
         val mapper = ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
         val jsonNode = mapper.readTree(jsonString)
         return mapper.writeValueAsString(jsonNode)
