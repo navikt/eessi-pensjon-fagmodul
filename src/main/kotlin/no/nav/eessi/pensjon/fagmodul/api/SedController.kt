@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonRawValue
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.PreviewPdf
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
@@ -80,11 +82,17 @@ class SedController(
             val p8000Json = p8000Frontend.toJsonSkipEmpty()
 
             if (lagretP8000Options != null) {
-                return p8000Json.replace("\"options\" : null", "\"options\":\"$lagretP8000Options\"")
+                return p8000Json.replace("\"options\" : null", "\"options\":${prettifyJson(lagretP8000Options)}")
             }
             return p8000Json.also { logger.warn("Henter P8000 uten options") }
         }
         return sed.toJson()
+    }
+
+    fun prettifyJson(jsonString: String): String {
+        val mapper = ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
+        val jsonNode = mapper.readTree(jsonString)
+        return mapper.writeValueAsString(jsonNode)
     }
 
     @PutMapping("/put/{euxcaseid}/{documentid}")
