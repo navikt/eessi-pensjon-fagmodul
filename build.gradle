@@ -5,7 +5,7 @@ buildscript {
         springBootVersion = '3.4.3'
         springKafkaVersion = '3.3.4'
         springfoxVersion = '3.0.0'
-        tokenSupportVersion = '5.0.17'
+        tokenSupportVersion = '5.0.19'
     }
 }
 
