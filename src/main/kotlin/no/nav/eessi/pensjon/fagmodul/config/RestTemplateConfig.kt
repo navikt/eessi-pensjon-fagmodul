@@ -70,9 +70,6 @@ class RestTemplateConfig(
     @Value("\${EESSIPEN_EUX_RINA_URL}")
     lateinit var euxUrl: String
 
-    @Value("\${EESSIPEN_EUX_RINA_URL_V2}")
-    lateinit var euxUrlV2: String
-
     @Value("\${EESSIPENSJON_PREFILL_GCP_URL}")
     lateinit var prefillUrl: String
 
@@ -88,14 +85,9 @@ class RestTemplateConfig(
     @Bean
     fun euxNavIdentRestTemplate(): RestTemplate = restTemplate(euxUrl, onBehalfOfBearerTokenInterceptor(euxClientId), EuxErrorHandler())
 
-    @Bean
-    fun euxNavIdentRestTemplateV2(): RestTemplate = restTemplate(euxUrlV2, onBehalfOfBearerTokenInterceptor(euxClientId), EuxErrorHandler())
 
     @Bean
     fun euxSystemRestTemplate() = restTemplate(euxUrl, oAuth2BearerTokenInterceptor(clientProperties("eux-credentials"), oAuth2AccessTokenService), EuxErrorHandler())
-
-    @Bean
-    fun euxSystemRestTemplateV2() = restTemplate(euxUrlV2, oAuth2BearerTokenInterceptor(clientProperties("eux-credentials"), oAuth2AccessTokenService), EuxErrorHandler())
 
 
     @Bean
@@ -112,9 +104,6 @@ class RestTemplateConfig(
 
     @Bean
     fun euxKlient() = EuxKlientAsSystemUser(euxNavIdentRestTemplate(), euxSystemRestTemplate())
-
-    @Bean
-    fun euxKlientV2() = EuxKlientAsSystemUser(euxNavIdentRestTemplateV2(), euxSystemRestTemplateV2())
 
     private fun restTemplate(url: String, tokenIntercetor: ClientHttpRequestInterceptor?, defaultErrorHandler: ResponseErrorHandler = DefaultResponseErrorHandler()) : RestTemplate {
         logger.info("init restTemplate: $url")

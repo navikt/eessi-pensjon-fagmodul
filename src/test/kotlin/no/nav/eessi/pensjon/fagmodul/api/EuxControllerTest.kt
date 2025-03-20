@@ -37,7 +37,6 @@ class EuxControllerTest {
         mockEuxInnhentingService = EuxInnhentingService(
             "Q2",
             EuxKlientAsSystemUser(euxRestTemplate, euxSystemRestTemplate),
-            mockk(relaxed = true),
             gcpStorageService,
         )
 

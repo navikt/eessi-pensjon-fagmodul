@@ -4,8 +4,6 @@ import com.ninjasquad.springmockk.MockkBean
 import com.ninjasquad.springmockk.MockkBeans
 import io.mockk.MockKAnnotations
 import io.mockk.every
-import io.mockk.impl.annotations.MockK
-import io.mockk.mockk
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.klient.Properties
 import no.nav.eessi.pensjon.eux.klient.Rinasak
@@ -16,15 +14,11 @@ import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
 import no.nav.eessi.pensjon.eux.model.sed.P6000
-import no.nav.eessi.pensjon.fagmodul.api.BucController
-import no.nav.eessi.pensjon.fagmodul.api.EuxController
-import no.nav.eessi.pensjon.fagmodul.api.PrefillController
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucView
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucViewKilde
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucViewKilde.BRUKER
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucViewKilde.SAF
 import no.nav.eessi.pensjon.gcp.GcpStorageService
-import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
@@ -65,7 +59,7 @@ internal class EuxInnhentingServiceTest {
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this)
-        euxInnhentingService = EuxInnhentingService("q2", euxKlient, mockk(), gcpStorageService)
+        euxInnhentingService = EuxInnhentingService("q2", euxKlient, gcpStorageService)
     }
 
     @Test
