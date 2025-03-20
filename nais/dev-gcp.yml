@@ -82,8 +82,6 @@ spec:
       value: https://pensjon-pen-q2.dev-fss-pub.nais.io/pen/api/pensjonsinformasjon/v1
     - name: EESSIPEN_EUX_RINA_URL
       value: https://eux-rina-api-gcp-q2.intern.dev.nav.no/cpi
-    - name: EESSIPEN_EUX_RINA_URL_V2
-      value: https://eux-rina-api-gcp-q2.intern.dev.nav.no/v2
     - name: EESSIPENSJON_PREFILL_GCP_URL
       value: https://eessi-pensjon-prefill-q2.intern.dev.nav.no
     - name: RINA_HOST_URL
