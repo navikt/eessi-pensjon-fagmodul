@@ -47,22 +47,22 @@ class EuxInnhentingService(
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
 
-    private lateinit var SEDByDocumentId: MetricsHelper.Metric
-    private lateinit var BUCDeltakere: MetricsHelper.Metric
-    private lateinit var GetKodeverk: MetricsHelper.Metric
-    private lateinit var CreateBUC: MetricsHelper.Metric
-    private lateinit var HentRinasaker: MetricsHelper.Metric
-    private lateinit var PutDocument: MetricsHelper.Metric
-    private lateinit var PingEux: MetricsHelper.Metric
+    private lateinit var sedByDocumentId: MetricsHelper.Metric
+    private lateinit var bucDeltakere: MetricsHelper.Metric
+    private lateinit var getKodeverk: MetricsHelper.Metric
+    private lateinit var createBUC: MetricsHelper.Metric
+    private lateinit var hentRinasaker: MetricsHelper.Metric
+    private lateinit var putDocument: MetricsHelper.Metric
+    private lateinit var pingEux: MetricsHelper.Metric
 
     init {
-        SEDByDocumentId = metricsHelper.init("SEDByDocumentId", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
-        BUCDeltakere = metricsHelper.init("BUCDeltakere", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
-        CreateBUC = metricsHelper.init("CreateBUC", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
-        HentRinasaker = metricsHelper.init("HentRinasaker", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
-        PutDocument = metricsHelper.init("PutDocument", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
-        PingEux = metricsHelper.init("PingEux")
-        GetKodeverk = metricsHelper.init("GetKodeverk", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
+        sedByDocumentId = metricsHelper.init("SEDByDocumentId", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
+        bucDeltakere = metricsHelper.init("BUCDeltakere", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
+        createBUC = metricsHelper.init("CreateBUC", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
+        hentRinasaker = metricsHelper.init("HentRinasaker", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
+        putDocument = metricsHelper.init("PutDocument", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
+        pingEux = metricsHelper.init("PingEux")
+        getKodeverk = metricsHelper.init("GetKodeverk", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
     }
 
     companion object { // TODO - finn et bedre sted
@@ -91,7 +91,7 @@ class EuxInnhentingService(
     }
 
     fun getSedOnBucByDocumentId(euxCaseId: String, documentId: String): SED {
-        val json = SEDByDocumentId.measure { euxKlient.getSedOnBucByDocumentIdNotAsSystemUser(euxCaseId, documentId, listOf(HttpStatus.PRECONDITION_FAILED))}
+        val json = sedByDocumentId.measure { euxKlient.getSedOnBucByDocumentIdNotAsSystemUser(euxCaseId, documentId, listOf(HttpStatus.PRECONDITION_FAILED))}
         return SED.fromJsonToConcrete(json)
     }
 
@@ -106,7 +106,7 @@ class EuxInnhentingService(
     fun getRinaUrl() = euxKlient.getRinaUrl()
 
     fun getSedOnBucByDocumentIdAsSystemuser(euxCaseId: String, documentId: String): SED {
-        val json = SEDByDocumentId.measure { euxKlient.getSedOnBucByDocumentIdAsSystemuser(euxCaseId, documentId) }
+        val json = sedByDocumentId.measure { euxKlient.getSedOnBucByDocumentIdAsSystemuser(euxCaseId, documentId) }
         return try {
             SED.fromJsonToConcrete(json)
         } catch (ex: Exception) {
@@ -198,7 +198,7 @@ class EuxInnhentingService(
         ValidBucAndSed.pensjonsBucer() + mutableListOf("H_BUC_07", "R_BUC_01", "R_BUC_02", "M_BUC_02", "M_BUC_03a", "M_BUC_03b")
 
     fun getBucDeltakere(euxCaseId: String): List<Participant> {
-        return BUCDeltakere.measure {  euxKlient.getBucDeltakere(euxCaseId) }
+        return bucDeltakere.measure {  euxKlient.getBucDeltakere(euxCaseId) }
     }
 
     fun getPdfContents(euxCaseId: String, documentId: String): PreviewPdf {
@@ -248,7 +248,7 @@ class EuxInnhentingService(
 
             logger.debug("Henter sedJson fra document: ${shortDoc?.type}, ${shortDoc?.status}, ${shortDoc?.id}")
             val sedJson = shortDoc?.let {
-                SEDByDocumentId.measure { euxKlient.getSedOnBucByDocumentIdNotAsSystemUser(docs.rinaidAvdod, it.id!!, listOf(HttpStatus.PRECONDITION_FAILED)) }
+                sedByDocumentId.measure { euxKlient.getSedOnBucByDocumentIdNotAsSystemUser(docs.rinaidAvdod, it.id!!, listOf(HttpStatus.PRECONDITION_FAILED)) }
             }
             docs.dokumentJson = sedJson ?: ""
             docs
@@ -309,7 +309,7 @@ class EuxInnhentingService(
     fun hentBucViewBruker(fnr: String, aktoerId: String, pesysSaksnr: String?): List<BucView> {
         val start = System.currentTimeMillis()
 
-        return HentRinasaker.measure {  euxKlient.getRinasaker(fnr = fnr, euxCaseId = null)
+        return hentRinasaker.measure {  euxKlient.getRinasaker(fnr = fnr, euxCaseId = null)
             .filter { erRelevantForVisningIEessiPensjon(it) }
             .map { rinasak ->
                 BucView(
@@ -441,7 +441,7 @@ class EuxInnhentingService(
     fun hentBucViewAvdod(avdodFnr: String, aktoerId: String, pesysSaksnr: String? = null): List<BucView> {
         val start = System.currentTimeMillis()
 
-        return HentRinasaker.measure {
+        return hentRinasaker.measure {
             euxKlient.getRinasaker(fnr = avdodFnr, euxCaseId = null)
                 .also { logger.info("hentBucViewAvdod, rinasaker for $aktoerId, size: ${it.size}") }
                 .filter { rinasak -> rinasak.processDefinitionId in bucTyperSomKanHaAvdod.map { it.name } }
@@ -470,7 +470,7 @@ class EuxInnhentingService(
     )
     fun getRinasaker(fnr: String, rinaSakIderFraJoark: List<String>): List<Rinasak> {
 
-        val rinaSakerMedFnr = HentRinasaker.measure { euxKlient.getRinasaker(fnr = fnr, euxCaseId = null) }
+        val rinaSakerMedFnr = hentRinasaker.measure { euxKlient.getRinasaker(fnr = fnr, euxCaseId = null) }
         logger.debug("hentet rinasaker fra eux-rina-api size: ${rinaSakerMedFnr.size}")
 
         // Filtrerer vekk saker som allerede er hentet som har fnr
@@ -478,7 +478,7 @@ class EuxInnhentingService(
         val rinaSakIderUtenFnr = rinaSakIderFraJoark.minus(rinaSakIderMedFnr)
 
         // Henter rina saker som ikke har fnr
-        val rinaSakerUtenFnr = HentRinasaker.measure {
+        val rinaSakerUtenFnr = hentRinasaker.measure {
             rinaSakIderUtenFnr
                 .map { euxCaseId -> euxKlient.getRinasaker(euxCaseId = euxCaseId) }
                 .flatten()
@@ -510,7 +510,7 @@ class EuxInnhentingService(
 
     fun updateSedOnBuc(euxcaseid: String, documentid: String, sedPayload: String): Boolean {
         logger.info("Oppdaterer eksisterende sed på rina: $euxcaseid. docid: $documentid")
-        return PutDocument.measure { euxKlient.updateSedOnBuc(euxcaseid, documentid, sedPayload) }
+        return putDocument.measure { euxKlient.updateSedOnBuc(euxcaseid, documentid, sedPayload) }
     }
 
 
