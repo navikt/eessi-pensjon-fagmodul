@@ -43,22 +43,22 @@ class PensjonController(
 ) {
     private val logger = LoggerFactory.getLogger(PensjonController::class.java)
 
-    private lateinit var PensjonControllerHentSakType: MetricsHelper.Metric
-    private lateinit var PensjonControllerHentSakListe: MetricsHelper.Metric
-    private lateinit var PensjonControllerValidateSak: MetricsHelper.Metric
-    private lateinit var PensjonControllerKravDato: MetricsHelper.Metric
+    private lateinit var pensjonControllerHentSakType: MetricsHelper.Metric
+    private lateinit var pensjonControllerHentSakListe: MetricsHelper.Metric
+    private lateinit var pensjonControllerValidateSak: MetricsHelper.Metric
+    private lateinit var pensjonControllerKravDato: MetricsHelper.Metric
     init {
-        PensjonControllerHentSakType = metricsHelper.init("PensjonControllerHentSakType")
-        PensjonControllerHentSakListe = metricsHelper.init("PensjonControllerHentSakListe")
-        PensjonControllerValidateSak = metricsHelper.init("PensjonControllerValidateSak")
-        PensjonControllerKravDato = metricsHelper.init("PensjonControllerKravDato")
+        pensjonControllerHentSakType = metricsHelper.init("PensjonControllerHentSakType")
+        pensjonControllerHentSakListe = metricsHelper.init("PensjonControllerHentSakListe")
+        pensjonControllerValidateSak = metricsHelper.init("PensjonControllerValidateSak")
+        pensjonControllerKravDato = metricsHelper.init("PensjonControllerKravDato")
     }
 
     @GetMapping("/saktype/{sakId}/{aktoerId}")
     fun hentPensjonSakType(@PathVariable("sakId", required = true) sakId: String, @PathVariable("aktoerId", required = true) aktoerId: String): ResponseEntity<String>? {
         auditlogger.log("hentPensjonSakType", aktoerId)
 
-        return PensjonControllerHentSakType.measure {
+        return pensjonControllerHentSakType.measure {
             logger.info("Henter sakstype på $sakId / $aktoerId")
 
             ResponseEntity.ok(mapAnyToJson(pensjonsinformasjonService.hentKunSakType(sakId, aktoerId)))
@@ -67,7 +67,7 @@ class PensjonController(
 
     @GetMapping("/kravdato/saker/{saksId}/krav/{kravId}/aktor/{aktoerId}")
     fun hentKravDatoFraAktor(@PathVariable("saksId", required = true) sakId: String, @PathVariable("kravId", required = true) kravId: String, @PathVariable("aktoerId", required = true) aktoerId: String) : ResponseEntity<String>? {
-        return PensjonControllerKravDato.measure {
+        return pensjonControllerKravDato.measure {
             val xid =  MDC.get("x_request_id").toString()
             if (sakId.isEmpty() || kravId.isEmpty() || aktoerId.isEmpty()) {
                 logger.warn("Det mangler verdier: saksId $sakId, kravId: $kravId, aktørId: $aktoerId")
@@ -89,7 +89,7 @@ class PensjonController(
 
     @GetMapping("/validate/{aktoerId}/sakId/{sakId}/buctype/{buctype}")
     fun validerKravPensjon(@PathVariable("aktoerId", required = true) aktoerId: String, @PathVariable("sakId", required = true) sakId: String, @PathVariable("buctype", required = true) bucType: String): Boolean {
-        return PensjonControllerValidateSak.measure {
+        return pensjonControllerValidateSak.measure {
 
             val pendata = pensjonsinformasjonService.hentAltPaaAktoerId(aktoerId)
             if (pendata.brukersSakerListe == null) {
@@ -228,7 +228,7 @@ class PensjonController(
 
     @GetMapping("/sakliste/{aktoerId}")
     fun hentPensjonSakIder(@PathVariable("aktoerId", required = true) aktoerId: String): List<PensjonSak> {
-        return PensjonControllerHentSakListe.measure {
+        return pensjonControllerHentSakListe.measure {
             logger.info("henter sakliste for aktoer: $aktoerId")
             return@measure try {
                 val pensjonInformasjon = pensjonsinformasjonService.hentAltPaaAktoerId(aktoerId)
