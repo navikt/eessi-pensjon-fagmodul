@@ -24,13 +24,13 @@ class EuxPrefillService (private val euxKlient: EuxKlientLib,
 
     private lateinit var opprettSvarSED: MetricsHelper.Metric
     private lateinit var opprettSED: MetricsHelper.Metric
-    private lateinit var PutMottaker: MetricsHelper.Metric
-    private lateinit var GetBUC: MetricsHelper.Metric
+    private lateinit var putMottaker: MetricsHelper.Metric
+    private lateinit var getBUC: MetricsHelper.Metric
     init {
         opprettSvarSED = metricsHelper.init("OpprettSvarSED")
         opprettSED = metricsHelper.init("OpprettSED")
-        PutMottaker = metricsHelper.init("PutMottaker", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
-        GetBUC = metricsHelper.init("GetBUC", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
+        putMottaker = metricsHelper.init("PutMottaker", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
+        getBUC = metricsHelper.init("GetBUC", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
     }
 
     @Throws(EuxGenericServerException::class, SedDokumentIkkeOpprettetException::class)
@@ -64,11 +64,11 @@ class EuxPrefillService (private val euxKlient: EuxKlientLib,
 
     fun addInstitution(euxCaseID: String, nyeInstitusjoner: List<String>) {
         logger.info("Legger til Deltakere/Institusjon på vanlig måte, ny Buc")
-        PutMottaker.measure { euxKlient.putBucMottakere(euxCaseID, nyeInstitusjoner) }
+        putMottaker.measure { euxKlient.putBucMottakere(euxCaseID, nyeInstitusjoner) }
     }
 
     fun createdBucForType(buctype: String): String {
-        val euxCaseId = GetBUC.measure { euxKlient.createBuc(buctype) }
+        val euxCaseId = getBUC.measure { euxKlient.createBuc(buctype) }
         try {
             statistikk.produserBucOpprettetHendelse(euxCaseId, null)
         } catch (ex: Exception) {
