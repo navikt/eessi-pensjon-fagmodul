@@ -25,14 +25,14 @@ class SafClient(private val safGraphQlOidcRestTemplate: RestTemplate,
 
     private val logger = LoggerFactory.getLogger(SafClient::class.java)
 
-    private lateinit var HentDokumentMetadata: MetricsHelper.Metric
-    private lateinit var HentDokumentInnhold: MetricsHelper.Metric
-    private lateinit var HentRinaSakIderFraDokumentMetadata: MetricsHelper.Metric
+    private lateinit var hentDokumentMetadata: MetricsHelper.Metric
+    private lateinit var hentDokumentInnhold: MetricsHelper.Metric
+    private lateinit var hentRinaSakIderFraDokumentMetadata: MetricsHelper.Metric
 
     init {
-        HentDokumentMetadata = metricsHelper.init("HentDokumentMetadata", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
-        HentDokumentInnhold = metricsHelper.init("HentDokumentInnhold", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN, HttpStatus.UNAUTHORIZED))
-        HentRinaSakIderFraDokumentMetadata = metricsHelper.init("HentRinaSakIderFraDokumentMetadata", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
+        hentDokumentMetadata = metricsHelper.init("HentDokumentMetadata", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
+        hentDokumentInnhold = metricsHelper.init("HentDokumentInnhold", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN, HttpStatus.UNAUTHORIZED))
+        hentRinaSakIderFraDokumentMetadata = metricsHelper.init("HentRinaSakIderFraDokumentMetadata", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
     }
 
     @Retryable(
@@ -43,7 +43,7 @@ class SafClient(private val safGraphQlOidcRestTemplate: RestTemplate,
     fun hentDokumentMetadata(aktoerId: String) : HentMetadataResponse {
         logger.info("Henter dokument metadata for aktørid: $aktoerId")
 
-        return HentDokumentMetadata.measure {
+        return hentDokumentMetadata.measure {
             try {
                 val headers = HttpHeaders()
                 headers.contentType = MediaType.APPLICATION_JSON
@@ -81,7 +81,7 @@ class SafClient(private val safGraphQlOidcRestTemplate: RestTemplate,
                             dokumentInfoId: String,
                             variantFormat: String) : HentdokumentInnholdResponse {
 
-        return HentDokumentInnhold.measure {
+        return hentDokumentInnhold.measure {
             try {
                 logger.info("Henter dokumentinnhold for journalpostId: $journalpostId, dokumentInfoId: $dokumentInfoId, variantformat: $variantFormat")
                 val variantFormatEnum = VariantFormat.valueOf(variantFormat)
