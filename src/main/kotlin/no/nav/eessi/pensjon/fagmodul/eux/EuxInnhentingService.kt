@@ -210,7 +210,7 @@ class EuxInnhentingService(
      */
     fun filterGyldigBucGjenlevendeAvdod(listeAvSedsPaaAvdod: List<BucOgDocumentAvdod>, fnrGjenlevende: String): List<Buc> {
         return listeAvSedsPaaAvdod
-//                .filter { docs -> filterGjenlevende(docs, fnrGjenlevende) }
+                .filter { docs -> filterGjenlevende(docs, fnrGjenlevende) }
                 .map { docs -> docs.buc }
                 .sortedBy { it.id }
     }
