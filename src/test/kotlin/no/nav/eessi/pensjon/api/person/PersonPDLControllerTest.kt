@@ -5,6 +5,8 @@ import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
+import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_02
+import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_06
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.ActionOperation
 import no.nav.eessi.pensjon.eux.model.buc.ActionsItem
@@ -43,6 +45,16 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Metadata as PDLMetaData
 
+private const val AKTOERID = "1234568"
+private const val VEDTAK_ID = "22455454"
+private const val RINA_NR = "1002342345689"
+
+private const val FNR = "01010123456"
+private const val AVDOD_FNR = "18077443335"
+private const val AVDOD_MOR_FNR = "310233213123"
+private const val AVDOD_FAR_FNR = "101020223123"
+private const val GJENLEVENDE_FNR = "13057065487"
+
 @WebMvcTest(PersonPDLController::class)
 @ContextConfiguration(classes = [PersonPDLControllerTest.Config::class])
 @ComponentScan(basePackages = ["no.nav.eessi.pensjon.api.person"])
@@ -63,11 +75,6 @@ class PersonPDLControllerTest {
 
     @Autowired
     lateinit var mockPensjonClient: PensjonsinformasjonClient
-
-    companion object {
-        const val AKTOERID = "012345"
-        const val FNR = "01010123456"
-    }
 
     @TestConfiguration
     class Config {
@@ -90,15 +97,12 @@ class PersonPDLControllerTest {
 
     @Test
     fun testGetAktoeridEndpoint() {
-        val fnr = "1234567890"
-        val expectedAktorid = "1234"
+        every { pdlService.hentAktorId(FNR) } returns AktoerId(AKTOERID)
 
-        every { pdlService.hentAktorId(fnr) } returns AktoerId(expectedAktorid)
-
-        mvc.perform(get("/person/pdl/aktoerid/$fnr")
+        mvc.perform(get("/person/pdl/aktoerid/$FNR")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
-            .andExpect(content().string(expectedAktorid))
+            .andExpect(content().string(AKTOERID))
     }
 
     @Test
@@ -138,44 +142,52 @@ class PersonPDLControllerTest {
 
     @Test
     fun `PDL getDeceased should return a list of deceased parents given a remaining, living child`() {
-        val aktoerId = "1234568"
-        val vedtaksId = "22455454"
-        val fnrGjenlevende = "13057065487"
-        val avdodMorfnr = "310233213123"
-        val avdodFarfnr = "101020223123"
-
         val mockPensjoninfo = Pensjonsinformasjon()
         mockPensjoninfo.avdod = V1Avdod()
         mockPensjoninfo.person = V1Person()
-        mockPensjoninfo.avdod.avdodMor = avdodMorfnr
-        mockPensjoninfo.avdod.avdodFar = avdodFarfnr
-        mockPensjoninfo.person.aktorId = aktoerId
+        mockPensjoninfo.avdod.avdodMor = AVDOD_MOR_FNR
+        mockPensjoninfo.avdod.avdodFar = AVDOD_FAR_FNR
+        mockPensjoninfo.person.aktorId = AKTOERID
 
         val avdodMor = lagPerson(
-            avdodMorfnr, "Fru", "Blyant",
-            listOf(ForelderBarnRelasjon(fnrGjenlevende, Familierelasjonsrolle.BARN, Familierelasjonsrolle.MOR, mockMeta())),
-            listOf(Sivilstand(Sivilstandstype.GIFT, LocalDate.of(2000, 10, 2), avdodFarfnr, mockMeta()))
+            AVDOD_MOR_FNR, "Fru", "Blyant",
+            listOf(
+                ForelderBarnRelasjon(
+                    GJENLEVENDE_FNR,
+                    Familierelasjonsrolle.BARN,
+                    Familierelasjonsrolle.MOR,
+                    mockMeta()
+                )
+            ),
+            listOf(Sivilstand(Sivilstandstype.GIFT, LocalDate.of(2000, 10, 2), AVDOD_FAR_FNR, mockMeta()))
         )
         val avdodFar = lagPerson(
-            avdodFarfnr, "Hr", "Blyant",
-            listOf(ForelderBarnRelasjon(fnrGjenlevende, Familierelasjonsrolle.BARN, Familierelasjonsrolle.FAR, mockMeta())),
-            listOf(Sivilstand(Sivilstandstype.GIFT, LocalDate.of(2000, 10, 2), avdodMorfnr, mockMeta()))
+            AVDOD_FAR_FNR, "Hr", "Blyant",
+            listOf(
+                ForelderBarnRelasjon(
+                    GJENLEVENDE_FNR,
+                    Familierelasjonsrolle.BARN,
+                    Familierelasjonsrolle.FAR,
+                    mockMeta()
+                )
+            ),
+            listOf(Sivilstand(Sivilstandstype.GIFT, LocalDate.of(2000, 10, 2), AVDOD_MOR_FNR, mockMeta()))
         )
 
         val barn = lagPerson(
-            fnrGjenlevende, "Liten", "Blyant",
+            GJENLEVENDE_FNR, "Liten", "Blyant",
             listOf(
-                ForelderBarnRelasjon(avdodFarfnr, Familierelasjonsrolle.FAR, Familierelasjonsrolle.BARN, mockMeta()),
-                ForelderBarnRelasjon(avdodMorfnr, Familierelasjonsrolle.MOR, Familierelasjonsrolle.BARN, mockMeta())
+                ForelderBarnRelasjon(AVDOD_FAR_FNR, Familierelasjonsrolle.FAR, Familierelasjonsrolle.BARN, mockMeta()),
+                ForelderBarnRelasjon(AVDOD_MOR_FNR, Familierelasjonsrolle.MOR, Familierelasjonsrolle.BARN, mockMeta())
             )
         )
-        every { mockPensjonClient.hentAltPaaVedtak(vedtaksId) } returns mockPensjoninfo
-        every { pdlService.hentPerson(NorskIdent(avdodMorfnr)) } returns avdodMor
-        every { pdlService.hentPerson(NorskIdent(avdodFarfnr)) } returns avdodFar
-        every { pdlService.hentPerson(AktoerId(aktoerId)) } returns barn
+        every { mockPensjonClient.hentAltPaaVedtak(VEDTAK_ID) } returns mockPensjoninfo
+        every { pdlService.hentPerson(NorskIdent(AVDOD_MOR_FNR)) } returns avdodMor
+        every { pdlService.hentPerson(NorskIdent(AVDOD_FAR_FNR)) } returns avdodFar
+        every { pdlService.hentPerson(AktoerId(AKTOERID)) } returns barn
 
         val response = mvc.perform(
-            get("/person/pdl/$aktoerId/avdode/vedtak/$vedtaksId")
+            get("/person/pdl/$AKTOERID/avdode/vedtak/$VEDTAK_ID")
                 .accept(MediaType.APPLICATION_JSON)
         )
             .andReturn().response
@@ -184,36 +196,48 @@ class PersonPDLControllerTest {
         val avdodFarResponse = actual.first()
         val avdodMorResponse = actual.last()
 
-        assertEquals(avdodMorfnr, avdodMorResponse.fnr)
+        assertEquals(AVDOD_MOR_FNR, avdodMorResponse.fnr)
         assertEquals(Familierelasjonsrolle.MOR.name, avdodMorResponse.relasjon)
-        assertEquals(avdodFarfnr, avdodFarResponse.fnr)
+        assertEquals(AVDOD_FAR_FNR, avdodFarResponse.fnr)
         assertEquals(Familierelasjonsrolle.FAR.name, avdodFarResponse.relasjon)
     }
 
     @Test
     fun `getDeceased should return a list of one parent given a remaining, living child`() {
-        val aktoerId = "1234568"
-        val vedtaksId = "22455454"
-        val fnrGjenlevende = "13057065487"
-        val avdodMorfnr = "310233213123"
-
         val mockPensjoninfo = Pensjonsinformasjon()
         mockPensjoninfo.avdod = V1Avdod()
         mockPensjoninfo.person = V1Person()
-        mockPensjoninfo.avdod.avdodMor = avdodMorfnr
-        mockPensjoninfo.person.aktorId = aktoerId
+        mockPensjoninfo.avdod.avdodMor = AVDOD_MOR_FNR
+        mockPensjoninfo.person.aktorId = AKTOERID
 
-        val avdodmor = lagPerson(avdodMorfnr, "Stor", "Blyant",
-            listOf(ForelderBarnRelasjon(fnrGjenlevende, Familierelasjonsrolle.BARN, Familierelasjonsrolle.MOR, mockMeta())))
-        val barn = lagPerson(fnrGjenlevende, "Liten", "Blyant",
-            listOf(ForelderBarnRelasjon(avdodMorfnr, Familierelasjonsrolle.MOR, Familierelasjonsrolle.BARN, mockMeta())))
+        val avdodmor = lagPerson(
+            AVDOD_MOR_FNR, "Stor", "Blyant",
+            listOf(
+                ForelderBarnRelasjon(
+                    GJENLEVENDE_FNR,
+                    Familierelasjonsrolle.BARN,
+                    Familierelasjonsrolle.MOR,
+                    mockMeta()
+                )
+            )
+        )
+        val barn = lagPerson(
+            GJENLEVENDE_FNR, "Liten", "Blyant",
+            listOf(
+                ForelderBarnRelasjon(
+                    AVDOD_MOR_FNR,
+                    Familierelasjonsrolle.MOR,
+                    Familierelasjonsrolle.BARN,
+                    mockMeta()
+                ))
+        )
 
-        every {  mockPensjonClient.hentAltPaaVedtak(vedtaksId)} returns mockPensjoninfo
-        every { pdlService.hentPerson(NorskIdent(avdodMorfnr)) } returns avdodmor
-        every { pdlService.hentPerson(AktoerId(aktoerId)) } returns barn
+        every { mockPensjonClient.hentAltPaaVedtak(VEDTAK_ID) } returns mockPensjoninfo
+        every { pdlService.hentPerson(NorskIdent(AVDOD_MOR_FNR)) } returns avdodmor
+        every { pdlService.hentPerson(AktoerId(AKTOERID)) } returns barn
 
         val response = mvc.perform(
-            get("/person/pdl/$aktoerId/avdode/vedtak/$vedtaksId")
+            get("/person/pdl/$AKTOERID/avdode/vedtak/$VEDTAK_ID")
                 .accept(MediaType.APPLICATION_JSON)
         ).andReturn().response
 
@@ -221,35 +245,49 @@ class PersonPDLControllerTest {
 
         assertEquals(1, result.size)
         val element = result.firstOrNull()
-        assertEquals  (avdodMorfnr, element?.fnr)
-        assertEquals (Familierelasjonsrolle.MOR.name, element?.relasjon)
+        assertEquals(AVDOD_MOR_FNR, element?.fnr)
+        assertEquals(Familierelasjonsrolle.MOR.name, element?.relasjon)
 
     }
 
     @Test
     fun `getDeceased with npid should return a list of one parent given a remaining, living child`() {
-        val aktoerId = "1234568"
-        val vedtaksId = "22455454"
         val npidGjenlevende = "01220049651"
-        val avdodMorfnr = "310233213123"
 
         val mockPensjoninfo = Pensjonsinformasjon()
         mockPensjoninfo.avdod = V1Avdod()
         mockPensjoninfo.person = V1Person()
-        mockPensjoninfo.avdod.avdodMor = avdodMorfnr
-        mockPensjoninfo.person.aktorId = aktoerId
+        mockPensjoninfo.avdod.avdodMor = AVDOD_MOR_FNR
+        mockPensjoninfo.person.aktorId = AKTOERID
 
-        val avdodmor = lagPerson(avdodMorfnr, "Stor", "Blyant",
-            listOf(ForelderBarnRelasjon(npidGjenlevende, Familierelasjonsrolle.BARN, Familierelasjonsrolle.MOR, mockMeta())))
-        val barn = lagPerson(npidGjenlevende, "Liten", "Blyant",
-            listOf(ForelderBarnRelasjon(avdodMorfnr, Familierelasjonsrolle.MOR, Familierelasjonsrolle.BARN, mockMeta())))
+        val avdodmor = lagPerson(
+            AVDOD_MOR_FNR, "Stor", "Blyant",
+            listOf(
+                ForelderBarnRelasjon(
+                    npidGjenlevende,
+                    Familierelasjonsrolle.BARN,
+                    Familierelasjonsrolle.MOR,
+                    mockMeta()
+                )
+            )
+        )
+        val barn = lagPerson(
+            npidGjenlevende, "Liten", "Blyant",
+            listOf(
+                ForelderBarnRelasjon(
+                    AVDOD_MOR_FNR,
+                    Familierelasjonsrolle.MOR,
+                    Familierelasjonsrolle.BARN,
+                    mockMeta()
+                ))
+        )
 
-        every {  mockPensjonClient.hentAltPaaVedtak(vedtaksId)} returns mockPensjoninfo
-        every { pdlService.hentPerson(NorskIdent(avdodMorfnr)) } returns avdodmor
-        every { pdlService.hentPerson(AktoerId(aktoerId)) } returns barn
+        every { mockPensjonClient.hentAltPaaVedtak(VEDTAK_ID) } returns mockPensjoninfo
+        every { pdlService.hentPerson(NorskIdent(AVDOD_MOR_FNR)) } returns avdodmor
+        every { pdlService.hentPerson(AktoerId(AKTOERID)) } returns barn
 
         val response = mvc.perform(
-            get("/person/pdl/$aktoerId/avdode/vedtak/$vedtaksId")
+            get("/person/pdl/$AKTOERID/avdode/vedtak/$VEDTAK_ID")
                 .accept(MediaType.APPLICATION_JSON)
         ).andReturn().response
 
@@ -257,31 +295,35 @@ class PersonPDLControllerTest {
 
         assertEquals(1, result.size)
         val element = result.firstOrNull()
-        assertEquals  (avdodMorfnr, element?.fnr)
-        assertEquals (Familierelasjonsrolle.MOR.name, element?.relasjon)
+        assertEquals(AVDOD_MOR_FNR, element?.fnr)
+        assertEquals(Familierelasjonsrolle.MOR.name, element?.relasjon)
 
     }
 
-
     @Test
     fun `getDeceased should return an empty list when both partents are alive`() {
-        val vedtaksId = "22455454"
-        val fnrGjenlevende = "13057065487"
-        val aktoerId = "212342321312"
-
         val mockPensjoninfo = Pensjonsinformasjon()
         mockPensjoninfo.person = V1Person()
-        mockPensjoninfo.person.aktorId = aktoerId
+        mockPensjoninfo.person.aktorId = AKTOERID
 
-        every {mockPensjonClient.hentAltPaaVedtak(vedtaksId)  } returns mockPensjoninfo
+        every { mockPensjonClient.hentAltPaaVedtak(VEDTAK_ID) } returns mockPensjoninfo
 
-        val barn = lagPerson(fnrGjenlevende, "Liten", "Blyant",
-            listOf(ForelderBarnRelasjon("231231231231", Familierelasjonsrolle.MOR, Familierelasjonsrolle.BARN, mockMeta())))
+        val barn = lagPerson(
+            GJENLEVENDE_FNR, "Liten", "Blyant",
+            listOf(
+                ForelderBarnRelasjon(
+                    "231231231231",
+                    Familierelasjonsrolle.MOR,
+                    Familierelasjonsrolle.BARN,
+                    mockMeta()
+                )
+            )
+        )
 
         every { pdlService.hentPerson(any()) } returns barn
 
         val response = mvc.perform(
-            get("/person/pdl/$aktoerId/avdode/vedtak/$vedtaksId")
+            get("/person/pdl/$AKTOERID/avdode/vedtak/$VEDTAK_ID")
                 .accept(MediaType.APPLICATION_JSON)
         )
             .andReturn().response
@@ -291,10 +333,7 @@ class PersonPDLControllerTest {
     }
 
     @Test
-    fun `avdodsdato sjekk for vedtak inneholder avdod hvis null return tom liste`() {
-        val vedtakid = "1234567789"
-        val rinanr = "1002342345689"
-
+    fun `Dodsdato sjekk for sjekk om vedtak inneholder avdod hvis null return tom liste`() {
         val pen = Pensjonsinformasjon()
         val penavdod = V1Avdod()
         pen.avdod = penavdod
@@ -302,7 +341,7 @@ class PersonPDLControllerTest {
         every { mockPensjonClient.hentAltPaaVedtak(any()) } returns pen
 
         val result = mvc.perform(
-            get("/person/vedtak/$vedtakid/buc/$rinanr/avdodsdato")
+            get("/person/vedtak/$VEDTAK_ID/buc/$RINA_NR/avdodsdato")
             .contentType(MediaType.APPLICATION_JSON)
         )
             .andExpect(status().is2xxSuccessful)
@@ -313,23 +352,17 @@ class PersonPDLControllerTest {
 
     @Test
     fun `avdodsdato sjekk for vedtak inneholder en avdod returneres den`() {
-        val vedtakid = "1234567789"
-        val rinanr = "1002342345689"
-        val avdodfnr = "18077443335"
-
-        val doedsPerson = lagPerson(avdodfnr).copy(doedsfall = Doedsfall(LocalDate.of(2020, 6, 20), null, mockMeta()))
-
-
+        val doedsPerson = lagPerson(AVDOD_FNR).copy(doedsfall = Doedsfall(LocalDate.of(2020, 6, 20), null, mockMeta()))
         val pen = Pensjonsinformasjon()
         val penavdod = V1Avdod()
-        penavdod.avdod = avdodfnr
+        penavdod.avdod = AVDOD_FNR
         pen.avdod = penavdod
 
         every { mockPensjonClient.hentAltPaaVedtak(any()) } returns pen
         every { pdlService.hentPerson(any()) } returns doedsPerson
 
         val result = mvc.perform(
-            get("/person/vedtak/$vedtakid/buc/$rinanr/avdodsdato")
+            get("/person/vedtak/$VEDTAK_ID/buc/$RINA_NR/avdodsdato")
                 .contentType(MediaType.APPLICATION_JSON)
         )
             .andExpect(status().is2xxSuccessful)
@@ -347,19 +380,33 @@ class PersonPDLControllerTest {
 
     @Test
     fun `avdodsdato sjekk for vedtak inneholder to avdod i pbuc02 returneres den tidligere valgte avdod ut fra p2100 og returneres`() {
-        val vedtakid = "1234567789"
-        val rinanr = "1002342345689"
-        val avdodfnr = "18077443335"
         val avdodfnr2 = FodselsnummerGenerator.generateFnrForTest(49)
         val documentid = "23242342a234vd423452asddf"
 
-        val doedsPerson = lagPerson(avdodfnr).copy(doedsfall = Doedsfall(LocalDate.of(2020, 6, 20), null, mockMeta()))
-        val sedP2100 = P2100(nav = Nav(bruker = Bruker(person = no.nav.eessi.pensjon.eux.model.sed.Person(pin = listOf(PinItem(land = "NO", identifikator = avdodfnr))))), pensjon = null)
-        val buc = Buc(id = rinanr, processDefinitionName = "P_BUC_02", documents = listOf(DocumentsItem(id = documentid, direction = "OUT", type = SedType.P2100)))
+        val doedsPerson = lagPerson(AVDOD_FNR).copy(doedsfall = Doedsfall(LocalDate.of(2020, 6, 20), null, mockMeta()))
+        val sedP2100 = P2100(
+            nav = Nav(
+                bruker = Bruker(
+                    person = Person(
+                        pin = listOf(
+                            PinItem(
+                                land = "NO",
+                                identifikator = AVDOD_FNR
+                            )
+                        )
+                    )
+                )
+            ), pensjon = null
+        )
+        val buc = Buc(
+            id = RINA_NR,
+            processDefinitionName = P_BUC_02.name,
+            documents = listOf(DocumentsItem(id = documentid, direction = "OUT", type = SedType.P2100))
+        )
 
         val pen = Pensjonsinformasjon()
         val penavdod = V1Avdod()
-        penavdod.avdodMor = avdodfnr
+        penavdod.avdodMor = AVDOD_FNR
         penavdod.avdodFar = avdodfnr2
         pen.avdod = penavdod
 
@@ -369,7 +416,7 @@ class PersonPDLControllerTest {
         every { pdlService.hentPerson(any()) } returns doedsPerson
 
         val result = mvc.perform(
-            get("/person/vedtak/$vedtakid/buc/$rinanr/avdodsdato")
+            get("/person/vedtak/$VEDTAK_ID/buc/$RINA_NR/avdodsdato")
                 .contentType(MediaType.APPLICATION_JSON)
         )
             .andExpect(status().is2xxSuccessful)
@@ -387,15 +434,17 @@ class PersonPDLControllerTest {
 
     @Test
     fun `avdodsdato sjekk for vedtak inneholder to avdod i pbuc02 som ikke finnes i SED returneres tom liste`() {
-        val vedtakid = "1234567789"
-        val rinanr = "1002342345689"
         val avdodfnr = FodselsnummerGenerator.generateFnrForTest(48)
         val avdodfnr2 = FodselsnummerGenerator.generateFnrForTest(49)
         val documentid = "23242342a234vd423452asddf"
 
         val doedsPerson = lagPerson(avdodfnr).copy(doedsfall = Doedsfall(LocalDate.of(2010, 6, 20), null, mockMeta()))
-        val sedP2100 = P2100(nav = Nav(bruker = Bruker(person = no.nav.eessi.pensjon.eux.model.sed.Person(pin = listOf(PinItem(land = "NO", identifikator = "18077443335"))))), pensjon = null)
-        val buc = Buc(id = rinanr, processDefinitionName = "P_BUC_02", documents = listOf(DocumentsItem(id = documentid, direction = "OUT", type = SedType.P2100)))
+        val sedP2100 = P2100(nav = Nav(bruker = Bruker(person = Person(pin = listOf(PinItem(land = "NO", identifikator = AVDOD_FNR))))), pensjon = null)
+        val buc = Buc(
+            id = RINA_NR,
+            processDefinitionName = P_BUC_02.name,
+            documents = listOf(DocumentsItem(id = documentid, direction = "OUT", type = SedType.P2100))
+        )
 
         val pen = Pensjonsinformasjon()
         val penavdod = V1Avdod()
@@ -409,7 +458,7 @@ class PersonPDLControllerTest {
         every { pdlService.hentPerson(any()) } returns doedsPerson
 
         val result = mvc.perform(
-            get("/person/vedtak/$vedtakid/buc/$rinanr/avdodsdato")
+            get("/person/vedtak/$VEDTAK_ID/buc/$RINA_NR/avdodsdato")
                 .contentType(MediaType.APPLICATION_JSON)
         )
             .andExpect(status().is2xxSuccessful)
@@ -421,24 +470,40 @@ class PersonPDLControllerTest {
 
     @Test
     fun `avdodsdato sjekk for vedtak inneholder to avdod i pbuc06 og P5000 returneres den tidligere valgte avdod ut fra P5000 og returneres`() {
-        val vedtakid = "1234567789"
-        val rinanr = "1002342345689"
-        val avdodfnr = "18077443335"
         val avdodfnr2 = FodselsnummerGenerator.generateFnrForTest(49)
         val documentid = "23242342a234vd423452asddf"
 
-        val doedsPerson = lagPerson(avdodfnr, fornavn = "AVDØD", etternavn = "HELTAVØD").copy(doedsfall = Doedsfall(LocalDate.of(2007, 6, 20), null, mockMeta()))
-        val sedP5000 = P5000(nav = Nav(bruker = Bruker(person = no.nav.eessi.pensjon.eux.model.sed.Person(pin = listOf(PinItem(land = "NO", identifikator = avdodfnr))))), pensjon = null)
-        val buc = Buc(id = rinanr, processDefinitionName = "P_BUC_06",
+        val doedsPerson = lagPerson(
+            AVDOD_FNR,
+            fornavn = "AVDØD",
+            etternavn = "HELTAVØD"
+        ).copy(doedsfall = Doedsfall(LocalDate.of(2007, 6, 20), null, mockMeta()))
+        val sedP5000 = P5000(
+            nav = Nav(
+                bruker = Bruker(
+                    person = Person(
+                        pin = listOf(
+                            PinItem(
+                                land = "NO",
+                                identifikator = AVDOD_FNR
+                            )
+                        )
+                    )
+                )
+            ), pensjon = null
+        )
+        val buc = Buc(
+            id = RINA_NR, processDefinitionName = P_BUC_06.name,
             actions = listOf(
                 ActionsItem(SedType.P5000, documentId = documentid, operation = ActionOperation.Send),
                 ActionsItem(SedType.P5000, documentId = documentid, operation = ActionOperation.Update)
             ),
-            documents = listOf(DocumentsItem(id = documentid, direction = "OUT", type = SedType.P5000)))
+            documents = listOf(DocumentsItem(id = documentid, direction = "OUT", type = SedType.P5000))
+        )
 
         val pen = Pensjonsinformasjon()
         val penavdod = V1Avdod()
-        penavdod.avdodMor = avdodfnr
+        penavdod.avdodMor = AVDOD_FNR
         penavdod.avdodFar = avdodfnr2
         pen.avdod = penavdod
 
@@ -448,7 +513,7 @@ class PersonPDLControllerTest {
         every { pdlService.hentPerson(any()) } returns doedsPerson
 
         val result = mvc.perform(
-            get("/person/vedtak/$vedtakid/buc/$rinanr/avdodsdato")
+            get("/person/vedtak/$VEDTAK_ID/buc/$RINA_NR/avdodsdato")
                 .contentType(MediaType.APPLICATION_JSON)
         )
             .andExpect(status().is2xxSuccessful)
