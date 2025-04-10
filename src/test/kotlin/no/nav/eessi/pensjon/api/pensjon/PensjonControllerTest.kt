@@ -7,10 +7,14 @@ import io.mockk.mockk
 import io.mockk.verify
 import no.nav.eessi.pensjon.eux.model.buc.SakStatus
 import no.nav.eessi.pensjon.eux.model.buc.SakStatus.*
+import no.nav.eessi.pensjon.eux.model.buc.SakType.ALDER
+import no.nav.eessi.pensjon.eux.model.buc.SakType.UFOREP
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonRequestBuilder
 import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.pensjonsinformasjon.models.Pensjontype
+import no.nav.eessi.pensjon.pensjonsinformasjon.models.Sakstatus.AVSL
+import no.nav.eessi.pensjon.pensjonsinformasjon.models.Sakstatus.INNV
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonService
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.pensjon.v1.brukerssakerliste.V1BrukersSakerListe
@@ -36,6 +40,11 @@ import java.util.*
 import javax.xml.datatype.DatatypeFactory
 import javax.xml.datatype.XMLGregorianCalendar
 
+private const val AKTOERID = "1234567890123"
+private const val SOME_SAKID = "10000"
+private const val SOME_VEDTAK_ID = "213123333"
+private const val KRAV_ID = "345345"
+
 @Suppress("DEPRECATION") // hentKunSakType / hentAltPaaAktoerId
 class PensjonControllerTest {
 
@@ -46,90 +55,69 @@ class PensjonControllerTest {
 
     @InjectMockKs
     private val controller = PensjonController(PensjonsinformasjonService(pensjonsinformasjonClient), auditLogger)
-
     private val mockMvc = MockMvcBuilders.standaloneSetup(controller).build()
 
     @Test
     fun `hentPensjonSakType gitt en aktoerId saa slaa opp fnr og hent deretter sakstype`() {
-        val aktoerId = "1234567890123" // 13 sifre
-        val sakId = "Some sakId"
+        every { pensjonsinformasjonClient.hentKunSakType(SOME_SAKID, AKTOERID) } returns Pensjontype(SOME_SAKID, "Type")
+        controller.hentPensjonSakType(SOME_SAKID, AKTOERID)
 
-        every { pensjonsinformasjonClient.hentKunSakType(sakId, aktoerId) } returns Pensjontype(sakId, "Type")
-
-        controller.hentPensjonSakType(sakId, aktoerId)
-
-        verify { pensjonsinformasjonClient.hentKunSakType(eq(sakId), eq(aktoerId)) }
+        verify { pensjonsinformasjonClient.hentKunSakType(eq(SOME_SAKID), eq(AKTOERID)) }
     }
-
 
     @Test
     fun `hentPensjonSakType gitt at det svar fra PESYS er tom`() {
-        val aktoerId = "1234567890123" // 13 sifre
-        val sakId = "Some sakId"
+        every { pensjonsinformasjonClient.hentKunSakType(SOME_SAKID, AKTOERID) } returns Pensjontype(SOME_SAKID, "")
+        val response = controller.hentPensjonSakType(SOME_SAKID, AKTOERID)
 
-        every { pensjonsinformasjonClient.hentKunSakType(sakId, aktoerId) } returns Pensjontype(sakId, "")
-        val response = controller.hentPensjonSakType(sakId, aktoerId)
+        verify { pensjonsinformasjonClient.hentKunSakType(eq(SOME_SAKID), eq(AKTOERID)) }
 
-        verify { pensjonsinformasjonClient.hentKunSakType(eq(sakId), eq(aktoerId)) }
-
-        val expected = """
-            {
-              "sakId" : "Some sakId",
-              "sakType" : ""
-            }
-        """.trimIndent()
-
-        assertEquals(expected, response?.body)
+        assertEquals(getExpectedKunSakType(), response?.body)
     }
+
+    private fun getExpectedKunSakType() = """
+                {
+                  "sakId" : "10000",
+                  "sakType" : ""
+                }
+            """.trimIndent()
 
     @Test
     fun `hentPensjonSakType gitt at det svar feiler fra PESYS`() {
-        val aktoerId = "1234567890123" // 13 sifre
-        val sakId = "Some sakId"
+        every { pensjonsinformasjonClient.hentKunSakType(SOME_SAKID, AKTOERID) } returns Pensjontype(SOME_SAKID, "")
+        val response = controller.hentPensjonSakType(SOME_SAKID, AKTOERID)
 
-        every { pensjonsinformasjonClient.hentKunSakType(sakId, aktoerId) } returns Pensjontype(sakId, "")
-
-        val response = controller.hentPensjonSakType(sakId, aktoerId)
-
-        verify { pensjonsinformasjonClient.hentKunSakType(eq(sakId), eq(aktoerId)) }
-
-        val expected = """
-            {
-              "sakId" : "Some sakId",
-              "sakType" : ""
-            }
-        """.trimIndent()
-
-        assertEquals(expected, response?.body)
+        verify { pensjonsinformasjonClient.hentKunSakType(eq(SOME_SAKID), eq(AKTOERID)) }
+        assertEquals(getExpectedKunSakType(), response?.body)
     }
 
     @Test
     fun `Gitt det finnes pensjonsak paa aktoer saa skal det returneres en liste over alle saker til aktierid`() {
-        val aktoerId = "1234567890123" // 13 sifre
-
         val mockpen = Pensjonsinformasjon()
+
         val mocksak1 = V1Sak()
         mocksak1.sakId = 1010
-        mocksak1.status = "INNV"
-        mocksak1.sakType = "ALDER"
+        mocksak1.status = INNV.name
+        mocksak1.sakType = ALDER.name
         mockpen.brukersSakerListe = V1BrukersSakerListe()
         mockpen.brukersSakerListe.brukersSakerListe.add(mocksak1)
+
         val mocksak2 = V1Sak()
         mocksak2.sakId = 2020
-        mocksak2.status = "AVSL"
-        mocksak2.sakType = "UFOREP"
+        mocksak2.status = AVSL.name
+        mocksak2.sakType = UFOREP.name
         mockpen.brukersSakerListe.brukersSakerListe.add(mocksak2)
 
-        every { pensjonsinformasjonClient.hentAltPaaAktoerId(aktoerId) } returns mockpen
+        every { pensjonsinformasjonClient.hentAltPaaAktoerId(AKTOERID) } returns mockpen
 
-        val result = controller.hentPensjonSakIder(aktoerId)
+        val result = controller.hentPensjonSakIder(AKTOERID)
 
-        verify { pensjonsinformasjonClient.hentAltPaaAktoerId(eq(aktoerId)) }
+        verify { pensjonsinformasjonClient.hentAltPaaAktoerId(eq(AKTOERID)) }
 
         assertEquals(2, result.size)
-        val expected1 = PensjonSak("1010", "ALDER", LOPENDE)
+        val expected1 = PensjonSak("1010", ALDER.name, LOPENDE)
         assertEquals(expected1.toJson(), result.first().toJson())
-        val expected2 = PensjonSak("2020", "UFOREP", AVSLUTTET)
+        val expected2 = PensjonSak("2020", UFOREP.name, AVSLUTTET)
         assertEquals(expected2.toJson(), result.last().toJson())
 
         assertEquals(AVSLUTTET, expected2.sakStatus)
@@ -137,47 +125,34 @@ class PensjonControllerTest {
 
     @Test
     fun `Gitt det ikke finnes pensjonsak paa aktoer saa skal det returneres et tomt svar tom liste`() {
-        val aktoerId = "1234567890123" // 13 sifre
-
         val mockpen = Pensjonsinformasjon()
         mockpen.brukersSakerListe = V1BrukersSakerListe()
 
-        every { (pensjonsinformasjonClient.hentAltPaaAktoerId(aktoerId)) } returns mockpen
+        every { (pensjonsinformasjonClient.hentAltPaaAktoerId(AKTOERID)) } returns mockpen
 
-        val result = controller.hentPensjonSakIder(aktoerId)
-        verify(exactly = 1) {
-            pensjonsinformasjonClient.hentAltPaaAktoerId(any())
-
+        val result = controller.hentPensjonSakIder(AKTOERID)
+        verify(exactly = 1) { pensjonsinformasjonClient.hentAltPaaAktoerId(any())
             assertEquals(0, result.size)
         }
     }
 
     @Test
     fun `sjekk paa forskjellige verdier av sakstatus fra pensjoninformasjon konvertere de til enum`() {
-        val tilbeh = "TIL_BEHANDLING"
-        val avsl = "AVSL"
-        val lop = "INNV"
-        val opph = "OPPHOR"
-        val ukjent = "CrazyIkkeIbrukTull"
-
-        assertEquals(TIL_BEHANDLING, SakStatus.from(tilbeh))
-        assertEquals(AVSLUTTET, SakStatus.from(avsl))
-        assertEquals(LOPENDE, SakStatus.from(lop))
-        assertEquals(OPPHOR, SakStatus.from(opph))
-        assertEquals(UKJENT, SakStatus.from(ukjent))
+        assertEquals(TIL_BEHANDLING, SakStatus.from("TIL_BEHANDLING"))
+        assertEquals(AVSLUTTET, SakStatus.from("AVSL"))
+        assertEquals(LOPENDE, SakStatus.from("INNV"))
+        assertEquals(OPPHOR, SakStatus.from("OPPHOR"))
+        assertEquals(UKJENT, SakStatus.from("CrazyIkkeIbrukTull"))
     }
 
     @Test
     fun `hentKravDato skal gi en data hentet fra aktorid og vedtaksid `() {
         val kravDato = "2020-01-01"
-        val aktoerId = "123"
-        val saksId = "10000"
-        val kravId = "12456"
 
-        every { pensjonsinformasjonClient.hentKravDatoFraAktor(aktoerId, saksId, kravId) } returns kravDato
+        every { pensjonsinformasjonClient.hentKravDatoFraAktor(AKTOERID, SOME_SAKID, KRAV_ID) } returns kravDato
 
         val result = mockMvc.perform(
-            MockMvcRequestBuilders.get("/pensjon/kravdato/saker/$saksId/krav/$kravId/aktor/$aktoerId")
+            MockMvcRequestBuilders.get("/pensjon/kravdato/saker/$SOME_SAKID/krav/$KRAV_ID/aktor/$AKTOERID")
                 .contentType(MediaType.APPLICATION_JSON)
         )
             .andExpect(status().is2xxSuccessful)
@@ -189,12 +164,10 @@ class PensjonControllerTest {
 
     @Test
     fun `hentKravDato skal gi 400 og feilmelding ved manglende parameter`() {
-        val aktoerId = "123"
-        val saksId = "10000"
         val kravId = ""
 
         mockMvc.perform(
-            MockMvcRequestBuilders.get("/pensjon/kravdato/saker/$saksId/krav/$kravId/aktor/$aktoerId")
+            MockMvcRequestBuilders.get("/pensjon/kravdato/saker/$SOME_SAKID/krav/$kravId/aktor/$AKTOERID")
                 .contentType(MediaType.APPLICATION_JSON)
         )
             .andDo(MockMvcResultHandlers.print())
@@ -204,71 +177,60 @@ class PensjonControllerTest {
 
     @Test
     fun uthentingAvUforeTidspunkt() {
-        val mockVedtakid = "213123333"
         val mockClient = fraFil("VEDTAK-UT-MUTP.xml")
         val mockController = PensjonController(PensjonsinformasjonService(mockClient), auditLogger)
         val mockMvc2 = MockMvcBuilders.standaloneSetup(mockController).build()
 
         val result = mockMvc2.perform(
-            MockMvcRequestBuilders.get("/pensjon/vedtak/$mockVedtakid/uforetidspunkt")
+            MockMvcRequestBuilders.get("/pensjon/vedtak/$SOME_VEDTAK_ID/uforetidspunkt")
                 .contentType(MediaType.APPLICATION_JSON)
             )
             .andReturn()
         val response = result.response.getContentAsString(charset("UTF-8"))
-        val expected = """
-            {
-              "uforetidspunkt" : "2020-02-29",
-              "virkningstidspunkt" : "2015-12-01"
-            }
-        """.trimIndent()
+
+        val expected = ufoereTidspunkt("2020-02-29", "2015-12-01")
         assertEquals(expected, response)
     }
 
     @Test
     fun uthentingAvUforeTidspunktMedGMTZ() {
-        val mockVedtakid = "213123333"
         val mockClient = fraFil("VEDTAK-UT-MUTP-GMTZ.xml")
         val mockController = PensjonController(PensjonsinformasjonService(mockClient), auditLogger)
         val mockMvc2 = MockMvcBuilders.standaloneSetup(mockController).build()
 
         val result = mockMvc2.perform(
-            MockMvcRequestBuilders.get("/pensjon/vedtak/$mockVedtakid/uforetidspunkt")
+            MockMvcRequestBuilders.get("/pensjon/vedtak/$SOME_VEDTAK_ID/uforetidspunkt")
                 .contentType(MediaType.APPLICATION_JSON)
         )
             .andReturn()
         val response = result.response.getContentAsString(charset("UTF-8"))
-        val expected = """
-            {
-              "uforetidspunkt" : "2020-03-01",
-              "virkningstidspunkt" : "2015-12-01"
-            }
-        """.trimIndent()
-
+        val expected = ufoereTidspunkt("2020-03-01", "2015-12-01")
         assertEquals(expected, response)
     }
 
     @Test
     fun uthentingAvUforeTidspunktSomErTom() {
-        val mockVedtakid = "213123333"
         val mockClient = fraFil("VEDTAK-UT.xml")
         val mockController = PensjonController(PensjonsinformasjonService(mockClient), auditLogger)
         val mockMvc2 = MockMvcBuilders.standaloneSetup(mockController).build()
 
         val result = mockMvc2.perform(
-            MockMvcRequestBuilders.get("/pensjon/vedtak/$mockVedtakid/uforetidspunkt")
+            MockMvcRequestBuilders.get("/pensjon/vedtak/$SOME_VEDTAK_ID/uforetidspunkt")
                 .contentType(MediaType.APPLICATION_JSON)
         )
             .andReturn()
         val response = result.response.getContentAsString(charset("UTF-8"))
-        val expected = """
-            {
-              "uforetidspunkt" : null,
-              "virkningstidspunkt" : null
-            }
-        """.trimIndent()
+        val expected = ufoereTidspunkt()
 
         assertEquals(expected, response)
     }
+
+    private fun ufoereTidspunkt(ufoereTidspunkt: String? = null, virkningsTidspunkt: String? = null) = """
+                {
+                  "uforetidspunkt" : ${if(ufoereTidspunkt == null) null else "\"$ufoereTidspunkt\""},
+                  "virkningstidspunkt" : ${if(virkningsTidspunkt == null) null else  "\"$virkningsTidspunkt\""}
+                }
+            """.trimIndent()
 
     @ParameterizedTest
     @CsvSource(
@@ -289,17 +251,12 @@ class PensjonControllerTest {
         assert( verdi.dayOfMonth == 1 == check )
     }
 
-
     @Test
     fun `Sjekke for hentKravDatoFraAktor ikke kaster en unormal feil`() {
-        val aktoerId = "123"
-        val saksId = "10000"
-        val kravId = "345345"
-
         MDC.put("x_request_id","AAA-BBB")
         every { pensjonsinformasjonClient.hentKravDatoFraAktor(any(), any(), any()) } returns null
 
-        val result = controller.hentKravDatoFraAktor(saksId, kravId, aktoerId)
+        val result = controller.hentKravDatoFraAktor(SOME_SAKID, KRAV_ID, AKTOERID)
         JSONAssert.assertEquals(
             """{"success": false, "error": "Feiler å hente kravDato", "uuid": "AAA-BBB"}""",
             result?.body, true
@@ -308,7 +265,6 @@ class PensjonControllerTest {
 
     @Test
     fun `sjekk om sak resultat er gyldig pensjoninfo`() {
-        val ident = "1234567890123"
         val mockSakid = "21841174"
         val mockClient = fraFil("ALDERP-INV-21841174.xml")
 
@@ -316,7 +272,7 @@ class PensjonControllerTest {
         val mockMvc2 = MockMvcBuilders.standaloneSetup(mockController).build()
 
         val result = mockMvc2.perform(
-            MockMvcRequestBuilders.get("/pensjon/sak/aktoer/$ident/sakid/$mockSakid/pensjonsak")
+            MockMvcRequestBuilders.get("/pensjon/sak/aktoer/$AKTOERID/sakid/$mockSakid/pensjonsak")
                 .contentType(MediaType.APPLICATION_JSON)
         )
         .andReturn()
@@ -612,7 +568,7 @@ class PensjonControllerTest {
 
     @Test
     fun `sjekk om resultat er gyldig pensjoninfo`() {
-        val mockVedtakid = "213123333"
+        val mockVedtakid = SOME_VEDTAK_ID
         val mockClient = fraFil("BARNEP-PlukkBestOpptjening.xml")
 
         val mockController = PensjonController(PensjonsinformasjonService(mockClient), auditLogger)
