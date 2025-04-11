@@ -301,7 +301,7 @@ class BucUtilsTest {
         val candidates = listOf<InstitusjonItem>()
 
         assertThrows<ManglerDeltakereException> {
-            bucUtils.findNewParticipants(candidates)
+            bucUtils.findAllParticipantsFromBuc(candidates)
         }
     }
 
@@ -312,7 +312,7 @@ class BucUtilsTest {
                 InstitusjonItem(country = "DK", institution = "DK006"),
                 InstitusjonItem(country = PL, institution = "PolishAcc")
         )
-        assertEquals(2, bucUtils.findNewParticipants(candidates).size)
+        assertEquals(2, bucUtils.findAllParticipantsFromBuc(candidates).size)
     }
 
     @Test
@@ -325,7 +325,7 @@ class BucUtilsTest {
                 InstitusjonItem(country = PL, institution = "PolishAcc"),
                 InstitusjonItem(country = "DK", institution = "DK006"))
 
-        assertEquals(0, bucUtils.findNewParticipants(candidates).size)
+        assertEquals(0, bucUtils.findAllParticipantsFromBuc(candidates).size)
     }
 
     @Test
@@ -339,7 +339,7 @@ class BucUtilsTest {
                 InstitusjonItem(country = "DK", institution = "DK006"),
                 InstitusjonItem(country = FI, institution = "FINLAND"))
 
-        assertEquals(1, bucUtils.findNewParticipants(candidates).size)
+        assertEquals(1, bucUtils.findAllParticipantsFromBuc(candidates).size)
     }
 
     @Test
@@ -353,7 +353,7 @@ class BucUtilsTest {
 
         val candidates = listOf<InstitusjonItem>()
 
-        assertEquals(0, bucUtils.findNewParticipants(candidates).size)
+        assertEquals(0, bucUtils.findAllParticipantsFromBuc(candidates).size)
     }
 
     @Test
@@ -369,7 +369,7 @@ class BucUtilsTest {
                 InstitusjonItem(country = NO, institution = "NO:NAVT002", name = "NAV T002"),
                 InstitusjonItem(country = NO, institution = "NO:NAVT008", name = "NAV T008")
         )
-        assertEquals(0, bucUtils.findNewParticipants(candidates).size)
+        assertEquals(0, bucUtils.findAllParticipantsFromBuc(candidates).size)
     }
 
 /*    @Test
@@ -413,7 +413,7 @@ class BucUtilsTest {
         val candidates = listOf(InstitusjonItem(country = NO, institution = "NO:NAVT003", name = "NAV T003"))
 
         assertEquals(3, bucUtils.getParticipants().size)
-        assertEquals(0, bucUtils.findNewParticipants(candidates).size)
+        assertEquals(0, bucUtils.findAllParticipantsFromBuc(candidates).size)
 
     }
 
@@ -425,7 +425,7 @@ class BucUtilsTest {
         val candidates = listOf(InstitusjonItem(country = NO, institution = "NO:NAVT007", name = "NAV T007"))
 
         assertEquals(3, bucUtils.getParticipants().size)
-        assertEquals(1, bucUtils.findNewParticipants(candidates).size)
+        assertEquals(1, bucUtils.findAllParticipantsFromBuc(candidates).size)
 
     }
 
