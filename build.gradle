@@ -90,7 +90,7 @@ dependencies {
     testImplementation('org.pac4j:spring-webmvc-pac4j:8.0.0')
 
     
-    testImplementation("org.junit.jupiter:junit-jupiter:5.12.1")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.12.2")
 
     //mock - test
     testImplementation("io.mockk:mockk:1.14.0")
