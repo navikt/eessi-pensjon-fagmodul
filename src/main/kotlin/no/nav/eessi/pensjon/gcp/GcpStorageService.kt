@@ -3,7 +3,7 @@ package no.nav.eessi.pensjon.gcp
 import com.google.cloud.storage.BlobId
 import com.google.cloud.storage.BlobInfo
 import com.google.cloud.storage.Storage
-import no.nav.eessi.pensjon.kodeverk.KodeverkClient.Companion.toJson
+import no.nav.eessi.pensjon.utils.toJson
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
