@@ -7,6 +7,7 @@ import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.document.Retning
 import no.nav.eessi.pensjon.fagmodul.eux.bucmodel.Receiver
 import no.nav.eessi.pensjon.shared.api.InstitusjonItem
+import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -427,7 +428,8 @@ class BucUtils(private val buc: Buc) {
     }
 
     fun findAllNEWParticipantsFromBuc(potentialNewParticipants: List<InstitusjonItem>): List<InstitusjonItem> {
-        val currentParticipants = getParticipantsAsInstitusjonItem()
+        logger.debug("potentialNewParticipants: ${potentialNewParticipants.toJson()}")
+        val currentParticipants = getParticipantsAsInstitusjonItem().also { logger.debug("currentParticipants: ${it.toJson()}") }
         if (currentParticipants.isEmpty() && potentialNewParticipants.isEmpty()) {
             throw ManglerDeltakereException("Ingen deltakere/Institusjon er tom")
         }
