@@ -61,7 +61,7 @@ dependencies {
     implementation("no.nav.eessi.pensjon:ep-metrics:2.0.104")
     implementation("no.nav.eessi.pensjon:ep-logging:2.2.11")
     implementation("no.nav.eessi.pensjon:ep-eux:2.4.39")
-    implementation("no.nav.eessi.pensjon:ep-kodeverk:4.1.46") {
+    implementation("no.nav.eessi.pensjon:ep-kodeverk:4.1.48") {
         exclude module: 'ep-eux'
         exclude module: 'ep-logging'
         exclude module: 'ep-metrics'
