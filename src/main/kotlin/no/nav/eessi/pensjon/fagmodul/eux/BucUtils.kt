@@ -435,10 +435,8 @@ class BucUtils(private val buc: Buc) {
         }
         return potentialNewParticipants.filter {
             candidate -> currentParticipants.none { current -> candidate.country == current.country && candidate.institution == current.institution }
-        }
+        }.also { logger.debug("Resultat fra findAllNEWParticipantsFromBuc: ${it.toJson()}") }
     }
-
-
 }
 
 class ManglerDeltakereException(message: String) : ResponseStatusException(HttpStatus.BAD_REQUEST, message)
