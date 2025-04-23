@@ -177,8 +177,8 @@ internal class PrefillControllerTest {
 
 
         val apiRequest = ApiRequest(sakId="22971111",aktoerId="2105768869843", buc=P_BUC_01, sed= SedType.P8000, euxCaseId="1443996", institutions= listOf(
-            InstitusjonItem(country="SE", institution="SE:ACC2001", name="The Swedish Pensions Agency", acronym="PM Sverige"),
-            InstitusjonItem(country="FI", institution="FI:0100222222", name="ACC_The Social Insurance Institution of Finland", acronym="KELA, FPA"))
+            InstitusjonItem(country="SE", institution="SE:ACC2003", name="The Swedish Pensions Agency", acronym="PM Sverige"),
+            InstitusjonItem(country="FI", institution="FI:01002222225", name="ACC_The Social Insurance Institution of Finland", acronym="KELA, FPA"))
         )
 
         val buc = mapJsonToAny<Buc>(mockBuc, false)

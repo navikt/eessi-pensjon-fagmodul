@@ -90,13 +90,8 @@ class PrefillController(
 
     private fun addInstitution(request: ApiRequest, dataModel: PrefillDataModel, bucUtil: BucUtils) {
         addInstution.measure {
-            val nyeInstitusjoner = if(dataModel.sedType in listOf(SedType.P8000, SedType.P10000)) {
-                logger.info("Sedtypen er P8000 eller P10000, legger til institusjoner")
-                dataModel.getInstitutionsList()
-            } else {
-                bucUtil.findAllParticipantsFromBuc(dataModel.getInstitutionsList())
-            }
             logger.info("*** Sjekker og legger til Instiusjoner på BUC eller X005 ***")
+            val nyeInstitusjoner = bucUtil.findAllNEWParticipantsFromBuc(dataModel.getInstitutionsList())
             val x005docs = bucUtil.findX005DocumentByTypeAndStatus()
 
             if (nyeInstitusjoner.isNotEmpty()) {

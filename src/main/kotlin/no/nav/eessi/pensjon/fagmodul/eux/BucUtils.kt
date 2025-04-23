@@ -426,7 +426,7 @@ class BucUtils(private val buc: Buc) {
             }
     }
 
-    fun findAllParticipantsFromBuc(potentialNewParticipants: List<InstitusjonItem>): List<InstitusjonItem> {
+    fun findAllNEWParticipantsFromBuc(potentialNewParticipants: List<InstitusjonItem>): List<InstitusjonItem> {
         val currentParticipants = getParticipantsAsInstitusjonItem()
         if (currentParticipants.isEmpty() && potentialNewParticipants.isEmpty()) {
             throw ManglerDeltakereException("Ingen deltakere/Institusjon er tom")
