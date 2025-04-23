@@ -428,14 +428,13 @@ class BucUtils(private val buc: Buc) {
     }
 
     fun findAllNEWParticipantsFromBuc(potentialNewParticipants: List<InstitusjonItem>): List<InstitusjonItem> {
-        logger.debug("potentialNewParticipants: ${potentialNewParticipants.toJson()}")
-        val currentParticipants = getParticipantsAsInstitusjonItem().also { logger.debug("currentParticipants: ${it.toJson()}") }
+        val currentParticipants = getParticipantsAsInstitusjonItem()
         if (currentParticipants.isEmpty() && potentialNewParticipants.isEmpty()) {
             throw ManglerDeltakereException("Ingen deltakere/Institusjon er tom")
         }
         return potentialNewParticipants.filter {
             candidate -> currentParticipants.none { current -> candidate.institution == current.institution }
-        }.also { logger.debug("Resultat fra findAllNEWParticipantsFromBuc: ${it.toJson()}") }
+        }
     }
 }
 
