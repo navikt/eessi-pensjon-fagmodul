@@ -162,7 +162,7 @@ class PrefillController(
         val sed = innhentingService.hentPreutyltSed(
             euxInnhentingService.checkForP7000AndAddP6000(requestMedGjenlevendeFnr),
             bucUtil.getProcessDefinitionVersion()
-        )
+        ).also { logger.debug("Prefill av SED: ${it.toJson()}") }
 
         //val institusjonerFraRequest = request.institutions
         //Sjekk og opprette deltaker og legge sed på valgt BUC

@@ -1,19 +1,19 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import io.mockk.MockKAnnotations
-import io.mockk.every
+import io.mockk.*
 import io.mockk.impl.annotations.MockK
-import io.mockk.mockk
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_06
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.eux.model.sed.P5000
+import no.nav.eessi.pensjon.eux.model.sed.P8000
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.eux.EuxPrefillService
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.fagmodul.prefill.klient.PrefillKlient
+import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonService
 import no.nav.eessi.pensjon.shared.api.ApiRequest
@@ -47,6 +47,9 @@ class SedControllerTest {
     @MockK
     lateinit var prefillKlient: PrefillKlient
 
+    @MockK
+    lateinit var gcpStorageService: GcpStorageService
+
     private lateinit var sedController: SedController
 
     @BeforeEach
@@ -57,7 +60,8 @@ class SedControllerTest {
         this.sedController = SedController(
             mockEuxInnhentingService,
             mockk(relaxed = true),
-            "http://rinaurl/cpi"
+            "http://rinaurl/cpi",
+            gcpStorageService
         )
     }
 
@@ -92,6 +96,32 @@ class SedControllerTest {
         val builder = UriComponentsBuilder.fromUriString(path).buildAndExpand(uriParams)
         assertEquals("/sed/get/123456789/DOC1223213234234", builder.path)
     }
+
+    @Test
+    fun `putDokument skal lagre p8000 med options`() {
+        val slot = slot<String>()
+        every { gcpStorageService.lagreP8000Options(any(), capture(slot)) } just Runs
+
+        val p8000sed = mapJsonToAny<P8000Frontend>(javaClass.getResource("/json/sed/P8000-NAV.json")!!.readText())
+        sedController.putDocument("123456", "222222", p8000sed.toJson())
+
+        assertEquals(p8000Lagret(), slot.captured)
+    }
+
+    @Test
+    fun `getDocument skal hente p8000 med options`() {
+        val p8000sed = mapJsonToAny<P8000>(javaClass.getResource("/json/nav/P8000_NO-NAV.json")!!.readText())
+        every { mockEuxInnhentingService.getSedOnBucByDocumentId(any(), any()) } returns p8000sed
+        every { gcpStorageService.hentP8000(any()) } returns p8000Lagret()
+
+        sedController.getDocument("123456", "222222").also {
+            println(it)
+            assert(it.contains("ofteEtterspurtInformasjon"))
+            assert(it.contains("inntektFoerUfoerhetIUtlandet"))
+            assert(it.contains("9876543210"))
+        }
+    }
+
 
     @Test
     fun `getFiltrerteGyldigSedAksjonListAsString   buc_01 returns 1 sed`() {
@@ -236,9 +266,6 @@ class SedControllerTest {
 
         assertEquals(3, trygdetidberegningRina?.size)
         assertEquals(6, medlemskapsberegningRina?.size)
-
-//        JSONAssert.assertEquals(trygdetidberegning?.toJsonSkipEmpty(), trygdetidberegningRina?.toJsonSkipEmpty(), false)
-
     }
 
     @Test
@@ -256,5 +283,12 @@ class SedControllerTest {
 
     }
 
-}
 
+    fun mockP8000() :String {
+        return "%7B%22type%22:%7B%22bosettingsstatus%22:%22UTL%22,%22spraak%22:%22nb%22,%22ytelse%22:%22UT%22%7D,%22ofteEtterspurtInformasjon%22:%7B%22tiltak%22:%7B%22value%22:true%7D,%22inntektFoerUfoerhetIUtlandet%22:%7B%22value%22:true,%22landkode%22:%22NO%22,%22periodeFra%22:%221980%22,%22periodeTil%22:%222025%22%7D%7D%7D".trimIndent()
+    }
+    fun p8000Lagret() :String {
+        return """{"type":{"bosettingsstatus":"UTL","spraak":"nb","ytelse":"UT"},"ofteEtterspurtInformasjon":{"tiltak":{"value":true},"inntektFoerUfoerhetIUtlandet":{"value":true,"landkode":"NO","periodeFra":"1980","periodeTil":"2025"}}}""".trimIndent()
+    }
+
+}

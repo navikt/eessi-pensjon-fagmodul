@@ -24,7 +24,6 @@ import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucViewKilde
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucViewKilde.BRUKER
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucViewKilde.SAF
 import no.nav.eessi.pensjon.gcp.GcpStorageService
-import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty

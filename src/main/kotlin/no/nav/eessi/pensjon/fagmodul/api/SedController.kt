@@ -1,12 +1,21 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonRawValue
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
+import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.PreviewPdf
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.sed.*
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
+import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
+import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import no.nav.security.token.support.core.api.Protected
@@ -17,6 +26,9 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
+import java.net.URLDecoder
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 @Protected
 @RestController
@@ -26,6 +38,7 @@ class SedController(
     private val auditlogger: AuditLogger,
     @Value("\${eessipen-eux-rina.url}")
     private val euxrinaurl: String,
+    private val gcpStorageService: GcpStorageService,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
 
@@ -60,36 +73,59 @@ class SedController(
         auditlogger.logBuc("getDocument", " euxCaseId: $euxcaseid documentId: $documentid")
         logger.info("Hente SED innhold for /${euxcaseid}/${documentid} ")
         val sed = euxInnhentingService.getSedOnBucByDocumentId(euxcaseid, documentid)
+
+        if (sed is P8000) {
+            val p8000Frontend = P8000Frontend(sed.type, sed.nav, sed.p8000Pensjon)
+            logger.info("Henter options for: ${p8000Frontend.type}, rinaid: $euxcaseid, options: ${p8000Frontend.options}")
+
+            gcpStorageService.hentP8000(documentid)?.let { lagretOptions ->
+                return p8000Frontend.toJsonSkipEmpty()
+                    .replace("\"options\" : null", "\"options\":${prettifyJson(lagretOptions)}")
+            }
+
+            logger.warn("Henter P8000 uten options")
+            return P8000Frontend(sed.type, sed.nav, sed.p8000Pensjon).toJson()
+        }
         return sed.toJson()
+    }
+
+    private fun prettifyJson(jsonString: String): String {
+        val mapper = ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
+        val jsonNode = mapper.readTree(jsonString)
+        return mapper.writeValueAsString(jsonNode)
     }
 
     @PutMapping("/put/{euxcaseid}/{documentid}")
     fun putDocument(
         @PathVariable("euxcaseid", required = true) euxcaseid: String,
         @PathVariable("documentid", required = true) documentid: String,
-        @RequestBody sedPayload: String): Boolean {
-
+        @RequestBody sedPayload: String
+    ): Boolean {
         val validsed = try {
             logger.debug("Følgende SED payload: $sedPayload")
 
             val sed = SED.fromJsonToConcrete(sedPayload)
             logger.info("Følgende SED prøves å oppdateres: ${sed.type}, rinaid: $euxcaseid")
 
-            //hvis P5000.. .
-            val validSed = if (sed is P5000)  {
-                sed.updateFromUI() //må alltid kjøres. sjekk og oppdatert trydetid. punkt 5.2.1.3.1
-            } else {
-                sed
+            when (sed) {
+                is P8000 -> {
+                    val sedP8000Frontend = mapJsonToAny<P8000Frontend>(sedPayload)
+                    sedP8000Frontend.options?.let {
+                        val jsonDecoded = URLDecoder.decode(it, "UTF-8")
+                        logger.info("Lagrer options for: ${sed.type}, rinaid: $euxcaseid, options: $jsonDecoded")
+                        gcpStorageService.lagreP8000Options(documentid, jsonDecoded)
+                    }
+                    sed
+                }
+                is P5000 -> sed.updateFromUI() //må alltid kjøres. sjekk og oppdatert trydetid. punkt 5.2.1.3.1
+                else -> sed
             }
-            validSed
-
         } catch (ex: Exception) {
             logger.error("Feil ved oppdatering av SED", ex)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Data er ikke gyldig SEDformat")
         }
-        logger.debug("Følgende SED prøves å oppdateres til RINA: ${validsed.toJsonSkipEmpty()}")
-
-        return euxInnhentingService.updateSedOnBuc(euxcaseid, documentid, validsed.toJsonSkipEmpty())
+        val jsonToRina = validsed.toJsonSkipEmpty().also { logger.debug("Følgende SED prøves å oppdateres til RINA: rinaID: $euxcaseid, documentid: $documentid, validsed: $it") }
+        return  euxInnhentingService.updateSedOnBuc(euxcaseid, documentid, jsonToRina).also { logger.info("Oppdatering av SED: $it") }
     }
 
     @GetMapping("/seds/{buctype}/{rinanr}")
@@ -126,3 +162,14 @@ class SedController(
         return euxInnhentingService.lagPdf(pdfJson).also { logger.info("SED for generering av PDF: $it") }
     }
 }
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+class P8000Frontend(
+    @JsonProperty("sed")
+    type: SedType = SedType.P8000,
+    nav: Nav? = null,
+    @JsonProperty("pensjon")
+    p8000Pensjon: P8000Pensjon?,
+    @JsonInclude(JsonInclude.Include.ALWAYS)
+    var options: String? = null,
+) : P8000(type, nav, p8000Pensjon)

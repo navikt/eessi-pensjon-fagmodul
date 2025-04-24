@@ -432,7 +432,7 @@ class BucUtils(private val buc: Buc) {
             throw ManglerDeltakereException("Ingen deltakere/Institusjon er tom")
         }
         return potentialNewParticipants.filter {
-            candidate -> currentParticipants.none { current -> candidate.country == current.country && candidate.institution == current.institution }
+            candidate -> currentParticipants.none { current -> candidate.institution == current.institution }
         }
     }
 
