@@ -30,16 +30,13 @@ class InnhentingService(
     private val pensjonsinformasjonService: PensjonsinformasjonService,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
-    private lateinit var HentPerson: MetricsHelper.Metric
+    private lateinit var hentPerson: MetricsHelper.Metric
     private lateinit var addInstutionAndDocumentBucUtils: MetricsHelper.Metric
 
     private val logger = LoggerFactory.getLogger(InnhentingService::class.java)
     init {
-        HentPerson = metricsHelper.init("HentPerson", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
-        addInstutionAndDocumentBucUtils = metricsHelper.init(
-            "AddInstutionAndDocumentBucUtils",
-            ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST)
-        )
+        hentPerson = metricsHelper.init("HentPerson", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
+        addInstutionAndDocumentBucUtils = metricsHelper.init("AddInstutionAndDocumentBucUtils",ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
     }
 
     //TODO hentFnrEllerNpidForAktoerIdfraPDL burde ikke tillate null eller tom AktoerId

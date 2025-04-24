@@ -33,11 +33,8 @@ class GcpStorageService(
         lagre(euxCaseId, gjennysak.toJson(), gjennyBucket)
     }
 
-    fun lagreP8000Options(documentid: String, options: String) {
-        if(p8000SakFinnes(documentid)){
-            gcpStorage.delete(BlobId.of(p8000Bucket, documentid))
-        }
-        lagre(documentid, options, p8000Bucket)
+    fun lagreP8000Options(euxCaseId: String, options: String) {
+        lagre(euxCaseId, options, p8000Bucket)
     }
 
     private fun lagre(euxCaseId: String, informasjon: String, bucketNavn: String) {

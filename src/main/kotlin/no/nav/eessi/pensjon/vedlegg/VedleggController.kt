@@ -20,17 +20,17 @@ class VedleggController(private val vedleggService: VedleggService,
                         @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()) {
     private val logger = LoggerFactory.getLogger(VedleggController::class.java)
 
-    private lateinit var VedleggControllerMetadata: MetricsHelper.Metric
-    private lateinit var VedleggControllerInnhold: MetricsHelper.Metric
+    private lateinit var vedleggControllerMetadata: MetricsHelper.Metric
+    private lateinit var vedleggControllerInnhold: MetricsHelper.Metric
     init {
-        VedleggControllerMetadata = metricsHelper.init("VedleggControllerMetadata", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
-        VedleggControllerInnhold = metricsHelper.init("VedleggControllerInnhold", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
+        vedleggControllerMetadata = metricsHelper.init("VedleggControllerMetadata", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
+        vedleggControllerInnhold = metricsHelper.init("VedleggControllerInnhold", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
     }
 
     @GetMapping("/metadata/{aktoerId}")
     fun hentDokumentMetadata(@PathVariable("aktoerId", required = true) aktoerId: String): ResponseEntity<String> {
         auditlogger.log("hentDokumentMetadata", aktoerId)
-        return VedleggControllerMetadata.measure {
+        return vedleggControllerMetadata.measure {
             logger.info("Henter metadata for dokumenter i SAF for aktørid: $aktoerId")
             ResponseEntity.ok().body(vedleggService.hentDokumentMetadata(aktoerId).toJson())
         }
@@ -44,7 +44,7 @@ class VedleggController(private val vedleggService: VedleggService,
                            @PathVariable("dokumentInfoId", required = true) dokumentInfoId: String,
                            @PathVariable("variantFormat", required = true) variantFormat: String): ResponseEntity<String> {
         auditlogger.log("getDokumentInnhold")
-        return VedleggControllerInnhold.measure {
+        return vedleggControllerInnhold.measure {
             logger.info("Henter dokumentinnhold fra SAF for journalpostId: $journalpostId, dokumentInfoId: $dokumentInfoId")
             val hentDokumentInnholdResponse = vedleggService.hentDokumentInnhold(journalpostId, dokumentInfoId, variantFormat)
             ResponseEntity.ok().body(hentDokumentInnholdResponse.toJson())

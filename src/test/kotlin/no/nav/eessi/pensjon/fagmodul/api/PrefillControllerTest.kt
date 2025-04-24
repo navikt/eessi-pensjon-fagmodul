@@ -57,15 +57,10 @@ internal class PrefillControllerTest {
     private lateinit var mockEuxPrefillService: EuxPrefillService
 
     private  val mockEuxKlient: EuxKlientAsSystemUser = mockk()
-
     private var gcpStorageService: GcpStorageService = mockk(relaxed = true)
 
     @SpyK
-    private var mockEuxInnhentingService: EuxInnhentingService = EuxInnhentingService(
-        "Q2",
-        mockEuxKlient,
-        gcpStorageService
-    )
+    private var mockEuxInnhentingService: EuxInnhentingService = EuxInnhentingService("Q2", mockEuxKlient, gcpStorageService)
 
     @MockK
     private lateinit var kafkaTemplate: KafkaTemplate<String, String>
