@@ -76,15 +76,15 @@ class SedController(
 
         if (sed is P8000) {
             val p8000Frontend = P8000Frontend(sed.type, sed.nav, sed.p8000Pensjon)
-
             logger.info("Henter options for: ${p8000Frontend.type}, rinaid: $euxcaseid, options: ${p8000Frontend.options}")
-            val lagretP8000Options = gcpStorageService.hentP8000(documentid)
-            val p8000Json = p8000Frontend.toJsonSkipEmpty()
 
-            if (lagretP8000Options != null) {
-                return p8000Json.replace("\"options\" : null", "\"options\":${prettifyJson(lagretP8000Options)}")
+            gcpStorageService.hentP8000(documentid)?.let { lagretOptions ->
+                return p8000Frontend.toJsonSkipEmpty()
+                    .replace("\"options\" : null", "\"options\":${prettifyJson(lagretOptions)}")
             }
-            return p8000Json.also { logger.warn("Henter P8000 uten options") }
+
+            logger.warn("Henter P8000 uten options")
+            return P8000Frontend(sed.type, sed.nav, sed.p8000Pensjon, "")
         }
         return sed.toJson()
     }
