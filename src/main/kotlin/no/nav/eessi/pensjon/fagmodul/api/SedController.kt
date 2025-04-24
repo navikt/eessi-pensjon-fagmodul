@@ -84,7 +84,7 @@ class SedController(
             }
 
             logger.warn("Henter P8000 uten options")
-            return P8000Frontend(sed.type, sed.nav, sed.p8000Pensjon, "")
+            return P8000Frontend(sed.type, sed.nav, sed.p8000Pensjon, "").toJson()
         }
         return sed.toJson()
     }
