@@ -117,7 +117,7 @@ class SedController(
                     }
                     sed
                 }
-                is P5000 -> sed.updateFromUI()
+                is P5000 -> sed.updateFromUI() //må alltid kjøres. sjekk og oppdatert trydetid. punkt 5.2.1.3.1
                 else -> sed
             }
         } catch (ex: Exception) {
