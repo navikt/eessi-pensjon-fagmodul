@@ -1,6 +1,6 @@
 package no.nav.eessi.pensjon.api.geo
 
-import no.nav.eessi.pensjon.kodeverk.PostnummerService
+import no.nav.eessi.pensjon.kodeverk.KodeverkClient
 import no.nav.security.token.support.core.api.Unprotected
 import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation.GetMapping
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController
 @Unprotected
 @RestController
 @RequestMapping("/postnummer")
-class PostkodeController(private val postnummerService: PostnummerService) {
+class PostkodeController(private val kodeverkClient: KodeverkClient) {
 
     private val logger = LoggerFactory.getLogger(PostkodeController::class.java)
 
@@ -19,7 +19,7 @@ class PostkodeController(private val postnummerService: PostnummerService) {
     fun getPostSted(@PathVariable("postnr", required = true) postnr: String): String? {
 
         logger.info("Henter poststed fra postnr: $postnr")
-        return postnummerService.finnPoststed(postnr)
+        return kodeverkClient.hentPostSted(postnr)?.sted
     }
 
 }

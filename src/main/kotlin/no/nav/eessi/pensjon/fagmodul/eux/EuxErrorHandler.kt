@@ -1,12 +1,10 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
 import no.nav.eessi.pensjon.eux.klient.*
-import no.nav.eessi.pensjon.kodeverk.KodeverkClient.Companion.toJson
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus.*
 import org.springframework.http.client.ClientHttpResponse
 import org.springframework.util.StreamUtils
-import org.springframework.web.client.DefaultResponseErrorHandler
 import org.springframework.web.client.ResponseErrorHandler
 import java.io.IOException
 import java.nio.charset.Charset
