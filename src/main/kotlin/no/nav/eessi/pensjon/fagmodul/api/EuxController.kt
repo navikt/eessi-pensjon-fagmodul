@@ -107,5 +107,34 @@ class EuxController(
         }
     }
 
+    @Protected
+    @PostMapping("/buc/{rinasakId}/sed/{dokumentId}/sendto")
+    fun sendSedMedMottakere(
+        @PathVariable("rinasakId") rinaSakId: String,
+        @PathVariable("dokumentId") dokumentId: String,
+        @RequestBody mottakere: List<String>
+    ): ResponseEntity<String> {
+        return sedsendt.measure {
+            if (mottakere.isNullOrEmpty()) {
+                logger.error("Mottakere er tom eller null")
+                return@measure ResponseEntity.badRequest().body("Mottakere kan ikke være tom")
+            }
+            try {
+                val response = euxInnhentingService.sendSedTilMottakere(rinaSakId, dokumentId, mottakere)
+                if (response) {
+                    logger.info("Sed er sendt til Rina:$rinaSakId, dokument:$dokumentId og mottakerne er lagt til: $mottakere")
+                    return@measure ResponseEntity.ok().body("Sed er sendt til Rina")
+                }
+                logger.error("Sed ble ikke sendt til Rina:$rinaSakId, dokument:$dokumentId og mottakerne er lagt til: $mottakere")
+                return@measure ResponseEntity.badRequest().body("Sed ble IKKE sendt til Rina")
+            } catch (ex: Exception) {
+                return@measure handleSendSedException(ex, rinaSakId, dokumentId)
+            }
+        }
+    }
 
+    private fun handleSendSedException(ex: Exception, rinaSakId: String, dokumentId: String): ResponseEntity<String> {
+        logger.error("Sed ble ikke sendt til Rina: $rinaSakId, dokument: $dokumentId", ex)
+        return ResponseEntity.badRequest().body("Sed ble IKKE sendt til Rina")
+    }
 }

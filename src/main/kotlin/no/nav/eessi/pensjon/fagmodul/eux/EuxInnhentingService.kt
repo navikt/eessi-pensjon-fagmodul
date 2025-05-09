@@ -540,6 +540,11 @@ class EuxInnhentingService(
         return euxKlient.sendSed(rinaSakId, dokumentId)
     }
 
+    fun sendSedTilMottakere(rinaSakId: String, dokumentId: String, mottakere: List<String>): Boolean {
+        logger.info("Sender sed til Rina for mottakere: $rinaSakId, sedId: $dokumentId, mottakere: $mottakere")
+        return euxKlient.sendTo(rinaSakId, dokumentId, mottakere)
+    }
+
     fun lagPdf(pdfJson: String): PreviewPdf? {
         logger.info("Lager pdf fra json")
         return euxKlient.lagPdf(pdfJson)
