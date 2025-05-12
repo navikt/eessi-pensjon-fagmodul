@@ -1,7 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.config
 
 import com.fasterxml.jackson.core.StreamReadConstraints
-import com.nimbusds.jwt.JWTClaimsSet
 import io.micrometer.core.instrument.MeterRegistry
 import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
 import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
@@ -34,7 +33,6 @@ import org.springframework.web.client.RestTemplate
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import java.time.Duration
-import java.util.*
 
 @Configuration
 @Profile("prod", "test")
@@ -47,6 +45,7 @@ class RestTemplateConfig(
 
     private val logger = LoggerFactory.getLogger(RestTemplateConfig::class.java)
     private val secureLog = LoggerFactory.getLogger("secureLog")
+    private val teamlogs = LoggerFactory.getLogger("TEAM_LOGS")
 
 
     init {
@@ -144,6 +143,7 @@ class RestTemplateConfig(
             val decodedToken = URLDecoder.decode(getToken(tokenValidationContextHolder).encodedToken, StandardCharsets.UTF_8)
 
             secureLog.info("NAVIdent: ${getClaims(tokenValidationContextHolder).get("NAVident")?.toString()}")
+            teamlogs.info("NAVIdent: ${getClaims(tokenValidationContextHolder).get("NAVident")?.toString()}")
 
             val tokenClient: AzureAdOnBehalfOfTokenClient = AzureAdTokenClientBuilder.builder()
                 .withNaisDefaults()
