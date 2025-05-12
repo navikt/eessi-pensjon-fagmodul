@@ -17,6 +17,7 @@ import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService
 import no.nav.security.token.support.client.spring.ClientConfigurationProperties
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import org.slf4j.LoggerFactory
+import org.slf4j.MarkerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
@@ -45,7 +46,7 @@ class RestTemplateConfig(
 
     private val logger = LoggerFactory.getLogger(RestTemplateConfig::class.java)
     private val secureLog = LoggerFactory.getLogger("secureLog")
-    private val teamlogs = LoggerFactory.getLogger("TEAM_LOGS")
+    private val teamlogs = MarkerFactory.getMarker("TEAM_LOGS")
 
 
     init {
@@ -143,7 +144,7 @@ class RestTemplateConfig(
             val decodedToken = URLDecoder.decode(getToken(tokenValidationContextHolder).encodedToken, StandardCharsets.UTF_8)
 
             secureLog.info("NAVIdent: ${getClaims(tokenValidationContextHolder).get("NAVident")?.toString()}")
-            teamlogs.info("NAVIdent: ${getClaims(tokenValidationContextHolder).get("NAVident")?.toString()}")
+            logger.info(teamlogs,"NAVIdent: ${getClaims(tokenValidationContextHolder).get("NAVident")?.toString()}")
 
             val tokenClient: AzureAdOnBehalfOfTokenClient = AzureAdTokenClientBuilder.builder()
                 .withNaisDefaults()
