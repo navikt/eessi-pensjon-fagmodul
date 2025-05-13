@@ -58,7 +58,7 @@ dependencies {
     //GCP
     implementation("com.google.cloud:google-cloud-storage:2.52.2")
 
-    implementation("no.nav.eessi.pensjon:ep-metrics:2.0.114")
+    implementation("no.nav.eessi.pensjon:ep-metrics:2.0.119")
     implementation("no.nav.eessi.pensjon:ep-logging:2.2.23")
     implementation("no.nav.eessi.pensjon:ep-eux:2.4.66")
     implementation("no.nav.eessi.pensjon:ep-kodeverk:4.1.49") {
