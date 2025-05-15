@@ -88,16 +88,6 @@ class BucUtils(private val buc: Buc) {
     fun findDocument(documentId: String): DocumentsItem? =
             getAllDocuments().firstOrNull { it.id == documentId }
 
-    fun getStartDateLong(): Long? {
-        val date = buc.startDate
-        return getDateTimeToLong(date)
-    }
-
-    fun getLastDateLong(): Long? {
-        val date = buc.lastUpdate
-        return getDateTimeToLong(date)
-    }
-
     private fun getDateTimeToLong(dateTime: Any?): Long? {
         return getLocalDateTime(dateTime)?.atZone(ZoneId.systemDefault())?.toInstant()?.toEpochMilli()
     }
@@ -282,15 +272,6 @@ class BucUtils(private val buc: Buc) {
             ?.filter { it?.role == "Sender" }
             ?.map { it?.organisation?.countryCode }
             ?.single()!!
-    }
-
-
-    fun getDocumentSenderOrganisation(participants: List<Participant?>?): Organisation {
-        val res =  participants
-            ?.filter { it?.role == "Sender" }
-            ?.mapNotNull { it?.organisation }
-            ?.single()
-        return res ?: Organisation(name = "Empty", id = "", countryCode = "")
     }
 
     fun getAllDocuments() = getDocuments().map { createShortDocument(it) }

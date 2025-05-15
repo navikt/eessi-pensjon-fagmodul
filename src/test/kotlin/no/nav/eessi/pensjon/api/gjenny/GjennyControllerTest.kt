@@ -143,6 +143,6 @@ class GjennyControllerTest {
             }
     }
 }
-private const val AKTOERID = "12345678901"
 
+private const val AKTOERID = "12345678901"
 private const val AVDOD_FNR = "12345678900"
