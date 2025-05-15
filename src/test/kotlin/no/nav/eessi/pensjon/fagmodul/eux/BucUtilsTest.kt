@@ -20,14 +20,10 @@ import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDate
 
 private const val FI = "FI"
-private const val DE = "DE"
 private const val PL = "PL"
 private const val NO = "NO"
 
 private const val RINASAK_ID = "123333"
-
-private const val DE_INSTITUSJON = "DE:DRV66001"
-private const val FI_INSTITUSJON = "FI:0200000046"
 
 class BucUtilsTest {
 
@@ -115,36 +111,6 @@ class BucUtilsTest {
         val name = buc.processDefinitionName
         assertEquals(P_BUC_01.name, name)
     }
-
-//    @Test
-//    fun `getEndDateLong parses dates correctly`() {
-//        val unixTimeStamp = 1567154257318L
-//        val listOfArgs = listOf(
-//            "2019-08-30T10:37:37.318",
-//            "2019-08-30T09:37:37.318+0100",
-//            "2019-08-30T08:37:37.318+00:00",
-//            "2019-08-30T09:37:37.318+01:00",
-//        )
-//        listOfArgs.forEach { assertEquals(unixTimeStamp, BucUtils(Buc(lastUpdate= it)).getLastDateLong()) }
-//    }
-
-//    @Test
-//    fun checkForValidReceiveDate() {
-//        assertEquals(1616763505000, BucUtils(Buc(lastUpdate = "2021-03-26T12:58:25.000+0000")).getLastDateLong())
-//
-//    }
-
-//    @Test
-//    fun `getEndDateLong parses dates correctly2`() {
-//        val listOfArgs = listOf(
-//            Pair(1567150657318L, 1567150657318L),
-//            Pair(1567154257318L, 1567154257318L),
-//            Pair(1567154257318L, "2019-08-30T10:37:37.318"),
-//            Pair(1567154257318L, "2019-08-30T09:37:37.318+0100")
-//        )
-//
-//        listOfArgs.forEach { assertEquals(it.first, BucUtils(Buc(lastUpdate= it.second) ).getLastDateLong()) }
-//    }
 
     @Test
     fun getRinaAksjoner() {
@@ -435,27 +401,26 @@ class BucUtilsTest {
         assertEquals("NO:NAVT003", result?.institution)
     }
 
-//    TODO: Fjerne eller beholde disse testene, da vi ikke lenger skal forholde oss til Long verdier lenger på dato
-//    @Test
-//    fun parseAndTestBucAndSedView() {
-//        val bucjson = getTestJsonFile("buc-280670.json")
-//        val buc = mapJsonToAny<Buc>(bucjson)
-//
-//        val bucview =  BucAndSedView.from(buc)
-//
-//        assertEquals(1567155195638, bucview.startDate)
-//        assertEquals(1567155212000, bucview.lastUpdate)
-//    }
+    @Test
+    fun parseAndTestBucAndSedView() {
+        val bucjson = getTestJsonFile("buc-280670.json")
+        val buc = mapJsonToAny<Buc>(bucjson)
 
-//    @Test
-//    fun parseAndTestBucAttachmentsDate() {
-//        val bucjson = getTestJsonFile("buc-279020big.json")
-//        val buc = mapJsonToAny<Buc>(bucjson)
-//
-//        val bucview =  BucAndSedView.from(buc)
-//        assertEquals(1567088832589, bucview.startDate)
-//        assertEquals(1567178490000, bucview.lastUpdate)
-//    }
+        val bucview =  BucAndSedView.from(buc)
+
+        assertEquals("2019-08-30T08:53:15.638+0000", bucview.startDate)
+        assertEquals("2019-08-30T08:53:32.000+0000", bucview.lastUpdate)
+    }
+
+    @Test
+    fun parseAndTestBucAttachmentsDate() {
+        val bucjson = getTestJsonFile("buc-279020big.json")
+        val buc = mapJsonToAny<Buc>(bucjson)
+
+        val bucview =  BucAndSedView.from(buc)
+        assertEquals("2019-08-29T14:27:12.589+0000", bucview.startDate)
+        assertEquals("2019-08-30T15:21:30.000+0000", bucview.lastUpdate)
+    }
 
     @Test
     fun parseAndTestBucMockError() {
@@ -532,12 +497,8 @@ class BucUtilsTest {
         assertEquals(NO, bucAndSedView.creator?.country)
         assertEquals("NO:NAVT002", bucAndSedView.creator?.institution)
         assertEquals("NAVT002", bucAndSedView.creator?.name)
-//        assertEquals(1567088832589, bucAndSedView.startDate)
-//        assertEquals(1567178490000, bucAndSedView.lastUpdate)
-
-//        val startDate = DateTimeFormatter.ISO_INSTANT.format(java.time.Instant.ofEpochMilli (1567088832589))
-//        val startDlen = startDate.length -5
-//        assertEquals(startDate.substring(0, startDlen), buc.startDate.toString().substring(0,19))
+        assertEquals("2019-08-29T14:27:12.589+0000", bucAndSedView.startDate)
+        assertEquals("2019-08-30T15:21:30.000+0000", bucAndSedView.lastUpdate)
         assertEquals("2019-08-29T14:27:12.589+0000", buc.startDate)
         assertEquals("2019-08-30T15:21:30.000+0000", buc.lastUpdate)
 

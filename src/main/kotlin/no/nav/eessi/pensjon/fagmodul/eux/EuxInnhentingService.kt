@@ -195,11 +195,7 @@ class EuxInnhentingService(
                 && !MissingBuc.checkForMissingBuc(rinasak.id!!)
 
     private fun relevanteBucTyperForVisningIEessiPensjon() =
-        ValidBucAndSed.pensjonsBucer() + mutableListOf("H_BUC_07", "R_BUC_01", "R_BUC_02", "M_BUC_02", "M_BUC_03a", "M_BUC_03b")
-
-    fun getBucDeltakere(euxCaseId: String): List<Participant> {
-        return bucDeltakere.measure {  euxKlient.getBucDeltakere(euxCaseId) }
-    }
+        ValidBucAndSed.pensjonsBucer() + mutableListOf(H_BUC_07.name, R_BUC_02.name, M_BUC_02.name, M_BUC_03a.name, M_BUC_03b.name)
 
     fun getPdfContents(euxCaseId: String, documentId: String): PreviewPdf {
         return euxKlient.getPdfJson(euxCaseId, documentId )
@@ -210,17 +206,8 @@ class EuxInnhentingService(
      */
     fun filterGyldigBucGjenlevendeAvdod(listeAvSedsPaaAvdod: List<BucOgDocumentAvdod>, fnrGjenlevende: String): List<Buc> {
         return listeAvSedsPaaAvdod
-//                .filter { docs -> filterGjenlevende(docs, fnrGjenlevende) }
                 .map { docs -> docs.buc }
                 .sortedBy { it.id }
-    }
-
-    private fun filterGjenlevende(docs: BucOgDocumentAvdod, fnrGjenlevende: String): Boolean {
-        val sedjson = docs.dokumentJson
-        if (sedjson.isBlank()) return false
-        val sed = mapJsonToAny<SED>(sedjson)
-        return filterGjenlevendePinNode(sed, docs.rinaidAvdod) == fnrGjenlevende ||
-                filterAnnenPersonPinNode(sed, docs.rinaidAvdod) == fnrGjenlevende
     }
 
     /**
@@ -273,28 +260,6 @@ class EuxInnhentingService(
         }
     }
 
-    /**
-     * json filter uthenting av pin på gjenlevende (p2100)
-     */
-    private fun filterGjenlevendePinNode(sed: SED, rinaidAvdod: String): String? {
-        val gjenlevende = sed.pensjon?.gjenlevende?.person
-        return filterPinGjenlevendePin(gjenlevende, sed.type, rinaidAvdod)
-    }
-
-    /**
-     * json filter uthenting av pin på annen person (gjenlevende) (p8000)
-     */
-    private fun filterAnnenPersonPinNode(sed: SED, rinaidAvdod: String): String? {
-        val annenperson = sed.nav?.annenperson?.person
-        val rolle = annenperson?.rolle
-        val type = sed.pensjon?.kravDato?.type
-        return if (type == KravType.GJENLEV || rolle == "01") {
-            filterPinGjenlevendePin(annenperson, sed.type, rinaidAvdod)
-        } else {
-            null
-        }
-    }
-
     private fun filterPinGjenlevendePin(gjenlevende: Person?, sedType: SedType, rinaidAvdod: String): String? {
         val pin = gjenlevende?.pin?.firstOrNull { it.land == "NO" }
         return if (pin == null) {
@@ -304,7 +269,6 @@ class EuxInnhentingService(
             pin.identifikator
         }
     }
-
 
     fun hentBucViewBruker(fnr: String, aktoerId: String, pesysSaksnr: String?): List<BucView> {
         val start = System.currentTimeMillis()
@@ -501,8 +465,6 @@ class EuxInnhentingService(
 
         logger.info("******* Hent BUC sjekk om sed kan opprettes *******")
         return BucUtils(getBuc(dataModel.euxCaseID)).also { bucUtil ->
-            //sjekk for om deltakere alt er fjernet med x007 eller x100 sed
-//            bucUtil.checkForParticipantsNoLongerActiveFromXSEDAsInstitusjonItem(dataModel.getInstitutionsList())
             //gyldig sed kan opprettes
             bucUtil.checkIfSedCanBeCreated(dataModel.sedType, dataModel.penSaksnummer)
         }
