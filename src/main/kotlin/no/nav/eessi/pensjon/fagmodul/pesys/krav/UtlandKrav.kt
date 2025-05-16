@@ -32,11 +32,7 @@ open class UtlandKrav {
 
     fun iverksettDatoAlder(kravSed: SED, kravDato: LocalDate?): LocalDate? {
         return virkningsDato(kravSed, kravDato)
-//        if (virkningsDato != null && virkningsDato.isBefore(LocalDate.now()))
-//            return virkningsDato.plusMonths(1)
-//        return virkningsDato
     }
-
 
     /**
      * Felt 9.4.4
@@ -46,12 +42,6 @@ open class UtlandKrav {
      */
     fun virkningsDato(kravSed: SED, kravDato: LocalDate?): LocalDate? {
         val utsettelseDato = kravSed.pensjon?.utsettelse?.firstOrNull()?.tildato
-
-//        Opprettelse av automatisk krav i PESYS ved mottatt av SED P2000/P2200:
-//        HVIS "soknadFraLand" : "SWE"
-//        OG "fremsattKravdato" : "2021-02-12",
-//        OG "mottattDato" : "2021-05-14",
-//        SÅ "iverksettelsesdato" : "2021-03-01",
 
         val dato = if (utsettelseDato != null) {
             val utsettelse = LocalDate.parse(utsettelseDato)
