@@ -82,6 +82,21 @@ class EuxControllerTest {
 
         assertEquals(true, result.statusCode.is2xxSuccessful)
     }
+
+    @Test
+    fun `sendSedMedMottakere skal ta i mot en liste med mottakere og sende videre`() {
+        val rinaSakId = "123"
+        val dokumentId = "456"
+        val mottakere = listOf("NO:974652382", "NO:NAVAT05", "NO:NAVAT04")
+        every {
+            euxRestTemplate.postForEntity(match<String> { path -> path.contains("/buc/$rinaSakId/sed/$dokumentId/sendTo") }, any<HttpEntity<String>>(), String::class.java)
+        } returns ResponseEntity("", HttpStatus.OK)
+
+        val result = euxController.sendSedMedMottakere(rinaSakId, dokumentId, mottakere)
+
+        assertEquals(HttpStatus.OK, result.statusCode)
+        assertEquals("Sed er sendt til Rina", result.body)
+    }
 }
 
 
