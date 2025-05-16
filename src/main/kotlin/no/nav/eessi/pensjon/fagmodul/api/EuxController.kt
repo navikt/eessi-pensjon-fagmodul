@@ -106,7 +106,6 @@ class EuxController(
             }
         }
     }
-
     @Protected
     @PostMapping("/buc/{rinasakId}/sed/{dokumentId}/sendto")
     fun sendSedMedMottakere(
@@ -115,6 +114,7 @@ class EuxController(
         @RequestBody mottakere: List<String>
     ): ResponseEntity<String> {
         return sedsendt.measure {
+            logger.info("Sender sed:$rinaSakId til mottakere: $mottakere")
             if (mottakere.isNullOrEmpty()) {
                 logger.error("Mottakere er tom eller null")
                 return@measure ResponseEntity.badRequest().body("Mottakere kan ikke være tom")
