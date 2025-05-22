@@ -136,7 +136,7 @@ class EuxController(
     }
 
     @Protected
-    @PostMapping("/cpi/resend/buc/{RinaSakId}/sed/{DokumentId}")
+    @PostMapping("/resend/buc/{RinaSakId}/sed/{DokumentId}")
     fun resendeDokumenterMedRinaId(
         @PathVariable("RinaSakId") rinaSakId: String,
         @PathVariable("DokumentId ") dokumentId: String,
@@ -158,7 +158,7 @@ class EuxController(
     }
 
     @Protected
-    @PostMapping("/cpi/resend/liste")
+    @PostMapping("/resend/liste")
     fun resendtDokumenter(
         @RequestBody dokumentListe: String
     ): ResponseEntity<String> {
