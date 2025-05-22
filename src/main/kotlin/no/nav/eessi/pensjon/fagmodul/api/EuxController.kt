@@ -142,7 +142,7 @@ class EuxController(
         @PathVariable("DokumentId") dokumentId: String,
     ): ResponseEntity<String> {
         return resend.measure {
-            logger.info("Resender dokumentliste")
+            logger.info("Resender dokument: $rinaSakId, dokument: $dokumentId")
             try {
                 val response = euxInnhentingService.reSendeRinasakerMedRinaId(rinaSakId, dokumentId)
                 if (response) {
@@ -163,7 +163,7 @@ class EuxController(
         @RequestBody dokumentListe: String
     ): ResponseEntity<String> {
         return resend.measure {
-            logger.info("Resender dokumentliste")
+            logger.info("Resender dokumentliste: $dokumentListe")
             if (dokumentListe.isEmpty()) {
                 logger.error("Dokumentlisten er tom eller null")
                 return@measure ResponseEntity.badRequest().body("Dokumentlisten kan ikke være tom")
