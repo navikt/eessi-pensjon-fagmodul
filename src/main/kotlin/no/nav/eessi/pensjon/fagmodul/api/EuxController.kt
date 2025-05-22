@@ -35,9 +35,9 @@ class EuxController(
 
     init {
             rinaUrl = metricsHelper.init("RinaUrl")
-            sedsendt = metricsHelper.init("resend")
+            resend = metricsHelper.init("resend")
             sedsendt = metricsHelper.init("sedsendt")
-            sedsendt = metricsHelper.init("resendMedRinaId")
+            resendMedRinaId = metricsHelper.init("resendMedRinaId")
             euxKodeverk = metricsHelper.init("euxKodeverk", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
             paakobledeland = metricsHelper.init("paakobledeland", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
             euxKodeverkLand = metricsHelper.init("euxKodeverkLand", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
