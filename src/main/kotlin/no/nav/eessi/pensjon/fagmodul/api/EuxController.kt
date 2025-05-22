@@ -163,13 +163,20 @@ class EuxController(
         @RequestBody dokumentListe: String
     ): ResponseEntity<String> {
         return resend.measure {
-            logger.info("Resender dokumentliste: $dokumentListe")
+            logger.info("Dokumentliste: $dokumentListe")
             if (dokumentListe.isEmpty()) {
                 logger.error("Dokumentlisten er tom eller null")
                 return@measure ResponseEntity.badRequest().body("Dokumentlisten kan ikke være tom")
             }
+            val formattedDokumentListe = dokumentListe
+                .replace("\\\n", "\n")
+                .replace("\\n", "\n")
+                .lines()
+                .filter { it.isNotBlank() }
+                .joinToString(separator = "\n") { it.trim() }
+            logger.info("Formatert dokumentliste: $formattedDokumentListe")
             try {
-                val response = euxInnhentingService.reSendRinasaker(dokumentListe)
+                val response = euxInnhentingService.reSendRinasaker(formattedDokumentListe)
                 if (response) {
                     logger.info("Resendte dokumenter er resendt til Rina")
                     return@measure ResponseEntity.ok().body("Sederer resendt til Rina")
