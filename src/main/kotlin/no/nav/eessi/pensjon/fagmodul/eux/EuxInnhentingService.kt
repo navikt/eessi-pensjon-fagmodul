@@ -514,6 +514,11 @@ class EuxInnhentingService(
         return euxKlient.resend(dokumentListe)
     }
 
+    fun reSendeRinasakerMedRinaId(rinasakId: String, dokumentId: String): Boolean {
+        logger.info("Resender seder til Rina")
+        return euxKlient.resendeDokMedrinaId(rinasakId, dokumentId)
+    }
+
     fun lagPdf(pdfJson: String): PreviewPdf? {
         logger.info("Lager pdf fra json")
         return euxKlient.lagPdf(pdfJson)
