@@ -139,7 +139,7 @@ class EuxController(
     @PostMapping("/resend/buc/{RinaSakId}/sed/{DokumentId}")
     fun resendeDokumenterMedRinaId(
         @PathVariable("RinaSakId") rinaSakId: String,
-        @PathVariable("DokumentId ") dokumentId: String,
+        @PathVariable("DokumentId") dokumentId: String,
     ): ResponseEntity<String> {
         return resend.measure {
             logger.info("Resender dokumentliste")
