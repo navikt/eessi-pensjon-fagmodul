@@ -14,8 +14,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.client.HttpStatusCodeException
-import org.springframework.web.server.ResponseStatusException
-
 
 
 @RestController
@@ -27,6 +25,7 @@ class EuxController(
     private val logger = LoggerFactory.getLogger(EuxController::class.java)
 
     private lateinit var rinaUrl: MetricsHelper.Metric
+    private lateinit var resend: MetricsHelper.Metric
     private lateinit var sedsendt: MetricsHelper.Metric
     private lateinit var euxKodeverk: MetricsHelper.Metric
     private lateinit var paakobledeland: MetricsHelper.Metric
@@ -35,6 +34,7 @@ class EuxController(
 
     init {
             rinaUrl = metricsHelper.init("RinaUrl")
+            sedsendt = metricsHelper.init("resend")
             sedsendt = metricsHelper.init("sedsendt")
             euxKodeverk = metricsHelper.init("euxKodeverk", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
             paakobledeland = metricsHelper.init("paakobledeland", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
@@ -133,8 +133,38 @@ class EuxController(
         }
     }
 
+    @Protected
+    @PostMapping("/cpi/resend/liste")
+    fun resendtDokumenter(
+        @RequestBody dokumentListe: String
+    ): ResponseEntity<String> {
+        return resend.measure {
+            logger.info("Resender dokumentliste")
+            if (dokumentListe.isEmpty()) {
+                logger.error("Dokumentlisten er tom eller null")
+                return@measure ResponseEntity.badRequest().body("Dokumentlisten kan ikke være tom")
+            }
+            try {
+                val response = euxInnhentingService.reSendRinasaker(dokumentListe)
+                if (response) {
+                    logger.info("Resendte dokumenter er resendt til Rina")
+                    return@measure ResponseEntity.ok().body("Sederer resendt til Rina")
+                }
+                logger.error("Resendte dokumenter ble IKKE resendt til Rina")
+                return@measure ResponseEntity.badRequest().body("Seder ble IKKE resendt til Rina")
+            } catch (ex: Exception) {
+                return@measure handleReSendDocumentException(ex, dokumentListe)
+            }
+        }
+    }
+
     private fun handleSendSedException(ex: Exception, rinaSakId: String, dokumentId: String): ResponseEntity<String> {
         logger.error("Sed ble ikke sendt til Rina: $rinaSakId, dokument: $dokumentId", ex)
         return ResponseEntity.badRequest().body("Sed ble IKKE sendt til Rina")
+    }
+
+    private fun handleReSendDocumentException(ex: Exception, dokumentliste: String): ResponseEntity<String> {
+        logger.error("Seder ble ikke resendt til Rina", ex)
+        return ResponseEntity.badRequest().body("Seder ble IKKE resendt til Rina")
     }
 }

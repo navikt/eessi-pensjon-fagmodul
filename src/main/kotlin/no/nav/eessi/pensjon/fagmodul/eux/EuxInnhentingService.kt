@@ -7,9 +7,11 @@ import no.nav.eessi.pensjon.eux.model.BucType
 import no.nav.eessi.pensjon.eux.model.BucType.*
 import no.nav.eessi.pensjon.eux.model.InstitusjonDetalj
 import no.nav.eessi.pensjon.eux.model.SedType
-import no.nav.eessi.pensjon.eux.model.buc.*
+import no.nav.eessi.pensjon.eux.model.buc.Buc
+import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
+import no.nav.eessi.pensjon.eux.model.buc.MissingBuc
+import no.nav.eessi.pensjon.eux.model.buc.PreviewPdf
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
-import no.nav.eessi.pensjon.eux.model.sed.KravType
 import no.nav.eessi.pensjon.eux.model.sed.Person
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.X009
@@ -505,6 +507,11 @@ class EuxInnhentingService(
     fun sendSedTilMottakere(rinaSakId: String, dokumentId: String, mottakere: List<String>): Boolean {
         logger.info("Sender sed til Rina for mottakere: $rinaSakId, sedId: $dokumentId, mottakere: $mottakere")
         return euxKlient.sendTo(rinaSakId, dokumentId, mottakere)
+    }
+
+    fun reSendRinasaker(dokumentListe: String): Boolean {
+        logger.info("Resender seder til Rina")
+        return euxKlient.resend(dokumentListe)
     }
 
     fun lagPdf(pdfJson: String): PreviewPdf? {
