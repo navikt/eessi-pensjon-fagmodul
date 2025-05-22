@@ -5,6 +5,7 @@ import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.SpyK
 import io.mockk.mockk
+import io.mockk.slot
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_06
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
@@ -96,6 +97,23 @@ class EuxControllerTest {
 
         assertEquals(HttpStatus.OK, result.statusCode)
         assertEquals("Sed er sendt til Rina", result.body)
+    }
+
+    @Test
+    fun `resendtDokumenter skal gi 200 ved gyldig input`() {
+        val dokumentListe = "1452061_5120d7d59ae548a4a980fe93eb58f9bd_1\\\n1452062_5120d7d59ae548a4a980fe93eb58f9bd_1\\\n1452061_5120d7d59ae548a4a980fe93eb58f9bd_1"
+        val capturedRequestBody = slot<HttpEntity<String>>()
+
+        every {
+            euxRestTemplate.postForEntity(match<String> { path -> path.contains("/resend/liste") }, capture(capturedRequestBody), String::class.java)
+        } returns ResponseEntity("", HttpStatus.OK)
+
+        val result = euxController.resendtDokumenter(dokumentListe)
+
+        assertEquals(HttpStatus.OK, result.statusCode)
+        assertEquals("Sederer resendt til Rina", result.body)
+        assert(capturedRequestBody.captured.body!!.contains("1452062_5120d7d59ae548a4a980fe93eb58f9bd_1\n" +
+                "1452061_5120d7d59ae548a4a980fe93eb58f9bd_1"))
     }
 }
 
