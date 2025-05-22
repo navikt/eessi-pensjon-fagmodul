@@ -26,6 +26,7 @@ class EuxController(
 
     private lateinit var rinaUrl: MetricsHelper.Metric
     private lateinit var resend: MetricsHelper.Metric
+    private lateinit var resendMedRinaId: MetricsHelper.Metric
     private lateinit var sedsendt: MetricsHelper.Metric
     private lateinit var euxKodeverk: MetricsHelper.Metric
     private lateinit var paakobledeland: MetricsHelper.Metric
@@ -36,6 +37,7 @@ class EuxController(
             rinaUrl = metricsHelper.init("RinaUrl")
             sedsendt = metricsHelper.init("resend")
             sedsendt = metricsHelper.init("sedsendt")
+            sedsendt = metricsHelper.init("resendMedRinaId")
             euxKodeverk = metricsHelper.init("euxKodeverk", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
             paakobledeland = metricsHelper.init("paakobledeland", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
             euxKodeverkLand = metricsHelper.init("euxKodeverkLand", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
@@ -134,6 +136,28 @@ class EuxController(
     }
 
     @Protected
+    @PostMapping("/cpi/resend/buc/{RinaSakId}/sed/{DokumentId}")
+    fun resendeDokumenterMedRinaId(
+        @PathVariable("RinaSakId") rinaSakId: String,
+        @PathVariable("DokumentId ") dokumentId: String,
+    ): ResponseEntity<String> {
+        return resend.measure {
+            logger.info("Resender dokumentliste")
+            try {
+                val response = euxInnhentingService.reSendeRinasakerMedRinaId(rinaSakId, dokumentId)
+                if (response) {
+                    logger.info("Resendte dokumenter er resendt til Rina")
+                    return@measure ResponseEntity.ok().body("Sederer resendt til Rina")
+                }
+                logger.error("Resendte dokumenter ble IKKE resendt til Rina")
+                return@measure ResponseEntity.badRequest().body("Seder ble IKKE resendt til Rina")
+            } catch (ex: Exception) {
+                return@measure handleReSendDocumentMedRinaIdException(ex, rinaSakId, dokumentId)
+            }
+        }
+    }
+
+    @Protected
     @PostMapping("/cpi/resend/liste")
     fun resendtDokumenter(
         @RequestBody dokumentListe: String
@@ -164,6 +188,11 @@ class EuxController(
     }
 
     private fun handleReSendDocumentException(ex: Exception, dokumentliste: String): ResponseEntity<String> {
+        logger.error("Seder ble ikke resendt til Rina", ex)
+        return ResponseEntity.badRequest().body("Seder ble IKKE resendt til Rina")
+    }
+
+    private fun handleReSendDocumentMedRinaIdException(ex: Exception, rinaSakId: String, dokumentId: String): ResponseEntity<String> {
         logger.error("Seder ble ikke resendt til Rina", ex)
         return ResponseEntity.badRequest().body("Seder ble IKKE resendt til Rina")
     }
