@@ -171,9 +171,10 @@ class EuxController(
             val formattedDokumentListe = dokumentListe
                 .replace("\\\n", "\n")
                 .replace("\\n", "\n")
+                .replace("\n\n", "")
                 .lines()
                 .filter { it.isNotBlank() }
-                .joinToString { it.trim() }
+                .joinToString(separator = "\n") { it.trim() }
             logger.info("Formatert dokumentliste: $formattedDokumentListe")
             try {
                 val response = euxInnhentingService.reSendRinasaker(formattedDokumentListe)
