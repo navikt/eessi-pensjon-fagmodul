@@ -1,6 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
+import no.nav.eessi.pensjon.eux.klient.EuxKlientLib
 import no.nav.eessi.pensjon.eux.klient.ForbiddenException
 import no.nav.eessi.pensjon.eux.klient.Rinasak
 import no.nav.eessi.pensjon.eux.model.BucType
@@ -509,10 +510,18 @@ class EuxInnhentingService(
         return euxKlient.sendTo(rinaSakId, dokumentId, mottakere)
     }
 
-    fun reSendRinasaker(dokumentListe: String): Boolean {
+    fun reSendRinasaker(dokumentListe: String): EuxKlientLib.HentResponseBody? {
         logger.info("Resender seder til Rina")
         return euxKlient.resend(dokumentListe)
+//        if (response?.status == HttpStatus.OK) {
+//            logger.info("Dokumenter er resendt til Rina")
+//            return response
+//        } else {
+//            logger.error("Resendte dokumenter ble IKKE resendt til Rina")
+//            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Seder ble IKKE resendt til Rina, ${response?.messages}")
+//        }
     }
+
 
     fun reSendeRinasakerMedRinaId(rinasakId: String, dokumentId: String): Boolean {
         logger.info("Resender seder til Rina")
