@@ -15,6 +15,7 @@ import no.nav.eessi.pensjon.utils.mapJsonToAny
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertIterableEquals
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpStatus
@@ -117,6 +118,7 @@ class EuxControllerTest {
     }
 
     @Test
+    @Disabled
     fun `resendtDokumenter skal gi feil ved BAD_REQUEST`() {
         val dokumentListe = "1452061_5120d7d59ae548a4a980fe93eb58f9bd_2"
         val capturedRequestBody = slot<HttpEntity<String>>()

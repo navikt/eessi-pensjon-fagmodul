@@ -186,10 +186,17 @@ class EuxController(
                 logger.error("Resendte dokumenter ble IKKE resendt til Rina ${response?.status}")
                 return@measure ResponseEntity.badRequest().body("Seder ble IKKE resendt til Rina ${response?.status}")
             } catch (ex: Exception) {
-                return@measure ResponseEntity.badRequest().body("Seder ble IKKE resendt til Rina ${ex.message}")
+                return@measure ResponseEntity.badRequest().body(FrontEndResponse(ex.message).toJson())
             }
         }
     }
+
+    data class FrontEndResponse(
+        val response: String? = null,
+        val status: String? = null,
+        val message: String? = null,
+        val stackTrace: String? = null
+    )
 
     private fun handleSendSedException(ex: Exception, rinaSakId: String, dokumentId: String): ResponseEntity<String> {
         logger.error("Sed ble ikke sendt til Rina: $rinaSakId, dokument: $dokumentId", ex)
