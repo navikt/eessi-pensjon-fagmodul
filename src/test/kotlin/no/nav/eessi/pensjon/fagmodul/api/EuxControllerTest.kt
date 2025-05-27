@@ -7,7 +7,6 @@ import io.mockk.impl.annotations.SpyK
 import io.mockk.mockk
 import io.mockk.slot
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
-import no.nav.eessi.pensjon.eux.klient.EuxKlientLib
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_06
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
@@ -131,6 +130,31 @@ class EuxControllerTest {
         assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
         assert(result.toString().contains("Følgende linjer hadde feil format:"))
         assert(result.toString().contains("Seder ble IKKE resendt til Rina"))
+//        assert(capturedRequestBody.captured.body!!.contains("1452061_5120d7d59ae548a4a980fe93eb58f9bd_1"))
+//        assert(capturedRequestBody.captured.body!!.contains("1452062_5120d7d59ae548a4a980fe93eb58f9bd_1" +
+//                "1452061_5120d7d59ae548a4a980fe93eb58f9bd_1"))
+    }
+
+    @Test
+    fun `resendtDokumenter skal gi 200 ved gyldig input ved innsending av flere dokumenter`() {
+        val dokumentListe = """
+            1452061_5120d7d59ae548a4a980fe93eb58f9bd_1
+            1452062_5120d7d59ae548a4a980fe93eb58f9bd_1
+        """.trimIndent()
+
+        val capturedRequestBody = slot<HttpEntity<String>>()
+
+        every {
+            euxRestTemplate.postForEntity(match<String> { path -> path.contains("/resend/liste") }, capture(capturedRequestBody), String::class.java)
+        } returns ResponseEntity("", HttpStatus.OK)
+
+        val result = euxController.resendtDokumenter(dokumentListe)
+        println("resultat: ${capturedRequestBody.captured.body}")
+
+        assertEquals(HttpStatus.OK, result.statusCode)
+        assertEquals("Sederer resendt til Rina", result.body)
+        assert(capturedRequestBody.captured.body!!.contains("1452062_5120d7d59ae548a4a980fe93eb58f9bd_1\n" +
+                "1452061_5120d7d59ae548a4a980fe93eb58f9bd_1"))
     }
 }
 
