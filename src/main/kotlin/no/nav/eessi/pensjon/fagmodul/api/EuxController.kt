@@ -186,7 +186,7 @@ class EuxController(
                 logger.error("Resendte dokumenter ble IKKE resendt til Rina ${response?.status}")
                 return@measure ResponseEntity.badRequest().body("Seder ble IKKE resendt til Rina ${response?.status}")
             } catch (ex: Exception) {
-                return@measure ResponseEntity.badRequest().body(FrontEndResponse(ex.message).toJson())
+                return@measure ResponseEntity.badRequest().body(FrontEndResponse(ex.message, message = "Seder ble IKKE resendt til Rina ").toJson())
             }
         }
     }
