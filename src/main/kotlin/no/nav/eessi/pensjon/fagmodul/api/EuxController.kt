@@ -145,7 +145,7 @@ class EuxController(
             logger.info("Resender dokument: $rinaSakId, dokument: $dokumentId")
             try {
                 val response = euxInnhentingService.reSendeRinasakerMedRinaId(rinaSakId, dokumentId)
-                if (response) {
+                if (response?.status == HttpStatus.OK) {
                     logger.info("Resendte dokumenter er resendt til Rina")
                     return@measure ResponseEntity.ok().body("Sederer resendt til Rina")
                 }

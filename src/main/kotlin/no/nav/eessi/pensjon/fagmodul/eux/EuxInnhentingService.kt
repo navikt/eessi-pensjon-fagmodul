@@ -513,17 +513,9 @@ class EuxInnhentingService(
     fun reSendRinasaker(dokumentListe: String): EuxKlientLib.HentResponseBody? {
         logger.info("Resender seder til Rina")
         return euxKlient.resend(dokumentListe)
-//        if (response?.status == HttpStatus.OK) {
-//            logger.info("Dokumenter er resendt til Rina")
-//            return response
-//        } else {
-//            logger.error("Resendte dokumenter ble IKKE resendt til Rina")
-//            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Seder ble IKKE resendt til Rina, ${response?.messages}")
-//        }
     }
 
-
-    fun reSendeRinasakerMedRinaId(rinasakId: String, dokumentId: String): Boolean {
+    fun reSendeRinasakerMedRinaId(rinasakId: String, dokumentId: String):  EuxKlientLib.HentResponseBody? {
         logger.info("Resender seder til Rina")
         return euxKlient.resendeDokMedrinaId(rinasakId, dokumentId)
     }
