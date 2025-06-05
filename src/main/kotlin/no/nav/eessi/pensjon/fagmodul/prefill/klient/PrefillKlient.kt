@@ -1,5 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.prefill.klient
 
+import no.nav.eessi.pensjon.fagmodul.api.EuxController
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.shared.api.ApiRequest
 import no.nav.eessi.pensjon.utils.mapJsonToAny
@@ -61,6 +62,8 @@ class PrefillKlient(private val prefillOAuthTemplate: RestTemplate,
         }
 
     }
+
+
 
     data class ResponseErrorData(
         val timestamp: String,

@@ -3,6 +3,7 @@ package no.nav.eessi.pensjon.api.gjenny
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_01
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_03
 import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
+import no.nav.eessi.pensjon.fagmodul.api.EuxController
 import no.nav.eessi.pensjon.fagmodul.api.PrefillController
 import no.nav.eessi.pensjon.fagmodul.api.SedController
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
@@ -135,7 +136,7 @@ class GjennyController (
     fun prefillSed(
         @RequestBody(required = true) request: ApiRequest,
         @PathVariable("parentid", required = true) parentId: String
-    ): DocumentsItem? = prefillController.addDocumentToParent(request.copy(gjenny = true), parentId).also { logger.info("Prefil fra gjenny for ${request.sed}, rinaid: ${request.euxCaseId}, sedid: ${request.documentid}") }
+    ): EuxController.FrontEndResponse? = prefillController.addDocumentToParent(request.copy(gjenny = true), parentId).also { logger.info("Prefil fra gjenny for ${request.sed}, rinaid: ${request.euxCaseId}, sedid: ${request.documentid}") }
 
     @PutMapping("/sed/document/{euxcaseid}/{documentid}")
     fun oppdaterSed(

@@ -164,6 +164,15 @@ class PrefillController(
             bucUtil.getProcessDefinitionVersion()
         ).also { logger.debug("Prefill av SED: $it") }
 
+//        val frontEndResponse = mapJsonToAny<EuxController.FrontEndResponse>(
+//            innhentingService.hentPreutyltSed(
+//                euxInnhentingService.checkForP7000AndAddP6000(requestMedGjenlevendeFnr),
+//                bucUtil.getProcessDefinitionVersion()
+//            )
+//        ).also { logger.debug("Prefill av SED: $it") }
+//        val sed = frontEndResponse.response.orEmpty()
+
+
         //val institusjonerFraRequest = request.institutions
         //Sjekk og opprette deltaker og legge sed på valgt BUC
         return addInstutionAndDocument.measure {
@@ -184,14 +193,13 @@ class PrefillController(
             logger.info("******* Legge til ny SED - slutt *******")
             documentItem
         }
-
     }
 
     @PostMapping("sed/replysed/{parentid}")
     fun addDocumentToParent(
         @RequestBody(required = true) request: ApiRequest,
         @PathVariable("parentid", required = true) parentId: String
-    ): DocumentsItem? {
+    ): EuxController.FrontEndResponse? {
         if (request.buc == null) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mangler Buc")
 
         val norskIdent = innhentingService.hentFnrfraAktoerService(request.aktoerId) ?: throw HttpClientErrorException(HttpStatus.BAD_REQUEST, "Mangler norsk fnr")
@@ -208,16 +216,18 @@ class PrefillController(
         }
 
         logger.info("Prøver å prefillSED (svarSED) parentId: $parentId")
-        val sed = innhentingService.hentPreutyltSed(
-            euxInnhentingService.checkForX010AndAddX009(request, parentId),
-            bucUtil.getProcessDefinitionVersion()
+        val frontEndResponse = EuxController.FrontEndResponse(
+             response = innhentingService.hentPreutyltSed(
+                euxInnhentingService.checkForX010AndAddX009(request, parentId),
+                bucUtil.getProcessDefinitionVersion()
+            )
         )
 
         return addDocumentToParent.measure {
             logger.info("Prøver å sende SED: ${dataModel.sedType} inn på BUC: ${dataModel.euxCaseID}")
 
             val docresult = euxPrefillService.opprettSvarJsonSedOnBuc(
-                sed,
+                frontEndResponse.response ?: "",
                 dataModel.euxCaseID,
                 parentId,
                 request.vedtakId,
@@ -234,7 +244,7 @@ class PrefillController(
 
             logger.info("Buc: (${dataModel.euxCaseID}, hovedSED type: ${parent?.type}, docId: ${parent?.id}, svarSED type: ${documentItem?.type} docID: ${documentItem?.id}")
             logger.info("******* Legge til svarSED - slutt *******")
-            documentItem
+            EuxController.FrontEndResponse(documentItem?.toJson() ?: "", message = frontEndResponse.message)
         }
     }
 
