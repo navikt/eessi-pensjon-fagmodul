@@ -30,6 +30,10 @@ class GcpStorageService(
     }
 
     fun lagreGjennySak(euxCaseId: String, gjennysak: GjennySak) {
+        if(gjennysak.sakId?.length != 5 && gjennysak.sakId?.any { !it.isDigit() } == true) {
+            logger.error("SakId må være korrekt strukturert med 5 tegn; mottok: ${gjennysak.toJson()}")
+            return
+        }
         lagre(euxCaseId, gjennysak.toJson(), gjennyBucket)
     }
 
