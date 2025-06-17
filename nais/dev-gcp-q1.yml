@@ -37,11 +37,6 @@ spec:
           withState: ANY
         uniformBucketLevelAccess: true
       - name: eessi-pensjon-p8000-dev-q1
-        lifecycleCondition:
-          age: 365
-          createdBefore: 2020-01-01
-          numNewerVersions: 2
-          withState: ANY
         uniformBucketLevelAccess: true
   accessPolicy:
     outbound:
