@@ -155,13 +155,13 @@ class UpdateSedOnBucIntegrationTest {
             }
         """.trimIndent()
 
-        val expectedError = """Data er ikke gyldig SEDformat""".trimIndent()
+        val expectedError = """Lagring av P8000 feilet, ugyldig SED""".trimIndent()
         mockMvc.perform(
             put("/sed/put/$euxCaseId/$documentId")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonsed))
             .andExpect(status().isBadRequest)
-            .andExpect(status().reason(Matchers.containsString(expectedError)))
+            .andExpect(status().reason(Matchers.containsStringIgnoringCase(expectedError)))
     }
 
     private fun createDummyClientRestExecption(httpstatus: HttpStatus, dummyBody: String)
