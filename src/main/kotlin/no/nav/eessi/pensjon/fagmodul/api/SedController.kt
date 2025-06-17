@@ -122,7 +122,7 @@ class SedController(
             }
         } catch (ex: Exception) {
             logger.error("Feil ved oppdatering av SED", ex)
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Data er ikke gyldig SEDformat")
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Lagring av P8000 feilet, ugyldig SED: ${ex.message}", ex)
         }
         val jsonToRina = validsed.toJsonSkipEmpty().also { logger.debug("Følgende SED prøves å oppdateres til RINA: rinaID: $euxcaseid, documentid: $documentid, validsed: $it") }
         return  euxInnhentingService.updateSedOnBuc(euxcaseid, documentid, jsonToRina).also { logger.info("Oppdatering av SED: $it") }
