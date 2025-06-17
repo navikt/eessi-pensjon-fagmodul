@@ -41,7 +41,7 @@ class SedController(
     private val gcpStorageService: GcpStorageService,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
-
+    private val secureLog = LoggerFactory.getLogger("secureLog")
     private val logger = LoggerFactory.getLogger(SedController::class.java)
 
     private lateinit var pdfGenerert: MetricsHelper.Metric
@@ -102,7 +102,7 @@ class SedController(
         @RequestBody sedPayload: String
     ): Boolean {
         val validsed = try {
-            logger.debug("Følgende SED payload: $sedPayload")
+            secureLog.info("Følgende SED payload: $sedPayload")
 
             val sed = SED.fromJsonToConcrete(sedPayload)
             logger.info("Følgende SED prøves å oppdateres: ${sed.type}, rinaid: $euxcaseid")
