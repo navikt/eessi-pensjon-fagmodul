@@ -109,7 +109,7 @@ class EuxVedleggClient(private val euxNavIdentRestTemplate: RestTemplate,
                 val errorBody = hsee.responseBodyAsString
                 logger.error("$prefixErrorMessage, HttpServerError med euxCaseID: $euxCaseId, feilkode body: $errorBody", hsee)
                 when (hsee.statusCode) {
-                    HttpStatus.INTERNAL_SERVER_ERROR -> throw EuxRinaServerException("Rina serverfeil, kan også skyldes ugyldig input, $errorBody")
+                    HttpStatus.INTERNAL_SERVER_ERROR -> throw EuxRinaServerException("Serverfeil, kan også skyldes ugyldig input, $errorBody")
                     HttpStatus.GATEWAY_TIMEOUT -> throw GatewayTimeoutException("Venting på respons fra Rina resulterte i en timeout, $errorBody")
                     else -> throw GenericUnprocessableEntity("En feil har oppstått")
                 }
