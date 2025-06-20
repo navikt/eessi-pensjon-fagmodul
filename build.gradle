@@ -47,6 +47,9 @@ dependencies {
     configurations { all*.exclude group: 'commons-logging', module: 'commons-logging' }
     implementation("org.slf4j:jcl-over-slf4j:2.0.17")
 
+    // PDF box
+    implementation("org.apache.pdfbox:pdfbox-tools:2.0.34")
+
     //auth
     implementation("no.nav.security:token-client-spring:${tokenSupportVersion}")
     implementation("no.nav.security:token-validation-spring:${tokenSupportVersion}")
