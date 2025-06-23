@@ -27,6 +27,7 @@ import org.springframework.http.HttpRequest
 import org.springframework.http.client.BufferingClientHttpRequestFactory
 import org.springframework.http.client.ClientHttpRequestExecution
 import org.springframework.http.client.ClientHttpRequestInterceptor
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.http.client.SimpleClientHttpRequestFactory
 import org.springframework.web.client.DefaultResponseErrorHandler
 import org.springframework.web.client.ResponseErrorHandler
@@ -120,7 +121,7 @@ class RestTemplateConfig(
                 tokenIntercetor
             )
             .build().apply {
-                requestFactory = BufferingClientHttpRequestFactory(SimpleClientHttpRequestFactory())
+                requestFactory = HttpComponentsClientHttpRequestFactory()
        }
     }
 
