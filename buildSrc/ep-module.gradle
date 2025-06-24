@@ -52,10 +52,6 @@ compileTestKotlin {
     kotlinOptions.freeCompilerArgs += "-Xjsr305=strict"
 }
 
-tasks.withType(Test) {
-    jvmArgs '-Xmx2g' // test environment heap size
-}
-
 test {
     useJUnitPlatform()
     failFast = false
