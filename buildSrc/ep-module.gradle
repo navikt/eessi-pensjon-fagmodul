@@ -40,14 +40,24 @@ java {
     targetCompatibility = JavaVersion.VERSION_21
 }
 
-kotlin {
-    jvmToolchain(21)
+tasks.withType(Test) {
+    jvmArgs '-Xmx2g' // test environment heap size
+}
 
-    compilerOptions {
-        allWarningsAsErrors.set(true)
-        freeCompilerArgs.add("-Xannotation-default-target=param-property")
-        freeCompilerArgs.add("-Xwarning-level=IDENTITY_SENSITIVE_OPERATIONS_WITH_VALUE_TYPE:disabled")
-    }
+tasks.withType(JavaExec) {
+    jvmArgs '-Xmx4g' // prod environment heap size
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget =  "21"
+    kotlinOptions.allWarningsAsErrors = true
+    kotlinOptions.freeCompilerArgs += "-Xjsr305=strict"
+}
+
+compileTestKotlin {
+    kotlinOptions.jvmTarget =  "21"
+    kotlinOptions.allWarningsAsErrors = true
+    kotlinOptions.freeCompilerArgs += "-Xjsr305=strict"
 }
 
 test {
