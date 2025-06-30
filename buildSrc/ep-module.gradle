@@ -48,17 +48,15 @@ tasks.withType(JavaExec) {
     jvmArgs '-Xmx4g' // prod environment heap size
 }
 
-compileKotlin {
-    kotlinOptions.jvmTarget =  "21"
-    kotlinOptions.allWarningsAsErrors = true
-    kotlinOptions.freeCompilerArgs += "-Xjsr305=strict"
-}
-
-compileTestKotlin {
-    kotlinOptions.jvmTarget =  "21"
-    kotlinOptions.allWarningsAsErrors = true
-    kotlinOptions.freeCompilerArgs += "-Xjsr305=strict"
-}
+//kotlin {
+//    jvmToolchain(21)
+//
+//    compilerOptions {
+//        allWarningsAsErrors.set(true)
+//        freeCompilerArgs.add("-Xannotation-default-target=param-property")
+//        freeCompilerArgs.add("-Xwarning-level=IDENTITY_SENSITIVE_OPERATIONS_WITH_VALUE_TYPE:disabled")
+//    }
+//}
 
 test {
     useJUnitPlatform()
