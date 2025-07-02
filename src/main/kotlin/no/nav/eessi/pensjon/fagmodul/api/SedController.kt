@@ -41,7 +41,7 @@ class SedController(
     private val gcpStorageService: GcpStorageService,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
-
+    private val secureLog = LoggerFactory.getLogger("secureLog")
     private val logger = LoggerFactory.getLogger(SedController::class.java)
 
     private lateinit var pdfGenerert: MetricsHelper.Metric
@@ -102,7 +102,7 @@ class SedController(
         @RequestBody sedPayload: String
     ): Boolean {
         val validsed = try {
-            logger.debug("Følgende SED payload: $sedPayload")
+            secureLog.info("Følgende SED payload: $sedPayload")
 
             val sed = SED.fromJsonToConcrete(sedPayload)
             logger.info("Følgende SED prøves å oppdateres: ${sed.type}, rinaid: $euxcaseid")
@@ -122,7 +122,7 @@ class SedController(
             }
         } catch (ex: Exception) {
             logger.error("Feil ved oppdatering av SED", ex)
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Data er ikke gyldig SEDformat")
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Lagring av P8000 feilet, ugyldig SED: ${ex.message}", ex)
         }
         val jsonToRina = validsed.toJsonSkipEmpty().also { logger.debug("Følgende SED prøves å oppdateres til RINA: rinaID: $euxcaseid, documentid: $documentid, validsed: $it") }
         return  euxInnhentingService.updateSedOnBuc(euxcaseid, documentid, jsonToRina).also { logger.info("Oppdatering av SED: $it") }

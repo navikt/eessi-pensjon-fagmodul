@@ -159,9 +159,7 @@ class EuxController(
 
     @Protected
     @PostMapping("/resend/liste")
-    fun resendtDokumenter(
-        @RequestBody dokumentListe: String
-    ): ResponseEntity<String> {
+    fun resendtDokumenter(@RequestBody dokumentListe: String): ResponseEntity<String> {
         return resend.measure {
             logger.info("Dokumentliste: $dokumentListe")
             if (dokumentListe.isEmpty()) {
