@@ -13,12 +13,13 @@ import java.nio.ByteBuffer
 class GcpStorageService(
     @param:Value("\${GCP_BUCKET_GJENNY}") var gjennyBucket: String,
     @param:Value("\${GCP_BUCKET_P8000}") var p8000Bucket: String,
+    @param:Value("\${GCP_BUCKET_SAKSBEHANDLING_API}") var saksBehandlApiBucket: String,
     private val gcpStorage: Storage) {
 
     private val logger = LoggerFactory.getLogger(GcpStorageService::class.java)
 
     init {
-        listOf(gjennyBucket, p8000Bucket).forEach { ensureBucketExists(it)}
+        listOf(gjennyBucket, p8000Bucket, saksBehandlApiBucket).forEach { ensureBucketExists(it)}
     }
 
     private fun ensureBucketExists(bucketNavn: String): Boolean {
@@ -37,11 +38,31 @@ class GcpStorageService(
         }
     }
 
-    fun lagreP8000Options(documentid: String, options: String) {
-        if(p8000SakFinnes(documentid)){
-            gcpStorage.delete(BlobId.of(p8000Bucket, documentid))
+        fun lagreP8000Options(documentid: String, options: String) {
+            if(p8000SakFinnes(documentid)){
+                gcpStorage.delete(BlobId.of(p8000Bucket, documentid))
+            }
+            lagre(documentid, options, p8000Bucket)
         }
-        lagre(documentid, options, p8000Bucket)
+    fun hentTrygdetid(aktoerId: String, rinaSakId: String): List<String>? {
+        val searchString = if(aktoerId.isNotEmpty() && rinaSakId.isNotEmpty()) {
+            "${aktoerId}___PESYS___$rinaSakId"
+        } else if (aktoerId.isNotEmpty()) {
+            aktoerId+ "___PESYS___"
+        } else if (rinaSakId.isNotEmpty()) {
+            "___PESYS___$rinaSakId"
+        } else {
+            logger.warn("Henter trygdetid uten gyldig aktoerId eller rinaSakId")
+            return null
+        }
+        return kotlin.runCatching {
+            return gcpStorage.list(saksBehandlApiBucket).iterateAll()
+                .filter { it.name.contains(searchString, ignoreCase = true) }
+                .mapNotNull {
+                   it.getContent()?.decodeToString()?.trimIndent()?.also { logger.info("Henter trygdetid for aktoerId: $aktoerId, rinaSakId: $rinaSakId fra GCP med blobId: ${it}") }                }
+        }.getOrElse {
+            emptyList()
+        }
     }
 
     private fun lagre(euxCaseId: String, informasjon: String, bucketNavn: String) {
