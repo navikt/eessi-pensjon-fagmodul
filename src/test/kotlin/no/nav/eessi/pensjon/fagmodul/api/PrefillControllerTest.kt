@@ -424,7 +424,7 @@ internal class PrefillControllerTest {
         }
         """.trimIndent()
 
-        JSONAssert.assertEquals(expected, result?.toJson(), true)
+        JSONAssert.assertEquals(expected, result?.response, true)
 
         verify(exactly = 2) { mockEuxInnhentingService.getBuc(any()) }
         verify(exactly = 1) { mockEuxPrefillService.opprettSvarJsonSedOnBuc(any(), any(), any(), any(), any()) }
