@@ -53,6 +53,7 @@ spec:
         - host: eux-rina-api-gcp-q2.intern.dev.nav.no
         - host: eessi-pensjon-prefill-q2.intern.dev.nav.no
         - host: eessi-pensjon-journalforing-q2.intern.dev.nav.no
+        - host: eessi-pensjon-saksbehandling-api-q2.intern.dev.nav.no
     inbound:
       rules:
         - application: eessi-pensjon-frontend-ui-q2
