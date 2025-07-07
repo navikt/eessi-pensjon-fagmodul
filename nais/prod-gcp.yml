@@ -37,6 +37,8 @@ spec:
         uniformBucketLevelAccess: true
       - name: eessi-pensjon-p8000
         uniformBucketLevelAccess: true
+      - name: eessi-pensjon-saksbehandling-api
+        uniformBucketLevelAccess: true
   accessPolicy:
     outbound:
       rules:
