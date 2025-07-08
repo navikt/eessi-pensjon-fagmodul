@@ -13,13 +13,15 @@ import java.nio.ByteBuffer
 class GcpStorageService(
     @param:Value("\${GCP_BUCKET_GJENNY}") var gjennyBucket: String,
     @param:Value("\${GCP_BUCKET_P8000}") var p8000Bucket: String,
+    @param:Value("\${GCP_BUCKET_P6000}") var p6000Bucket: String,
     @param:Value("\${GCP_BUCKET_SAKSBEHANDLING_API}") var saksBehandlApiBucket: String,
+
     private val gcpStorage: Storage) {
 
     private val logger = LoggerFactory.getLogger(GcpStorageService::class.java)
 
     init {
-        listOf(gjennyBucket, p8000Bucket, saksBehandlApiBucket).forEach { ensureBucketExists(it)}
+        listOf(gjennyBucket, p8000Bucket, saksBehandlApiBucket, p6000Bucket).forEach { ensureBucketExists(it)}
     }
 
     private fun ensureBucketExists(bucketNavn: String): Boolean {
@@ -28,6 +30,30 @@ class GcpStorageService(
             true -> logger.info("Bucket $bucketNavn funnet.")
         }
         return false
+    }
+
+    fun lagreRinasakFraFrontEnd(pesysId: String, rinaSakId: String, dokumentId: String) {
+        try {
+            lagretilBackend(pesysId, rinaSakId, dokumentId, p6000Bucket)
+        } catch (ex: Exception) {
+            logger.error("Lagring til $p6000Bucket feilet: $ex")
+        }
+    }
+
+    fun lagretilBackend(pesysId: String, rinaSakId: String, dokumentId: String, backEndBucket: String) {
+
+        val blobInfo = BlobInfo.newBuilder(BlobId.of(backEndBucket, pesysId)).setContentType("application/json").build()
+        val dataTilLagring = FrontEndData(pesysId, rinaSakId, dokumentId).toJson()
+
+        runCatching {
+            gcpStorage.writer(blobInfo).use {
+                it.write(ByteBuffer.wrap(dataTilLagring.toByteArray()))
+            }
+        }.onFailure { e ->
+            logger.error("Feilet med å lagre detaljer med id: ${blobInfo.blobId.name} i bucket: $backEndBucket", e)
+        }.onSuccess {
+            logger.info("Lagret sed detaljer til S3 med pesysId: $pesysId til $backEndBucket")
+        }
     }
 
     fun lagreGjennySak(euxCaseId: String, gjennysak: GjennySak) {
@@ -119,3 +145,9 @@ class GcpStorageService(
         return null
     }
 }
+
+data class FrontEndData(
+    val pesysId: String,
+    val rinaSakId: String,
+    val dokumentId: String
+)
