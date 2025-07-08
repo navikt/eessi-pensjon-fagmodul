@@ -17,6 +17,7 @@ class PensjonsinformasjonUtlandControllerTest {
     private val gcpStorageService = GcpStorageService(
         "_",
         "_",
+        "_",
         "pesys",
         gcpStorage
     )
