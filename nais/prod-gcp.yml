@@ -75,6 +75,8 @@ spec:
       value: eessi-pensjon-gjenny
     - name: GCP_BUCKET_P8000
       value: eessi-pensjon-p8000
+    - name: GCP_BUCKET_SAKSBEHANDLING_API
+      value: eessi-pensjon-saksbehandling-api-prod
 
     - name: PENSJONSINFORMASJON_URL
       value: https://pensjon-pen.prod-fss-pub.nais.io/pen/api/pensjonsinformasjon/v1
