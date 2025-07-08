@@ -1,9 +1,11 @@
 package no.nav.eessi.pensjon.fagmodul.pesys
 
 import com.fasterxml.jackson.annotation.JsonInclude
+import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.security.token.support.core.api.Protected
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.*
 
@@ -24,6 +26,8 @@ class PensjonsinformasjonUtlandController(
     private var pensjonUtland: MetricsHelper.Metric = metricsHelper.init("pensjonUtland")
     private var trygdeTidMetric: MetricsHelper.Metric = metricsHelper.init("trygdeTidMetric")
 
+    private val logger = LoggerFactory.getLogger(PensjonsinformasjonUtlandController::class.java)
+
     @GetMapping("/hentKravUtland/{bucId}")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     fun hentKravUtland(@PathVariable("bucId", required = true) bucId: Int): KravUtland {
@@ -38,6 +42,8 @@ class PensjonsinformasjonUtlandController(
         @RequestParam("rinaNr", required = true) rinaNr: String
     ): TygdetidForPesys? {
         return trygdeTidMetric.measure {
+            logger.info("Henter trygdetid for aktoerId: $aktoerId, rinaNr: $rinaNr")
+
             val trygdeTid = gcpStorageService.hentTrygdetid(aktoerId, rinaNr)
             return@measure when {
                 trygdeTid?.size == 1 -> TygdetidForPesys(aktoerId, rinaNr, trygdeTid.first(), null)
