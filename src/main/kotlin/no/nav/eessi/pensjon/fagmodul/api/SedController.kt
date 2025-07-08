@@ -44,11 +44,29 @@ class SedController(
     private val secureLog = LoggerFactory.getLogger("secureLog")
     private val logger = LoggerFactory.getLogger(SedController::class.java)
 
-    private lateinit var pdfGenerert: MetricsHelper.Metric
     private lateinit var sedsendt: MetricsHelper.Metric
+    private lateinit var pdfGenerert: MetricsHelper.Metric
+    private lateinit var frontendDataSendt: MetricsHelper.Metric
 
     init {
         pdfGenerert = metricsHelper.init("PdfGenerert")
+        frontendDataSendt = metricsHelper.init("FrontendDataSendt")
+    }
+
+    /**
+     * Endepunkt for FrontEnd. Brukes for å sende rinasaksId og dokumentId
+     * for senere uthenting av sed fra RINA.
+     */
+    @PostMapping("/sendRinaDetaljer/pesysId/{pesysId}/rinaSakId/{rinaSakId}/dokumentId/{dokumentId}")
+    fun sendRinaSaksDetaljer(
+        @RequestParam("psysId", required = true) pesysId: String,
+        @RequestParam("rinaSakId", required = true) rinasakId: String,
+        @RequestParam("dokumentId", required = true) dokumentId: String
+    ) {
+        return frontendDataSendt.measure {
+            gcpStorageService.lagreRinasakFraFrontEnd(pesysId, rinasakId, dokumentId)
+            return@measure
+        }
     }
 
     @GetMapping("/getP6000/{euxcaseid}")
