@@ -37,6 +37,8 @@ spec:
         uniformBucketLevelAccess: true
       - name: eessi-pensjon-p8000-dev
         uniformBucketLevelAccess: true
+      - name: eessi-pensjon-p6000-dev
+        uniformBucketLevelAccess: true
   accessPolicy:
     outbound:
       rules:
@@ -53,6 +55,7 @@ spec:
         - host: eux-rina-api-gcp-q2.intern.dev.nav.no
         - host: eessi-pensjon-prefill-q2.intern.dev.nav.no
         - host: eessi-pensjon-journalforing-q2.intern.dev.nav.no
+        - host: eessi-pensjon-saksbehandling-api-q2.intern.dev.nav.no
     inbound:
       rules:
         - application: eessi-pensjon-frontend-ui-q2
@@ -77,6 +80,8 @@ spec:
       value: eessi-pensjon-gjenny-dev
     - name: GCP_BUCKET_P8000
       value: eessi-pensjon-p8000-dev
+    - name: GCP_BUCKET_P6000
+      value: eessi-pensjon-p6000-dev
     - name: GCP_BUCKET_SAKSBEHANDLING_API
       value: eessi-pensjon-saksbehandling-api-dev
 
