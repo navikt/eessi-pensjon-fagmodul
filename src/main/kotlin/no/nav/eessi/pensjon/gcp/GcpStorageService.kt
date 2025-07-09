@@ -70,7 +70,7 @@ class GcpStorageService(
             }
             lagre(documentid, options, p8000Bucket)
         }
-    fun hentTrygdetid(aktoerId: String, rinaSakId: String): List<String>? {
+    fun hentTrygdetid(aktoerId: String, rinaSakId: String): String? {
         val searchString = if (aktoerId.isNotEmpty() && rinaSakId.isNotEmpty()) {
             "${aktoerId}___PESYS___$rinaSakId"
         } else if (aktoerId.isNotEmpty()) {
@@ -87,12 +87,12 @@ class GcpStorageService(
             val trygdetid = gcpStorage.get(BlobId.of(saksBehandlApiBucket, searchString))
             if (trygdetid.exists()) {
                 logger.info("Henter melding med aktoerId $searchString, for bucket $saksBehandlApiBucket")
-                return listOf(trygdetid.getContent().decodeToString())
+                return trygdetid.getContent().decodeToString()
             }
         }.onFailure { e ->
             logger.error("Feil ved henting av trygdetid for aktoerId: $aktoerId, rinaSakId: $rinaSakId", e)
         }
-        return emptyList()
+        return null
     }
 
     private fun lagre(euxCaseId: String, informasjon: String, bucketNavn: String) {

@@ -1,9 +1,15 @@
 package no.nav.eessi.pensjon.fagmodul.pesys
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
+import com.fasterxml.jackson.core.JsonParseException
+import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.metrics.MetricsHelper
+import no.nav.eessi.pensjon.utils.mapJsonToAny
+import no.nav.eessi.pensjon.utils.typeRefs
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -44,25 +50,47 @@ class PensjonsinformasjonUtlandController(
         return trygdeTidMetric.measure {
             logger.info("Henter trygdetid for aktoerId: $aktoerId, rinaNr: $rinaNr")
 
-            val trygdeTid = gcpStorageService.hentTrygdetid(aktoerId, rinaNr)
-            return@measure when {
-                trygdeTid?.size == 1 -> TygdetidForPesys(aktoerId, rinaNr, trygdeTid.first(), null)
-                (trygdeTid?.size ?: 0) > 1 -> TygdetidForPesys(
-                    aktoerId, rinaNr, null,
-                    "Det er registrert ${trygdeTid?.size} trygdetid for rinaNr: $rinaNr, aktoerId: $aktoerId, gir derfor ingen trygdetid tilbake."
-                )
-                else -> TygdetidForPesys(
-                    aktoerId, rinaNr, null,
+            val trygdeTidString = gcpStorageService.hentTrygdetid(aktoerId, rinaNr)?.let {
+                runCatching { parseTrygdetid(it) }
+                    .onFailure { e -> logger.error("Feil ved parsing av trygdetid for aktoerId: $aktoerId, rinaNr: $rinaNr", e) }
+                    .getOrNull()
+            }
+
+            return@measure if (trygdeTidString != null) {
+                TygdetidForPesys(aktoerId, rinaNr, trygdeTidString, null)
+            } else {
+                TygdetidForPesys(
+                    aktoerId, rinaNr, emptyList(),
                     "Det finnes ingen registrert trygdetid for rinaNr: $rinaNr, aktoerId: $aktoerId"
                 )
             }
         }
     }
 
+    fun parseTrygdetid(jsonString: String): List<Trygdetid> {
+        val cleanedJson = jsonString.trim('"').replace("\\n", "").replace("\\\"", "\"")
+        return mapJsonToAny(cleanedJson)
+    }
+
     data class TygdetidForPesys(
         val aktoerId: String?,
         val rinaNr: String,
-        val trygdetid: String? = null,
+        val trygdetid: List<Trygdetid> = emptyList(),
         val error: String? = null
+    )
+
+    data class Trygdetid(
+        val land: String,
+        val acronym: String,
+        val type: String,
+        val startdato: String,
+        val sluttdato: String,
+        val aar: String,
+        val mnd: String,
+        val dag: String?,
+        val dagtype: String,
+        val ytelse: String?,
+        val ordning: String?,
+        val beregning: String
     )
 }
