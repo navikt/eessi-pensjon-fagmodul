@@ -78,7 +78,7 @@ class PensjonsinformasjonUtlandController(
         val error: String? = null
     )
 
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     data class Trygdetid(
         val land: String,
         @JsonDeserialize(using = EmptyStringToNullDeserializer::class)
