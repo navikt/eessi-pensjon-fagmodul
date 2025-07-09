@@ -32,14 +32,14 @@ class PensjonsinformasjonUtlandControllerTest {
         }
 
         val result = controller.hentTrygdetid(aktoerId, rinaNr)
-
+        println(result?.trygdetid.toString())
         assertEquals(aktoerId, result?.aktoerId)
         assertEquals(rinaNr, result?.rinaNr)
         assertEquals(trygdeTidListResultat(), result?.trygdetid.toString())
     }
 
     fun trygdeTidListResultat(): String {
-        return """[Trygdetid(land=NO, acronym=NAVAT07, type=21, startdato=2010-10-31, sluttdato=2010-12-01, aar=, mnd=1, dag=2, dagtype=7, ytelse=111, ordning=00, beregning=111), Trygdetid(land=CY, acronym=NAVAT05, type=10, startdato=2016-01-01, sluttdato=2018-02-28, aar=2, mnd=2, dag=, dagtype=7, ytelse=, ordning=, beregning=111), Trygdetid(land=HR, acronym=NAVAT05, type=10, startdato=2016-06-01, sluttdato=2016-06-22, aar=, mnd=, dag=21, dagtype=7, ytelse=001, ordning=00, beregning=111), Trygdetid(land=BG, acronym=NAVAT05, type=10, startdato=2020-01-01, sluttdato=2024-08-15, aar=, mnd=3, dag=, dagtype=7, ytelse=001, ordning=00, beregning=001), Trygdetid(land=NO, acronym=NAVAT07, type=41, startdato=2023-05-01, sluttdato=2023-05-31, aar=, mnd=1, dag=, dagtype=7, ytelse=, ordning=, beregning=)]""".trimIndent()
+        return """[Trygdetid(land=NO, acronym=NAVAT07, type=21, startdato=2010-10-31, sluttdato=2010-12-01, aar=null, mnd=1, dag=2, dagtype=7, ytelse=111, ordning=00, beregning=111), Trygdetid(land=CY, acronym=NAVAT05, type=10, startdato=2016-01-01, sluttdato=2018-02-28, aar=2, mnd=2, dag=null, dagtype=7, ytelse=null, ordning=null, beregning=111), Trygdetid(land=HR, acronym=NAVAT05, type=10, startdato=2016-06-01, sluttdato=2016-06-22, aar=null, mnd=null, dag=21, dagtype=7, ytelse=001, ordning=00, beregning=111), Trygdetid(land=BG, acronym=NAVAT05, type=10, startdato=2020-01-01, sluttdato=2024-08-15, aar=null, mnd=3, dag=null, dagtype=7, ytelse=001, ordning=00, beregning=001), Trygdetid(land=NO, acronym=NAVAT07, type=41, startdato=2023-05-01, sluttdato=2023-05-31, aar=null, mnd=1, dag=null, dagtype=7, ytelse=null, ordning=null, beregning=null)]"""
     }
     private fun trygdeTidJson(): String {
         val trygdetidList = """

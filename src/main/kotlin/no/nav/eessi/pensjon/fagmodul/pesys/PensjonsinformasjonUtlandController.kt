@@ -2,8 +2,12 @@ package no.nav.eessi.pensjon.fagmodul.pesys
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.core.JsonParseException
+import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.databind.DeserializationContext
+import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.eessi.pensjon.gcp.GcpStorageService
@@ -44,26 +48,21 @@ class PensjonsinformasjonUtlandController(
 
     @GetMapping("/hentTrygdetid")
     fun hentTrygdetid(
-        @RequestParam("aktorId", required = true) aktoerId: String,
-        @RequestParam("rinaNr", required = true) rinaNr: String
+        @RequestParam("aktorId") aktoerId: String,
+        @RequestParam("rinaNr") rinaNr: String
     ): TygdetidForPesys? {
+        logger.info("Henter trygdetid for aktoerId: $aktoerId, rinaNr: $rinaNr")
         return trygdeTidMetric.measure {
-            logger.info("Henter trygdetid for aktoerId: $aktoerId, rinaNr: $rinaNr")
-
-            val trygdeTidString = gcpStorageService.hentTrygdetid(aktoerId, rinaNr)?.let {
+            gcpStorageService.hentTrygdetid(aktoerId, rinaNr)?.let {
                 runCatching { parseTrygdetid(it) }
-                    .onFailure { e -> logger.error("Feil ved parsing av trygdetid for aktoerId: $aktoerId, rinaNr: $rinaNr", e) }
+                    .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
                     .getOrNull()
-            }
-
-            return@measure if (trygdeTidString != null) {
-                TygdetidForPesys(aktoerId, rinaNr, trygdeTidString, null)
-            } else {
-                TygdetidForPesys(
-                    aktoerId, rinaNr, emptyList(),
-                    "Det finnes ingen registrert trygdetid for rinaNr: $rinaNr, aktoerId: $aktoerId"
-                )
-            }
+            }?.let { trygdetid ->
+                TygdetidForPesys(aktoerId, rinaNr, trygdetid)
+            } ?: TygdetidForPesys(
+                aktoerId, rinaNr, emptyList(),
+                "Det finnes ingen registrert trygdetid for rinaNr: $rinaNr, aktoerId: $aktoerId"
+            )
         }
     }
 
@@ -79,18 +78,35 @@ class PensjonsinformasjonUtlandController(
         val error: String? = null
     )
 
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     data class Trygdetid(
         val land: String,
-        val acronym: String,
-        val type: String,
+        @JsonDeserialize(using = EmptyStringToNullDeserializer::class)
+        val acronym: String?,
+        @JsonDeserialize(using = EmptyStringToNullDeserializer::class)
+        val type: String?,
         val startdato: String,
-        val sluttdato: String,
-        val aar: String,
-        val mnd: String,
+        @JsonDeserialize(using = EmptyStringToNullDeserializer::class)
+        val sluttdato: String?,
+        @JsonDeserialize(using = EmptyStringToNullDeserializer::class)
+        val aar: String?,
+        @JsonDeserialize(using = EmptyStringToNullDeserializer::class)
+        val mnd: String?,
+        @JsonDeserialize(using = EmptyStringToNullDeserializer::class)
         val dag: String?,
-        val dagtype: String,
+        @JsonDeserialize(using = EmptyStringToNullDeserializer::class)
+        val dagtype: String?,
+        @JsonDeserialize(using = EmptyStringToNullDeserializer::class)
         val ytelse: String?,
+        @JsonDeserialize(using = EmptyStringToNullDeserializer::class)
         val ordning: String?,
-        val beregning: String
+        @JsonDeserialize(using = EmptyStringToNullDeserializer::class)
+        val beregning: String?
     )
+
+    class EmptyStringToNullDeserializer : JsonDeserializer<String?>() {
+        override fun deserialize(p: JsonParser, ctxt: DeserializationContext): String? {
+            return p.valueAsString.takeIf { !it.isNullOrBlank() }
+        }
+    }
 }
