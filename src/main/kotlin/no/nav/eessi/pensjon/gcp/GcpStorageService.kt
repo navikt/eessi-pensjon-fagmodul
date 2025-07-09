@@ -83,10 +83,14 @@ class GcpStorageService(
         }
         logger.info("Henter trygdetid for aktoerId: $aktoerId eller rinaSakId: $rinaSakId, med søkestreng: $searchString")
 
-        val trygdetid =  gcpStorage.get(BlobId.of(saksBehandlApiBucket, searchString))
-        if (trygdetid.exists()) {
-            logger.info("Henter melding med aktoerId $searchString, for bucket $saksBehandlApiBucket, ${trygdetid.toJson()}")
-            return listOf(trygdetid.getContent().decodeToString())
+        try {
+            val trygdetid =  gcpStorage.get(BlobId.of(saksBehandlApiBucket, searchString))
+            if (trygdetid.exists()) {
+                logger.info("Henter melding med aktoerId $searchString, for bucket $saksBehandlApiBucket")
+                return listOf(trygdetid.getContent().decodeToString())
+            }
+        } catch (e: Exception) {
+            TODO("Not yet implemented")
         }
 
         return kotlin.runCatching {
