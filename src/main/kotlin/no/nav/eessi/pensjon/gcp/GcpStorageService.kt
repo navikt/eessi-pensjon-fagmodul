@@ -83,9 +83,15 @@ class GcpStorageService(
         }
         logger.info("Henter trygdetid for aktoerId: $aktoerId eller rinaSakId: $rinaSakId, med søkestreng: $searchString")
 
+        val trygdetid =  gcpStorage.get(BlobId.of(saksBehandlApiBucket, searchString))
+        if (trygdetid.exists()) {
+            logger.info("Henter melding med aktoerId $searchString, for bucket $saksBehandlApiBucket, ${trygdetid.toJson()}")
+            return listOf(trygdetid.getContent().decodeToString())
+        }
+
         return kotlin.runCatching {
             return gcpStorage.list(saksBehandlApiBucket).iterateAll()
-                .filter { it.name.contains(searchString, ignoreCase = true) }
+                .filter { it.name.contains(rinaSakId, ignoreCase = true) }
                 .mapNotNull {
                    it.getContent()?.decodeToString()?.trimIndent()?.also { logger.info("Henter trygdetid for aktoerId: $aktoerId, rinaSakId: $rinaSakId fra GCP med blobId: ${it}") }                }
         }.getOrElse {
