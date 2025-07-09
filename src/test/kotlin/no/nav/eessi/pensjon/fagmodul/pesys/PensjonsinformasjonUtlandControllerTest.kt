@@ -1,15 +1,14 @@
 package no.nav.eessi.pensjon.fagmodul.pesys
 
 import com.google.cloud.storage.Blob
+import com.google.cloud.storage.BlobId
 import com.google.cloud.storage.Storage
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.utils.toJson
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
-import java.time.OffsetDateTime
 
 class PensjonsinformasjonUtlandControllerTest {
 
@@ -27,25 +26,16 @@ class PensjonsinformasjonUtlandControllerTest {
 
     @Test
     fun `gitt en aktørid og rinanr som matcher trygdetid i gcp saa skal denne returneres`() {
-        val trygdetidList = trygdeTidJson()
-        every { gcpStorage.list("pesys").iterateAll() } returns createMockBlobList(aktoerId, rinaNr, listOf(trygdetidList))
+        every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
+            every { exists() } returns true
+            every { getContent() } returns trygdeTidJson().toJson().toByteArray()
+        }
 
         val result = controller.hentTrygdetid(aktoerId, rinaNr)
 
         assertEquals(aktoerId, result?.aktoerId)
         assertEquals(rinaNr, result?.rinaNr)
         assertEquals(trygdeTidListResultat(), result?.trygdetid)
-    }
-
-    @Test
-    fun `gitt flere resulatat fra gcp saa skal det returneres tom liste og feilmelding`() {
-        val trygdetidList = listOf("""[{"land":"SE","acronym":"NAVAT08"}]""", """[{"land":"NO","acronym":"NAVAT07"}]""")
-        every { gcpStorage.list("pesys").iterateAll() } returns
-                createMockBlobList(aktoerId, rinaNr, trygdetidList)
-
-        val result = controller.hentTrygdetid(aktoerId, rinaNr)
-        assertNotNull(result)
-        assertEquals("Det er registrert 2 trygdetid for rinaNr: $rinaNr, aktoerId: $aktoerId, gir derfor ingen trygdetid tilbake.", result?.error)
     }
 
     fun trygdeTidListResultat(): String {
@@ -62,16 +52,5 @@ class PensjonsinformasjonUtlandControllerTest {
             ]
             """.trimIndent()
         return trygdetidList
-    }
-
-    private fun createMockBlobList(aktorid: String, rinaNr: String, trygdeTidList: List<String>): List<Blob> {
-        return trygdeTidList.map { trygdeTid ->
-            mockk<Blob>().apply {
-                every { name } returns "${aktorid}___PESYS___$rinaNr"
-                every { createTimeOffsetDateTime } returns OffsetDateTime.now().minusDays(12)
-                every { blobId } returns mockk(relaxed = true)
-                every { getContent() } returns trygdeTid.toJson().toByteArray()
-            }
-        }
     }
 }

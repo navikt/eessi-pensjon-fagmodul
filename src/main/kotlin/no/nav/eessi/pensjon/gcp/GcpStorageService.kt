@@ -71,10 +71,10 @@ class GcpStorageService(
             lagre(documentid, options, p8000Bucket)
         }
     fun hentTrygdetid(aktoerId: String, rinaSakId: String): List<String>? {
-        val searchString = if(aktoerId.isNotEmpty() && rinaSakId.isNotEmpty()) {
+        val searchString = if (aktoerId.isNotEmpty() && rinaSakId.isNotEmpty()) {
             "${aktoerId}___PESYS___$rinaSakId"
         } else if (aktoerId.isNotEmpty()) {
-            aktoerId+ "___PESYS___"
+            aktoerId + "___PESYS___"
         } else if (rinaSakId.isNotEmpty()) {
             "___PESYS___$rinaSakId"
         } else {
@@ -83,24 +83,16 @@ class GcpStorageService(
         }
         logger.info("Henter trygdetid for aktoerId: $aktoerId eller rinaSakId: $rinaSakId, med søkestreng: $searchString")
 
-        try {
-            val trygdetid =  gcpStorage.get(BlobId.of(saksBehandlApiBucket, searchString))
+        kotlin.runCatching {
+            val trygdetid = gcpStorage.get(BlobId.of(saksBehandlApiBucket, searchString))
             if (trygdetid.exists()) {
                 logger.info("Henter melding med aktoerId $searchString, for bucket $saksBehandlApiBucket")
                 return listOf(trygdetid.getContent().decodeToString())
             }
-        } catch (e: Exception) {
-            TODO("Not yet implemented")
+        }.onFailure { e ->
+            logger.error("Feil ved henting av trygdetid for aktoerId: $aktoerId, rinaSakId: $rinaSakId", e)
         }
-
-        return kotlin.runCatching {
-            return gcpStorage.list(saksBehandlApiBucket).iterateAll()
-                .filter { it.name.contains(rinaSakId, ignoreCase = true) }
-                .mapNotNull {
-                   it.getContent()?.decodeToString()?.trimIndent()?.also { logger.info("Henter trygdetid for aktoerId: $aktoerId, rinaSakId: $rinaSakId fra GCP med blobId: ${it}") }                }
-        }.getOrElse {
-            emptyList()
-        }
+        return emptyList()
     }
 
     private fun lagre(euxCaseId: String, informasjon: String, bucketNavn: String) {
