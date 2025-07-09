@@ -67,7 +67,9 @@ spec:
         - application: eessi-pensjon-journalforing-q2
           namespace: eessipensjon
           cluster: dev-gcp
-
+        - application: azure-token-generator
+          namespace: nais
+          cluster: dev-gcp
         - application: pensjon-pen-q2
           namespace: pensjon-q2
           cluster: dev-fss
