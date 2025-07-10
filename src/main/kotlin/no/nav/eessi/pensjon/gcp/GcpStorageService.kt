@@ -32,7 +32,7 @@ class GcpStorageService(
         return false
     }
 
-    fun lagreRinasakFraFrontEnd(pesysId: String, rinaSakId: String, dokumentId: String) {
+    fun lagreRinasakFraFrontEnd(pesysId: String, rinaSakId: String, dokumentId: List<String>) {
         try {
             lagretilBackend(pesysId, rinaSakId, dokumentId, p6000Bucket)
         } catch (ex: Exception) {
@@ -40,7 +40,7 @@ class GcpStorageService(
         }
     }
 
-    fun lagretilBackend(pesysId: String, rinaSakId: String, dokumentId: String, backEndBucket: String) {
+    fun lagretilBackend(pesysId: String, rinaSakId: String, dokumentId: List<String>, backEndBucket: String) {
 
         val blobInfo = BlobInfo.newBuilder(BlobId.of(backEndBucket, pesysId)).setContentType("application/json").build()
         val dataTilLagring = FrontEndData(pesysId, rinaSakId, dokumentId).toJson()
@@ -153,5 +153,5 @@ class GcpStorageService(
 data class FrontEndData(
     val pesysId: String,
     val rinaSakId: String,
-    val dokumentId: String
+    val dokumentId: List<String>
 )

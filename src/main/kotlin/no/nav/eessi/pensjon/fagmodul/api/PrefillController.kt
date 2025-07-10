@@ -6,6 +6,7 @@ import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_06
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.ActionOperation
 import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
+import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.sed.X005
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
@@ -163,6 +164,11 @@ class PrefillController(
             euxInnhentingService.checkForP7000AndAddP6000(requestMedGjenlevendeFnr),
             bucUtil.getProcessDefinitionVersion()
         ).also { logger.debug("Prefill av SED: $it") }
+
+        //Lagrer P6000 detaljer til GCP Storage
+        request.payload?.let { mapJsonToAny<List<P6000Dokument>>(it) }?.let {
+            listeOverP6000 -> gcpStorageService.lagreRinasakFraFrontEnd(request.sakId!!, request.euxCaseId!!, listeOverP6000.map { it.documentID })
+        }
 
         //val institusjonerFraRequest = request.institutions
         //Sjekk og opprette deltaker og legge sed på valgt BUC
