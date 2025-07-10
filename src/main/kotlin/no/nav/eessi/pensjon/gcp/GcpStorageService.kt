@@ -43,7 +43,7 @@ class GcpStorageService(
     fun lagretilBackend(pesysId: String, rinaSakId: String, dokumentId: List<String>, backEndBucket: String) {
 
         val blobInfo = BlobInfo.newBuilder(BlobId.of(backEndBucket, pesysId)).setContentType("application/json").build()
-        val dataTilLagring = FrontEndData(pesysId, rinaSakId, dokumentId).toJson()
+        val dataTilLagring = P6000Detaljer(pesysId, rinaSakId, dokumentId).toJson()
 
         runCatching {
             gcpStorage.writer(blobInfo).use {
@@ -135,7 +135,7 @@ class GcpStorageService(
         return false
     }
 
-    fun hentP8000(storageKey:String): String? {
+    fun hentGcpDetlajerPaaId(storageKey:String): String? {
         kotlin.runCatching {
             val options =  gcpStorage.get(BlobId.of(p8000Bucket, storageKey))
             if (options.exists()) {
@@ -150,7 +150,7 @@ class GcpStorageService(
     }
 }
 
-data class FrontEndData(
+data class P6000Detaljer(
     val pesysId: String,
     val rinaSakId: String,
     val dokumentId: List<String>
