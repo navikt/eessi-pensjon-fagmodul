@@ -112,7 +112,7 @@ class SedControllerTest {
     fun `getDocument skal hente p8000 med options`() {
         val p8000sed = mapJsonToAny<P8000>(javaClass.getResource("/json/nav/P8000_NO-NAV.json")!!.readText())
         every { mockEuxInnhentingService.getSedOnBucByDocumentId(any(), any()) } returns p8000sed
-        every { gcpStorageService.hentP8000(any()) } returns p8000Lagret()
+        every { gcpStorageService.hentGcpDetlajerPaaId(any()) } returns p8000Lagret()
 
         sedController.getDocument("123456", "222222").also {
             println(it)
