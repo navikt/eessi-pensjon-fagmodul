@@ -73,7 +73,7 @@ class PensjonsinformasjonUtlandController(
     ): List<P6000> {
         logger.info("Henter P6000 detaljer fra bucket for pesysId: $pesysId")
         return p6000Metric.measure {
-            val p6000FraGcp = gcpStorageService.hentGcpDetlajerPaaId(pesysId) ?: throw ResponseStatusException(
+            val p6000FraGcp = gcpStorageService.hentGcpDetlajerForP6000(pesysId) ?: throw ResponseStatusException(
                 HttpStatus.NOT_FOUND,
                 "Ingen P6000-detaljer funnet for pesysId: $pesysId"
             )
