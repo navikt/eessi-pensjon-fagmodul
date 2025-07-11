@@ -32,27 +32,18 @@ class GcpStorageService(
         return false
     }
 
-    fun lagreRinasakFraFrontEnd(pesysId: String, rinaSakId: String, dokumentId: List<String>) {
-        try {
-            lagretilBackend(pesysId, rinaSakId, dokumentId, p6000Bucket)
-        } catch (ex: Exception) {
-            logger.error("Lagring til $p6000Bucket feilet: $ex")
-        }
-    }
+    fun lagretilBackend(p6000Detaljer: String, pesysId:String) {
 
-    fun lagretilBackend(pesysId: String, rinaSakId: String, dokumentId: List<String>, backEndBucket: String) {
-
-        val blobInfo = BlobInfo.newBuilder(BlobId.of(backEndBucket, pesysId)).setContentType("application/json").build()
-        val dataTilLagring = P6000Detaljer(pesysId, rinaSakId, dokumentId).toJson()
+        val blobInfo = BlobInfo.newBuilder(BlobId.of(p6000Bucket, pesysId)).setContentType("application/json").build()
 
         runCatching {
             gcpStorage.writer(blobInfo).use {
-                it.write(ByteBuffer.wrap(dataTilLagring.toByteArray()))
+                it.write(ByteBuffer.wrap(p6000Detaljer.toByteArray()))
             }
         }.onFailure { e ->
-            logger.error("Feilet med å lagre detaljer med id: ${blobInfo.blobId.name} i bucket: $backEndBucket", e)
+            logger.error("Feilet med å lagre detaljer med id: ${blobInfo.blobId.name} i bucket: $p6000Bucket", e)
         }.onSuccess {
-            logger.info("Lagret sed detaljer til S3 med pesysId: $pesysId til $backEndBucket")
+            logger.info("Lagret sed detaljer til S3 med pesysId: $pesysId til $p6000Bucket")
         }
     }
 
@@ -150,8 +141,3 @@ class GcpStorageService(
     }
 }
 
-data class P6000Detaljer(
-    val pesysId: String,
-    val rinaSakId: String,
-    val dokumentId: List<String>
-)
