@@ -5,10 +5,10 @@ import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
-import no.nav.eessi.pensjon.eux.klient.EuxKlientLib
 import no.nav.eessi.pensjon.eux.model.sed.P6000
+import no.nav.eessi.pensjon.eux.model.sed.SED
+import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
-import no.nav.eessi.pensjon.gcp.P6000Detaljer
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.security.token.support.core.api.Protected
@@ -30,7 +30,7 @@ import org.springframework.web.server.ResponseStatusException
 class PensjonsinformasjonUtlandController(
     private val pensjonsinformasjonUtlandService: PensjonsinformasjonUtlandService,
     private val gcpStorageService: GcpStorageService,
-    private val euxKlientLib: EuxKlientLib,
+    private val euxInnhentingService: EuxInnhentingService,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()) {
 
     private var pensjonUtland: MetricsHelper.Metric = metricsHelper.init("pensjonUtland")
@@ -81,7 +81,8 @@ class PensjonsinformasjonUtlandController(
             val p6000Detaljer = mapJsonToAny<P6000Detaljer>(p6000FraGcp)
             runCatching {
                 p6000Detaljer.dokumentId.forEach { p6000 ->
-                    euxKlientLib.hentSed<P6000>(p6000Detaljer.rinaSakId, p6000)?.let { listeOverP6000FraGcp.add(it) }
+                    val hentetP6000 = euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(p6000Detaljer.rinaSakId, p6000) as P6000
+                    hentetP6000.let { listeOverP6000FraGcp.add(it) }
                 }
             }
                 .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
@@ -100,6 +101,12 @@ class PensjonsinformasjonUtlandController(
         val rinaNr: String,
         val trygdetid: List<Trygdetid> = emptyList(),
         val error: String? = null
+    )
+
+    data class P6000Detaljer(
+        val pesysId: String,
+        val rinaSakId: String,
+        val dokumentId: List<String>
     )
 
     @JsonInclude(JsonInclude.Include.ALWAYS)

@@ -12,6 +12,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.eux.EuxPrefillService
+import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.gcp.GjennySak
@@ -166,8 +167,13 @@ class PrefillController(
         ).also { logger.debug("Prefill av SED: $it") }
 
         //Lagrer P6000 detaljer til GCP Storage
-        request.payload?.let { mapJsonToAny<List<P6000Dokument>>(it) }?.let {
-            listeOverP6000 -> gcpStorageService.lagreRinasakFraFrontEnd(request.sakId!!, request.euxCaseId!!, listeOverP6000.map { it.documentID })
+        request.payload?.let { mapJsonToAny<List<P6000Dokument>>(it) }?.let { listeOverP6000 ->
+            gcpStorageService.lagretilBackend(
+                PensjonsinformasjonUtlandController.P6000Detaljer(
+                    request.sakId!!,
+                    request.euxCaseId!!,
+                    listeOverP6000.map { it.documentID }).toJson(), request.sakId
+            )
         }
 
         //val institusjonerFraRequest = request.institutions
