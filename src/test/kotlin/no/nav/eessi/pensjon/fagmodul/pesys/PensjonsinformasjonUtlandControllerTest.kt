@@ -5,7 +5,11 @@ import com.google.cloud.storage.BlobId
 import com.google.cloud.storage.Storage
 import io.mockk.every
 import io.mockk.mockk
+import no.nav.eessi.pensjon.eux.model.sed.P6000
+import no.nav.eessi.pensjon.eux.model.sed.SED
+import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
+import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -20,7 +24,8 @@ class PensjonsinformasjonUtlandControllerTest {
         "pesys",
         gcpStorage
     )
-    private val controller = PensjonsinformasjonUtlandController(pensjonsinformasjonUtlandService = mockk(), gcpStorageService = gcpStorageService)
+    private val euxInnhentingService = mockk<EuxInnhentingService>(relaxed = true)
+    private val controller = PensjonsinformasjonUtlandController(pensjonsinformasjonUtlandService = mockk(), gcpStorageService = gcpStorageService, euxInnhentingService)
     private val aktoerId = "2477958344057"
     private val rinaNr = "1446033"
 
@@ -42,21 +47,21 @@ class PensjonsinformasjonUtlandControllerTest {
     fun `gitt en pesysId som finnes i gcp saa skal sedene henstes fra Rina`() {
         every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
             every { exists() } returns true
-            every { getContent() } returns p6000Detaljer().toJson().toByteArray()
+            every { getContent() } returns p6000Detaljer().toByteArray()
         }
+        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(any(), any()) } returns hentTestP6000()
 
-        val result = controller.hentP6000Detaljer("22975052")
-        assertEquals(aktoerId, result?.aktoerId)
-        assertEquals(rinaNr, result?.rinaNr)
-        assertEquals(trygdeTidListResultat(), result?.trygdetid.toString())
+        val result = controller.hentP6000Detaljer("22975052")[0]
+        assertEquals("112233445566", result.nav?.bruker?.person?.pin?.get(0)?.identifikator)
     }
 
     private fun p6000Detaljer() =
         """
-           {
-          "pesysId" : "22975052",
-          "rinaSakId" : "1446704",
-          "dokumentId" : [ "a6bacca841cf4c7195d694729151d4f3", "b152e3cf041a4b829e56e6b1353dd8cb" ]
+            {
+              "pesysId" : "22975052",
+              "rinaSakId" : "1446704",
+              "dokumentId" : [ "a6bacca841cf4c7195d694729151d4f3", "b152e3cf041a4b829e56e6b1353dd8cb" ]
+            }
         """.trimIndent()
 
 
@@ -75,4 +80,9 @@ class PensjonsinformasjonUtlandControllerTest {
             """.trimIndent()
         return trygdetidList
     }
+
+    private fun hentTestP6000(): SED {
+        return javaClass.getResource("/json/sed/P6000-RINA.json")?.readText()?.let { json -> mapJsonToAny<P6000>(json) }!!
+    }
 }
+

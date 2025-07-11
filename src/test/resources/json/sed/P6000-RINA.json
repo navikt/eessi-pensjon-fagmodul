@@ -1,0 +1,240 @@
+{
+  "nav": {
+    "bruker": {
+      "mor": {
+        "person": {
+          "etternavnvedfoedsel": "æøå",
+          "fornavn": "æøå"
+        }
+      },
+      "person": {
+        "fornavn": "æøå",
+        "kjoenn": "M",
+        "etternavn": "æøå",
+        "foedselsdato": "æøå",
+        "tidligereetternavn": "æøå",
+        "statsborgerskap": [
+          {
+            "land": "NO"
+          }
+        ],
+        "pin": [
+          {
+            "sektor": "yrkesskade_og_yrkessykdom",
+            "institusjonsnavn": "æøå",
+            "identifikator": "112233445566",
+            "land": "NO",
+            "institusjonsid": "æøå"
+          }
+        ],
+        "foedested": {
+          "region": "æøå",
+          "land": "NO",
+          "by": "æøå"
+        },
+        "fornavnvedfoedsel": "æøå",
+        "tidligerefornavn": "æøå",
+        "etternavnvedfoedsel": "æøå"
+      },
+      "adresse": {
+        "region": "æøå",
+        "land": "NO",
+        "gate": "æøå",
+        "bygning": "æøå",
+        "postnummer": "æøå",
+        "by": "æøå"
+      },
+      "far": {
+        "person": {
+          "fornavn": "æøå",
+          "etternavnvedfoedsel": "æøå"
+        }
+      }
+    },
+    "eessisak": [
+      {
+        "institusjonsid": "æøå",
+        "institusjonsnavn": "æøå",
+        "saksnummer": "æøå",
+        "land": "NO"
+      }
+    ]
+  },
+  "pensjon": {
+    "gjenlevende": {
+      "adresse": {
+        "postnummer": "æøå",
+        "by": "æøå",
+        "land": "NO",
+        "gate": "æøå",
+        "bygning": "æøå",
+        "region": "æøå"
+      },
+      "far": {
+        "person": {
+          "fornavn": "æøå",
+          "etternavnvedfoedsel": "æøå"
+        }
+      },
+      "person": {
+        "fornavn": "æøå",
+        "kjoenn": "M",
+        "fornavnvedfoedsel": "æøå",
+        "foedested": {
+          "land": "NO",
+          "region": "æøå",
+          "by": "æøå"
+        },
+        "tidligerefornavn": "æøå",
+        "etternavn": "æøå",
+        "etternavnvedfoedsel": "æøå",
+        "pin": [
+          {
+            "sektor": "yrkesskade_og_yrkessykdom",
+            "land": "NO",
+            "institusjonsid": "æøå",
+            "identifikator": "æøå",
+            "institusjonsnavn": "æøå"
+          }
+        ],
+        "tidligereetternavn": "æøå",
+        "foedselsdato": "æøå",
+        "statsborgerskap": [
+          {
+            "land": "NO"
+          }
+        ]
+      },
+      "mor": {
+        "person": {
+          "etternavnvedfoedsel": "æøå",
+          "fornavn": "æøå"
+        }
+      }
+    },
+    "vedtak": [
+      {
+        "grunnlag": {
+          "framtidigtrygdetid": "1",
+          "medlemskap": "01",
+          "opptjening": {
+            "forsikredeAnnen": "1"
+          }
+        },
+        "beregning": [
+          {
+            "beloepBrutto": {
+              "ytelseskomponentGrunnpensjon": "æøå",
+              "beloep": "æøå",
+              "ytelseskomponentTilleggspensjon": "æøå"
+            },
+            "periode": {
+              "tom": "æøå",
+              "fom": "æøå"
+            },
+            "valuta": "NOK",
+            "beloepNetto": {
+              "beloep": "æøå"
+            },
+            "utbetalingshyppighetAnnen": "æøå",
+            "utbetalingshyppighet": "aarlig"
+          }
+        ],
+        "basertPaa": "02",
+        "delvisstans": {
+          "utbetaling": {
+            "begrunnelse": "æøå",
+            "beloepBrutto": "æøå",
+            "valuta": "NOK"
+          },
+          "indikator": "1"
+        },
+        "virkningsdato": "æøå",
+        "artikkel": "1",
+        "kjoeringsdato": "æøå",
+        "type": "01",
+        "basertPaaAnnen": "æøå",
+        "ukjent": {
+          "beloepBrutto": {
+            "ytelseskomponentAnnen": "æøå"
+          }
+        },
+        "resultat": "01",
+        "avslagbegrunnelse": [
+          {
+            "begrunnelse": "01",
+            "annenbegrunnelse": "æøå"
+          }
+        ],
+        "begrunnelseAnnen": "æøå"
+      }
+    ],
+    "tilleggsinformasjon": {
+      "person": {
+        "pinannen": {
+          "identifikator": "æøå",
+          "sektor": "yrkesskade_og_yrkessykdom"
+        }
+      },
+      "annen": {
+        "institusjonsnavn": "æøå",
+        "institusjonsid": "æøå",
+        "institusjonsadresse": {
+          "land": "NO"
+        }
+      },
+      "andreinstitusjoner": [
+        {
+          "institusjonsadresse": "æøå",
+          "institusjonsnavn": "æøå",
+          "region": "æøå",
+          "postnummer": "æøå",
+          "bygningsnavn": "æøå",
+          "institusjonsid": "æøå",
+          "poststed": "æøå",
+          "land": "NO"
+        }
+      ],
+      "dato": "æøå",
+      "anneninformation": "æøå",
+      "opphoer": {
+        "dato": "æøå",
+        "annulleringdato": "æøå"
+      },
+      "saksnummerAnnen": "æøå",
+      "saksnummer": "æøå",
+      "artikkel48": "1"
+    },
+    "sak": {
+      "artikkel54": "1",
+      "kravtype": [
+        {
+          "datoFrist": "æøå"
+        }
+      ],
+      "reduksjon": [
+        {
+          "artikkeltype": "01"
+        }
+      ]
+    },
+    "reduksjon": [
+      {
+        "type": "01",
+        "aarsak": {
+          "annenytelseellerinntekt": "01",
+          "inntektAnnen": "æøå"
+        },
+        "virkningsdato": [
+          {
+            "sluttdato": "æøå",
+            "startdato": "æøå"
+          }
+        ]
+      }
+    ]
+  },
+  "sedVer": "2",
+  "sedGVer": "4",
+  "sed": "P6000"
+}
