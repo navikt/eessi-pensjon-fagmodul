@@ -84,7 +84,7 @@ dependencies {
     implementation("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:2643.2f3e8e9")
 
     // PDF box
-    testImplementation("org.apache.pdfbox:pdfbox-tools:2.0.5")
+    testImplementation("org.apache.pdfbox:pdfbox-tools:3.0.5")
 
     testImplementation("no.nav.security:token-validation-spring-test:${tokenSupportVersion}")
 
