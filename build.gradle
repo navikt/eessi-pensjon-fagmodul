@@ -47,9 +47,6 @@ dependencies {
     configurations { all*.exclude group: 'commons-logging', module: 'commons-logging' }
     implementation("org.slf4j:jcl-over-slf4j:2.0.17")
 
-    // PDF box
-    implementation("org.apache.pdfbox:pdfbox-tools:2.0.34")
-
     //auth
     implementation("no.nav.security:token-client-spring:${tokenSupportVersion}")
     implementation("no.nav.security:token-validation-spring:${tokenSupportVersion}")
@@ -85,6 +82,9 @@ dependencies {
     implementation 'javax.xml.bind:jaxb-api:2.3.1'
     implementation('org.glassfish.jaxb:jaxb-runtime:2.3.3')
     implementation("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:2643.2f3e8e9")
+
+    // PDF box
+    testImplementation("org.apache.pdfbox:pdfbox-tools:2.0.5")
 
     testImplementation("no.nav.security:token-validation-spring-test:${tokenSupportVersion}")
 
