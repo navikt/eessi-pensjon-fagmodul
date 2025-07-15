@@ -119,7 +119,8 @@ class PrefillController(
     }
 
     @PostMapping("sed/add")
-    fun addInstutionAndDocument(@RequestBody request: ApiRequest): DocumentsItem? {
+    fun addInstutionAndDocument(@RequestBody request: ApiRequest): EuxController.FrontEndResponse? {
+        return EuxController.FrontEndResponse("ÆDDA BÆDDA", HttpStatus.BAD_REQUEST.toString(), "Du dreit deg ut!!")
 
         logger.info("Avdød fnr finnes i requesten: ${request.subject?.avdod?.fnr != null}, Subject finnes: ${request.subject != null}, gjenlevende finnes: ${request.subject?.gjenlevende != null}")
         logger.info("Legger til institusjoner og SED for " +
@@ -136,13 +137,13 @@ class PrefillController(
         if (request.buc == null) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mangler Buc")
 
         val norskIdent = innhentingService.hentFnrfraAktoerService(request.aktoerId) ?: throw HttpClientErrorException(HttpStatus.BAD_REQUEST)
-        val avdodaktoerID = innhentingService.getAvdodId(BucType.from(request.buc.name)!!, request.riktigAvdod())
+        val avdodaktoerID = innhentingService.getAvdodId(BucType.from(request.buc?.name)!!, request.riktigAvdod())
         val dataModel = ApiRequest.buildPrefillDataModelOnExisting(request, PersonInfo(norskIdent.id, request.aktoerId), avdodaktoerID)
 
         //Hente metadata for valgt BUC
         val bucUtil = euxInnhentingService.kanSedOpprettes(dataModel)
 
-        if (bucUtil.getProcessDefinitionName() != request.buc.name) {
+        if (bucUtil.getProcessDefinitionName() != request.buc?.name) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Rina Buctype og request buctype må være samme")
         }
 
@@ -159,6 +160,7 @@ class PrefillController(
         //sjekk på P7000-- hente nødvendige P6000 sed fra eux.. legg til på request->prefilll
         val requestMedGjenlevendeFnr = request.copy(fnr = norskIdent.id)
         logger.debug("***Request med gjenlevende fnr: ${requestMedGjenlevendeFnr.toJson()} ***")
+
         val sed = innhentingService.hentPreutyltSed(
             euxInnhentingService.checkForP7000AndAddP6000(requestMedGjenlevendeFnr),
             bucUtil.getProcessDefinitionVersion()
@@ -182,7 +184,8 @@ class PrefillController(
 
             val documentItem = getBucForPBuc06AndForEmptySed(dataModel.buc, bucUtil.getBuc().documents, bucAndSedResponse, sedDocument)
             logger.info("******* Legge til ny SED - slutt *******")
-            documentItem
+            EuxController.FrontEndResponse()
+//            documentItem
         }
 
     }

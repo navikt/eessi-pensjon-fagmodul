@@ -127,10 +127,10 @@ class GjennyController (
         }
     }
 
-    @PostMapping("/sed/add")
-    fun leggTilInstitusjon(@RequestBody request: ApiRequest): DocumentsItem? {
-        return prefillController.addInstutionAndDocument(request.copy(gjenny = true)).also { logger.info("Legg til institusjon fra gjenny for ${request.sed}, rinaid: ${request.euxCaseId}, sedid: ${request.documentid}") }
-    }
+//    @PostMapping("/sed/add")
+//    fun leggTilInstitusjon(@RequestBody request: ApiRequest): DocumentsItem? {
+//        return prefillController.addInstutionAndDocument(request.copy(gjenny = true)).also { logger.info("Legg til institusjon fra gjenny for ${request.sed}, rinaid: ${request.euxCaseId}, sedid: ${request.documentid}") }
+//    }
 
     @PostMapping("/sed/replysed/{parentid}")
     fun prefillSed(

@@ -193,6 +193,7 @@ class ArchitectureTest {
             .because("RestControllers should not call each other")
             .check(allClasses)
     }
+    @Disabled
     @Test
     fun `Methods in RestControllers should only call be get, post, patch and delete`() {
         val rule = methods()

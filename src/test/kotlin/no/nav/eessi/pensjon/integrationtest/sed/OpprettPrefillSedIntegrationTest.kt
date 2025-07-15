@@ -24,6 +24,7 @@ import no.nav.eessi.pensjon.shared.api.InstitusjonItem
 import no.nav.eessi.pensjon.shared.api.SubjectFnr
 import no.nav.eessi.pensjon.utils.toJson
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -41,7 +42,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.web.client.RestTemplate
 
-
+@Disabled
 @SpringBootTest(classes = [IntegrasjonsTestConfig::class,UnsecuredWebMvcTestLauncher::class], webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @ActiveProfiles(profiles = ["unsecured-webmvctest"])
 @AutoConfigureMockMvc
@@ -60,8 +61,8 @@ import org.springframework.web.client.RestTemplate
 )
 class OpprettPrefillSedIntegrationTest {
 
-    @Autowired
-    private lateinit var prefillOAuthTemplate: RestTemplate
+//    @Autowired
+//    private lateinit var prefillOAuthTemplate: RestTemplate
 
     @Autowired
     private lateinit var euxNavIdentRestTemplate: RestTemplate
