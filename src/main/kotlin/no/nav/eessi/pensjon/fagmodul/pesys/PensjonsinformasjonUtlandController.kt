@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import no.nav.eessi.pensjon.eux.model.sed.P6000
-import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.metrics.MetricsHelper
