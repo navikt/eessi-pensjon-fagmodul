@@ -7,22 +7,15 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.eessi.pensjon.eux.model.sed.P6000
 import no.nav.eessi.pensjon.eux.model.sed.SED
-import no.nav.eessi.pensjon.fagmodul.eux.EuxErrorHandler
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.kodeverk.KodeverkClient
-import no.nav.eessi.pensjon.shared.retry.IOExceptionRetryInterceptor
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.boot.test.context.TestConfiguration
-import org.springframework.boot.web.client.RestTemplateBuilder
-import org.springframework.context.annotation.Bean
-import org.springframework.web.client.RestTemplate
 
-@Disabled
 class PensjonsinformasjonUtlandControllerTest {
 
     private val gcpStorage = mockk<Storage>(relaxed = true)
@@ -35,20 +28,21 @@ class PensjonsinformasjonUtlandControllerTest {
         gcpStorage
     )
     private val euxInnhentingService = mockk<EuxInnhentingService>(relaxed = true)
-    private val controller = PensjonsinformasjonUtlandController(pensjonsinformasjonUtlandService = mockk(), gcpStorageService = gcpStorageService, euxInnhentingService)
+    private val controller = PensjonsinformasjonUtlandController(pensjonsinformasjonUtlandService = mockk(), gcpStorageService = gcpStorageService, euxInnhentingService, kodeverkClient)
     private val aktoerId = "2477958344057"
     private val rinaNr = "1446033"
 
-    @TestConfiguration
-    class Config {
-        @Bean
-        fun kodeverkKlient(): KodeverkClient = mockk()
-    }
+    @BeforeEach
+    fun setup() {
+        every { kodeverkClient.finnLandkode("NO") } returns "NOR"
+        every { kodeverkClient.finnLandkode("CY") } returns "CYR"
+        every { kodeverkClient.finnLandkode("BG") } returns "BGD"
+        every { kodeverkClient.finnLandkode("HR") } returns "HRD"
 
+    }
 
     @Test
     fun `gitt en aktørid og rinanr som matcher trygdetid i gcp saa skal denne returneres`() {
-        every { kodeverkClient.finnLandkode("NO") } returns "NOR"
         every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
             every { exists() } returns true
             every { getContent() } returns trygdeTidJson().toJson().toByteArray()
@@ -84,7 +78,11 @@ class PensjonsinformasjonUtlandControllerTest {
 
 
     fun trygdeTidListResultat(): String {
-        return """[Trygdetid(land=NO, acronym=NAVAT07, type=21, startdato=2010-10-31, sluttdato=2010-12-01, aar=null, mnd=1, dag=2, dagtype=7, ytelse=111, ordning=00, beregning=111), Trygdetid(land=CY, acronym=NAVAT05, type=10, startdato=2016-01-01, sluttdato=2018-02-28, aar=2, mnd=2, dag=null, dagtype=7, ytelse=null, ordning=null, beregning=111), Trygdetid(land=HR, acronym=NAVAT05, type=10, startdato=2016-06-01, sluttdato=2016-06-22, aar=null, mnd=null, dag=21, dagtype=7, ytelse=001, ordning=00, beregning=111), Trygdetid(land=BG, acronym=NAVAT05, type=10, startdato=2020-01-01, sluttdato=2024-08-15, aar=null, mnd=3, dag=null, dagtype=7, ytelse=001, ordning=00, beregning=001), Trygdetid(land=NO, acronym=NAVAT07, type=41, startdato=2023-05-01, sluttdato=2023-05-31, aar=null, mnd=1, dag=null, dagtype=7, ytelse=null, ordning=null, beregning=null)]"""
+        return ("[Trygdetid(land=NOR, acronym=NAVAT07, type=21, startdato=2010-10-31, sluttdato=2010-12-01, aar=null, mnd=1, dag=2, dagtype=7, ytelse=111, ordning=00, beregning=111), " +
+                "Trygdetid(land=CYR, acronym=NAVAT05, type=10, startdato=2016-01-01, sluttdato=2018-02-28, aar=2, mnd=2, dag=null, dagtype=7, ytelse=null, ordning=null, beregning=111), " +
+                "Trygdetid(land=HRD, acronym=NAVAT05, type=10, startdato=2016-06-01, sluttdato=2016-06-22, aar=null, mnd=null, dag=21, dagtype=7, ytelse=001, ordning=00, beregning=111), " +
+                "Trygdetid(land=BGD, acronym=NAVAT05, type=10, startdato=2020-01-01, sluttdato=2024-08-15, aar=null, mnd=3, dag=null, dagtype=7, ytelse=001, ordning=00, beregning=001), " +
+                "Trygdetid(land=NOR, acronym=NAVAT07, type=41, startdato=2023-05-01, sluttdato=2023-05-31, aar=null, mnd=1, dag=null, dagtype=7, ytelse=null, ordning=null, beregning=null)]").trimMargin()
     }
     private fun trygdeTidJson(): String {
         val trygdetidList = """
