@@ -35,8 +35,6 @@ class PensjonsinformasjonUtlandController(
     private val kodeverkClient: KodeverkClient,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()) {
 
-    @Autowired
-    private lateinit var kodeverkClient: KodeverkClient
     private var pensjonUtland: MetricsHelper.Metric = metricsHelper.init("pensjonUtland")
     private var trygdeTidMetric: MetricsHelper.Metric = metricsHelper.init("trygdeTidMetric")
     private var p6000Metric: MetricsHelper.Metric = metricsHelper.init("p6000Metric")
