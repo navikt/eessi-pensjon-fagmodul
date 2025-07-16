@@ -10,6 +10,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.kodeverk.KodeverkClient
 import no.nav.eessi.pensjon.metrics.MetricsHelper
+import no.nav.eessi.pensjon.utils.mapAnyToJson
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
@@ -33,6 +34,8 @@ class PensjonsinformasjonUtlandController(
     private val euxInnhentingService: EuxInnhentingService,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()) {
 
+    @Autowired
+    private lateinit var kodeverkClient: KodeverkClient
     private var pensjonUtland: MetricsHelper.Metric = metricsHelper.init("pensjonUtland")
     private var trygdeTidMetric: MetricsHelper.Metric = metricsHelper.init("trygdeTidMetric")
     private var p6000Metric: MetricsHelper.Metric = metricsHelper.init("p6000Metric")
@@ -93,7 +96,12 @@ class PensjonsinformasjonUtlandController(
 
     fun parseTrygdetid(jsonString: String): List<Trygdetid> {
         val cleanedJson = jsonString.trim('"').replace("\\n", "").replace("\\\"", "\"")
-        return mapJsonToAny(cleanedJson)
+        return mapJsonToAny<List<Trygdetid>>(cleanedJson).map {
+            if (it.land.length == 2) {
+                it.copy(land = kodeverkClient.finnLandkode(it.land) ?: it.land)
+            }
+            else it
+        }
     }
 
     data class TygdetidForPesys(
@@ -111,7 +119,6 @@ class PensjonsinformasjonUtlandController(
 
     @JsonInclude(JsonInclude.Include.ALWAYS)
     data class Trygdetid(
-        @JsonDeserialize(using = Landkode2Til3::class)
         val land: String,
         @JsonDeserialize(using = EmptyStringToNullDeserializer::class)
         val acronym: String?,
@@ -139,18 +146,6 @@ class PensjonsinformasjonUtlandController(
     class EmptyStringToNullDeserializer : JsonDeserializer<String?>() {
         override fun deserialize(p: JsonParser, ctxt: DeserializationContext): String? {
             return p.valueAsString.takeIf { !it.isNullOrBlank() }
-        }
-    }
-
-    class Landkode2Til3(val kodeverkClient: KodeverkClient) : JsonDeserializer<String?>() {
-        override fun deserialize(p: JsonParser, ctxt: DeserializationContext): String? {
-            return if (p.valueAsString.length == 3) {
-                p.valueAsString
-            } else if (p.valueAsString.length == 2) {
-                kodeverkClient.finnLandkode(p.valueAsString)
-            } else {
-                null
-            }
         }
     }
 }
