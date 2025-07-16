@@ -101,12 +101,14 @@ spec:
       value: https://saf-q2.dev-fss-pub.nais.io/rest/hentdokument
     - name: PDL_URL
       value: https://pdl-api.dev-fss-pub.nais.io/graphql
+    - name: KODEVERK_URL
+      value: https://kodeverk-api.nav.no
+
     - name: KAFKA_STATISTIKK_TOPICNAME
       value: eessipensjon.privat-statistikk-q2
     - name: KAFKA_AUTOMATISERING_TOPIC
       value: eessipensjon.public-automatisering-q2
-    - name: KODEVERK_URL
-      value: https://kodeverk-api.nav.no
+
     - name: AZURE_APP_PDL_CLIENT_ID
       value: dev-fss.pdl.pdl-api
     - name: AZURE_APP_PREFILL_CLIENT_ID
