@@ -8,7 +8,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import no.nav.eessi.pensjon.eux.model.sed.P6000
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
+import no.nav.eessi.pensjon.kodeverk.KodeverkClient
 import no.nav.eessi.pensjon.metrics.MetricsHelper
+import no.nav.eessi.pensjon.utils.mapAnyToJson
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
@@ -30,6 +32,7 @@ class PensjonsinformasjonUtlandController(
     private val pensjonsinformasjonUtlandService: PensjonsinformasjonUtlandService,
     private val gcpStorageService: GcpStorageService,
     private val euxInnhentingService: EuxInnhentingService,
+    private val kodeverkClient: KodeverkClient,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()) {
 
     private var pensjonUtland: MetricsHelper.Metric = metricsHelper.init("pensjonUtland")
@@ -92,7 +95,12 @@ class PensjonsinformasjonUtlandController(
 
     fun parseTrygdetid(jsonString: String): List<Trygdetid> {
         val cleanedJson = jsonString.trim('"').replace("\\n", "").replace("\\\"", "\"")
-        return mapJsonToAny(cleanedJson)
+        return mapJsonToAny<List<Trygdetid>>(cleanedJson).map {
+            if (it.land.length == 2) {
+                it.copy(land = kodeverkClient.finnLandkode(it.land) ?: it.land)
+            }
+            else it
+        }
     }
 
     data class TygdetidForPesys(
