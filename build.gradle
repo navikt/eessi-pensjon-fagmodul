@@ -21,6 +21,14 @@ plugins {
 
 apply from: "buildSrc/ep-module.gradle"
 
+tasks.withType(Test) {
+    jvmArgs '-Xmx2g' // test environment heap size
+}
+
+tasks.withType(JavaExec) {
+    jvmArgs '-Xmx4g' // prod environment heap size
+}
+
 group = 'no.nav.eessi.pensjon'
 
 dependencies {

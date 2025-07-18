@@ -40,14 +40,6 @@ java {
     targetCompatibility = JavaVersion.VERSION_21
 }
 
-tasks.withType(Test) {
-    jvmArgs '-Xmx2g' // test environment heap size
-}
-
-tasks.withType(JavaExec) {
-    jvmArgs '-Xmx4g' // prod environment heap size
-}
-
 kotlin {
     jvmToolchain(21)
 
