@@ -61,7 +61,7 @@ class PensjonsinformasjonUtlandController(
                     .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
                     .getOrNull()
             }?.let { trygdetid ->
-                TygdetidForPesys(aktoerId, rinaNr, trygdetid)
+                TygdetidForPesys(aktoerId, rinaNr, trygdetid).also { logger.debug("Trygdetid response: $it") }
             } ?: TygdetidForPesys(
                 aktoerId, rinaNr, emptyList(),
                 "Det finnes ingen registrert trygdetid for rinaNr: $rinaNr, aktoerId: $aktoerId"
