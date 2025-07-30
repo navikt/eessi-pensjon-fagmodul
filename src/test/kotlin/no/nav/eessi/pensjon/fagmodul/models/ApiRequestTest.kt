@@ -14,19 +14,6 @@ import org.springframework.web.server.ResponseStatusException
 
 class ApiRequestTest {
 
-    private fun createMockApiRequest(sed: SedType, buc: BucType, payload: String?): ApiRequest {
-        return ApiRequest(
-                institutions = listOf(InstitusjonItem(country = "NO", institution = "NAVT003")),
-                sed = sed,
-                sakId = "01234567890",
-                euxCaseId = "99191999911",
-                aktoerId = "1000060964183",
-                buc = buc,
-                subjectArea = "Pensjon",
-                payload = payload
-        )
-    }
-
     @Test
     fun `check og valider request fra ui med institusion uten buc`() {
         val req = """
@@ -58,8 +45,6 @@ class ApiRequestTest {
         assertEquals(P2000, datamodel.sedType)
         assertEquals(P_BUC_01, datamodel.buc)
     }
-
-
 
       @Test
     fun `confirm document when sed is not valid`() {
@@ -171,9 +156,7 @@ class ApiRequestTest {
         assertThrows<ResponseStatusException> {
             ApiRequest.buildPrefillDataModelOnExisting(mockData, PersonInfo("23123"), null)
         }
-
     }
-
 
     @Test
     fun `check on aktoerId is null`() {
@@ -186,7 +169,4 @@ class ApiRequestTest {
             ApiRequest.buildPrefillDataModelOnExisting(mockData, PersonInfo("12345"), null)
         }
     }
-
-
-
 }
