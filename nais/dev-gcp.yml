@@ -52,6 +52,7 @@ spec:
         - host: saf-q2.dev-fss-pub.nais.io
         - host: pdl-api.dev-fss-pub.nais.io
         - host: pensjon-pen-q2.dev-fss-pub.nais.io
+        - host: pensjon-psak-q2.dev-fss-pub.nais.io
         - host: eux-rina-api-gcp-q2.intern.dev.nav.no
         - host: eessi-pensjon-prefill-q2.intern.dev.nav.no
         - host: eessi-pensjon-journalforing-q2.intern.dev.nav.no
@@ -71,6 +72,9 @@ spec:
           namespace: nais
           cluster: dev-gcp
         - application: pensjon-pen-q2
+          namespace: pensjon-q2
+          cluster: dev-fss
+        - application: pensjon-psak-q2
           namespace: pensjon-q2
           cluster: dev-fss
 
