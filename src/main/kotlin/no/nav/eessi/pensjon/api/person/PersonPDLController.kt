@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
+import kotlin.toString
 
 const val PERSON_IKKE_FUNNET = "Person ikke funnet"
 
@@ -59,8 +60,17 @@ class PersonPDLController(
         auditLogger.log("getPerson", aktoerid)
 
         return personControllerHentPerson.measure {
-            //val person = hentPerson(aktoerid)
-            ResponseEntity.badRequest().body(FrontEndResponse(status = HttpStatus.BAD_REQUEST.value().toString(), message = "NEI NEI NEI, dette var en skikkelig auda" ))
+            try {
+                val person = hentPerson(aktoerid)
+                ResponseEntity.ok(
+                    FrontEndResponse(result = person.toJson(), status = HttpStatus.OK.value().toString())
+                )
+            } catch (ex: Exception) {
+                logger.error("Feil ved henting av person: ${ex.message}")
+                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    FrontEndResponse(result = null, status = HttpStatus.INTERNAL_SERVER_ERROR.value().toString(), message = "Feil ved henting av person: ${ex.message}")
+                )
+            }
         }
     }
 
