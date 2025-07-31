@@ -8,6 +8,7 @@ import io.mockk.mockk
 import no.nav.eessi.pensjon.eux.model.sed.P6000
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
+import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController.TrygdetidRequest
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.kodeverk.KodeverkClient
 import no.nav.eessi.pensjon.utils.mapJsonToAny
@@ -48,11 +49,11 @@ class PensjonsinformasjonUtlandControllerTest {
             every { getContent() } returns trygdeTidJson().toJson().toByteArray()
         }
 
-        val result = controller.hentTrygdetid(aktoerId, rinaNr)
-        println(result?.trygdetid.toString())
-        assertEquals(aktoerId, result?.aktoerId)
-        assertEquals(rinaNr, result?.rinaNr)
-        assertEquals(trygdeTidListResultat(), result?.trygdetid.toString())
+        val result = controller.hentTrygdetid(TrygdetidRequest(fnr = aktoerId, rinaNr = rinaNr))
+        println(result.trygdetid.toString())
+        assertEquals(aktoerId, result.aktoerId)
+        assertEquals(rinaNr, result.rinaNr)
+        assertEquals(trygdeTidListResultat(), result.trygdetid.toString())
     }
 
     @Test
