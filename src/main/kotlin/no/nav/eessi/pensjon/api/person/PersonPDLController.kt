@@ -3,6 +3,8 @@ package no.nav.eessi.pensjon.api.person
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_02
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_06
 import no.nav.eessi.pensjon.eux.model.SedType
+import no.nav.eessi.pensjon.fagmodul.api.EuxController
+import no.nav.eessi.pensjon.fagmodul.api.EuxController.*
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.logging.AuditLogger
@@ -53,12 +55,12 @@ class PersonPDLController(
     }
 
     @GetMapping("/person/pdl/{aktoerid}", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getPerson(@PathVariable("aktoerid", required = true) aktoerid: String): ResponseEntity<PdlPerson> {
+    fun getPerson(@PathVariable("aktoerid", required = true) aktoerid: String): ResponseEntity<FrontEndResponse> {
         auditLogger.log("getPerson", aktoerid)
 
         return personControllerHentPerson.measure {
-            val person = hentPerson(aktoerid)
-            ResponseEntity.ok(person)
+            //val person = hentPerson(aktoerid)
+            ResponseEntity.badRequest().body(FrontEndResponse(status = HttpStatus.BAD_REQUEST.value().toString(), message = "NEI NEI NEI, dette var en skikkelig auda" ))
         }
     }
 

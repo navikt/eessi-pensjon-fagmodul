@@ -190,7 +190,7 @@ class EuxController(
     }
 
     data class FrontEndResponse(
-        val response: String? = null,
+        val result: String? = null,
         val status: String? = null,
         val message: String? = null,
         val stackTrace: String? = null
