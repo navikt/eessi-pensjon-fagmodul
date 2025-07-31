@@ -56,14 +56,14 @@ class PersonPDLController(
     }
 
     @GetMapping("/person/pdl/{aktoerid}", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getPerson(@PathVariable("aktoerid", required = true) aktoerid: String): ResponseEntity<FrontEndResponse> {
+    fun getPerson(@PathVariable("aktoerid", required = true) aktoerid: String): ResponseEntity<FrontEndResponse<PdlPerson>> {
         auditLogger.log("getPerson", aktoerid)
 
         return personControllerHentPerson.measure {
             try {
                 val person = hentPerson(aktoerid)
                 ResponseEntity.ok(
-                    FrontEndResponse(result = person.toJson(), status = HttpStatus.OK.value().toString())
+                    FrontEndResponse(result = person, status = HttpStatus.OK.value().toString())
                 )
             } catch (ex: Exception) {
                 logger.error("Feil ved henting av person: ${ex.message}")
