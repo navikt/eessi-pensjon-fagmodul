@@ -37,6 +37,8 @@ spec:
         uniformBucketLevelAccess: true
       - name: eessi-pensjon-p8000-dev
         uniformBucketLevelAccess: true
+      - name: eessi-pensjon-p6000-dev
+        uniformBucketLevelAccess: true
   accessPolicy:
     outbound:
       rules:
@@ -50,9 +52,11 @@ spec:
         - host: saf-q2.dev-fss-pub.nais.io
         - host: pdl-api.dev-fss-pub.nais.io
         - host: pensjon-pen-q2.dev-fss-pub.nais.io
+        - host: pensjon-psak-q2.dev-fss-pub.nais.io
         - host: eux-rina-api-gcp-q2.intern.dev.nav.no
         - host: eessi-pensjon-prefill-q2.intern.dev.nav.no
         - host: eessi-pensjon-journalforing-q2.intern.dev.nav.no
+        - host: eessi-pensjon-saksbehandling-api-q2.intern.dev.nav.no
     inbound:
       rules:
         - application: eessi-pensjon-frontend-ui-q2
@@ -64,8 +68,13 @@ spec:
         - application: eessi-pensjon-journalforing-q2
           namespace: eessipensjon
           cluster: dev-gcp
-
+        - application: azure-token-generator
+          namespace: nais
+          cluster: dev-gcp
         - application: pensjon-pen-q2
+          namespace: pensjon-q2
+          cluster: dev-fss
+        - application: pensjon-psak-q2
           namespace: pensjon-q2
           cluster: dev-fss
 
@@ -77,6 +86,10 @@ spec:
       value: eessi-pensjon-gjenny-dev
     - name: GCP_BUCKET_P8000
       value: eessi-pensjon-p8000-dev
+    - name: GCP_BUCKET_P6000
+      value: eessi-pensjon-p6000-dev
+    - name: GCP_BUCKET_SAKSBEHANDLING_API
+      value: eessi-pensjon-saksbehandling-api-dev
 
     - name: PENSJONSINFORMASJON_URL
       value: https://pensjon-pen-q2.dev-fss-pub.nais.io/pen/api/pensjonsinformasjon/v1
@@ -92,12 +105,14 @@ spec:
       value: https://saf-q2.dev-fss-pub.nais.io/rest/hentdokument
     - name: PDL_URL
       value: https://pdl-api.dev-fss-pub.nais.io/graphql
+    - name: KODEVERK_URL
+      value: https://kodeverk-api.nav.no
+
     - name: KAFKA_STATISTIKK_TOPICNAME
       value: eessipensjon.privat-statistikk-q2
     - name: KAFKA_AUTOMATISERING_TOPIC
       value: eessipensjon.public-automatisering-q2
-    - name: KODEVERK_URL
-      value: https://kodeverk-api.nav.no
+
     - name: AZURE_APP_PDL_CLIENT_ID
       value: dev-fss.pdl.pdl-api
     - name: AZURE_APP_PREFILL_CLIENT_ID

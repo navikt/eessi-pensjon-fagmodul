@@ -2,10 +2,10 @@ buildscript {
 
     ext {
         kotlinVersion = '2.2.0'
-        springBootVersion = '3.5.3'
-        springKafkaVersion = '3.3.7'
+        springBootVersion = '3.5.4'
+        springKafkaVersion = '3.3.8'
         springfoxVersion = '3.0.0'
-        tokenSupportVersion = '5.0.30'
+        tokenSupportVersion = '5.0.33'
     }
 }
 
@@ -21,6 +21,14 @@ plugins {
 
 apply from: "buildSrc/ep-module.gradle"
 
+tasks.withType(Test) {
+    jvmArgs '-Xmx2g' // test environment heap size
+}
+
+tasks.withType(JavaExec) {
+    jvmArgs '-Xmx4g' // prod environment heap size
+}
+
 group = 'no.nav.eessi.pensjon'
 
 dependencies {
@@ -34,11 +42,11 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-actuator")
 
     // Spring Framework BOM-fil overstyrer så vi får siste patch-versjon av Spring Framework
-    implementation(platform("org.springframework:spring-framework-bom:6.2.8"))
+    implementation(platform("org.springframework:spring-framework-bom:6.2.9"))
 
     implementation("org.yaml:snakeyaml:2.4") // Pga https://security.snyk.io/package/maven/org.yaml:snakeyaml
 
-    implementation("com.fasterxml.jackson.core:jackson-core:2.19.1")
+    implementation("com.fasterxml.jackson.core:jackson-core:2.19.2")
 
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
 
@@ -46,9 +54,6 @@ dependencies {
     implementation("net.logstash.logback:logstash-logback-encoder:8.1")
     configurations { all*.exclude group: 'commons-logging', module: 'commons-logging' }
     implementation("org.slf4j:jcl-over-slf4j:2.0.17")
-
-    // PDF box
-    implementation("org.apache.pdfbox:pdfbox-tools:2.0.34")
 
     //auth
     implementation("no.nav.security:token-client-spring:${tokenSupportVersion}")
@@ -59,24 +64,24 @@ dependencies {
     implementation("org.springframework.kafka:spring-kafka:${springKafkaVersion}")
 
     //GCP
-    implementation("com.google.cloud:google-cloud-storage:2.53.2")
+    implementation("com.google.cloud:google-cloud-storage:2.54.0")
 
-    implementation("no.nav.eessi.pensjon:ep-metrics:2.0.131")
-    implementation("no.nav.eessi.pensjon:ep-logging:2.2.34")
-    implementation("no.nav.eessi.pensjon:ep-eux:2.4.88")
-    implementation("no.nav.eessi.pensjon:ep-kodeverk:4.2.20") {
+    implementation("no.nav.eessi.pensjon:ep-metrics:2.1.4")
+    implementation("no.nav.eessi.pensjon:ep-logging:2.3.5")
+    implementation("no.nav.eessi.pensjon:ep-eux:2.5.5")
+    implementation("no.nav.eessi.pensjon:ep-kodeverk:4.3.8") {
         exclude module: 'ep-eux'
         exclude module: 'ep-logging'
         exclude module: 'ep-metrics'
     }
 
-    implementation("no.nav.eessi.pensjon:ep-personoppslag:13.2.106") {
+    implementation("no.nav.eessi.pensjon:ep-personoppslag:13.3.12") {
         exclude module: 'ep-eux'
         exclude module: 'ep-logging'
         exclude module: 'ep-metrics'
     }
 
-    implementation("no.nav.eessi.pensjon:ep-pensjonsinformasjon:3.0.219") {
+    implementation("no.nav.eessi.pensjon:ep-pensjonsinformasjon:3.1.8") {
         exclude module: 'ep-eux'
         exclude module: 'ep-logging'
         exclude module: 'ep-metrics'
@@ -86,6 +91,9 @@ dependencies {
     implementation('org.glassfish.jaxb:jaxb-runtime:2.3.3')
     implementation("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:2643.2f3e8e9")
 
+    // PDF box
+    testImplementation("org.apache.pdfbox:pdfbox-tools:3.0.5")
+
     testImplementation("no.nav.security:token-validation-spring-test:${tokenSupportVersion}")
 
     // Forenklere mocking av beans, benyttes som mockito mockbean
@@ -93,10 +101,10 @@ dependencies {
     testImplementation('org.pac4j:spring-webmvc-pac4j:8.0.1')
 
     
-    testImplementation("org.junit.jupiter:junit-jupiter:5.13.2")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.13.4")
 
     //mock - test
-    testImplementation("io.mockk:mockk:1.14.4")
+    testImplementation("io.mockk:mockk:1.14.5")
     testImplementation("org.skyscreamer:jsonassert:1.5.3")
 
     //Kafka

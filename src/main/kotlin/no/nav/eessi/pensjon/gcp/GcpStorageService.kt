@@ -13,12 +13,15 @@ import java.nio.ByteBuffer
 class GcpStorageService(
     @param:Value("\${GCP_BUCKET_GJENNY}") var gjennyBucket: String,
     @param:Value("\${GCP_BUCKET_P8000}") var p8000Bucket: String,
+    @param:Value("\${GCP_BUCKET_P6000}") var p6000Bucket: String,
+    @param:Value("\${GCP_BUCKET_SAKSBEHANDLING_API}") var saksBehandlApiBucket: String,
+
     private val gcpStorage: Storage) {
 
     private val logger = LoggerFactory.getLogger(GcpStorageService::class.java)
 
     init {
-        listOf(gjennyBucket, p8000Bucket).forEach { ensureBucketExists(it)}
+        listOf(gjennyBucket, p8000Bucket, saksBehandlApiBucket, p6000Bucket).forEach { ensureBucketExists(it)}
     }
 
     private fun ensureBucketExists(bucketNavn: String): Boolean {
@@ -29,6 +32,21 @@ class GcpStorageService(
         return false
     }
 
+    fun lagretilBackend(p6000Detaljer: String, pesysId:String) {
+
+        val blobInfo = BlobInfo.newBuilder(BlobId.of(p6000Bucket, pesysId)).setContentType("application/json").build()
+
+        runCatching {
+            gcpStorage.writer(blobInfo).use {
+                it.write(ByteBuffer.wrap(p6000Detaljer.toByteArray()))
+            }
+        }.onFailure { e ->
+            logger.error("Feilet med å lagre detaljer med id: ${blobInfo.blobId.name} i bucket: $p6000Bucket", e)
+        }.onSuccess {
+            logger.info("Lagret sed detaljer til S3 med pesysId: $pesysId til $p6000Bucket")
+        }
+    }
+
     fun lagreGjennySak(euxCaseId: String, gjennysak: GjennySak) {
         return if (gjennysak.sakId?.length in 4..5 && gjennysak.sakId?.all { it.isDigit() } == true) {
             lagre(euxCaseId, gjennysak.toJson(), gjennyBucket)
@@ -37,11 +55,35 @@ class GcpStorageService(
         }
     }
 
-    fun lagreP8000Options(documentid: String, options: String) {
-        if(p8000SakFinnes(documentid)){
-            gcpStorage.delete(BlobId.of(p8000Bucket, documentid))
+        fun lagreP8000Options(documentid: String, options: String) {
+            if(p8000SakFinnes(documentid)){
+                gcpStorage.delete(BlobId.of(p8000Bucket, documentid))
+            }
+            lagre(documentid, options, p8000Bucket)
         }
-        lagre(documentid, options, p8000Bucket)
+    fun hentTrygdetid(aktoerId: String, rinaSakId: String): String? {
+        val searchString = if (aktoerId.isNotEmpty() && rinaSakId.isNotEmpty()) {
+            "${aktoerId}___PESYS___$rinaSakId"
+        } else if (aktoerId.isNotEmpty()) {
+            aktoerId + "___PESYS___"
+        } else if (rinaSakId.isNotEmpty()) {
+            "___PESYS___$rinaSakId"
+        } else {
+            logger.warn("Henter trygdetid uten gyldig aktoerId eller rinaSakId")
+            return null
+        }
+        logger.info("Henter trygdetid for aktoerId: $aktoerId eller rinaSakId: $rinaSakId, med søkestreng: $searchString")
+
+        kotlin.runCatching {
+            val trygdetid = gcpStorage.get(BlobId.of(saksBehandlApiBucket, searchString))
+            if (trygdetid.exists()) {
+                logger.info("Henter melding med aktoerId $searchString, for bucket $saksBehandlApiBucket")
+                return trygdetid.getContent().decodeToString()
+            }
+        }.onFailure { e ->
+            logger.error("Feil ved henting av trygdetid for aktoerId: $aktoerId, rinaSakId: $rinaSakId", e)
+        }
+        return null
     }
 
     private fun lagre(euxCaseId: String, informasjon: String, bucketNavn: String) {
@@ -84,7 +126,21 @@ class GcpStorageService(
         return false
     }
 
-    fun hentP8000(storageKey:String): String? {
+    fun hentGcpDetlajerForP6000(storageKey:String): String? {
+        kotlin.runCatching {
+            val options =  gcpStorage.get(BlobId.of(p6000Bucket, storageKey))
+            if (options.exists()) {
+                logger.info("Henter melding med rinanr $storageKey, for bucket $p8000Bucket")
+                return options.getContent().decodeToString()
+            }
+        }.onFailure {
+            logger.info("Henter melding med rinanr $storageKey, for bucket $p8000Bucket")
+
+        }
+        return null
+    }
+
+    fun hentGcpDetlajerPaaId(storageKey:String): String? {
         kotlin.runCatching {
             val options =  gcpStorage.get(BlobId.of(p8000Bucket, storageKey))
             if (options.exists()) {
@@ -98,3 +154,4 @@ class GcpStorageService(
         return null
     }
 }
+

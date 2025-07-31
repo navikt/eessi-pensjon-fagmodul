@@ -15,25 +15,22 @@ import org.apache.pdfbox.pdmodel.PDDocument
 import org.apache.pdfbox.pdmodel.PDPage
 import org.apache.pdfbox.pdmodel.PDPageContentStream
 import org.apache.pdfbox.pdmodel.common.PDRectangle
-import org.apache.pdfbox.pdmodel.font.PDType1Font
+import org.apache.pdfbox.pdmodel.font.PDType0Font
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.web.client.RestTemplate
 import java.io.ByteArrayOutputStream
-import java.util.Base64
+import java.util.*
 
 @SpringBootTest(
     classes = [RestTemplateConfig::class, UnsecuredWebMvcTestLauncher::class],
@@ -93,34 +90,39 @@ class EessiTokenValdationTest {
             aktoerId = "123456789",
             rinaSakId = "rina123",
             rinaDokumentId = "doc123",
-            filInnhold = Base64.getEncoder().encodeToString(createLargePdf(78000)),
+            filInnhold = Base64.getEncoder().encodeToString(createLargePdf(200000)),
             fileName = "example.pdf",
             filtype = "application/pdf"
         )
     }
 
     fun createLargePdf(numberOfPages: Int): ByteArray {
-        val documentRet: PDDocument = PDDocument()
-        PDDocument().use { document ->
+        val documentRet = PDDocument()
+        val outputStream = ByteArrayOutputStream()
+
+        try {
+            val fontStream = this::class.java.getResourceAsStream("/fonts/helvetica-light.ttf")
+            val font = PDType0Font.load(documentRet, fontStream)
+
             for (i in 1..numberOfPages) {
                 val page = PDPage(PDRectangle.LETTER)
                 documentRet.addPage(page)
 
                 PDPageContentStream(documentRet, page).use { contentStream ->
                     contentStream.beginText()
-                    contentStream.setFont(PDType1Font.HELVETICA, 12f)
+                    contentStream.setFont(font, 12f) // Set the font properly
                     contentStream.newLineAtOffset(50f, 750f)
                     contentStream.showText("This is page $i of $numberOfPages")
                     contentStream.endText()
                 }
-
             }
+
+            documentRet.save(outputStream)
+        } finally {
+            documentRet.close()
         }
-        val outputStream = ByteArrayOutputStream()
-        documentRet.save(outputStream)
         val sizeInBytes = outputStream.size()
         println("PDF size in memory: $sizeInBytes bytes (${sizeInBytes / 1024 / 1024} MB)")
-
         return outputStream.toByteArray() // returner en tom PDF hvis noe går galt
     }
 }

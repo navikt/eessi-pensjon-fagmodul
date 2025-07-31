@@ -14,49 +14,37 @@ import org.springframework.web.server.ResponseStatusException
 
 class ApiRequestTest {
 
-    private fun createMockApiRequest(sed: SedType, buc: BucType, payload: String?): ApiRequest {
-        return ApiRequest(
-                institutions = listOf(InstitusjonItem(country = "NO", institution = "NAVT003")),
-                sed = sed,
-                sakId = "01234567890",
-                euxCaseId = "99191999911",
-                aktoerId = "1000060964183",
-                buc = buc,
-                subjectArea = "Pensjon",
-                payload = payload
-        )
-    }
-
     @Test
     fun `check og valider request fra ui med institusion uten buc`() {
-        val req = "{\n" +
-                "  \"sakId\" : \"01234567890\",\n" +
-                "  \"vedtakId\" : null,\n" +
-                "  \"kravId\" : null,\n" +
-                "  \"aktoerId\" : \"1000060964183\",\n" +
-                "  \"fnr\" : null,\n" +
-                "  \"avdodfnr\" : null,\n" +
-                "  \"payload\" : \"{}\",\n" +
-                "  \"buc\" : \"P_BUC_01\",\n" +
-                "  \"sed\" : \"P2000\",\n" +
-                "  \"documentid\" : null,\n" +
-                "  \"euxCaseId\" : \"99191999911\",\n" +
-                "  \"institutions\" : [ {\n" +
-                "    \"country\" : \"NO\",\n" +
-                "    \"institution\" : \"NAVT003\",\n" +
-                "    \"name\" : null\n" +
-                "  } ],\n" +
-                "  \"subjectArea\" : \"Pensjon\",\n" +
-                "  \"skipSEDkey\" : null,\n" +
-                "  \"mockSED\" : true\n" +
-                "}"
+        val req = """
+            {
+              "sakId": "01234567890",
+              "vedtakId": null,
+              "kravId": null,
+              "aktoerId": "1000060964183",
+              "fnr": null,
+              "avdodfnr": null,
+              "payload": "{}",
+              "buc": "P_BUC_01",
+              "sed": "P2000",
+              "documentid": null,
+              "euxCaseId": "99191999911",
+              "institutions": [
+                {
+                  "country": "NO",
+                  "institution": "NAVT003",
+                  "name": null
+                }
+              ],
+              "subjectArea": "Pensjon",
+              "skipSEDkey": null,
+              "mockSED": true
+            }"""
         val datamodel = ApiRequest.buildPrefillDataModelOnExisting( mapJsonToAny(req), PersonInfo(""), "")
         assertNotNull(datamodel)
         assertEquals(P2000, datamodel.sedType)
         assertEquals(P_BUC_01, datamodel.buc)
     }
-
-
 
       @Test
     fun `confirm document when sed is not valid`() {
@@ -168,9 +156,7 @@ class ApiRequestTest {
         assertThrows<ResponseStatusException> {
             ApiRequest.buildPrefillDataModelOnExisting(mockData, PersonInfo("23123"), null)
         }
-
     }
-
 
     @Test
     fun `check on aktoerId is null`() {
@@ -183,7 +169,4 @@ class ApiRequestTest {
             ApiRequest.buildPrefillDataModelOnExisting(mockData, PersonInfo("12345"), null)
         }
     }
-
-
-
 }

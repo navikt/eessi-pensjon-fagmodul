@@ -16,6 +16,7 @@ KODEVERK_URL: 'http://example.com:8093'
 
 GCP_STORAGE_API_URL: "http://some.strange.place"
 GCP_BUCKET_GJENNY: 'dummyBucket'
+GCP_BUCKET_P6000: 'dumBucket'
 
 eessi-pensjon-active-profiles: ${spring.profiles.active}
 

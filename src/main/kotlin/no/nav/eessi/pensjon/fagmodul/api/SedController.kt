@@ -3,7 +3,6 @@ package no.nav.eessi.pensjon.fagmodul.api
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.annotation.JsonRawValue
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import no.nav.eessi.pensjon.eux.model.SedType
@@ -27,8 +26,6 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import java.net.URLDecoder
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
 
 @Protected
 @RestController
@@ -44,8 +41,8 @@ class SedController(
     private val secureLog = LoggerFactory.getLogger("secureLog")
     private val logger = LoggerFactory.getLogger(SedController::class.java)
 
-    private lateinit var pdfGenerert: MetricsHelper.Metric
     private lateinit var sedsendt: MetricsHelper.Metric
+    private lateinit var pdfGenerert: MetricsHelper.Metric
 
     init {
         pdfGenerert = metricsHelper.init("PdfGenerert")
@@ -78,7 +75,7 @@ class SedController(
             val p8000Frontend = P8000Frontend(sed.type, sed.nav, sed.p8000Pensjon)
             logger.info("Henter options for: ${p8000Frontend.type}, rinaid: $euxcaseid, options: ${p8000Frontend.options}")
 
-            gcpStorageService.hentP8000(documentid)?.let { lagretOptions ->
+            gcpStorageService.hentGcpDetlajerPaaId(documentid)?.let { lagretOptions ->
                 return p8000Frontend.toJsonSkipEmpty()
                     .replace("\"options\" : null", "\"options\":${prettifyJson(lagretOptions)}")
             }

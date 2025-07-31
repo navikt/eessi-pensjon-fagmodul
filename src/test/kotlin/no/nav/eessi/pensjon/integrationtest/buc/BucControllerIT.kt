@@ -323,8 +323,8 @@ internal class BucControllerIT: BucBaseTest() {
         every { euxNavIdentRestTemplate.exchange("/rinasaker?fødselsnummer=1234567890000&status=\"open\"", HttpMethod.GET, null, String::class.java) } .answers( FunctionAnswer { Thread.sleep(250)
             ResponseEntity.ok().body(listOf(dummyRinasak("5195021", "P_BUC_03"), dummyRinasak("5922554", "P_BUC_03") ).toJson() )
         })
-        every { euxNavIdentRestTemplate.exchange( "/buc/5922554", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( buc("5922554", documents = null, internasjonalId = null) )
-        every { euxNavIdentRestTemplate.exchange( "/buc/5195021", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( buc("5195021", documents = null, internasjonalId = null) )
+        every { euxNavIdentRestTemplate.exchange( "/buc/5922554", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( buc("5922554") )
+        every { euxNavIdentRestTemplate.exchange( "/buc/5195021", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( buc("5195021") )
         every { gcpStorageService.gjennySakFinnes(any()) } returns false
 
         val result = mockMvc.perform(
@@ -355,16 +355,8 @@ internal class BucControllerIT: BucBaseTest() {
         every { euxNavIdentRestTemplate.exchange("/rinasaker?fødselsnummer=01220049651&status=\"open\"", HttpMethod.GET, null, String::class.java) } .answers( FunctionAnswer { Thread.sleep(250)
             ResponseEntity.ok().body(listOf(dummyRinasak("5195021", "P_BUC_03"), dummyRinasak("5922554", "P_BUC_03") ).toJson() ) })
 
-        every { euxNavIdentRestTemplate.exchange( "/buc/5922554", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( buc(
-            "5922554",
-            documents = null,
-            internasjonalId = null
-        ) )
-        every { euxNavIdentRestTemplate.exchange( "/buc/5195021", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( buc(
-            "5195021",
-            documents = null,
-            internasjonalId = null
-        ) )
+        every { euxNavIdentRestTemplate.exchange( "/buc/5922554", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( buc("5922554") )
+        every { euxNavIdentRestTemplate.exchange( "/buc/5195021", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( buc("5195021") )
         every { gcpStorageService.gjennySakFinnes(any()) } returns false
 
         val result = mockMvc.perform(
@@ -394,9 +386,9 @@ internal class BucControllerIT: BucBaseTest() {
         every { euxNavIdentRestTemplate.exchange("/rinasaker?fødselsnummer=01220049651&status=\"open\"", HttpMethod.GET, null, String::class.java) } .answers( FunctionAnswer { Thread.sleep(250)
             ResponseEntity.ok().body(listOf(dummyRinasak("5195021", "P_BUC_03"), dummyRinasak("5922554", "P_BUC_03"), dummyRinasak("000001", "P_BUC_02") ).toJson() ) })
 
-        every { euxNavIdentRestTemplate.exchange( "/buc/5922554", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( buc("592254", documents = null, internasjonalId = null) )
-        every { euxNavIdentRestTemplate.exchange( "/buc/5195021", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( buc("5195021", documents = null, internasjonalId = null) )
-        every { euxNavIdentRestTemplate.exchange( "/buc/000001", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( buc("000001", P_BUC_02, null, null) )
+        every { euxNavIdentRestTemplate.exchange( "/buc/5922554", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( buc("592254") )
+        every { euxNavIdentRestTemplate.exchange( "/buc/5195021", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( buc("5195021") )
+        every { euxNavIdentRestTemplate.exchange( "/buc/000001", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( buc("000001", P_BUC_02) )
         every { gcpStorageService.gjennySakFinnes("5922554") } returns false
         every { gcpStorageService.gjennySakFinnes("5195021") } returns false
         every { gcpStorageService.gjennySakFinnes("000001") } returns true
@@ -428,17 +420,6 @@ internal class BucControllerIT: BucBaseTest() {
             receiveDate = null
         )
 
-    private fun buc(
-        id: String?,
-        bucType: BucType? = P_BUC_03,
-        documents: List<DocumentsItem>?,
-        internasjonalId: String?
-    ) =
-        Buc(
-            id,
-            bucType.toString(),
-            documents = documents,
-            internationalId = internasjonalId
-        ).toJson()
+    private fun buc(id: String?, bucType: BucType? = P_BUC_03) = Buc(id, bucType.toString()).toJson()
 
 }
