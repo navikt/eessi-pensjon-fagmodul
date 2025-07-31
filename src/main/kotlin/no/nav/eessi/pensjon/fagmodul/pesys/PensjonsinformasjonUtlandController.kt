@@ -10,7 +10,6 @@ import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.kodeverk.KodeverkClient
 import no.nav.eessi.pensjon.metrics.MetricsHelper
-import no.nav.eessi.pensjon.utils.mapAnyToJson
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
@@ -49,22 +48,24 @@ class PensjonsinformasjonUtlandController(
         }
     }
 
-    @GetMapping("/hentTrygdetid")
-    fun hentTrygdetid(
-        @RequestParam("aktorId") aktoerId: String,
-        @RequestParam("rinaNr") rinaNr: String
-    ): TygdetidForPesys? {
-        logger.info("Henter trygdetid for aktoerId: $aktoerId, rinaNr: $rinaNr")
+    data class TrygdetidRequest(
+        val fnr: String,
+        val rinaNr: String
+    )
+
+    @PostMapping("/hentTrygdetid")
+    fun hentTrygdetid(@RequestBody request: TrygdetidRequest): TygdetidForPesys {
+        logger.debug("Henter trygdetid for fnr: ${request.fnr.takeLast(4)}, rinaNr: ${request.rinaNr}")
         return trygdeTidMetric.measure {
-            gcpStorageService.hentTrygdetid(aktoerId, rinaNr)?.let {
+            gcpStorageService.hentTrygdetid(request.fnr, request.rinaNr)?.let {
                 runCatching { parseTrygdetid(it) }
                     .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
                     .getOrNull()
             }?.let { trygdetid ->
-                TygdetidForPesys(aktoerId, rinaNr, trygdetid).also { logger.debug("Trygdetid response: $it") }
+                TygdetidForPesys(request.fnr, request.rinaNr, trygdetid).also { logger.debug("Trygdetid response: $it") }
             } ?: TygdetidForPesys(
-                aktoerId, rinaNr, emptyList(),
-                "Det finnes ingen registrert trygdetid for rinaNr: $rinaNr, aktoerId: $aktoerId"
+                request.fnr, request.rinaNr, emptyList(),
+                "Det finnes ingen registrert trygdetid for rinaNr: $request.rinaNr, aktoerId: $request.fnr"
             )
         }
     }
