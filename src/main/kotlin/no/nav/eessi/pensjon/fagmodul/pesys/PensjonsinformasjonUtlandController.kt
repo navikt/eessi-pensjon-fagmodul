@@ -50,14 +50,14 @@ class PensjonsinformasjonUtlandController(
 
     data class TrygdetidRequest(
         val fnr: String,
-        val rinaNr: String
+        val rinaNr: Int
     )
 
     @PostMapping("/hentTrygdetid")
     fun hentTrygdetid(@RequestBody request: TrygdetidRequest): TygdetidForPesys {
         logger.debug("Henter trygdetid for fnr: ${request.fnr.takeLast(4)}, rinaNr: ${request.rinaNr}")
         return trygdeTidMetric.measure {
-            gcpStorageService.hentTrygdetid(request.fnr, request.rinaNr)?.let {
+            gcpStorageService.hentTrygdetid(request.fnr, request.rinaNr.toString())?.let {
                 runCatching { parseTrygdetid(it) }
                     .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
                     .getOrNull()
@@ -105,8 +105,8 @@ class PensjonsinformasjonUtlandController(
     }
 
     data class TygdetidForPesys(
-        val aktoerId: String?,
-        val rinaNr: String,
+        val fnr: String?,
+        val rinaNr: Int,
         val trygdetid: List<Trygdetid> = emptyList(),
         val error: String? = null
     )

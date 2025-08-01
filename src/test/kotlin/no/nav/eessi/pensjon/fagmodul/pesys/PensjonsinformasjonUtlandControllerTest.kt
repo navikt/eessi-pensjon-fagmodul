@@ -31,7 +31,7 @@ class PensjonsinformasjonUtlandControllerTest {
     private val euxInnhentingService = mockk<EuxInnhentingService>(relaxed = true)
     private val controller = PensjonsinformasjonUtlandController(pensjonsinformasjonUtlandService = mockk(), gcpStorageService = gcpStorageService, euxInnhentingService, kodeverkClient)
     private val aktoerId = "2477958344057"
-    private val rinaNr = "1446033"
+    private val rinaNr = 1446033
 
     @BeforeEach
     fun setup() {
@@ -51,7 +51,7 @@ class PensjonsinformasjonUtlandControllerTest {
 
         val result = controller.hentTrygdetid(TrygdetidRequest(fnr = aktoerId, rinaNr = rinaNr))
         println(result.trygdetid.toString())
-        assertEquals(aktoerId, result.aktoerId)
+        assertEquals(aktoerId, result.fnr)
         assertEquals(rinaNr, result.rinaNr)
         assertEquals(trygdeTidListResultat(), result.trygdetid.toString())
     }
