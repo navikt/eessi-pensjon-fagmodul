@@ -93,7 +93,7 @@ class SedController(
     }
 
     @PutMapping("/put/{euxcaseid}/{documentid}")
-    fun putDocument(
+    fun updateSed(
         @PathVariable("euxcaseid", required = true) euxcaseid: String,
         @PathVariable("documentid", required = true) documentid: String,
         @RequestBody sedPayload: String

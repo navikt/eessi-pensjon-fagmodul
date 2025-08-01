@@ -142,7 +142,7 @@ class GjennyController (
         @PathVariable("euxcaseid", required = true) euxcaseid: String,
         @PathVariable("documentid", required = true) documentid: String,
         @RequestBody sedPayload: String
-    ): Boolean = sedController.putDocument(euxcaseid, documentid, sedPayload)
+    ): Boolean = sedController.updateSed(euxcaseid, documentid, sedPayload)
 
 
     private fun loggTimeAndViewSize(servicename: String, start: Long, viewsize: Long = 0) {
