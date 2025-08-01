@@ -103,9 +103,17 @@ class SedControllerTest {
         every { gcpStorageService.lagreP8000Options(any(), capture(slot)) } just Runs
 
         val p8000sed = mapJsonToAny<P8000Frontend>(javaClass.getResource("/json/sed/P8000-NAV.json")!!.readText())
-        sedController.putDocument("123456", "222222", p8000sed.toJson())
+        sedController.updateSed("123456", "222222", p8000sed.toJson())
 
         assertEquals(p8000Lagret(), slot.captured)
+    }
+
+    @Test
+    fun `putDokument skal mappe 2000 `() {
+
+        val p2000 = javaClass.getResource("/json/sed/P2000-NAV.json")!!.readText()
+        sedController.updateSed("123456", "222222", p2000)
+        verify { mockEuxInnhentingService.updateSedOnBuc("123456", p2000, "") }
     }
 
     @Test
