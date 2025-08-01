@@ -101,7 +101,7 @@ class SedController(
         val validsed = try {
             secureLog.info("Følgende SED payload: $sedPayload")
 
-            val sed = SED.fromJsonToConcrete(sedPayload)
+            val sed = SED.fromJsonToConcrete(sedPayload).also { secureLog.info("Følgende SED: ${it.toJson()}") }
             logger.info("Følgende SED prøves å oppdateres: ${sed.type}, rinaid: $euxcaseid")
 
             when (sed) {
