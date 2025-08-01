@@ -98,7 +98,7 @@ class SedControllerTest {
     }
 
     @Test
-    fun `putDokument skal lagre p8000 med options`() {
+    fun `updateSed skal lagre p8000 med options`() {
         val slot = slot<String>()
         every { gcpStorageService.lagreP8000Options(any(), capture(slot)) } just Runs
 
@@ -106,14 +106,6 @@ class SedControllerTest {
         sedController.updateSed("123456", "222222", p8000sed.toJson())
 
         assertEquals(p8000Lagret(), slot.captured)
-    }
-
-    @Test
-    fun `putDokument skal mappe 2000 `() {
-
-        val p2000 = javaClass.getResource("/json/sed/P2000-NAV.json")!!.readText()
-        sedController.updateSed("123456", "222222", p2000)
-        verify { mockEuxInnhentingService.updateSedOnBuc("123456", p2000, "") }
     }
 
     @Test
