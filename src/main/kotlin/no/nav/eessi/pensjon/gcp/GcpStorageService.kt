@@ -113,7 +113,7 @@ class GcpStorageService(
         return eksisterer(euxCaseId, p8000Bucket)
     }
 
-    private fun eksisterer(storageKey:String, bucketNavn: String): Boolean {
+    fun eksisterer(storageKey:String, bucketNavn: String): Boolean {
         logger.debug("sjekker om $storageKey finnes i bucket: $bucketNavn")
 
         kotlin.runCatching {

@@ -1,7 +1,5 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
-import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
-import no.nav.eessi.pensjon.eux.model.BucType
 import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.*
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
@@ -13,21 +11,18 @@ import no.nav.eessi.pensjon.utils.toJson
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import kotlin.time.ExperimentalTime
 
 
 @Protected
 @RestController
 @RequestMapping("/buc")
 class BucController(
-    private val euxKlient: EuxKlientAsSystemUser,
     private val euxInnhentingService: EuxInnhentingService,
     private val auditlogger: AuditLogger,
     private val innhentingService: InnhentingService,
@@ -84,46 +79,37 @@ class BucController(
             val start = System.currentTimeMillis()
             val timeTracking = mutableListOf<String>()
 
-            val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerId)
-
-            val fnr = innhentingService.hentFnrfraAktoerService(aktoerId)
-            val rinasakerBrukerq1 = euxKlient.getRinasaker(fnr = fnr?.id)
-                .map { rinasak ->
-                    EuxInnhentingService.BucView(
-                        rinasak.id!!,
-                        BucType.from(rinasak.processDefinitionId)!!,
-                        aktoerId,
-                        null,
-                        null,
-                        EuxInnhentingService.BucViewKilde.BRUKER
-                    )
-                }.also {
-                    val end = System.currentTimeMillis()
-                    logger.info("hentBucViewBruker tid ${end - start} i ms")
-                }
-
             logger.info("henter rinasaker på valgt aktoerid: $aktoerId, på saknr: $pensjonSakNummer")
+            val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerId)
+            val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
+                .also { timeTracking.add("rinaSakIderFraJoark tid: ${System.currentTimeMillis()-start} i ms") }
 
             //bruker saker fra eux/rina
-            val brukerView =
-                gjenlevendeFnr?.let { euxInnhentingService.hentBucViewBruker(it.id, aktoerId, pensjonSakNummer) }.also {
-                    timeTracking.add("hentBucViewBruker, gjenlevendeFnr tid: ${System.currentTimeMillis() - start} i ms")
-                } ?: emptyList()
+            val brukerView = gjenlevendeFnr?.let { euxInnhentingService.hentBucViewBruker(it.id, aktoerId, pensjonSakNummer) }.also {
+                timeTracking.add("hentBucViewBruker, gjenlevendeFnr tid: ${System.currentTimeMillis()-start} i ms")
+            }?: emptyList()
 
-            val view =
-                (brukerView + rinasakerBrukerq1).also { logger.info("Antall for brukerview+safView: ${it.size}") }
+            //filtert bort brukersaker fra saf
+            val filterBrukerRinaSakIderFraJoark = rinaSakIderFraJoark.filterNot { rinaid -> rinaid in brukerView.map { it.euxCaseId }  }
+
+            //saker fra saf og eux/rina
+            val safView = euxInnhentingService.lagBucViews(
+                aktoerId,
+                pensjonSakNummer,
+                filterBrukerRinaSakIderFraJoark,
+                EuxInnhentingService.BucViewKilde.SAF
+            ).also {timeTracking.add("hentBucViews tid: ${System.currentTimeMillis()-start} i ms")}
+
+            val view = (brukerView + safView).also { logger.info("Antall for brukerview+safView: ${it.size}") }
             //rinaIder inneholder bucer som ikke er gjenny bucer
-            val rinaIder = view.map { it.euxCaseId }.filter { gcpStorageService.eksisterer(it) }
-                .also { logger.info("Det finnes ${it.size} SED som kommer fra GJENNY") }
+            val rinaIder = view.map { it.euxCaseId }.filter { gcpStorageService.gjennySakFinnes(it) }.also { logger.info("Det finnes ${it.size} SED som kommer fra GJENNY") }
 
             //return med sort og distict (avdodfnr og caseid)
             return@measure view.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
                 //Viser ep-bucer som ikke er gjenny-bucer
                 .filterNot { rinaIder.contains(it.euxCaseId) }
                 .also {
-                    logger.info(
-                        "Tidsbruk for getRinasakerBrukerkontekst: \n" + timeTracking.joinToString("\n").trimIndent()
-                    )
+                    logger.info("Tidsbruk for getRinasakerBrukerkontekst: \n"+timeTracking.joinToString("\n").trimIndent())
                 }
         }
     }
@@ -133,8 +119,8 @@ class BucController(
      */
     @GetMapping("/joark/aktoer/{aktoerId}/pesyssak/{saknr}")
     fun hentBucerMedJournalforteSeder(
-        @PathVariable("aktoerId", required = true) aktoerId: String,
-        @PathVariable("saknr", required = false) pensjonSakNummer: String
+            @PathVariable("aktoerId", required = true) aktoerId: String,
+            @PathVariable("saknr", required = false) pensjonSakNummer: String
     ): List<Buc> {
         return bucerJoark.measure {
             val start = System.currentTimeMillis()
@@ -170,8 +156,8 @@ class BucController(
      */
     @GetMapping("/rinasaker/euxrina/{aktoerId}/pesyssak/{saknr}")
     fun getRinasakerFraRina(
-        @PathVariable("aktoerId", required = true) aktoerId: String,
-        @PathVariable("saknr", required = false) pensjonSakNummer: String
+            @PathVariable("aktoerId", required = true) aktoerId: String,
+            @PathVariable("saknr", required = false) pensjonSakNummer: String
     ): List<EuxInnhentingService.BucView> {
         return bucViewRina.measure {
             val start = System.currentTimeMillis()
@@ -184,7 +170,7 @@ class BucController(
             val rinaSaker = euxInnhentingService.hentBucViewBruker(fnr.id, aktoerId, pensjonSakNummer)
             logger.info("brukerView : ${rinaSaker.toJson()}")
 
-            val rinaIder = rinaSaker.map { it.euxCaseId }.filter { gcpStorageService.eksisterer(it) }
+            val rinaIder = rinaSaker.map { it.euxCaseId }.filter { gcpStorageService.gjennySakFinnes(it) }
 
 
             //return med sort og distict (avdodfnr og caseid)
@@ -231,7 +217,7 @@ class BucController(
                 brukerRinaSakIderFraJoark
             )
 
-            val rinaIder = view.map { it.euxCaseId }.filter { gcpStorageService.eksisterer(it) }.also { logger.info("Det finnes ${it.size} SED som kommer fra GJENNY") }
+            val rinaIder = view.map { it.euxCaseId }.filter { gcpStorageService.gjennySakFinnes(it) }.also { logger.info("Det finnes ${it.size} SED som kommer fra GJENNY") }
 
             //return med sort og distinct (avdodfnr og caseid)
             return@measure view.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
@@ -305,7 +291,7 @@ class BucController(
             bucDetaljerEnkelGjenlevende.measure {
                 logger.info("saf euxCaseId: $euxcaseid, saknr: $saknr")
                 euxInnhentingService.getSingleBucAndSedView(euxcaseid)
-                    .copy(subject = BucAndSedSubject(SubjectFnr(gjenlevendeFnr?.id), SubjectFnr(avdodFnr)))
+                .copy(subject = BucAndSedSubject(SubjectFnr(gjenlevendeFnr?.id), SubjectFnr(avdodFnr)))
             }
         } else {
             bucDetaljerEnkelavdod.measure {
