@@ -12,7 +12,6 @@ class PrefillKlientTest {
        """.trimIndent()
         val data = PrefillKlient.ResponseErrorData.fromJson(error)
         assertEquals("Du kan ikke opprette alderspensjonskrav i en uføretrygdsak (PESYS-saksnr: 22953438 har sakstype UFOREP)", data.message)
-
     }
 
 }
