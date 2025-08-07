@@ -42,7 +42,6 @@ import org.springframework.web.client.RestTemplate
     MockkBean(name = "safGraphQlOidcRestTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "pensjonsinformasjonClient", classes = [PensjonsinformasjonClient::class])
 )
-
 class PesysIntegrationSpringTest {
 
     @Autowired

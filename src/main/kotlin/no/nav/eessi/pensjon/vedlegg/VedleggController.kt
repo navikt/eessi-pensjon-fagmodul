@@ -7,7 +7,6 @@ import no.nav.eessi.pensjon.utils.successBody
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -38,9 +37,7 @@ class VedleggController(private val vedleggService: VedleggService,
     }
 
     @GetMapping("/rinaiderframetadata/{aktoerId}")
-    fun hentRinaIderFraMetadata(@PathVariable("aktoerId", required = true) aktoerId: String): List<String> {
-        return vedleggService.hentRinaSakIderFraMetaData(aktoerId)
-    }
+    fun hentRinaIderFraMetadata(@PathVariable("aktoerId", required = true) aktoerId: String) =vedleggService.hentRinaSakIderFraMetaData(aktoerId)
 
     @GetMapping("/hentdokument/{journalpostId}/{dokumentInfoId}/{variantFormat}")
     fun getDokumentInnhold(@PathVariable("journalpostId", required = true) journalpostId: String,

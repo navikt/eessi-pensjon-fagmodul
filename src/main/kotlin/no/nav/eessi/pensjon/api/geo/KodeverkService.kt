@@ -6,6 +6,7 @@ import org.springframework.http.*
 import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.server.ResponseStatusException
 
 @Service
 class KodeverkService(private val euxNavIdentRestTemplate: RestTemplate) {

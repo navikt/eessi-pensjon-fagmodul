@@ -23,9 +23,6 @@ class EuxPrefillServiceTest {
     @MockK(relaxed = true)
     lateinit var euxKlientForSystemUser: EuxKlientAsSystemUser
 
-    @MockK(relaxed = true)
-    lateinit var euxKlientForSystemUserV2: EuxKlientAsSystemUser
-
     @MockK
     private lateinit var gcpStorageService: GcpStorageService
 

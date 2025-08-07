@@ -56,6 +56,7 @@ class EuxControllerMvcTest {
         val result = mockMvc.post(endpointUrl).andReturn().response
 
         assertEquals("Sed ble IKKE sendt til Rina", result.contentAsString)
+
     }
 
 }

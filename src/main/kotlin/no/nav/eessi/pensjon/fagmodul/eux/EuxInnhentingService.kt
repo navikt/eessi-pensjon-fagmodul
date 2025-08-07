@@ -278,25 +278,15 @@ class EuxInnhentingService(
 
         return hentRinasaker.measure {  euxKlient.getRinasaker(fnr = fnr, euxCaseId = null)
             .filter { erRelevantForVisningIEessiPensjon(it) }
-            .mapNotNull { rinasak ->
-                if (rinasak.id == null) {
-                    logger.warn("rinasak.id er null")
-                }
-                if (rinasak.processDefinitionId == null) {
-                    logger.warn("rinasak.processDefinitionId er null")
-                }
-                if (rinasak.id != null && rinasak.processDefinitionId != null) {
-                    BucView(
-                        rinasak.id!!,
-                        BucType.from(rinasak.processDefinitionId),
-                        aktoerId,
-                        pesysSaksnr,
-                        null,
-                        BucViewKilde.BRUKER
-                    )
-                } else {
-                    null
-                }
+            .map { rinasak ->
+                BucView(
+                    rinasak.id!!,
+                    BucType.from(rinasak.processDefinitionId)!!,
+                    aktoerId,
+                    pesysSaksnr,
+                    null,
+                    BucViewKilde.BRUKER
+                )
             }.also {
                 val end = System.currentTimeMillis()
                 logger.info("hentBucViewBruker tid ${end - start} i ms")
