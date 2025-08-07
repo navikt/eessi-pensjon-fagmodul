@@ -5,6 +5,7 @@ import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
+import no.nav.eessi.pensjon.fagmodul.api.FrontEndResponse
 import no.nav.eessi.pensjon.api.person.PersonPDLController.PersoninformasjonAvdode
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_02
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_06
@@ -108,7 +109,7 @@ class PersonPDLControllerTest {
             .andExpect(status().isOk())
             // .andExpect(mapJsonToAny<EuxController.FrontEndResponse<*>>(content().string(AKTOERID)).result.toString())
             .andReturn()
-        val responseContent = mapJsonToAny<EuxController.FrontEndResponse<*>>(repsonse.response.contentAsString)
+        val responseContent = mapJsonToAny<FrontEndResponse<*>>(repsonse.response.contentAsString)
         assertEquals(AKTOERID, responseContent.result)
     }
 
@@ -121,7 +122,7 @@ class PersonPDLControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
         )
             .andReturn().response
-        val result = mapJsonToAny<EuxController.FrontEndResponse<*>>(
+        val result = mapJsonToAny<FrontEndResponse<*>>(
             response.getContentAsString(charset("UTF-8"))).result
         JSONAssert.assertEquals(personResponseAsJson3, result as String, false)
     }
@@ -134,7 +135,7 @@ class PersonPDLControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
         )
             .andReturn().response
-        val response = mapJsonToAny<EuxController.FrontEndResponse<PersoninformasjonAvdode>>(
+        val response = mapJsonToAny<FrontEndResponse<PersoninformasjonAvdode>>(
             apiResponse.getContentAsString(charset("UTF-8")))
         val namesAsJson = """{ fornavn: "OLA", etternavn: "NORDMANN", mellomnavn: null, fulltNavn: "NORDMANN OLA"}"""
         JSONAssert.assertEquals(namesAsJson, response.result?.toJson(), false)
@@ -203,7 +204,7 @@ class PersonPDLControllerTest {
         )
             .andReturn().response
 
-        val response = mapJsonToAny<EuxController.FrontEndResponse<List<PersonPDLController.PersoninformasjonAvdode>>>(
+        val response = mapJsonToAny<FrontEndResponse<List<PersoninformasjonAvdode>>>(
             actual.getContentAsString(charset("UTF-8"))
         ).result
         val avdodFarResponse = response?.first()
@@ -254,7 +255,7 @@ class PersonPDLControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
         ).andReturn().response
 
-        val result = mapJsonToAny< EuxController.FrontEndResponse<List<PersoninformasjonAvdode?>>>(response.contentAsString).result
+        val result = mapJsonToAny<FrontEndResponse<List<PersoninformasjonAvdode?>>>(response.contentAsString).result
 
         assertEquals(1, result?.size)
         val element = result?.firstOrNull()
@@ -304,7 +305,7 @@ class PersonPDLControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
         ).andReturn().response
 
-        val result = mapJsonToAny< EuxController.FrontEndResponse<List<PersoninformasjonAvdode>>>(response.contentAsString).result
+        val result = mapJsonToAny<FrontEndResponse<List<PersoninformasjonAvdode>>>(response.contentAsString).result
 
         assertEquals(1, result?.size)
         val element = result?.firstOrNull()
@@ -341,7 +342,7 @@ class PersonPDLControllerTest {
         )
             .andReturn().response
 
-        val list: List<PersoninformasjonAvdode?> = mapJsonToAny<EuxController.FrontEndResponse<List<PersoninformasjonAvdode?>>>(response.contentAsString).result!!
+        val list: List<PersoninformasjonAvdode?> = mapJsonToAny<FrontEndResponse<List<PersoninformasjonAvdode?>>>(response.contentAsString).result!!
         assertEquals(emptyList<PersoninformasjonAvdode?>(), list)
     }
 
@@ -359,7 +360,7 @@ class PersonPDLControllerTest {
         )
             .andExpect(status().is2xxSuccessful)
             .andReturn()
-        val response = mapJsonToAny<EuxController.FrontEndResponse<*>>(result.response.getContentAsString(charset("UTF-8")))
+        val response = mapJsonToAny<FrontEndResponse<*>>(result.response.getContentAsString(charset("UTF-8")))
         assertEquals("[ ]", response.result)
     }
 
@@ -380,7 +381,7 @@ class PersonPDLControllerTest {
         )
             .andExpect(status().is2xxSuccessful)
             .andReturn()
-        val response = mapJsonToAny<EuxController.FrontEndResponse<*>>(result.response.getContentAsString(charset("UTF-8")))
+        val response = mapJsonToAny<FrontEndResponse<*>>(result.response.getContentAsString(charset("UTF-8")))
         val expected = """
             [ {
               "doedsdato" : "2020-06-20",
@@ -434,7 +435,7 @@ class PersonPDLControllerTest {
         )
             .andExpect(status().is2xxSuccessful)
             .andReturn()
-        val response = mapJsonToAny<EuxController.FrontEndResponse<*>>(result.response.getContentAsString(charset("UTF-8")))
+        val response = mapJsonToAny<FrontEndResponse<*>>(result.response.getContentAsString(charset("UTF-8")))
         val expected = """
             [ {
               "doedsdato" : "2020-06-20",
@@ -476,7 +477,7 @@ class PersonPDLControllerTest {
         )
             .andExpect(status().is2xxSuccessful)
             .andReturn()
-        val response = mapJsonToAny<EuxController.FrontEndResponse<*>>(result.response.getContentAsString(charset("UTF-8")))
+        val response = mapJsonToAny<FrontEndResponse<*>>(result.response.getContentAsString(charset("UTF-8")))
         assertEquals("[ ]", response.result)
     }
 
@@ -531,7 +532,7 @@ class PersonPDLControllerTest {
         )
             .andExpect(status().is2xxSuccessful)
             .andReturn()
-        val response = mapJsonToAny<EuxController.FrontEndResponse<*>>(result.response.getContentAsString(charset("UTF-8")))
+        val response = mapJsonToAny<FrontEndResponse<*>>(result.response.getContentAsString(charset("UTF-8")))
         val expected = """
             [ {
               "doedsdato" : "2007-06-20",
