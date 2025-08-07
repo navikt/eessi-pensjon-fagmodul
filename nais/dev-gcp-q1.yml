@@ -54,6 +54,7 @@ spec:
         - host: eux-rina-api-q1.dev-fss-pub.nais.io
         - host: eessi-pensjon-prefill-q1.intern.dev.nav.no
         - host: eessi-pensjon-journalforing-q1.intern.dev.nav.no
+        - host: eessi-pensjon-saksbehandling-api-q1.intern.dev.nav.no
     inbound:
       rules:
         - application: eessi-pensjon-frontend-ui-q1
@@ -65,6 +66,9 @@ spec:
         - application: eessi-pensjon-journalforing-q1
           namespace: eessipensjon
           cluster: dev-gcp
+        - application: pensjon-pen-q2
+          namespace: pensjon-q2
+
   webproxy: true
   env:
     - name: SPRING_PROFILES_ACTIVE
