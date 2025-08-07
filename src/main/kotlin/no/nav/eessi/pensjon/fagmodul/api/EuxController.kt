@@ -1,5 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
+import no.nav.eessi.pensjon.fagmodul.api.FrontEndResponse
 import no.nav.eessi.pensjon.eux.model.BucType
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.metrics.MetricsHelper
@@ -152,7 +153,11 @@ class EuxController(
                 logger.error("Resendte dokumenter ble IKKE resendt til Rina ${response?.status}")
                 return@measure ResponseEntity.badRequest().body(FrontEndResponse<String>(message = "Seder ble IKKE resendt til Rina: ${response?.messages}").toJson())
             } catch (ex: Exception) {
-                return@measure ResponseEntity.badRequest().body(FrontEndResponse<String>(ex.message, message = "Seder ble IKKE resendt til Rina: ${ex.message} ").toJson())
+                return@measure ResponseEntity.badRequest().body(
+                    FrontEndResponse<String>(
+                        ex.message,
+                        message = "Seder ble IKKE resendt til Rina: ${ex.message} "
+                    ).toJson())
             }
         }
     }
@@ -184,17 +189,14 @@ class EuxController(
                 logger.error("Resendte dokumenter ble IKKE resendt til Rina ${response?.status}")
                 return@measure ResponseEntity.badRequest().body(FrontEndResponse<String>(message = "Seder ble IKKE resendt til Rina: ${response?.messages}").toJson())
             } catch (ex: Exception) {
-                return@measure ResponseEntity.badRequest().body(FrontEndResponse(ex.message, message = "Seder ble IKKE resendt til Rina: ${ex.message} ").toJson())
+                return@measure ResponseEntity.badRequest().body(
+                    FrontEndResponse(
+                        ex.message,
+                        message = "Seder ble IKKE resendt til Rina: ${ex.message} "
+                    ).toJson())
             }
         }
     }
-
-    data class FrontEndResponse<T>(
-        val result: T? = null,
-        val status: String? = null,
-        val message: String? = null,
-        val stackTrace: String? = null
-    )
 
     private fun handleSendSedException(ex: Exception, rinaSakId: String, dokumentId: String): ResponseEntity<String> {
         logger.error("Sed ble ikke sendt til Rina: $rinaSakId, dokument: $dokumentId", ex)

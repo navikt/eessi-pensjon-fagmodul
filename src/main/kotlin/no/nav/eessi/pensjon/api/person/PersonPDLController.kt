@@ -1,10 +1,9 @@
 package no.nav.eessi.pensjon.api.person
 
+import no.nav.eessi.pensjon.fagmodul.api.FrontEndResponse
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_02
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_06
 import no.nav.eessi.pensjon.eux.model.SedType
-import no.nav.eessi.pensjon.fagmodul.api.EuxController
-import no.nav.eessi.pensjon.fagmodul.api.EuxController.*
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.logging.AuditLogger
@@ -25,7 +24,6 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
-import kotlin.toString
 
 const val PERSON_IKKE_FUNNET = "Person ikke funnet"
 
