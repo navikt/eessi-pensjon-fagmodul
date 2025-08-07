@@ -5,6 +5,7 @@ import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
+import no.nav.eessi.pensjon.api.person.PersonPDLController.PersoninformasjonAvdode
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_02
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_06
 import no.nav.eessi.pensjon.eux.model.SedType
@@ -23,6 +24,7 @@ import no.nav.eessi.pensjon.personoppslag.pdl.model.*
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonService
 import no.nav.eessi.pensjon.shared.person.FodselsnummerGenerator
 import no.nav.eessi.pensjon.utils.mapJsonToAny
+import no.nav.eessi.pensjon.utils.toJson
 import no.nav.pensjon.v1.avdod.V1Avdod
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
 import no.nav.pensjon.v1.person.V1Person
@@ -101,10 +103,13 @@ class PersonPDLControllerTest {
     fun testGetAktoeridEndpoint() {
         every { pdlService.hentAktorId(FNR) } returns AktoerId(AKTOERID)
 
-        mvc.perform(get("/person/pdl/aktoerid/$FNR")
+        val repsonse = mvc.perform(get("/person/pdl/aktoerid/$FNR")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
-            .andExpect(content().string(AKTOERID))
+            // .andExpect(mapJsonToAny<EuxController.FrontEndResponse<*>>(content().string(AKTOERID)).result.toString())
+            .andReturn()
+        val responseContent = mapJsonToAny<EuxController.FrontEndResponse<*>>(repsonse.response.contentAsString)
+        assertEquals(AKTOERID, responseContent.result)
     }
 
     @Test
@@ -116,20 +121,23 @@ class PersonPDLControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
         )
             .andReturn().response
-
-        JSONAssert.assertEquals(personResponseAsJson3, response.contentAsString, false)
+        val result = mapJsonToAny<EuxController.FrontEndResponse<*>>(
+            response.getContentAsString(charset("UTF-8"))).result
+        JSONAssert.assertEquals(personResponseAsJson3, result as String, false)
     }
 
     @Test
     fun `getNameOnly should return names as json`() {
         every {pdlService.hentPerson(any())  } returns lagPerson(etternavn = "NORDMANN", fornavn = "OLA")
-        val response = mvc.perform(
+        val apiResponse = mvc.perform(
             get("/person/pdl/info/${AKTOERID}")
                 .accept(MediaType.APPLICATION_JSON)
         )
             .andReturn().response
-
-        JSONAssert.assertEquals(namesAsJson, response.contentAsString, false)
+        val response = mapJsonToAny<EuxController.FrontEndResponse<PersoninformasjonAvdode>>(
+            apiResponse.getContentAsString(charset("UTF-8")))
+        val namesAsJson = """{ fornavn: "OLA", etternavn: "NORDMANN", mellomnavn: null, fulltNavn: "NORDMANN OLA"}"""
+        JSONAssert.assertEquals(namesAsJson, response.result?.toJson(), false)
     }
 
     @Test
@@ -246,10 +254,10 @@ class PersonPDLControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
         ).andReturn().response
 
-        val result = mapJsonToAny<List<PersonPDLController.PersoninformasjonAvdode?>>(response.contentAsString)
+        val result = mapJsonToAny< EuxController.FrontEndResponse<List<PersoninformasjonAvdode?>>>(response.contentAsString).result
 
-        assertEquals(1, result.size)
-        val element = result.firstOrNull()
+        assertEquals(1, result?.size)
+        val element = result?.firstOrNull()
         assertEquals(AVDOD_MOR_FNR, element?.fnr)
         assertEquals(Familierelasjonsrolle.MOR.name, element?.relasjon)
 
@@ -296,10 +304,10 @@ class PersonPDLControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
         ).andReturn().response
 
-        val result = mapJsonToAny<List<PersonPDLController.PersoninformasjonAvdode?>>(response.contentAsString)
+        val result = mapJsonToAny< EuxController.FrontEndResponse<List<PersoninformasjonAvdode>>>(response.contentAsString).result
 
-        assertEquals(1, result.size)
-        val element = result.firstOrNull()
+        assertEquals(1, result?.size)
+        val element = result?.firstOrNull()
         assertEquals(AVDOD_MOR_FNR, element?.fnr)
         assertEquals(Familierelasjonsrolle.MOR.name, element?.relasjon)
 
@@ -333,8 +341,8 @@ class PersonPDLControllerTest {
         )
             .andReturn().response
 
-        val list: List<PersonPDLController.PersoninformasjonAvdode?> = mapJsonToAny(response.contentAsString)
-        assertEquals(emptyList<PersonPDLController.PersoninformasjonAvdode?>(), list)
+        val list: List<PersoninformasjonAvdode?> = mapJsonToAny<EuxController.FrontEndResponse<List<PersoninformasjonAvdode?>>>(response.contentAsString).result!!
+        assertEquals(emptyList<PersoninformasjonAvdode?>(), list)
     }
 
     @Test
@@ -625,8 +633,6 @@ class PersonPDLControllerTest {
           "utenlandskIdentifikasjonsnummer":[]
         }
           """.trimIndent()
-
-    private val namesAsJson =  """{ fornavn: "OLA", etternavn: "NORDMANN", mellomnavn: null, fulltNavn: "NORDMANN OLA"}""".trimIndent()
 
     private fun mockMeta() : PDLMetaData {
         return PDLMetaData(
