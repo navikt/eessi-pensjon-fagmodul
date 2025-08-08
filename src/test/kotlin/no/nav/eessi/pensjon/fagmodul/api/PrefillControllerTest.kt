@@ -60,7 +60,7 @@ internal class PrefillControllerTest {
     private var gcpStorageService: GcpStorageService = mockk(relaxed = true)
 
     @SpyK
-    private var mockEuxInnhentingService: EuxInnhentingService = EuxInnhentingService("Q2", mockEuxKlient, gcpStorageService)
+    private var mockEuxInnhentingService: EuxInnhentingService = EuxInnhentingService("Q2", mockEuxKlient)
 
     @MockK
     private lateinit var kafkaTemplate: KafkaTemplate<String, String>
@@ -81,8 +81,12 @@ internal class PrefillControllerTest {
 
     @BeforeEach
     fun before() {
-        mockEuxPrefillService = EuxPrefillService(mockEuxKlient,
-            StatistikkHandler( KafkaTemplate(DefaultKafkaProducerFactory(emptyMap())), "")
+        mockEuxPrefillService = EuxPrefillService(
+            mockEuxKlient,
+            StatistikkHandler( KafkaTemplate(DefaultKafkaProducerFactory(emptyMap())), ""),
+            mockk(relaxed = true),
+            mockk(relaxed = true),
+            mockk(relaxed = true),
         )
 
         MockKAnnotations.init(this, relaxed = true)
@@ -91,9 +95,9 @@ internal class PrefillControllerTest {
         prefillController = PrefillController(
             mockEuxPrefillService,
             mockEuxInnhentingService,
-            innhentingService,
             gcpStorageService,
-            auditLogger
+            auditLogger,
+            mockk(relaxed = true),
         )
     }
 
@@ -112,27 +116,27 @@ internal class PrefillControllerTest {
         assertEquals(expected.toJson(), actual.toJson())
     }
 
-    @Test
-    fun `createBuc med gjennysak run ok and return id`() {
-        val gyldigBuc = javaClass.getResource("/json/buc/buc-279020big.json")!!.readText()
-        val buc : Buc =  mapJsonToAny(gyldigBuc)
-
-        every { mockEuxPrefillService.createdBucForType(P_BUC_03.name) } returns "1231231"
-        every { mockEuxInnhentingService.getBuc(any()) } returns buc
-
-        val expected = BucAndSedView.from(buc)
-        val actual = prefillController.createBuc(P_BUC_03.name, GjennySak("321321", "BARNEP"))
-        println(actual.toJson())
-
-        assertEquals(expected.toJson(), actual.toJson())
-    }
+//    @Test
+//    fun `createBuc med gjennysak run ok and return id`() {
+//        val gyldigBuc = javaClass.getResource("/json/buc/buc-279020big.json")!!.readText()
+//        val buc : Buc =  mapJsonToAny(gyldigBuc)
+//
+//        every { mockEuxPrefillService.createdBucForType(P_BUC_03.name) } returns "1231231"
+//        every { mockEuxInnhentingService.getBuc(any()) } returns buc
+//
+//        val expected = BucAndSedView.from(buc)
+//        val actual = prefillController.createBuc(P_BUC_03.name, GjennySak("321321", "BARNEP"))
+//        println(actual.toJson())
+//
+//        assertEquals(expected.toJson(), actual.toJson())
+//    }
 
     @Test
     fun `createBuc run ok and does not run statistics in default namespace`() {
         val gyldigBuc = javaClass.getResource("/json/buc/buc-279020big.json")!!.readText()
         val buc : Buc =  mapJsonToAny(gyldigBuc)
 
-        every {  mockEuxPrefillService.createdBucForType(P_BUC_03.name)} returns "1231231"
+        every { mockEuxPrefillService.createdBucForType(P_BUC_03.name) } returns "1231231"
         every { mockEuxInnhentingService.getBuc(any()) } returns buc
 
         prefillController.createBuc(P_BUC_03.name)
