@@ -4,8 +4,6 @@ import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.eux.EuxPrefillService
-import no.nav.eessi.pensjon.gcp.GcpStorageService
-import no.nav.eessi.pensjon.gcp.GjennySak
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.shared.api.ApiRequest
@@ -23,7 +21,6 @@ import org.springframework.web.bind.annotation.RestController
 class PrefillController(
     private val euxPrefillService: EuxPrefillService,
     private val euxInnhentingService: EuxInnhentingService,
-    private val gcpStorageService: GcpStorageService,
     private val auditlogger: AuditLogger,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
@@ -31,14 +28,13 @@ class PrefillController(
 
     private lateinit var addInstution: MetricsHelper.Metric
     private lateinit var addInstutionAndDocument: MetricsHelper.Metric
-
-    private lateinit var addInstutionAndDocumentBucUtils: MetricsHelper.Metric
     private lateinit var addDocumentToParentBucUtils: MetricsHelper.Metric
+    private lateinit var addInstutionAndDocumentBucUtils: MetricsHelper.Metric
     init {
         addInstution = metricsHelper.init("AddInstution", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
         addInstutionAndDocument = metricsHelper.init("AddInstutionAndDocument", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
-        addInstutionAndDocumentBucUtils = metricsHelper.init("AddInstutionAndDocumentBucUtils", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
         addDocumentToParentBucUtils = metricsHelper.init("AddDocumentToParentBucUtils", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
+        addInstutionAndDocumentBucUtils = metricsHelper.init("AddInstutionAndDocumentBucUtils", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
     }
 
     @PostMapping("buc/{buctype}")

@@ -54,10 +54,9 @@ import java.net.URLDecoder
 class EuxInnhentingService(
     @Value("\${ENV}") private val environment: String,
     private val euxKlient: EuxKlientAsSystemUser,
+    private val gcpStorageService: GcpStorageService,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
-    @Autowired
-    private lateinit var gcpStorageService: GcpStorageService
     private val secureLog = LoggerFactory.getLogger("secureLog")
 
     private lateinit var sedByDocumentId: MetricsHelper.Metric
