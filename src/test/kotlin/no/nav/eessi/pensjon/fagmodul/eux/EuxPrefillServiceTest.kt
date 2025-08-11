@@ -38,7 +38,7 @@ class EuxPrefillServiceTest {
             mockk(relaxed = true),
             gcpStorageService
         )
-        euxinnhentingService = EuxInnhentingService("q2", euxKlientForSystemUser)
+        euxinnhentingService = EuxInnhentingService("q2", euxKlientForSystemUser, gcpStorageService)
     }
 
     @Test
