@@ -1,6 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.pesys
 
 import no.nav.eessi.pensjon.eux.model.SedType
+import no.nav.eessi.pensjon.eux.model.sed.MedlemskapItem
 import no.nav.eessi.pensjon.eux.model.sed.P5000
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
@@ -18,7 +19,7 @@ class HentTrygdeTid (val euxInnhentingService: EuxInnhentingService) {
 
     private val logger = LoggerFactory.getLogger(HentTrygdeTid::class.java)
 
-    fun hentBucFraEux(bucId: Int, fnr: String): TrygdetidForPesys? {
+    fun hentBucFraEux(bucId: Int, fnr: String): List<MedlemskapItem> ? {
         logger.info("** Innhenting av kravdata for BUC: $bucId **")
 
         val buc = euxInnhentingService.getBucAsSystemuser(bucId.toString()) ?: run {
@@ -47,9 +48,7 @@ class HentTrygdeTid (val euxInnhentingService: EuxInnhentingService) {
             HttpStatus.NOT_FOUND, "Ingen gyldig P5000 SED funnet for BUC med id: $bucId"
         ).also { logger.error(it.message) }
 
-        val trygdetidFraSisteSed = sedList.map { it.pensjon?.trygdetid }.firstOrNull()
-
-        return TrygdetidForPesys(fnr = fnr, rinaNr = bucId, trygdetid = trygdetidFraSisteSed ?: emptyList())
+        return sedList.map { it.pensjon?.trygdetid }.firstOrNull()
     }
 
     fun hentAlleP5000(bucUtils: BucUtils) =
