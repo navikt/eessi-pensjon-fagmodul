@@ -29,13 +29,7 @@ class PensjonsinformasjonUtlandControllerTest {
         gcpStorage
     )
     private val euxInnhentingService = mockk<EuxInnhentingService>(relaxed = true)
-    private val controller = PensjonsinformasjonUtlandController(
-        pensjonsinformasjonUtlandService = mockk(),
-        gcpStorageService = gcpStorageService,
-        euxInnhentingService,
-        kodeverkClient,
-        mockk(relaxed = true)
-    )
+    private val controller = PensjonsinformasjonUtlandController(pensjonsinformasjonUtlandService = mockk(), gcpStorageService = gcpStorageService, euxInnhentingService, kodeverkClient)
     private val aktoerId = "2477958344057"
     private val rinaNr = 1446033
 
