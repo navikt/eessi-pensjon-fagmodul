@@ -32,7 +32,9 @@ class PensjonsinformasjonUtlandController(
     private val gcpStorageService: GcpStorageService,
     private val euxInnhentingService: EuxInnhentingService,
     private val kodeverkClient: KodeverkClient,
-    @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()) {
+    private val trygdeTidService: HentTrygdeTid,
+    @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
+) {
 
     private var pensjonUtland: MetricsHelper.Metric = metricsHelper.init("pensjonUtland")
     private var trygdeTidMetric: MetricsHelper.Metric = metricsHelper.init("trygdeTidMetric")
@@ -67,6 +69,15 @@ class PensjonsinformasjonUtlandController(
                 request.fnr, request.rinaNr, emptyList(),
                 "Det finnes ingen registrert trygdetid for rinaNr: $request.rinaNr, aktoerId: $request.fnr"
             )
+        }
+    }
+
+    @PostMapping("/hentTrygdetidV2")
+    fun hentTrygdetidV2(@RequestBody request: TrygdetidRequest): TrygdetidForPesys {
+        logger.debug("Henter trygdetid for fnr: ${request.fnr.takeLast(4)}, rinaNr: ${request.rinaNr}")
+        return trygdeTidMetric.measure {
+            trygdeTidService.hentBucFraEux(request.rinaNr, request.fnr)
+            TrygdetidForPesys(request.fnr, request.rinaNr, emptyList()).also { logger.debug("Trygdetid response: $it") }
         }
     }
 
