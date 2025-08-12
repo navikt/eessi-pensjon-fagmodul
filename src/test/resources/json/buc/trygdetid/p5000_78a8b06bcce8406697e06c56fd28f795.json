@@ -1,0 +1,84 @@
+{
+  "pensjon": {
+    "medlemskapTotal": [
+      {
+        "sum": {
+          "uker": "0",
+          "aar": "1",
+          "maaneder": "0",
+          "dager": {
+            "type": "7"
+          },
+          "kvartal": "0"
+        },
+        "type": "10",
+        "relevans": "111"
+      }
+    ],
+    "medlemskapboarbeid": {
+      "medlemskap": [
+        {
+          "type": "10",
+          "periode": {
+            "tom": "2024-12-31",
+            "fom": "2024-01-01"
+          },
+          "land": "DK",
+          "relevans": "111",
+          "sum": {
+            "kvartal": "0",
+            "maaneder": "0",
+            "aar": "1",
+            "dager": {
+              "type": "7"
+            },
+            "uker": "0"
+          },
+          "beregning": "111"
+        }
+      ],
+      "enkeltkrav": {
+        "krav": "10"
+      },
+      "gyldigperiode": "1"
+    },
+    "trygdetid": [
+      {
+        "sum": {
+          "dager": {
+            "type": "7"
+          },
+          "aar": "1",
+          "uker": "0",
+          "maaneder": "0",
+          "kvartal": "0"
+        },
+        "beregning": "111",
+        "type": "10"
+      }
+    ],
+    "separatP5000sendes": "0",
+    "art57_883_2004": {
+      "ignore": "0"
+    }
+  },
+  "sedGVer": "4",
+  "nav": {
+    "bruker": {
+      "person": {
+        "fornavn": "Ultrafiolett",
+        "pin": [
+          {
+            "land": "NO",
+            "identifikator": "71435746726"
+          }
+        ],
+        "kjoenn": "M",
+        "etternavn": "Handlekraft",
+        "foedselsdato": "1957-03-31"
+      }
+    }
+  },
+  "sedVer": "3",
+  "sed": "P5000"
+}
