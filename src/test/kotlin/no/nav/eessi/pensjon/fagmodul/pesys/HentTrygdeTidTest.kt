@@ -5,8 +5,10 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.eux.model.sed.P5000
+import org.junit.jupiter.api.Assertions.assertEquals
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.utils.mapJsonToAny
+import no.nav.eessi.pensjon.utils.toJson
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -33,7 +35,33 @@ class HentTrygdeTidTest {
 
     @Test
     fun `hentBucFraEux should return null when buc is not found`() {
-        val result = hentTrygdeTid.hentBucFraEux(1452582, "12345678901")
-        println(result)
+        val result = hentTrygdeTid.hentBucFraEux(1452582, "12345678901").also { println(it?.toJson()) }
+        assertEquals(forventetResultat(), result?.toJson())
     }
+
+    private fun forventetResultat(): String {
+        return """
+        {
+          "fnr" : "12345678901",
+          "rinaNr" : 1452582,
+          "trygdetid" : [ {
+            "land" : "NO",
+            "acronym" : "NAVAT07",
+            "type" : "10",
+            "startdato" : "2024-01-01",
+            "sluttdato" : "2024-12-31",
+            "aar" : "1",
+            "mnd" : "0",
+            "dag" : null,
+            "dagtype" : "7",
+            "ytelse" : "111",
+            "ordning" : "",
+            "beregning" : null
+          } ],
+          "error" : null
+        }
+    """.trimIndent()
+    }
+
+
 }

@@ -1,7 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.pesys
 
 import no.nav.eessi.pensjon.eux.model.SedType
-import no.nav.eessi.pensjon.eux.model.sed.MedlemskapItem
 import no.nav.eessi.pensjon.eux.model.sed.P5000
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
@@ -19,7 +18,7 @@ class HentTrygdeTid (val euxInnhentingService: EuxInnhentingService) {
 
     private val logger = LoggerFactory.getLogger(HentTrygdeTid::class.java)
 
-    fun hentBucFraEux(bucId: Int, fnr: String): List<MedlemskapItem> ? {
+    fun hentBucFraEux(bucId: Int, fnr: String): PensjonsinformasjonUtlandController.TygdetidForPesys? {
         logger.info("** Innhenting av kravdata for BUC: $bucId **")
 
         val buc = euxInnhentingService.getBucAsSystemuser(bucId.toString()) ?: run {
@@ -34,21 +33,39 @@ class HentTrygdeTid (val euxInnhentingService: EuxInnhentingService) {
             HttpStatus.BAD_REQUEST, "Ingen P5000 dokument metadata funnet for BUC med id: $bucId"
         ).also { logger.error(it.message) }
 
-        val sedList = sedDoc
+        val idAndCreator = sedDoc
             .sortedByDescending {
-                OffsetDateTime.ofInstant(Instant.ofEpochMilli(it.lastUpdate as Long), ZoneOffset.UTC)
+                val date = (it.lastUpdate as? Long) ?: (it.creationDate as Long)
+                OffsetDateTime.ofInstant(Instant.ofEpochMilli(date), ZoneOffset.UTC)
             }
             .also { logger.debug("Sortert på dato: {}", it) }
-            .mapNotNull { it.id }
-            .map { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(bucId.toString(), it) as P5000 }
+            .map { Pair(it.id, it.creator) }
             .firstOrNull()
-            ?.let { listOf(it) } ?: emptyList()
 
-        if (sedList.isEmpty()) throw ResponseStatusException(
-            HttpStatus.NOT_FOUND, "Ingen gyldig P5000 SED funnet for BUC med id: $bucId"
-        ).also { logger.error(it.message) }
-
-        return sedList.map { it.pensjon?.trygdetid }.firstOrNull()
+        val sed = euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(bucId.toString(), idAndCreator?.first.toString()) as P5000
+        val medlemskapPeriode = sed.pensjon?.medlemskapboarbeid?.medlemskap?.firstOrNull()?.periode
+        val sedMedlemskap = sed.pensjon?.trygdetid?.firstOrNull()
+        val org = idAndCreator?.second?.organisation
+        return PensjonsinformasjonUtlandController.TygdetidForPesys(
+            fnr = fnr,
+            rinaNr = bucId,
+            trygdetid = listOf(
+                PensjonsinformasjonUtlandController.Trygdetid(
+                    land = org?.countryCode ?: "",
+                    acronym = org?.acronym,
+                    type = sedMedlemskap?.type ?: "",
+                    startdato = medlemskapPeriode?.fom.toString(),
+                    sluttdato = medlemskapPeriode?.tom.toString(),
+                    aar = sedMedlemskap?.sum?.aar,
+                    mnd = sedMedlemskap?.sum?.maaneder,
+                    dag = null,
+                    dagtype = sedMedlemskap?.sum?.dager?.type,
+                    ytelse = sedMedlemskap?.beregning,
+                    ordning = sedMedlemskap?.ordning ?: "",
+                    beregning = null,
+                )
+            )
+        )
     }
 
     fun hentAlleP5000(bucUtils: BucUtils) =

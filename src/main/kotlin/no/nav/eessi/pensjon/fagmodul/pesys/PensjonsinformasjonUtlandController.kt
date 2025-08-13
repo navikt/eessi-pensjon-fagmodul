@@ -73,15 +73,12 @@ class PensjonsinformasjonUtlandController(
     }
 
     @PostMapping("/hentTrygdetidV2")
-    fun hentTrygdetidV2(@RequestBody request: TrygdetidRequest): TrygdetidForPesys {
+    fun hentTrygdetidV2(@RequestBody request: TrygdetidRequest): TygdetidForPesys {
         logger.debug("Henter trygdetid for fnr: ${request.fnr.takeLast(4)}, rinaNr: ${request.rinaNr}")
         return trygdeTidMetric.measure {
                 runCatching { trygdeTidService.hentBucFraEux(request.rinaNr, request.fnr) }
                     .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
-                    .getOrNull()
-            ?.let { medlemskapItems ->
-                TrygdetidForPesys(request.fnr, request.rinaNr, medlemskapItems).also { logger.debug("Trygdetid response: $it") }
-            } ?: TrygdetidForPesys(
+                    .getOrNull() ?: TygdetidForPesys(
                 request.fnr, request.rinaNr, emptyList(),
                 "Det finnes ingen registrert trygdetid for rinaNr: $request.rinaNr, aktoerId: $request.fnr"
             )
