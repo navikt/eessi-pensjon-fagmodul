@@ -4,6 +4,7 @@ import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.sed.P5000
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
+import no.nav.eessi.pensjon.kodeverk.KodeverkClient
 import no.nav.eessi.pensjon.utils.toJson
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -14,7 +15,7 @@ import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
 @Service
-class HentTrygdeTid (val euxInnhentingService: EuxInnhentingService) {
+class HentTrygdeTid (val euxInnhentingService: EuxInnhentingService, private val kodeverkClient: KodeverkClient) {
 
     private val logger = LoggerFactory.getLogger(HentTrygdeTid::class.java)
 
@@ -47,13 +48,17 @@ class HentTrygdeTid (val euxInnhentingService: EuxInnhentingService) {
         val medlemskapPeriode = medlemskap?.periode
         val sedMedlemskap = sed.pensjon?.trygdetid?.firstOrNull()
         val org = idAndCreator?.second?.organisation
+
+        val land = medlemskap?.land?.let {
+            if (it.length == 2) kodeverkClient.finnLandkode(it) else it
+        }
         return PensjonsinformasjonUtlandController.TygdetidForPesys(
             fnr = fnr,
             rinaNr = bucId,
             trygdetid = listOf(
                 PensjonsinformasjonUtlandController.Trygdetid(
-                    land = medlemskap?.land ?: "",
-                    acronym = org?.id,
+                    land = land ?: "",
+                    acronym = org?.acronym,
                     type = sedMedlemskap?.type ?: "",
                     startdato = medlemskapPeriode?.fom.toString(),
                     sluttdato = medlemskapPeriode?.tom.toString(),
