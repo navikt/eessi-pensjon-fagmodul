@@ -43,7 +43,8 @@ class HentTrygdeTid (val euxInnhentingService: EuxInnhentingService) {
             .firstOrNull()
 
         val sed = euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(bucId.toString(), idAndCreator?.first.toString()) as P5000
-        val medlemskapPeriode = sed.pensjon?.medlemskapboarbeid?.medlemskap?.firstOrNull()?.periode
+        val medlemskap = sed.pensjon?.medlemskapboarbeid?.medlemskap?.firstOrNull()
+        val medlemskapPeriode = medlemskap?.periode
         val sedMedlemskap = sed.pensjon?.trygdetid?.firstOrNull()
         val org = idAndCreator?.second?.organisation
         return PensjonsinformasjonUtlandController.TygdetidForPesys(
@@ -51,8 +52,8 @@ class HentTrygdeTid (val euxInnhentingService: EuxInnhentingService) {
             rinaNr = bucId,
             trygdetid = listOf(
                 PensjonsinformasjonUtlandController.Trygdetid(
-                    land = org?.countryCode ?: "",
-                    acronym = org?.acronym,
+                    land = medlemskap?.land ?: "",
+                    acronym = org?.id,
                     type = sedMedlemskap?.type ?: "",
                     startdato = medlemskapPeriode?.fom.toString(),
                     sluttdato = medlemskapPeriode?.tom.toString(),
