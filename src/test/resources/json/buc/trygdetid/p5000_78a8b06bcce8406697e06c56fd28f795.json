@@ -27,11 +27,12 @@
           "relevans": "111",
           "sum": {
             "kvartal": "0",
-            "maaneder": "0",
-            "aar": "1",
             "dager": {
+              "nr": "0",
               "type": "7"
             },
+            "maaneder": "0",
+            "aar": "1",
             "uker": "0"
           },
           "beregning": "111",

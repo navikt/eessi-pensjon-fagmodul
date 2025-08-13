@@ -62,11 +62,11 @@ class HentTrygdeTidTest {
             "sluttdato" : "2024-12-31",
             "aar" : "1",
             "mnd" : "0",
-            "dag" : null,
+            "dag" : "0",
             "dagtype" : "7",
             "ytelse" : "111",
             "ordning" : "00",
-            "beregning" : null
+            "beregning" : "111"
           } ],
           "error" : null
         }

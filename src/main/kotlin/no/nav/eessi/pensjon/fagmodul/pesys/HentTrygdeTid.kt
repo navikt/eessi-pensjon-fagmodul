@@ -46,7 +46,6 @@ class HentTrygdeTid (val euxInnhentingService: EuxInnhentingService, private val
         val sed = euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(bucId.toString(), idAndCreator?.first.toString()) as P5000
         val medlemskap = sed.pensjon?.medlemskapboarbeid?.medlemskap?.firstOrNull()
         val medlemskapPeriode = medlemskap?.periode
-        val sedMedlemskap = sed.pensjon?.trygdetid?.firstOrNull()
         val org = idAndCreator?.second?.organisation
 
         val land = medlemskap?.land?.let {
@@ -59,16 +58,16 @@ class HentTrygdeTid (val euxInnhentingService: EuxInnhentingService, private val
                 PensjonsinformasjonUtlandController.Trygdetid(
                     land = land ?: "",
                     acronym = org?.acronym,
-                    type = sedMedlemskap?.type ?: "",
+                    type = medlemskap?.type ,
                     startdato = medlemskapPeriode?.fom.toString(),
                     sluttdato = medlemskapPeriode?.tom.toString(),
-                    aar = sedMedlemskap?.sum?.aar,
-                    mnd = sedMedlemskap?.sum?.maaneder,
-                    dag = null,
-                    dagtype = sedMedlemskap?.sum?.dager?.type,
-                    ytelse = sedMedlemskap?.beregning,
-                    ordning = medlemskap?.ordning ?: "",
-                    beregning = null,
+                    aar = medlemskap?.sum?.aar,
+                    mnd = medlemskap?.sum?.maaneder,
+                    dag = medlemskap?.sum?.dager?.nr,
+                    dagtype = medlemskap?.sum?.dager?.type,
+                    ytelse = medlemskap?.beregning ,
+                    ordning = medlemskap?.ordning ,
+                    beregning = medlemskap?.beregning
                 )
             )
         )
