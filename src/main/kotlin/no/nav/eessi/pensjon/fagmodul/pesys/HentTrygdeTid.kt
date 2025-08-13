@@ -67,7 +67,7 @@ class HentTrygdeTid (val euxInnhentingService: EuxInnhentingService, private val
                     dag = null,
                     dagtype = sedMedlemskap?.sum?.dager?.type,
                     ytelse = sedMedlemskap?.beregning,
-                    ordning = sedMedlemskap?.ordning ?: "",
+                    ordning = medlemskap?.ordning ?: "",
                     beregning = null,
                 )
             )

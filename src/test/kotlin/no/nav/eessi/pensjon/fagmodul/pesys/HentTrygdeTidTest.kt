@@ -65,7 +65,7 @@ class HentTrygdeTidTest {
             "dag" : null,
             "dagtype" : "7",
             "ytelse" : "111",
-            "ordning" : "",
+            "ordning" : "00",
             "beregning" : null
           } ],
           "error" : null
