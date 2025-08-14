@@ -56,7 +56,7 @@ class HentTrygdeTidTest {
           "rinaNr" : 1452582,
           "trygdetid" : [ {
             "land" : "DNK",
-            "acronym" : "NAVAT07",
+            "acronym" : "NAVAT05",
             "type" : "10",
             "startdato" : "2024-01-01",
             "sluttdato" : "2024-12-31",

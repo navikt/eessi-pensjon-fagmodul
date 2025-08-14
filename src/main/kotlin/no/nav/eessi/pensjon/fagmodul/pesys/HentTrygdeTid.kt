@@ -39,14 +39,14 @@ class HentTrygdeTid (val euxInnhentingService: EuxInnhentingService, private val
                 val date = (it.lastUpdate as? Long) ?: (it.creationDate as Long)
                 OffsetDateTime.ofInstant(Instant.ofEpochMilli(date), ZoneOffset.UTC)
             }
-            .also { logger.debug("Sortert på dato: {}", it) }
-            .map { Pair(it.id, it.creator) }
+            .also { logger.debug("Sortert på dato: {}", it.toJson()) }
+            .map { Pair(it.id, it.participants?.find { p -> p?.role == "Sender" }?.organisation?.acronym) }
             .firstOrNull()
 
-        val sed = euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(bucId.toString(), idAndCreator?.first.toString()) as P5000
+        val sed = euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(bucId.toString(), idAndCreator?.first!!) as P5000
         val medlemskap = sed.pensjon?.medlemskapboarbeid?.medlemskap?.firstOrNull()
         val medlemskapPeriode = medlemskap?.periode
-        val org = idAndCreator?.second?.organisation
+        val org = idAndCreator.second
 
         val land = medlemskap?.land?.let {
             if (it.length == 2) kodeverkClient.finnLandkode(it) else it
@@ -57,7 +57,7 @@ class HentTrygdeTid (val euxInnhentingService: EuxInnhentingService, private val
             trygdetid = listOf(
                 PensjonsinformasjonUtlandController.Trygdetid(
                     land = land ?: "",
-                    acronym = org?.acronym,
+                    acronym = org,
                     type = medlemskap?.type ,
                     startdato = medlemskapPeriode?.fom.toString(),
                     sluttdato = medlemskapPeriode?.tom.toString(),
