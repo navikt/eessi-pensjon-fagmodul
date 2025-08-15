@@ -1,0 +1,19 @@
+{
+  "fnr" : "12345678901",
+  "rinaNr" : 1452582,
+  "trygdetid" : [ {
+    "land" : "DNK",
+    "acronym" : "NAVAT05",
+    "type" : "10",
+    "startdato" : "2024-01-01",
+    "sluttdato" : "2024-12-31",
+    "aar" : "1",
+    "mnd" : "0",
+    "dag" : "0",
+    "dagtype" : "7",
+    "ytelse" : "111",
+    "ordning" : "00",
+    "beregning" : "111"
+  } ],
+  "error" : null
+}
