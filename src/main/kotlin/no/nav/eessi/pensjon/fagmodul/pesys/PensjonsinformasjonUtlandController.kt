@@ -32,7 +32,9 @@ class PensjonsinformasjonUtlandController(
     private val gcpStorageService: GcpStorageService,
     private val euxInnhentingService: EuxInnhentingService,
     private val kodeverkClient: KodeverkClient,
-    @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()) {
+    private val trygdeTidService: HentTrygdeTid,
+    @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
+) {
 
     private var pensjonUtland: MetricsHelper.Metric = metricsHelper.init("pensjonUtland")
     private var trygdeTidMetric: MetricsHelper.Metric = metricsHelper.init("trygdeTidMetric")
@@ -69,6 +71,20 @@ class PensjonsinformasjonUtlandController(
             )
         }
     }
+
+    @PostMapping("/hentTrygdetidV2")
+    fun hentTrygdetidV2(@RequestBody request: TrygdetidRequest): TygdetidForPesys {
+        logger.debug("Henter trygdetid for fnr: ${request.fnr.takeLast(4)}, rinaNr: ${request.rinaNr}")
+        return trygdeTidMetric.measure {
+                runCatching { trygdeTidService.hentBucFraEux(request.rinaNr, request.fnr) }
+                    .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
+                    .getOrNull() ?: TygdetidForPesys(
+                request.fnr, request.rinaNr, emptyList(),
+                "Det finnes ingen registrert trygdetid for rinaNr: $request.rinaNr, aktoerId: $request.fnr"
+            )
+        }
+    }
+
 
     @GetMapping("/hentP6000Detaljer")
     fun hentP6000Detaljer(

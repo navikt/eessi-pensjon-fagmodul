@@ -1,0 +1,45 @@
+{
+  "fnr" : "12345678901",
+  "rinaNr" : 1442897,
+  "trygdetid" : [ {
+    "land" : "NOK",
+    "acronym" : "NAVAT05",
+    "type" : "11",
+    "startdato" : "1989-01-12",
+    "sluttdato" : "1994-04-22",
+    "aar" : "05",
+    "mnd" : "03",
+    "dag" : "11",
+    "dagtype" : "7",
+    "ytelse" : "111",
+    "ordning" : "00",
+    "beregning" : "111"
+  }, {
+    "land" : "NOK",
+    "acronym" : "NAVAT05",
+    "type" : "30",
+    "startdato" : "1989-01-12",
+    "sluttdato" : "1997-06-26",
+    "aar" : "08",
+    "mnd" : "05",
+    "dag" : "15",
+    "dagtype" : "7",
+    "ytelse" : "111",
+    "ordning" : "00",
+    "beregning" : "111"
+  }, {
+    "land" : "NOK",
+    "acronym" : "NAVAT05",
+    "type" : "12",
+    "startdato" : "1995-03-15",
+    "sluttdato" : "1997-05-16",
+    "aar" : "02",
+    "mnd" : "02",
+    "dag" : "02",
+    "dagtype" : "7",
+    "ytelse" : "111",
+    "ordning" : "00",
+    "beregning" : "111"
+  } ],
+  "error" : null
+}
