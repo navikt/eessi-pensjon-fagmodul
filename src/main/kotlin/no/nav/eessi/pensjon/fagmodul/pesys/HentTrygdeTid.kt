@@ -21,7 +21,7 @@ class HentTrygdeTid (val euxInnhentingService: EuxInnhentingService, private val
 
     private val logger = LoggerFactory.getLogger(HentTrygdeTid::class.java)
 
-    fun hentBucFraEux(bucId: Int, fnr: String): PensjonsinformasjonUtlandController.TygdetidForPesys? {
+    fun hentBucFraEux(bucId: Int, fnr: String): TrygdetidForPesys? {
         logger.info("** Innhenting av kravdata for BUC: $bucId **")
 
         val buc = euxInnhentingService.getBucAsSystemuser(bucId.toString()) ?: return logger.error("BUC: $bucId kan ikke hentes").let { null }
@@ -36,7 +36,7 @@ class HentTrygdeTid (val euxInnhentingService: EuxInnhentingService, private val
 
         val trygdetidList = medlemskapList.map { medlemskap ->
             val land = medlemskap.land?.takeIf { it.length == 2 }?.let(kodeverkClient::finnLandkode) ?: medlemskap.land
-            PensjonsinformasjonUtlandController.Trygdetid(
+            Trygdetid(
                 land = land ?: "",
                 acronym = org,
                 type = medlemskap.type,
@@ -52,7 +52,7 @@ class HentTrygdeTid (val euxInnhentingService: EuxInnhentingService, private val
             )
         }
 
-        return PensjonsinformasjonUtlandController.TygdetidForPesys(fnr = fnr, rinaNr = bucId, trygdetid = trygdetidList)
+        return TrygdetidForPesys(fnr = fnr, rinaNr = bucId, trygdetid = trygdetidList)
     }
 
     /**

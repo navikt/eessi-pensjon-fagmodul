@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import no.nav.eessi.pensjon.eux.model.sed.P6000
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
@@ -56,7 +55,7 @@ class PensjonsinformasjonUtlandController(
     )
 
     @PostMapping("/hentTrygdetid")
-    fun hentTrygdetid(@RequestBody request: TrygdetidRequest): TygdetidForPesys {
+    fun hentTrygdetid(@RequestBody request: TrygdetidRequest): TrygdetidForPesys {
         logger.debug("Henter trygdetid for fnr: ${request.fnr.takeLast(4)}, rinaNr: ${request.rinaNr}")
         return trygdeTidMetric.measure {
             gcpStorageService.hentTrygdetid(request.fnr, request.rinaNr.toString())?.let {
@@ -64,8 +63,8 @@ class PensjonsinformasjonUtlandController(
                     .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
                     .getOrNull()
             }?.let { trygdetid ->
-                TygdetidForPesys(request.fnr, request.rinaNr, trygdetid).also { logger.debug("Trygdetid response: $it") }
-            } ?: TygdetidForPesys(
+                TrygdetidForPesys(request.fnr, request.rinaNr, trygdetid).also { logger.debug("Trygdetid response: $it") }
+            } ?: TrygdetidForPesys(
                 request.fnr, request.rinaNr, emptyList(),
                 "Det finnes ingen registrert trygdetid for rinaNr: $request.rinaNr, aktoerId: $request.fnr"
             )
@@ -73,12 +72,12 @@ class PensjonsinformasjonUtlandController(
     }
 
     @PostMapping("/hentTrygdetidV2")
-    fun hentTrygdetidV2(@RequestBody request: TrygdetidRequest): TygdetidForPesys {
+    fun hentTrygdetidV2(@RequestBody request: TrygdetidRequest): TrygdetidForPesys {
         logger.debug("Henter trygdetid for fnr: ${request.fnr.takeLast(4)}, rinaNr: ${request.rinaNr}")
         return trygdeTidMetric.measure {
                 runCatching { trygdeTidService.hentBucFraEux(request.rinaNr, request.fnr) }
                     .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
-                    .getOrNull() ?: TygdetidForPesys(
+                    .getOrNull() ?: TrygdetidForPesys(
                 request.fnr, request.rinaNr, emptyList(),
                 "Det finnes ingen registrert trygdetid for rinaNr: $request.rinaNr, aktoerId: $request.fnr"
             )
@@ -120,43 +119,10 @@ class PensjonsinformasjonUtlandController(
         }
     }
 
-    data class TygdetidForPesys(
-        val fnr: String?,
-        val rinaNr: Int,
-        val trygdetid: List<Trygdetid> = emptyList(),
-        val error: String? = null
-    )
-
     data class P6000Detaljer(
         val pesysId: String,
         val rinaSakId: String,
         val dokumentId: List<String>
-    )
-
-    @JsonInclude(JsonInclude.Include.ALWAYS)
-    data class Trygdetid(
-        val land: String,
-        @JsonDeserialize(using = EmptyStringToNullDeserializer::class)
-        val acronym: String?,
-        @JsonDeserialize(using = EmptyStringToNullDeserializer::class)
-        val type: String?,
-        val startdato: String,
-        @JsonDeserialize(using = EmptyStringToNullDeserializer::class)
-        val sluttdato: String?,
-        @JsonDeserialize(using = EmptyStringToNullDeserializer::class)
-        val aar: String?,
-        @JsonDeserialize(using = EmptyStringToNullDeserializer::class)
-        val mnd: String?,
-        @JsonDeserialize(using = EmptyStringToNullDeserializer::class)
-        val dag: String?,
-        @JsonDeserialize(using = EmptyStringToNullDeserializer::class)
-        val dagtype: String?,
-        @JsonDeserialize(using = EmptyStringToNullDeserializer::class)
-        val ytelse: String?,
-        @JsonDeserialize(using = EmptyStringToNullDeserializer::class)
-        val ordning: String?,
-        @JsonDeserialize(using = EmptyStringToNullDeserializer::class)
-        val beregning: String?
     )
 
     class EmptyStringToNullDeserializer : JsonDeserializer<String?>() {
