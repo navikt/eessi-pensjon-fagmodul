@@ -1,6 +1,8 @@
 package no.nav.eessi.pensjon.fagmodul.pesys
 
 import no.nav.eessi.pensjon.eux.model.SedType
+import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
+import no.nav.eessi.pensjon.eux.model.sed.MedlemskapItem
 import no.nav.eessi.pensjon.eux.model.sed.P5000
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
@@ -22,55 +24,64 @@ class HentTrygdeTid (val euxInnhentingService: EuxInnhentingService, private val
     fun hentBucFraEux(bucId: Int, fnr: String): PensjonsinformasjonUtlandController.TygdetidForPesys? {
         logger.info("** Innhenting av kravdata for BUC: $bucId **")
 
-        val buc = euxInnhentingService.getBucAsSystemuser(bucId.toString()) ?: run {
-            logger.error("BUC: $bucId kan ikke hentes")
-            return null
+        val buc = euxInnhentingService.getBucAsSystemuser(bucId.toString()) ?: return logger.error("BUC: $bucId kan ikke hentes").let { null }
+        val sedDoc = hentAlleP5000(BucUtils(buc)).also { logger.debug("P5000: ${it.toJson()}") }
+
+        if (sedDoc.isEmpty()) {
+            logger.error("Ingen P5000 dokument metadata funnet for BUC med id: $bucId")
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ingen P5000 dokument metadata funnet for BUC med id: $bucId")
         }
 
-        val bucUtils = BucUtils(buc)
+        val (medlemskapList, org) = hentMedlemskapOgOrg(sedDoc, bucId)
 
-        val sedDoc = hentAlleP5000(bucUtils).also { logger.debug("P5000: ${it.toJson()}") }
-        if (sedDoc.isEmpty()) throw ResponseStatusException(
-            HttpStatus.BAD_REQUEST, "Ingen P5000 dokument metadata funnet for BUC med id: $bucId"
-        ).also { logger.error(it.message) }
+        val trygdetidList = medlemskapList.map { medlemskap ->
+            val land = medlemskap.land?.takeIf { it.length == 2 }?.let(kodeverkClient::finnLandkode) ?: medlemskap.land
+            PensjonsinformasjonUtlandController.Trygdetid(
+                land = land ?: "",
+                acronym = org,
+                type = medlemskap.type,
+                startdato = medlemskap.periode?.fom.toString(),
+                sluttdato = medlemskap.periode?.tom.toString(),
+                aar = medlemskap.sum?.aar,
+                mnd = medlemskap.sum?.maaneder,
+                dag = medlemskap.sum?.dager?.nr,
+                dagtype = medlemskap.sum?.dager?.type,
+                ytelse = medlemskap.beregning,
+                ordning = medlemskap.ordning,
+                beregning = medlemskap.beregning
+            )
+        }
 
-        val idAndCreator = sedDoc
+        return PensjonsinformasjonUtlandController.TygdetidForPesys(fnr = fnr, rinaNr = bucId, trygdetid = trygdetidList)
+    }
+
+    /**
+     * Henter medlemskap og organisasjon fra P5000 SED dokumenter.
+     * Det hentes det siste oppdaterte dokumentet, og deretter hentes medlemskap
+     *
+     * @param sedDoc Liste over P5000 SED dokumenter
+     * @param bucId ID for BUC
+     * @return En pair med liste over medlemskap og organisasjonsakronym
+     */
+    private fun hentMedlemskapOgOrg(
+        sedDoc: List<DocumentsItem>,
+        bucId: Int
+    ): Pair<List<MedlemskapItem>, String?> {
+        val sedIdOgMedlemskap = sedDoc
             .sortedByDescending {
-                val date = (it.lastUpdate as? Long) ?: (it.creationDate as Long)
-                OffsetDateTime.ofInstant(Instant.ofEpochMilli(date), ZoneOffset.UTC)
+                OffsetDateTime.ofInstant(
+                    Instant.ofEpochMilli(
+                        (it.lastUpdate ?: it.creationDate) as Long
+                    ), ZoneOffset.UTC
+                )
             }
-            .also { logger.debug("Sortert på dato: {}", it.toJson()) }
             .map { Pair(it.id, it.participants?.find { p -> p?.role == "Sender" }?.organisation?.acronym) }
             .firstOrNull()
 
-        val sed = euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(bucId.toString(), idAndCreator?.first!!) as P5000
-        val medlemskap = sed.pensjon?.medlemskapboarbeid?.medlemskap?.firstOrNull()
-        val medlemskapPeriode = medlemskap?.periode
-        val org = idAndCreator.second
-
-        val land = medlemskap?.land?.let {
-            if (it.length == 2) kodeverkClient.finnLandkode(it) else it
-        }
-        return PensjonsinformasjonUtlandController.TygdetidForPesys(
-            fnr = fnr,
-            rinaNr = bucId,
-            trygdetid = listOf(
-                PensjonsinformasjonUtlandController.Trygdetid(
-                    land = land ?: "",
-                    acronym = org,
-                    type = medlemskap?.type ,
-                    startdato = medlemskapPeriode?.fom.toString(),
-                    sluttdato = medlemskapPeriode?.tom.toString(),
-                    aar = medlemskap?.sum?.aar,
-                    mnd = medlemskap?.sum?.maaneder,
-                    dag = medlemskap?.sum?.dager?.nr,
-                    dagtype = medlemskap?.sum?.dager?.type,
-                    ytelse = medlemskap?.beregning ,
-                    ordning = medlemskap?.ordning ,
-                    beregning = medlemskap?.beregning
-                )
-            )
-        )
+        val sed = euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(bucId.toString(), sedIdOgMedlemskap?.first!!) as P5000
+        val medlemskapList = sed.pensjon?.medlemskapboarbeid?.medlemskap.orEmpty()
+        val org = sedIdOgMedlemskap.second
+        return Pair(medlemskapList, org)
     }
 
     fun hentAlleP5000(bucUtils: BucUtils) =
