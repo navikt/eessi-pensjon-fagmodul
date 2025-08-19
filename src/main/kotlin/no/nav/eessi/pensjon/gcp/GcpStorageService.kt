@@ -72,7 +72,7 @@ class GcpStorageService(
             logger.warn("Henter trygdetid uten gyldig aktoerId eller rinaSakId")
             return null
         }
-        logger.info("Henter trygdetid for aktoerId: $aktoerId eller rinaSakId: $rinaSakId, med søkestreng: $searchString")
+        logger.info("Henter trygdetid for aktoerId: $aktoerId eller rinaSakId: $rinaSakId")
 
         kotlin.runCatching {
             val trygdetid = gcpStorage.get(BlobId.of(saksBehandlApiBucket, searchString))
