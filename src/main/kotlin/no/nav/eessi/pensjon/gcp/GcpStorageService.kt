@@ -77,11 +77,11 @@ class GcpStorageService(
         kotlin.runCatching {
             val trygdetid = gcpStorage.get(BlobId.of(saksBehandlApiBucket, searchString))
             if (trygdetid.exists()) {
-                logger.info("Henter melding med aktoerId $searchString, for bucket $saksBehandlApiBucket")
+                logger.info("Trygdetid finnes for rinaNr: $rinaSakId, bucket $saksBehandlApiBucket")
                 return trygdetid.getContent().decodeToString()
             }
         }.onFailure { e ->
-            logger.error("Feil ved henting av trygdetid for aktoerId: $aktoerId, rinaSakId: $rinaSakId", e)
+            logger.error("Feil ved henting av trygdetid for rinaSakId: $rinaSakId", e)
         }
         return null
     }
