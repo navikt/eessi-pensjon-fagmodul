@@ -56,18 +56,6 @@ class PrefillController(
         return BucAndSedView.from(buc)
     }
 
-//    fun createBuc(
-//        buctype: String,
-//        gjennySak: GjennySak? = null
-//    ): BucAndSedView {
-//        auditlogger.log("createBuc")
-//        logger.info("Prøver å opprette en ny BUC $buctype i RINA med GjennySakId: ${gjennySak?.sakId} med saktype: ${gjennySak?.sakType}.")
-//
-//        return createBuc(buctype).also {
-//            gcpStorageService.lagreGjennySak(it.caseId, GjennySak(gjennySak?.sakId!!, gjennySak.sakType))
-//        }
-//    }
-
     @PostMapping("sed/add")
     fun addInstutionAndDocument(@RequestBody request: ApiRequest): DocumentsItem? {
         return addInstutionAndDocument.measure { euxPrefillService.leggTilInstitusjon(request)}
