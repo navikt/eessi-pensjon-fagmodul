@@ -1,5 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
+import no.nav.eessi.pensjon.eux.klient.BucSedResponse
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.klient.EuxKlientLib
 import no.nav.eessi.pensjon.eux.klient.ForbiddenException
@@ -13,9 +14,15 @@ import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
 import no.nav.eessi.pensjon.eux.model.buc.MissingBuc
 import no.nav.eessi.pensjon.eux.model.buc.PreviewPdf
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
+import no.nav.eessi.pensjon.eux.model.sed.MedlemskapItem
+import no.nav.eessi.pensjon.eux.model.sed.P5000
+import no.nav.eessi.pensjon.eux.model.sed.P5000Pensjon
+import no.nav.eessi.pensjon.eux.model.sed.P8000
 import no.nav.eessi.pensjon.eux.model.sed.Person
 import no.nav.eessi.pensjon.eux.model.sed.SED
+import no.nav.eessi.pensjon.eux.model.sed.TotalSum
 import no.nav.eessi.pensjon.eux.model.sed.X009
+import no.nav.eessi.pensjon.fagmodul.api.P8000Frontend
 import no.nav.eessi.pensjon.fagmodul.config.INSTITUTION_CACHE
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.metrics.MetricsHelper
@@ -41,14 +48,16 @@ import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
 import java.io.IOException
+import java.net.URLDecoder
 
 @Service
 class EuxInnhentingService(
     @Value("\${ENV}") private val environment: String,
     private val euxKlient: EuxKlientAsSystemUser,
-    private val gcpService: GcpStorageService,
+    private val gcpStorageService: GcpStorageService,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
+    private val secureLog = LoggerFactory.getLogger("secureLog")
 
     private lateinit var sedByDocumentId: MetricsHelper.Metric
     private lateinit var bucDeltakere: MetricsHelper.Metric
@@ -473,6 +482,60 @@ class EuxInnhentingService(
         }
     }
 
+
+    fun oppdaterSED(sedPayload: String, euxcaseid: String, documentid: String): Boolean {
+        val validsed = try {
+            secureLog.info("Følgende SED payload: $sedPayload")
+
+            val sed = SED.fromJsonToConcrete(sedPayload).also { secureLog.info("Følgende SED: ${it.toJson()}") }
+            logger.info("Følgende SED prøves å oppdateres: ${sed.type}, rinaid: $euxcaseid")
+
+            when (sed) {
+                is P8000 -> {
+                    val sedP8000Frontend = mapJsonToAny<P8000Frontend>(sedPayload)
+                    sedP8000Frontend.options?.let {
+                        val jsonDecoded = URLDecoder.decode(it, "UTF-8")
+                        logger.info("Lagrer options for: ${sed.type}, rinaid: $euxcaseid, options: $jsonDecoded")
+                        gcpStorageService.lagreP8000Options(documentid, jsonDecoded)
+                    }
+                    sed
+                }
+
+                is P5000 -> sed.updateFromUI() //må alltid kjøres. sjekk og oppdatert trydetid. punkt 5.2.1.3.1
+                else -> sed
+            }
+        } catch (ex: Exception) {
+            logger.error("Feil ved oppdatering av SED", ex)
+            throw ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Lagring av P8000 feilet, ugyldig SED: ${ex.message}",
+                ex
+            )
+        }
+        val jsonToRina = validsed.toJsonSkipEmpty()
+            .also { logger.debug("Følgende SED prøves å oppdateres til RINA: rinaID: $euxcaseid, documentid: $documentid, validsed: $it") }
+        return updateSedOnBuc(euxcaseid, documentid, jsonToRina)
+            .also { logger.info("Oppdatering av SED: $it") }
+    }
+
+    //Ektend P5000 updateFromUI før den sendes og oppdateres i Rina.
+    //punkt 5.2.1.3.1 i settes til "0" når gyldigperiode == "0"
+    fun P5000.updateFromUI(): P5000 {
+        val pensjon = this.pensjon
+        val medlemskapboarbeid = pensjon?.medlemskapboarbeid
+        val gyldigperiode = medlemskapboarbeid?.gyldigperiode
+        val erTom = medlemskapboarbeid?.medlemskap.let { it == null || it.isEmpty() }
+        if (gyldigperiode == "0" && erTom) {
+            logger.info("P5000 setter 5.2.1.3.1 til 0 ")
+            return this.copy(pensjon = P5000Pensjon(
+                trygdetid = listOf(MedlemskapItem(sum = TotalSum(aar = "0"))),
+                medlemskapboarbeid = medlemskapboarbeid,
+                separatP5000sendes = "0"
+            ))
+        }
+        return this
+    }
+
     fun updateSedOnBuc(euxcaseid: String, documentid: String, sedPayload: String): Boolean {
         logger.info("Oppdaterer eksisterende sed på rina: $euxcaseid. docid: $documentid")
         return putDocument.measure { euxKlient.updateSedOnBuc(euxcaseid, documentid, sedPayload) }
@@ -524,7 +587,16 @@ class EuxInnhentingService(
         logger.info("Lager pdf fra json")
         return euxKlient.lagPdf(pdfJson)
     }
-
+    fun getBucForPBuc06AndForEmptySed(bucType: BucType, bucDocuments: List<DocumentsItem>?, bucSedResponse: BucSedResponse, orginal: DocumentsItem?): DocumentsItem? {
+        logger.info("Henter BUC på nytt for buctype: $bucDocuments")
+        Thread.sleep(900)
+        return if (bucType == P_BUC_06 || orginal == null && bucDocuments.isNullOrEmpty()) {
+            val innhentetBuc = getBuc(bucSedResponse.caseId)
+            BucUtils(innhentetBuc).findDocument(bucSedResponse.documentId)
+        } else {
+            orginal
+        }
+    }
     /**
      * Utvalgt informasjon om en rinasak/Buc.
      */

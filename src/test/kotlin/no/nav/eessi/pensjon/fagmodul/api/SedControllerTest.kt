@@ -3,6 +3,9 @@ package no.nav.eessi.pensjon.fagmodul.api
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
+import io.mockk.impl.annotations.SpyK
+import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
+import no.nav.eessi.pensjon.eux.klient.EuxKlientLib
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_06
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.Buc
@@ -21,18 +24,21 @@ import no.nav.eessi.pensjon.utils.mapAnyToJson
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.vedlegg.VedleggService
+import okhttp3.internal.wait
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.http.ResponseEntity
 import org.springframework.web.util.UriComponentsBuilder
 
 class SedControllerTest {
 
+    var euxKlient: EuxKlientAsSystemUser = mockk(relaxed = true)
+
     @MockK
     lateinit var mockEuxPrefillService: EuxPrefillService
 
-    @MockK
     lateinit var mockEuxInnhentingService: EuxInnhentingService
 
     @MockK
@@ -56,6 +62,8 @@ class SedControllerTest {
     fun setUp() {
         MockKAnnotations.init(this, relaxed = true)
         InnhentingService(personService, vedleggService, prefillKlient, pensjonsinformasjonService)
+
+        mockEuxInnhentingService = EuxInnhentingService("Q2", euxKlient, gcpStorageService)
 
         this.sedController = SedController(
             mockEuxInnhentingService,
@@ -83,10 +91,10 @@ class SedControllerTest {
     @Test
     fun getDocumentfromRina() {
         val sed = SED(SedType.P2000)
-        every { mockEuxInnhentingService.getSedOnBucByDocumentId("2313", "23123123123") } returns sed
+        every { euxKlient.getSedOnBucByDocumentIdNotAsSystemUser("2313", "23123123123", any()) } returns sed.toJson()
 
         val result = sedController.getDocument("2313", "23123123123")
-        assertEquals(sed.toJson(), result)
+        JSONAssert.assertEquals(sed.toJson(), result, false)
     }
 
     @Test
@@ -105,13 +113,14 @@ class SedControllerTest {
         val p8000sed = mapJsonToAny<P8000Frontend>(javaClass.getResource("/json/sed/P8000-NAV.json")!!.readText())
         sedController.updateSed("123456", "222222", p8000sed.toJson())
 
+        verify { gcpStorageService.lagreP8000Options(any(), any()) } // Ensure the method was called
         assertEquals(p8000Lagret(), slot.captured)
     }
 
     @Test
     fun `getDocument skal hente p8000 med options`() {
         val p8000sed = mapJsonToAny<P8000>(javaClass.getResource("/json/nav/P8000_NO-NAV.json")!!.readText())
-        every { mockEuxInnhentingService.getSedOnBucByDocumentId(any(), any()) } returns p8000sed
+        every { euxKlient.getSedOnBucByDocumentIdNotAsSystemUser(any(), any(), any()) } returns p8000sed.toJson()
         every { gcpStorageService.hentGcpDetlajerPaaId(any()) } returns p8000Lagret()
 
         sedController.getDocument("123456", "222222").also {
@@ -129,7 +138,7 @@ class SedControllerTest {
         val buc = "P_BUC_01"
         val rinanr = "1000101"
 
-        every { mockEuxInnhentingService.getBuc(rinanr) } returns mockBuc
+        every { euxKlient.getBucJsonAsNavIdent(rinanr) } returns mockBuc.toJson()
 
         val actualResponse = sedController.getSeds(buc, rinanr)
 
@@ -147,7 +156,7 @@ class SedControllerTest {
         val buc = "P_BUC_06"
         val rinanr = "1000101"
 
-        every { mockEuxInnhentingService.getBuc(rinanr) } returns mockBuc
+        every { euxKlient.getBucJsonAsNavIdent(rinanr) } returns mockBuc.toJson()
 
         val actualResponse = sedController.getSeds(buc, rinanr)
 
@@ -166,7 +175,7 @@ class SedControllerTest {
         val buc = "P_BUC_06"
         val rinanr = "434164"
 
-        every { mockEuxInnhentingService.getBuc(rinanr) } returns mockBuc
+        every { euxKlient.getBucJsonAsNavIdent(rinanr) } returns mockBuc.toJson()
 
         val actualResponse = sedController.getSeds(buc, rinanr)
         val expectedResponse = ResponseEntity.ok(mapAnyToJson(listOf(SedType.P5000, SedType.P6000, SedType.P7000, SedType.P10000)))
@@ -186,7 +195,7 @@ class SedControllerTest {
         val buc = "P_BUC_06"
         val rinanr = "1000101"
 
-        every { mockEuxInnhentingService.getBuc(rinanr) } returns mockBuc
+        every { euxKlient.getBucJsonAsNavIdent(rinanr) } returns mockBuc.toJson()
 
         val actualResponse = sedController.getSeds(buc, rinanr)
 
@@ -205,7 +214,7 @@ class SedControllerTest {
         val buc = "P_BUC_01"
         val rinanr = "1000101"
 
-        every { mockEuxInnhentingService.getBuc(rinanr) } returns mockBuc
+        every { euxKlient.getBucJsonAsNavIdent(rinanr) } returns mockBuc.toJson()
 
         val actualResponse = sedController.getSeds(buc, rinanr)
 
@@ -236,7 +245,7 @@ class SedControllerTest {
         val buc = "P_BUC_06"
         val rinanr = "1000101"
 
-        every { mockEuxInnhentingService.getBuc(rinanr) } returns mockBuc
+        every { euxKlient.getBucJsonAsNavIdent(rinanr) } returns mockBuc.toJson()
 
         val actualResponse = sedController.getSeds(buc, rinanr)
 

@@ -3,13 +3,14 @@ package no.nav.eessi.pensjon.api.gjenny
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_01
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_03
 import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
-import no.nav.eessi.pensjon.fagmodul.api.PrefillController
-import no.nav.eessi.pensjon.fagmodul.api.SedController
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
+import no.nav.eessi.pensjon.fagmodul.eux.EuxPrefillService
 import no.nav.eessi.pensjon.fagmodul.eux.ValidBucAndSed
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
+import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.gcp.GjennySak
+import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.shared.api.ApiRequest
 import no.nav.security.token.support.core.api.Unprotected
@@ -28,8 +29,9 @@ import org.springframework.web.bind.annotation.*
 class GjennyController (
     private val euxInnhentingService: EuxInnhentingService,
     private val innhentingService: InnhentingService,
-    private val prefillController: PrefillController,
-    private val sedController: SedController,
+    private val auditLogger: AuditLogger,
+    private val euxPrefillService: EuxPrefillService,
+    private val gcpStorageService: GcpStorageService,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
     private val logger = LoggerFactory.getLogger(GjennyController::class.java)
@@ -48,8 +50,21 @@ class GjennyController (
 
     @PostMapping("/buc/{buctype}")
     fun createBuc(@PathVariable("buctype", required = true) buctype: String,
-                   @RequestBody(required = true) gjennySak: GjennySak):
-        BucAndSedView = prefillController.createBuc(buctype, gjennySak).also { logger.info("Create buc for gjenny: ${it.caseId}, buctype: $buctype") }
+                   @RequestBody(required = true) gjennySak: GjennySak): BucAndSedView {
+        auditLogger.log("createBuc")
+        logger.info("Prøver å opprette en ny BUC i RINA av type: $buctype")
+
+        val euxCaseId = euxPrefillService.createdBucForType(buctype)
+        logger.info("Mottatt følgende euxCaseId(RinaID): $euxCaseId")
+
+        val buc = euxInnhentingService.getBuc(euxCaseId)
+
+        logger.info("Følgende bucdetalj er hentet: ${buc.processDefinitionName}, id: ${buc.id}")
+
+        return BucAndSedView.from(buc).also { logger.info("Create buc for gjenny: ${it.caseId}, buctype: $buctype") }.also {
+            gcpStorageService.lagreGjennySak(it.caseId, GjennySak(gjennySak?.sakId!!, gjennySak.sakType))
+        }
+    }
 
     @GetMapping("/rinasaker/{aktoerId}/avdodfnr/{avdodfnr}")
     fun getGjenlevendeRinasakerAvdodGjenny(
@@ -128,21 +143,21 @@ class GjennyController (
 
     @PostMapping("/sed/add")
     fun leggTilInstitusjon(@RequestBody request: ApiRequest): DocumentsItem? {
-        return prefillController.addInstutionAndDocument(request.copy(gjenny = true)).also { logger.info("Legg til institusjon fra gjenny for ${request.sed}, rinaid: ${request.euxCaseId}, sedid: ${request.documentid}") }
+        return euxPrefillService.leggTilInstitusjon(request.copy(gjenny = true)).also { logger.info("Legg til institusjon fra gjenny for ${request.sed}, rinaid: ${request.euxCaseId}, sedid: ${request.documentid}") }
     }
 
     @PostMapping("/sed/replysed/{parentid}")
     fun prefillSed(
         @RequestBody(required = true) request: ApiRequest,
         @PathVariable("parentid", required = true) parentId: String
-    ): DocumentsItem? = prefillController.addDocumentToParent(request.copy(gjenny = true), parentId).also { logger.info("Prefil fra gjenny for ${request.sed}, rinaid: ${request.euxCaseId}, sedid: ${request.documentid}") }
+    ): DocumentsItem? = euxPrefillService.leggDokumentTilBuc(request.copy(gjenny = true), parentId).also { logger.info("Prefil fra gjenny for ${request.sed}, rinaid: ${request.euxCaseId}, sedid: ${request.documentid}") }
 
     @PutMapping("/sed/document/{euxcaseid}/{documentid}")
     fun oppdaterSed(
         @PathVariable("euxcaseid", required = true) euxcaseid: String,
         @PathVariable("documentid", required = true) documentid: String,
         @RequestBody sedPayload: String
-    ): Boolean = sedController.updateSed(euxcaseid, documentid, sedPayload)
+    ): Boolean = euxInnhentingService.oppdaterSED(euxcaseid, documentid, sedPayload)
 
 
     private fun loggTimeAndViewSize(servicename: String, start: Long, viewsize: Long = 0) {

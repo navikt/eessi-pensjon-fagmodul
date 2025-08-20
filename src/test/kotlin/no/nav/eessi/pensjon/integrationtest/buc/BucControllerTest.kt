@@ -8,6 +8,7 @@ import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.fagmodul.api.BucController
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
+import no.nav.eessi.pensjon.gcp.GcpStorageService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
@@ -38,6 +39,8 @@ class BucControllerTest {
 
     @TestConfiguration
     class Config {
+        @Bean
+        fun gcpStorageService() : GcpStorageService = mockk(relaxed = true)
         @Bean
         fun euxInnhentingService() : EuxInnhentingService = mockk(relaxed = true)
         @Bean

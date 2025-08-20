@@ -1,36 +1,57 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
 import no.nav.eessi.pensjon.eux.klient.*
+import no.nav.eessi.pensjon.eux.model.BucType
 import no.nav.eessi.pensjon.eux.model.SedType
+import no.nav.eessi.pensjon.eux.model.buc.ActionOperation
 import no.nav.eessi.pensjon.eux.model.buc.Buc
+import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
+import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.X005
+import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController
+import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
+import no.nav.eessi.pensjon.gcp.GcpStorageService
+import no.nav.eessi.pensjon.gcp.GjennySak
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.services.statistikk.StatistikkHandler
+import no.nav.eessi.pensjon.shared.api.ApiRequest
 import no.nav.eessi.pensjon.shared.api.InstitusjonItem
+import no.nav.eessi.pensjon.shared.api.PersonInfo
 import no.nav.eessi.pensjon.shared.api.PrefillDataModel
+import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.server.ResponseStatusException
 
 @Service
-class EuxPrefillService (private val euxKlient: EuxKlientLib,
-                         private val statistikk: StatistikkHandler,
-                         @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()) {
+class EuxPrefillService(
+    private val euxKlient: EuxKlientLib,
+    private val statistikk: StatistikkHandler,
+    private val euxInnhentingService: EuxInnhentingService,
+    private val innhentingService: InnhentingService,
+    private val gcpStorageService: GcpStorageService,
+    @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
+) {
     private val logger = LoggerFactory.getLogger(EuxPrefillService::class.java)
 
     private lateinit var opprettSvarSED: MetricsHelper.Metric
     private lateinit var opprettSED: MetricsHelper.Metric
     private lateinit var putMottaker: MetricsHelper.Metric
     private lateinit var getBUC: MetricsHelper.Metric
+    private lateinit var addDocumentToParent: MetricsHelper.Metric
+    private lateinit var addDocumentToParentBucUtils: MetricsHelper.Metric
     init {
         opprettSvarSED = metricsHelper.init("OpprettSvarSED")
         opprettSED = metricsHelper.init("OpprettSED")
         putMottaker = metricsHelper.init("PutMottaker", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         getBUC = metricsHelper.init("GetBUC", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
+        addDocumentToParent = metricsHelper.init("AddDocumentToParent", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
+        addDocumentToParentBucUtils = metricsHelper.init("AddDocumentToParentBucUtils", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
     }
 
     @Throws(EuxGenericServerException::class, SedDokumentIkkeOpprettetException::class)
@@ -93,19 +114,19 @@ class EuxPrefillService (private val euxKlient: EuxKlientLib,
             """.trimIndent()
         )
 
-            if (x005Liste.isEmpty()) {
-                logger.debug("legger til nyeInstitusjoner på vanlig måte. (ny buc)")
-                addInstitution(dataModel.euxCaseID, nyeInstitusjoner.map { it.institution })
-            } else {
-                //sjekk for CaseOwner
-                nyeInstitusjoner.forEach {
-                    if (!navCaseOwner && it.country != "NO") {
-                        logger.error("NAV er ikke sakseier. Du kan ikke legge til deltakere utenfor Norge")
-                        throw ResponseStatusException(HttpStatus.BAD_REQUEST, "NAV er ikke sakseier. Du kan ikke legge til deltakere utenfor Norge")
-                    }
+        if (x005Liste.isEmpty()) {
+            logger.debug("legger til nyeInstitusjoner på vanlig måte. (ny buc)")
+            addInstitution(dataModel.euxCaseID, nyeInstitusjoner.map { it.institution })
+        } else {
+            //sjekk for CaseOwner
+            nyeInstitusjoner.forEach {
+                if (!navCaseOwner && it.country != "NO") {
+                    logger.error("NAV er ikke sakseier. Du kan ikke legge til deltakere utenfor Norge")
+                    throw ResponseStatusException(HttpStatus.BAD_REQUEST, "NAV er ikke sakseier. Du kan ikke legge til deltakere utenfor Norge")
                 }
-                addInstitutionMedX005(dataModel, bucUtil.getProcessDefinitionVersion(), x005Liste)
             }
+            addInstitutionMedX005(dataModel, bucUtil.getProcessDefinitionVersion(), x005Liste)
+        }
     }
 
     private fun addInstitutionMedX005(
@@ -133,7 +154,6 @@ class EuxPrefillService (private val euxKlient: EuxKlientLib,
             logger.error("Feiler ved oppretting av X005  (ny institusjon), euxCaseid: ${dataModel.euxCaseID}, sed: ${dataModel.sedType}", execptionError)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Feiler ved oppretting av X005 (ny institusjon) for euxCaseId: ${dataModel.euxCaseID}")
         }
-
     }
 
     //flyttes til prefill / en eller annen service?
@@ -148,6 +168,161 @@ class EuxPrefillService (private val euxKlient: EuxKlientLib,
         }
     }
 
+    fun leggTilInstitusjon(request: ApiRequest): DocumentsItem? {
+        logger.info(
+            "Avdød fnr: ${request.subject?.avdod?.fnr != null}, Subject: ${request.subject != null}, Gjenlevende: ${request.subject?.gjenlevende != null}"
+        )
+        logger.info(
+            "Legger til institusjoner og SED for rinaId: ${request.euxCaseId}, " +
+                    "bucType: ${request.buc}, sedType: ${request.sed}, aktoerId: ${request.aktoerId?.take(5)}, " +
+                    "sakId: ${request.sakId}, vedtak: ${request.vedtakId}, institusjoner: ${request.institutions}, gjenny: ${request.gjenny}"
+        )
+
+        if (request.buc == null) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mangler Buc")
+
+        val norskIdent = innhentingService.hentFnrfraAktoerService(request.aktoerId)
+            ?: throw HttpClientErrorException(HttpStatus.BAD_REQUEST)
+        val avdodaktoerID = innhentingService.getAvdodId(BucType.from(request.buc.name)!!, request.riktigAvdod())
+        val dataModel = ApiRequest.buildPrefillDataModelOnExisting(
+            request,
+            PersonInfo(norskIdent.id, request.aktoerId),
+            avdodaktoerID
+        )
+
+        val bucUtil = euxInnhentingService.kanSedOpprettes(dataModel)
+        if (bucUtil.getProcessDefinitionName() != request.buc.name) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Rina Buctype og request buctype må være samme")
+        }
+
+        request.euxCaseId?.takeIf { request.gjenny }?.let {
+            gcpStorageService.lagreGjennySak(it, GjennySak(request.sakId!!, request.sakType!!))
+        }
+
+        addInstitution(request, dataModel, bucUtil)
+
+        //Preutfyll av SED, pensjon og personer samt oppdatering av versjon
+        //sjekk på P7000-- hente nødvendige P6000 sed fra eux.. legg til på request->prefill
+        val sed = innhentingService.hentPreutyltSed(
+            euxInnhentingService.checkForP7000AndAddP6000(ApiRequest(fnr = norskIdent.id)),
+            bucUtil.getProcessDefinitionVersion()
+        )
+
+        request.payload?.let { mapJsonToAny<List<P6000Dokument>>(it) }?.let { listeOverP6000 ->
+            gcpStorageService.lagretilBackend(
+                PensjonsinformasjonUtlandController.P6000Detaljer(
+                    request.sakId!!, request.euxCaseId!!, listeOverP6000.map { it.documentID }
+                ).toJson(), request.sakId
+            )
+        }
+
+        val sedType = SedType.from(request.sed?.name!!)!!
+        val bucAndSedResponse = opprettJsonSedOnBuc(sed, sedType, dataModel.euxCaseID, request.vedtakId)
+        val sedDocument = bucUtil.findDocument(bucAndSedResponse.documentId)?.apply {
+            message = dataModel.melding
+        }
+        return euxInnhentingService.getBucForPBuc06AndForEmptySed(
+            dataModel.buc,
+            bucUtil.getBuc().documents,
+            bucAndSedResponse,
+            sedDocument
+        )
+    }
+
+    fun addInstitution(request: ApiRequest, dataModel: PrefillDataModel, bucUtil: BucUtils) {
+        logger.info("*** Sjekker og legger til Instiusjoner på BUC eller X005 ***")
+        val nyeInstitusjoner = bucUtil.findNewParticipants(dataModel.getInstitutionsList())
+        val x005docs = bucUtil.findX005DocumentByTypeAndStatus()
+
+        if (nyeInstitusjoner.isNotEmpty()) {
+            logger.info(
+                """
+                eksiterendeInstiusjoner: ${bucUtil.getParticipantsAsInstitusjonItem().toJson()}
+                nyeInstitusjoner: ${nyeInstitusjoner.toJson()}
+            """.trimIndent()
+            )
+
+            if (x005docs.isEmpty()) {
+                checkAndAddInstitution(dataModel, bucUtil, emptyList(), nyeInstitusjoner)
+            } else if (x005docs.firstOrNull { it.status == "empty" } != null) {
+                val x005Liste = nyeInstitusjoner.map { nyeInstitusjonerMap ->
+                    logger.debug("Prefiller X005, legger til Institusjon på X005 ${nyeInstitusjonerMap.institution}")
+                    // ID og Navn på X005 er påkrevd må hente innn navn fra UI.
+                    val x005request =
+                        request.copy(avdodfnr = null, sed = SedType.X005, institutions = listOf(nyeInstitusjonerMap))
+                    mapJsonToAny<X005>(
+                        innhentingService.hentPreutyltSed(
+                            x005request,
+                            bucUtil.getProcessDefinitionVersion()
+                        )
+                    )
+                }
+                checkAndAddInstitution(dataModel, bucUtil, x005Liste, nyeInstitusjoner)
+            } else if (!bucUtil.isValidSedtypeOperation(SedType.X005, ActionOperation.Create)) { /* nada */
+            }
+        }
+    }
+
+    fun leggDokumentTilBuc(
+        request: ApiRequest,
+        parentId: String
+    ): DocumentsItem? {
+        if (request.buc == null) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mangler Buc")
+
+        val norskIdent = innhentingService.hentFnrfraAktoerService(request.aktoerId) ?: throw HttpClientErrorException(
+            HttpStatus.BAD_REQUEST,
+            "Mangler norsk fnr"
+        )
+        val avdodaktoerID = innhentingService.getAvdodId(BucType.from(request.buc.name)!!, request.riktigAvdod())
+        val dataModel = ApiRequest.buildPrefillDataModelOnExisting(
+            request,
+            PersonInfo(norskIdent.id, request.aktoerId),
+            avdodaktoerID
+        )
+
+        //Hente metadata for valgt BUC
+        val bucUtil = addDocumentToParentBucUtils.measure {
+            logger.info("******* Hent BUC sjekk om svarSed kan opprettes *******")
+            BucUtils(euxInnhentingService.getBuc(dataModel.euxCaseID)).also { bucUtil ->
+                //sjekk om en svarsed kan opprettes eller om den alt finnes
+                bucUtil.isChildDocumentByParentIdBeCreated(parentId, dataModel.sedType)
+            }
+        }
+
+        logger.info("Prøver å prefillSED (svarSED) parentId: $parentId")
+        val sed = innhentingService.hentPreutyltSed(
+            euxInnhentingService.checkForX010AndAddX009(request, parentId),
+            bucUtil.getProcessDefinitionVersion()
+        )
+
+        return addDocumentToParent.measure {
+            logger.info("Prøver å sende SED: ${dataModel.sedType} inn på BUC: ${dataModel.euxCaseID}")
+
+            val docresult = opprettSvarJsonSedOnBuc(
+                sed,
+                dataModel.euxCaseID,
+                parentId,
+                request.vedtakId,
+                dataModel.sedType
+            )
+            if (request.gjenny) {
+                gcpStorageService.lagreGjennySak(request.euxCaseId!!, GjennySak(request.sakId!!, request.sakType!!))
+            }
+
+            val parent = bucUtil.findDocument(parentId)
+            val result = bucUtil.findDocument(docresult.documentId)
+
+            val documentItem = euxInnhentingService.getBucForPBuc06AndForEmptySed(
+                dataModel.buc,
+                bucUtil.getBuc().documents,
+                docresult,
+                result
+            )
+
+            logger.info("Buc: (${dataModel.euxCaseID}, hovedSED type: ${parent?.type}, docId: ${parent?.id}, svarSED type: ${documentItem?.type} docID: ${documentItem?.id}")
+            logger.info("******* Legge til svarSED - slutt *******")
+            documentItem
+        }
+    }
 
 }
 open class KanIkkeOppretteSedFeilmelding(message: String?) : ResponseStatusException(HttpStatus.BAD_REQUEST, message)
