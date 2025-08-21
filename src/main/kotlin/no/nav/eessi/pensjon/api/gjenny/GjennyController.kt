@@ -7,6 +7,7 @@ import no.nav.eessi.pensjon.fagmodul.api.PrefillController
 import no.nav.eessi.pensjon.fagmodul.api.SedController
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
+import no.nav.eessi.pensjon.fagmodul.eux.EuxPrefillService
 import no.nav.eessi.pensjon.fagmodul.eux.ValidBucAndSed
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.gcp.GjennySak
@@ -30,6 +31,7 @@ class GjennyController (
     private val innhentingService: InnhentingService,
     private val prefillController: PrefillController,
     private val sedController: SedController,
+    private val euxPrefillService: EuxPrefillService,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
     private val logger = LoggerFactory.getLogger(GjennyController::class.java)
@@ -128,7 +130,7 @@ class GjennyController (
 
     @PostMapping("/sed/add")
     fun leggTilInstitusjon(@RequestBody request: ApiRequest): DocumentsItem? {
-        return prefillController.addInstutionAndDocument(request.copy(gjenny = true)).also { logger.info("Legg til institusjon fra gjenny for ${request.sed}, rinaid: ${request.euxCaseId}, sedid: ${request.documentid}") }
+        return euxPrefillService.addInstutionAndDocument(request.copy(gjenny = true)).also { logger.info("Legg til institusjon fra gjenny for ${request.sed}, rinaid: ${request.euxCaseId}, sedid: ${request.documentid}") }
     }
 
     @PostMapping("/sed/replysed/{parentid}")

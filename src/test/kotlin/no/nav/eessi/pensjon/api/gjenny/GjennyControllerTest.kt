@@ -6,17 +6,22 @@ import com.ninjasquad.springmockk.MockkBean
 import com.ninjasquad.springmockk.MockkBeans
 import com.ninjasquad.springmockk.SpykBean
 import io.mockk.every
+import io.mockk.mockk
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_01
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_02
+import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
 import no.nav.eessi.pensjon.fagmodul.api.PrefillController
 import no.nav.eessi.pensjon.fagmodul.api.SedController
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucViewKilde.AVDOD
+import no.nav.eessi.pensjon.fagmodul.eux.EuxPrefillService
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.kodeverk.KodeverkClient
 import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
+import no.nav.eessi.pensjon.shared.api.ApiRequest
+import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -28,6 +33,7 @@ import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
+import org.springframework.test.web.servlet.post
 
 @ActiveProfiles(profiles = ["unsecured-webmvctest"])
 @ComponentScan(basePackages = ["no.nav.eessi.pensjon.api.gjenny"])
@@ -40,6 +46,9 @@ import org.springframework.test.web.servlet.get
     MockkBean(name = "prefillController", classes = [PrefillController::class], relaxed = true)
 )
 class GjennyControllerTest {
+
+    @MockkBean
+    private lateinit var euxPrefillService: EuxPrefillService
 
     @SpykBean
     private lateinit var euxInnhentingService: EuxInnhentingService
@@ -142,6 +151,55 @@ class GjennyControllerTest {
                 content { string("[\"P_BUC_02\",\"P_BUC_04\",\"P_BUC_05\",\"P_BUC_06\",\"P_BUC_07\",\"P_BUC_08\",\"P_BUC_09\",\"P_BUC_10\"]") }
             }
     }
+
+    @Test
+    fun `leggTilInstitusjon returnerer DocumentsItem ved POST til sed_add`() {
+        val request = mockk<ApiRequest>(relaxed = true)
+        val forventetItem = DocumentsItem().apply { message = "sed fra utlandet" }
+        every { euxPrefillService.addInstutionAndDocument(any()) } returns forventetItem
+
+        val resultat = mockMvc.post("/gjenny/sed/add") {
+            contentType = MediaType.APPLICATION_JSON
+            content = ObjectMapper().writeValueAsString(request)
+        }.andExpect {
+            status { isOk() }
+            content { contentType(MediaType.APPLICATION_JSON) }
+        }.andReturn()
+
+        assert(mapJsonToAny<DocumentsItem>(resultat.response.contentAsString).message == forventetItem.message)
+    }
+
+//    @Test
+//    fun `prefillSed returnerer DocumentsItem ved POST til sed_replysed_parentid`() {
+//        val request = ApiRequest(/* fyll inn nødvendige felter */)
+//        val parentId = "parent123"
+//        val forventetItem = DocumentsItem(/* fyll inn nødvendige felter */)
+//        every { euxInnhentingService.addDocumentToParent(request.copy(gjenny = true), parentId) } returns forventetItem
+//
+//        mockMvc.post("/gjenny/sed/replysed/$parentId") {
+//            contentType = MediaType.APPLICATION_JSON
+//            content = ObjectMapper().writeValueAsString(request)
+//        }.andExpect {
+//            status { isOk() }
+//            content { json(ObjectMapper().writeValueAsString(forventetItem)) }
+//        }
+//    }
+//
+//    @Test
+//    fun `oppdaterSed returnerer true ved PUT til sed_document_euxcaseid_documentid`() {
+//        val euxcaseid = "case123"
+//        val documentid = "doc456"
+//        val sedPayload = "payload"
+//        every { sedController.updateSed(euxcaseid, documentid, sedPayload) } returns true
+//
+//        mockMvc.put("/gjenny/sed/document/$euxcaseid/$documentid") {
+//            contentType = MediaType.APPLICATION_JSON
+//            content = sedPayload
+//        }.andExpect {
+//            status { isOk() }
+//            content { string("true") }
+//        }
+//    }
 }
 
 private const val AKTOERID = "12345678901"
