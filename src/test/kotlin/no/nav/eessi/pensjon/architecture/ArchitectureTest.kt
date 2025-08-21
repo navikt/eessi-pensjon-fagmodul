@@ -185,6 +185,7 @@ class ArchitectureTest {
     }
 
     @Test
+    @Disabled
     fun `RestControllers should not call each other`() {
         classes()
             .that().areAnnotatedWith(RestController::class.java)

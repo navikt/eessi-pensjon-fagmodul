@@ -98,7 +98,31 @@ class SedController(
         @PathVariable("documentid", required = true) documentid: String,
         @RequestBody sedPayload: String
     ): Boolean {
-        return euxInnhentingService.oppdaterSED(sedPayload, euxcaseid, documentid)
+        val validsed = try {
+            secureLog.info("Følgende SED payload: $sedPayload")
+
+            val sed = SED.fromJsonToConcrete(sedPayload).also { secureLog.info("Følgende SED: ${it.toJson()}") }
+            logger.info("Følgende SED prøves å oppdateres: ${sed.type}, rinaid: $euxcaseid")
+
+            when (sed) {
+                is P8000 -> {
+                    val sedP8000Frontend = mapJsonToAny<P8000Frontend>(sedPayload)
+                    sedP8000Frontend.options?.let {
+                        val jsonDecoded = URLDecoder.decode(it, "UTF-8")
+                        logger.info("Lagrer options for: ${sed.type}, rinaid: $euxcaseid, options: $jsonDecoded")
+                        gcpStorageService.lagreP8000Options(documentid, jsonDecoded)
+                    }
+                    sed
+                }
+                is P5000 -> sed.updateFromUI() //må alltid kjøres. sjekk og oppdatert trydetid. punkt 5.2.1.3.1
+                else -> sed
+            }
+        } catch (ex: Exception) {
+            logger.error("Feil ved oppdatering av SED", ex)
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Lagring av P8000 feilet, ugyldig SED: ${ex.message}", ex)
+        }
+        val jsonToRina = validsed.toJsonSkipEmpty().also { logger.debug("Følgende SED prøves å oppdateres til RINA: rinaID: $euxcaseid, documentid: $documentid, validsed: $it") }
+        return  euxInnhentingService.updateSedOnBuc(euxcaseid, documentid, jsonToRina).also { logger.info("Oppdatering av SED: $it") }
     }
 
     @GetMapping("/seds/{buctype}/{rinanr}")
@@ -109,6 +133,24 @@ class SedController(
         val resultListe = BucUtils(euxInnhentingService.getBuc(euxCaseId)).getFiltrerteGyldigSedAksjonListAsString()
         logger.info("Henter liste over SED som kan opprettes på buctype: $bucType seds: $resultListe")
         return ResponseEntity.ok().body(resultListe.toJsonSkipEmpty())
+    }
+
+    //Ektend P5000 updateFromUI før den sendes og oppdateres i Rina.
+    //punkt 5.2.1.3.1 i settes til "0" når gyldigperiode == "0"
+    fun P5000.updateFromUI(): P5000 {
+        val pensjon = this.pensjon
+        val medlemskapboarbeid = pensjon?.medlemskapboarbeid
+        val gyldigperiode = medlemskapboarbeid?.gyldigperiode
+        val erTom = medlemskapboarbeid?.medlemskap.let { it == null || it.isEmpty() }
+        if (gyldigperiode == "0" && erTom) {
+           logger.info("P5000 setter 5.2.1.3.1 til 0 ")
+            return this.copy(pensjon = P5000Pensjon(
+                trygdetid = listOf(MedlemskapItem(sum = TotalSum(aar = "0"))),
+                medlemskapboarbeid = medlemskapboarbeid,
+                separatP5000sendes = "0"
+            ))
+        }
+        return this
     }
 
     @PostMapping("/pdf")

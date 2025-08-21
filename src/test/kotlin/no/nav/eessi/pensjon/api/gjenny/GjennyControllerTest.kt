@@ -9,21 +9,14 @@ import io.mockk.every
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_01
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_02
-import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_03
-import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.fagmodul.api.PrefillController
 import no.nav.eessi.pensjon.fagmodul.api.SedController
-import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucViewKilde.AVDOD
-import no.nav.eessi.pensjon.fagmodul.eux.EuxPrefillService
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
-import no.nav.eessi.pensjon.gcp.GjennySak
 import no.nav.eessi.pensjon.kodeverk.KodeverkClient
-import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
-import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -43,9 +36,7 @@ import org.springframework.test.web.servlet.get
     MockkBean(name = "sedController", classes = [SedController::class], relaxed = true),
     MockkBean(name = "kodeverkClient", classes = [KodeverkClient::class], relaxed = true),
     MockkBean(name = "euxKlient", classes = [EuxKlientAsSystemUser::class], relaxed = true),
-    MockkBean(name = "auditLogger", classes = [AuditLogger::class], relaxed = true),
     MockkBean(name = "gcpStorageService", classes = [GcpStorageService::class], relaxed = true),
-    MockkBean(name = "euxPrefillService", classes = [EuxPrefillService::class], relaxed = true),
     MockkBean(name = "prefillController", classes = [PrefillController::class], relaxed = true)
 )
 class GjennyControllerTest {
