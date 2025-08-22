@@ -196,7 +196,6 @@ class PrefillController(
             logger.info("******* Legge til ny SED - slutt *******")
             documentItem
         }
-
     }
 
     @PostMapping("sed/replysed/{parentid}")
@@ -258,7 +257,6 @@ class PrefillController(
             BucUtils(innhentetBuc).findDocument(bucSedResponse.documentId)
         } else {
             orginal
-
         }
     }
 

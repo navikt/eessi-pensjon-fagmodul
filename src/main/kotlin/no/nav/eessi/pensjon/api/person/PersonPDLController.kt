@@ -1,5 +1,6 @@
 package no.nav.eessi.pensjon.api.person
 
+import no.nav.eessi.pensjon.fagmodul.api.FrontEndResponse
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_02
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_06
 import no.nav.eessi.pensjon.eux.model.SedType
@@ -53,22 +54,33 @@ class PersonPDLController(
     }
 
     @GetMapping("/person/pdl/{aktoerid}", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getPerson(@PathVariable("aktoerid", required = true) aktoerid: String): ResponseEntity<PdlPerson> {
+    fun getPerson(@PathVariable("aktoerid", required = true) aktoerid: String): ResponseEntity<FrontEndResponse<PdlPerson>> {
         auditLogger.log("getPerson", aktoerid)
 
         return personControllerHentPerson.measure {
-            val person = hentPerson(aktoerid)
-            ResponseEntity.ok(person)
+            try {
+                val person = hentPerson(aktoerid)
+                ResponseEntity.ok(FrontEndResponse(result = person, status = HttpStatus.OK.value().toString()))
+            } catch (ex: Exception) {
+                logger.error("Feil ved henting av person: ${ex.message}")
+                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    FrontEndResponse(
+                        result = null,
+                        status = HttpStatus.INTERNAL_SERVER_ERROR.value().toString(),
+                        message = "Feil ved henting av person: ${ex.message}"
+                    )
+                )
+            }
         }
     }
 
     @GetMapping("/person/pdl/aktoerid/{fnr}", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getAktoerid(@PathVariable("fnr", required = true) fnr: String): ResponseEntity<String> {
+    fun getAktoerid(@PathVariable("fnr", required = true) fnr: String): ResponseEntity<FrontEndResponse<String>> {
         auditLogger.log("getAktoerid", fnr)
 
         return personControllerHentAktoerid.measure {
             val aktorid = pdlService.hentAktorId(fnr).id
-            ResponseEntity.ok(aktorid)
+            ResponseEntity.ok(FrontEndResponse(result = aktorid, status = HttpStatus.OK.name))
         }
     }
 
@@ -76,7 +88,7 @@ class PersonPDLController(
     fun getDeceased(
         @PathVariable("aktoerId", required = true) gjenlevendeAktoerId: String,
         @PathVariable("vedtaksId", required = true) vedtaksId: String
-    ): ResponseEntity<List<PersoninformasjonAvdode?>> {
+    ): ResponseEntity<FrontEndResponse<List<PersoninformasjonAvdode?>>> {
         logger.debug("Henter informasjon om avdøde $gjenlevendeAktoerId fra vedtak $vedtaksId")
         auditLogger.log("getDeceased", gjenlevendeAktoerId)
 
@@ -88,7 +100,7 @@ class PersonPDLController(
 
             if (pensjonInfo.avdod == null) {
                 logger.info("Ingen avdøde return empty list")
-                return@measure ResponseEntity.ok(emptyList())
+                return@measure ResponseEntity.ok(FrontEndResponse(result = emptyList(), status = HttpStatus.OK.name))
             }
 
             val gjenlevende = hentPerson(gjenlevendeAktoerId)
@@ -109,45 +121,26 @@ class PersonPDLController(
             logger.info("Det ble funnet ${avdodeMedFnr.size} avdøde for den gjenlevende med aktørID: $gjenlevendeAktoerId")
 
             logger.debug("result: ${avdodeMedFnr.toJsonSkipEmpty()}")
-            ResponseEntity.ok(avdodeMedFnr)
+//            ResponseEntity.ok(avdodeMedFnr)
+            ResponseEntity.ok(FrontEndResponse(result = avdodeMedFnr, status = HttpStatus.OK.name))
+
         }
     }
 
-    private fun pairPersonFnr(
-        avdodFnr: String,
-        avdodRolle: Familierelasjonsrolle?,
-        gjenlevende: PdlPerson?
-    ): PersoninformasjonAvdode {
-
-        logger.debug("Henter avdød person")
-        val avdode = pdlService.hentPerson(Ident.bestemIdent(avdodFnr))
-        val avdodNavn = avdode?.navn
-
-        val relasjon = avdodRolle ?: gjenlevende?.sivilstand?.firstOrNull { it.relatertVedSivilstand == avdodFnr }?.type
-
-        logger.debug("return PersoninformasjonAvdode")
-        return PersoninformasjonAvdode(
-            fnr = avdodFnr,
-            fulltNavn = avdodNavn?.sammensattNavn,
-            fornavn = avdodNavn?.fornavn,
-            mellomnavn = avdodNavn?.mellomnavn,
-            etternavn = avdodNavn?.etternavn,
-            relasjon = relasjon?.name
-        )
-    }
-
     @GetMapping("/person/pdl/info/{aktoerid}", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getNameOnly(@PathVariable("aktoerid", required = true) aktoerid: String): ResponseEntity<PersoninformasjonAvdode> {
+    fun getNameOnly(@PathVariable("aktoerid", required = true) aktoerid: String): ResponseEntity<FrontEndResponse<PersoninformasjonAvdode>>  {
         auditLogger.log("getNameOnly", aktoerid)
 
         return personControllerHentPersonNavn.measure {
             val navn = hentPerson(aktoerid).navn
             ResponseEntity.ok(
-                PersoninformasjonAvdode(
-                    fulltNavn = navn?.sammensattEtterNavn,
-                    fornavn = navn?.fornavn,
-                    mellomnavn = navn?.mellomnavn,
-                    etternavn= navn?.etternavn
+                FrontEndResponse(
+                    result = PersoninformasjonAvdode(
+                        fulltNavn = navn?.sammensattEtterNavn,
+                        fornavn = navn?.fornavn,
+                        mellomnavn = navn?.mellomnavn,
+                        etternavn = navn?.etternavn
+                    ), status = HttpStatus.OK.name
                 )
             )
         }
@@ -157,9 +150,9 @@ class PersonPDLController(
     fun getAvdodDateFromVedtakOrSed(
         @PathVariable(value = "vedtakid", required = true) vedtakid: String,
         @PathVariable(value = "rinanr", required = true) euxCaseId: String
-    ): String {
+    ): ResponseEntity<FrontEndResponse<String>>  {
         val vedtak = pensjonsinformasjonService.hentAltPaaVedtak(vedtakid)
-        val avdodlist = pensjonsinformasjonService.hentGyldigAvdod(vedtak) ?: return emptyList<String>().toJson()
+        val avdodlist = pensjonsinformasjonService.hentGyldigAvdod(vedtak) ?: return ResponseEntity.ok(FrontEndResponse(result = emptyList<String>().toJson(), status = HttpStatus.OK.name))
 
         //hvis 2 avdøde..
         val avdodDato = if (avdodlist.size >= 2) {
@@ -199,7 +192,30 @@ class PersonPDLController(
             //henter person for doeadsdato
             hentDoedsdatoFraPDL(singeAvdodident)
         }
-        return avdodDato
+        return ResponseEntity.ok(FrontEndResponse(result = avdodDato, status = HttpStatus.OK.name))
+    }
+
+    private fun pairPersonFnr(
+        avdodFnr: String,
+        avdodRolle: Familierelasjonsrolle?,
+        gjenlevende: PdlPerson?
+    ): PersoninformasjonAvdode {
+
+        logger.debug("Henter avdød person")
+        val avdode = pdlService.hentPerson(Ident.bestemIdent(avdodFnr))
+        val avdodNavn = avdode?.navn
+
+        val relasjon = avdodRolle ?: gjenlevende?.sivilstand?.firstOrNull { it.relatertVedSivilstand == avdodFnr }?.type
+
+        logger.debug("return PersoninformasjonAvdode")
+        return PersoninformasjonAvdode(
+            fnr = avdodFnr,
+            fulltNavn = avdodNavn?.sammensattNavn,
+            fornavn = avdodNavn?.fornavn,
+            mellomnavn = avdodNavn?.mellomnavn,
+            etternavn = avdodNavn?.etternavn,
+            relasjon = relasjon?.name
+        )
     }
 
     private fun hentSedAvdodIdent(euxCaseId: String, documentId: String): String? {
