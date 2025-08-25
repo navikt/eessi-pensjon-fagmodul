@@ -1,5 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.pesys
 
+import com.google.api.gax.paging.Page
 import com.google.cloud.storage.Blob
 import com.google.cloud.storage.BlobId
 import com.google.cloud.storage.Storage
@@ -37,7 +38,8 @@ class PensjonsinformasjonUtlandControllerTest {
         kodeverkClient,
         mockk(relaxed = true)
     )
-    private val aktoerId = "2477958344057"
+    private val aktoerId1 = "2477958344057"
+    private val aktoerId2 = "2588058344011"
     private val rinaNr = 1446033
 
     @BeforeEach
@@ -46,34 +48,46 @@ class PensjonsinformasjonUtlandControllerTest {
         every { kodeverkClient.finnLandkode("CY") } returns "CYR"
         every { kodeverkClient.finnLandkode("BG") } returns "BGD"
         every { kodeverkClient.finnLandkode("HR") } returns "HRD"
-
     }
 
     @Test
-    @Disabled("Midlertidig deaktivert da den feiler i github actions")
     fun `gitt en aktørid og rinanr som matcher trygdetid i gcp saa skal denne returneres`() {
         every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
             every { exists() } returns true
+            every { name } returns "${aktoerId1}___PESYS___$rinaNr"
             every { getContent() } returns trygdeTidJson().toJson().toByteArray()
         }
+        mockGcpListeSok()
 
-        val result = controller.hentTrygdetid(TrygdetidRequest(fnr = aktoerId, rinaNr = rinaNr))
+        val result = controller.hentTrygdetid(TrygdetidRequest(fnr = aktoerId1, rinaNr = rinaNr))
         println(result.trygdetid.toString())
-        assertEquals(aktoerId, result.fnr)
+        assertEquals(aktoerId1, result.fnr)
         assertEquals(rinaNr, result.rinaNr)
         assertEquals(trygdeTidListResultat(), result.trygdetid.toString())
     }
 
     @Test
-    @Disabled("Midlertidig deaktivert da den feiler i github actions")
     fun `gitt en samlet periode med flag fra gcp saa skal ogsaa denne hente ut trygdetid`() {
         every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
             every { exists() } returns true
+            every { name } returns "${aktoerId1}___PESYS___$rinaNr"
             every { getContent() } returns trygdeTidSamletJson().toJson().toByteArray()
         }
-        val result = controller.hentTrygdetid(TrygdetidRequest(fnr = aktoerId, rinaNr = rinaNr))
+
+        mockGcpListeSok()
+
+        val result = controller.hentTrygdetid(TrygdetidRequest(fnr = aktoerId1))
         val forventertResultat = "[Trygdetid(land=, acronym=NAVAT05, type=10, startdato=1995-01-01, sluttdato=1995-12-31, aar=1, mnd=0, dag=1, dagtype=7, ytelse=111, ordning=null, beregning=111)]"
+        assertEquals(rinaNr, result.rinaNr)
         assertEquals(forventertResultat, result.trygdetid.toString())
+    }
+
+    private fun mockGcpListeSok() {
+        val page = mockk<Page<Blob>>(relaxed = true)
+        val blob1 = mockk<Blob>(relaxed = true)
+        every { blob1.name } returns "${aktoerId1}___PESYS___111111"
+        every { page.iterateAll() } returns listOf(blob1)
+        every { gcpStorage.list(any<String>(), *anyVararg()) } returns page
     }
 
     @Test
