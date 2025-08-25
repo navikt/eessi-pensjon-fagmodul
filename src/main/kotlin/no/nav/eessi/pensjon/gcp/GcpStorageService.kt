@@ -74,7 +74,8 @@ class GcpStorageService(
         logger.info("Henter trygdetid for aktoerId: $aktoerId eller rinaSakId: $obfuscatedNr")
 
         kotlin.runCatching {
-            val trygdetid = gcpStorage.get(BlobId.of(saksBehandlApiBucket, searchString))
+            val blobId = finnBlobMedDelvisId( searchString)
+            val trygdetid = blobId?.let { gcpStorage.get(BlobId.of(saksBehandlApiBucket, blobId))} ?: return null
             if (trygdetid.exists()) {
                 logger.info("Trygdetid finnes for: $obfuscatedNr}, bucket $saksBehandlApiBucket")
                 return trygdetid.getContent().decodeToString()
@@ -83,6 +84,11 @@ class GcpStorageService(
             logger.error("Feil ved henting av trygdetid for fnr: $obfuscatedNr", e)
         }
         return null
+    }
+
+    fun finnBlobMedDelvisId(fnrMedPesys: String): String?{
+        val blobs = gcpStorage.list(saksBehandlApiBucket, Storage.BlobListOption.prefix(fnrMedPesys))
+        return blobs.iterateAll().map { it.name }.firstOrNull()
     }
 
     private fun lagre(euxCaseId: String, informasjon: String, bucketNavn: String) {
