@@ -61,29 +61,34 @@ class GcpStorageService(
             }
             lagre(documentid, options, p8000Bucket)
         }
-    fun hentTrygdetid(aktoerId: String, rinaSakId: String): String? {
-        val searchString = if (aktoerId.isNotEmpty() && rinaSakId.isNotEmpty()) {
-            "${aktoerId}___PESYS___$rinaSakId"
+    fun hentTrygdetid(aktoerId: String): Pair<String, String?>? {
+        val searchString = if (aktoerId.isNotEmpty() ) {
+            "${aktoerId}___PESYS___"
         } else if (aktoerId.isNotEmpty()) {
             aktoerId + "___PESYS___"
-        } else if (rinaSakId.isNotEmpty()) {
-            "___PESYS___$rinaSakId"
         } else {
             logger.warn("Henter trygdetid uten gyldig aktoerId eller rinaSakId")
             return null
         }
-        logger.info("Henter trygdetid for aktoerId: $aktoerId eller rinaSakId: $rinaSakId")
+        val obfuscatedNr = aktoerId.take(4) + "*".repeat(aktoerId.length - 4)
+        logger.info("Henter trygdetid for aktoerId: $aktoerId eller rinaSakId: $obfuscatedNr")
 
         kotlin.runCatching {
-            val trygdetid = gcpStorage.get(BlobId.of(saksBehandlApiBucket, searchString))
+            val blobId = finnBlobMedDelvisId( searchString)
+            val trygdetid = blobId?.let { gcpStorage.get(BlobId.of(saksBehandlApiBucket, blobId))} ?: return null
             if (trygdetid.exists()) {
-                logger.info("Trygdetid finnes for rinaNr: $rinaSakId, bucket $saksBehandlApiBucket")
-                return trygdetid.getContent().decodeToString()
+                logger.info("Trygdetid finnes for: $obfuscatedNr}, bucket $saksBehandlApiBucket")
+                return Pair(trygdetid.getContent().decodeToString(), trygdetid.name)
             }
         }.onFailure { e ->
-            logger.error("Feil ved henting av trygdetid for rinaSakId: $rinaSakId", e)
+            logger.error("Feil ved henting av trygdetid for fnr: $obfuscatedNr", e)
         }
         return null
+    }
+
+    fun finnBlobMedDelvisId(fnrMedPesys: String): String?{
+        val blobs = gcpStorage.list(saksBehandlApiBucket, Storage.BlobListOption.prefix(fnrMedPesys))
+        return blobs.iterateAll().map { it.name }.firstOrNull()
     }
 
     private fun lagre(euxCaseId: String, informasjon: String, bucketNavn: String) {

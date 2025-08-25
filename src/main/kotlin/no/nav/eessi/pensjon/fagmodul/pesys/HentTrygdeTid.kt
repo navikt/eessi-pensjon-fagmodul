@@ -21,7 +21,7 @@ class HentTrygdeTid (val euxInnhentingService: EuxInnhentingService, private val
 
     private val logger = LoggerFactory.getLogger(HentTrygdeTid::class.java)
 
-    fun hentBucFraEux(bucId: Int, fnr: String): TrygdetidForPesys? {
+    fun hentBucFraEux(bucId: Int?, fnr: String): TrygdetidForPesys? {
         logger.info("** Innhenting av kravdata for BUC: $bucId **")
 
         val buc = euxInnhentingService.getBucAsSystemuser(bucId.toString()) ?: return logger.error("BUC: $bucId kan ikke hentes").let { null }
@@ -65,7 +65,7 @@ class HentTrygdeTid (val euxInnhentingService: EuxInnhentingService, private val
      */
     private fun hentMedlemskapOgOrg(
         sedDoc: List<DocumentsItem>,
-        bucId: Int
+        bucId: Int?
     ): Pair<List<MedlemskapItem>, String?> {
         val sedIdOgMedlemskap = sedDoc
             .sortedByDescending {
