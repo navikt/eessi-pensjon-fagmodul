@@ -61,27 +61,26 @@ class GcpStorageService(
             }
             lagre(documentid, options, p8000Bucket)
         }
-    fun hentTrygdetid(aktoerId: String, rinaSakId: String): String? {
-        val searchString = if (aktoerId.isNotEmpty() && rinaSakId.isNotEmpty()) {
-            "${aktoerId}___PESYS___$rinaSakId"
+    fun hentTrygdetid(aktoerId: String): String? {
+        val searchString = if (aktoerId.isNotEmpty() ) {
+            "${aktoerId}___PESYS___"
         } else if (aktoerId.isNotEmpty()) {
             aktoerId + "___PESYS___"
-        } else if (rinaSakId.isNotEmpty()) {
-            "___PESYS___$rinaSakId"
         } else {
             logger.warn("Henter trygdetid uten gyldig aktoerId eller rinaSakId")
             return null
         }
-        logger.info("Henter trygdetid for aktoerId: $aktoerId eller rinaSakId: $rinaSakId")
+        val obfuscatedNr = aktoerId.take(4) + "*".repeat(aktoerId.length - 4)
+        logger.info("Henter trygdetid for aktoerId: $aktoerId eller rinaSakId: $obfuscatedNr")
 
         kotlin.runCatching {
             val trygdetid = gcpStorage.get(BlobId.of(saksBehandlApiBucket, searchString))
             if (trygdetid.exists()) {
-                logger.info("Trygdetid finnes for rinaNr: $rinaSakId, bucket $saksBehandlApiBucket")
+                logger.info("Trygdetid finnes for: $obfuscatedNr}, bucket $saksBehandlApiBucket")
                 return trygdetid.getContent().decodeToString()
             }
         }.onFailure { e ->
-            logger.error("Feil ved henting av trygdetid for rinaSakId: $rinaSakId", e)
+            logger.error("Feil ved henting av trygdetid for fnr: $obfuscatedNr", e)
         }
         return null
     }

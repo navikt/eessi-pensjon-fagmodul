@@ -58,7 +58,7 @@ class PensjonsinformasjonUtlandController(
     fun hentTrygdetid(@RequestBody request: TrygdetidRequest): TrygdetidForPesys {
         logger.debug("Henter trygdetid for fnr: ${request.fnr.takeLast(4)}, rinaNr: ${request.rinaNr}")
         return trygdeTidMetric.measure {
-            gcpStorageService.hentTrygdetid(request.fnr, request.rinaNr.toString())?.let {
+            gcpStorageService.hentTrygdetid(request.fnr)?.let {
                 runCatching { parseTrygdetid(it) }
                     .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
                     .getOrNull()
