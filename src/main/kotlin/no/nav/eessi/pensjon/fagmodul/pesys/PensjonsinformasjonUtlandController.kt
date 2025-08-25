@@ -51,7 +51,7 @@ class PensjonsinformasjonUtlandController(
 
     data class TrygdetidRequest(
         val fnr: String,
-        val rinaNr: Int
+        val rinaNr: Int? = null
     )
 
     @PostMapping("/hentTrygdetid")
@@ -63,7 +63,7 @@ class PensjonsinformasjonUtlandController(
                     .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
                     .getOrNull()
             }?.let { trygdetid ->
-                TrygdetidForPesys(request.fnr, request.rinaNr, trygdetid).also { logger.debug("Trygdetid response: $it") }
+                TrygdetidForPesys(request.fnr, trygdetid.first?.toInt(), trygdetid.second).also { logger.debug("Trygdetid response: $it") }
             } ?: TrygdetidForPesys(
                 request.fnr, request.rinaNr, emptyList(),
                 "Det finnes ingen registrert trygdetid for rinaNr: $request.rinaNr, aktoerId: $request.fnr"
@@ -83,7 +83,6 @@ class PensjonsinformasjonUtlandController(
             )
         }
     }
-
 
     @GetMapping("/hentP6000Detaljer")
     fun hentP6000Detaljer(
@@ -109,14 +108,17 @@ class PensjonsinformasjonUtlandController(
         }
     }
 
-    fun parseTrygdetid(jsonString: String): List<Trygdetid> {
-        val cleanedJson = jsonString.trim('"').replace("\\n", "").replace("\\\"", "\"")
-        return mapJsonToAny<List<Trygdetid>>(cleanedJson).map {
+    fun parseTrygdetid(jsonString: Pair<String, String?>): Pair<String?, List<Trygdetid>> {
+        val trygdetid = jsonString.first
+        val rinaNr = jsonString.second?.split(Regex("\\D+"))?.lastOrNull { it.isNotEmpty() }
+        val cleanedJson = trygdetid.trim('"').replace("\\n", "").replace("\\\"", "\"")
+        val trygdeTidListe = mapJsonToAny<List<Trygdetid>>(cleanedJson).map {
             if (it.land.length == 2) {
                 it.copy(land = kodeverkClient.finnLandkode(it.land) ?: it.land)
             }
             else it
         }
+        return Pair(rinaNr, trygdeTidListe)
     }
 
     data class P6000Detaljer(
