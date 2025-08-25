@@ -63,6 +63,18 @@ class PensjonsinformasjonUtlandControllerTest {
     }
 
     @Test
+    fun `gitt en samlet periode med flag fra gcp saa skal ogsaa denne hente ut trygdetid`() {
+        every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
+            every { exists() } returns true
+            every { getContent() } returns trygdeTidSamletJson().toJson().toByteArray()
+        }
+
+        val result = controller.hentTrygdetid(TrygdetidRequest(fnr = aktoerId, rinaNr = rinaNr))
+        val forventertResultat = "[Trygdetid(land=, acronym=NAVAT05, type=10, startdato=1995-01-01, sluttdato=1995-12-31, aar=1, mnd=0, dag=1, dagtype=7, ytelse=111, ordning=null, beregning=111)]"
+        assertEquals(forventertResultat, result.trygdetid.toString())
+    }
+
+    @Test
     fun `gitt en pesysId som finnes i gcp saa skal sedene henstes fra Rina`() {
         every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
             every { exists() } returns true
@@ -99,6 +111,15 @@ class PensjonsinformasjonUtlandControllerTest {
               {"land":"HR","acronym":"NAVAT05","type":"10","startdato":"2016-06-01","sluttdato":"2016-06-22","aar":"","mnd":"","dag":"21","dagtype":"7","ytelse":"001","ordning":"00","beregning":"111"},
               {"land":"BG","acronym":"NAVAT05","type":"10","startdato":"2020-01-01","sluttdato":"2024-08-15","aar":"","mnd":"3","dag":"","dagtype":"7","ytelse":"001","ordning":"00","beregning":"001"},
               {"land":"NO","acronym":"NAVAT07","type":"41","startdato":"2023-05-01","sluttdato":"2023-05-31","aar":"","mnd":"1","dag":"","dagtype":"7","ytelse":"","ordning":"","beregning":""}
+            ]
+            """.trimIndent()
+        return trygdetidList
+    }
+
+    private fun trygdeTidSamletJson(): String {
+        val trygdetidList = """
+            [
+                {"flag":true,"land":"GB","acronym":"NAVAT05","type":"10","startdato":"1995-01-01","sluttdato":"1995-12-31","aar":"1","mnd":"0","dag":"1","dagtype":"7","ytelse":"111","ordning":"","beregning":"111","hasSubrows":true,"flagLabel":"OBS! Periodesum er mindre enn registrert periode"}
             ]
             """.trimIndent()
         return trygdetidList
