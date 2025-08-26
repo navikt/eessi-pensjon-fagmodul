@@ -63,7 +63,7 @@ class PensjonsinformasjonUtlandController(
                     .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
                     .getOrNull()
             }?.let { trygdetid ->
-                val trygdetidFraAlleBuc = trygdetid.flatMap { it.second }
+                val trygdetidFraAlleBuc = trygdetid.flatMap { it.second }.sortedBy { it.startdato }
                 TrygdetidForPesys(request.fnr, trygdetidFraAlleBuc).also { logger.debug("Trygdetid response: $it") }
             } ?: TrygdetidForPesys(
                 request.fnr, emptyList(), "Det finnes ingen registrert trygdetid for fnr: ${request.fnr}"
