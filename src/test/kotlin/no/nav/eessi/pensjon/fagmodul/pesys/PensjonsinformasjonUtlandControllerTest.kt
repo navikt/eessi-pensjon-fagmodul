@@ -57,13 +57,15 @@ class PensjonsinformasjonUtlandControllerTest {
             every { name } returns "${aktoerId1}___PESYS___$rinaNr"
             every { getContent() } returns trygdeTidJson().toJson().toByteArray()
         }
-        mockGcpListeSok()
+        mockGcpListeSok(listOf("$rinaNr"))
 
-        val result = controller.hentTrygdetid(TrygdetidRequest(fnr = aktoerId1, rinaNr = rinaNr))
-        println(result.trygdetid.toString())
-        assertEquals(aktoerId1, result.fnr)
-        assertEquals(rinaNr, result.rinaNr)
-        assertEquals(trygdeTidListResultat(), result.trygdetid.toString())
+        val retval = controller.hentTrygdetid(TrygdetidRequest(fnr = aktoerId1, rinaNr = rinaNr))
+        println(retval?.toJson())
+        retval?.forEach { result ->
+            assertEquals(aktoerId1, result.fnr)
+            assertEquals(rinaNr, result.rinaNr)
+            assertEquals(trygdeTidListResultat(), result.trygdetid.toString())
+        }
     }
 
     @Test
@@ -74,20 +76,29 @@ class PensjonsinformasjonUtlandControllerTest {
             every { getContent() } returns trygdeTidSamletJson().toJson().toByteArray()
         }
 
-        mockGcpListeSok()
+        mockGcpListeSok(listOf("$rinaNr"))
 
         val result = controller.hentTrygdetid(TrygdetidRequest(fnr = aktoerId1))
         val forventertResultat = "[Trygdetid(land=, acronym=NAVAT05, type=10, startdato=1995-01-01, sluttdato=1995-12-31, aar=1, mnd=0, dag=1, dagtype=7, ytelse=111, ordning=null, beregning=111)]"
-        assertEquals(rinaNr, result.rinaNr)
-        assertEquals(forventertResultat, result.trygdetid.toString())
+        assertEquals(rinaNr, result?.firstOrNull()?.rinaNr)
+        assertEquals(forventertResultat, result?.firstOrNull()?.trygdetid.toString())
     }
 
-    private fun mockGcpListeSok() {
-        val page = mockk<Page<Blob>>(relaxed = true)
-        val blob1 = mockk<Blob>(relaxed = true)
-        every { blob1.name } returns "${aktoerId1}___PESYS___111111"
-        every { page.iterateAll() } returns listOf(blob1)
-        every { gcpStorage.list(any<String>(), *anyVararg()) } returns page
+    @Test
+    fun `gitt en aktorid tilknyttet flere buc saa skal den gi en liste med flere trygdetider`() {
+        every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
+            every { exists() } returns true
+            every { name } returns "${aktoerId1}___PESYS___111111" andThen "${aktoerId1}___PESYS___222222"
+            every { getContent() } returns trygdeTidSamletJson().toJson().toByteArray()
+        }
+
+        mockGcpListeSok(listOf("111111", "222222"))
+
+        val result = controller.hentTrygdetid(TrygdetidRequest(fnr = aktoerId1))
+        val forventertResultat = "[Trygdetid(land=, acronym=NAVAT05, type=10, startdato=1995-01-01, sluttdato=1995-12-31, aar=1, mnd=0, dag=1, dagtype=7, ytelse=111, ordning=null, beregning=111)]"
+        assertEquals(111111, result?.get(0)?.rinaNr)
+        assertEquals(222222, result?.get(1)?.rinaNr)
+        assertEquals(trygdeTidForFlereBuc(), result?.toJson())
     }
 
     @Test
@@ -101,6 +112,20 @@ class PensjonsinformasjonUtlandControllerTest {
         val result = controller.hentP6000Detaljer("22975052")[0]
         assertEquals("112233445566", result.nav?.bruker?.person?.pin?.get(0)?.identifikator)
     }
+
+    private fun mockGcpListeSok(rinaNrList: List<String>) {
+        val blobs = rinaNrList.map { rinaNr ->
+            val blob = mockk<Blob>(relaxed = true)
+            every { blob.name } returns "${aktoerId1}___PESYS___$rinaNr"
+            blob
+        }
+        val page = mockk<Page<Blob>>(relaxed = true)
+        every { page.iterateAll() } returns blobs
+        every { gcpStorage.list(any<String>(), *anyVararg()) } returns page
+    }
+
+
+
 
     private fun p6000Detaljer() =
         """
@@ -130,6 +155,49 @@ class PensjonsinformasjonUtlandControllerTest {
             ]
             """.trimIndent()
         return trygdetidList
+    }
+
+    private fun trygdeTidForFlereBuc(): String {
+        return """
+            [ {
+              "fnr" : "2477958344057",
+              "rinaNr" : 111111,
+              "trygdetid" : [ {
+                "land" : "",
+                "acronym" : "NAVAT05",
+                "type" : "10",
+                "startdato" : "1995-01-01",
+                "sluttdato" : "1995-12-31",
+                "aar" : "1",
+                "mnd" : "0",
+                "dag" : "1",
+                "dagtype" : "7",
+                "ytelse" : "111",
+                "ordning" : null,
+                "beregning" : "111"
+              } ],
+              "error" : null
+            }, {
+              "fnr" : "2477958344057",
+              "rinaNr" : 222222,
+              "trygdetid" : [ {
+                "land" : "",
+                "acronym" : "NAVAT05",
+                "type" : "10",
+                "startdato" : "1995-01-01",
+                "sluttdato" : "1995-12-31",
+                "aar" : "1",
+                "mnd" : "0",
+                "dag" : "1",
+                "dagtype" : "7",
+                "ytelse" : "111",
+                "ordning" : null,
+                "beregning" : "111"
+              } ],
+              "error" : null
+            } ]
+        """.trimIndent()
+
     }
 
     private fun trygdeTidSamletJson(): String {
