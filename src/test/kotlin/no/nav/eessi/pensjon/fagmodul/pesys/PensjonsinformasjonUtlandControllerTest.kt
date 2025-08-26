@@ -39,7 +39,6 @@ class PensjonsinformasjonUtlandControllerTest {
         mockk(relaxed = true)
     )
     private val aktoerId1 = "2477958344057"
-    private val aktoerId2 = "2588058344011"
     private val rinaNr = 1446033
 
     @BeforeEach
@@ -59,13 +58,10 @@ class PensjonsinformasjonUtlandControllerTest {
         }
         mockGcpListeSok(listOf("$rinaNr"))
 
-        val retval = controller.hentTrygdetid(TrygdetidRequest(fnr = aktoerId1, rinaNr = rinaNr))
-        println(retval?.toJson())
-        retval?.forEach { result ->
-            assertEquals(aktoerId1, result.fnr)
-            assertEquals(rinaNr, result.rinaNr)
-            assertEquals(trygdeTidListResultat(), result.trygdetid.toString())
-        }
+        val result = controller.hentTrygdetid(TrygdetidRequest(fnr = aktoerId1, rinaNr = rinaNr))
+        println(result.toJson())
+        assertEquals(aktoerId1, result.fnr)
+        assertEquals(trygdeTidListResultat(), result.trygdetid.toString())
     }
 
     @Test
@@ -80,8 +76,8 @@ class PensjonsinformasjonUtlandControllerTest {
 
         val result = controller.hentTrygdetid(TrygdetidRequest(fnr = aktoerId1))
         val forventertResultat = "[Trygdetid(land=, acronym=NAVAT05, type=10, startdato=1995-01-01, sluttdato=1995-12-31, aar=1, mnd=0, dag=1, dagtype=7, ytelse=111, ordning=null, beregning=111)]"
-        assertEquals(rinaNr, result?.firstOrNull()?.rinaNr)
-        assertEquals(forventertResultat, result?.firstOrNull()?.trygdetid.toString())
+        assertEquals(aktoerId1, result.fnr)
+        assertEquals(forventertResultat, result.trygdetid.toString())
     }
 
     @Test
@@ -95,10 +91,9 @@ class PensjonsinformasjonUtlandControllerTest {
         mockGcpListeSok(listOf("111111", "222222"))
 
         val result = controller.hentTrygdetid(TrygdetidRequest(fnr = aktoerId1))
-        val forventertResultat = "[Trygdetid(land=, acronym=NAVAT05, type=10, startdato=1995-01-01, sluttdato=1995-12-31, aar=1, mnd=0, dag=1, dagtype=7, ytelse=111, ordning=null, beregning=111)]"
-        assertEquals(111111, result?.get(0)?.rinaNr)
-        assertEquals(222222, result?.get(1)?.rinaNr)
-        assertEquals(trygdeTidForFlereBuc(), result?.toJson())
+        println(result.toJson())
+        assertEquals(aktoerId1, result.fnr)
+        assertEquals(trygdeTidForFlereBuc(), result.toJson())
     }
 
     @Test
@@ -159,10 +154,22 @@ class PensjonsinformasjonUtlandControllerTest {
 
     private fun trygdeTidForFlereBuc(): String {
         return """
-            [ {
+            {
               "fnr" : "2477958344057",
-              "rinaNr" : 111111,
               "trygdetid" : [ {
+                "land" : "",
+                "acronym" : "NAVAT05",
+                "type" : "10",
+                "startdato" : "1995-01-01",
+                "sluttdato" : "1995-12-31",
+                "aar" : "1",
+                "mnd" : "0",
+                "dag" : "1",
+                "dagtype" : "7",
+                "ytelse" : "111",
+                "ordning" : null,
+                "beregning" : "111"
+              }, {
                 "land" : "",
                 "acronym" : "NAVAT05",
                 "type" : "10",
@@ -177,25 +184,7 @@ class PensjonsinformasjonUtlandControllerTest {
                 "beregning" : "111"
               } ],
               "error" : null
-            }, {
-              "fnr" : "2477958344057",
-              "rinaNr" : 222222,
-              "trygdetid" : [ {
-                "land" : "",
-                "acronym" : "NAVAT05",
-                "type" : "10",
-                "startdato" : "1995-01-01",
-                "sluttdato" : "1995-12-31",
-                "aar" : "1",
-                "mnd" : "0",
-                "dag" : "1",
-                "dagtype" : "7",
-                "ytelse" : "111",
-                "ordning" : null,
-                "beregning" : "111"
-              } ],
-              "error" : null
-            } ]
+            }
         """.trimIndent()
 
     }

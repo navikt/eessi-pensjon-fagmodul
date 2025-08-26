@@ -55,7 +55,7 @@ class PensjonsinformasjonUtlandController(
     )
 
     @PostMapping("/hentTrygdetid")
-    fun hentTrygdetid(@RequestBody request: TrygdetidRequest): List<TrygdetidForPesys>? {
+    fun hentTrygdetid(@RequestBody request: TrygdetidRequest): TrygdetidForPesys{
         logger.debug("Henter trygdetid for fnr: ${request.fnr.takeLast(4)}, rinaNr: ${request.rinaNr}")
         return trygdeTidMetric.measure {
             gcpStorageService.hentTrygdetid(request.fnr)?.let {
@@ -63,10 +63,11 @@ class PensjonsinformasjonUtlandController(
                     .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
                     .getOrNull()
             }?.let { trygdetid ->
-                trygdetid.map {
-                    TrygdetidForPesys(request.fnr, it.first?.toInt(), it.second).also { logger.debug("Trygdetid response: $it") }
-                }
-            } //TrygdetidForPesys(request.fnr, request.rinaNr, emptyList(), "Det finnes ingen registrert trygdetid for rinaNr: $request.rinaNr, aktoerId: $request.fnr")
+                val trygdetidFraAlleBuc = trygdetid.flatMap { it.second }
+                TrygdetidForPesys(request.fnr, trygdetidFraAlleBuc).also { logger.debug("Trygdetid response: $it") }
+            } ?: TrygdetidForPesys(
+                request.fnr, emptyList(), "Det finnes ingen registrert trygdetid for fnr: ${request.fnr}"
+            )
         }
     }
 
@@ -76,10 +77,7 @@ class PensjonsinformasjonUtlandController(
         return trygdeTidMetric.measure {
                 runCatching { trygdeTidService.hentBucFraEux(request.rinaNr, request.fnr) }
                     .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
-                    .getOrNull() ?: TrygdetidForPesys(
-                request.fnr, request.rinaNr, emptyList(),
-                "Det finnes ingen registrert trygdetid for rinaNr: $request.rinaNr, aktoerId: $request.fnr"
-            )
+                    .getOrNull() ?: TrygdetidForPesys(request.fnr, emptyList(), "Det finnes ingen registrert trygdetid for rinaNr: $request.rinaNr, aktoerId: $request.fnr")
         }
     }
 
@@ -119,7 +117,6 @@ class PensjonsinformasjonUtlandController(
             }
             Pair(rinaNr, trygdeTidListe)
         }
-//        return Pair(null, emptyList())
     }
 
     data class P6000Detaljer(

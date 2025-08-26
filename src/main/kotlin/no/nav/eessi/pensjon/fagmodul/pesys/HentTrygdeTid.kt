@@ -52,7 +52,7 @@ class HentTrygdeTid (val euxInnhentingService: EuxInnhentingService, private val
             )
         }
 
-        return TrygdetidForPesys(fnr = fnr, rinaNr = bucId, trygdetid = trygdetidList)
+        return TrygdetidForPesys(fnr = fnr, trygdetid = trygdetidList)
     }
 
     /**

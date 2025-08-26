@@ -85,11 +85,6 @@ class GcpStorageService(
                     null
                 }
             }
-//            val trygdetid = blobId.let { gcpStorage.get(BlobId.of(saksBehandlApiBucket, blobId))} ?: return null
-//            if (trygdetid.exists()) {
-//                logger.info("Trygdetid finnes for: $obfuscatedNr}, bucket $saksBehandlApiBucket")
-//                return Pair(trygdetid.getContent().decodeToString(), trygdetid.name)
-//            }
         }.onFailure { e ->
             logger.error("Feil ved henting av trygdetid for fnr: $obfuscatedNr", e)
         }

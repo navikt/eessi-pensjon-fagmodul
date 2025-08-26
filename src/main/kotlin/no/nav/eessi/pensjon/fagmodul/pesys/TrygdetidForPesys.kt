@@ -6,7 +6,6 @@ import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController.E
 
 data class TrygdetidForPesys(
     val fnr: String?,
-    val rinaNr: Int?,
     val trygdetid: List<Trygdetid> = emptyList(),
     val error: String? = null
 )
