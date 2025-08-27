@@ -4,10 +4,15 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
+import no.nav.eessi.pensjon.eux.model.buc.Institusjon
 import no.nav.eessi.pensjon.eux.model.sed.P6000
+import no.nav.eessi.pensjon.eux.model.sed.PinLandItem
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
+import no.nav.eessi.pensjon.fagmodul.pesys.krav.P1Dto
+import no.nav.eessi.pensjon.fagmodul.pesys.krav.P1Person
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.kodeverk.KodeverkClient
+import no.nav.eessi.pensjon.kodeverk.Postnummer
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.security.token.support.core.api.Protected
@@ -16,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
+import java.time.LocalDate
 
 
 /**
@@ -88,7 +94,7 @@ class PensjonsinformasjonUtlandController(
     @GetMapping("/hentP6000Detaljer")
     fun hentP6000Detaljer(
         @RequestParam("pesysId") pesysId: String
-    ): List<P6000> {
+    ) : List<P1Dto> {
         logger.info("Henter P6000 detaljer fra bucket for pesysId: $pesysId")
         return p6000Metric.measure {
             val p6000FraGcp = gcpStorageService.hentGcpDetlajerForP6000(pesysId) ?: throw ResponseStatusException(
@@ -105,7 +111,46 @@ class PensjonsinformasjonUtlandController(
             }
                 .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
                 .onSuccess { logger.info("Hentet nye dok detaljer fra Rina for $it") }
-            listeOverP6000FraGcp
+            listeOverP6000FraGcp.map { sed -> P1Dto(
+                innehaver = person(sed),
+                forsikrede = person(sed),
+                sakstype = "Gjenlevende",
+                kravMottattDato = LocalDate.now(),
+                innvilgedePensjoner = emptyList(),
+                avslaattePensjoner = emptyList(),
+                utfyllendeInstitusjon = Institusjon(
+                    id = "",
+                    navn = "",
+                    akronym = "",
+                    landkode = "",
+                    tilegnetBucs = emptyList ()
+                )
+            ) }
+        }
+    }
+
+    private fun person(sed: P6000) : P1Person {
+        val blabla = sed.pensjon?.gjenlevende?.person
+        val adresse = sed.pensjon?.gjenlevende?.adresse
+
+        return P1Person(
+            fornavn = blabla?.fornavn,
+            etternavn = blabla?.etternavn,
+            etternavnVedFoedsel = blabla?.etternavnvedfoedsel,
+            foedselsdato = dato(blabla?.foedselsdato),
+            adresselinje = adresse?.postadresse,
+            poststed = kodeverkClient.hentPostSted(adresse?.postnummer)?.sted,
+            postnummer = adresse?.postnummer,
+            landkode = adresse?.land
+        )
+    }
+
+    private fun dato(foedselsdato: String?): LocalDate? {
+        if (foedselsdato == null) return null
+        return try {
+            LocalDate.parse(foedselsdato)
+        } catch (ex: Exception) {
+            null
         }
     }
 

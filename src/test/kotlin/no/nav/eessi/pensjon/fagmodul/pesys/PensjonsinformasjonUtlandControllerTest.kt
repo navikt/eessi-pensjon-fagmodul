@@ -71,7 +71,10 @@ class PensjonsinformasjonUtlandControllerTest {
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(any(), any()) } returns hentTestP6000()
 
         val result = controller.hentP6000Detaljer("22975052")[0]
-        assertEquals("112233445566", result.nav?.bruker?.person?.pin?.get(0)?.identifikator)
+
+        assertEquals("Gjenlevende", result.sakstype)
+        assertEquals("æøå", result.innehaver.etternavn)
+        assertEquals("æøå", result.forsikrede.fornavn)
     }
 
     private fun p6000Detaljer() =
