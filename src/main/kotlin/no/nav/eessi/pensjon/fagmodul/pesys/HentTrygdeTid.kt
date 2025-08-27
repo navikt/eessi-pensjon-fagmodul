@@ -78,6 +78,10 @@ class HentTrygdeTid (val euxInnhentingService: EuxInnhentingService, private val
         return hentSedInfo(bucId, sedIdOgMedlemskap)
     }
 
+    /**
+     * Henter SED fra EUX
+     * @return medlemskap og organisasjons-info
+     */
     private fun hentSedInfo(bucId: Int?, sedIdOgMedlemskap: Pair<String?, String?>?): Pair<List<MedlemskapItem>, String?> {
         val sed = euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(bucId.toString(), sedIdOgMedlemskap?.first!!) as P5000
         val medlemskap = sed.pensjon?.medlemskapboarbeid?.medlemskap.orEmpty()
@@ -85,6 +89,9 @@ class HentTrygdeTid (val euxInnhentingService: EuxInnhentingService, private val
         return Pair(medlemskap, org)
     }
 
+    /**
+     * Henter alle P5000 som er mottatt (i.e. status = "received")
+     */
     fun hentAlleP5000(bucUtils: BucUtils) =
         bucUtils.getAllDocuments().filter { it.status == "received" && it.type == SedType.P5000 }
 }
