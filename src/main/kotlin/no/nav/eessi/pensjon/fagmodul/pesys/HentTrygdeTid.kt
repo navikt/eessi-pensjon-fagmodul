@@ -15,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
+import kotlin.text.orEmpty
 
 @Service
 class HentTrygdeTid (val euxInnhentingService: EuxInnhentingService, private val kodeverkClient: KodeverkClient) {
@@ -69,21 +70,22 @@ class HentTrygdeTid (val euxInnhentingService: EuxInnhentingService, private val
     ): Pair<List<MedlemskapItem>, String?> {
         val sedIdOgMedlemskap = sedDoc
             .sortedByDescending {
-                OffsetDateTime.ofInstant(
-                    Instant.ofEpochMilli(
-                        (it.lastUpdate ?: it.creationDate) as Long
-                    ), ZoneOffset.UTC
-                )
+                Instant.ofEpochMilli((it.lastUpdate ?: it.creationDate) as Long)
             }
             .map { Pair(it.id, it.participants?.find { p -> p?.role == "Sender" }?.organisation?.acronym) }
             .firstOrNull()
 
+        return hentSedInfo(bucId, sedIdOgMedlemskap)
+    }
+
+    private fun hentSedInfo(bucId: Int?, sedIdOgMedlemskap: Pair<String?, String?>?): Pair<List<MedlemskapItem>, String?> {
         val sed = euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(bucId.toString(), sedIdOgMedlemskap?.first!!) as P5000
-        val medlemskapList = sed.pensjon?.medlemskapboarbeid?.medlemskap.orEmpty()
+        val medlemskap = sed.pensjon?.medlemskapboarbeid?.medlemskap.orEmpty()
         val org = sedIdOgMedlemskap.second
-        return Pair(medlemskapList, org)
+        return Pair(medlemskap, org)
     }
 
     fun hentAlleP5000(bucUtils: BucUtils) =
         bucUtils.getAllDocuments().filter { it.status == "received" && it.type == SedType.P5000 }
 }
+
