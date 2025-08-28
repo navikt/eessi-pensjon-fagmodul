@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import java.nio.ByteBuffer
+import kotlin.text.get
 
 @Component
 class GcpStorageService(
@@ -61,29 +62,38 @@ class GcpStorageService(
             }
             lagre(documentid, options, p8000Bucket)
         }
-    fun hentTrygdetid(aktoerId: String, rinaSakId: String): String? {
-        val searchString = if (aktoerId.isNotEmpty() && rinaSakId.isNotEmpty()) {
-            "${aktoerId}___PESYS___$rinaSakId"
+    fun hentTrygdetid(aktoerId: String): List<Pair<String, String?>>? {
+        val searchString = if (aktoerId.isNotEmpty() ) {
+            "${aktoerId}___PESYS___"
         } else if (aktoerId.isNotEmpty()) {
             aktoerId + "___PESYS___"
-        } else if (rinaSakId.isNotEmpty()) {
-            "___PESYS___$rinaSakId"
         } else {
             logger.warn("Henter trygdetid uten gyldig aktoerId eller rinaSakId")
             return null
         }
-        logger.info("Henter trygdetid for aktoerId: $aktoerId eller rinaSakId: $rinaSakId, med søkestreng: $searchString")
+        val obfuscatedNr = aktoerId.take(4) + "*".repeat(aktoerId.length - 4)
+        logger.info("Henter trygdetid for aktoerId: $aktoerId eller rinaSakId: $obfuscatedNr")
 
         kotlin.runCatching {
-            val trygdetid = gcpStorage.get(BlobId.of(saksBehandlApiBucket, searchString))
-            if (trygdetid.exists()) {
-                logger.info("Henter melding med aktoerId $searchString, for bucket $saksBehandlApiBucket")
-                return trygdetid.getContent().decodeToString()
+            val blobIds = finnBlobMedDelvisId( searchString)
+            return blobIds.mapNotNull {
+                val trygdetid = gcpStorage.get(BlobId.of(saksBehandlApiBucket, it))
+                if (trygdetid.exists()) {
+                    logger.info("Trygdetid finnes for: $obfuscatedNr, bucket $saksBehandlApiBucket")
+                    Pair(trygdetid.getContent().decodeToString(), trygdetid.name)
+                } else {
+                    null
+                }
             }
         }.onFailure { e ->
-            logger.error("Feil ved henting av trygdetid for aktoerId: $aktoerId, rinaSakId: $rinaSakId", e)
+            logger.error("Feil ved henting av trygdetid for fnr: $obfuscatedNr", e)
         }
         return null
+    }
+
+    fun finnBlobMedDelvisId(fnrMedPesys: String): List<String> {
+        val blobs = gcpStorage.list(saksBehandlApiBucket, Storage.BlobListOption.prefix(fnrMedPesys))
+        return blobs.iterateAll().mapNotNull { it.name }
     }
 
     private fun lagre(euxCaseId: String, informasjon: String, bucketNavn: String) {

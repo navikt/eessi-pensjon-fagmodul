@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import no.nav.eessi.pensjon.eux.model.sed.P6000
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
@@ -32,7 +31,9 @@ class PensjonsinformasjonUtlandController(
     private val gcpStorageService: GcpStorageService,
     private val euxInnhentingService: EuxInnhentingService,
     private val kodeverkClient: KodeverkClient,
-    @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()) {
+    private val trygdeTidService: HentTrygdeTid,
+    @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
+) {
 
     private var pensjonUtland: MetricsHelper.Metric = metricsHelper.init("pensjonUtland")
     private var trygdeTidMetric: MetricsHelper.Metric = metricsHelper.init("trygdeTidMetric")
@@ -50,23 +51,33 @@ class PensjonsinformasjonUtlandController(
 
     data class TrygdetidRequest(
         val fnr: String,
-        val rinaNr: String
+        val rinaNr: Int? = null
     )
 
     @PostMapping("/hentTrygdetid")
-    fun hentTrygdetid(@RequestBody request: TrygdetidRequest): TygdetidForPesys {
+    fun hentTrygdetid(@RequestBody request: TrygdetidRequest): TrygdetidForPesys{
         logger.debug("Henter trygdetid for fnr: ${request.fnr.takeLast(4)}, rinaNr: ${request.rinaNr}")
         return trygdeTidMetric.measure {
-            gcpStorageService.hentTrygdetid(request.fnr, request.rinaNr)?.let {
+            gcpStorageService.hentTrygdetid(request.fnr)?.let {
                 runCatching { parseTrygdetid(it) }
                     .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
                     .getOrNull()
             }?.let { trygdetid ->
-                TygdetidForPesys(request.fnr, request.rinaNr, trygdetid).also { logger.debug("Trygdetid response: $it") }
-            } ?: TygdetidForPesys(
-                request.fnr, request.rinaNr, emptyList(),
-                "Det finnes ingen registrert trygdetid for rinaNr: $request.rinaNr, aktoerId: $request.fnr"
+                val trygdetidFraAlleBuc = trygdetid.flatMap { it.second }.sortedBy { it.startdato }
+                TrygdetidForPesys(request.fnr, trygdetidFraAlleBuc).also { logger.debug("Trygdetid response: $it") }
+            } ?: TrygdetidForPesys(
+                request.fnr, emptyList(), "Det finnes ingen registrert trygdetid for fnr: ${request.fnr}"
             )
+        }
+    }
+
+    @PostMapping("/hentTrygdetidV2")
+    fun hentTrygdetidV2(@RequestBody request: TrygdetidRequest): TrygdetidForPesys {
+        logger.debug("Henter trygdetid for fnr: ${request.fnr.takeLast(4)}, rinaNr: ${request.rinaNr}")
+        return trygdeTidMetric.measure {
+                runCatching { trygdeTidService.hentBucFraEux(request.rinaNr, request.fnr) }
+                    .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
+                    .getOrNull() ?: TrygdetidForPesys(request.fnr, emptyList(), "Det finnes ingen registrert trygdetid for rinaNr: $request.rinaNr, aktoerId: $request.fnr")
         }
     }
 
@@ -94,53 +105,24 @@ class PensjonsinformasjonUtlandController(
         }
     }
 
-    fun parseTrygdetid(jsonString: String): List<Trygdetid> {
-        val cleanedJson = jsonString.trim('"').replace("\\n", "").replace("\\\"", "\"")
-        return mapJsonToAny<List<Trygdetid>>(cleanedJson).map {
-            if (it.land.length == 2) {
-                it.copy(land = kodeverkClient.finnLandkode(it.land) ?: it.land)
+    fun parseTrygdetid(input: List<Pair<String, String?>>): List<Pair<String?, List<Trygdetid>>>{
+        return input.mapNotNull { jsonString ->
+            val trygdetid = jsonString.first
+            val rinaNr = jsonString.second?.split(Regex("\\D+"))?.lastOrNull { it.isNotEmpty() }
+            val cleanedJson = trygdetid.trim('"').replace("\\n", "").replace("\\\"", "\"")
+            val trygdeTidListe = mapJsonToAny<List<Trygdetid>>(cleanedJson).map {
+                if (it.land.length == 2) {
+                    it.copy(land = kodeverkClient.finnLandkode(it.land) ?: it.land)
+                } else it
             }
-            else it
+            Pair(rinaNr, trygdeTidListe)
         }
     }
-
-    data class TygdetidForPesys(
-        val aktoerId: String?,
-        val rinaNr: String,
-        val trygdetid: List<Trygdetid> = emptyList(),
-        val error: String? = null
-    )
 
     data class P6000Detaljer(
         val pesysId: String,
         val rinaSakId: String,
         val dokumentId: List<String>
-    )
-
-    @JsonInclude(JsonInclude.Include.ALWAYS)
-    data class Trygdetid(
-        val land: String,
-        @JsonDeserialize(using = EmptyStringToNullDeserializer::class)
-        val acronym: String?,
-        @JsonDeserialize(using = EmptyStringToNullDeserializer::class)
-        val type: String?,
-        val startdato: String,
-        @JsonDeserialize(using = EmptyStringToNullDeserializer::class)
-        val sluttdato: String?,
-        @JsonDeserialize(using = EmptyStringToNullDeserializer::class)
-        val aar: String?,
-        @JsonDeserialize(using = EmptyStringToNullDeserializer::class)
-        val mnd: String?,
-        @JsonDeserialize(using = EmptyStringToNullDeserializer::class)
-        val dag: String?,
-        @JsonDeserialize(using = EmptyStringToNullDeserializer::class)
-        val dagtype: String?,
-        @JsonDeserialize(using = EmptyStringToNullDeserializer::class)
-        val ytelse: String?,
-        @JsonDeserialize(using = EmptyStringToNullDeserializer::class)
-        val ordning: String?,
-        @JsonDeserialize(using = EmptyStringToNullDeserializer::class)
-        val beregning: String?
     )
 
     class EmptyStringToNullDeserializer : JsonDeserializer<String?>() {
