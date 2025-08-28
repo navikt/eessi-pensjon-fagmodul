@@ -68,6 +68,9 @@ spec:
         - application: pensjon-pen
           namespace: pensjondeployer
           cluster: prod-fss
+        - application: pensjon-psak
+          namespace: pensjondeployer
+          cluster: prod-fss
 
   webproxy: true
   env:

@@ -93,7 +93,7 @@ class SedController(
     }
 
     @PutMapping("/put/{euxcaseid}/{documentid}")
-    fun putDocument(
+    fun updateSed(
         @PathVariable("euxcaseid", required = true) euxcaseid: String,
         @PathVariable("documentid", required = true) documentid: String,
         @RequestBody sedPayload: String
@@ -101,7 +101,7 @@ class SedController(
         val validsed = try {
             secureLog.info("Følgende SED payload: $sedPayload")
 
-            val sed = SED.fromJsonToConcrete(sedPayload)
+            val sed = SED.fromJsonToConcrete(sedPayload).also { secureLog.info("Følgende SED: ${it.toJson()}") }
             logger.info("Følgende SED prøves å oppdateres: ${sed.type}, rinaid: $euxcaseid")
 
             when (sed) {

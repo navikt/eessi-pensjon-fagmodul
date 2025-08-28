@@ -154,7 +154,8 @@ class BucUtils(private val buc: Buc) {
                 lastVersion = getLastVersion(documentItem.versions),
                 allowsAttachments = overrideAllowAttachemnts(documentItem),
                 direction = documentItem.direction,
-                receiveDate = filterOutReceiveDateOnOut(documentItem.direction!!, getDateTimeToLong(documentItem.receiveDate))
+                receiveDate = filterOutReceiveDateOnOut(documentItem.direction!!, getDateTimeToLong(documentItem.receiveDate)),
+                creator = documentItem.creator,
             )
 
     fun filterOutReceiveDateOnOut(direction: String, receiveDate: Long?): Long? = if (direction == "OUT") null else receiveDate

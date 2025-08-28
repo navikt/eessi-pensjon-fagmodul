@@ -38,6 +38,8 @@ spec:
         uniformBucketLevelAccess: true
       - name: eessi-pensjon-p8000-dev-q1
         uniformBucketLevelAccess: true
+      - name: eessi-pensjon-p6000-dev-q1
+        uniformBucketLevelAccess: true
   accessPolicy:
     outbound:
       rules:
@@ -45,13 +47,14 @@ spec:
           namespace: eessipensjon
           cluster: dev-gcp
       external:
-        - host: eessi-pensjon-prefill-q1.intern.dev.nav.no
-        - host: eessi-pensjon-journalforing-q1.intern.dev.nav.no
+        - host: rina-ss4-q.adeo.no
+        - host: kodeverk-api.nav.no
         - host: saf-q2.dev-fss-pub.nais.io
         - host: pdl-api.dev-fss-pub.nais.io
-        - host: kodeverk-api.nav.no
         - host: eux-rina-api-q1.dev-fss-pub.nais.io
-        - host: rina-ss4-q.adeo.no
+        - host: eessi-pensjon-prefill-q1.intern.dev.nav.no
+        - host: eessi-pensjon-journalforing-q1.intern.dev.nav.no
+        - host: eessi-pensjon-saksbehandling-api-q1.intern.dev.nav.no
     inbound:
       rules:
         - application: eessi-pensjon-frontend-ui-q1
@@ -63,6 +66,9 @@ spec:
         - application: eessi-pensjon-journalforing-q1
           namespace: eessipensjon
           cluster: dev-gcp
+        - application: pensjon-pen-q2
+          namespace: pensjon-q2
+
   webproxy: true
   env:
     - name: SPRING_PROFILES_ACTIVE
@@ -71,6 +77,11 @@ spec:
       value: eessi-pensjon-gjenny-dev-q1
     - name: GCP_BUCKET_P8000
       value: eessi-pensjon-p8000-dev-q1
+    - name: GCP_BUCKET_P6000
+      value: eessi-pensjon-p6000-dev-q1
+    - name: GCP_BUCKET_SAKSBEHANDLING_API
+      value: eessi-pensjon-saksbehandling-api-dev-q1
+
     - name: PENSJONSINFORMASJON_URL
       value: https://pensjon-pen-q2.dev-fss-pub.nais.io/pen/api/pensjonsinformasjon/v1
     - name: EESSIPEN_EUX_RINA_URL
@@ -129,8 +140,8 @@ spec:
     cpuThresholdPercentage: 50
   resources:
     limits:
-      cpu: 4000m
-      memory: 2Gi
-    requests:
-      cpu: 600m
+      cpu: 2000m
       memory: 1Gi
+    requests:
+      cpu: 200m
+      memory: 700Mi
