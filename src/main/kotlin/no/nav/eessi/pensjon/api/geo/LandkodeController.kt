@@ -73,7 +73,7 @@ class LandkodeController(private val kodeverkClient: KodeverkClient, private val
         logger.info("Henter landkode for rina, format: $format")
         return try {
             val aksepterteLandkoderFraRina = kodeverkService.getLandkoderAkseptertAvRina(format)
-                FrontEndResponse<String>(
+                FrontEndResponse(
                     result = aksepterteLandkoderFraRina,
                     status = HttpStatus.OK.value().toString()
                 )
