@@ -69,7 +69,7 @@ class LandkodeController(private val kodeverkClient: KodeverkClient, private val
     }
 
     @GetMapping("/rina")
-    fun landkoderAkseptertAvRina(@RequestParam(required = false) format: String?): ResponseEntity<FrontEndResponse<String>>? {
+    fun landkoderAkseptertAvRina(@RequestParam(required = false) format: String?): ResponseEntity<FrontEndResponse<LandkodeMerKorrektFormat>>? {
         logger.info("Henter landkode for rina, format: $format")
         return try {
             val aksepterteLandkoderFraRina = kodeverkService.getLandkoderAkseptertAvRina(format)
