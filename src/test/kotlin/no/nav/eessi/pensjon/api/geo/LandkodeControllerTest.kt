@@ -8,7 +8,6 @@ import no.nav.eessi.pensjon.kodeverk.KodeverkClient
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
@@ -87,7 +86,6 @@ class LandkodeControllerTest {
     }
 
     @Test
-    @Disabled
     fun testerLandkoderAkseptertAvRina() {
         every { kodeverkService.getLandkoderAkseptertAvRina("json") } returns "DK"
         val repsonse = mvc.perform(get("/landkoder/rina")
