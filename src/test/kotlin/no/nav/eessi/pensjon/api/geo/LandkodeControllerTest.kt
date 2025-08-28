@@ -92,14 +92,11 @@ class LandkodeControllerTest {
         every { kodeverkService.getLandkoderAkseptertAvRina("json") } returns "DK"
         val repsonse = mvc.perform(get("/landkoder/rina")
             .param("format", "json")
-//            .accept(MediaType.APPLICATION_JSON)
-        )
-//            .andExpect(status().isOk())
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
             .andReturn().response
         val response = mapJsonToAny<FrontEndResponse<*>>(repsonse.contentAsString)
-        println(response)
-
-//        assertEquals("DK", response.result)
+        assertEquals("DK", response.result)
     }
 
 }
