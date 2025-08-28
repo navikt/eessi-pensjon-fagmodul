@@ -69,18 +69,20 @@ class LandkodeController(private val kodeverkClient: KodeverkClient, private val
     }
 
     @GetMapping("/rina")
-    fun landkoderAkseptertAvRina(@RequestParam(required = false) format: String?): FrontEndResponse<String>? {
+    fun landkoderAkseptertAvRina(@RequestParam(required = false) format: String?): ResponseEntity<FrontEndResponse<String>>? {
         logger.info("Henter landkode for rina, format: $format")
         return try {
             val aksepterteLandkoderFraRina = kodeverkService.getLandkoderAkseptertAvRina(format)
+            ResponseEntity.ok(
                 FrontEndResponse(
                     result = aksepterteLandkoderFraRina,
                     status = HttpStatus.OK.value().toString()
                 )
-
+            )
         } catch (ex: Exception) {
             logger.error("Feil ved henting av aksepterte landkoder fra Rina: ${ex.message}", ex)
-                FrontEndResponse(status = HttpStatus.INTERNAL_SERVER_ERROR.name, message = ex.message)
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(FrontEndResponse(status = HttpStatus.INTERNAL_SERVER_ERROR.name, message = ex.message))
         }
     }
 }
