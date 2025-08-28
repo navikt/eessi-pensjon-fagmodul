@@ -15,13 +15,14 @@ import org.springframework.web.server.ResponseStatusException
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
+import kotlin.text.orEmpty
 
 @Service
 class HentTrygdeTid (val euxInnhentingService: EuxInnhentingService, private val kodeverkClient: KodeverkClient) {
 
     private val logger = LoggerFactory.getLogger(HentTrygdeTid::class.java)
 
-    fun hentBucFraEux(bucId: Int, fnr: String): TrygdetidForPesys? {
+    fun hentBucFraEux(bucId: Int?, fnr: String): TrygdetidForPesys? {
         logger.info("** Innhenting av kravdata for BUC: $bucId **")
 
         val buc = euxInnhentingService.getBucAsSystemuser(bucId.toString()) ?: return logger.error("BUC: $bucId kan ikke hentes").let { null }
@@ -52,7 +53,7 @@ class HentTrygdeTid (val euxInnhentingService: EuxInnhentingService, private val
             )
         }
 
-        return TrygdetidForPesys(fnr = fnr, rinaNr = bucId, trygdetid = trygdetidList)
+        return TrygdetidForPesys(fnr = fnr, trygdetid = trygdetidList)
     }
 
     /**
@@ -65,25 +66,33 @@ class HentTrygdeTid (val euxInnhentingService: EuxInnhentingService, private val
      */
     private fun hentMedlemskapOgOrg(
         sedDoc: List<DocumentsItem>,
-        bucId: Int
+        bucId: Int?
     ): Pair<List<MedlemskapItem>, String?> {
         val sedIdOgMedlemskap = sedDoc
             .sortedByDescending {
-                OffsetDateTime.ofInstant(
-                    Instant.ofEpochMilli(
-                        (it.lastUpdate ?: it.creationDate) as Long
-                    ), ZoneOffset.UTC
-                )
+                Instant.ofEpochMilli((it.lastUpdate ?: it.creationDate) as Long)
             }
             .map { Pair(it.id, it.participants?.find { p -> p?.role == "Sender" }?.organisation?.acronym) }
             .firstOrNull()
 
-        val sed = euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(bucId.toString(), sedIdOgMedlemskap?.first!!) as P5000
-        val medlemskapList = sed.pensjon?.medlemskapboarbeid?.medlemskap.orEmpty()
-        val org = sedIdOgMedlemskap.second
-        return Pair(medlemskapList, org)
+        return hentSedInfo(bucId, sedIdOgMedlemskap)
     }
 
+    /**
+     * Henter SED fra EUX
+     * @return medlemskap og organisasjons-info
+     */
+    private fun hentSedInfo(bucId: Int?, sedIdOgMedlemskap: Pair<String?, String?>?): Pair<List<MedlemskapItem>, String?> {
+        val sed = euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(bucId.toString(), sedIdOgMedlemskap?.first!!) as P5000
+        val medlemskap = sed.pensjon?.medlemskapboarbeid?.medlemskap.orEmpty()
+        val org = sedIdOgMedlemskap.second
+        return Pair(medlemskap, org)
+    }
+
+    /**
+     * Henter alle P5000 som er mottatt (i.e. status = "received")
+     */
     fun hentAlleP5000(bucUtils: BucUtils) =
         bucUtils.getAllDocuments().filter { it.status == "received" && it.type == SedType.P5000 }
 }
+
