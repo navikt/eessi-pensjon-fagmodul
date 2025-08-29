@@ -100,8 +100,10 @@ class PensjonsinformasjonUtlandController(
             logger.info("P6000Detaljer: ${p6000Detaljer.toJson()}")
             runCatching {
                 p6000Detaljer.dokumentId.forEach { p6000 ->
-                    val hentetP6000 = euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(p6000Detaljer.rinaSakId, p6000) as P6000
-                    hentetP6000.let { listeOverP6000FraGcp.add(it) }
+                    val hentetJsonP6000 = euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(p6000Detaljer.rinaSakId, p6000)
+                            val somP6000 = hentetJsonP6000 as P6000
+                    logger.info("somP6000: $somP6000")
+                    somP6000.let { listeOverP6000FraGcp.add(it) }
                 }
             }
                 .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
