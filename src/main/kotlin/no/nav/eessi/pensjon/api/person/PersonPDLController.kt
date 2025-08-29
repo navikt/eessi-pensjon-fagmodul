@@ -150,9 +150,9 @@ class PersonPDLController(
     fun getAvdodDateFromVedtakOrSed(
         @PathVariable(value = "vedtakid", required = true) vedtakid: String,
         @PathVariable(value = "rinanr", required = true) euxCaseId: String
-    ): ResponseEntity<FrontEndResponse<String>>  {
+    ): ResponseEntity<FrontEndResponse<List<DodsDatoPdl>>>  {
         val vedtak = pensjonsinformasjonService.hentAltPaaVedtak(vedtakid)
-        val avdodlist = pensjonsinformasjonService.hentGyldigAvdod(vedtak) ?: return ResponseEntity.ok(FrontEndResponse(result = emptyList<String>().toJson(), status = HttpStatus.OK.name))
+        val avdodlist = pensjonsinformasjonService.hentGyldigAvdod(vedtak) ?: return ResponseEntity.ok(FrontEndResponse(result = emptyList(), status = HttpStatus.OK.name))
 
         //hvis 2 avdøde..
         val avdodDato = if (avdodlist.size >= 2) {
@@ -182,7 +182,7 @@ class PersonPDLController(
                     hentDoedsdatoFraPDL(korrektid)
                 }
                 //alle andre BUC støttes ikke for tiden..
-                else -> emptyList<String>().toJson()
+                else -> emptyList()
             }
 
         //hvis 1 avdød
@@ -223,15 +223,26 @@ class PersonPDLController(
         return sed.let { it.nav?.bruker?.person?.pin?.firstOrNull { pin -> pin.land == "NO" && pin.identifikator != null } }?.identifikator
     }
 
-    private fun hentDoedsdatoFraPDL(avdodIdent: String?): String {
-        if (avdodIdent == null || avdodIdent.isEmpty()) return emptyList<String>().toJson()
+    private fun hentDoedsdatoFraPDL(avdodIdent: String?): List<DodsDatoPdl> {
+        if (avdodIdent == null || avdodIdent.isEmpty()) return emptyList()
         val avdodperson = pdlService.hentPerson(NorskIdent(avdodIdent))
         val avdoddato = avdodperson?.doedsfall?.doedsdato
         //returner litt metadata
-        val result = listOf(mapOf("doedsdato" to avdoddato?.toString(), "sammensattNavn" to avdodperson?.navn?.sammensattNavn, "ident" to avdodIdent)).toJson()
+//        val result = listOf(mapOf("doedsdato" to avdoddato?.toString(), "sammensattNavn" to avdodperson?.navn?.sammensattNavn, "ident" to avdodIdent)).toJson()
+        val result = listOf(DodsDatoPdl(
+            doedsdato = avdoddato?.toString(),
+            sammensattNavn = avdodperson?.navn?.sammensattNavn,
+            ident = avdodIdent
+        ))
         logger.debug("result: $result")
         return result
     }
+
+    data class DodsDatoPdl(
+        val doedsdato: String?,
+        val sammensattNavn: String?,
+        val ident: String?
+    )
 
     private fun hentPerson(aktoerid: String): PdlPerson {
         logger.info("Henter personinformasjon for aktørId: $aktoerid")
