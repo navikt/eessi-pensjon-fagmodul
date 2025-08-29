@@ -120,7 +120,7 @@ class PensjonsinformasjonUtlandControllerTest {
     }
 
     @Test
-    fun `gitt en pesysId som finnes i gcp saa skal sedene henstes fra Rina`() {
+    fun `gitt en pesysId som finnes i gcp saa skal sedene hentes fra Rina`() {
         every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
             every { exists() } returns true
             every { getContent() } returns p6000Detaljer().toByteArray()

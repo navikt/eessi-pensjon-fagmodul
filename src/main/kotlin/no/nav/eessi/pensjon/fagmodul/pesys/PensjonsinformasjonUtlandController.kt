@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
 import no.nav.eessi.pensjon.eux.model.sed.P6000
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
+import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController.BrukerEllerGjenlevende.*
 import no.nav.eessi.pensjon.fagmodul.pesys.krav.P1Dto
 import no.nav.eessi.pensjon.fagmodul.pesys.krav.P1Person
 import no.nav.eessi.pensjon.gcp.GcpStorageService
@@ -109,8 +110,8 @@ class PensjonsinformasjonUtlandController(
                 .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
                 .onSuccess { logger.info("Hentet nye dok detaljer fra Rina for ${it.toJson()}") }
             listeOverP6000FraGcp.map { sed -> P1Dto(
-                innehaver = person(sed),
-                forsikrede = person(sed),
+                innehaver = person(sed, FORSIKRET),
+                forsikrede = person(sed, GJENLEVENDE),
                 sakstype = "Gjenlevende",
                 kravMottattDato = LocalDate.now(),
                 innvilgedePensjoner = emptyList(),
@@ -120,20 +121,28 @@ class PensjonsinformasjonUtlandController(
         }
     }
 
-    private fun person(sed: P6000) : P1Person {
-        val person = sed.pensjon?.gjenlevende?.person
-        val adresse = sed.pensjon?.gjenlevende?.adresse
+    private fun person(sed: P6000, brukerEllerGjenlevende: BrukerEllerGjenlevende) : P1Person {
+        val personBruker = if (brukerEllerGjenlevende == FORSIKRET) {
+            Pair(sed.nav?.bruker?.person, sed.nav?.bruker?.adresse)
+        } else {
+            Pair(sed.pensjon?.gjenlevende?.person, sed.pensjon?.gjenlevende?.adresse)
+        }
 
         return P1Person(
-            fornavn = person?.fornavn,
-            etternavn = person?.etternavn,
-            etternavnVedFoedsel = person?.etternavnvedfoedsel,
-            foedselsdato = dato(person?.foedselsdato),
-            adresselinje = adresse?.postadresse,
-            poststed = kodeverkClient.hentPostSted(adresse?.postnummer)?.sted,
-            postnummer = adresse?.postnummer,
-            landkode = adresse?.land
+            fornavn = personBruker.first?.fornavn,
+            etternavn = personBruker.first?.etternavn,
+            etternavnVedFoedsel = personBruker.first?.etternavnvedfoedsel,
+            foedselsdato = dato(personBruker.first?.foedselsdato),
+            adresselinje = personBruker.second?.postadresse,
+            poststed = kodeverkClient.hentPostSted(personBruker.second?.postnummer)?.sted,
+            postnummer = personBruker.second?.postnummer,
+            landkode = personBruker.second?.land
         )
+    }
+
+    enum class BrukerEllerGjenlevende(val person: String) {
+        FORSIKRET ("forsikret"),
+        GJENLEVENDE ("gjenlevende")
     }
 
     private fun dato(foedselsdato: String?): LocalDate? {
