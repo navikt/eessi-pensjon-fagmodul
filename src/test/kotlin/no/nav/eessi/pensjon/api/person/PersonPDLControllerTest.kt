@@ -384,16 +384,6 @@ class PersonPDLControllerTest {
             .andReturn()
         val expected = """{"result":[{"doedsdato":"2020-06-20","sammensattNavn":"Fornavn Etternavn","ident":"18077443335"}],"status":"OK","message":null,"stackTrace":null}""".trimIndent()
         JSONAssert.assertEquals(expected, result.response.contentAsString.toString(), false)
-        JSONAssert.assertEquals(expected, result.response.contentAsString.toString(), false)
-        val response = mapJsonToAny<FrontEndResponse<*>>(result.response.getContentAsString(charset("UTF-8")))
-        val expected = """
-            [ {
-              "doedsdato" : "2020-06-20",
-              "sammensattNavn" : "Fornavn Etternavn",
-              "ident" : "18077443335"
-            } ]
-        """.trimIndent()
-        assertEquals(expected, response.result)
     }
 
     @Test
