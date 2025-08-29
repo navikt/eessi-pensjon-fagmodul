@@ -54,22 +54,22 @@ class PensjonsinformasjonUtlandController(
 
     data class TrygdetidRequest(
         val fnr: String,
-        val rinaNr: Int
+        val rinaNr: Int? = null
     )
 
     @PostMapping("/hentTrygdetid")
-    fun hentTrygdetid(@RequestBody request: TrygdetidRequest): TrygdetidForPesys {
+    fun hentTrygdetid(@RequestBody request: TrygdetidRequest): TrygdetidForPesys{
         logger.debug("Henter trygdetid for fnr: ${request.fnr.takeLast(4)}, rinaNr: ${request.rinaNr}")
         return trygdeTidMetric.measure {
-            gcpStorageService.hentTrygdetid(request.fnr, request.rinaNr.toString())?.let {
+            gcpStorageService.hentTrygdetid(request.fnr)?.let {
                 runCatching { parseTrygdetid(it) }
                     .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
                     .getOrNull()
             }?.let { trygdetid ->
-                TrygdetidForPesys(request.fnr, request.rinaNr, trygdetid).also { logger.debug("Trygdetid response: $it") }
+                val trygdetidFraAlleBuc = trygdetid.flatMap { it.second }.sortedBy { it.startdato }
+                TrygdetidForPesys(request.fnr, trygdetidFraAlleBuc).also { logger.debug("Trygdetid response: $it") }
             } ?: TrygdetidForPesys(
-                request.fnr, request.rinaNr, emptyList(),
-                "Det finnes ingen registrert trygdetid for rinaNr: $request.rinaNr, aktoerId: $request.fnr"
+                request.fnr, emptyList(), "Det finnes ingen registrert trygdetid for fnr: ${request.fnr}"
             )
         }
     }
@@ -80,13 +80,9 @@ class PensjonsinformasjonUtlandController(
         return trygdeTidMetric.measure {
                 runCatching { trygdeTidService.hentBucFraEux(request.rinaNr, request.fnr) }
                     .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
-                    .getOrNull() ?: TrygdetidForPesys(
-                request.fnr, request.rinaNr, emptyList(),
-                "Det finnes ingen registrert trygdetid for rinaNr: $request.rinaNr, aktoerId: $request.fnr"
-            )
+                    .getOrNull() ?: TrygdetidForPesys(request.fnr, emptyList(), "Det finnes ingen registrert trygdetid for rinaNr: $request.rinaNr, aktoerId: $request.fnr")
         }
     }
-
 
     @GetMapping("/hentP6000Detaljer")
     fun hentP6000Detaljer(
@@ -145,13 +141,17 @@ class PensjonsinformasjonUtlandController(
         }
     }
 
-    fun parseTrygdetid(jsonString: String): List<Trygdetid> {
-        val cleanedJson = jsonString.trim('"').replace("\\n", "").replace("\\\"", "\"")
-        return mapJsonToAny<List<Trygdetid>>(cleanedJson).map {
-            if (it.land.length == 2) {
-                it.copy(land = kodeverkClient.finnLandkode(it.land) ?: it.land)
+    fun parseTrygdetid(input: List<Pair<String, String?>>): List<Pair<String?, List<Trygdetid>>>{
+        return input.mapNotNull { jsonString ->
+            val trygdetid = jsonString.first
+            val rinaNr = jsonString.second?.split(Regex("\\D+"))?.lastOrNull { it.isNotEmpty() }
+            val cleanedJson = trygdetid.trim('"').replace("\\n", "").replace("\\\"", "\"")
+            val trygdeTidListe = mapJsonToAny<List<Trygdetid>>(cleanedJson).map {
+                if (it.land.length == 2) {
+                    it.copy(land = kodeverkClient.finnLandkode(it.land) ?: it.land)
+                } else it
             }
-            else it
+            Pair(rinaNr, trygdeTidListe)
         }
     }
 

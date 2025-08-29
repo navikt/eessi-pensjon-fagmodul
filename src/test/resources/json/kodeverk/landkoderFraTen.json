@@ -1,0 +1,86 @@
+{
+  "v4.2": {
+    "euEftaLand": [
+      {
+        "landkode": "AUT",
+        "landnavn": "Østerrike"
+      },
+      {
+        "landkode": "BEL",
+        "landnavn": "Belgia"
+      }
+    ],
+    "verdensLand": [
+      {
+        "landkode": "ABW",
+        "landnavn": "Aruba"
+      },
+      {
+        "landkode": "AFG",
+        "landnavn": "Afghanistan"
+      }
+    ],
+    "verdensLandHistorisk": [
+      {
+        "landkode": "ABW",
+        "landnavn": "Aruba"
+      },
+      {
+        "landkode": "AFG",
+        "landnavn": "Afghanistan"
+      }
+    ],
+    "statsborgerskap": [
+      {
+        "landkode": "AFG",
+        "landnavn": "Afghanistan"
+      },
+      {
+        "landkode": "ALB",
+        "landnavn": "Albania"
+      }
+    ]
+  },
+  "v4.3": {
+    "euEftaLand": [
+      {
+        "landkode": "AUT",
+        "landnavn": "Østerrike"
+      },
+      {
+        "landkode": "BEL",
+        "landnavn": "Belgia"
+      }
+    ],
+    "verdensLand": [
+      {
+        "landkode": "ABW",
+        "landnavn": "Aruba"
+      },
+      {
+        "landkode": "AFG",
+        "landnavn": "Afghanistan"
+      }
+    ],
+    "verdensLandHistorisk": [
+      {
+        "landkode": "ABW",
+        "landnavn": "Aruba"
+      },
+      {
+        "landkode": "AFG",
+        "landnavn": "Afghanistan"
+      }
+    ],
+    "statsborgerskap": [
+      {
+        "landkode": "AFG",
+        "landnavn": "Afghanistan"
+      },
+      {
+        "landkode": "ALB",
+        "landnavn": "Albania"
+      }
+    ]
+  }
+}

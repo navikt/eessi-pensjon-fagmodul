@@ -2,7 +2,7 @@ buildscript {
 
     ext {
         kotlinVersion = '2.2.10'
-        springBootVersion = '3.5.4'
+        springBootVersion = '3.5.5'
         springKafkaVersion = '3.3.9'
         springfoxVersion = '3.0.0'
         tokenSupportVersion = '5.0.34'
@@ -64,24 +64,24 @@ dependencies {
     implementation("org.springframework.kafka:spring-kafka:${springKafkaVersion}")
 
     //GCP
-    implementation("com.google.cloud:google-cloud-storage:2.55.0")
+    implementation("com.google.cloud:google-cloud-storage:2.56.0")
 
-    implementation("no.nav.eessi.pensjon:ep-metrics:2.1.5")
-    implementation("no.nav.eessi.pensjon:ep-logging:2.3.5")
+    implementation("no.nav.eessi.pensjon:ep-metrics:2.1.7")
+    implementation("no.nav.eessi.pensjon:ep-logging:2.3.8")
     implementation("no.nav.eessi.pensjon:ep-eux:2.5.12")
-    implementation("no.nav.eessi.pensjon:ep-kodeverk:4.3.9") {
+    implementation("no.nav.eessi.pensjon:ep-kodeverk:4.3.15") {
         exclude module: 'ep-eux'
         exclude module: 'ep-logging'
         exclude module: 'ep-metrics'
     }
 
-    implementation("no.nav.eessi.pensjon:ep-personoppslag:13.3.19") {
+    implementation("no.nav.eessi.pensjon:ep-personoppslag:13.3.24") {
         exclude module: 'ep-eux'
         exclude module: 'ep-logging'
         exclude module: 'ep-metrics'
     }
 
-    implementation("no.nav.eessi.pensjon:ep-pensjonsinformasjon:3.1.8") {
+    implementation("no.nav.eessi.pensjon:ep-pensjonsinformasjon:3.1.12") {
         exclude module: 'ep-eux'
         exclude module: 'ep-logging'
         exclude module: 'ep-metrics'
