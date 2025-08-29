@@ -5,6 +5,7 @@ import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
+import kafka.utils.Json
 import no.nav.eessi.pensjon.fagmodul.api.FrontEndResponse
 import no.nav.eessi.pensjon.api.person.PersonPDLController.PersoninformasjonAvdode
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_02
@@ -361,7 +362,7 @@ class PersonPDLControllerTest {
             .andExpect(status().is2xxSuccessful)
             .andReturn()
         val response = mapJsonToAny<FrontEndResponse<*>>(result.response.getContentAsString(charset("UTF-8")))
-        assertEquals("[ ]", response.result)
+        assertEquals(emptyList<String>(), response.result)
     }
 
     @Test
@@ -381,6 +382,9 @@ class PersonPDLControllerTest {
         )
             .andExpect(status().is2xxSuccessful)
             .andReturn()
+        val expected = """{"result":[{"doedsdato":"2020-06-20","sammensattNavn":"Fornavn Etternavn","ident":"18077443335"}],"status":"OK","message":null,"stackTrace":null}""".trimIndent()
+        JSONAssert.assertEquals(expected, result.response.contentAsString.toString(), false)
+        JSONAssert.assertEquals(expected, result.response.contentAsString.toString(), false)
         val response = mapJsonToAny<FrontEndResponse<*>>(result.response.getContentAsString(charset("UTF-8")))
         val expected = """
             [ {
@@ -436,14 +440,8 @@ class PersonPDLControllerTest {
             .andExpect(status().is2xxSuccessful)
             .andReturn()
         val response = mapJsonToAny<FrontEndResponse<*>>(result.response.getContentAsString(charset("UTF-8")))
-        val expected = """
-            [ {
-              "doedsdato" : "2020-06-20",
-              "sammensattNavn" : "Fornavn Etternavn",
-              "ident" : "18077443335"
-            } ]
-        """.trimIndent()
-        assertEquals(expected, response.result)
+        val expected = """[{doedsdato=2020-06-20, sammensattNavn=Fornavn Etternavn, ident=18077443335}]""".trimIndent()
+        assertEquals(expected, response.result.toString())
     }
 
     @Test
@@ -478,7 +476,7 @@ class PersonPDLControllerTest {
             .andExpect(status().is2xxSuccessful)
             .andReturn()
         val response = mapJsonToAny<FrontEndResponse<*>>(result.response.getContentAsString(charset("UTF-8")))
-        assertEquals("[ ]", response.result)
+        assertEquals(emptyList<String>(), response.result)
     }
 
 
@@ -533,14 +531,8 @@ class PersonPDLControllerTest {
             .andExpect(status().is2xxSuccessful)
             .andReturn()
         val response = mapJsonToAny<FrontEndResponse<*>>(result.response.getContentAsString(charset("UTF-8")))
-        val expected = """
-            [ {
-              "doedsdato" : "2007-06-20",
-              "sammensattNavn" : "AVDØD HELTAVØD",
-              "ident" : "18077443335"
-            } ]
-        """.trimIndent()
-        assertEquals(expected, response.result)
+        val expected = """[{doedsdato=2007-06-20, sammensattNavn=AVDØD HELTAVØD, ident=18077443335}]""".trimIndent()
+        assertEquals(expected, response.result.toString())
     }
 
 
