@@ -121,7 +121,6 @@ class PersonPDLController(
             logger.info("Det ble funnet ${avdodeMedFnr.size} avdøde for den gjenlevende med aktørID: $gjenlevendeAktoerId")
 
             logger.debug("result: ${avdodeMedFnr.toJsonSkipEmpty()}")
-//            ResponseEntity.ok(avdodeMedFnr)
             ResponseEntity.ok(FrontEndResponse(result = avdodeMedFnr, status = HttpStatus.OK.name))
 
         }
@@ -228,7 +227,6 @@ class PersonPDLController(
         val avdodperson = pdlService.hentPerson(NorskIdent(avdodIdent))
         val avdoddato = avdodperson?.doedsfall?.doedsdato
         //returner litt metadata
-//        val result = listOf(mapOf("doedsdato" to avdoddato?.toString(), "sammensattNavn" to avdodperson?.navn?.sammensattNavn, "ident" to avdodIdent)).toJson()
         val result = listOf(DodsDatoPdl(
             doedsdato = avdoddato?.toString(),
             sammensattNavn = avdodperson?.navn?.sammensattNavn,
