@@ -97,6 +97,7 @@ class PensjonsinformasjonUtlandController(
             )
             val listeOverP6000FraGcp = mutableListOf<P6000>()
             val p6000Detaljer = mapJsonToAny<P6000Detaljer>(p6000FraGcp)
+            logger.info("P6000Detaljer: ${p6000Detaljer.toJson()}")
             runCatching {
                 p6000Detaljer.dokumentId.forEach { p6000 ->
                     val hentetP6000 = euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(p6000Detaljer.rinaSakId, p6000) as P6000
