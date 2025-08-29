@@ -4,15 +4,12 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
-import no.nav.eessi.pensjon.eux.model.buc.Institusjon
 import no.nav.eessi.pensjon.eux.model.sed.P6000
-import no.nav.eessi.pensjon.eux.model.sed.PinLandItem
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.pesys.krav.P1Dto
 import no.nav.eessi.pensjon.fagmodul.pesys.krav.P1Person
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.kodeverk.KodeverkClient
-import no.nav.eessi.pensjon.kodeverk.Postnummer
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.security.token.support.core.api.Protected
@@ -124,14 +121,14 @@ class PensjonsinformasjonUtlandController(
     }
 
     private fun person(sed: P6000) : P1Person {
-        val blabla = sed.pensjon?.gjenlevende?.person
+        val person = sed.pensjon?.gjenlevende?.person
         val adresse = sed.pensjon?.gjenlevende?.adresse
 
         return P1Person(
-            fornavn = blabla?.fornavn,
-            etternavn = blabla?.etternavn,
-            etternavnVedFoedsel = blabla?.etternavnvedfoedsel,
-            foedselsdato = dato(blabla?.foedselsdato),
+            fornavn = person?.fornavn,
+            etternavn = person?.etternavn,
+            etternavnVedFoedsel = person?.etternavnvedfoedsel,
+            foedselsdato = dato(person?.foedselsdato),
             adresselinje = adresse?.postadresse,
             poststed = kodeverkClient.hentPostSted(adresse?.postnummer)?.sted,
             postnummer = adresse?.postnummer,
