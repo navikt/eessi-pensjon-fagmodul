@@ -118,13 +118,7 @@ class PensjonsinformasjonUtlandController(
                 kravMottattDato = LocalDate.now(),
                 innvilgedePensjoner = emptyList(),
                 avslaattePensjoner = emptyList(),
-                utfyllendeInstitusjon = Institusjon(
-                    id = "",
-                    navn = "",
-                    akronym = "",
-                    landkode = "",
-                    tilegnetBucs = emptyList ()
-                )
+                utfyllendeInstitusjon = ""
             ) }
         }
     }

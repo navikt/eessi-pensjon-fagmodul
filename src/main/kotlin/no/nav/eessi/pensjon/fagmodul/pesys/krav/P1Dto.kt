@@ -10,7 +10,7 @@ data class P1Dto(
     val kravMottattDato: LocalDate,
     val innvilgedePensjoner: List<InnvilgetPensjon>,
     val avslaattePensjoner: List<AvslaattPensjon>,
-    val utfyllendeInstitusjon: Institusjon, // I praksis Nav eller Nav-enheten
+    val utfyllendeInstitusjon: String,
 )
 
     data class P1Person(
