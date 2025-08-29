@@ -12,6 +12,7 @@ import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.kodeverk.KodeverkClient
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.utils.mapJsonToAny
+import no.nav.eessi.pensjon.utils.toJson
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -103,7 +104,7 @@ class PensjonsinformasjonUtlandController(
                 }
             }
                 .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
-                .onSuccess { logger.info("Hentet nye dok detaljer fra Rina for $it") }
+                .onSuccess { logger.info("Hentet nye dok detaljer fra Rina for ${it.toJson()}") }
             listeOverP6000FraGcp.map { sed -> P1Dto(
                 innehaver = person(sed),
                 forsikrede = person(sed),
