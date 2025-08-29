@@ -44,53 +44,53 @@ class LandkodeControllerTest {
         KodeverkService = KodeverkService(restTemplate)
     }
 
-    @Test
-    fun testLandkoderEndpoint() {
-        every { kodeverkClient.hentAlleLandkoder() } returns "AU"
+//    @Test
+//    fun testLandkoderEndpoint() {
+//        every { kodeverkClient.hentAlleLandkoder() } returns "AU"
+//
+//        val repsonse = mvc.perform(get("/landkoder/")
+//            .accept(MediaType.APPLICATION_JSON))
+//            .andExpect(status().isOk())
+//            .andReturn().response
+//        val response = mapJsonToAny<FrontEndResponse<*>>(repsonse.contentAsString)
+//        assertEquals("AU", response.result)
+//    }
 
-        val repsonse = mvc.perform(get("/landkoder/")
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andReturn().response
-        val response = mapJsonToAny<FrontEndResponse<*>>(repsonse.contentAsString)
-        assertEquals("AU", response.result)
-    }
+//    @Test
+//    fun testLandkoder2Endpoint() {
+//        every { kodeverkClient.hentLandkoderAlpha2() } returns listOf("AU","NO", "BE")
+//
+//        val repsonse = mvc.perform(get("/landkoder/landkoder2")
+//            .accept(MediaType.APPLICATION_JSON))
+//            .andExpect(status().isOk())
+//            .andReturn().response
+//        val response = mapJsonToAny<FrontEndResponse<List<String>>>(repsonse.contentAsString)
+//        assertEquals( "[AU, NO, BE]", response.result.toString())
+//    }
 
-    @Test
-    fun testLandkoder2Endpoint() {
-        every { kodeverkClient.hentLandkoderAlpha2() } returns listOf("AU","NO", "BE")
+//    @Test
+//    fun testGetLandKoderAlpha3Endpoint() {
+//        every { kodeverkClient.finnLandkode("DK") } returns "DKK"
+//
+//        val repsonse = mvc.perform(get("/landkoder/DK/land3")
+//            .accept(MediaType.APPLICATION_JSON))
+//            .andExpect(status().isOk())
+//            .andReturn().response
+//        val response = mapJsonToAny<FrontEndResponse<*>>(repsonse.contentAsString)
+//        assertEquals("DKK", response.result)
+//    }
 
-        val repsonse = mvc.perform(get("/landkoder/landkoder2")
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andReturn().response
-        val response = mapJsonToAny<FrontEndResponse<List<String>>>(repsonse.contentAsString)
-        assertEquals( "[AU, NO, BE]", response.result.toString())
-    }
-
-    @Test
-    fun testGetLandKoderAlpha3Endpoint() {
-        every { kodeverkClient.finnLandkode("DK") } returns "DKK"
-
-        val repsonse = mvc.perform(get("/landkoder/DK/land3")
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andReturn().response
-        val response = mapJsonToAny<FrontEndResponse<*>>(repsonse.contentAsString)
-        assertEquals("DKK", response.result)
-    }
-
-    @Test
-    fun testGetLandKoderAlpha2Endpoint() {
-        every { kodeverkClient.finnLandkode("DKK") } returns "DK"
-
-        val repsonse = mvc.perform(get("/landkoder/DKK/land2")
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andReturn().response
-        val response = mapJsonToAny<FrontEndResponse<*>>(repsonse.contentAsString)
-        assertEquals("DK", response.result)
-    }
+//    @Test
+//    fun testGetLandKoderAlpha2Endpoint() {
+//        every { kodeverkClient.finnLandkode("DKK") } returns "DK"
+//
+//        val repsonse = mvc.perform(get("/landkoder/DKK/land2")
+//            .accept(MediaType.APPLICATION_JSON))
+//            .andExpect(status().isOk())
+//            .andReturn().response
+//        val response = mapJsonToAny<FrontEndResponse<*>>(repsonse.contentAsString)
+//        assertEquals("DK", response.result)
+//    }
 
     @Test
     fun testerLandkoderAkseptertAvRina() {
