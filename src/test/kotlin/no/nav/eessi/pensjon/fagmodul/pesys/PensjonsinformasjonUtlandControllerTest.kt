@@ -132,6 +132,7 @@ class PensjonsinformasjonUtlandControllerTest {
         assertEquals("Gjenlevende", result.sakstype)
         assertEquals("æøå", result.innehaver.etternavn)
         assertEquals("æøå", result.forsikrede.fornavn)
+        assertEquals("æøå", result.vedtaksdato)
     }
 
     private fun mockGcpListeSok(rinaNrList: List<String>) {

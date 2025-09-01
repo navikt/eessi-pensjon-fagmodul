@@ -110,15 +110,16 @@ class PensjonsinformasjonUtlandController(
             }
                 .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
                 .onSuccess { logger.info("Hentet nye dok detaljer fra Rina for ${it.toJson()}") }
-            val sedSomErNyest = listeOverP6000FraGcp.sortedBy { it.pensjon?.tilleggsinformasjon?.dato }.first()
+            val nyesteP6000 = listeOverP6000FraGcp.sortedBy { it.pensjon?.tilleggsinformasjon?.dato }.first()
             P1Dto(
-                innehaver = person(sedSomErNyest, GJENLEVENDE),
-                forsikrede = person(sedSomErNyest, FORSIKRET),
+                innehaver = person(nyesteP6000, GJENLEVENDE),
+                forsikrede = person(nyesteP6000, FORSIKRET),
                 sakstype = "Gjenlevende",
                 kravMottattDato = null,
                 innvilgedePensjoner = emptyList(),
                 avslaattePensjoner = emptyList(),
-                utfyllendeInstitusjon = ""
+                utfyllendeInstitusjon = "",
+                vedtaksdato = nyesteP6000.pensjon?.tilleggsinformasjon?.dato
             )
         }
     }
