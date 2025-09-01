@@ -64,7 +64,11 @@ class PensjonsinformasjonUtlandController(
                     .getOrNull()
             }?.let { trygdetid ->
                 val trygdetidFraAlleBuc = trygdetid.flatMap { it.second }.sortedBy { it.startdato }
-                TrygdetidForPesys(request.fnr, trygdetidFraAlleBuc).also { logger.debug("Trygdetid response: $it") }
+                if (trygdetidFraAlleBuc.isEmpty()) {
+                    TrygdetidForPesys(request.fnr, emptyList(), "Det finnes ingen registrert trygdetid for fnr: ${request.fnr}")
+                } else {
+                    TrygdetidForPesys(request.fnr, trygdetidFraAlleBuc).also { logger.debug("Trygdetid response: $it") }
+                }
             } ?: TrygdetidForPesys(
                 request.fnr, emptyList(), "Det finnes ingen registrert trygdetid for fnr: ${request.fnr}"
             )
