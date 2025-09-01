@@ -125,7 +125,7 @@ class PensjonsinformasjonUtlandControllerTest {
             every { exists() } returns true
             every { getContent() } returns p6000Detaljer().toByteArray()
         }
-        every { euxInnhentingService.getSedOnBucByDocumentId(any(), any()) } returns hentTestP6000()
+        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(any(), any()) } returns hentTestP6000()
 
         val result = controller.hentP6000Detaljer("22975052")
 
