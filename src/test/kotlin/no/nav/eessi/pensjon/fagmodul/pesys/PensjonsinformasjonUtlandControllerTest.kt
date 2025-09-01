@@ -127,7 +127,7 @@ class PensjonsinformasjonUtlandControllerTest {
         }
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(any(), any()) } returns hentTestP6000()
 
-        val result = controller.hentP6000Detaljer("22975052")[0]
+        val result = controller.hentP6000Detaljer("22975052")
 
         assertEquals("Gjenlevende", result.sakstype)
         assertEquals("æøå", result.innehaver.etternavn)

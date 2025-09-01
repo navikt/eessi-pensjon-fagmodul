@@ -89,7 +89,7 @@ class PensjonsinformasjonUtlandController(
     @GetMapping("/hentP6000Detaljer")
     fun hentP6000Detaljer(
         @RequestParam("pesysId") pesysId: String
-    ) : List<P1Dto> {
+    ) : P1Dto {
         logger.info("Henter P6000 detaljer fra bucket for pesysId: $pesysId")
         return p6000Metric.measure {
             val p6000FraGcp = gcpStorageService.hentGcpDetlajerForP6000(pesysId) ?: throw ResponseStatusException(
@@ -105,19 +105,21 @@ class PensjonsinformasjonUtlandController(
                             val somP6000 = hentetJsonP6000 as P6000
                     logger.info("somP6000: $somP6000")
                     somP6000.let { listeOverP6000FraGcp.add(it) }
+
                 }
             }
                 .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
                 .onSuccess { logger.info("Hentet nye dok detaljer fra Rina for ${it.toJson()}") }
-            listeOverP6000FraGcp.map { sed -> P1Dto(
-                innehaver = person(sed, FORSIKRET),
-                forsikrede = person(sed, GJENLEVENDE),
+            val sedSomErNyest = listeOverP6000FraGcp.sortedBy { it.pensjon?.tilleggsinformasjon?.dato }.first()
+            P1Dto(
+                innehaver = person(sedSomErNyest, GJENLEVENDE),
+                forsikrede = person(sedSomErNyest, FORSIKRET),
                 sakstype = "Gjenlevende",
-                kravMottattDato = LocalDate.now(),
+                kravMottattDato = null,
                 innvilgedePensjoner = emptyList(),
                 avslaattePensjoner = emptyList(),
                 utfyllendeInstitusjon = ""
-            ) }
+            )
         }
     }
 
