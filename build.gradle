@@ -60,7 +60,7 @@ dependencies {
     implementation("no.nav.security:token-validation-spring:${tokenSupportVersion}")
     implementation("no.nav.security:token-validation-jaxrs:${tokenSupportVersion}")
 
-    implementation ("no.nav.common:token-client:3.2025.06.23_14.50-3af3985d8555")
+    implementation ("no.nav.common:token-client:3.2025.08.25_12.27-58dc47568753")
     implementation("org.springframework.kafka:spring-kafka:${springKafkaVersion}")
 
     //GCP
