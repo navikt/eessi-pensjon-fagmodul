@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.JsonDeserializer
 import no.nav.eessi.pensjon.eux.model.sed.P6000
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController.BrukerEllerGjenlevende.*
+import no.nav.eessi.pensjon.fagmodul.pesys.krav.AvslaattPensjon
+import no.nav.eessi.pensjon.fagmodul.pesys.krav.InnvilgetPensjon
 import no.nav.eessi.pensjon.fagmodul.pesys.krav.P1Dto
 import no.nav.eessi.pensjon.fagmodul.pesys.krav.P1Person
 import no.nav.eessi.pensjon.gcp.GcpStorageService
@@ -116,13 +118,33 @@ class PensjonsinformasjonUtlandController(
                 forsikrede = person(nyesteP6000, FORSIKRET),
                 sakstype = "Gjenlevende",
                 kravMottattDato = null,
-                innvilgedePensjoner = emptyList(),
-                avslaattePensjoner = emptyList(),
+                innvilgedePensjoner = innvilgedePensjoner(listeOverP6000FraGcp),
+                avslaattePensjoner = avslåtteUtenlandskePensjoner(listeOverP6000FraGcp),
                 utfyllendeInstitusjon = "",
                 vedtaksdato = nyesteP6000.pensjon?.tilleggsinformasjon?.dato
             )
         }
     }
+
+    private fun innvilgedePensjoner(p6000er: MutableList<P6000>) : List<InnvilgetPensjon>{
+        val untenlandskeP6000 = p6000er.filter { it -> it.nav?.eessisak?.any { it.land != "NO" } == true }
+        innvilgedePensjoner(p6000er)
+    }
+
+    private fun avslåtteUtenlandskePensjoner(p6000er: List<P6000>): List<AvslaattPensjon> {
+        val untenlandskeP6000 = p6000er.filter { it -> it.nav?.eessisak?.any { it.land != "NO" } == true }
+        untenlandskeP6000.filter { it.nav?.eessisak?.any { it.land != "NO" } == true }.map {
+            val vedtak = it.pensjon?.vedtak?.first()
+            AvslaattPensjon(
+                institusjon = it.nav?.eessisak?.joinToString(", "),
+                pensjonstype = vedtak?.type,
+                avslagsbegrunnelse = vedtak?.avslagbegrunnelse?.first {!it.begrunnelse.isNullOrEmpty()}?.begrunnelse ,
+                vurderingsperiode = "",
+                adresseNyVurdering = ""
+            )
+        }
+    }
+
 
     private fun person(sed: P6000, brukerEllerGjenlevende: BrukerEllerGjenlevende) : P1Person {
         val personBruker = if (brukerEllerGjenlevende == FORSIKRET) {
