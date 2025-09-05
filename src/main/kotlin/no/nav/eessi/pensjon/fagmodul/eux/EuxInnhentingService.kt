@@ -110,11 +110,13 @@ class EuxInnhentingService(
 
     fun getSedOnBucByDocumentIdAsSystemuser(euxCaseId: String, documentId: String): SED {
         val json = sedByDocumentId.measure { euxKlient.getSedOnBucByDocumentIdAsSystemuser(euxCaseId, documentId) }
+        logger.info("JSON: $json")
         return try {
-            SED.fromJsonToConcrete(json)
+            SED.fromJsonToConcrete(json).also { logger.info("JsonToConcrete: $it") }
+
         } catch (ex: Exception) {
             logger.error("Feiler ved mapping av kravSED. Rina: $euxCaseId, documentid: $documentId")
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Feiler ved mapping av kravSED. Rina: $euxCaseId, documentid: $documentId")
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Feiler ved mapping av kravSED. Rina: $euxCaseId, documentid: $documentId, $ex")
         }
     }
 

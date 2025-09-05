@@ -120,15 +120,19 @@ class PensjonsinformasjonUtlandControllerTest {
     }
 
     @Test
-    fun `gitt en pesysId som finnes i gcp saa skal sedene henstes fra Rina`() {
+    fun `gitt en pesysId som finnes i gcp saa skal sedene hentes fra Rina`() {
         every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
             every { exists() } returns true
             every { getContent() } returns p6000Detaljer().toByteArray()
         }
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(any(), any()) } returns hentTestP6000()
 
-        val result = controller.hentP6000Detaljer("22975052")[0]
-        assertEquals("112233445566", result.nav?.bruker?.person?.pin?.get(0)?.identifikator)
+        val result = controller.hentP6000Detaljer("22975052")
+
+        assertEquals("Gjenlevende", result.sakstype)
+        assertEquals("æøå", result.innehaver.etternavn)
+        assertEquals("æøå", result.forsikrede.fornavn)
+        assertEquals("01-09-2025", result.vedtaksdato)
     }
 
     private fun mockGcpListeSok(rinaNrList: List<String>) {

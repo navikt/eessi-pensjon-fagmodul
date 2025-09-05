@@ -6,16 +6,21 @@ import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
 import no.nav.eessi.pensjon.eux.model.sed.P6000
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
+import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController.BrukerEllerGjenlevende.*
+import no.nav.eessi.pensjon.fagmodul.pesys.krav.P1Dto
+import no.nav.eessi.pensjon.fagmodul.pesys.krav.P1Person
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.kodeverk.KodeverkClient
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.utils.mapJsonToAny
+import no.nav.eessi.pensjon.utils.toJson
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
+import java.time.LocalDate
 
 
 /**
@@ -88,7 +93,7 @@ class PensjonsinformasjonUtlandController(
     @GetMapping("/hentP6000Detaljer")
     fun hentP6000Detaljer(
         @RequestParam("pesysId") pesysId: String
-    ): List<P6000> {
+    ) : P1Dto {
         logger.info("Henter P6000 detaljer fra bucket for pesysId: $pesysId")
         return p6000Metric.measure {
             val p6000FraGcp = gcpStorageService.hentGcpDetlajerForP6000(pesysId) ?: throw ResponseStatusException(
@@ -97,15 +102,62 @@ class PensjonsinformasjonUtlandController(
             )
             val listeOverP6000FraGcp = mutableListOf<P6000>()
             val p6000Detaljer = mapJsonToAny<P6000Detaljer>(p6000FraGcp)
+            logger.info("P6000Detaljer: ${p6000Detaljer.toJson()}")
             runCatching {
                 p6000Detaljer.dokumentId.forEach { p6000 ->
-                    val hentetP6000 = euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(p6000Detaljer.rinaSakId, p6000) as P6000
-                    hentetP6000.let { listeOverP6000FraGcp.add(it) }
+                    val hentetJsonP6000 = euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(p6000Detaljer.rinaSakId, p6000)
+                            val somP6000 = hentetJsonP6000 as P6000
+                    logger.info("somP6000: $somP6000")
+                    somP6000.let { listeOverP6000FraGcp.add(it) }
+
                 }
             }
                 .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
-                .onSuccess { logger.info("Hentet nye dok detaljer fra Rina for $it") }
-            listeOverP6000FraGcp
+                .onSuccess { logger.info("Hentet nye dok detaljer fra Rina for ${it.toJson()}") }
+            val nyesteP6000 = listeOverP6000FraGcp.sortedBy { it.pensjon?.tilleggsinformasjon?.dato }.first()
+            P1Dto(
+                innehaver = person(nyesteP6000, GJENLEVENDE),
+                forsikrede = person(nyesteP6000, FORSIKRET),
+                sakstype = "Gjenlevende",
+                kravMottattDato = null,
+                innvilgedePensjoner = emptyList(),
+                avslaattePensjoner = emptyList(),
+                utfyllendeInstitusjon = "",
+                vedtaksdato = nyesteP6000.pensjon?.tilleggsinformasjon?.dato
+            )
+        }
+    }
+
+    private fun person(sed: P6000, brukerEllerGjenlevende: BrukerEllerGjenlevende) : P1Person {
+        val personBruker = if (brukerEllerGjenlevende == FORSIKRET) {
+            Pair(sed.nav?.bruker?.person, sed.nav?.bruker?.adresse)
+        } else {
+            Pair(sed.pensjon?.gjenlevende?.person, sed.pensjon?.gjenlevende?.adresse)
+        }
+
+        return P1Person(
+            fornavn = personBruker.first?.fornavn,
+            etternavn = personBruker.first?.etternavn,
+            etternavnVedFoedsel = personBruker.first?.etternavnvedfoedsel,
+            foedselsdato = dato(personBruker.first?.foedselsdato),
+            adresselinje = personBruker.second?.postadresse,
+            poststed = kodeverkClient.hentPostSted(personBruker.second?.postnummer)?.sted,
+            postnummer = personBruker.second?.postnummer,
+            landkode = personBruker.second?.land
+        )
+    }
+
+    enum class BrukerEllerGjenlevende(val person: String) {
+        FORSIKRET ("forsikret"),
+        GJENLEVENDE ("gjenlevende")
+    }
+
+    private fun dato(foedselsdato: String?): LocalDate? {
+        if (foedselsdato == null) return null
+        return try {
+            LocalDate.parse(foedselsdato)
+        } catch (ex: Exception) {
+            null
         }
     }
 
