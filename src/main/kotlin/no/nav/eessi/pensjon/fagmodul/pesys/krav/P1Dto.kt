@@ -25,10 +25,10 @@ data class P1Dto(
     )
 
     data class InnvilgetPensjon(
-        val institusjon: String,
+        val institusjon: String?,
         val pensjonstype: String,
-        val datoFoersteUtbetaling: LocalDate,
-        val bruttobeloep: String,
+        val datoFoersteUtbetaling: LocalDate?,
+        val bruttobeloep: String?,
         val grunnlagInnvilget: String,
         val reduksjonsgrunnlag: String?,
         val vurderingsperiode: String,

@@ -127,13 +127,25 @@ class PensjonsinformasjonUtlandController(
     }
 
     private fun innvilgedePensjoner(p6000er: MutableList<P6000>) : List<InnvilgetPensjon>{
-        val untenlandskeP6000 = p6000er.filter { it -> it.nav?.eessisak?.any { it.land != "NO" } == true }
-        innvilgedePensjoner(p6000er)
+        val utenlandskeP6000 = p6000er.filter { it -> it.nav?.eessisak?.any { it.land != "NO" } == true }
+        return utenlandskeP6000.map {
+            val vedtak = it.pensjon?.vedtak?.first()
+            InnvilgetPensjon(
+                institusjon = it.nav?.eessisak?.joinToString(", "),
+                pensjonstype = vedtak?.type ?: "",
+                datoFoersteUtbetaling = dato(vedtak?.beregning?.first()?.periode?.fom!!),
+                bruttobeloep = vedtak.beregning?.first()?.beloepBrutto?.beloep,
+                grunnlagInnvilget = "",
+                reduksjonsgrunnlag ="",
+                vurderingsperiode = "", //vedtak?.beregning?.first()?.periode fom-tom?
+                adresseNyVurdering = ""
+            )
+        }
     }
 
     private fun avslåtteUtenlandskePensjoner(p6000er: List<P6000>): List<AvslaattPensjon> {
-        val untenlandskeP6000 = p6000er.filter { it -> it.nav?.eessisak?.any { it.land != "NO" } == true }
-        untenlandskeP6000.filter { it.nav?.eessisak?.any { it.land != "NO" } == true }.map {
+        val utenlandskeP6000 = p6000er.filter { it -> it.nav?.eessisak?.any { it.land != "NO" } == true }
+        return utenlandskeP6000.map {
             val vedtak = it.pensjon?.vedtak?.first()
             AvslaattPensjon(
                 institusjon = it.nav?.eessisak?.joinToString(", "),
