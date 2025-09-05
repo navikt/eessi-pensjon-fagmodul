@@ -183,9 +183,8 @@ class PensjonsinformasjonUtlandController(
     }
 
     private fun dato(foedselsdato: String?): LocalDate? {
-        if (foedselsdato == null) return null
         return try {
-            LocalDate.parse(foedselsdato)
+            foedselsdato?.let { LocalDate.parse(it) }
         } catch (ex: Exception) {
             null
         }
