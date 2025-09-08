@@ -113,46 +113,45 @@ class PensjonsinformasjonUtlandController(
                 .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
                 .onSuccess { logger.info("Hentet nye dok detaljer fra Rina for ${it.toJson()}") }
             val nyesteP6000 = listeOverP6000FraGcp.sortedBy { it.pensjon?.tilleggsinformasjon?.dato }.first()
+            val utenlandskeP6000er = listeOverP6000FraGcp.filter { it -> it.nav?.eessisak?.any { it.land != "NO" } == true }
             P1Dto(
                 innehaver = person(nyesteP6000, GJENLEVENDE),
                 forsikrede = person(nyesteP6000, FORSIKRET),
                 sakstype = "Gjenlevende",
                 kravMottattDato = null,
-                innvilgedePensjoner = innvilgedePensjoner(listeOverP6000FraGcp),
-                avslaattePensjoner = avslåtteUtenlandskePensjoner(listeOverP6000FraGcp),
+                innvilgedePensjoner = innvilgedePensjoner(utenlandskeP6000er),
+                avslaattePensjoner = avslåtteUtenlandskePensjoner(utenlandskeP6000er),
                 utfyllendeInstitusjon = "",
                 vedtaksdato = nyesteP6000.pensjon?.tilleggsinformasjon?.dato
             )
         }
     }
 
-    private fun innvilgedePensjoner(p6000er: MutableList<P6000>) : List<InnvilgetPensjon>{
-        val utenlandskeP6000 = p6000er.filter { it -> it.nav?.eessisak?.any { it.land != "NO" } == true }
-        return utenlandskeP6000.map {
+    private fun innvilgedePensjoner(p6000er: List<P6000>) : List<InnvilgetPensjon>{
+        return p6000er.map {
             val vedtak = it.pensjon?.vedtak?.first()
             InnvilgetPensjon(
                 institusjon = it.nav?.eessisak?.joinToString(", "),
                 pensjonstype = vedtak?.type ?: "",
                 datoFoersteUtbetaling = dato(vedtak?.beregning?.first()?.periode?.fom!!),
                 bruttobeloep = vedtak.beregning?.first()?.beloepBrutto?.beloep,
-                grunnlagInnvilget = "",
-                reduksjonsgrunnlag ="",
-                vurderingsperiode = "", //vedtak?.beregning?.first()?.periode fom-tom?
-                adresseNyVurdering = ""
+                grunnlagInnvilget = vedtak.artikkel,
+                reduksjonsgrunnlag = it.pensjon?.sak?.artikkel54,
+                vurderingsperiode = it.pensjon?.sak?.kravtype?.first()?.datoFrist,
+                adresseNyVurdering = it.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.joinToString(", ") ?: ""
             )
         }
     }
 
     private fun avslåtteUtenlandskePensjoner(p6000er: List<P6000>): List<AvslaattPensjon> {
-        val utenlandskeP6000 = p6000er.filter { it -> it.nav?.eessisak?.any { it.land != "NO" } == true }
-        return utenlandskeP6000.map {
+        return p6000er.map {
             val vedtak = it.pensjon?.vedtak?.first()
             AvslaattPensjon(
                 institusjon = it.nav?.eessisak?.joinToString(", "),
                 pensjonstype = vedtak?.type,
                 avslagsbegrunnelse = vedtak?.avslagbegrunnelse?.first {!it.begrunnelse.isNullOrEmpty()}?.begrunnelse ,
-                vurderingsperiode = "",
-                adresseNyVurdering = ""
+                vurderingsperiode = it.pensjon?.sak?.kravtype?.first()?.datoFrist,
+                adresseNyVurdering = it.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.joinToString(", ") ?: ""
             )
         }
     }

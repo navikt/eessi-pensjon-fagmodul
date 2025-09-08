@@ -29,9 +29,9 @@ data class P1Dto(
         val pensjonstype: String,
         val datoFoersteUtbetaling: LocalDate?,
         val bruttobeloep: String?,
-        val grunnlagInnvilget: String,
+        val grunnlagInnvilget: String?,
         val reduksjonsgrunnlag: String?,
-        val vurderingsperiode: String,
+        val vurderingsperiode: String?,
         val adresseNyVurdering: String,
     )
 
@@ -39,6 +39,6 @@ data class P1Dto(
         val institusjon: String?,
         val pensjonstype: String?,
         val avslagsbegrunnelse: String?,
-        val vurderingsperiode: String,
+        val vurderingsperiode: String?,
         val adresseNyVurdering: String,
     )
