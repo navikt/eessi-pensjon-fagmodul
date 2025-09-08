@@ -6,7 +6,8 @@ import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
 import no.nav.eessi.pensjon.eux.model.sed.P6000
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
-import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController.BrukerEllerGjenlevende.*
+import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController.BrukerEllerGjenlevende.FORSIKRET
+import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController.BrukerEllerGjenlevende.GJENLEVENDE
 import no.nav.eessi.pensjon.fagmodul.pesys.krav.AvslaattPensjon
 import no.nav.eessi.pensjon.fagmodul.pesys.krav.InnvilgetPensjon
 import no.nav.eessi.pensjon.fagmodul.pesys.krav.P1Dto
@@ -114,13 +115,19 @@ class PensjonsinformasjonUtlandController(
                 .onSuccess { logger.info("Hentet nye dok detaljer fra Rina for ${it.toJson()}") }
             val nyesteP6000 = listeOverP6000FraGcp.sortedBy { it.pensjon?.tilleggsinformasjon?.dato }.first()
             val utenlandskeP6000er = listeOverP6000FraGcp.filter { it -> it.nav?.eessisak?.any { it.land != "NO" } == true }
+            val innvilgedePensjoner = innvilgedePensjoner(utenlandskeP6000er.filter { sed-> sed.pensjon?.vedtak?.any { it.resultat == "1" } == true })
+            val avslaatteUtenlandskePensjoner = avslaatteUtenlandskePensjoner(utenlandskeP6000er.filter { sed -> sed.pensjon?.vedtak?.any { it.resultat == "2" } == true })
+
+            if (innvilgedePensjoner.size + avslaatteUtenlandskePensjoner.size != utenlandskeP6000er.size) {
+                logger.error("Mismatch: innvilgedePensjoner (${innvilgedePensjoner.size}) + avslåtteUtenlandskePensjoner (${avslaatteUtenlandskePensjoner.size}) != utenlandskeP6000er (${utenlandskeP6000er.size})")
+            }
             P1Dto(
                 innehaver = person(nyesteP6000, GJENLEVENDE),
                 forsikrede = person(nyesteP6000, FORSIKRET),
                 sakstype = "Gjenlevende",
                 kravMottattDato = null,
-                innvilgedePensjoner = innvilgedePensjoner(utenlandskeP6000er),
-                avslaattePensjoner = avslåtteUtenlandskePensjoner(utenlandskeP6000er),
+                innvilgedePensjoner = innvilgedePensjoner,
+                avslaattePensjoner = avslaatteUtenlandskePensjoner,
                 utfyllendeInstitusjon = "",
                 vedtaksdato = nyesteP6000.pensjon?.tilleggsinformasjon?.dato
             )
@@ -143,7 +150,7 @@ class PensjonsinformasjonUtlandController(
         }
     }
 
-    private fun avslåtteUtenlandskePensjoner(p6000er: List<P6000>): List<AvslaattPensjon> {
+    private fun avslaatteUtenlandskePensjoner(p6000er: List<P6000>): List<AvslaattPensjon> {
         return p6000er.map {
             val vedtak = it.pensjon?.vedtak?.first()
             AvslaattPensjon(
