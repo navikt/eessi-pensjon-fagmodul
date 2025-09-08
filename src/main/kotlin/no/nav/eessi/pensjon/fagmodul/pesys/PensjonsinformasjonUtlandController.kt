@@ -115,11 +115,11 @@ class PensjonsinformasjonUtlandController(
                 .onSuccess { logger.info("Hentet nye dok detaljer fra Rina for ${it.toJson()}") }
             val nyesteP6000 = listeOverP6000FraGcp.sortedBy { it.pensjon?.tilleggsinformasjon?.dato }.first()
             val utenlandskeP6000er = listeOverP6000FraGcp.filter { it -> it.nav?.eessisak?.any { it.land != "NO" } == true }
-            val innvilgedePensjoner = innvilgedePensjoner(utenlandskeP6000er.filter { sed-> sed.pensjon?.vedtak?.any { it.resultat == "01" } == true })
-            val avslaatteUtenlandskePensjoner = avslaatteUtenlandskePensjoner(utenlandskeP6000er.filter { sed -> sed.pensjon?.vedtak?.any { it.resultat == "02" } == true })
+            val innvilgedePensjoner = innvilgedePensjoner(utenlandskeP6000er)
+            val avslaatteUtenlandskePensjoner = avslaatteUtenlandskePensjoner(utenlandskeP6000er)
 
             if (innvilgedePensjoner.size + avslaatteUtenlandskePensjoner.size != utenlandskeP6000er.size) {
-                logger.error("Mismatch: innvilgedePensjoner (${innvilgedePensjoner.size}) + avslåtteUtenlandskePensjoner (${avslaatteUtenlandskePensjoner.size}) != utenlandskeP6000er (${utenlandskeP6000er.size})")
+                logger.warn("Mismatch: innvilgedePensjoner (${innvilgedePensjoner.size}) + avslåtteUtenlandskePensjoner (${avslaatteUtenlandskePensjoner.size}) != utenlandskeP6000er (${listeOverP6000FraGcp.size})")
             }
             P1Dto(
                 innehaver = person(nyesteP6000, GJENLEVENDE),
@@ -135,7 +135,8 @@ class PensjonsinformasjonUtlandController(
     }
 
     private fun innvilgedePensjoner(p6000er: List<P6000>) : List<InnvilgetPensjon>{
-        return p6000er.map {
+        val ip6000Innvilgede = p6000er.filter { sed -> sed.pensjon?.vedtak?.any { it.resultat == "01" } == true }
+        return ip6000Innvilgede.map {
             val vedtak = it.pensjon?.vedtak?.first()
             InnvilgetPensjon(
                 institusjon = it.nav?.eessisak?.joinToString(", "),
@@ -151,7 +152,8 @@ class PensjonsinformasjonUtlandController(
     }
 
     private fun avslaatteUtenlandskePensjoner(p6000er: List<P6000>): List<AvslaattPensjon> {
-        return p6000er.map {
+        val p6000erAvslaatt = p6000er.filter { sed -> sed.pensjon?.vedtak?.any { it.resultat == "02" } == true }
+        return p6000erAvslaatt.map {
             val vedtak = it.pensjon?.vedtak?.first()
             AvslaattPensjon(
                 institusjon = it.nav?.eessisak?.joinToString(", "),
