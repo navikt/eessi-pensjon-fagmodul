@@ -115,8 +115,8 @@ class PensjonsinformasjonUtlandController(
                 .onSuccess { logger.info("Hentet nye dok detaljer fra Rina for ${it.toJson()}") }
             val nyesteP6000 = listeOverP6000FraGcp.sortedBy { it.pensjon?.tilleggsinformasjon?.dato }.first()
             val utenlandskeP6000er = listeOverP6000FraGcp.filter { it -> it.nav?.eessisak?.any { it.land != "NO" } == true }
-            val innvilgedePensjoner = innvilgedePensjoner(utenlandskeP6000er.filter { sed-> sed.pensjon?.vedtak?.any { it.resultat == "1" } == true })
-            val avslaatteUtenlandskePensjoner = avslaatteUtenlandskePensjoner(utenlandskeP6000er.filter { sed -> sed.pensjon?.vedtak?.any { it.resultat == "2" } == true })
+            val innvilgedePensjoner = innvilgedePensjoner(utenlandskeP6000er.filter { sed-> sed.pensjon?.vedtak?.any { it.resultat == "01" } == true })
+            val avslaatteUtenlandskePensjoner = avslaatteUtenlandskePensjoner(utenlandskeP6000er.filter { sed -> sed.pensjon?.vedtak?.any { it.resultat == "02" } == true })
 
             if (innvilgedePensjoner.size + avslaatteUtenlandskePensjoner.size != utenlandskeP6000er.size) {
                 logger.error("Mismatch: innvilgedePensjoner (${innvilgedePensjoner.size}) + avslåtteUtenlandskePensjoner (${avslaatteUtenlandskePensjoner.size}) != utenlandskeP6000er (${utenlandskeP6000er.size})")
