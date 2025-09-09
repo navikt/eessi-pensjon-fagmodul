@@ -1,6 +1,5 @@
 package no.nav.eessi.pensjon.fagmodul.pesys.krav
 
-import no.nav.eessi.pensjon.eux.model.buc.Institusjon
 import java.time.LocalDate
 
 data class P1Dto(
@@ -26,20 +25,20 @@ data class P1Dto(
     )
 
     data class InnvilgetPensjon(
-        val institusjon: String,
+        val institusjon: String?,
         val pensjonstype: String,
-        val datoFoersteUtbetaling: LocalDate,
-        val bruttobeloep: String,
-        val grunnlagInnvilget: String,
+        val datoFoersteUtbetaling: LocalDate?,
+        val bruttobeloep: String?,
+        val grunnlagInnvilget: String?,
         val reduksjonsgrunnlag: String?,
-        val vurderingsperiode: String,
+        val vurderingsperiode: String?,
         val adresseNyVurdering: String,
     )
 
     data class AvslaattPensjon(
-        val institusjon: String,
-        val pensjonstype: String,
-        val avslagsbegrunnelse: String,
-        val vurderingsperiode: String,
+        val institusjon: String?,
+        val pensjonstype: String?,
+        val avslagsbegrunnelse: String?,
+        val vurderingsperiode: String?,
         val adresseNyVurdering: String,
     )

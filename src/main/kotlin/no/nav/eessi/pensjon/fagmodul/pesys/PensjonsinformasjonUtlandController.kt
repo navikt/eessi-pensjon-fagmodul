@@ -6,7 +6,10 @@ import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
 import no.nav.eessi.pensjon.eux.model.sed.P6000
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
-import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController.BrukerEllerGjenlevende.*
+import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController.BrukerEllerGjenlevende.FORSIKRET
+import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController.BrukerEllerGjenlevende.GJENLEVENDE
+import no.nav.eessi.pensjon.fagmodul.pesys.krav.AvslaattPensjon
+import no.nav.eessi.pensjon.fagmodul.pesys.krav.InnvilgetPensjon
 import no.nav.eessi.pensjon.fagmodul.pesys.krav.P1Dto
 import no.nav.eessi.pensjon.fagmodul.pesys.krav.P1Person
 import no.nav.eessi.pensjon.gcp.GcpStorageService
@@ -115,18 +118,57 @@ class PensjonsinformasjonUtlandController(
                 .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
                 .onSuccess { logger.info("Hentet nye dok detaljer fra Rina for ${it.toJson()}") }
             val nyesteP6000 = listeOverP6000FraGcp.sortedBy { it.pensjon?.tilleggsinformasjon?.dato }.first()
+            val utenlandskeP6000er = listeOverP6000FraGcp.filter { it -> it.nav?.eessisak?.any { it.land != "NO" } == true }
+            val innvilgedePensjoner = innvilgedePensjoner(utenlandskeP6000er)
+            val avslaatteUtenlandskePensjoner = avslaatteUtenlandskePensjoner(utenlandskeP6000er)
+
+            if (innvilgedePensjoner.size + avslaatteUtenlandskePensjoner.size != utenlandskeP6000er.size) {
+                logger.warn("Mismatch: innvilgedePensjoner (${innvilgedePensjoner.size}) + avslåtteUtenlandskePensjoner (${avslaatteUtenlandskePensjoner.size}) != utenlandskeP6000er (${listeOverP6000FraGcp.size})")
+            }
             P1Dto(
                 innehaver = person(nyesteP6000, GJENLEVENDE),
                 forsikrede = person(nyesteP6000, FORSIKRET),
                 sakstype = "Gjenlevende",
                 kravMottattDato = null,
-                innvilgedePensjoner = emptyList(),
-                avslaattePensjoner = emptyList(),
+                innvilgedePensjoner = innvilgedePensjoner,
+                avslaattePensjoner = avslaatteUtenlandskePensjoner,
                 utfyllendeInstitusjon = "",
                 vedtaksdato = nyesteP6000.pensjon?.tilleggsinformasjon?.dato
             )
         }
     }
+
+    private fun innvilgedePensjoner(p6000er: List<P6000>) : List<InnvilgetPensjon>{
+        val ip6000Innvilgede = p6000er.filter { sed -> sed.pensjon?.vedtak?.any { it.resultat == "01" } == true }
+        return ip6000Innvilgede.map {
+            val vedtak = it.pensjon?.vedtak?.first()
+            InnvilgetPensjon(
+                institusjon = it.nav?.eessisak?.joinToString(", "),
+                pensjonstype = vedtak?.type ?: "",
+                datoFoersteUtbetaling = dato(vedtak?.beregning?.first()?.periode?.fom!!),
+                bruttobeloep = vedtak.beregning?.first()?.beloepBrutto?.beloep,
+                grunnlagInnvilget = vedtak.artikkel,
+                reduksjonsgrunnlag = it.pensjon?.sak?.artikkel54,
+                vurderingsperiode = it.pensjon?.sak?.kravtype?.first()?.datoFrist,
+                adresseNyVurdering = it.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.joinToString(", ") ?: ""
+            )
+        }
+    }
+
+    private fun avslaatteUtenlandskePensjoner(p6000er: List<P6000>): List<AvslaattPensjon> {
+        val p6000erAvslaatt = p6000er.filter { sed -> sed.pensjon?.vedtak?.any { it.resultat == "02" } == true }
+        return p6000erAvslaatt.map {
+            val vedtak = it.pensjon?.vedtak?.first()
+            AvslaattPensjon(
+                institusjon = it.nav?.eessisak?.joinToString(", "),
+                pensjonstype = vedtak?.type,
+                avslagsbegrunnelse = vedtak?.avslagbegrunnelse?.first {!it.begrunnelse.isNullOrEmpty()}?.begrunnelse ,
+                vurderingsperiode = it.pensjon?.sak?.kravtype?.first()?.datoFrist,
+                adresseNyVurdering = it.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.joinToString(", ") ?: ""
+            )
+        }
+    }
+
 
     private fun person(sed: P6000, brukerEllerGjenlevende: BrukerEllerGjenlevende) : P1Person {
         val personBruker = if (brukerEllerGjenlevende == FORSIKRET) {
@@ -153,9 +195,8 @@ class PensjonsinformasjonUtlandController(
     }
 
     private fun dato(foedselsdato: String?): LocalDate? {
-        if (foedselsdato == null) return null
         return try {
-            LocalDate.parse(foedselsdato)
+            foedselsdato?.let { LocalDate.parse(it) }
         } catch (ex: Exception) {
             null
         }
