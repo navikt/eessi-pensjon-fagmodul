@@ -168,14 +168,16 @@ class PrefillController(
 
         //Lagrer P6000 detaljer til GCP Storage
         try {
-            logger.debug("Lagerer p6000: ${request.payload}")
-            request.payload?.let { mapJsonToAny<List<P6000Dokument>>(it) }?.let { listeOverP6000 ->
-                gcpStorageService.lagretilBackend(
-                    PensjonsinformasjonUtlandController.P6000Detaljer(
-                        request.sakId!!,
-                        request.euxCaseId!!,
-                        listeOverP6000.map { it.documentID }).toJson(), request.sakId
-                )
+            if(request.sed == SedType.P6000) {
+                logger.debug("Lagerer p6000: ${request.payload}")
+                request.payload?.let { mapJsonToAny<List<P6000Dokument>>(it) }?.let { listeOverP6000 ->
+                    gcpStorageService.lagretilBackend(
+                        PensjonsinformasjonUtlandController.P6000Detaljer(
+                            request.sakId!!,
+                            request.euxCaseId!!,
+                            listeOverP6000.map { it.documentID }).toJson(), request.sakId
+                    )
+                }
             }
         } catch (e: Exception) {
             logger.error(e.message, e)
