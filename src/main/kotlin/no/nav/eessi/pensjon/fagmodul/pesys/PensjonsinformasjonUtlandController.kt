@@ -116,13 +116,12 @@ class PensjonsinformasjonUtlandController(
                 }
             }
                 .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
-                .onSuccess { logger.info("Hentet nye dok detaljer fra Rina for ${it.toJson()}") }
+                .onSuccess { logger.info("Hentet nye dok detaljer fra Rina for $pesysId") }
             val nyesteP6000 = listeOverP6000FraGcp.sortedBy { it.pensjon?.tilleggsinformasjon?.dato }.first()
-            val utenlandskeP6000er = listeOverP6000FraGcp.filter { it -> it.nav?.eessisak?.any { it.land != "NO" } == true }
-            val innvilgedePensjoner = innvilgedePensjoner(utenlandskeP6000er)
-            val avslaatteUtenlandskePensjoner = avslaatteUtenlandskePensjoner(utenlandskeP6000er)
+            val innvilgedePensjoner = innvilgedePensjoner(listeOverP6000FraGcp)
+            val avslaatteUtenlandskePensjoner = avslaatteUtenlandskePensjoner(listeOverP6000FraGcp)
 
-            if (innvilgedePensjoner.size + avslaatteUtenlandskePensjoner.size != utenlandskeP6000er.size) {
+            if (innvilgedePensjoner.size + avslaatteUtenlandskePensjoner.size != listeOverP6000FraGcp.size) {
                 logger.warn("Mismatch: innvilgedePensjoner (${innvilgedePensjoner.size}) + avslåtteUtenlandskePensjoner (${avslaatteUtenlandskePensjoner.size}) != utenlandskeP6000er (${listeOverP6000FraGcp.size})")
             }
             P1Dto(
