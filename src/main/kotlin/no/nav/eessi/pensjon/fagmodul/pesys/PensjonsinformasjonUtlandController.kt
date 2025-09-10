@@ -129,8 +129,8 @@ class PensjonsinformasjonUtlandController(
                 forsikrede = person(nyesteP6000, FORSIKRET),
                 sakstype = "Gjenlevende",
                 kravMottattDato = null,
-                innvilgedePensjoner = innvilgedePensjoner,
-                avslaattePensjoner = avslaatteUtenlandskePensjoner,
+                innvilgedePensjoner = innvilgedePensjoner.distinct(),
+                avslaattePensjoner = avslaatteUtenlandskePensjoner.distinct(),
                 utfyllendeInstitusjon = "",
                 vedtaksdato = nyesteP6000.pensjon?.tilleggsinformasjon?.dato
             )

@@ -66,8 +66,8 @@ class PensjonsinformasjonUtlandControllerTest {
     /**
      * Trygdetid som henter
      **/
-    private fun trygdeTidGCP(): String {
-        val trygdetidList = """
+    private fun trygdeTidGCP() =
+            """
             [
               {"land":"HR","acronym":"NAVAT05","type":"10","startdato":"2016-06-01","sluttdato":"2016-06-22","aar":"","mnd":"","dag":"21","dagtype":"7","ytelse":"001","ordning":"00","beregning":"111"},
               {"land":"NO","acronym":"NAVAT07","type":"21","startdato":"2010-10-31","sluttdato":"2010-12-01","aar":"","mnd":"1","dag":"2","dagtype":"7","ytelse":"111","ordning":"00","beregning":"111"},
@@ -76,16 +76,13 @@ class PensjonsinformasjonUtlandControllerTest {
               {"land":"NO","acronym":"NAVAT07","type":"41","startdato":"2023-05-01","sluttdato":"2023-05-31","aar":"","mnd":"1","dag":"","dagtype":"7","ytelse":"","ordning":"","beregning":""}
             ]
             """.trimIndent()
-        return trygdetidList
-    }
 
-    fun trygdeTidListResultat(): String {
-        return ("[Trygdetid(land=NOR, acronym=NAVAT07, type=21, startdato=2010-10-31, sluttdato=2010-12-01, aar=null, mnd=1, dag=2, dagtype=7, ytelse=111, ordning=00, beregning=111), " +
+    private fun trygdeTidListResultat() =
+        ("[Trygdetid(land=NOR, acronym=NAVAT07, type=21, startdato=2010-10-31, sluttdato=2010-12-01, aar=null, mnd=1, dag=2, dagtype=7, ytelse=111, ordning=00, beregning=111), " +
                 "Trygdetid(land=CYR, acronym=NAVAT05, type=10, startdato=2016-01-01, sluttdato=2018-02-28, aar=2, mnd=2, dag=null, dagtype=7, ytelse=null, ordning=null, beregning=111), " +
                 "Trygdetid(land=HRD, acronym=NAVAT05, type=10, startdato=2016-06-01, sluttdato=2016-06-22, aar=null, mnd=null, dag=21, dagtype=7, ytelse=001, ordning=00, beregning=111), " +
                 "Trygdetid(land=BGD, acronym=NAVAT05, type=10, startdato=2020-01-01, sluttdato=2024-08-15, aar=null, mnd=3, dag=null, dagtype=7, ytelse=001, ordning=00, beregning=001), " +
                 "Trygdetid(land=NOR, acronym=NAVAT07, type=41, startdato=2023-05-01, sluttdato=2023-05-31, aar=null, mnd=1, dag=null, dagtype=7, ytelse=null, ordning=null, beregning=null)]").trimMargin()
-    }
 
     @Test
     fun `gitt en samlet periode med flag fra gcp saa skal ogsaa denne hente ut trygdetid`() {
@@ -125,7 +122,7 @@ class PensjonsinformasjonUtlandControllerTest {
             every { exists() } returns true
             every { getContent() } returns p6000Detaljer().toByteArray()
         }
-        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(any(), any()) } returns hentTestP6000()
+        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(any(), any()) } returns hentTestP6000("P6000-RINA.json")
 
         val result = controller.hentP6000Detaljer("22975052")
 
@@ -133,6 +130,28 @@ class PensjonsinformasjonUtlandControllerTest {
         assertEquals("æøå", result.innehaver.etternavn)
         assertEquals("æøå", result.forsikrede.fornavn)
         assertEquals("01-09-2025", result.vedtaksdato)
+    }
+
+    @Test
+    fun `Gitt at vi skal hente opp P6000 for P1 saa skal vi returnere P1Dto med innvilgede pensjoner`() {
+        every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
+            every { exists() } returns true
+            every { getContent() } returns p6000Detaljer().toByteArray()
+        }
+        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(any(), any()) } returns hentTestP6000("P6000-InnvilgedePensjoner.json")
+
+        val result = controller.hentP6000Detaljer("22975052")
+
+        assertEquals("Gjenlevende", result.sakstype)
+        assertEquals("2025-02-05", result.vedtaksdato)
+        assertEquals("ROSA", result.forsikrede.fornavn)
+        assertEquals(1, result.innvilgedePensjoner.size)
+        assertEquals("AKROBAT", result.innehaver.etternavn)
+        assertEquals("03", result.innvilgedePensjoner.first().pensjonstype)
+        assertEquals("9174", result.innvilgedePensjoner.first().bruttobeloep)
+        assertEquals(null, result.innvilgedePensjoner.first().grunnlagInnvilget)
+        assertEquals("six weeks from the date the decision is received", result.innvilgedePensjoner.first().vurderingsperiode)
+        assertEquals("EessisakItem(institusjonsid=NO:NAVAT07, institusjonsnavn=NAV ACCEPTANCE TEST 07, saksnummer=1003563, land=NO)", result.innvilgedePensjoner.first().institusjon)
     }
 
     private fun mockGcpListeSok(rinaNrList: List<String>) {
@@ -146,9 +165,6 @@ class PensjonsinformasjonUtlandControllerTest {
         every { gcpStorage.list(any<String>(), *anyVararg()) } returns page
     }
 
-
-
-
     private fun p6000Detaljer() =
         """
             {
@@ -157,7 +173,6 @@ class PensjonsinformasjonUtlandControllerTest {
               "dokumentId" : [ "a6bacca841cf4c7195d694729151d4f3", "b152e3cf041a4b829e56e6b1353dd8cb" ]
             }
         """.trimIndent()
-
 
     private fun trygdeTidForFlereBuc(): String {
         return """
@@ -205,8 +220,8 @@ class PensjonsinformasjonUtlandControllerTest {
         return trygdetidList
     }
 
-    private fun hentTestP6000(): SED {
-        return javaClass.getResource("/json/sed/P6000-RINA.json")?.readText()?.let { json -> mapJsonToAny<P6000>(json) }!!
+    private fun hentTestP6000(filnavn: String): SED {
+        return javaClass.getResource("/json/sed/$filnavn")?.readText()?.let { json -> mapJsonToAny<P6000>(json) }!!
     }
 }
 

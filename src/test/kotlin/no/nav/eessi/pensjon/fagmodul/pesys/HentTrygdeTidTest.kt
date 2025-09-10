@@ -67,4 +67,5 @@ class HentTrygdeTidTest {
         println(forventetTrygdetid)
         assertEquals(forventetTrygdetid, result?.toJson())
     }
+
 }
