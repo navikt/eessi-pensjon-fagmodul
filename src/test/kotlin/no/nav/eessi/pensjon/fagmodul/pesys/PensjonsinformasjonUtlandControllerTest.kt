@@ -143,6 +143,7 @@ class PensjonsinformasjonUtlandControllerTest {
         val result = controller.hentP6000Detaljer("22975052")
 
         assertEquals("Gjenlevende", result.sakstype)
+        assertEquals(null, result.avslaattePensjoner)
         assertEquals("2025-02-05", result.vedtaksdato)
         assertEquals("ROSA", result.forsikrede.fornavn)
         assertEquals(1, result.innvilgedePensjoner.size)
@@ -150,6 +151,7 @@ class PensjonsinformasjonUtlandControllerTest {
         assertEquals("03", result.innvilgedePensjoner.first().pensjonstype)
         assertEquals("9174", result.innvilgedePensjoner.first().bruttobeloep)
         assertEquals(null, result.innvilgedePensjoner.first().grunnlagInnvilget)
+        assertEquals("six", result.innvilgedePensjoner.first().reduksjonsgrunnlag)
         assertEquals("six weeks from the date the decision is received", result.innvilgedePensjoner.first().vurderingsperiode)
         assertEquals("EessisakItem(institusjonsid=NO:NAVAT07, institusjonsnavn=NAV ACCEPTANCE TEST 07, saksnummer=1003563, land=NO)", result.innvilgedePensjoner.first().institusjon)
     }
