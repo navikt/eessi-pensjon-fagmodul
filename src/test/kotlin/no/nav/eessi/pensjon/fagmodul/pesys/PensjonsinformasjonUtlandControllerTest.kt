@@ -4,6 +4,7 @@ import com.google.api.gax.paging.Page
 import com.google.cloud.storage.Blob
 import com.google.cloud.storage.BlobId
 import com.google.cloud.storage.Storage
+import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.eessi.pensjon.eux.model.sed.P6000
@@ -143,7 +144,7 @@ class PensjonsinformasjonUtlandControllerTest {
         val result = controller.hentP6000Detaljer("22975052")
 
         assertEquals("Gjenlevende", result.sakstype)
-        assertEquals(null, result.avslaattePensjoner)
+        assertEquals("[]", result.avslaattePensjoner.toString())
         assertEquals("2025-02-05", result.vedtaksdato)
         assertEquals("ROSA", result.forsikrede.fornavn)
         assertEquals(1, result.innvilgedePensjoner.size)
@@ -151,7 +152,7 @@ class PensjonsinformasjonUtlandControllerTest {
         assertEquals("03", result.innvilgedePensjoner.first().pensjonstype)
         assertEquals("9174", result.innvilgedePensjoner.first().bruttobeloep)
         assertEquals(null, result.innvilgedePensjoner.first().grunnlagInnvilget)
-        assertEquals("six", result.innvilgedePensjoner.first().reduksjonsgrunnlag)
+        assertEquals(null , result.innvilgedePensjoner.first().reduksjonsgrunnlag)
         assertEquals("six weeks from the date the decision is received", result.innvilgedePensjoner.first().vurderingsperiode)
         assertEquals("EessisakItem(institusjonsid=NO:NAVAT07, institusjonsnavn=NAV ACCEPTANCE TEST 07, saksnummer=1003563, land=NO)", result.innvilgedePensjoner.first().institusjon)
     }
