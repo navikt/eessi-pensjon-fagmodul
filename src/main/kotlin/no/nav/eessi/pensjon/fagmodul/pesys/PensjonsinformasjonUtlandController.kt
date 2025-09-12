@@ -4,6 +4,10 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import no.nav.eessi.pensjon.eux.model.sed.AndreinstitusjonerItem
+import no.nav.eessi.pensjon.eux.model.sed.EessisakItem
 import no.nav.eessi.pensjon.eux.model.sed.P6000
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController.BrukerEllerGjenlevende.FORSIKRET
@@ -124,13 +128,14 @@ class PensjonsinformasjonUtlandController(
             if (innvilgedePensjoner.size + avslaatteUtenlandskePensjoner.size != listeOverP6000FraGcp.size) {
                 logger.warn("Mismatch: innvilgedePensjoner (${innvilgedePensjoner.size}) + avslåtteUtenlandskePensjoner (${avslaatteUtenlandskePensjoner.size}) != utenlandskeP6000er (${listeOverP6000FraGcp.size})")
             }
-            P1Dto(
+
+           P1Dto(
                 innehaver = person(nyesteP6000, GJENLEVENDE),
                 forsikrede = person(nyesteP6000, FORSIKRET),
                 sakstype = "Gjenlevende",
                 kravMottattDato = null,
-                innvilgedePensjoner = innvilgedePensjoner.distinct(),
-                avslaattePensjoner = avslaatteUtenlandskePensjoner.distinct(),
+                innvilgedePensjoner = innvilgedePensjoner,
+                avslaattePensjoner = avslaatteUtenlandskePensjoner,
                 utfyllendeInstitusjon = "",
                 vedtaksdato = nyesteP6000.pensjon?.tilleggsinformasjon?.dato
             )
@@ -139,42 +144,59 @@ class PensjonsinformasjonUtlandController(
 
     private fun innvilgedePensjoner(p6000er: List<P6000>) : List<InnvilgetPensjon>{
         val ip6000Innvilgede = p6000er.filter { sed -> sed.pensjon?.vedtak?.any { it.resultat == "01" } == true }
-        return ip6000Innvilgede.map {
-            val vedtak = it.pensjon?.vedtak?.first()
+        return ip6000Innvilgede.map { p6000 ->
+            val vedtak = p6000.pensjon?.vedtak?.first()
             InnvilgetPensjon(
-                institusjon = it.nav?.eessisak?.joinToString(", "),
+                institusjon = p6000.nav?.eessisak?.map { institusjon(it) },
                 pensjonstype = vedtak?.type ?: "",
                 datoFoersteUtbetaling = dato(vedtak?.beregning?.first()?.periode?.fom!!),
                 bruttobeloep = vedtak.beregning?.first()?.beloepBrutto?.beloep,
                 grunnlagInnvilget = vedtak.artikkel,
-                reduksjonsgrunnlag = it.pensjon?.sak?.artikkel54,
-                vurderingsperiode = it.pensjon?.sak?.kravtype?.first()?.datoFrist,
-                adresseNyVurdering = it.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.joinToString(", ") ?: ""
+                reduksjonsgrunnlag = p6000.pensjon?.sak?.artikkel54,
+                vurderingsperiode = p6000.pensjon?.sak?.kravtype?.first()?.datoFrist,
+                adresseNyVurdering = p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.map { adresse(it) }
             )
         }
     }
+
+    private fun adresse(p6000: AndreinstitusjonerItem) =
+        AndreinstitusjonerItem(
+            institusjonsid = p6000.institusjonsid,
+            institusjonsnavn = p6000.institusjonsnavn,
+            institusjonsadresse = p6000.institusjonsadresse,
+            postnummer = p6000.postnummer,
+            bygningsnavn = p6000.bygningsnavn,
+            land = p6000.land,
+            region = p6000.region,
+            poststed = p6000.poststed
+        )
+
+    private fun institusjon(p6000: EessisakItem?) =
+        EessisakItem(
+            institusjonsid = p6000?.institusjonsid,
+            institusjonsnavn = p6000?.institusjonsnavn,
+            land = p6000?.land
+        )
 
     private fun avslaatteUtenlandskePensjoner(p6000er: List<P6000>): List<AvslaattPensjon> {
         val p6000erAvslaatt = p6000er.filter { sed -> sed.pensjon?.vedtak?.any { it.resultat == "02" } == true }
-        return p6000erAvslaatt.map {
-            val vedtak = it.pensjon?.vedtak?.first()
+        return p6000erAvslaatt.map { p6000 ->
+            val vedtak = p6000.pensjon?.vedtak?.first()
             AvslaattPensjon(
-                institusjon = it.nav?.eessisak?.joinToString(", "),
+                institusjon = institusjon(p6000.nav?.eessisak?.first()),
                 pensjonstype = vedtak?.type,
                 avslagsbegrunnelse = vedtak?.avslagbegrunnelse?.first {!it.begrunnelse.isNullOrEmpty()}?.begrunnelse ,
-                vurderingsperiode = it.pensjon?.sak?.kravtype?.first()?.datoFrist,
-                adresseNyVurdering = it.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.joinToString(", ") ?: ""
+                vurderingsperiode = p6000.pensjon?.sak?.kravtype?.first()?.datoFrist,
+                adresseNyVurdering = p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.map { adresse(it) }
             )
         }
     }
 
-
     private fun person(sed: P6000, brukerEllerGjenlevende: BrukerEllerGjenlevende) : P1Person {
-        val personBruker = if (brukerEllerGjenlevende == FORSIKRET) {
+        val personBruker = if (brukerEllerGjenlevende == FORSIKRET)
             Pair(sed.nav?.bruker?.person, sed.nav?.bruker?.adresse)
-        } else {
+        else
             Pair(sed.pensjon?.gjenlevende?.person, sed.pensjon?.gjenlevende?.adresse)
-        }
 
         return P1Person(
             fornavn = personBruker.first?.fornavn,
@@ -226,4 +248,5 @@ class PensjonsinformasjonUtlandController(
             return p.valueAsString.takeIf { !it.isNullOrBlank() }
         }
     }
+
 }
