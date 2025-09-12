@@ -42,7 +42,7 @@ class PenInfoUtlandControllerMvcTest {
     lateinit var kodeverkClient: KodeverkClient
 
     @MockkBean
-    lateinit var trygdeTidTest: HentTrygdeTidTest
+    lateinit var trygdeTidService: HentTrygdeTid
 
     @TestConfiguration
     class Config {
