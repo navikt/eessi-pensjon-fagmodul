@@ -17,7 +17,7 @@ data class Trygdetid(
     val acronym: String?,
     @JsonDeserialize(using = EmptyStringToNullDeserializer::class)
     val type: String?,
-    val startdato: String?,
+    val startdato: String,
     @JsonDeserialize(using = EmptyStringToNullDeserializer::class)
     val sluttdato: String?,
     @JsonDeserialize(using = EmptyStringToNullDeserializer::class)
