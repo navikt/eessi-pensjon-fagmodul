@@ -81,14 +81,14 @@ dependencies {
         exclude module: 'ep-metrics'
     }
 
-    implementation("no.nav.eessi.pensjon:ep-pensjonsinformasjon:3.1.18") {
+    implementation("no.nav.eessi.pensjon:ep-pensjonsinformasjon:3.1.19") {
         exclude module: 'ep-eux'
         exclude module: 'ep-logging'
         exclude module: 'ep-metrics'
     }
 
     implementation 'javax.xml.bind:jaxb-api:2.3.1'
-    implementation('org.glassfish.jaxb:jaxb-runtime:2.3.3')
+    implementation('org.glassfish.jaxb:jaxb-runtime:2.3.9')
     implementation("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:2643.2f3e8e9")
 
     // PDF box
