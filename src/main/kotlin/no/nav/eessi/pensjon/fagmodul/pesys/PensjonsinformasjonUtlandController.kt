@@ -151,6 +151,8 @@ class PensjonsinformasjonUtlandController(
                 pensjonstype = vedtak?.type ?: "",
                 datoFoersteUtbetaling = dato(vedtak?.beregning?.first()?.periode?.fom!!),
                 bruttobeloep = vedtak.beregning?.first()?.beloepBrutto?.beloep,
+                valuta = vedtak.beregning?.first()?.valuta,
+                utbetalingsHyppighet = vedtak.beregning?.first()?.utbetalingshyppighet,
                 grunnlagInnvilget = vedtak.artikkel,
                 reduksjonsgrunnlag = p6000.pensjon?.sak?.artikkel54,
                 vurderingsperiode = p6000.pensjon?.sak?.kravtype?.first()?.datoFrist,
