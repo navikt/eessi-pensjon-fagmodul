@@ -4,8 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.nav.eessi.pensjon.eux.model.sed.AndreinstitusjonerItem
 import no.nav.eessi.pensjon.eux.model.sed.EessisakItem
 import no.nav.eessi.pensjon.eux.model.sed.P6000
@@ -136,8 +134,7 @@ class PensjonsinformasjonUtlandController(
                 kravMottattDato = null,
                 innvilgedePensjoner = innvilgedePensjoner,
                 avslaattePensjoner = avslaatteUtenlandskePensjoner,
-                utfyllendeInstitusjon = "",
-                vedtaksdato = nyesteP6000.pensjon?.tilleggsinformasjon?.dato
+                utfyllendeInstitusjon = ""
             )
         }
     }
@@ -156,7 +153,8 @@ class PensjonsinformasjonUtlandController(
                 grunnlagInnvilget = vedtak.artikkel,
                 reduksjonsgrunnlag = p6000.pensjon?.sak?.artikkel54,
                 vurderingsperiode = p6000.pensjon?.sak?.kravtype?.first()?.datoFrist,
-                adresseNyVurdering = p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.map { adresse(it) }
+                adresseNyVurdering = p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.map { adresse(it) },
+                vedtaksdato = p6000.pensjon?.tilleggsinformasjon?.dato
             )
         }
     }

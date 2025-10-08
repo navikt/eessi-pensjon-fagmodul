@@ -12,7 +12,7 @@ data class P1Dto(
     val innvilgedePensjoner: List<InnvilgetPensjon>,
     val avslaattePensjoner: List<AvslaattPensjon>,
     val utfyllendeInstitusjon: String,
-    val vedtaksdato: String? = null,
+//    val vedtaksdato: String? = null,
 )
 
     data class P1Person(
@@ -37,6 +37,7 @@ data class P1Dto(
         val reduksjonsgrunnlag: String?,
         val vurderingsperiode: String?,
         val adresseNyVurdering: List<AndreinstitusjonerItem>?,
+        val vedtaksdato: String?,
     )
 
     data class AvslaattPensjon(
