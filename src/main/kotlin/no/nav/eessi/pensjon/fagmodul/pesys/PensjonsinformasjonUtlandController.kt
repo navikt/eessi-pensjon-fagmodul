@@ -185,9 +185,10 @@ class PensjonsinformasjonUtlandController(
             AvslaattPensjon(
                 institusjon = institusjon(p6000.nav?.eessisak?.first()),
                 pensjonstype = vedtak?.type,
-                avslagsbegrunnelse = vedtak?.avslagbegrunnelse?.first {!it.begrunnelse.isNullOrEmpty()}?.begrunnelse ,
+                avslagsbegrunnelse = vedtak?.avslagbegrunnelse?.first { !it.begrunnelse.isNullOrEmpty() }?.begrunnelse,
                 vurderingsperiode = p6000.pensjon?.sak?.kravtype?.first()?.datoFrist,
-                adresseNyVurdering = p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.map { adresse(it) }
+                adresseNyVurdering = p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.map { adresse(it) },
+                vedtaksdato = p6000.pensjon?.tilleggsinformasjon?.dato
             )
         }
     }
