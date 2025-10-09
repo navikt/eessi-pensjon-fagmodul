@@ -140,19 +140,25 @@ class PensjonsinformasjonUtlandControllerTest {
         }
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(any(), any()) } returns hentTestP6000("P6000-InnvilgedePensjoner.json")
 
-        val result = controller.hentP6000Detaljer("22975052")
+        val p6000Detaljer = controller.hentP6000Detaljer("22975052")
+        assertEquals("[]", p6000Detaljer.avslaattePensjoner.toString())
 
-        assertEquals("Gjenlevende", result.sakstype)
-        assertEquals("[]", result.avslaattePensjoner.toString())
-//        assertEquals("2025-02-05", result.vedtaksdato)
-        assertEquals("ROSA", result.forsikrede.fornavn)
-        assertEquals(2, result.innvilgedePensjoner.size)
-        assertEquals("AKROBAT", result.innehaver.etternavn)
-        assertEquals("03", result.innvilgedePensjoner.first().pensjonstype)
-        assertEquals("9174", result.innvilgedePensjoner.first().bruttobeloep)
-        assertEquals(null, result.innvilgedePensjoner.first().grunnlagInnvilget)
-        assertEquals(null , result.innvilgedePensjoner.first().reduksjonsgrunnlag)
-        assertEquals("six weeks from the date the decision is received", result.innvilgedePensjoner.first().vurderingsperiode)
+        with(p6000Detaljer) {
+            assertEquals("Gjenlevende", sakstype)
+            assertEquals("ROSA", forsikrede.fornavn)
+            assertEquals("AKROBAT", innehaver.etternavn)
+            assertEquals(2, innvilgedePensjoner.size)
+        }
+
+        val innvilgetPensjon = p6000Detaljer.innvilgedePensjoner.first()
+        with(innvilgetPensjon) {
+            assertEquals("03", pensjonstype)
+            assertEquals("9174", bruttobeloep)
+            assertEquals(null, grunnlagInnvilget)
+            assertEquals("2025-02-05", vedtaksdato)
+            assertEquals(null, reduksjonsgrunnlag)
+            assertEquals("six weeks from the date the decision is received", vurderingsperiode)
+        }
     }
 
     private fun mockGcpListeSok(rinaNrList: List<String>) {
