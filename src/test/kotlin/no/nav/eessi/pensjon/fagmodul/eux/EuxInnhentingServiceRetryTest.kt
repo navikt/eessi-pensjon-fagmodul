@@ -6,6 +6,7 @@ import io.mockk.mockk
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.klient.IkkeFunnetException
 import no.nav.eessi.pensjon.eux.model.BucType
+import no.nav.eessi.pensjon.fagmodul.api.FrontEndResponse
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.shared.retry.IOExceptionRetryInterceptor
 import org.hamcrest.core.StringContains
