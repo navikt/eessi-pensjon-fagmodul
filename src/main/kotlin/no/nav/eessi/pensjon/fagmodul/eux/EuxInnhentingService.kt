@@ -2,6 +2,7 @@ package no.nav.eessi.pensjon.fagmodul.eux
 
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.klient.EuxKlientLib
+import no.nav.eessi.pensjon.eux.klient.EuxKlientLib.*
 import no.nav.eessi.pensjon.eux.klient.ForbiddenException
 import no.nav.eessi.pensjon.eux.klient.Rinasak
 import no.nav.eessi.pensjon.eux.model.BucType
@@ -16,6 +17,7 @@ import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.sed.Person
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.X009
+import no.nav.eessi.pensjon.fagmodul.api.FrontEndResponse
 import no.nav.eessi.pensjon.fagmodul.config.INSTITUTION_CACHE
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.metrics.MetricsHelper
@@ -170,7 +172,7 @@ class EuxInnhentingService(
         listeners  = ["euxKlientRetryLogger"]
     )
     fun getInstitutions(bucType: String, landkode: String? = ""): List<InstitusjonItem> {
-        logger.info("henter institustion for bucType: $bucType, land: $landkode")
+        logger.info("henter institusjoner for bucType: $bucType, land: $landkode")
         val detaljList: List<InstitusjonDetalj> = euxKlient.getInstitutions(bucType, landkode)
 
         val institusjonListe = detaljList.asSequence()
@@ -512,12 +514,12 @@ class EuxInnhentingService(
         return euxKlient.sendTo(rinaSakId, dokumentId, mottakere)
     }
 
-    fun reSendRinasaker(dokumentListe: String): EuxKlientLib.HentResponseBody? {
+    fun reSendRinasaker(dokumentListe: String): HentResponseBody? {
         logger.info("Resender seder til Rina")
         return euxKlient.resend(dokumentListe)
     }
 
-    fun reSendeRinasakerMedRinaId(rinasakId: String, dokumentId: String):  EuxKlientLib.HentResponseBody? {
+    fun reSendeRinasakerMedRinaId(rinasakId: String, dokumentId: String):  HentResponseBody? {
         logger.info("Resender seder til Rina")
         return euxKlient.resendeDokMedrinaId(rinasakId, dokumentId)
     }
