@@ -120,6 +120,7 @@ dependencies {
     testImplementation("org.mock-server:mockserver-netty:5.15.0") {
         exclude module: 'junit'
     }
+    testImplementation "org.jetbrains.kotlin:kotlin-test:2.2.20"
 }
 
 test {
