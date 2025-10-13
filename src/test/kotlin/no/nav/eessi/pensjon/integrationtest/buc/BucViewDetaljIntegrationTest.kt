@@ -11,6 +11,7 @@ import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.SedType.*
 import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
+import no.nav.eessi.pensjon.fagmodul.api.FrontEndResponse
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucView
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucViewKilde.*
@@ -23,7 +24,9 @@ import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentGruppe.FOLKEREGISTERIDE
 import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.beans.factory.annotation.Autowired
@@ -42,6 +45,7 @@ import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
 import java.time.LocalDate
 import java.time.Month
+import kotlin.math.exp
 
 private const val FNR = "1234567890000"
 private const val AVDOD_FNR = "01010100001"
@@ -125,10 +129,10 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         val response = result.response.getContentAsString(charset("UTF-8"))
 
         val expected = """
-            {"type":"P_BUC_02","caseId":"$EUXCASE_ID","internationalId":"n/a","creator":{"country":"","institution":"","name":null,"acronym":null},"sakType":null,"status":null,"startDate":"2020-08-07","lastUpdate":"2020-08-07","institusjon":[],"seds":[{"attachments":[],"displayName":null,"type":"P2100","conversations":null,"isSendExecuted":null,"id":"1","direction":"OUT","creationDate":1596751200000,"receiveDate":null,"typeVersion":null,"allowsAttachments":null,"versions":null,"lastUpdate":1596751200000,"parentDocumentId":null,"status":"sent","participants":null,"firstVersion":null,"lastVersion":null,"version":"1","message":null},{"attachments":[],"displayName":null,"type":"P4000","conversations":null,"isSendExecuted":null,"id":"2","direction":"OUT","creationDate":1596751200000,"receiveDate":null,"typeVersion":null,"allowsAttachments":null,"versions":null,"lastUpdate":1596751200000,"parentDocumentId":null,"status":"draft","participants":null,"firstVersion":null,"lastVersion":null,"version":"1","message":null}],"error":null,"readOnly":false,"subject":{"gjenlevende":{"fnr":"1234567890000"},"avdod":{"fnr":"01010100001"}}}
+        {"result":{"type":"P_BUC_02","caseId":"$EUXCASE_ID","internationalId":"n/a","creator":{"country":"","institution":"","name":null,"acronym":null},"sakType":null,"status":null,"startDate":"2020-08-07","lastUpdate":"2020-08-07","institusjon":[],"seds":[{"attachments":[],"displayName":null,"type":"P2100","conversations":null,"isSendExecuted":null,"id":"1","direction":"OUT","creationDate":1596751200000,"receiveDate":null,"typeVersion":null,"allowsAttachments":null,"versions":null,"lastUpdate":1596751200000,"parentDocumentId":null,"status":"sent","participants":null,"firstVersion":null,"lastVersion":null,"version":"1","message":null,"name":null,"mimeType":null,"creator":null},{"attachments":[],"displayName":null,"type":"P4000","conversations":null,"isSendExecuted":null,"id":"2","direction":"OUT","creationDate":1596751200000,"receiveDate":null,"typeVersion":null,"allowsAttachments":null,"versions":null,"lastUpdate":1596751200000,"parentDocumentId":null,"status":"draft","participants":null,"firstVersion":null,"lastVersion":null,"version":"1","message":null,"name":null,"mimeType":null,"creator":null}],"error":null,"readOnly":false,"subject":{"gjenlevende":{"fnr":"1234567890000"},"avdod":{"fnr":"01010100001"}},"cdm":null},"status":"OK","message":null,"stackTrace":null}
         """.trimIndent()
 
-        JSONAssert.assertEquals(expected, response, false)
+        assertEquals(expected, response)
         verify (exactly = 1) { euxNavIdentRestTemplate.exchange("/buc/$EUXCASE_ID", HttpMethod.GET, null, String::class.java)  }
         verify (exactly = 1) { euxNavIdentRestTemplate.exchange("/buc/$EUXCASE_ID/sed/1", HttpMethod.GET, null, String::class.java) }
 
@@ -154,15 +158,14 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
-            .andReturn()
-
-        val response = result.response.getContentAsString(charset("UTF-8"))
+            .andReturn().response.contentAsString
 
         val expected = """
-            {"type":"P_BUC_10","caseId":"$EUXCASE_ID","internationalId":"n/a","creator":{"country":"","institution":"","name":null,"acronym":null},"sakType":null,"status":null,"startDate":"2020-08-07","lastUpdate":"2020-08-07","institusjon":[],"seds":[{"attachments":[],"displayName":null,"type":"P15000","conversations":null,"isSendExecuted":null,"id":"1","direction":"IN","creationDate":1596751200000,"receiveDate":null,"typeVersion":null,"allowsAttachments":null,"versions":null,"lastUpdate":1596751200000,"parentDocumentId":null,"status":"sent","participants":null,"firstVersion":null,"lastVersion":null,"version":"1","message":null},{"attachments":[],"displayName":null,"type":"P4000","conversations":null,"isSendExecuted":null,"id":"2","direction":"OUT","creationDate":1596751200000,"receiveDate":null,"typeVersion":null,"allowsAttachments":null,"versions":null,"lastUpdate":1596751200000,"parentDocumentId":null,"status":"draft","participants":null,"firstVersion":null,"lastVersion":null,"version":"1","message":null}],"error":null,"readOnly":false,"subject":{"gjenlevende":{"fnr":"1234567890000"},"avdod":{"fnr":"01010100001"}}}
-        """.trimIndent()
+        {"result":{"type":"P_BUC_10","caseId":"80001","internationalId":"n/a","creator":{"country":"","institution":"","name":null,"acronym":null},"sakType":null,"status":null,"startDate":"2020-08-07","lastUpdate":"2020-08-07","institusjon":[],"seds":[{"attachments":[],"displayName":null,"type":"P15000","conversations":null,"isSendExecuted":null,"id":"1","direction":"IN","creationDate":1596751200000,"receiveDate":null,"typeVersion":null,"allowsAttachments":null,"versions":null,"lastUpdate":1596751200000,"parentDocumentId":null,"status":"sent","participants":null,"firstVersion":null,"lastVersion":null,"version":"1","message":null,"name":null,"mimeType":null,"creator":null},{"attachments":[],"displayName":null,"type":"P4000","conversations":null,"isSendExecuted":null,"id":"2","direction":"OUT","creationDate":1596751200000,"receiveDate":null,"typeVersion":null,"allowsAttachments":null,"versions":null,"lastUpdate":1596751200000,"parentDocumentId":null,"status":"draft","participants":null,"firstVersion":null,"lastVersion":null,"version":"1","message":null,"name":null,"mimeType":null,"creator":null}],"error":null,"readOnly":false,"subject":{"gjenlevende":{"fnr":"1234567890000"},"avdod":{"fnr":"01010100001"}},"cdm":null},"status":"OK","message":null,"stackTrace":null}
+        """.trimIndent().also { println( "bla: $it ") }
 
-        JSONAssert.assertEquals(expected, response, false)
+        assertEquals(expected, result)
+
         verify (exactly = 1) { euxNavIdentRestTemplate.exchange("/buc/$EUXCASE_ID", HttpMethod.GET, null, String::class.java)  }
 
     }
@@ -187,15 +190,14 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
-            .andReturn()
-
-        val response = result.response.getContentAsString(charset("UTF-8"))
+            .andReturn().response.contentAsString
 
         val expected = """
-            {"type":"P_BUC_01","caseId":"900001","internationalId":"n/a","creator":{"country":"","institution":"","name":null,"acronym":null},"sakType":null,"status":null,"startDate":"2020-08-07","lastUpdate":"2020-08-07","institusjon":[],"seds":[{"attachments":[],"displayName":null,"type":"P2000","conversations":null,"isSendExecuted":null,"id":"1","direction":"OUT","creationDate":1596751200000,"receiveDate":null,"typeVersion":null,"allowsAttachments":null,"versions":null,"lastUpdate":1596751200000,"parentDocumentId":null,"status":"sent","participants":null,"firstVersion":null,"lastVersion":null,"version":"1","message":null},{"attachments":[],"displayName":null,"type":"P4000","conversations":null,"isSendExecuted":null,"id":"2","direction":"OUT","creationDate":1596751200000,"receiveDate":null,"typeVersion":null,"allowsAttachments":null,"versions":null,"lastUpdate":1596751200000,"parentDocumentId":null,"status":"draft","participants":null,"firstVersion":null,"lastVersion":null,"version":"1","message":null}],"error":null,"readOnly":false,"subject":null}
+            {"result":{"type":"P_BUC_01","caseId":"900001","internationalId":"n/a","creator":{"country":"","institution":"","name":null,"acronym":null},"sakType":null,"status":null,"startDate":"2020-08-07","lastUpdate":"2020-08-07","institusjon":[],"seds":[{"attachments":[],"displayName":null,"type":"P2000","conversations":null,"isSendExecuted":null,"id":"1","direction":"OUT","creationDate":1596751200000,"receiveDate":null,"typeVersion":null,"allowsAttachments":null,"versions":null,"lastUpdate":1596751200000,"parentDocumentId":null,"status":"sent","participants":null,"firstVersion":null,"lastVersion":null,"version":"1","message":null,"name":null,"mimeType":null,"creator":null},{"attachments":[],"displayName":null,"type":"P4000","conversations":null,"isSendExecuted":null,"id":"2","direction":"OUT","creationDate":1596751200000,"receiveDate":null,"typeVersion":null,"allowsAttachments":null,"versions":null,"lastUpdate":1596751200000,"parentDocumentId":null,"status":"draft","participants":null,"firstVersion":null,"lastVersion":null,"version":"1","message":null,"name":null,"mimeType":null,"creator":null}],"error":null,"readOnly":false,"subject":null,"cdm":null},"status":"OK","message":null,"stackTrace":null}
         """.trimIndent()
 
-        JSONAssert.assertEquals(expected, response, false)
+        println("resultat: $result expected: $expected")
+        JSONAssert.assertEquals(expected, result, false)
         verify (exactly = 1) { euxNavIdentRestTemplate.exchange("/buc/$EUXCASE_ID2", HttpMethod.GET, null, String::class.java)  }
     }
 
@@ -216,8 +218,8 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
         val response = result.response.getContentAsString(charset("UTF-8"))
 
-        val bucView = mapJsonToAny<BucAndSedView>(response)
-        assertEquals("404 NOT_FOUND", bucView.error)
+        val svar = mapJsonToAny<FrontEndResponse<BucAndSedView>>(response)
+        assertEquals("404 NOT_FOUND", svar.result?.error)
 
         verify (exactly = 1) { euxNavIdentRestTemplate.exchange("/buc/$EUXCASE_ID2", HttpMethod.GET, null, String::class.java)  }
     }
@@ -234,8 +236,9 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
             .andReturn()
 
         val response = result.response.getContentAsString(charset("UTF-8"))
+        val responseBodyResult = mapJsonToBucViewResponse(response)
 
-        assertEquals("[]", response)
+        assertEquals("[ ]", responseBodyResult.result?.toJson())
     }
 
     @Test
@@ -273,6 +276,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
             .andReturn()
 
         val response = result.response.getContentAsString(charset("UTF-8"))
+        val responseBodyResult = mapJsonToBucViewResponse(response)
 
         //data og spurt eux
         verify (exactly = 1) { safGraphQlOidcRestTemplate.exchange("/", HttpMethod.POST, httpEntity, String::class.java) }
@@ -284,7 +288,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
         """.trimIndent()
 
-        JSONAssert.assertEquals(expected, response, true)
+        JSONAssert.assertEquals(expected, responseBodyResult.result?.toJson(), true)
     }
 
     @Test
@@ -311,6 +315,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
             .andReturn()
 
         val response = result.response.getContentAsString(charset("UTF-8"))
+        val responseBody = mapJsonToBucViewResponse(response)
 
         verify (exactly = 1) { euxNavIdentRestTemplate.exchange("/rinasaker?fødselsnummer=1234567890000&status=\"open\"", HttpMethod.GET, null, String::class.java) }
         verify (exactly = 1) { safGraphQlOidcRestTemplate.exchange("/", HttpMethod.POST, httpEntity, String::class.java) }
@@ -320,7 +325,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
                 {"euxCaseId":"5922554","buctype":"P_BUC_03","aktoerId":"1123123123123123","saknr":"1203201322","avdodFnr":null,"kilde":"SAF"}]
         """.trimIndent()
 
-        JSONAssert.assertEquals(expected, response, true)
+        JSONAssert.assertEquals(expected, responseBody.result?.toJson(), true)
     }
 
     @Test
@@ -350,6 +355,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
             .andReturn()
 
         val response = result.response.getContentAsString(charset("UTF-8"))
+        val responseBody = mapJsonToBucViewResponse(response)
 
         verify (exactly = 1) { euxNavIdentRestTemplate.exchange("/rinasaker?fødselsnummer=1234567890000&status=\"open\"", HttpMethod.GET, null, String::class.java) }
         verify (exactly = 1) { safGraphQlOidcRestTemplate.exchange("/", HttpMethod.POST, httpEntity, String::class.java) }
@@ -359,7 +365,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
                 {"euxCaseId":"5922554","buctype":"P_BUC_03","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":null,"kilde":"SAF"}]
         """.trimIndent()
 
-        JSONAssert.assertEquals(expected, response, true)
+        JSONAssert.assertEquals(expected, responseBody.result?.toJson(), true)
     }
 
     @Test
@@ -388,6 +394,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
             .andReturn()
 
         val response = result.response.getContentAsString(charset("UTF-8"))
+        val responseBody = mapJsonToBucViewResponse(response)
 
         verify (exactly = 1) { euxNavIdentRestTemplate.exchange("/rinasaker?fødselsnummer=1234567890000&status=\"open\"", HttpMethod.GET, null, String::class.java) }
         verify (exactly = 1) { safGraphQlOidcRestTemplate.exchange("/", HttpMethod.POST, httpEntity, String::class.java) }
@@ -396,12 +403,8 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
             [{"euxCaseId":"3010","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":null},{"euxCaseId":"75312","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":null}]
         """.trimIndent()
 
-        JSONAssert.assertEquals(expected, response, false)
-
-        val requestlist = mapJsonToAny<List<BucView>>(response)
-
-        assertEquals(2, requestlist.size)
-        assertEquals("3010", requestlist.first().euxCaseId)
+        JSONAssert.assertEquals(expected, responseBody.result?.toJson(), false)
+        assertTrue(responseBody.result?.toJson()?.contains("3010") == true)
     }
 
     @Test
@@ -426,8 +429,27 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
                 .andReturn()
 
         val response = result.response.getContentAsString(charset("UTF-8"))
+        val responseBody = mapJsonToBucViewResponse(response)
 
-        assertEquals(2, mapJsonToAny<List<BucView>>(response).size)
+        val expected = """
+            [ {
+              "euxCaseId" : "3010",
+              "buctype" : "P_BUC_01",
+              "aktoerId" : "1123123123123123",
+              "saknr" : "100001000",
+              "avdodFnr" : null,
+              "kilde" : "BRUKER"
+            }, {
+              "euxCaseId" : "75312",
+              "buctype" : "P_BUC_03",
+              "aktoerId" : "1123123123123123",
+              "saknr" : "100001000",
+              "avdodFnr" : null,
+              "kilde" : "BRUKER"
+            } ]
+        """.trimIndent()
+
+        assertEquals(expected, responseBody.result?.toJson())
     }
 
 
@@ -450,16 +472,22 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         verify (exactly = 1) { euxNavIdentRestTemplate.exchange("/rinasaker?fødselsnummer=01010100001&status=\"open\"", HttpMethod.GET, null, String::class.java) }
 
         val expected = """
-            [{"euxCaseId":"3010","buctype":"P_BUC_02","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":"01010100001"}]
-        """.trimIndent()
+        [ {
+          "euxCaseId" : "3010",
+          "buctype" : "P_BUC_02",
+          "aktoerId" : "1123123123123123",
+          "saknr" : "100001000",
+          "avdodFnr" : "01010100001",
+          "kilde" : "AVDOD"
+        } ]
+          """.trimIndent()
 
-        JSONAssert.assertEquals(expected, response, false)
+        val responsebody = mapJsonToBucViewResponse(response)
+        assertEquals(expected, responsebody.result?.toJson())
 
-        val requestlist = mapJsonToAny<List<BucView>>(response)
-
-        assertEquals(1, requestlist.size)
-        assertEquals("3010", requestlist.first().euxCaseId)
-        assertEquals(P_BUC_02, requestlist.first().buctype)
+        assertThat (responsebody.result?.toString()?.contains("3010"))
+        assertThat (responsebody.result?.toString()?.contains("bucType"))
+        assertThat (responsebody.result?.toString()?.contains("OK"))
     }
 
     @Test
@@ -473,15 +501,16 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
-            .andReturn()
-
-        val response = result.response.getContentAsString(charset("UTF-8"))
+            .andReturn().response.contentAsString
 
         verify (exactly = 1) { euxNavIdentRestTemplate.exchange("/rinasaker?fødselsnummer=01010100001&status=\"open\"", HttpMethod.GET, null, String::class.java) }
 
-        val requestlist = mapJsonToAny<List<BucView>>(response)
-        assertEquals(0, requestlist.size)
+        val requestlist = mapJsonToBucViewResponse(result)
+        assertEquals("[]", requestlist.result?.toString())
     }
+
+    private fun mapJsonToBucViewResponse(response: String): FrontEndResponse<List<BucView>> =
+        mapJsonToAny<FrontEndResponse<List<BucView>>>(response)
 
     private fun documentsItem(id: String, status: String, sedType: SedType, direction: String? = "OUT") =
         DocumentsItem(
