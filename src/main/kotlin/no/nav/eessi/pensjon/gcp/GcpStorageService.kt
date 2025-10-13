@@ -137,31 +137,37 @@ class GcpStorageService(
     }
 
     fun hentGcpDetlajerForP6000(storageKey:String): String? {
-        kotlin.runCatching {
-            val options =  gcpStorage.get(BlobId.of(p6000Bucket, storageKey))
+        val resultat = kotlin.runCatching {
+            val options = gcpStorage.get(BlobId.of(p6000Bucket, storageKey))
             if (options.exists()) {
-                logger.info("Henter melding med rinanr $storageKey, for bucket p6000Bucket")
-                return options.getContent().decodeToString()
+                logger.info("Henter melding med pesysnr $storageKey, for bucket p6000Bucket")
+                options.getContent().decodeToString()
+            } else {
+                logger.warn("Melding med pesysnr $storageKey, for bucket p6000Bucket eksister ikke")
+                null
             }
-        }.onFailure {
-            logger.info("Henter melding med rinanr $storageKey, for bucket p6000Bucket")
-
+        }.getOrElse { e ->
+            logger.error("Feil under henting av melding med pesysnr $storageKey, for bucket p6000Bucket. Årsak: ${e.message}", e)
+            null
         }
-        return null
+        return resultat
     }
 
     fun hentGcpDetlajerPaaId(storageKey:String): String? {
-        kotlin.runCatching {
+        val resultat = kotlin.runCatching {
             val options =  gcpStorage.get(BlobId.of(p8000Bucket, storageKey))
             if (options.exists()) {
                 logger.info("Henter melding med rinanr $storageKey, for bucket $p8000Bucket")
                 return options.getContent().decodeToString()
+            } else {
+                logger.warn("Melding med rinanr $storageKey, for bucket p8000Bucket eksister ikke")
+                null
             }
-        }.onFailure {
-            logger.info("Henter melding med rinanr $storageKey, for bucket $p8000Bucket")
-
+        }.getOrElse { e ->
+            logger.error("Feil under henting av melding med rinanr $storageKey, for bucket p8000Bucket. Årsak: ${e.message}", e)
+            null
         }
-        return null
+        return resultat
     }
 }
 
