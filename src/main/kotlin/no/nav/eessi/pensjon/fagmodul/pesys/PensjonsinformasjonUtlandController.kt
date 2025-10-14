@@ -50,6 +50,7 @@ class PensjonsinformasjonUtlandController(
     private var p6000Metric: MetricsHelper.Metric = metricsHelper.init("p6000Metric")
 
     private val logger = LoggerFactory.getLogger(PensjonsinformasjonUtlandController::class.java)
+    private val secureLog = LoggerFactory.getLogger("secureLog")
 
     @GetMapping("/hentKravUtland/{bucId}")
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -120,8 +121,8 @@ class PensjonsinformasjonUtlandController(
                 .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
                 .onSuccess { logger.info("Hentet nye dok detaljer fra Rina for $pesysId") }
             val nyesteP6000 = listeOverP6000FraGcp.sortedBy { it.pensjon?.tilleggsinformasjon?.dato }.first()
-            val innvilgedePensjoner = innvilgedePensjoner(listeOverP6000FraGcp).also { logger.debug(it.toJson()) }
-            val avslaatteUtenlandskePensjoner = avslaatteUtenlandskePensjoner(listeOverP6000FraGcp).also { logger.debug(it.toJson()) }
+            val innvilgedePensjoner = innvilgedePensjoner(listeOverP6000FraGcp).also { secureLog.info("innvilgedePensjoner: " +it.toJson()) }
+            val avslaatteUtenlandskePensjoner = avslaatteUtenlandskePensjoner(listeOverP6000FraGcp).also { secureLog.info("avslaatteUtenlandskePensjoner: " + it.toJson()) }
 
             if (innvilgedePensjoner.size + avslaatteUtenlandskePensjoner.size != listeOverP6000FraGcp.size) {
                 logger.warn("Mismatch: innvilgedePensjoner (${innvilgedePensjoner.size}) + avslåtteUtenlandskePensjoner (${avslaatteUtenlandskePensjoner.size}) != utenlandskeP6000er (${listeOverP6000FraGcp.size})")
@@ -140,7 +141,7 @@ class PensjonsinformasjonUtlandController(
     }
 
     private fun innvilgedePensjoner(p6000er: List<P6000>) : List<InnvilgetPensjon>{
-        val ip6000Innvilgede = p6000er.filter { sed -> sed.pensjon?.vedtak?.any { it.resultat == "01" } == true }
+        val ip6000Innvilgede = p6000er.filter { sed -> sed.pensjon?.vedtak?.any { it.resultat in listOf("01","03","04") } == true }
         return ip6000Innvilgede.map { p6000 ->
             val vedtak = p6000.pensjon?.vedtak?.first()
             InnvilgetPensjon(
