@@ -60,7 +60,7 @@ class EuxControllerMvcTest {
 
     @Test
     fun `Gitt at vi sender en P2000 fra EP til RINA, saa returneres false dersom noe går glt under sending`() {
-        val expected = """{"result":"Sed ble IKKE sendt til Rina","status":"BAD_REQUEST","message":null,"stackTrace":null}"""
+        val expected = """{"result":"Sed ble IKKE sendt til Rina","status":"BAD_REQUEST","message":"400 BAD_REQUEST \"Sed ble ikke sendt til Rina\"","stackTrace":null}"""
         val endpointUrl = "/eux/buc/12345/sed/dokid/send"
         every { euxKlient.sendSed(any(), any()) } returns false
 

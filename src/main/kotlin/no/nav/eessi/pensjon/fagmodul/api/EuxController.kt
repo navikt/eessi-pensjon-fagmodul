@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.client.HttpStatusCodeException
+import org.springframework.web.server.ResponseStatusException
 
 
 @RestController
@@ -100,12 +101,11 @@ class EuxController(
                     logger.info("Sed er sendt til Rina")
                     ResponseEntity.ok().body(FrontEndResponse("Sed er sendt til Rina", HttpStatus.OK.name))
                 } else {
-                    logger.error("Sed ble ikke sendt til Rina")
-                    ResponseEntity.badRequest().body(FrontEndResponse("Sed ble IKKE sendt til Rina", HttpStatus.BAD_REQUEST.name))
+                    throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Sed ble ikke sendt til Rina")
                 }
             } catch (ex: Exception) {
-                logger.error("Sed ble ikke sendt til Rina")
-                ResponseEntity.badRequest().body(FrontEndResponse("Sed ble IKKE sendt til Rina", HttpStatus.BAD_REQUEST.name))
+                logger.error("En uventet feil har oppstått, sed ble IKKE sendt til Rina ${ex.message}")
+                ResponseEntity.unprocessableEntity().body(FrontEndResponse("Sed ble IKKE sendt til Rina", HttpStatus.BAD_REQUEST.name, ex.message))
             }
         }
     }
