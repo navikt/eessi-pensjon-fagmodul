@@ -156,7 +156,7 @@ class GcpStorageService(
     fun hentGcpDetlajerPaaId(storageKey:String): String? {
         val resultat = kotlin.runCatching {
             val options =  gcpStorage.get(BlobId.of(p8000Bucket, storageKey))
-            if (options.exists()) {
+            if (options != null && options.exists()) {
                 logger.info("Henter melding med rinanr $storageKey, for bucket $p8000Bucket")
                 return options.getContent().decodeToString()
             } else {
