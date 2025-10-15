@@ -73,6 +73,7 @@ class EuxInnhentingService(
     }
 
     private val logger = LoggerFactory.getLogger(EuxInnhentingService::class.java)
+    private val secureLog = LoggerFactory.getLogger("secureLog")
 
     @Retryable(
         exclude = [IOException::class],
@@ -110,9 +111,8 @@ class EuxInnhentingService(
 
     fun getSedOnBucByDocumentIdAsSystemuser(euxCaseId: String, documentId: String): SED {
         val json = sedByDocumentId.measure { euxKlient.getSedOnBucByDocumentIdAsSystemuser(euxCaseId, documentId) }
-        logger.info("JSON: $json")
         return try {
-            SED.fromJsonToConcrete(json).also { logger.info("JsonToConcrete: $it") }
+            SED.fromJsonToConcrete(json).also { secureLog.info("JsonToConcrete: $it") }
 
         } catch (ex: Exception) {
             logger.error("Feiler ved mapping av kravSED. Rina: $euxCaseId, documentid: $documentId")
