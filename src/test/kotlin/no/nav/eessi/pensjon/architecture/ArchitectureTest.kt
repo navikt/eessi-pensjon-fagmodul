@@ -161,14 +161,6 @@ class ArchitectureTest {
     }
 
     @Test
-    fun `no cycles on top level`() {
-        slices()
-                .matching("$root.(*)..")
-                .should().beFreeOfCycles()
-                .check(productionClasses)
-    }
-
-    @Test
     fun `no cycles on any level for production classes`() {
         slices()
                 .matching("$root.(*)..")

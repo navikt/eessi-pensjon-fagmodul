@@ -167,13 +167,20 @@ class PrefillController(
         ).also { logger.debug("Prefill av SED: $it") }
 
         //Lagrer P6000 detaljer til GCP Storage
-        request.payload?.let { mapJsonToAny<List<P6000Dokument>>(it) }?.let { listeOverP6000 ->
-            gcpStorageService.lagretilBackend(
-                PensjonsinformasjonUtlandController.P6000Detaljer(
-                    request.sakId!!,
-                    request.euxCaseId!!,
-                    listeOverP6000.map { it.documentID }).toJson(), request.sakId
-            )
+        try {
+            if(request.sed == SedType.P7000) {
+                logger.debug("Lagerer P7000: ${request.payload}")
+                request.payload?.let { mapJsonToAny<List<P6000Dokument>>(it) }?.let { listeOverP6000 ->
+                    gcpStorageService.lagretilBackend(
+                        PensjonsinformasjonUtlandController.P6000Detaljer(
+                            request.sakId!!,
+                            request.euxCaseId!!,
+                            listeOverP6000.map { it.documentID }).toJson(), request.sakId
+                    )
+                }
+            }
+        } catch (e: Exception) {
+            logger.error(e.message, e)
         }
 
         //val institusjonerFraRequest = request.institutions
@@ -196,7 +203,6 @@ class PrefillController(
             logger.info("******* Legge til ny SED - slutt *******")
             documentItem
         }
-
     }
 
     @PostMapping("sed/replysed/{parentid}")
@@ -258,7 +264,6 @@ class PrefillController(
             BucUtils(innhentetBuc).findDocument(bucSedResponse.documentId)
         } else {
             orginal
-
         }
     }
 

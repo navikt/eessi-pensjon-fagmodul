@@ -1,0 +1,191 @@
+{
+  "pensjon": {
+    "medlemskapboarbeid": {
+      "medlemskap": [
+        {
+          "land": "NO",
+          "beregning": "111",
+          "ordning": "00",
+          "sum": {
+            "dager": {
+              "nr": "11",
+              "type": "7"
+            },
+            "maaneder": "03",
+            "aar": "05"
+          },
+          "type": "11",
+          "periode": {
+            "tom": "1994-04-22",
+            "fom": "1989-01-12"
+          },
+          "relevans": "111"
+        },
+        {
+          "sum": {
+            "aar": "08",
+            "maaneder": "05",
+            "dager": {
+              "type": "7",
+              "nr": "15"
+            }
+          },
+          "ordning": "00",
+          "periode": {
+            "tom": "1997-06-26",
+            "fom": "1989-01-12"
+          },
+          "type": "30",
+          "beregning": "111",
+          "relevans": "111",
+          "land": "NO"
+        },
+        {
+          "type": "12",
+          "relevans": "111",
+          "sum": {
+            "maaneder": "02",
+            "dager": {
+              "type": "7",
+              "nr": "02"
+            },
+            "aar": "02"
+          },
+          "periode": {
+            "fom": "1995-03-15",
+            "tom": "1997-05-16"
+          },
+          "beregning": "111",
+          "ordning": "00",
+          "land": "NO"
+        }
+      ],
+      "gyldigperiode": "1",
+      "enkeltkrav": {
+        "krav": "10"
+      }
+    },
+    "medlemskapTotal": [
+      {
+        "sum": {
+          "aar": "05",
+          "dager": {
+            "nr": "11",
+            "type": "7"
+          },
+          "maaneder": "03"
+        },
+        "relevans": "111",
+        "type": "11"
+      },
+      {
+        "relevans": "111",
+        "type": "30",
+        "sum": {
+          "dager": {
+            "nr": "15",
+            "type": "7"
+          },
+          "aar": "08",
+          "maaneder": "05"
+        }
+      },
+      {
+        "sum": {
+          "maaneder": "02",
+          "dager": {
+            "type": "7",
+            "nr": "02"
+          },
+          "aar": "02"
+        },
+        "relevans": "111",
+        "type": "12"
+      }
+    ],
+    "trygdetid": [
+      {
+        "sum": {
+          "dager": {
+            "type": "7",
+            "nr": "11"
+          },
+          "aar": "05",
+          "maaneder": "03"
+        },
+        "beregning": "111",
+        "type": "11"
+      },
+      {
+        "sum": {
+          "dager": {
+            "nr": "15",
+            "type": "7"
+          },
+          "aar": "08",
+          "maaneder": "05"
+        },
+        "beregning": "111",
+        "type": "30"
+      },
+      {
+        "sum": {
+          "dager": {
+            "nr": "02",
+            "type": "7"
+          },
+          "maaneder": "02",
+          "aar": "02"
+        },
+        "beregning": "111",
+        "type": "12"
+      }
+    ],
+    "separatP5000sendes": "0"
+  },
+  "nav": {
+    "bruker": {
+      "person": {
+        "fornavn": "Skjør",
+        "kjoenn": "M",
+        "etternavn": "Hotelldirektør",
+        "foedselsdato": "1955-01-20",
+        "statsborgerskap": [
+          {
+            "land": "PT"
+          }
+        ],
+        "pin": [
+          {
+            "institusjonsnavn": "NAV ACCEPTANCE TEST 07",
+            "identifikator": "60415517761",
+            "land": "NO",
+            "institusjonsid": "NO:NAVAT07"
+          }
+        ],
+        "foedested": {
+          "by": "Unknown",
+          "land": "AF"
+        }
+      },
+      "adresse": {
+        "region": "18-500 KOLNO",
+        "postnummer": "3000",
+        "by": "CAPITAL WEST",
+        "land": "GW",
+        "gate": "1KOLEJOWA 6/5"
+      }
+    },
+    "eessisak": [
+      {
+        "institusjonsnavn": "NAV ACCEPTANCE TEST 07",
+        "saksnummer": "22963538",
+        "land": "NO",
+        "institusjonsid": "NO:NAVAT07"
+      }
+    ]
+  },
+  "sedVer": "2",
+  "sedGVer": "4",
+  "sed": "P5000"
+}

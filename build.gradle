@@ -1,13 +1,14 @@
 buildscript {
 
     ext {
-        kotlinVersion = '2.2.0'
-        springBootVersion = '3.5.4'
-        springKafkaVersion = '3.3.8'
+        kotlinVersion = '2.2.20'
+        springBootVersion = '3.5.6'
+        springKafkaVersion = '3.3.10'
         springfoxVersion = '3.0.0'
-        tokenSupportVersion = '5.0.33'
+        tokenSupportVersion = '5.0.37'
     }
 }
+
 plugins {
     id "org.springframework.boot" version "$springBootVersion"
     id "io.spring.dependency-management" version "1.1.7"
@@ -41,11 +42,11 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-actuator")
 
     // Spring Framework BOM-fil overstyrer så vi får siste patch-versjon av Spring Framework
-    implementation(platform("org.springframework:spring-framework-bom:6.2.9"))
+    implementation(platform("org.springframework:spring-framework-bom:6.2.11"))
 
-    implementation("org.yaml:snakeyaml:2.4") // Pga https://security.snyk.io/package/maven/org.yaml:snakeyaml
+    implementation("org.yaml:snakeyaml:2.5") // Pga https://security.snyk.io/package/maven/org.yaml:snakeyaml
 
-    implementation("com.fasterxml.jackson.core:jackson-core:2.19.2")
+    implementation("com.fasterxml.jackson.core:jackson-core:2.20.0")
 
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
 
@@ -59,35 +60,35 @@ dependencies {
     implementation("no.nav.security:token-validation-spring:${tokenSupportVersion}")
     implementation("no.nav.security:token-validation-jaxrs:${tokenSupportVersion}")
 
-    implementation ("no.nav.common:token-client:3.2025.06.23_14.50-3af3985d8555")
+    implementation ("no.nav.common:token-client:3.2025.09.03_08.33-728ff4acbfdb")
     implementation("org.springframework.kafka:spring-kafka:${springKafkaVersion}")
 
     //GCP
-    implementation("com.google.cloud:google-cloud-storage:2.54.0")
+    implementation("com.google.cloud:google-cloud-storage:2.58.1")
 
-    implementation("no.nav.eessi.pensjon:ep-metrics:2.0.104")
-    implementation("no.nav.eessi.pensjon:ep-logging:2.2.11")
-    implementation("no.nav.eessi.pensjon:ep-eux:2.5.9")
-    implementation("no.nav.eessi.pensjon:ep-kodeverk:4.3.9") {
+    implementation("no.nav.eessi.pensjon:ep-metrics:2.1.10")
+    implementation("no.nav.eessi.pensjon:ep-logging:2.3.13")
+    implementation("no.nav.eessi.pensjon:ep-eux:2.5.17")
+    implementation("no.nav.eessi.pensjon:ep-kodeverk:4.3.28") {
         exclude module: 'ep-eux'
         exclude module: 'ep-logging'
         exclude module: 'ep-metrics'
     }
 
-    implementation("no.nav.eessi.pensjon:ep-personoppslag:13.3.4") {
+    implementation("no.nav.eessi.pensjon:ep-personoppslag:13.3.38") {
         exclude module: 'ep-eux'
         exclude module: 'ep-logging'
         exclude module: 'ep-metrics'
     }
 
-    implementation("no.nav.eessi.pensjon:ep-pensjonsinformasjon:3.1.2") {
+    implementation("no.nav.eessi.pensjon:ep-pensjonsinformasjon:3.1.19") {
         exclude module: 'ep-eux'
         exclude module: 'ep-logging'
         exclude module: 'ep-metrics'
     }
 
     implementation 'javax.xml.bind:jaxb-api:2.3.1'
-    implementation('org.glassfish.jaxb:jaxb-runtime:2.3.3')
+    implementation('org.glassfish.jaxb:jaxb-runtime:2.3.9')
     implementation("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:2643.2f3e8e9")
 
     // PDF box
@@ -103,7 +104,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter:5.13.4")
 
     //mock - test
-    testImplementation("io.mockk:mockk:1.14.5")
+    testImplementation("io.mockk:mockk:1.14.6")
     testImplementation("org.skyscreamer:jsonassert:1.5.3")
 
     //Kafka
