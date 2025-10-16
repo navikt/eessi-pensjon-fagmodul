@@ -80,6 +80,9 @@ spec:
         - application: pensjon-psak-q2
           namespace: pensjon-q2
           cluster: dev-fss
+        - application: pensjon-psak-q2
+          namespace: pensjon-q2
+          cluster: dev-gcp
 
   webproxy: true
   env:
