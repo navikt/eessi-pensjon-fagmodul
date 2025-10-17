@@ -1,6 +1,5 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
-import no.nav.eessi.pensjon.fagmodul.api.FrontEndResponse
 import no.nav.eessi.pensjon.eux.model.BucType
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.metrics.MetricsHelper
@@ -15,6 +14,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.client.HttpStatusCodeException
+import org.springframework.web.server.ResponseStatusException
 
 
 @RestController
@@ -55,7 +55,7 @@ class EuxController(
 
     @Protected
     @GetMapping("/countries/{buctype}")
-    fun getPaakobledeland(@PathVariable(value = "buctype") bucType: BucType): ResponseEntity<String> {
+    fun getPaakobledeland(@PathVariable(value = "buctype") bucType: BucType): ResponseEntity<FrontEndResponse<String>> {
         return paakobledeland.measure {
             logger.info("Henter ut liste over land knyttet til buc: $bucType")
             return@measure try {
@@ -66,11 +66,11 @@ class EuxController(
                     logger.warn("Ingen svar fra /institusjoner?BuCType, kjører backupliste")
                     backupList
                 }
-                ResponseEntity.ok(landlist.toJson())
+                ResponseEntity.ok(FrontEndResponse(landlist.toJson(), HttpStatus.OK.name))
             } catch (sce: HttpStatusCodeException) {
-                ResponseEntity.status(sce.statusCode).body(errorBody(sce.responseBodyAsString))
+                ResponseEntity.status(sce.statusCode).body(FrontEndResponse(errorBody(sce.responseBodyAsString), sce.statusCode.toString()))
             } catch (ex: Exception) {
-                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.message?.let { errorBody(it) })
+                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(FrontEndResponse(ex.message?.let { errorBody(it) }, HttpStatus.INTERNAL_SERVER_ERROR.toString()))
             }
         }
     }
@@ -80,10 +80,11 @@ class EuxController(
     fun getEuxInstitusjoner(
         @PathVariable("buctype", required = true) buctype: String,
         @PathVariable("countrycode", required = false) landkode: String? = ""
-    ): List<InstitusjonItem> {
+    ): FrontEndResponse<List<InstitusjonItem>> {
         return euxInstitusjoner.measure {
             logger.info("Henter ut liste over alle Institusjoner i Rina")
-            return@measure euxInnhentingService.getInstitutions(buctype, landkode)
+            val institusjoner = euxInnhentingService.getInstitutions(buctype, landkode)
+            return@measure FrontEndResponse(institusjoner, HttpStatus.OK.name)
         }
     }
 
@@ -92,20 +93,19 @@ class EuxController(
     fun sendSeden(
         @PathVariable("rinasakId", required = true) rinaSakId: String,
         @PathVariable("dokumentId", required = false) dokumentId: String
-    ): ResponseEntity<String> {
+    ): ResponseEntity<FrontEndResponse<String>> {
         return sedsendt.measure {
             return@measure try {
                 val response = euxInnhentingService.sendSed(rinaSakId, dokumentId)
                 if (response) {
                     logger.info("Sed er sendt til Rina")
-                    ResponseEntity.ok().body("Sed er sendt til Rina")
+                    ResponseEntity.ok().body(FrontEndResponse("Sed er sendt til Rina", HttpStatus.OK.name))
                 } else {
-                    logger.error("Sed ble ikke sendt til Rina")
-                    ResponseEntity.badRequest().body("Sed ble IKKE sendt til Rina")
+                    throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Sed ble ikke sendt til Rina")
                 }
             } catch (ex: Exception) {
-                logger.error("Sed ble ikke sendt til Rina")
-                ResponseEntity.badRequest().body("Sed ble IKKE sendt til Rina")
+                logger.error("En uventet feil har oppstått, sed ble IKKE sendt til Rina ${ex.message}")
+                ResponseEntity.unprocessableEntity().body(FrontEndResponse("Sed ble IKKE sendt til Rina", HttpStatus.BAD_REQUEST.name, ex.message))
             }
         }
     }
@@ -115,21 +115,21 @@ class EuxController(
         @PathVariable("rinasakId") rinaSakId: String,
         @PathVariable("dokumentId") dokumentId: String,
         @RequestBody mottakere: List<String>
-    ): ResponseEntity<String> {
+    ): ResponseEntity<FrontEndResponse<String>> {
         return sedsendt.measure {
             logger.info("Sender sed:$rinaSakId til mottakere: $mottakere")
             if (mottakere.isNullOrEmpty()) {
                 logger.error("Mottakere er tom eller null")
-                return@measure ResponseEntity.badRequest().body("Mottakere kan ikke være tom")
+                return@measure ResponseEntity.badRequest().body(FrontEndResponse("Mottakere kan ikke være tom", HttpStatus.BAD_REQUEST.name))
             }
             try {
                 val response = euxInnhentingService.sendSedTilMottakere(rinaSakId, dokumentId, mottakere)
                 if (response) {
                     logger.info("Sed er sendt til Rina:$rinaSakId, dokument:$dokumentId og mottakerne er lagt til: $mottakere")
-                    return@measure ResponseEntity.ok().body("Sed er sendt til Rina")
+                    return@measure ResponseEntity.ok().body(FrontEndResponse(result = "Sed er sendt til Rina", status = "OK"))
                 }
                 logger.error("Sed ble ikke sendt til Rina:$rinaSakId, dokument:$dokumentId og mottakerne er lagt til: $mottakere")
-                return@measure ResponseEntity.badRequest().body("Sed ble IKKE sendt til Rina")
+                return@measure ResponseEntity.badRequest().body(FrontEndResponse("Sed ble IKKE sendt til Rina", HttpStatus.BAD_REQUEST.name))
             } catch (ex: Exception) {
                 return@measure handleSendSedException(ex, rinaSakId, dokumentId)
             }
@@ -141,35 +141,37 @@ class EuxController(
     fun resendeDokumenterMedRinaId(
         @PathVariable("RinaSakId") rinaSakId: String,
         @PathVariable("DokumentId") dokumentId: String,
-    ): ResponseEntity<String> {
+    ): ResponseEntity<FrontEndResponse<String>> {
         return resend.measure {
             logger.info("Resender dokument: $rinaSakId, dokument: $dokumentId")
             try {
                 val response = euxInnhentingService.reSendeRinasakerMedRinaId(rinaSakId, dokumentId)
                 if (response?.status == HttpStatus.OK) {
                     logger.info("Resendte dokumenter er resendt til Rina")
-                    return@measure ResponseEntity.ok().body("Sederer resendt til Rina")
+                    return@measure ResponseEntity.ok().body(FrontEndResponse("Seder er resendt til Rina", HttpStatus.OK.name))
                 }
                 logger.error("Resendte dokumenter ble IKKE resendt til Rina ${response?.status}")
-                return@measure ResponseEntity.badRequest().body(FrontEndResponse<String>(message = "Seder ble IKKE resendt til Rina: ${response?.messages}").toJson())
+                return@measure ResponseEntity.badRequest().body(FrontEndResponse(result = null, message = "Seder ble IKKE resendt til Rina: ${response?.messages}".toJson(), status = HttpStatus.BAD_REQUEST.name))
             } catch (ex: Exception) {
                 return@measure ResponseEntity.badRequest().body(
-                    FrontEndResponse<String>(
-                        ex.message,
-                        message = "Seder ble IKKE resendt til Rina: ${ex.message} "
-                    ).toJson())
+                    FrontEndResponse(
+                        result = null,
+                        message = "Seder ble IKKE resendt til Rina: ${ex.message}",
+                        status = HttpStatus.BAD_REQUEST.name
+                    )
+                )
             }
         }
     }
 
     @Protected
     @PostMapping("/resend/liste")
-    fun resendtDokumenter(@RequestBody dokumentListe: String): ResponseEntity<String> {
+    fun resendtDokumenter(@RequestBody dokumentListe: String): ResponseEntity<FrontEndResponse<String>> {
         return resend.measure {
             logger.info("Dokumentliste: $dokumentListe")
             if (dokumentListe.isEmpty()) {
                 logger.error("Dokumentlisten er tom eller null")
-                return@measure ResponseEntity.badRequest().body("Dokumentlisten kan ikke være tom")
+                return@measure ResponseEntity.badRequest().body(FrontEndResponse("Dokumentlisten kan ikke være tom", HttpStatus.BAD_REQUEST.name))
             }
             val formattedDokumentListe = dokumentListe
                 .replace("\\\n", "\n")
@@ -184,32 +186,24 @@ class EuxController(
                 val response = euxInnhentingService.reSendRinasaker(formattedDokumentListe)
                 if (response?.status == HttpStatus.OK) {
                     logger.info("Resendte dokumenter er resendt til Rina")
-                    return@measure ResponseEntity.ok().body("Sederer resendt til Rina")
+                    return@measure ResponseEntity.ok().body(FrontEndResponse("Seder er resendt til Rina", HttpStatus.OK.name))
                 }
                 logger.error("Resendte dokumenter ble IKKE resendt til Rina ${response?.status}")
-                return@measure ResponseEntity.badRequest().body(FrontEndResponse<String>(message = "Seder ble IKKE resendt til Rina: ${response?.messages}").toJson())
+                return@measure ResponseEntity.badRequest().body(FrontEndResponse(result = null, message = "Seder ble IKKE resendt til Rina: ${response?.messages}",
+                    status = HttpStatus.BAD_REQUEST.name))
             } catch (ex: Exception) {
                 return@measure ResponseEntity.badRequest().body(
                     FrontEndResponse(
-                        ex.message,
-                        message = "Seder ble IKKE resendt til Rina: ${ex.message} "
-                    ).toJson())
+                        result = null,
+                        message = "Seder ble IKKE resendt til Rina: ${ex.message} ",
+                        status = HttpStatus.BAD_REQUEST.name))
             }
         }
     }
 
-    private fun handleSendSedException(ex: Exception, rinaSakId: String, dokumentId: String): ResponseEntity<String> {
+    private fun handleSendSedException(ex: Exception, rinaSakId: String, dokumentId: String): ResponseEntity<FrontEndResponse<String>> {
         logger.error("Sed ble ikke sendt til Rina: $rinaSakId, dokument: $dokumentId", ex)
-        return ResponseEntity.badRequest().body("Sed ble IKKE sendt til Rina")
+        return ResponseEntity.badRequest().body(FrontEndResponse("Sed ble IKKE sendt til Rina", HttpStatus.BAD_REQUEST.name))
     }
 
-    private fun handleReSendDocumentException(ex: Exception, dokumentliste: String): ResponseEntity<String> {
-        logger.error("Seder ble ikke resendt til Rina", ex)
-        return ResponseEntity.badRequest().body("Seder ble IKKE resendt til Rina")
-    }
-
-    private fun handleReSendDocumentMedRinaIdException(ex: Exception, rinaSakId: String, dokumentId: String): ResponseEntity<String> {
-        logger.error("Seder ble ikke resendt til Rina", ex)
-        return ResponseEntity.badRequest().body("Seder ble IKKE resendt til Rina")
-    }
 }

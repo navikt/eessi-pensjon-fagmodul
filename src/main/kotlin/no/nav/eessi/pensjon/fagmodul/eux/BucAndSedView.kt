@@ -44,8 +44,6 @@ data class BucAndSedView(
             )
         }
 
-        fun from(buc: Buc) = from(buc, null)
-
         private fun checkForReadOnly(buc: Buc): Boolean {
             return when (buc.processDefinitionName) {
                 "R_BUC_02" -> true
