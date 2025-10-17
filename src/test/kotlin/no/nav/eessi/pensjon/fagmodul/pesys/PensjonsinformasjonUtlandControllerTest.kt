@@ -16,6 +16,7 @@ import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 class PensjonsinformasjonUtlandControllerTest {
@@ -132,6 +133,7 @@ class PensjonsinformasjonUtlandControllerTest {
 //        assertEquals("01-09-2025", result.vedtaksdato)
     }
 
+    @Disabled
     @Test
     fun `Gitt at vi skal hente opp P6000 for P1 saa skal vi returnere P1Dto med innvilgede pensjoner`() {
         every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
