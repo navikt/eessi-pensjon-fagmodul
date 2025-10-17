@@ -133,7 +133,7 @@ class PensjonsinformasjonUtlandController(
                 innvilgedePensjoner = innvilgedePensjoner,
                 avslaattePensjoner = avslaatteUtenlandskePensjoner,
                 utfyllendeInstitusjon = ""
-            )
+            ).also { secureLog.info("P1Dto: " + it.toJson())}
         }
     }
 
