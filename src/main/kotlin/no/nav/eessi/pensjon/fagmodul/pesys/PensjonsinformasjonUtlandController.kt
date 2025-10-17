@@ -118,7 +118,10 @@ class PensjonsinformasjonUtlandController(
                 .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
                 .onSuccess { logger.info("Hentet nye dok detaljer fra Rina for $pesysId") }
             val nyesteP6000 = listeOverP6000FraGcp.sortedBy { it.pensjon?.tilleggsinformasjon?.dato }.first()
-            val innvilgedePensjoner = innvilgedePensjoner(listeOverP6000FraGcp).also { secureLog.info("innvilgedePensjoner: " +it.toJson()) }
+            val innvilgedePensjoner = innvilgedePensjoner(listeOverP6000FraGcp)
+            if (innvilgedePensjoner.size != 1) {
+                innvilgedePensjoner.filter{ it.valuta == "NOK"}.also { secureLog.info("Innvilget pensjon: " +it.toJson()) }
+            } else innvilgedePensjoner.also { secureLog.info("innvilget pensjon opprinnelig: " +it.toJson()) }
             val avslaatteUtenlandskePensjoner = avslaatteUtenlandskePensjoner(listeOverP6000FraGcp).also { secureLog.info("avslaatteUtenlandskePensjoner: " + it.toJson()) }
 
             if (innvilgedePensjoner.size + avslaatteUtenlandskePensjoner.size != listeOverP6000FraGcp.size) {
