@@ -112,7 +112,6 @@ class PensjonsinformasjonUtlandController(
                 p6000Detaljer.dokumentId.forEach { p6000 ->
                     val hentetJsonP6000 = euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(p6000Detaljer.rinaSakId, p6000)
                     val hentetP6000 = hentetJsonP6000 as P6000
-                    secureLog.info("somP6000: $hentetP6000")
                     hentetP6000.let { listeOverP6000FraGcp.add(it) }
                 }
             }
