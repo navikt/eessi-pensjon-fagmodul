@@ -41,7 +41,7 @@ data class P1Dto(
     )
 
     data class AvslaattPensjon(
-        val institusjon: EessisakItem?,
+        val institusjon: List<EessisakItem>?,
         val pensjonstype: String?,
         val avslagsbegrunnelse: String?,
         val vurderingsperiode: String?,

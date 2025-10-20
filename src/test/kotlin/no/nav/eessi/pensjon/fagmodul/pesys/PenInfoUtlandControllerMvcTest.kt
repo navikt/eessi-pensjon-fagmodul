@@ -55,7 +55,6 @@ class PenInfoUtlandControllerMvcTest {
         }
     }
 
-    @Disabled
     @Test
     fun `avdodsdato sjekk for vedtak inneholder to avdod i pbuc06 og P5000 returneres den tidligere valgte avdod ut fra P5000 og returneres`() {
         val gcpDetlajerP6000 = """

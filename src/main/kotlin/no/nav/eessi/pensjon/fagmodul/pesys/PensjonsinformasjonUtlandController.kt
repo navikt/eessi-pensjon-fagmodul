@@ -119,6 +119,7 @@ class PensjonsinformasjonUtlandController(
                 .onSuccess { logger.info("Hentet nye dok detaljer fra Rina for $pesysId") }
             val nyesteP6000 = listeOverP6000FraGcp.sortedBy { it.pensjon?.tilleggsinformasjon?.dato }.first()
             val innvilgedePensjoner = innvilgedePensjoner(listeOverP6000FraGcp).also { secureLog.info("innvilgedePensjoner: " +it.toJson()) }
+
             val avslaatteUtenlandskePensjoner = avslaatteUtenlandskePensjoner(listeOverP6000FraGcp).also { secureLog.info("avslaatteUtenlandskePensjoner: " + it.toJson()) }
 
             if (innvilgedePensjoner.size + avslaatteUtenlandskePensjoner.size != listeOverP6000FraGcp.size) {
@@ -137,12 +138,16 @@ class PensjonsinformasjonUtlandController(
         }
     }
 
+
     private fun innvilgedePensjoner(p6000er: List<P6000>) : List<InnvilgetPensjon>{
         val ip6000Innvilgede = p6000er.filter { sed -> sed.pensjon?.vedtak?.any { it.resultat in listOf("01","03","04") } == true }
         return ip6000Innvilgede.map { p6000 ->
             val vedtak = p6000.pensjon?.vedtak?.first()
+
+            val institusjon = eessiInstitusjoner(p6000)
+
             InnvilgetPensjon(
-                institusjon = p6000.nav?.eessisak?.map { institusjon(it) },
+                institusjon = institusjon,
                 pensjonstype = vedtak?.type ?: "",
                 datoFoersteUtbetaling = dato(vedtak?.beregning?.first()?.periode?.fom!!),
                 bruttobeloep = vedtak.beregning?.first()?.beloepBrutto?.beloep,
@@ -157,6 +162,34 @@ class PensjonsinformasjonUtlandController(
         }
     }
 
+    private fun eessiInstitusjoner(p6000: P6000): List<EessisakItem>? {
+        val eessisakItems = p6000.nav?.eessisak?.map {
+            EessisakItem(
+                institusjonsid = it.institusjonsid,
+                institusjonsnavn = it.institusjonsnavn,
+                land = it.land
+            )
+        }
+        val andreInstitusjoner = p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.map {
+            EessisakItem(
+                institusjonsid = it.institusjonsid,
+                institusjonsnavn = it.institusjonsnavn,
+                land = it.land
+            )
+        }
+
+        val institusjon =
+            if ((eessisakItems?.isNotEmpty() == true && eessisakItems.filter { it.land == "NO" }.size > 1) && (andreInstitusjoner?.any { it.land != "NO" } == true)) {
+                andreInstitusjoner
+            } else if (eessisakItems?.isNotEmpty() == true && eessisakItems.filter { it.land == "NO" }.size > 1) {
+                logger.error(" OBS OBS; Her kommer det inn mer enn 1 innvilget pensjon fra Norge")
+                emptyList()
+            } else {
+                eessisakItems
+            }
+        return institusjon
+    }
+
     private fun adresse(p6000: AndreinstitusjonerItem) =
         AndreinstitusjonerItem(
             institusjonsid = p6000.institusjonsid,
@@ -169,19 +202,12 @@ class PensjonsinformasjonUtlandController(
             poststed = p6000.poststed
         )
 
-    private fun institusjon(p6000: EessisakItem?) =
-        EessisakItem(
-            institusjonsid = p6000?.institusjonsid,
-            institusjonsnavn = p6000?.institusjonsnavn,
-            land = p6000?.land
-        )
-
     private fun avslaatteUtenlandskePensjoner(p6000er: List<P6000>): List<AvslaattPensjon> {
         val p6000erAvslaatt = p6000er.filter { sed -> sed.pensjon?.vedtak?.any { it.resultat == "02" } == true }
         return p6000erAvslaatt.map { p6000 ->
             val vedtak = p6000.pensjon?.vedtak?.first()
             AvslaattPensjon(
-                institusjon = institusjon(p6000.nav?.eessisak?.first()),
+                institusjon = eessiInstitusjoner(p6000),
                 pensjonstype = vedtak?.type,
                 avslagsbegrunnelse = vedtak?.avslagbegrunnelse?.first { !it.begrunnelse.isNullOrEmpty() }?.begrunnelse,
                 vurderingsperiode = p6000.pensjon?.sak?.kravtype?.first()?.datoFrist,
