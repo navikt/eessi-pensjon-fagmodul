@@ -26,6 +26,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDate
+import kotlin.collections.flatten
 
 
 /**
@@ -117,7 +118,10 @@ class PensjonsinformasjonUtlandController(
             }
                 .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
                 .onSuccess { logger.info("Hentet nye dok detaljer fra Rina for $pesysId") }
-            val nyesteP6000 = listeOverP6000FraGcp.sortedBy { it.pensjon?.tilleggsinformasjon?.dato }.first()
+            val nyesteP6000 = listeOverP6000FraGcp.sortedWith(compareByDescending<P6000> { it.pensjon?.tilleggsinformasjon?.dato }
+            .thenBy { it.pensjon?.tilleggsinformasjon?.andreinstitusjoner != null })
+                .first()
+
             val innvilgedePensjoner = innvilgedePensjoner(listeOverP6000FraGcp).also { secureLog.info("innvilgedePensjoner: " +it.toJson()) }
 
             val avslaatteUtenlandskePensjoner = avslaatteUtenlandskePensjoner(listeOverP6000FraGcp).also { secureLog.info("avslaatteUtenlandskePensjoner: " + it.toJson()) }
@@ -141,25 +145,43 @@ class PensjonsinformasjonUtlandController(
 
     private fun innvilgedePensjoner(p6000er: List<P6000>) : List<InnvilgetPensjon>{
         val ip6000Innvilgede = p6000er.filter { sed -> sed.pensjon?.vedtak?.any { it.resultat in listOf("01","03","04") } == true }
-        return ip6000Innvilgede.map { p6000 ->
+        val eessisakItems = p6000er.map { p6000 ->
+            p6000.nav?.eessisak?.map {
+            EessisakItem(
+                institusjonsid = it.institusjonsid,
+                institusjonsnavn = it.institusjonsnavn,
+                land = it.land)
+            }?.toList() ?: emptyList()
+        }.flatten()
+
+        val flereEnnEnNorsk =  (eessisakItems.isNotEmpty() && eessisakItems.filter { it.land == "NO" }.size > 1)
+        val retList = mutableListOf<InnvilgetPensjon>()
+
+        ip6000Innvilgede.map { p6000 ->
             val vedtak = p6000.pensjon?.vedtak?.first()
-
-            val institusjon = eessiInstitusjoner(p6000)
-
-            InnvilgetPensjon(
-                institusjon = institusjon,
-                pensjonstype = vedtak?.type ?: "",
-                datoFoersteUtbetaling = dato(vedtak?.beregning?.first()?.periode?.fom!!),
-                bruttobeloep = vedtak.beregning?.first()?.beloepBrutto?.beloep,
-                valuta = vedtak.beregning?.first()?.valuta,
-                utbetalingsHyppighet = vedtak.beregning?.first()?.utbetalingshyppighet,
-                grunnlagInnvilget = vedtak.artikkel,
-                reduksjonsgrunnlag = p6000.pensjon?.sak?.artikkel54,
-                vurderingsperiode = p6000.pensjon?.sak?.kravtype?.first()?.datoFrist,
-                adresseNyVurdering = p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.map { adresse(it) },
-                vedtaksdato = p6000.pensjon?.tilleggsinformasjon?.dato
-            )
+            val institusjonFraSed = eessiInstitusjoner(p6000)
+            if (flereEnnEnNorsk && retList.any { it.institusjon?.any { it.land == "NO" } == true } && institusjonFraSed?.any { it.land == "NO" } == true) {
+                logger.error(" OBS OBS; Her kommer det inn mer enn 1 innvilget pensjon fra Norge")
+                secureLog.info("Hopper over denne sed: $p6000.toString()")
+            } else {
+                retList.add(
+                    InnvilgetPensjon(
+                        institusjon = institusjonFraSed,
+                        pensjonstype = vedtak?.type ?: "",
+                        datoFoersteUtbetaling = dato(vedtak?.beregning?.first()?.periode?.fom!!),
+                        bruttobeloep = vedtak.beregning?.first()?.beloepBrutto?.beloep,
+                        valuta = vedtak.beregning?.first()?.valuta,
+                        utbetalingsHyppighet = vedtak.beregning?.first()?.utbetalingshyppighet,
+                        grunnlagInnvilget = vedtak.artikkel,
+                        reduksjonsgrunnlag = p6000.pensjon?.sak?.artikkel54,
+                        vurderingsperiode = p6000.pensjon?.sak?.kravtype?.first()?.datoFrist,
+                        adresseNyVurdering = p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.map { adresse(it) },
+                        vedtaksdato = p6000.pensjon?.tilleggsinformasjon?.dato
+                    )
+                )
+            }
         }
+        return retList
     }
 
     private fun eessiInstitusjoner(p6000: P6000): List<EessisakItem>? {
@@ -179,10 +201,10 @@ class PensjonsinformasjonUtlandController(
         }
 
         val institusjon =
-            if ((eessisakItems?.isNotEmpty() == true && eessisakItems.filter { it.land == "NO" }.size > 1) && (andreInstitusjoner?.any { it.land != "NO" } == true)) {
+            if ((eessisakItems?.isNotEmpty() == true && eessisakItems.any { it.land == "NO" }) && (andreInstitusjoner?.any { it.land != "NO" } == true)) {
                 andreInstitusjoner
             } else if (eessisakItems?.isNotEmpty() == true && eessisakItems.filter { it.land == "NO" }.size > 1) {
-                logger.error(" OBS OBS; Her kommer det inn mer enn 1 innvilget pensjon fra Norge")
+                logger.error(" OBS OBS; Her kommer det inn mer enn 1 innvilget pensjon fra Norge i Seden")
                 emptyList()
             } else {
                 eessisakItems

@@ -130,7 +130,42 @@ class PensjonsinformasjonUtlandControllerTest {
         assertEquals("Gjenlevende", result.sakstype)
         assertEquals("æøå", result.innehaver.etternavn)
         assertEquals("æøå", result.forsikrede.fornavn)
-//        assertEquals("01-09-2025", result.vedtaksdato)
+    }
+
+    @Test
+    fun `Gitt at vi får fler enn en innvilget pensjon fra Norge men at den andre er fra DE saa skal vi levere ut P1Dto med DE sin institusjon`() {
+        every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
+            every { exists() } returns true
+            every { getContent() } returns p6000Detaljer().toByteArray()
+        }
+        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "b152e3cf041a4b829e56e6b1353dd8cb") } returns hentTestP6000("P6000-InnvilgedePensjonerUtlandOgInnland.json")
+        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "a6bacca841cf4c7195d694729151d4f3") } returns hentTestP6000("P6000-InnvilgedePensjoner.json")
+
+        val result = controller.hentP6000Detaljer("22975052")
+        println("resultat: ${result.toJson()}")
+
+        assertEquals("Gjenlevende", result.sakstype)
+        assertEquals("AKROBAT", result.innehaver.etternavn)
+        assertEquals("ROSA", result.forsikrede.fornavn)
+        assertEquals(2, result.innvilgedePensjoner.size)
+        assertEquals("[EessisakItem(institusjonsid=DEEEEEEE, institusjonsnavn=Tysker, saksnummer=null, land=DE)]", result.innvilgedePensjoner[1].institusjon.toString())
+        assertEquals("[EessisakItem(institusjonsid=NO:NAVAT07, institusjonsnavn=NAV ACCEPTANCE TEST 07, saksnummer=null, land=NO)]", result.innvilgedePensjoner[0].institusjon.toString())
+    }
+
+    @Test
+    fun `Gitt at vi får fler enn en innvilget pensjon fra Norge men den andre mangler adresseNyvurdering dermed returneres kun den ene norske med andreinstitusjoner oppgitt `() {
+        every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
+            every { exists() } returns true
+            every { getContent() } returns p6000Detaljer().toByteArray()
+        }
+        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "b152e3cf041a4b829e56e6b1353dd8cb") } returns hentTestP6000("P6000-InnvilgedePensjonSomManglerAdresseNyVurdering.json")
+        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "a6bacca841cf4c7195d694729151d4f3") } returns hentTestP6000("P6000-InnvilgedePensjoner.json")
+
+        val result = controller.hentP6000Detaljer("22975052")
+        println("resultat: ${result.toJson()}")
+
+        assertEquals(1, result.innvilgedePensjoner.size)
+        assertEquals("[EessisakItem(institusjonsid=NO:NAVAT07, institusjonsnavn=NAV ACCEPTANCE TEST 07, saksnummer=null, land=NO)]", result.innvilgedePensjoner[0].institusjon.toString())
     }
 
     @Test
@@ -148,7 +183,7 @@ class PensjonsinformasjonUtlandControllerTest {
             assertEquals("Gjenlevende", sakstype)
             assertEquals("ROSA", forsikrede.fornavn)
             assertEquals("AKROBAT", innehaver.etternavn)
-            assertEquals(2, innvilgedePensjoner.size)
+            assertEquals(1, innvilgedePensjoner.size)
         }
 
         val innvilgetPensjon = p6000Detaljer.innvilgedePensjoner.first()
@@ -178,7 +213,7 @@ class PensjonsinformasjonUtlandControllerTest {
             {
               "pesysId" : "22975052",
               "rinaSakId" : "1446704",
-              "dokumentId" : [ "a6bacca841cf4c7195d694729151d4f3", "b152e3cf041a4b829e56e6b1353dd8cb" ]
+              "dokumentId" : [ "b152e3cf041a4b829e56e6b1353dd8cb", "a6bacca841cf4c7195d694729151d4f3" ]
             }
         """.trimIndent()
 
