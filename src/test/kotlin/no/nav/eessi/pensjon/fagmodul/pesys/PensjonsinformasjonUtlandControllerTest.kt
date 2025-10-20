@@ -139,7 +139,7 @@ class PensjonsinformasjonUtlandControllerTest {
             every { getContent() } returns p6000Detaljer().toByteArray()
         }
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "b152e3cf041a4b829e56e6b1353dd8cb") } returns hentTestP6000("P6000-InnvilgedePensjonerUtlandOgInnland.json")
-        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "a6bacca841cf4c7195d694729151d4f3") } returns hentTestP6000("P6000-InnvilgedePensjoner.json")
+        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "a6bacca841cf4c7195d694729151d4f3") } returns hentTestP6000("P6000-InnvilgedetPensjonNO.json")
 
         val result = controller.hentP6000Detaljer("22975052")
         println("resultat: ${result.toJson()}")
@@ -148,8 +148,8 @@ class PensjonsinformasjonUtlandControllerTest {
         assertEquals("AKROBAT", result.innehaver.etternavn)
         assertEquals("ROSA", result.forsikrede.fornavn)
         assertEquals(2, result.innvilgedePensjoner.size)
-        assertEquals("[EessisakItem(institusjonsid=DEEEEEEE, institusjonsnavn=Tysker, saksnummer=null, land=DE)]", result.innvilgedePensjoner[1].institusjon.toString())
-        assertEquals("[EessisakItem(institusjonsid=NO:NAVAT07, institusjonsnavn=NAV ACCEPTANCE TEST 07, saksnummer=null, land=NO)]", result.innvilgedePensjoner[0].institusjon.toString())
+        assertEquals("[EessisakItem(institusjonsid=DEEEEEEE, institusjonsnavn=Tysker, saksnummer=null, land=DE)]", result.innvilgedePensjoner[0].institusjon.toString())
+        assertEquals("[EessisakItem(institusjonsid=NO:NAVAT07, institusjonsnavn=NAV ACCEPTANCE TEST 07, saksnummer=null, land=NO)]", result.innvilgedePensjoner[1].institusjon.toString())
     }
 
     @Test
