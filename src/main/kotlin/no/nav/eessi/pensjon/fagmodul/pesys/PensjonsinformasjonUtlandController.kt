@@ -119,7 +119,7 @@ class PensjonsinformasjonUtlandController(
                 .onSuccess { logger.info("Hentet nye dok detaljer fra Rina for $pesysId") }
             val nyesteP6000 = listeOverP6000FraGcp.sortedBy { it.pensjon?.tilleggsinformasjon?.dato }.first()
             val innvilgedePensjoner = innvilgedePensjoner(listeOverP6000FraGcp)
-            val innvilget = if (innvilgedePensjoner.size != 1) {
+            if (innvilgedePensjoner.size != 1) {
                 innvilgedePensjoner.filter{ it.valuta == "NOK"}.also { secureLog.info("Innvilget pensjon: " +it.toJson()) }
             } else innvilgedePensjoner.also { secureLog.info("innvilget pensjon opprinnelig: " +it.toJson()) }
             val avslaatteUtenlandskePensjoner = avslaatteUtenlandskePensjoner(listeOverP6000FraGcp).also { secureLog.info("avslaatteUtenlandskePensjoner: " + it.toJson()) }
@@ -133,7 +133,7 @@ class PensjonsinformasjonUtlandController(
                 forsikrede = person(nyesteP6000, FORSIKRET),
                 sakstype = "Gjenlevende",
                 kravMottattDato = null,
-                innvilgedePensjoner = innvilget,
+                innvilgedePensjoner = innvilgedePensjoner,
                 avslaattePensjoner = avslaatteUtenlandskePensjoner,
                 utfyllendeInstitusjon = ""
             ).also { secureLog.info("P1Dto: " + it.toJson())}
