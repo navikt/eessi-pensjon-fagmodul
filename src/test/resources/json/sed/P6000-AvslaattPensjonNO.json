@@ -1,0 +1,100 @@
+{
+  "pensjon": {
+    "gjenlevende": {
+      "adresse": {
+        "postnummer": "1554",
+        "by": "SON",
+        "land": "NO",
+        "gate": "Bjørnebærstubben 11"
+      },
+      "person": {
+        "fornavn": "KOGNITIV",
+        "kjoenn": "K",
+        "pin": [
+          {
+            "land": "NO",
+            "institusjonsid": "NO:NAVAT07",
+            "identifikator": "16888697822",
+            "institusjonsnavn": "NAV ACCEPTANCE TEST 07"
+          }
+        ],
+        "foedested": {
+          "by": "Unknown",
+          "land": "NO"
+        },
+        "foedselsdato": "1986-08-16",
+        "etternavn": "AKROBAT",
+        "statsborgerskap": [
+          {
+            "land": "NO"
+          }
+        ]
+      }
+    },
+    "vedtak": [
+      {
+        "virkningsdato": "2024-11-01",
+        "type": "03",
+        "resultat": "02"
+      }
+    ],
+    "sak": {
+      "kravtype": [
+        {
+          "datoFrist": "six weeks from the date the decision is received"
+        }
+      ]
+    },
+    "tilleggsinformasjon": {
+      "andreinstitusjoner": [
+        {
+          "institusjonsid": "NO:NAVAT07",
+          "institusjonsadresse": "Postboks 6600 Etterstad",
+          "poststed": "Oslo",
+          "institusjonsnavn": "NAV ACCEPTANCE TEST 07",
+          "postnummer": "0607",
+          "land": "NO"
+        }
+      ],
+      "dato": "2025-10-05"
+    }
+  },
+  "sedVer": "3",
+  "nav": {
+    "bruker": {
+      "person": {
+        "fornavn": "ROSA",
+        "kjoenn": "M",
+        "etternavn": "EFØY",
+        "foedselsdato": "1984-04-06",
+        "statsborgerskap": [
+          {
+            "land": "NO"
+          }
+        ],
+        "pin": [
+          {
+            "institusjonsnavn": "NAV ACCEPTANCE TEST 07",
+            "identifikator": "06448422184",
+            "land": "NO",
+            "institusjonsid": "NO:NAVAT07"
+          }
+        ],
+        "foedested": {
+          "by": "Unknown",
+          "land": "NO"
+        }
+      }
+    },
+    "eessisak": [
+      {
+        "institusjonsnavn": "NAV ACCEPTANCE TEST 07",
+        "saksnummer": "1003563",
+        "land": "NO",
+        "institusjonsid": "NO:NAVAT07"
+      }
+    ]
+  },
+  "sedGVer": "4",
+  "sed": "P6000"
+}

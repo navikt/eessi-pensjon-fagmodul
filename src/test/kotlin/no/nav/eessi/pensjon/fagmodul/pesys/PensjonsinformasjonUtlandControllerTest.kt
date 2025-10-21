@@ -16,7 +16,6 @@ import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 class PensjonsinformasjonUtlandControllerTest {
@@ -197,6 +196,37 @@ class PensjonsinformasjonUtlandControllerTest {
         }
     }
 
+    @Test
+    fun `Gitt at vi skal hente ut avslaaatte pensjoner P1 saa skal vi returnere alle avslaatte pensjoner fra alle land`() {
+        every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
+            every { exists() } returns true
+            every { getContent() } returns p6000Detaljer().toByteArray()
+        }
+        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "b152e3cf041a4b829e56e6b1353dd8cb") } returns hentTestP6000("P6000-AvslaattPensjonNO.json")
+        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "a6bacca841cf4c7195dkdjfh7251d4f3") } returns hentTestP6000("P6000-AvslaattPensjonNO2.json")
+        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "a6bacca841cf4c7195d694729151d4f3") } returns hentTestP6000("P6000-AvslaattePensjonerUtland.json")
+
+        val p6000Detaljer = controller.hentP6000Detaljer("22975052")
+
+        with(p6000Detaljer) {
+            assertEquals("Gjenlevende", sakstype)
+            assertEquals("ROSA", forsikrede.fornavn)
+            assertEquals("AKROBAT", innehaver.etternavn)
+            assertEquals(0, innvilgedePensjoner.size)
+        }
+
+        val avslaattePensjoner = p6000Detaljer.avslaattePensjoner
+        with(avslaattePensjoner) {
+            assertEquals(2, avslaattePensjoner.size)
+            //Det nyeste avslaget fra Norge
+            assertEquals("2025-10-05", avslaattePensjoner.firstOrNull()?.vedtaksdato)
+            assertEquals("[EessisakItem(institusjonsid=NO:NAVAT07, institusjonsnavn=NAV ACCEPTANCE TEST 07, saksnummer=null, land=NO)]", avslaattePensjoner.firstOrNull()?.institusjon.toString())
+            //Avslått pensjon fra Tyskland
+            assertEquals("2025-02-05", avslaattePensjoner.last().vedtaksdato)
+            assertEquals("[EessisakItem(institusjonsid=DE:DEUTCHE, institusjonsnavn=Tysk Inst, saksnummer=null, land=DE)]", avslaattePensjoner.last().institusjon.toString())
+        }
+    }
+
     private fun mockGcpListeSok(rinaNrList: List<String>) {
         val blobs = rinaNrList.map { rinaNr ->
             val blob = mockk<Blob>(relaxed = true)
@@ -213,7 +243,7 @@ class PensjonsinformasjonUtlandControllerTest {
             {
               "pesysId" : "22975052",
               "rinaSakId" : "1446704",
-              "dokumentId" : [ "b152e3cf041a4b829e56e6b1353dd8cb", "a6bacca841cf4c7195d694729151d4f3" ]
+              "dokumentId" : [ "b152e3cf041a4b829e56e6b1353dd8cb", "a6bacca841cf4c7195d694729151d4f3", "a6bacca841cf4c7195dkdjfh7251d4f3" ]
             }
         """.trimIndent()
 
