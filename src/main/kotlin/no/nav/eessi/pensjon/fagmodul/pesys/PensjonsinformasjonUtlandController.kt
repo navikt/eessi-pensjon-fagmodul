@@ -107,7 +107,11 @@ class PensjonsinformasjonUtlandController(
                 "Ingen P6000-detaljer funnet for pesysId: $pesysId"
             )
             val listeOverP6000FraGcp = mutableListOf<P6000>()
-            val p6000Detaljer = mapJsonToAny<P6000Detaljer>(p6000FraGcp).also { logger.info("P6000Detaljer: ${it.toJson()}") }
+//            val p6000Detaljer = if(p6000FraGcp.contains("NORSK")) {
+                val p6000Detaljer = mapJsonToAny<P6000Detaljer>(p6000FraGcp).also { logger.info("P6000Detaljer: ${it.toJson()}") }
+//            } else {
+//                mapJsonToAny<P6000Detaljer>(p6000FraGcp).also { logger.info("P6000Detaljer: ${it.toJson()}") }
+//            }
             runCatching {
                 p6000Detaljer.dokumentId.forEach { p6000 ->
                     val hentetJsonP6000 = euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(p6000Detaljer.rinaSakId, p6000)
@@ -299,7 +303,15 @@ class PensjonsinformasjonUtlandController(
     data class P6000Detaljer(
         val pesysId: String,
         val rinaSakId: String,
-        val dokumentId: List<String>
+        val dokumentId: List<String>,
+        val dokumentIdMedRetning: List<Pair<String, String?>>?
+
+    )
+
+    data class P6000DetaljerNy(
+        val pesysId: String,
+        val rinaSakId: String,
+        val dokumentId: List<Pair<String, String?>>
     )
 
     class EmptyStringToNullDeserializer : JsonDeserializer<String?>() {

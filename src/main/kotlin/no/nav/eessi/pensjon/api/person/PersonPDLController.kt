@@ -218,7 +218,7 @@ class PersonPDLController(
     }
 
     private fun hentSedAvdodIdent(euxCaseId: String, documentId: String): String? {
-        val sed = euxInnhenting.getSedOnBucByDocumentId(euxCaseId, documentId )
+        val sed = euxInnhenting.getSedOnBucByDocumentId(euxCaseId, documentId)
         return sed.let { it.nav?.bruker?.person?.pin?.firstOrNull { pin -> pin.land == "NO" && pin.identifikator != null } }?.identifikator
     }
 

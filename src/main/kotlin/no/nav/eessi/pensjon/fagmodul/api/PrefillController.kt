@@ -175,7 +175,8 @@ class PrefillController(
                         PensjonsinformasjonUtlandController.P6000Detaljer(
                             request.sakId!!,
                             request.euxCaseId!!,
-                            listeOverP6000.map { it.documentID }).toJson(), request.sakId
+                            listeOverP6000.map { it.documentID },
+                        listeOverP6000.map { Pair(it.documentID , "NORSK")}).toJson(), request.sakId
                     )
                 }
             }

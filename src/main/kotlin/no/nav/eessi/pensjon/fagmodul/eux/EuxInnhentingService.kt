@@ -94,8 +94,8 @@ class EuxInnhentingService(
         return mapJsonToAny(resultat)
     }
 
-    fun getSedOnBucByDocumentId(euxCaseId: String, documentId: String): SED {
-        val json = sedByDocumentId.measure { euxKlient.getSedOnBucByDocumentIdNotAsSystemUser(euxCaseId, documentId, listOf(HttpStatus.PRECONDITION_FAILED))}
+    fun getSedOnBucByDocumentId(euxCaseId: String, doumentIdMedRetning: String): SED {
+        val json = sedByDocumentId.measure { euxKlient.getSedOnBucByDocumentIdNotAsSystemUser(euxCaseId,  doumentIdMedRetning, listOf(HttpStatus.PRECONDITION_FAILED))}
         return SED.fromJsonToConcrete(json)
     }
 
@@ -240,7 +240,7 @@ class EuxInnhentingService(
 
             logger.debug("Henter sedJson fra document: ${shortDoc?.type}, ${shortDoc?.status}, ${shortDoc?.id}")
             val sedJson = shortDoc?.let {
-                sedByDocumentId.measure { euxKlient.getSedOnBucByDocumentIdNotAsSystemUser(docs.rinaidAvdod, it.id!!, listOf(HttpStatus.PRECONDITION_FAILED)) }
+                sedByDocumentId.measure { euxKlient.getSedOnBucByDocumentIdNotAsSystemUser(docs.rinaidAvdod, it.id!!, skipError = listOf(HttpStatus.PRECONDITION_FAILED)) }
             }
             docs.dokumentJson = sedJson ?: ""
             docs
