@@ -152,6 +152,25 @@ class PensjonsinformasjonUtlandControllerTest {
     }
 
     @Test
+    fun `Gitt at vi får fler enn en innvilget pensjon fra Norge men at den andre mangler institusjon saa skal vi levere ut P1Dto med én institusjon`() {
+        every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
+            every { exists() } returns true
+            every { getContent() } returns p6000Detaljer(listOf("1111", "2222")).toByteArray()
+        }
+        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "1111") } returns hentTestP6000("P6000-InnvilgedePensjonerUtenInstitusjon.json")
+        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "2222") } returns hentTestP6000("P6000-InnvilgedetPensjonNO.json")
+
+        val result = controller.hentP6000Detaljer("22975052")
+        with(result){
+            assertEquals("Gjenlevende", sakstype)
+            assertEquals("AKROBAT", innehaver.etternavn)
+            assertEquals("ROSA", forsikrede.fornavn)
+            assertEquals(1, innvilgedePensjoner.size)
+            assertEquals("[EessisakItem(institusjonsid=NO:NAVAT07, institusjonsnavn=NAV ACCEPTANCE TEST 07, saksnummer=null, land=NO)]", innvilgedePensjoner[0].institusjon.toString())
+        }
+    }
+
+    @Test
     fun `Gitt at vi får fler enn en innvilget pensjon fra Norge men den andre mangler adresseNyvurdering dermed returneres kun den ene norske med andreinstitusjoner oppgitt `() {
         every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
             every { exists() } returns true
@@ -238,14 +257,18 @@ class PensjonsinformasjonUtlandControllerTest {
         every { gcpStorage.list(any<String>(), *anyVararg()) } returns page
     }
 
-    private fun p6000Detaljer() =
-        """
-            {
-              "pesysId" : "22975052",
-              "rinaSakId" : "1446704",
-              "dokumentId" : [ "b152e3cf041a4b829e56e6b1353dd8cb", "a6bacca841cf4c7195d694729151d4f3", "a6bacca841cf4c7195dkdjfh7251d4f3" ]
-            }
-        """.trimIndent()
+    private fun p6000Detaljer(sedliste: List<String> ? = null) : String {
+        val seds = sedliste?: listOf("b152e3cf041a4b829e56e6b1353dd8cb", "a6bacca841cf4c7195d694729151d4f3", "a6bacca841cf4c7195dkdjfh7251d4f3" )
+        val est = """
+        {
+          "pesysId" : "22975052",
+          "rinaSakId" : "1446704",
+          "dokumentId" : [ ${seds.joinToString(separator = ",") { "\"$it\"" } }]
+        }
+    """.trimIndent()
+        println(est)
+        return est
+    }
 
     private fun trygdeTidForFlereBuc(): String {
         return """

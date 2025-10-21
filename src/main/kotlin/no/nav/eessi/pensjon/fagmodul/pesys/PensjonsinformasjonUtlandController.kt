@@ -26,7 +26,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDate
-import kotlin.collections.flatten
 
 
 /**
@@ -145,7 +144,7 @@ class PensjonsinformasjonUtlandController(
 
     private fun innvilgedePensjoner(p6000er: List<P6000>) : List<InnvilgetPensjon>{
         val ip6000Innvilgede = p6000er.filter { sed -> sed.pensjon?.vedtak?.any { it.resultat in listOf("01","03","04") } == true }
-        val flereEnnEnNorsk =  flereEnnEnNorsk(p6000er)
+        val flereEnnEnNorsk =  erDetFlereNorskeInstitusjoner(p6000er)
         val retList = mutableListOf<InnvilgetPensjon>()
 
         ip6000Innvilgede.map { p6000 ->
@@ -176,6 +175,11 @@ class PensjonsinformasjonUtlandController(
         return retList
     }
 
+    private fun erDetFlereNorskeInstitusjoner(p6000er: List<P6000>): Boolean{
+        val eessisakItems = p6000er.flatMap { eessiInstitusjoner(it).orEmpty() }
+        return eessisakItems.count { it.land == "NO" } > 1
+    }
+
     private fun eessiInstitusjoner(p6000: P6000): List<EessisakItem>? {
         val eessisakItems = p6000.nav?.eessisak?.map {
             EessisakItem(
@@ -192,10 +196,12 @@ class PensjonsinformasjonUtlandController(
             )
         }
 
-        val institusjon =
-            if ((eessisakItems?.isNotEmpty() == true && eessisakItems.any { it.land == "NO" }) && (andreInstitusjoner?.any { it.land != "NO" } == true)) {
+        val institusjon = if ((eessisakItems?.isNotEmpty() == true && eessisakItems.any { it.land == "NO" }) && (andreInstitusjoner?.any { it.land != "NO" } == true)) {
                 andreInstitusjoner
-            } else if (eessisakItems?.isNotEmpty() == true && eessisakItems.filter { it.land == "NO" }.size > 1) {
+            } else if ((eessisakItems == null && andreInstitusjoner?.any { it.land == "NO" } == true)) {
+                andreInstitusjoner
+            }
+            else if (eessisakItems?.isNotEmpty() == true && eessisakItems.filter { it.land == "NO" }.size > 1 || (andreInstitusjoner?.filter { it.land == "NO" }?.size ?: 0) > 1) {
                 logger.error(" OBS OBS; Her kommer det inn mer enn 1 innvilget pensjon fra Norge i Seden")
                 emptyList()
             } else {
@@ -218,7 +224,7 @@ class PensjonsinformasjonUtlandController(
 
     private fun avslaatteUtenlandskePensjoner(p6000er: List<P6000>): List<AvslaattPensjon> {
         val p6000erAvslaatt = p6000er.filter { sed -> sed.pensjon?.vedtak?.any { it.resultat == "02" } == true }
-        val flereEnnEnNorsk = flereEnnEnNorsk(p6000erAvslaatt)
+        val flereEnnEnNorsk = erDetFlereNorskeInstitusjoner(p6000erAvslaatt)
         val retList = mutableListOf<AvslaattPensjon>()
 
         p6000erAvslaatt.map { p6000 ->
@@ -243,19 +249,7 @@ class PensjonsinformasjonUtlandController(
         return retList
     }
 
-    private fun flereEnnEnNorsk(p6000er: List<P6000>): Boolean{
 
-        val eessisakItems = p6000er.map { p6000 ->
-            p6000.nav?.eessisak?.map {
-                EessisakItem(
-                    institusjonsid = it.institusjonsid,
-                    institusjonsnavn = it.institusjonsnavn,
-                    land = it.land
-                )
-            }?.toList() ?: emptyList()
-        }.flatten()
-        return eessisakItems.isNotEmpty() && eessisakItems.filter { it.land == "NO" }.size > 1
-    }
 
     private fun person(sed: P6000, brukerEllerGjenlevende: BrukerEllerGjenlevende) : P1Person {
         val personBruker = if (brukerEllerGjenlevende == FORSIKRET)
