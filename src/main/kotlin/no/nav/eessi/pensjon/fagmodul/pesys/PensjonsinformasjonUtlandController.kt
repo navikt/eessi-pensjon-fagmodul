@@ -118,7 +118,7 @@ class PensjonsinformasjonUtlandController(
             }
                 .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
                 .onSuccess { logger.info("Hentet nye dok detaljer fra Rina for $pesysId") }
-            val nyesteP6000 = listeOverP6000FraGcp.sortedWith(compareByDescending<P6000> { it.pensjon?.tilleggsinformasjon?.dato }
+            val nyesteP6000 = listeOverP6000FraGcp.sortedWith(compareBy<P6000> { it.pensjon?.tilleggsinformasjon?.dato }
             .thenBy { it.pensjon?.tilleggsinformasjon?.andreinstitusjoner != null })
                 .first()
 
@@ -145,24 +145,16 @@ class PensjonsinformasjonUtlandController(
 
     private fun innvilgedePensjoner(p6000er: List<P6000>) : List<InnvilgetPensjon>{
         val ip6000Innvilgede = p6000er.filter { sed -> sed.pensjon?.vedtak?.any { it.resultat in listOf("01","03","04") } == true }
-        val eessisakItems = p6000er.map { p6000 ->
-            p6000.nav?.eessisak?.map {
-            EessisakItem(
-                institusjonsid = it.institusjonsid,
-                institusjonsnavn = it.institusjonsnavn,
-                land = it.land)
-            }?.toList() ?: emptyList()
-        }.flatten()
-
-        val flereEnnEnNorsk =  (eessisakItems.isNotEmpty() && eessisakItems.filter { it.land == "NO" }.size > 1)
+        val flereEnnEnNorsk =  flereEnnEnNorsk(p6000er)
         val retList = mutableListOf<InnvilgetPensjon>()
 
         ip6000Innvilgede.map { p6000 ->
             val vedtak = p6000.pensjon?.vedtak?.first()
             val institusjonFraSed = eessiInstitusjoner(p6000)
-            if (flereEnnEnNorsk && retList.any { it.institusjon?.any { it.land == "NO" } == true } && institusjonFraSed?.any { it.land == "NO" } == true) {
+            if (flereEnnEnNorsk && retList.any { it.institusjon?.any { it.land == "NO" } == true } &&
+                institusjonFraSed?.any { it.land == "NO" } == true) {
                 logger.error(" OBS OBS; Her kommer det inn mer enn 1 innvilget pensjon fra Norge")
-                secureLog.info("Hopper over denne sed: $p6000.toString()")
+                secureLog.info("Hopper over denne sed: $p6000")
             } else {
                 retList.add(
                     InnvilgetPensjon(
@@ -226,17 +218,43 @@ class PensjonsinformasjonUtlandController(
 
     private fun avslaatteUtenlandskePensjoner(p6000er: List<P6000>): List<AvslaattPensjon> {
         val p6000erAvslaatt = p6000er.filter { sed -> sed.pensjon?.vedtak?.any { it.resultat == "02" } == true }
-        return p6000erAvslaatt.map { p6000 ->
+        val flereEnnEnNorsk = flereEnnEnNorsk(p6000erAvslaatt)
+        val retList = mutableListOf<AvslaattPensjon>()
+
+        p6000erAvslaatt.map { p6000 ->
             val vedtak = p6000.pensjon?.vedtak?.first()
-            AvslaattPensjon(
-                institusjon = eessiInstitusjoner(p6000),
-                pensjonstype = vedtak?.type,
-                avslagsbegrunnelse = vedtak?.avslagbegrunnelse?.first { !it.begrunnelse.isNullOrEmpty() }?.begrunnelse,
-                vurderingsperiode = p6000.pensjon?.sak?.kravtype?.first()?.datoFrist,
-                adresseNyVurdering = p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.map { adresse(it) },
-                vedtaksdato = p6000.pensjon?.tilleggsinformasjon?.dato
-            )
+            if (flereEnnEnNorsk && retList.any { it.institusjon?.any { it.land == "NO" } == true } &&
+                eessiInstitusjoner(p6000)?.any { it.land == "NO" } == true) {
+                logger.error(" OBS OBS; Her kommer det inn mer enn 1 avslått pensjon fra Norge")
+                secureLog.info("Hopper over denne avslåtte seden: $p6000")
+            } else {
+                retList.add(
+                    AvslaattPensjon(
+                        institusjon = eessiInstitusjoner(p6000),
+                        pensjonstype = vedtak?.type,
+                        avslagsbegrunnelse = vedtak?.avslagbegrunnelse?.first { !it.begrunnelse.isNullOrEmpty() }?.begrunnelse,
+                        vurderingsperiode = p6000.pensjon?.sak?.kravtype?.first()?.datoFrist,
+                        adresseNyVurdering = p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.map { adresse(it) },
+                        vedtaksdato = p6000.pensjon?.tilleggsinformasjon?.dato
+                    )
+                )
+            }
         }
+        return retList
+    }
+
+    private fun flereEnnEnNorsk(p6000er: List<P6000>): Boolean{
+
+        val eessisakItems = p6000er.map { p6000 ->
+            p6000.nav?.eessisak?.map {
+                EessisakItem(
+                    institusjonsid = it.institusjonsid,
+                    institusjonsnavn = it.institusjonsnavn,
+                    land = it.land
+                )
+            }?.toList() ?: emptyList()
+        }.flatten()
+        return eessisakItems.isNotEmpty() && eessisakItems.filter { it.land == "NO" }.size > 1
     }
 
     private fun person(sed: P6000, brukerEllerGjenlevende: BrukerEllerGjenlevende) : P1Person {
