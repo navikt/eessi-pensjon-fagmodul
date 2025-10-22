@@ -2,6 +2,7 @@ package no.nav.eessi.pensjon.fagmodul.pesys.krav
 
 import no.nav.eessi.pensjon.eux.model.sed.AndreinstitusjonerItem
 import no.nav.eessi.pensjon.eux.model.sed.EessisakItem
+import no.nav.eessi.pensjon.eux.model.sed.PinItem
 import java.time.LocalDate
 
 data class P1Dto(
@@ -11,8 +12,7 @@ data class P1Dto(
     val kravMottattDato: LocalDate? = null,
     val innvilgedePensjoner: List<InnvilgetPensjon>,
     val avslaattePensjoner: List<AvslaattPensjon>,
-    val utfyllendeInstitusjon: String,
-//    val vedtaksdato: String? = null,
+    val utfyllendeInstitusjon: String
 )
 
     data class P1Person(
@@ -24,6 +24,7 @@ data class P1Dto(
         val poststed: String? = null,
         val postnummer: String? = null,
         val landkode: String? = null,
+        val pin: List<PinItem>? = null,
     )
 
     data class InnvilgetPensjon(

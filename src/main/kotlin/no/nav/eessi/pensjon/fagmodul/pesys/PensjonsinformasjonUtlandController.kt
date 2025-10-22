@@ -26,7 +26,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDate
-import kotlin.compareTo
 
 
 /**
@@ -267,7 +266,8 @@ class PensjonsinformasjonUtlandController(
             adresselinje = personBruker.second?.postadresse,
             poststed = kodeverkClient.hentPostSted(personBruker.second?.postnummer)?.sted,
             postnummer = personBruker.second?.postnummer,
-            landkode = personBruker.second?.land
+            landkode = personBruker.second?.land,
+            pin = personBruker.first?.pin
         )
     }
 
