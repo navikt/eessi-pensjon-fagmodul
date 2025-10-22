@@ -78,15 +78,15 @@ class PenInfoUtlandControllerMvcTest {
                 .andExpect(status().is2xxSuccessful)
                 .andExpect(status().isOk())
                 .andReturn()
-
+        println(repsonse.response.contentAsString)
         //sakstype
         assert( repsonse.response.contentAsString.contains(""""sakstype":"Gjenlevende""""))
         //vurderingsperiode
         assert( repsonse.response.contentAsString.contains("""six weeks from the date the decision is received"""))
         //institusjon
-        assert( repsonse.response.contentAsString.contains("""{"institusjon":[{"institusjonsid":"NO:NAVAT07","institusjonsnavn":"NAV ACCEPTANCE TEST 07","land":"NO"}"""))
+        assert( repsonse.response.contentAsString.contains(""""institusjonsid":"NO:NAVAT07","institusjonsnavn":"NAV ACCEPTANCE TEST 07","saksnummer":"1003563","land":"NO""""))
         //VurderingNyAdresse
-        assert( repsonse.response.contentAsString.contains("""institusjonsadresse":"Postboks 6600 Etterstad","postnummer":"0607","bygningsnavn":null,"land":"NO","region":null,"poststed":"Oslo""""))
+        assert( repsonse.response.contentAsString.contains("""institusjonsadresse":"Postboks 6600 Etterstad","postnummer":"0607","bygningsnavn":null,"land":"NO","region":null,"poststed":"Oslo"""))
         //innehaver
         assert( repsonse.response.contentAsString.contains("""{"innehaver":{"fornavn":"KOGNITIV","etternavn":"AKROBAT","etternavnVedFoedsel":null,"foedselsdato":"1986-08-16","adresselinje":null,"poststed":"Oslo","postnummer":"1554","landkode":"NO"}"""))
     }
