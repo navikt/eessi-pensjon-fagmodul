@@ -26,6 +26,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDate
+import kotlin.compareTo
 
 
 /**
@@ -182,31 +183,31 @@ class PensjonsinformasjonUtlandController(
 
     private fun eessiInstitusjoner(p6000: P6000): List<EessisakItem>? {
         val eessisakItems = p6000.nav?.eessisak?.map {
-            EessisakItem(
-                institusjonsid = it.institusjonsid,
-                institusjonsnavn = it.institusjonsnavn,
-                land = it.land
-            )
+            EessisakItem(institusjonsid = it.institusjonsid, institusjonsnavn = it.institusjonsnavn, land = it.land)
         }
         val andreInstitusjoner = p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.map {
-            EessisakItem(
-                institusjonsid = it.institusjonsid,
-                institusjonsnavn = it.institusjonsnavn,
-                land = it.land
-            )
+            EessisakItem(institusjonsid = it.institusjonsid, institusjonsnavn = it.institusjonsnavn, land = it.land)
         }
 
-        val institusjon = if ((eessisakItems?.isNotEmpty() == true && eessisakItems.any { it.land == "NO" }) && (andreInstitusjoner?.any { it.land != "NO" } == true)) {
-                andreInstitusjoner
-            } else if ((eessisakItems == null && andreInstitusjoner?.any { it.land == "NO" } == true)) {
-                andreInstitusjoner
-            }
-            else if (eessisakItems?.isNotEmpty() == true && eessisakItems.filter { it.land == "NO" }.size > 1 || (andreInstitusjoner?.filter { it.land == "NO" }?.size ?: 0) > 1) {
-                logger.error(" OBS OBS; Her kommer det inn mer enn 1 innvilget pensjon fra Norge i Seden")
+        val institusjon = when {
+            eessisakItems?.isNotEmpty() == true && eessisakItems.any { it.land == "NO" } && andreInstitusjoner?.any { it.land != "NO" } == true -> andreInstitusjoner
+
+            eessisakItems == null && andreInstitusjoner?.isNotEmpty() == true && andreInstitusjoner.size > 1 -> {
+                logger.error("OBS OBS; Her kommer det inn mer enn 1 innvilget pensjon fra Norge (andreInstitusjoner); i Seden")
                 emptyList()
-            } else {
-                eessisakItems
             }
+
+            eessisakItems == null && andreInstitusjoner?.isNotEmpty() == true -> {
+                logger.warn("Det finnes ingen institusjon fra eessisak; henter institusjon fra andreInstitusjoner")
+                andreInstitusjoner
+            }
+
+            eessisakItems?.isNotEmpty() == true && eessisakItems.count { it.land == "NO" } > 1 || (andreInstitusjoner?.count { it.land == "NO" } ?: 0) > 1 -> {
+                logger.error("OBS OBS; Her kommer det inn mer enn 1 innvilget pensjon fra Norge i Seden")
+                emptyList()
+            }
+            else -> eessisakItems
+        }
         return institusjon
     }
 

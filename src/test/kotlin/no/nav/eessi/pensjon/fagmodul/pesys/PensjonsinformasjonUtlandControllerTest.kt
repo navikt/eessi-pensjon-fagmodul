@@ -187,6 +187,22 @@ class PensjonsinformasjonUtlandControllerTest {
     }
 
     @Test
+    fun `Gitt at vi får ingen innvilget pensjon fra Norge men har adresseNyvurdering saa skal vi levere ut institusjon fra  adresseNyvurdering`() {
+        every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
+            every { exists() } returns true
+            every { getContent() } returns p6000Detaljer(listOf("11111")).toByteArray()
+        }
+        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "11111") } returns hentTestP6000("P6000-InnvilgedePensjonerUtenInstitusjon.json")
+
+        val result = controller.hentP6000Detaljer("22975052")
+        with(result){
+            assertEquals(1, innvilgedePensjoner.size)
+            assertEquals("[EessisakItem(institusjonsid=NO:NAVAT07, institusjonsnavn=NAV ACCEPTANCE TEST 07, saksnummer=null, land=NO)]", innvilgedePensjoner[0].institusjon.toString())
+        }
+    }
+
+
+    @Test
     fun `Gitt at vi skal hente opp P6000 for P1 saa skal vi returnere P1Dto med innvilgede pensjoner`() {
         every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
             every { exists() } returns true
