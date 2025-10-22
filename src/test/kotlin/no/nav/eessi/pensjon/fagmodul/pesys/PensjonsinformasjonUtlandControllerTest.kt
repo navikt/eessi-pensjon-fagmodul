@@ -148,7 +148,7 @@ class PensjonsinformasjonUtlandControllerTest {
         assertEquals("ROSA", result.forsikrede.fornavn)
         assertEquals(2, result.innvilgedePensjoner.size)
         assertEquals("[EessisakItem(institusjonsid=DEEEEEEE, institusjonsnavn=Tysker, saksnummer=null, land=DE)]", result.innvilgedePensjoner[0].institusjon.toString())
-        assertEquals("[EessisakItem(institusjonsid=NO:NAVAT07, institusjonsnavn=NAV ACCEPTANCE TEST 07, saksnummer=null, land=NO)]", result.innvilgedePensjoner[1].institusjon.toString())
+        assertEquals("[EessisakItem(institusjonsid=NO:NAVAT07, institusjonsnavn=NAV ACCEPTANCE TEST 07, saksnummer=1003563, land=NO)]", result.innvilgedePensjoner[1].institusjon.toString())
     }
 
     @Test
@@ -183,7 +183,7 @@ class PensjonsinformasjonUtlandControllerTest {
         println("resultat: ${result.toJson()}")
 
         assertEquals(1, result.innvilgedePensjoner.size)
-        assertEquals("[EessisakItem(institusjonsid=NO:NAVAT07, institusjonsnavn=NAV ACCEPTANCE TEST 07, saksnummer=null, land=NO)]", result.innvilgedePensjoner[0].institusjon.toString())
+        assertEquals("[EessisakItem(institusjonsid=NO:NAVAT07, institusjonsnavn=NAV ACCEPTANCE TEST 07, saksnummer=1003563, land=NO)]", result.innvilgedePensjoner[0].institusjon.toString())
     }
 
     @Test
@@ -255,7 +255,7 @@ class PensjonsinformasjonUtlandControllerTest {
             assertEquals(2, avslaattePensjoner.size)
             //Det nyeste avslaget fra Norge
             assertEquals("2025-10-05", avslaattePensjoner.firstOrNull()?.vedtaksdato)
-            assertEquals("[EessisakItem(institusjonsid=NO:NAVAT07, institusjonsnavn=NAV ACCEPTANCE TEST 07, saksnummer=null, land=NO)]", avslaattePensjoner.firstOrNull()?.institusjon.toString())
+            assertEquals("[EessisakItem(institusjonsid=NO:NAVAT07, institusjonsnavn=NAV ACCEPTANCE TEST 07, saksnummer=1003563, land=NO)]", avslaattePensjoner.firstOrNull()?.institusjon.toString())
             //Avslått pensjon fra Tyskland
             assertEquals("2025-02-05", avslaattePensjoner.last().vedtaksdato)
             assertEquals("[EessisakItem(institusjonsid=DE:DEUTCHE, institusjonsnavn=Tysk Inst, saksnummer=null, land=DE)]", avslaattePensjoner.last().institusjon.toString())

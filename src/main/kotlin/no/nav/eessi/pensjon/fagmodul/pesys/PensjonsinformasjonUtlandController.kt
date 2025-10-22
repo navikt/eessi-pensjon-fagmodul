@@ -183,10 +183,11 @@ class PensjonsinformasjonUtlandController(
 
     private fun eessiInstitusjoner(p6000: P6000): List<EessisakItem>? {
         val eessisakItems = p6000.nav?.eessisak?.map {
-            EessisakItem(institusjonsid = it.institusjonsid, institusjonsnavn = it.institusjonsnavn, land = it.land)
+            EessisakItem(institusjonsid = it.institusjonsid, institusjonsnavn = it.institusjonsnavn, land = it.land, saksnummer = it.saksnummer)
         }
+        val saksnummerFraTilleggsInformasjon = p6000.pensjon?.tilleggsinformasjon?.saksnummer
         val andreInstitusjoner = p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.map {
-            EessisakItem(institusjonsid = it.institusjonsid, institusjonsnavn = it.institusjonsnavn, land = it.land)
+            EessisakItem(institusjonsid = it.institusjonsid, institusjonsnavn = it.institusjonsnavn, land = it.land, saksnummer = saksnummerFraTilleggsInformasjon)
         }
 
         val institusjon = when {
