@@ -24,7 +24,7 @@ data class P1Dto(
         val poststed: String? = null,
         val postnummer: String? = null,
         val landkode: String? = null,
-        val pin: List<PinItem>? = null,
+        val pin: PinItem? = null,
     )
 
     data class InnvilgetPensjon(
@@ -47,5 +47,5 @@ data class P1Dto(
         val avslagsbegrunnelse: String?,
         val vurderingsperiode: String?,
         val adresseNyVurdering: List<AndreinstitusjonerItem>?,
-        val vedtaksdato: String?
+        val vedtaksdato: String?,
         )
