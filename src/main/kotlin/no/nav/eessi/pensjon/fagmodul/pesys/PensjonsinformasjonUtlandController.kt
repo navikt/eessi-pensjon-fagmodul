@@ -4,9 +4,12 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
+import no.nav.eessi.pensjon.eux.model.sed.Adresse
 import no.nav.eessi.pensjon.eux.model.sed.AndreinstitusjonerItem
 import no.nav.eessi.pensjon.eux.model.sed.EessisakItem
 import no.nav.eessi.pensjon.eux.model.sed.P6000
+import no.nav.eessi.pensjon.eux.model.sed.Person
+import no.nav.eessi.pensjon.eux.model.sed.PinItem
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController.BrukerEllerGjenlevende.FORSIKRET
 import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController.BrukerEllerGjenlevende.GJENLEVENDE
@@ -128,10 +131,17 @@ class PensjonsinformasjonUtlandController(
             if (innvilgedePensjoner.size + avslaatteUtenlandskePensjoner.size != listeOverP6000FraGcp.size) {
                 logger.warn("Mismatch: innvilgedePensjoner (${innvilgedePensjoner.size}) + avslåtteUtenlandskePensjoner (${avslaatteUtenlandskePensjoner.size}) != utenlandskeP6000er (${listeOverP6000FraGcp.size})")
             }
-
+            val innehaverPin = hentPin(
+                hentBrukerEllerGjenlevende(GJENLEVENDE, nyesteP6000).first,
+                hentAlleInstitusjoner(listeOverP6000FraGcp)
+            )
+            val forsikredePin = hentPin(
+                hentBrukerEllerGjenlevende(FORSIKRET, nyesteP6000).first,
+                hentAlleInstitusjoner(listeOverP6000FraGcp)
+            )
            P1Dto(
-                innehaver = person(nyesteP6000, GJENLEVENDE),
-                forsikrede = person(nyesteP6000, FORSIKRET),
+                innehaver = person(nyesteP6000, GJENLEVENDE, innehaverPin),
+                forsikrede = person(nyesteP6000, FORSIKRET, forsikredePin),
                 sakstype = "Gjenlevende",
                 kravMottattDato = null,
                 innvilgedePensjoner = innvilgedePensjoner,
@@ -155,6 +165,8 @@ class PensjonsinformasjonUtlandController(
                 logger.error(" OBS OBS; Her kommer det inn mer enn 1 innvilget pensjon fra Norge")
                 secureLog.info("Hopper over denne sed: $p6000")
             } else {
+//                val institusjon = eessiInstitusjoner(p6000)
+
                 retList.add(
                     InnvilgetPensjon(
                         institusjon = institusjonFraSed,
@@ -167,12 +179,18 @@ class PensjonsinformasjonUtlandController(
                         reduksjonsgrunnlag = p6000.pensjon?.sak?.artikkel54,
                         vurderingsperiode = p6000.pensjon?.sak?.kravtype?.first()?.datoFrist,
                         adresseNyVurdering = p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.map { adresse(it) },
-                        vedtaksdato = p6000.pensjon?.tilleggsinformasjon?.dato
+                        vedtaksdato = p6000.pensjon?.tilleggsinformasjon?.dato,
+//                        pin = hentPin(p6000, institusjon)
                     )
                 )
             }
         }
         return retList
+    }
+
+    private fun hentAlleInstitusjoner(p6000er: List<P6000>): List<EessisakItem> {
+        val eessisakItems = p6000er.flatMap { eessiInstitusjoner(it).orEmpty() }
+        return eessisakItems
     }
 
     private fun erDetFlereNorskeInstitusjoner(p6000er: List<P6000>): Boolean{
@@ -235,14 +253,16 @@ class PensjonsinformasjonUtlandController(
                 logger.error(" OBS OBS; Her kommer det inn mer enn 1 avslått pensjon fra Norge")
                 secureLog.info("Hopper over denne avslåtte seden: $p6000")
             } else {
+                val institusjon = eessiInstitusjoner(p6000)
                 retList.add(
                     AvslaattPensjon(
-                        institusjon = eessiInstitusjoner(p6000),
+                        institusjon = institusjon,
                         pensjonstype = vedtak?.type,
                         avslagsbegrunnelse = vedtak?.avslagbegrunnelse?.first { !it.begrunnelse.isNullOrEmpty() }?.begrunnelse,
                         vurderingsperiode = p6000.pensjon?.sak?.kravtype?.first()?.datoFrist,
                         adresseNyVurdering = p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.map { adresse(it) },
-                        vedtaksdato = p6000.pensjon?.tilleggsinformasjon?.dato
+                        vedtaksdato = p6000.pensjon?.tilleggsinformasjon?.dato,
+//                        pin = hentPin(p6000, institusjon)
                     )
                 )
             }
@@ -252,7 +272,7 @@ class PensjonsinformasjonUtlandController(
 
 
 
-    private fun person(sed: P6000, brukerEllerGjenlevende: BrukerEllerGjenlevende) : P1Person {
+    private fun person(sed: P6000, brukerEllerGjenlevende: BrukerEllerGjenlevende, innehaverPin: PinItem?) : P1Person {
         val personBruker = if (brukerEllerGjenlevende == FORSIKRET)
             Pair(sed.nav?.bruker?.person, sed.nav?.bruker?.adresse)
         else
@@ -267,9 +287,17 @@ class PensjonsinformasjonUtlandController(
             poststed = kodeverkClient.hentPostSted(personBruker.second?.postnummer)?.sted,
             postnummer = personBruker.second?.postnummer,
             landkode = personBruker.second?.land,
-            pin = personBruker.first?.pin
+            pin = innehaverPin
         )
     }
+
+    private fun hentBrukerEllerGjenlevende(
+        brukerEllerGjenlevende: BrukerEllerGjenlevende,
+        sed: P6000
+    ): Pair<Person?, Adresse?> = if (brukerEllerGjenlevende == FORSIKRET)
+        Pair(sed.nav?.bruker?.person, sed.nav?.bruker?.adresse)
+    else
+        Pair(sed.pensjon?.gjenlevende?.person, sed.pensjon?.gjenlevende?.adresse)
 
     enum class BrukerEllerGjenlevende(val person: String) {
         FORSIKRET ("forsikret"),
@@ -310,4 +338,9 @@ class PensjonsinformasjonUtlandController(
         }
     }
 
+    private fun hentPin(person: Person?, institusjon: List<EessisakItem>?): PinItem? {
+        return (person?.pin?.asSequence()
+            ?.firstOrNull { pinItem -> institusjon?.any { it.institusjonsid == pinItem.institusjonsid } == true  }.also { println("PinItem: $it")})
+    }
 }
+

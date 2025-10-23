@@ -142,13 +142,17 @@ class PensjonsinformasjonUtlandControllerTest {
 
         val result = controller.hentP6000Detaljer("22975052")
         println("resultat: ${result.toJson()}")
+        with(result) {
+            assertEquals("Gjenlevende", sakstype)
+            assertEquals("AKROBAT", innehaver.etternavn)
+            assertEquals("ROSA", forsikrede.fornavn)
+            assertEquals("06448422184", forsikrede.pin?.identifikator)
+            assertEquals("16888697822", innehaver.pin?.identifikator)
 
-        assertEquals("Gjenlevende", result.sakstype)
-        assertEquals("AKROBAT", result.innehaver.etternavn)
-        assertEquals("ROSA", result.forsikrede.fornavn)
-        assertEquals(2, result.innvilgedePensjoner.size)
-        assertEquals("[EessisakItem(institusjonsid=DEEEEEEE, institusjonsnavn=Tysker, saksnummer=null, land=DE)]", result.innvilgedePensjoner[0].institusjon.toString())
-        assertEquals("[EessisakItem(institusjonsid=NO:NAVAT07, institusjonsnavn=NAV ACCEPTANCE TEST 07, saksnummer=1003563, land=NO)]", result.innvilgedePensjoner[1].institusjon.toString())
+            assertEquals(2, innvilgedePensjoner.size)
+            assertEquals("[EessisakItem(institusjonsid=DEEEEEEE, institusjonsnavn=Tysker, saksnummer=null, land=DE)]", innvilgedePensjoner[0].institusjon.toString())
+            assertEquals("[EessisakItem(institusjonsid=NO:NAVAT07, institusjonsnavn=NAV ACCEPTANCE TEST 07, saksnummer=1003563, land=NO)]", innvilgedePensjoner[1].institusjon.toString())
+        }
     }
 
     @Test
@@ -165,6 +169,8 @@ class PensjonsinformasjonUtlandControllerTest {
             assertEquals("Gjenlevende", sakstype)
             assertEquals("AKROBAT", innehaver.etternavn)
             assertEquals("ROSA", forsikrede.fornavn)
+            assertEquals("06448422184", forsikrede.pin?.identifikator)
+            assertEquals("16888697822", innehaver.pin?.identifikator)
             assertEquals(1, innvilgedePensjoner.size)
             assertEquals("[EessisakItem(institusjonsid=NO:NAVAT07, institusjonsnavn=NAV ACCEPTANCE TEST 07, saksnummer=null, land=NO)]", innvilgedePensjoner[0].institusjon.toString())
         }
@@ -206,17 +212,20 @@ class PensjonsinformasjonUtlandControllerTest {
     fun `Gitt at vi skal hente opp P6000 for P1 saa skal vi returnere P1Dto med innvilgede pensjoner`() {
         every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
             every { exists() } returns true
-            every { getContent() } returns p6000Detaljer().toByteArray()
+            every { getContent() } returns p6000Detaljer(listOf("1111")).toByteArray()
         }
-        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(any(), any()) } returns hentTestP6000("P6000-InnvilgedePensjoner.json")
+        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(any(), "1111") } returns hentTestP6000("P6000-InnvilgedePensjoner.json")
 
         val p6000Detaljer = controller.hentP6000Detaljer("22975052")
         assertEquals("[]", p6000Detaljer.avslaattePensjoner.toString())
 
         with(p6000Detaljer) {
-            assertEquals("Gjenlevende", sakstype)
             assertEquals("ROSA", forsikrede.fornavn)
+            assertEquals("06448422184", forsikrede.pin?.identifikator)
             assertEquals("AKROBAT", innehaver.etternavn)
+            assertEquals("16888697822", innehaver.pin?.identifikator)
+
+            assertEquals("Gjenlevende", sakstype)
             assertEquals(1, innvilgedePensjoner.size)
         }
 
@@ -245,8 +254,13 @@ class PensjonsinformasjonUtlandControllerTest {
 
         with(p6000Detaljer) {
             assertEquals("Gjenlevende", sakstype)
+
             assertEquals("ROSA", forsikrede.fornavn)
+            assertEquals("06448422184", forsikrede.pin?.identifikator)
+
             assertEquals("AKROBAT", innehaver.etternavn)
+            assertEquals("16888697822", innehaver.pin?.identifikator)
+
             assertEquals(0, innvilgedePensjoner.size)
         }
 
