@@ -340,7 +340,7 @@ class PensjonsinformasjonUtlandController(
 
     private fun hentPin(person: Person?, institusjon: List<EessisakItem>?): PinItem? {
         return (person?.pin?.asSequence()
-            ?.firstOrNull { pinItem -> institusjon?.any { it.institusjonsid == pinItem.institusjonsid } == true  }.also { println("PinItem: $it")})
+            ?.firstOrNull { pinItem -> institusjon?.any { it.institusjonsid == pinItem.institusjonsid } == true  })
     }
 }
 
