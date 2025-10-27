@@ -25,6 +25,7 @@ import no.nav.eessi.pensjon.utils.toJson
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
@@ -45,6 +46,8 @@ class PensjonsinformasjonUtlandController(
     private val euxInnhentingService: EuxInnhentingService,
     private val kodeverkClient: KodeverkClient,
     private val trygdeTidService: HentTrygdeTid,
+    @Value("\${ENV}")
+    private val environment: String,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
 
@@ -205,6 +208,21 @@ class PensjonsinformasjonUtlandController(
         val saksnummerFraTilleggsInformasjon = p6000.pensjon?.tilleggsinformasjon?.saksnummer
         val andreInstitusjoner = p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.map {
             EessisakItem(institusjonsid = it.institusjonsid, institusjonsnavn = it.institusjonsnavn, land = it.land, saksnummer = saksnummerFraTilleggsInformasjon)
+        }
+
+        if ((andreInstitusjoner?.any { it.land == "SE" } == true || (p6000.pensjon?.vedtak?.any{ it.beregning?.any{ it.valuta == "SEK"} == true } == true)) && (environment == "q2" || environment == "test")) {
+            return listOf(EessisakItem(
+                institusjonsid = "SE:SVERIGE",
+                institusjonsnavn = "SvenskInst",
+                land = "SE",
+
+                ))
+        } else if (environment == "q2" || environment == "test" && (p6000.pensjon?.vedtak?.any{ it.beregning?.any{ it.valuta == "DKK"} == true } == true)) {
+            return listOf(EessisakItem(
+                institusjonsid = "DK:DANMARK",
+                institusjonsnavn = "DanskInst",
+                land = "DK",
+            ))
         }
 
         val institusjon = when {
