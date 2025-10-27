@@ -120,7 +120,7 @@ class PensjonsinformasjonUtlandControllerTest {
     fun `gitt en pesysId som finnes i gcp saa skal sedene hentes fra Rina`() {
         every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
             every { exists() } returns true
-            every { getContent() } returns p6000Detaljer().toByteArray()
+            every { getContent() } returns p6000Detaljer(listOf("1111")).toByteArray()
         }
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(any(), any()) } returns hentTestP6000("P6000-RINA.json")
 
@@ -135,20 +135,24 @@ class PensjonsinformasjonUtlandControllerTest {
     fun `Gitt at vi får fler enn en innvilget pensjon fra Norge men at den andre er fra DE saa skal vi levere ut P1Dto med DE sin institusjon`() {
         every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
             every { exists() } returns true
-            every { getContent() } returns p6000Detaljer().toByteArray()
+            every { getContent() } returns p6000Detaljer(listOf("1111", "2222")).toByteArray()
         }
-        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "b152e3cf041a4b829e56e6b1353dd8cb") } returns hentTestP6000("P6000-InnvilgedePensjonerUtlandOgInnland.json")
-        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "a6bacca841cf4c7195d694729151d4f3") } returns hentTestP6000("P6000-InnvilgedetPensjonNO.json")
+        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "1111") } returns hentTestP6000("P6000-InnvilgedePensjonerUtlandOgInnland.json")
+        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "2222") } returns hentTestP6000("P6000-InnvilgedetPensjonNO.json")
 
         val result = controller.hentP6000Detaljer("22975052")
         println("resultat: ${result.toJson()}")
+        with(result) {
+            assertEquals("Gjenlevende", sakstype)
+            assertEquals("AKROBAT", innehaver.etternavn)
+            assertEquals("ROSA", forsikrede.fornavn)
+            assertEquals("06448422184", forsikrede.pin?.first()?.identifikator)
+            assertEquals("16888697822", innehaver.pin?.first()?.identifikator)
 
-        assertEquals("Gjenlevende", result.sakstype)
-        assertEquals("AKROBAT", result.innehaver.etternavn)
-        assertEquals("ROSA", result.forsikrede.fornavn)
-        assertEquals(2, result.innvilgedePensjoner.size)
-        assertEquals("[EessisakItem(institusjonsid=DEEEEEEE, institusjonsnavn=Tysker, saksnummer=null, land=DE)]", result.innvilgedePensjoner[0].institusjon.toString())
-        assertEquals("[EessisakItem(institusjonsid=NO:NAVAT07, institusjonsnavn=NAV ACCEPTANCE TEST 07, saksnummer=1003563, land=NO)]", result.innvilgedePensjoner[1].institusjon.toString())
+            assertEquals(2, innvilgedePensjoner.size)
+            assertEquals("[EessisakItem(institusjonsid=DEEEEEEE, institusjonsnavn=Tysker, saksnummer=null, land=DE)]", innvilgedePensjoner[0].institusjon.toString())
+            assertEquals("[EessisakItem(institusjonsid=NO:NAVAT07, institusjonsnavn=NAV ACCEPTANCE TEST 07, saksnummer=1003563, land=NO)]", innvilgedePensjoner[1].institusjon.toString())
+        }
     }
 
     @Test
@@ -165,6 +169,8 @@ class PensjonsinformasjonUtlandControllerTest {
             assertEquals("Gjenlevende", sakstype)
             assertEquals("AKROBAT", innehaver.etternavn)
             assertEquals("ROSA", forsikrede.fornavn)
+            assertEquals("06448422184", forsikrede.pin?.first()?.identifikator)
+            assertEquals("16888697822", innehaver.pin?.first()?.identifikator)
             assertEquals(1, innvilgedePensjoner.size)
             assertEquals("[EessisakItem(institusjonsid=NO:NAVAT07, institusjonsnavn=NAV ACCEPTANCE TEST 07, saksnummer=null, land=NO)]", innvilgedePensjoner[0].institusjon.toString())
         }
@@ -206,17 +212,20 @@ class PensjonsinformasjonUtlandControllerTest {
     fun `Gitt at vi skal hente opp P6000 for P1 saa skal vi returnere P1Dto med innvilgede pensjoner`() {
         every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
             every { exists() } returns true
-            every { getContent() } returns p6000Detaljer().toByteArray()
+            every { getContent() } returns p6000Detaljer(listOf("1111")).toByteArray()
         }
-        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(any(), any()) } returns hentTestP6000("P6000-InnvilgedePensjoner.json")
+        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(any(), "1111") } returns hentTestP6000("P6000-InnvilgedePensjoner.json")
 
         val p6000Detaljer = controller.hentP6000Detaljer("22975052")
         assertEquals("[]", p6000Detaljer.avslaattePensjoner.toString())
 
         with(p6000Detaljer) {
-            assertEquals("Gjenlevende", sakstype)
             assertEquals("ROSA", forsikrede.fornavn)
+            assertEquals("06448422184", forsikrede.pin?.first()?.identifikator)
             assertEquals("AKROBAT", innehaver.etternavn)
+            assertEquals("16888697822", innehaver.pin?.first()?.identifikator)
+
+            assertEquals("Gjenlevende", sakstype)
             assertEquals(1, innvilgedePensjoner.size)
         }
 
@@ -245,8 +254,13 @@ class PensjonsinformasjonUtlandControllerTest {
 
         with(p6000Detaljer) {
             assertEquals("Gjenlevende", sakstype)
+
             assertEquals("ROSA", forsikrede.fornavn)
+            assertEquals("06448422184", forsikrede.pin?.first()?.identifikator)
+
             assertEquals("AKROBAT", innehaver.etternavn)
+            assertEquals("16888697822", innehaver.pin?.first()?.identifikator)
+
             assertEquals(0, innvilgedePensjoner.size)
         }
 
@@ -274,7 +288,7 @@ class PensjonsinformasjonUtlandControllerTest {
     }
 
     private fun p6000Detaljer(sedliste: List<String> ? = null) : String {
-        val seds = sedliste?: listOf("b152e3cf041a4b829e56e6b1353dd8cb", "a6bacca841cf4c7195d694729151d4f3", "a6bacca841cf4c7195dkdjfh7251d4f3" )
+        val seds = sedliste?: listOf("b152e3cf041a4b829e56e6b1353dd8cb", "a6bacca841cf4c7195d694729151d4f3")
         val est = """
         {
           "pesysId" : "22975052",

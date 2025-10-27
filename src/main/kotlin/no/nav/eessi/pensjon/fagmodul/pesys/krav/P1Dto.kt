@@ -47,5 +47,5 @@ data class P1Dto(
         val avslagsbegrunnelse: String?,
         val vurderingsperiode: String?,
         val adresseNyVurdering: List<AndreinstitusjonerItem>?,
-        val vedtaksdato: String?
+        val vedtaksdato: String?,
         )
