@@ -88,6 +88,6 @@ class PenInfoUtlandControllerMvcTest {
         //VurderingNyAdresse
         assert( repsonse.response.contentAsString.contains("""institusjonsadresse":"Postboks 6600 Etterstad","postnummer":"0607","bygningsnavn":null,"land":"NO","region":null,"poststed":"Oslo"""))
         //innehaver
-        assert( repsonse.response.contentAsString.contains("""innehaver":{"fornavn":"KOGNITIV","etternavn":"AKROBAT","etternavnVedFoedsel":null,"foedselsdato":"1986-08-16","adresselinje":null,"poststed":"Oslo","postnummer":"1554","landkode":"NO","pin":{"institusjonsnavn":"NAV ACCEPTANCE TEST 07","institusjonsid":"NO:NAVAT07","sektor":null,"identifikator":"16888697822","land":"NO","institusjon":null}}"""))
+        assert( repsonse.response.contentAsString.contains("""innehaver":{"fornavn":"KOGNITIV","etternavn":"AKROBAT","etternavnVedFoedsel":null,"foedselsdato":"1986-08-16","adresselinje":null,"poststed":"Oslo","postnummer":"1554","landkode":"NO","pin":[{"institusjonsnavn":"NAV ACCEPTANCE TEST 07","institusjonsid":"NO:NAVAT07","sektor":null,"identifikator":"16888697822","land":"NO","institusjon":null}]}"""))
     }
 }

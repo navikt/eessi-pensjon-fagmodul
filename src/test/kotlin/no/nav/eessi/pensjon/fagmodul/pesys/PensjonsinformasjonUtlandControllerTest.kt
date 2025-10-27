@@ -146,8 +146,8 @@ class PensjonsinformasjonUtlandControllerTest {
             assertEquals("Gjenlevende", sakstype)
             assertEquals("AKROBAT", innehaver.etternavn)
             assertEquals("ROSA", forsikrede.fornavn)
-            assertEquals("06448422184", forsikrede.pin?.identifikator)
-            assertEquals("16888697822", innehaver.pin?.identifikator)
+            assertEquals("06448422184", forsikrede.pin?.first()?.identifikator)
+            assertEquals("16888697822", innehaver.pin?.first()?.identifikator)
 
             assertEquals(2, innvilgedePensjoner.size)
             assertEquals("[EessisakItem(institusjonsid=DEEEEEEE, institusjonsnavn=Tysker, saksnummer=null, land=DE)]", innvilgedePensjoner[0].institusjon.toString())
@@ -169,8 +169,8 @@ class PensjonsinformasjonUtlandControllerTest {
             assertEquals("Gjenlevende", sakstype)
             assertEquals("AKROBAT", innehaver.etternavn)
             assertEquals("ROSA", forsikrede.fornavn)
-            assertEquals("06448422184", forsikrede.pin?.identifikator)
-            assertEquals("16888697822", innehaver.pin?.identifikator)
+            assertEquals("06448422184", forsikrede.pin?.first()?.identifikator)
+            assertEquals("16888697822", innehaver.pin?.first()?.identifikator)
             assertEquals(1, innvilgedePensjoner.size)
             assertEquals("[EessisakItem(institusjonsid=NO:NAVAT07, institusjonsnavn=NAV ACCEPTANCE TEST 07, saksnummer=null, land=NO)]", innvilgedePensjoner[0].institusjon.toString())
         }
@@ -221,9 +221,9 @@ class PensjonsinformasjonUtlandControllerTest {
 
         with(p6000Detaljer) {
             assertEquals("ROSA", forsikrede.fornavn)
-            assertEquals("06448422184", forsikrede.pin?.identifikator)
+            assertEquals("06448422184", forsikrede.pin?.first()?.identifikator)
             assertEquals("AKROBAT", innehaver.etternavn)
-            assertEquals("16888697822", innehaver.pin?.identifikator)
+            assertEquals("16888697822", innehaver.pin?.first()?.identifikator)
 
             assertEquals("Gjenlevende", sakstype)
             assertEquals(1, innvilgedePensjoner.size)
@@ -256,10 +256,10 @@ class PensjonsinformasjonUtlandControllerTest {
             assertEquals("Gjenlevende", sakstype)
 
             assertEquals("ROSA", forsikrede.fornavn)
-            assertEquals("06448422184", forsikrede.pin?.identifikator)
+            assertEquals("06448422184", forsikrede.pin?.first()?.identifikator)
 
             assertEquals("AKROBAT", innehaver.etternavn)
-            assertEquals("16888697822", innehaver.pin?.identifikator)
+            assertEquals("16888697822", innehaver.pin?.first()?.identifikator)
 
             assertEquals(0, innvilgedePensjoner.size)
         }
