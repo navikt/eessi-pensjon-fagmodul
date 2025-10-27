@@ -217,7 +217,7 @@ class PensjonsinformasjonUtlandController(
                 land = "SE",
 
                 ))
-        } else if (environment == "q2" || environment == "test" && (p6000.pensjon?.vedtak?.any{ it.beregning?.any{ it.valuta == "DKK"} == true } == true)) {
+        } else if (andreInstitusjoner.isNullOrEmpty() && (environment == "q2" || environment == "test")) {
             return listOf(EessisakItem(
                 institusjonsid = "DK:DANMARK",
                 institusjonsnavn = "DanskInst",
@@ -356,9 +356,21 @@ class PensjonsinformasjonUtlandController(
     }
 
     private fun hentPin(person: Person?, institusjon: List<EessisakItem>?): List<PinItem>? {
-        return person?.pin?.asSequence()
+         val delsvar = if (environment == "q2" || environment == "test" && institusjon?.any { it.land == "SE"} == true) {
+            listOf(PinItem(
+                institusjonsnavn = "SvenskInst",
+                institusjonsid = "SE:SVERIGE",
+                identifikator = "151010123456",
+                land = "SE"
+            ))
+        } else emptyList()
+
+        val person =  person?.pin?.asSequence()
             ?.filter { pinItem -> institusjon?.any { it.institusjonsid == pinItem.institusjonsid } == true }
             ?.toList()
+
+        return person?.plus(delsvar)
     }
+
 }
 
