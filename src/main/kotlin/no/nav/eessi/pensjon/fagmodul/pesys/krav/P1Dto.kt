@@ -24,7 +24,7 @@ data class P1Dto(
         val poststed: String? = null,
         val postnummer: String? = null,
         val landkode: String? = null,
-        val pin: PinItem? = null,
+        val pin: List<PinItem>? = null,
     )
 
     data class InnvilgetPensjon(

@@ -261,8 +261,7 @@ class PensjonsinformasjonUtlandController(
                         avslagsbegrunnelse = vedtak?.avslagbegrunnelse?.first { !it.begrunnelse.isNullOrEmpty() }?.begrunnelse,
                         vurderingsperiode = p6000.pensjon?.sak?.kravtype?.first()?.datoFrist,
                         adresseNyVurdering = p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.map { adresse(it) },
-                        vedtaksdato = p6000.pensjon?.tilleggsinformasjon?.dato,
-//                        pin = hentPin(p6000, institusjon)
+                        vedtaksdato = p6000.pensjon?.tilleggsinformasjon?.dato
                     )
                 )
             }
@@ -272,7 +271,7 @@ class PensjonsinformasjonUtlandController(
 
 
 
-    private fun person(sed: P6000, brukerEllerGjenlevende: BrukerEllerGjenlevende, innehaverPin: PinItem?) : P1Person {
+    private fun person(sed: P6000, brukerEllerGjenlevende: BrukerEllerGjenlevende, innehaverPin: List<PinItem>?) : P1Person {
         val personBruker = if (brukerEllerGjenlevende == FORSIKRET)
             Pair(sed.nav?.bruker?.person, sed.nav?.bruker?.adresse)
         else
@@ -338,9 +337,10 @@ class PensjonsinformasjonUtlandController(
         }
     }
 
-    private fun hentPin(person: Person?, institusjon: List<EessisakItem>?): PinItem? {
-        return (person?.pin?.asSequence()
-            ?.firstOrNull { pinItem -> institusjon?.any { it.institusjonsid == pinItem.institusjonsid } == true  })
+    private fun hentPin(person: Person?, institusjon: List<EessisakItem>?): List<PinItem>? {
+        return person?.pin?.asSequence()
+            ?.filter { pinItem -> institusjon?.any { it.institusjonsid == pinItem.institusjonsid } == true }
+            ?.toList()
     }
 }
 
