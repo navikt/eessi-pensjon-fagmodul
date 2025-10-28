@@ -138,11 +138,11 @@ class PensjonsinformasjonUtlandController(
                 .first()
 
             val innehaverPin = hentPin(
-                hentBrukerEllerGjenlevende(GJENLEVENDE, nyesteP6000).first,
+                hentBrukerEllerGjenlevende(GJENLEVENDE, nyesteP6000),
                 hentAlleInstitusjoner(listeOverP6000FraGcp)
             )
             val forsikredePin = hentPin(
-                hentBrukerEllerGjenlevende(FORSIKRET, nyesteP6000).first,
+                hentBrukerEllerGjenlevende(FORSIKRET, nyesteP6000),
                 hentAlleInstitusjoner(listeOverP6000FraGcp)
             )
            P1Dto(
@@ -306,10 +306,10 @@ class PensjonsinformasjonUtlandController(
     private fun hentBrukerEllerGjenlevende(
         brukerEllerGjenlevende: BrukerEllerGjenlevende,
         sed: P6000
-    ): Pair<Person?, Adresse?> = if (brukerEllerGjenlevende == FORSIKRET)
-        Pair(sed.nav?.bruker?.person, sed.nav?.bruker?.adresse)
+    ): Person? = if (brukerEllerGjenlevende == FORSIKRET)
+        sed.nav?.bruker?.person
     else
-        Pair(sed.pensjon?.gjenlevende?.person, sed.pensjon?.gjenlevende?.adresse)
+        sed.pensjon?.gjenlevende?.person
 
     enum class BrukerEllerGjenlevende(val person: String) {
         FORSIKRET ("forsikret"),
@@ -359,8 +359,9 @@ class PensjonsinformasjonUtlandController(
 
     private fun hentPin(person: Person?, institusjon: List<EessisakItem>?): List<PinItem>? {
         return person?.pin?.asSequence()
-            ?.filter { pinItem -> institusjon?.any { it.land == pinItem.land } == true }
+            ?.filter { pinItem -> institusjon?.any { it.land == pinItem.land } == true } //TODO: Kan fjernes?
             ?.toList()
+            ?.distinct() //TODO: Kan fjernes?
     }
 }
 
