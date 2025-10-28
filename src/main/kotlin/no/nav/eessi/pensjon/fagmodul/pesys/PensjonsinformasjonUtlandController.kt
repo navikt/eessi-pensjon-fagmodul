@@ -165,8 +165,6 @@ class PensjonsinformasjonUtlandController(
                 logger.error(" OBS OBS; Her kommer det inn mer enn 1 innvilget pensjon fra Norge")
                 secureLog.info("Hopper over denne sed: $p6000")
             } else {
-//                val institusjon = eessiInstitusjoner(p6000)
-
                 retList.add(
                     InnvilgetPensjon(
                         institusjon = institusjonFraSed,
@@ -180,7 +178,6 @@ class PensjonsinformasjonUtlandController(
                         vurderingsperiode = p6000.pensjon?.sak?.kravtype?.first()?.datoFrist,
                         adresseNyVurdering = p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.map { adresse(it) },
                         vedtaksdato = p6000.pensjon?.tilleggsinformasjon?.dato,
-//                        pin = hentPin(p6000, institusjon)
                     )
                 )
             }
