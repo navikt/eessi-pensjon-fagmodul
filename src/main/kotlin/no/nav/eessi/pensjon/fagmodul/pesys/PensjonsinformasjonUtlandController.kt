@@ -197,7 +197,17 @@ class PensjonsinformasjonUtlandController(
     }
 
     private fun erDetFlereNorskeInstitusjoner(p6000er: List<P6000>): Boolean{
-        val eessisakItems = p6000er.flatMap { eessiInstitusjoner(it).orEmpty() }
+        val alle = mutableListOf<EessisakItem>()
+        p6000er.forEach { p6000 ->
+            p6000.nav?.eessisak?.map {
+                alle.add(EessisakItem(institusjonsid = it.institusjonsid, institusjonsnavn = it.institusjonsnavn, land = it.land, saksnummer = it.saksnummer))
+            }
+            val saksnummerFraTilleggsInformasjon = p6000.pensjon?.tilleggsinformasjon?.saksnummer
+            p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.map {
+                alle.add(EessisakItem(institusjonsid = it.institusjonsid, institusjonsnavn = it.institusjonsnavn, land = it.land, saksnummer = saksnummerFraTilleggsInformasjon))
+            }
+        }
+        val eessisakItems = p6000er.flatMap { alle }
         return eessisakItems.count { it.land == "NO" } > 1
     }
 
@@ -349,7 +359,7 @@ class PensjonsinformasjonUtlandController(
 
     private fun hentPin(person: Person?, institusjon: List<EessisakItem>?): List<PinItem>? {
         return person?.pin?.asSequence()
-            ?.filter { pinItem -> institusjon?.any { it.institusjonsid == pinItem.institusjonsid } == true }
+            ?.filter { pinItem -> institusjon?.any { it.land == pinItem.land } == true }
             ?.toList()
     }
 }
