@@ -180,6 +180,27 @@ class PensjonsinformasjonUtlandControllerTest {
         }
     }
 
+
+    @Test
+    fun ` Gitt to innvilget pensjoner men en fra norge og en fra tyskland saa skal begge taes med inkl pin fra begge land`() {
+        every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
+            every { exists() } returns true
+            every { getContent() } returns p6000Detaljer(listOf("1111", "2222")).toByteArray()
+        }
+        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "2222") } returns hentTestP6000("P6000-InnvilgedePensjonerDEogNorsk.json")
+        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "1111") } returns hentTestP6000("P6000-InnvilgedePensjonerNorskOgDE.json")
+
+        val result = controller.hentP6000Detaljer("22975052")
+        with(result){
+            assertEquals("06448422184", forsikrede.pin?.get(0)?.identifikator)
+            assertEquals("34534534 34", forsikrede.pin?.get(1)?.identifikator)
+            assertEquals(2, innvilgedePensjoner.size)
+            assertEquals("[EessisakItem(institusjonsid=NO:NAVAT07, institusjonsnavn=NAV ACCEPTANCE TEST 07, saksnummer=1003563, land=NO)]", innvilgedePensjoner[0].institusjon.toString())
+            assertEquals("[EessisakItem(institusjonsid=DE:111111, institusjonsnavn=Deutsche Bayersche Rentenversicherung, saksnummer=null, land=DE)]", innvilgedePensjoner[1].institusjon.toString())
+
+        }
+    }
+
     @Test
     fun `Gitt at vi får fler enn en innvilget pensjon fra Norge men den andre mangler adresseNyvurdering dermed returneres kun den ene norske med andreinstitusjoner oppgitt `() {
         every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
