@@ -16,7 +16,11 @@ import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import kotlin.jvm.Throws
 
 class PensjonsinformasjonUtlandControllerTest {
 
@@ -273,6 +277,21 @@ class PensjonsinformasjonUtlandControllerTest {
             //Avslått pensjon fra Tyskland
             assertEquals("2025-02-05", avslaattePensjoner.last().vedtaksdato)
             assertEquals("[EessisakItem(institusjonsid=DE:DEUTCHE, institusjonsnavn=Tysk Inst, saksnummer=null, land=DE)]", avslaattePensjoner.last().institusjon.toString())
+        }
+    }
+
+
+    @Nested
+    @DisplayName("Feilsituasjoner")
+    inner class Feilsituasjoner {
+        @Test
+        fun `det skal kastes 404 exception ved manglende innvilget og avslaatt pensjon`() {
+            mockGcpListeSok(emptyList())
+            val exception = assertThrows<org.springframework.web.server.ResponseStatusException> {
+                controller.hentP6000Detaljer("22975052")
+            }
+            assertEquals("404 NOT_FOUND \"Ingen P6000-detaljer funnet for pesysId: 22975052\"", exception.message)
+            assertEquals("Ingen P6000-detaljer funnet for pesysId: 22975052", exception.reason!!)
         }
     }
 

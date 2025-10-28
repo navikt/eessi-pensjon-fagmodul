@@ -120,17 +120,23 @@ class PensjonsinformasjonUtlandController(
             }
                 .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
                 .onSuccess { logger.info("Hentet nye dok detaljer fra Rina for $pesysId") }
-            val nyesteP6000 = listeOverP6000FraGcp.sortedWith(compareBy<P6000> { it.pensjon?.tilleggsinformasjon?.dato }
-            .thenBy { it.pensjon?.tilleggsinformasjon?.andreinstitusjoner != null })
-                .first()
 
             val innvilgedePensjoner = innvilgedePensjoner(listeOverP6000FraGcp).also { secureLog.info("innvilgedePensjoner: " +it.toJson()) }
-
             val avslaatteUtenlandskePensjoner = avslaatteUtenlandskePensjoner(listeOverP6000FraGcp).also { secureLog.info("avslaatteUtenlandskePensjoner: " + it.toJson()) }
+
+            if(innvilgedePensjoner.isEmpty() && avslaatteUtenlandskePensjoner.isEmpty()) {
+                logger.error("Ingen gyldige pensjoner funnet i P6000er for pesysId: $pesysId")
+                throw ResponseStatusException(HttpStatus.NOT_FOUND, "Ingen gyldige pensjoner funnet i P6000er for pesysId: $pesysId")
+            }
 
             if (innvilgedePensjoner.size + avslaatteUtenlandskePensjoner.size != listeOverP6000FraGcp.size) {
                 logger.warn("Mismatch: innvilgedePensjoner (${innvilgedePensjoner.size}) + avslåtteUtenlandskePensjoner (${avslaatteUtenlandskePensjoner.size}) != utenlandskeP6000er (${listeOverP6000FraGcp.size})")
             }
+
+            val nyesteP6000 = listeOverP6000FraGcp.sortedWith(compareBy<P6000> { it.pensjon?.tilleggsinformasjon?.dato }
+                .thenBy { it.pensjon?.tilleggsinformasjon?.andreinstitusjoner != null })
+                .first()
+
             val innehaverPin = hentPin(
                 hentBrukerEllerGjenlevende(GJENLEVENDE, nyesteP6000).first,
                 hentAlleInstitusjoner(listeOverP6000FraGcp)
