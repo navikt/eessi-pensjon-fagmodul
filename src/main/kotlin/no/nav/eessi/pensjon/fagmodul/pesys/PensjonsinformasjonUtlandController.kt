@@ -311,18 +311,25 @@ class PensjonsinformasjonUtlandController(
         }
     }
 
-    fun parseTrygdetid(input: List<Pair<String, String?>>): List<Pair<String?, List<Trygdetid>>>{
-        return input.mapNotNull { jsonString ->
-            val trygdetid = jsonString.first
-            val rinaNr = jsonString.second?.split(Regex("\\D+"))?.lastOrNull { it.isNotEmpty() }
-            val cleanedJson = trygdetid.trim('"').replace("\\n", "").replace("\\\"", "\"")
-            val trygdeTidListe = mapJsonToAny<List<Trygdetid>>(cleanedJson).map {
-                if (it.land.length == 2) {
-                    it.copy(land = kodeverkClient.finnLandkode(it.land) ?: it.land)
-                } else it
-            }
-            Pair(rinaNr, trygdeTidListe)
+    fun parseTrygdetid(lagretTrygdetid: List<Pair<String, String?>>): List<Pair<String?, List<Trygdetid>>>? {
+        return lagretTrygdetid.map { (trygdetid, rinaNr) ->
+            val json = trygdetid.trim('"')
+                .replace("\\n", "")
+                .replace("\\\"", "\"")
+
+            val trygdeTidListe = hentLandFraKodeverk(json)
+
+            val rinaId = rinaNr?.split(Regex("\\D+"))
+                ?.lastOrNull { it.isNotEmpty() }
+
+            rinaId to trygdeTidListe
         }
+    }
+
+    private fun hentLandFraKodeverk(json: String): List<Trygdetid> = mapJsonToAny<List<Trygdetid>>(json).map { trygdetid ->
+        trygdetid.takeIf { it.land.length != 2 } ?: trygdetid.copy(
+            land = kodeverkClient.finnLandkode(trygdetid.land) ?: trygdetid.land
+        )
     }
 
     data class P6000Detaljer(
