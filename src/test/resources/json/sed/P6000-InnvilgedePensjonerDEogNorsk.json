@@ -1,0 +1,93 @@
+{
+  "pensjon": {
+    "gjenlevende": null,
+    "vedtak": [
+      {
+        "beregning": [
+          {
+            "periode": {
+              "tom": "2024-12-31",
+              "fom": "2024-11-01"
+            },
+            "beloepBrutto": {
+              "beloep": "9174"
+            }
+          },
+          {
+            "beloepBrutto": {
+              "beloep": "3924"
+            },
+            "periode": {
+              "fom": "2025-01-01"
+            }
+          }
+        ],
+        "virkningsdato": "2024-11-01",
+        "type": "03",
+        "resultat": "01"
+      }
+    ],
+    "sak": {
+      "kravtype": [
+        {
+          "datoFrist": "six weeks from the date the decision is received"
+        }
+      ]
+    },
+    "tilleggsinformasjon": {
+      "andreinstitusjoner": [
+        {
+          "institusjonsid": "DE:111111",
+          "poststed": "Berlin",
+          "institusjonsnavn": "Deutsche Bayersche Rentenversicherung",
+          "postnummer": "23423",
+          "land": "DE"
+        }
+      ],
+      "dato": "2025-02-05"
+    }
+  },
+  "sedVer": "3",
+  "nav": {
+    "bruker": {
+      "person": {
+        "fornavn": "ROSA",
+        "kjoenn": "M",
+        "etternavn": "EFØY",
+        "foedselsdato": "1984-04-06",
+        "statsborgerskap": [
+          {
+            "land": "NO"
+          }
+        ],
+        "pin": [
+          {
+            "institusjonsnavn": "NAV ACCEPTANCE TEST 07",
+            "identifikator": "06448422184",
+            "land": "NO",
+            "institusjonsid": "NO:NAVAT07"
+          },
+          {
+            "institusjonsnavn": "Deutsche Bayersche Rentenversicherung",
+            "identifikator": "3453453434",
+            "land": "DE"
+          }
+        ],
+        "foedested": {
+          "by": "Unknown",
+          "land": "NO"
+        }
+      }
+    },
+    "eessisak": [
+      {
+        "institusjonsnavn": "NAV ACCEPTANCE TEST 07",
+        "saksnummer": "1003563",
+        "land": "NO",
+        "institusjonsid": "NO:NAVAT07"
+      }
+    ]
+  },
+  "sedGVer": "4",
+  "sed": "P6000"
+}
