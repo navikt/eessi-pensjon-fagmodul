@@ -39,7 +39,8 @@ class PensjonsinformasjonUtlandControllerTest {
         gcpStorageService = gcpStorageService,
         euxInnhentingService,
         kodeverkClient,
-        mockk(relaxed = true)
+        trygdeTidService = mockk(relaxed = true),
+        euxKlientLib = mockk()
     )
     private val aktoerId1 = "2477958344057"
     private val rinaNr = 1446033

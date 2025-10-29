@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import java.nio.ByteBuffer
-import kotlin.text.get
 
 @Component
 class GcpStorageService(

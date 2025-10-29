@@ -4,6 +4,7 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.mockk
 import io.swagger.v3.oas.annotations.media.DiscriminatorMapping
+import no.nav.eessi.pensjon.eux.klient.EuxKlientLib
 import no.nav.eessi.pensjon.eux.model.sed.P6000
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
@@ -45,6 +46,9 @@ class PenInfoUtlandControllerMvcTest {
 
     @MockkBean
     lateinit var trygdeTidService: HentTrygdeTid
+
+    @MockkBean
+    lateinit var euxKlientLib: EuxKlientLib
 
     @TestConfiguration
     class Config {

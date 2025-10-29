@@ -1,14 +1,22 @@
 package no.nav.eessi.pensjon.fagmodul.pesys
 
 import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
+import no.nav.eessi.pensjon.eux.klient.EuxKlientLib
+import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.sed.AndreinstitusjonerItem
 import no.nav.eessi.pensjon.eux.model.sed.EessisakItem
+import no.nav.eessi.pensjon.eux.model.sed.GjenlevPensjon
+import no.nav.eessi.pensjon.eux.model.sed.Nav
 import no.nav.eessi.pensjon.eux.model.sed.P6000
+import no.nav.eessi.pensjon.eux.model.sed.P6000Pensjon
 import no.nav.eessi.pensjon.eux.model.sed.Person
 import no.nav.eessi.pensjon.eux.model.sed.PinItem
+import no.nav.eessi.pensjon.eux.model.sed.SED
+import no.nav.eessi.pensjon.eux.model.sed.UforePensjon
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController.BrukerEllerGjenlevende.FORSIKRET
 import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController.BrukerEllerGjenlevende.GJENLEVENDE
@@ -44,6 +52,7 @@ class PensjonsinformasjonUtlandController(
     private val euxInnhentingService: EuxInnhentingService,
     private val kodeverkClient: KodeverkClient,
     private val trygdeTidService: HentTrygdeTid,
+    private val euxKlientLib: EuxKlientLib,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
 
@@ -53,6 +62,8 @@ class PensjonsinformasjonUtlandController(
 
     private val logger = LoggerFactory.getLogger(PensjonsinformasjonUtlandController::class.java)
     private val secureLog = LoggerFactory.getLogger("secureLog")
+
+    private val liste = mutableListOf<Pair<String, String>>()
 
     @GetMapping("/hentKravUtland/{bucId}")
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -108,13 +119,15 @@ class PensjonsinformasjonUtlandController(
                 HttpStatus.NOT_FOUND,
                 "Ingen P6000-detaljer funnet for pesysId: $pesysId"
             )
-            val listeOverP6000FraGcp = mutableListOf<P6000>()
+            val listeOverP6000FraGcp = mutableListOf<P6000New>()
             val p6000Detaljer = mapJsonToAny<P6000Detaljer>(p6000FraGcp).also { logger.info("P6000Detaljer: ${it.toJson()}") }
             runCatching {
                 p6000Detaljer.dokumentId.forEach { p6000 ->
                     val hentetJsonP6000 = euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(p6000Detaljer.rinaSakId, p6000)
-                    val hentetP6000 = hentetJsonP6000 as P6000
-                    hentetP6000.let { listeOverP6000FraGcp.add(it) }
+                    val hentetP6000 = hentetJsonP6000 as P6000New
+                    val sedMetaData = euxKlientLib.hentSedMetadata(p6000Detaljer.rinaSakId, p6000)
+                    //hentetP6000.retning = if (sedMetaData?.status in listOf("sendt", "new")) "UT" else "INN"
+                    hentetP6000.let { listeOverP6000FraGcp.add(it) }.also { logger.debug("Dettaljer: $it") }
                 }
             }
                 .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
@@ -207,9 +220,15 @@ class PensjonsinformasjonUtlandController(
     }
 
     private fun eessiInstitusjoner(p6000: P6000): List<EessisakItem>? {
+        val rinasakidfraP6000Gcp = gcpStorageService.hentGcpDetlajerForP6000(p6000.nav?.eessisak?.first()?.saksnummer!!) ?: throw ResponseStatusException(
+            HttpStatus.NOT_FOUND,
+            "Ingen P6000-detaljer funnet for pesysId: ${p6000.nav?.eessisak?.first()?.saksnummer}"
+        )
+
         val eessisakItems = p6000.nav?.eessisak?.map {
             EessisakItem(institusjonsid = it.institusjonsid, institusjonsnavn = it.institusjonsnavn, land = it.land, saksnummer = it.saksnummer)
         }
+
         val saksnummerFraTilleggsInformasjon = p6000.pensjon?.tilleggsinformasjon?.saksnummer
         val andreInstitusjoner = p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.map {
             EessisakItem(institusjonsid = it.institusjonsid, institusjonsnavn = it.institusjonsnavn, land = it.land, saksnummer = saksnummerFraTilleggsInformasjon)
@@ -359,4 +378,21 @@ class PensjonsinformasjonUtlandController(
             ?.distinct() //TODO: Kan fjernes?
     }
 }
+
+class P6000New(
+    @JsonProperty("sed")
+    override val type: SedType = SedType.P6000,
+    override val nav: Nav? = null,
+    @JsonProperty("pensjon")
+    override val pensjon: P6000Pensjon?
+) : SED(type, nav = nav), GjenlevPensjon, UforePensjon {
+    override fun hasGjenlevPensjonType(): Boolean {
+        return pensjon?.vedtak?.firstOrNull()?.type == "20"
+    }
+
+    override fun hasUforePensjonType(): Boolean {
+        return pensjon?.vedtak?.firstOrNull()?.type == "30"
+    }
+}
+
 
