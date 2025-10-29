@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
-import no.nav.eessi.pensjon.eux.model.sed.Adresse
 import no.nav.eessi.pensjon.eux.model.sed.AndreinstitusjonerItem
 import no.nav.eessi.pensjon.eux.model.sed.EessisakItem
 import no.nav.eessi.pensjon.eux.model.sed.P6000
@@ -121,6 +120,9 @@ class PensjonsinformasjonUtlandController(
                 .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
                 .onSuccess { logger.info("Hentet nye dok detaljer fra Rina for $pesysId") }
 
+            val nyesteP6000 = listeOverP6000FraGcp.sortedWith(
+                compareBy<P6000> ( {it.pensjon?.tilleggsinformasjon?.dato }, { it.pensjon?.vedtak?.firstOrNull()?.virkningsdato})).reversed()
+
             val innvilgedePensjoner = innvilgedePensjoner(listeOverP6000FraGcp).also { secureLog.info("innvilgedePensjoner: " +it.toJson()) }
             val avslaatteUtenlandskePensjoner = avslaatteUtenlandskePensjoner(listeOverP6000FraGcp).also { secureLog.info("avslaatteUtenlandskePensjoner: " + it.toJson()) }
 
@@ -133,21 +135,15 @@ class PensjonsinformasjonUtlandController(
                 logger.warn("Mismatch: innvilgedePensjoner (${innvilgedePensjoner.size}) + avslåtteUtenlandskePensjoner (${avslaatteUtenlandskePensjoner.size}) != utenlandskeP6000er (${listeOverP6000FraGcp.size})")
             }
 
-            val nyesteP6000 = listeOverP6000FraGcp.sortedWith(compareBy<P6000> { it.pensjon?.tilleggsinformasjon?.dato }
-                .thenBy { it.pensjon?.tilleggsinformasjon?.andreinstitusjoner != null })
-                .first()
-
             val innehaverPin = hentPin(
-                hentBrukerEllerGjenlevende(GJENLEVENDE, nyesteP6000),
-                hentAlleInstitusjoner(listeOverP6000FraGcp)
+                hentBrukerEllerGjenlevende(GJENLEVENDE, nyesteP6000.first())
             )
             val forsikredePin = hentPin(
-                hentBrukerEllerGjenlevende(FORSIKRET, nyesteP6000),
-                hentAlleInstitusjoner(listeOverP6000FraGcp)
+                hentBrukerEllerGjenlevende(FORSIKRET, nyesteP6000.first())
             )
            P1Dto(
-                innehaver = person(nyesteP6000, GJENLEVENDE, innehaverPin),
-                forsikrede = person(nyesteP6000, FORSIKRET, forsikredePin),
+                innehaver = person(nyesteP6000.first(), GJENLEVENDE, innehaverPin),
+                forsikrede = person(nyesteP6000.first(), FORSIKRET, forsikredePin),
                 sakstype = "Gjenlevende",
                 kravMottattDato = null,
                 innvilgedePensjoner = innvilgedePensjoner,
@@ -166,8 +162,7 @@ class PensjonsinformasjonUtlandController(
         ip6000Innvilgede.map { p6000 ->
             val vedtak = p6000.pensjon?.vedtak?.first()
             val institusjonFraSed = eessiInstitusjoner(p6000)
-            if (flereEnnEnNorsk && retList.any { it.institusjon?.any { it.land == "NO" } == true } &&
-                institusjonFraSed?.any { it.land == "NO" } == true) {
+            if (flereEnnEnNorsk && retList.any { it.institusjon?.any { it.land == "NO" } == true } && institusjonFraSed?.any { it.land == "NO" } == true) {
                 logger.error(" OBS OBS; Her kommer det inn mer enn 1 innvilget pensjon fra Norge")
                 secureLog.info("Hopper over denne sed: $p6000")
             } else {
@@ -357,9 +352,9 @@ class PensjonsinformasjonUtlandController(
         }
     }
 
-    private fun hentPin(person: Person?, institusjon: List<EessisakItem>?): List<PinItem>? {
+    private fun hentPin(person: Person?): List<PinItem>? {
         return person?.pin?.asSequence()
-            ?.filter { pinItem -> institusjon?.any { it.land == pinItem.land } == true } //TODO: Kan fjernes?
+            ?.filter { pinItem -> pinItem.land != null}
             ?.toList()
             ?.distinct() //TODO: Kan fjernes?
     }
