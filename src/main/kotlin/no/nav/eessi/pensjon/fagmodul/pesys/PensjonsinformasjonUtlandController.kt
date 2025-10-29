@@ -126,7 +126,7 @@ class PensjonsinformasjonUtlandController(
                     val hentetJsonP6000 = euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(p6000Detaljer.rinaSakId, p6000)
                     val hentetP6000 = hentetJsonP6000 as P6000
                     val sedMetaData = euxKlientLib.hentSedMetadata(p6000Detaljer.rinaSakId, p6000)
-                    hentetP6000.retning = if (sedMetaData?.status in listOf("sendt", "new")) "UT" else "INN"
+                    hentetP6000.retning = if (SED_RETNING.valueOf(sedMetaData?.status) in listOf(SED_RETNING.SENT, SED_RETNING.NEW)) "UT" else "INN"
                     logger.debug("Dettaljer: ${hentetP6000.retning.toString()}")
                     hentetP6000.let { listeOverP6000FraGcp.add(it) }
                 }
@@ -206,20 +206,28 @@ class PensjonsinformasjonUtlandController(
         return eessisakItems
     }
 
-    private fun erDetFlereNorskeInstitusjoner(p6000er: List<P6000>): Boolean{
-        val alle = mutableListOf<EessisakItem>()
-        p6000er.forEach { p6000 ->
-            p6000.nav?.eessisak?.map {
-                alle.add(EessisakItem(institusjonsid = it.institusjonsid, institusjonsnavn = it.institusjonsnavn, land = it.land, saksnummer = it.saksnummer))
+    private fun erDetFlereNorskeInstitusjoner(p6000er: List<P6000>): Boolean {
+        return p6000er.count { it.retning == "UT" }.let { antallUt ->
+            if (antallUt > 1) {
+                logger.error("OBS OBS; Her kommer det inn mer enn 1 P6000 med retning UT i Seden")
+                return true
             }
-            val saksnummerFraTilleggsInformasjon = p6000.pensjon?.tilleggsinformasjon?.saksnummer
-            p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.map {
-                alle.add(EessisakItem(institusjonsid = it.institusjonsid, institusjonsnavn = it.institusjonsnavn, land = it.land, saksnummer = saksnummerFraTilleggsInformasjon))
-            }
+            false
         }
-        val eessisakItems = p6000er.flatMap { alle }
-        return eessisakItems.count { it.land == "NO" } > 1
     }
+//        val alle = mutableListOf<EessisakItem>()
+//        p6000er.forEach { p6000 ->
+//            p6000.nav?.eessisak?.map {
+//                alle.add(EessisakItem(institusjonsid = it.institusjonsid, institusjonsnavn = it.institusjonsnavn, land = it.land, saksnummer = it.saksnummer))
+//            }
+//            val saksnummerFraTilleggsInformasjon = p6000.pensjon?.tilleggsinformasjon?.saksnummer
+//            p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.map {
+//                alle.add(EessisakItem(institusjonsid = it.institusjonsid, institusjonsnavn = it.institusjonsnavn, land = it.land, saksnummer = saksnummerFraTilleggsInformasjon))
+//            }
+//        }
+//        val eessisakItems = p6000er.flatMap { alle }
+//        return eessisakItems.count { it.land == "NO" } > 1
+//    }
 
     private fun eessiInstitusjoner(p6000: P6000): List<EessisakItem>? {
         val saksnummerFraTilleggsInformasjon = p6000.pensjon?.tilleggsinformasjon?.saksnummer
@@ -233,12 +241,12 @@ class PensjonsinformasjonUtlandController(
             val utenlandsk = p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.filter { it.land != "NO" }?.map {
                 EessisakItem(institusjonsid = it.institusjonsid, institusjonsnavn = it.institusjonsnavn, land = it.land, saksnummer = saksnummerFraTilleggsInformasjon)
             }
-            if (utenlandsk?.isEmpty() == true) {
+            if(utenlandsk?.isEmpty() == true) {
                 p6000.nav?.eessisak?.filter { it.land != "NO" }?.map {
                     EessisakItem(institusjonsid = it.institusjonsid, institusjonsnavn = it.institusjonsnavn, land = it.land, saksnummer = it.saksnummer)
                 }
             }
-            emptyList()
+            utenlandsk
         }
 
         val eessisakItems = p6000.nav?.eessisak?.map {
@@ -290,11 +298,13 @@ class PensjonsinformasjonUtlandController(
 
         p6000erAvslaatt.map { p6000 ->
             val vedtak = p6000.pensjon?.vedtak?.first()
-            if (flereEnnEnNorsk && retList.any { it.institusjon?.any { it.land == "NO" } == true } &&
-                eessiInstitusjoner(p6000)?.any { it.land == "NO" } == true) {
+//            val institusjonFraSed = eessiInstitusjoner(p6000)
+
+            if (p6000.retning == "UT" && flereEnnEnNorsk && retList.count { it.retning == "UT"} >= 1) {
                 logger.error(" OBS OBS; Her kommer det inn mer enn 1 avslått pensjon fra Norge")
                 secureLog.info("Hopper over denne avslåtte seden: $p6000")
             } else {
+                logger.info("Legger til avslått pensjon fra sed med retning: ${p6000.retning}")
                 val institusjon = eessiInstitusjoner(p6000)
                 retList.add(
                     AvslaattPensjon(
@@ -303,7 +313,8 @@ class PensjonsinformasjonUtlandController(
                         avslagsbegrunnelse = vedtak?.avslagbegrunnelse?.first { !it.begrunnelse.isNullOrEmpty() }?.begrunnelse,
                         vurderingsperiode = p6000.pensjon?.sak?.kravtype?.first()?.datoFrist,
                         adresseNyVurdering = p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.map { adresse(it) },
-                        vedtaksdato = p6000.pensjon?.tilleggsinformasjon?.dato
+                        vedtaksdato = p6000.pensjon?.tilleggsinformasjon?.dato,
+                        retning = p6000.retning
                     )
                 )
             }
@@ -379,6 +390,26 @@ class PensjonsinformasjonUtlandController(
         val rinaSakId: String,
         val dokumentId: List<String>
     )
+
+    enum class SED_RETNING (val value: String) {
+        SENT("SENT"),
+        RECEIVED("RECEIVED"),
+        NEW("NEW"),
+        EMPTY("EMPTY");
+
+        override fun toString(): String = value
+
+        companion object {
+            fun valueOf(value: String?): SED_RETNING {
+                return entries.find { it.value.equals(value, ignoreCase = true) }
+                    ?: EMPTY
+            }
+            fun gyldigeUtRetninger()= setOf(NEW, SENT)
+            fun gyldigeInRetninger()= setOf(RECEIVED)
+
+
+        }
+    }
 
     class EmptyStringToNullDeserializer : JsonDeserializer<String?>() {
         override fun deserialize(p: JsonParser, ctxt: DeserializationContext): String? {
