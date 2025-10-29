@@ -119,18 +119,19 @@ class PensjonsinformasjonUtlandController(
                 HttpStatus.NOT_FOUND,
                 "Ingen P6000-detaljer funnet for pesysId: $pesysId"
             )
-            val listeOverP6000FraGcp = mutableListOf<P6000New>()
+            val listeOverP6000FraGcp = mutableListOf<P6000>()
             val p6000Detaljer = mapJsonToAny<P6000Detaljer>(p6000FraGcp).also { logger.info("P6000Detaljer: ${it.toJson()}") }
             runCatching {
                 p6000Detaljer.dokumentId.forEach { p6000 ->
                     val hentetJsonP6000 = euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(p6000Detaljer.rinaSakId, p6000)
-                    val hentetP6000 = hentetJsonP6000 as P6000New
+                    val hentetP6000 = hentetJsonP6000 as P6000
                     val sedMetaData = euxKlientLib.hentSedMetadata(p6000Detaljer.rinaSakId, p6000)
-                    //hentetP6000.retning = if (sedMetaData?.status in listOf("sendt", "new")) "UT" else "INN"
-                    hentetP6000.let { listeOverP6000FraGcp.add(it) }.also { logger.debug("Dettaljer: $it") }
+                    hentetP6000.retning = if (sedMetaData?.status in listOf("sendt", "new")) "UT" else "INN"
+                    logger.debug("Dettaljer: ${hentetP6000.retning.toString()}")
+                    hentetP6000.let { listeOverP6000FraGcp.add(it) }
                 }
             }
-                .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
+                .onFailure { e -> logger.error("Feil ved parsing av trygdetid linje 127", e) }
                 .onSuccess { logger.info("Hentet nye dok detaljer fra Rina for $pesysId") }
 
             val nyesteP6000 = listeOverP6000FraGcp.sortedWith(
@@ -154,6 +155,7 @@ class PensjonsinformasjonUtlandController(
             val forsikredePin = hentPin(
                 hentBrukerEllerGjenlevende(FORSIKRET, nyesteP6000.first())
             )
+
            P1Dto(
                 innehaver = person(nyesteP6000.first(), GJENLEVENDE, innehaverPin),
                 forsikrede = person(nyesteP6000.first(), FORSIKRET, forsikredePin),
@@ -220,34 +222,47 @@ class PensjonsinformasjonUtlandController(
     }
 
     private fun eessiInstitusjoner(p6000: P6000): List<EessisakItem>? {
-        val rinasakidfraP6000Gcp = gcpStorageService.hentGcpDetlajerForP6000(p6000.nav?.eessisak?.first()?.saksnummer!!) ?: throw ResponseStatusException(
-            HttpStatus.NOT_FOUND,
-            "Ingen P6000-detaljer funnet for pesysId: ${p6000.nav?.eessisak?.first()?.saksnummer}"
-        )
+        val saksnummerFraTilleggsInformasjon = p6000.pensjon?.tilleggsinformasjon?.saksnummer
+        val norskeEllerUtlandskeInstitusjoner = if(p6000.retning == "UT") {
+            //NORSK inst
+            p6000.nav?.eessisak?.map {
+                EessisakItem(institusjonsid = it.institusjonsid, institusjonsnavn = it.institusjonsnavn, land = "NO", saksnummer = it.saksnummer)
+            }
+        } else {
+            //Utenlandsk Inst
+            val utenlandsk = p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.filter { it.land != "NO" }?.map {
+                EessisakItem(institusjonsid = it.institusjonsid, institusjonsnavn = it.institusjonsnavn, land = it.land, saksnummer = saksnummerFraTilleggsInformasjon)
+            }
+            if (utenlandsk?.isEmpty() == true) {
+                p6000.nav?.eessisak?.filter { it.land != "NO" }?.map {
+                    EessisakItem(institusjonsid = it.institusjonsid, institusjonsnavn = it.institusjonsnavn, land = it.land, saksnummer = it.saksnummer)
+                }
+            }
+            emptyList()
+        }
 
         val eessisakItems = p6000.nav?.eessisak?.map {
             EessisakItem(institusjonsid = it.institusjonsid, institusjonsnavn = it.institusjonsnavn, land = it.land, saksnummer = it.saksnummer)
         }
 
-        val saksnummerFraTilleggsInformasjon = p6000.pensjon?.tilleggsinformasjon?.saksnummer
-        val andreInstitusjoner = p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.map {
-            EessisakItem(institusjonsid = it.institusjonsid, institusjonsnavn = it.institusjonsnavn, land = it.land, saksnummer = saksnummerFraTilleggsInformasjon)
-        }
+//        val andreInstitusjoner = p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.map {
+//            EessisakItem(institusjonsid = it.institusjonsid, institusjonsnavn = it.institusjonsnavn, land = it.land, saksnummer = saksnummerFraTilleggsInformasjon)
+//        }
 
         val institusjon = when {
-            eessisakItems?.isNotEmpty() == true && eessisakItems.any { it.land == "NO" } && andreInstitusjoner?.any { it.land != "NO" } == true -> andreInstitusjoner
+            eessisakItems?.isNotEmpty() == true && norskeEllerUtlandskeInstitusjoner?.any { it.land != "NO" } == true -> norskeEllerUtlandskeInstitusjoner
 
-            eessisakItems == null && andreInstitusjoner?.isNotEmpty() == true && andreInstitusjoner.size > 1 -> {
+            eessisakItems == null && norskeEllerUtlandskeInstitusjoner?.isNotEmpty() == true && norskeEllerUtlandskeInstitusjoner.size > 1 -> {
                 logger.error("OBS OBS; Her kommer det inn mer enn 1 innvilget pensjon fra Norge (andreInstitusjoner); i Seden")
                 emptyList()
             }
 
-            eessisakItems == null && andreInstitusjoner?.isNotEmpty() == true -> {
+            eessisakItems == null && norskeEllerUtlandskeInstitusjoner?.isNotEmpty() == true -> {
                 logger.warn("Det finnes ingen institusjon fra eessisak; henter institusjon fra andreInstitusjoner")
-                andreInstitusjoner
+                norskeEllerUtlandskeInstitusjoner
             }
 
-            eessisakItems?.isNotEmpty() == true && eessisakItems.count { it.land == "NO" } > 1 || (andreInstitusjoner?.count { it.land == "NO" } ?: 0) > 1 -> {
+            eessisakItems?.isNotEmpty() == true && eessisakItems.count { it.land == "NO" } > 1 || (norskeEllerUtlandskeInstitusjoner?.count { it.land == "NO" } ?: 0) > 1 -> {
                 logger.error("OBS OBS; Her kommer det inn mer enn 1 innvilget pensjon fra Norge i Seden")
                 emptyList()
             }
@@ -378,21 +393,4 @@ class PensjonsinformasjonUtlandController(
             ?.distinct() //TODO: Kan fjernes?
     }
 }
-
-class P6000New(
-    @JsonProperty("sed")
-    override val type: SedType = SedType.P6000,
-    override val nav: Nav? = null,
-    @JsonProperty("pensjon")
-    override val pensjon: P6000Pensjon?
-) : SED(type, nav = nav), GjenlevPensjon, UforePensjon {
-    override fun hasGjenlevPensjonType(): Boolean {
-        return pensjon?.vedtak?.firstOrNull()?.type == "20"
-    }
-
-    override fun hasUforePensjonType(): Boolean {
-        return pensjon?.vedtak?.firstOrNull()?.type == "30"
-    }
-}
-
 
