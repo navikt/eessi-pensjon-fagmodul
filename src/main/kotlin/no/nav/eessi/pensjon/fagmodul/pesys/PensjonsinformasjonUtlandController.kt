@@ -212,6 +212,7 @@ class PensjonsinformasjonUtlandController(
     private fun norskSed(p6000: P6000): Boolean =
         SED_RETNING.valueOf(p6000.retning) in listOf(SED_RETNING.NEW, SED_RETNING.SENT)
 
+    //TODO: refaktorere metoden; for kompleks
     private fun eessiInstitusjoner(p6000: P6000): List<EessisakItem>? {
         val saksnummerFraTilleggsInformasjon = p6000.pensjon?.tilleggsinformasjon?.saksnummer
         val norskeEllerUtlandskeInstitusjoner = if(p6000.retning.isNorsk()) {
