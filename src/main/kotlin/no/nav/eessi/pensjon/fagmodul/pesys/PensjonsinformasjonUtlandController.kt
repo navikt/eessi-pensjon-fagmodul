@@ -275,6 +275,8 @@ class PensjonsinformasjonUtlandController(
 
     private fun avslaatteUtenlandskePensjoner(p6000er: List<P6000>): List<AvslaattPensjon> {
         val p6000erAvslaatt = p6000er.filter { sed -> sed.pensjon?.vedtak?.any { it.resultat == "02" } == true }
+            .sortedByDescending { it.pensjon?.tilleggsinformasjon?.dato }
+
         val flereEnnEnNorsk = erDetFlereNorskeInstitusjoner(p6000erAvslaatt)
         val retList = mutableListOf<AvslaattPensjon>()
 

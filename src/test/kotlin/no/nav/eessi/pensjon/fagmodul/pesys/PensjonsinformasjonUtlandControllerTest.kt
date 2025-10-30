@@ -331,7 +331,7 @@ class PensjonsinformasjonUtlandControllerTest {
     }
 
     @Test
-    fun `Gitt at vi skal hente ut avslaaatte pensjoner P1 saa skal vi returnere alle avslaatte pensjoner fra alle land`() {
+    fun `Gitt to norske avslaatte pensjoner og en fra utlandet saa det gi i én norsk og én utenlandsk`() {
         every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
             every { exists() } returns true
             every { getContent() } returns p6000Detaljer(listOf("3333", "1111", "2222")).toByteArray()
