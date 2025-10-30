@@ -39,6 +39,8 @@ data class P1Dto(
         val vurderingsperiode: String?,
         val adresseNyVurdering: List<AndreinstitusjonerItem>?,
         val vedtaksdato: String?,
+        @Transient
+        val retning: String? = null,
     )
 
     data class AvslaattPensjon(

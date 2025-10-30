@@ -1,25 +1,20 @@
 package no.nav.eessi.pensjon.fagmodul.pesys
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
 import no.nav.eessi.pensjon.eux.klient.EuxKlientLib
-import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.sed.AndreinstitusjonerItem
 import no.nav.eessi.pensjon.eux.model.sed.EessisakItem
-import no.nav.eessi.pensjon.eux.model.sed.GjenlevPensjon
-import no.nav.eessi.pensjon.eux.model.sed.Nav
 import no.nav.eessi.pensjon.eux.model.sed.P6000
-import no.nav.eessi.pensjon.eux.model.sed.P6000Pensjon
 import no.nav.eessi.pensjon.eux.model.sed.Person
 import no.nav.eessi.pensjon.eux.model.sed.PinItem
-import no.nav.eessi.pensjon.eux.model.sed.SED
-import no.nav.eessi.pensjon.eux.model.sed.UforePensjon
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
+import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController.*
 import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController.BrukerEllerGjenlevende.FORSIKRET
 import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController.BrukerEllerGjenlevende.GJENLEVENDE
+import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController.SED_RETNING.Companion.norskSed
 import no.nav.eessi.pensjon.fagmodul.pesys.krav.AvslaattPensjon
 import no.nav.eessi.pensjon.fagmodul.pesys.krav.InnvilgetPensjon
 import no.nav.eessi.pensjon.fagmodul.pesys.krav.P1Dto
@@ -126,7 +121,7 @@ class PensjonsinformasjonUtlandController(
                     val hentetJsonP6000 = euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(p6000Detaljer.rinaSakId, p6000)
                     val hentetP6000 = hentetJsonP6000 as P6000
                     val sedMetaData = euxKlientLib.hentSedMetadata(p6000Detaljer.rinaSakId, p6000)
-                    hentetP6000.retning = if (SED_RETNING.valueOf(sedMetaData?.status) in listOf(SED_RETNING.SENT, SED_RETNING.NEW)) "UT" else "INN"
+                    hentetP6000.retning = sedMetaData?.status
                     logger.debug("Dettaljer: ${hentetP6000.retning.toString()}")
                     hentetP6000.let { listeOverP6000FraGcp.add(it) }
                 }
@@ -135,7 +130,9 @@ class PensjonsinformasjonUtlandController(
                 .onSuccess { logger.info("Hentet nye dok detaljer fra Rina for $pesysId") }
 
             val nyesteP6000 = listeOverP6000FraGcp.sortedWith(
-                compareBy<P6000> ( {it.pensjon?.tilleggsinformasjon?.dato }, { it.pensjon?.vedtak?.firstOrNull()?.virkningsdato})).reversed()
+                compareBy<P6000> (
+                    {it.pensjon?.tilleggsinformasjon?.dato },
+                    { it.pensjon?.vedtak?.firstOrNull()?.virkningsdato})).reversed()
 
             val innvilgedePensjoner = innvilgedePensjoner(listeOverP6000FraGcp).also { secureLog.info("innvilgedePensjoner: " +it.toJson()) }
             val avslaatteUtenlandskePensjoner = avslaatteUtenlandskePensjoner(listeOverP6000FraGcp).also { secureLog.info("avslaatteUtenlandskePensjoner: " + it.toJson()) }
@@ -174,16 +171,19 @@ class PensjonsinformasjonUtlandController(
         val flereEnnEnNorsk =  erDetFlereNorskeInstitusjoner(p6000er)
         val retList = mutableListOf<InnvilgetPensjon>()
 
-        ip6000Innvilgede.map { p6000 ->
+        ip6000Innvilgede.
+            sortedBy { it.nav?.eessisak?.size }
+            .map { p6000 ->
             val vedtak = p6000.pensjon?.vedtak?.first()
-            val institusjonFraSed = eessiInstitusjoner(p6000)
-            if (flereEnnEnNorsk && retList.any { it.institusjon?.any { it.land == "NO" } == true } && institusjonFraSed?.any { it.land == "NO" } == true) {
+
+            if (p6000.retning.isNorsk() && flereEnnEnNorsk && retList.count { it.retning.isNorsk()  } >= 1) {
                 logger.error(" OBS OBS; Her kommer det inn mer enn 1 innvilget pensjon fra Norge")
-                secureLog.info("Hopper over denne sed: $p6000")
+                secureLog.info("Hopper over innvilget pensjon P6000: $p6000")
             } else {
+                logger.info("Legger til innvilget pensjon fra sed med retning: ${p6000.retning}")
                 retList.add(
                     InnvilgetPensjon(
-                        institusjon = institusjonFraSed,
+                        institusjon = eessiInstitusjoner(p6000),
                         pensjonstype = vedtak?.type ?: "",
                         datoFoersteUtbetaling = dato(vedtak?.beregning?.first()?.periode?.fom),
                         bruttobeloep = vedtak?.beregning?.first()?.beloepBrutto?.beloep,
@@ -194,6 +194,7 @@ class PensjonsinformasjonUtlandController(
                         vurderingsperiode = p6000.pensjon?.sak?.kravtype?.first()?.datoFrist,
                         adresseNyVurdering = p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.map { adresse(it) },
                         vedtaksdato = p6000.pensjon?.tilleggsinformasjon?.dato,
+                        retning = p6000.retning
                     )
                 )
             }
@@ -201,13 +202,8 @@ class PensjonsinformasjonUtlandController(
         return retList
     }
 
-    private fun hentAlleInstitusjoner(p6000er: List<P6000>): List<EessisakItem> {
-        val eessisakItems = p6000er.flatMap { eessiInstitusjoner(it).orEmpty() }
-        return eessisakItems
-    }
-
     private fun erDetFlereNorskeInstitusjoner(p6000er: List<P6000>): Boolean {
-        return p6000er.count { it.retning == "UT" }.let { antallUt ->
+        return p6000er.count { norskSed(it) }.let { antallUt ->
             if (antallUt > 1) {
                 logger.error("OBS OBS; Her kommer det inn mer enn 1 P6000 med retning UT i Seden")
                 return true
@@ -215,35 +211,24 @@ class PensjonsinformasjonUtlandController(
             false
         }
     }
-//        val alle = mutableListOf<EessisakItem>()
-//        p6000er.forEach { p6000 ->
-//            p6000.nav?.eessisak?.map {
-//                alle.add(EessisakItem(institusjonsid = it.institusjonsid, institusjonsnavn = it.institusjonsnavn, land = it.land, saksnummer = it.saksnummer))
-//            }
-//            val saksnummerFraTilleggsInformasjon = p6000.pensjon?.tilleggsinformasjon?.saksnummer
-//            p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.map {
-//                alle.add(EessisakItem(institusjonsid = it.institusjonsid, institusjonsnavn = it.institusjonsnavn, land = it.land, saksnummer = saksnummerFraTilleggsInformasjon))
-//            }
-//        }
-//        val eessisakItems = p6000er.flatMap { alle }
-//        return eessisakItems.count { it.land == "NO" } > 1
-//    }
+
+    private fun norskSed(p6000: P6000): Boolean =
+        SED_RETNING.valueOf(p6000.retning) in listOf(SED_RETNING.NEW, SED_RETNING.SENT)
 
     private fun eessiInstitusjoner(p6000: P6000): List<EessisakItem>? {
         val saksnummerFraTilleggsInformasjon = p6000.pensjon?.tilleggsinformasjon?.saksnummer
-        val norskeEllerUtlandskeInstitusjoner = if(p6000.retning == "UT") {
-            //NORSK inst
+        val norskeEllerUtlandskeInstitusjoner = if(p6000.retning.isNorsk() && p6000.nav?.eessisak?.isNotEmpty() == true) {
             p6000.nav?.eessisak?.map {
-                EessisakItem(institusjonsid = it.institusjonsid, institusjonsnavn = it.institusjonsnavn, land = "NO", saksnummer = it.saksnummer)
+                EessisakItem(it.institusjonsid, it.institusjonsnavn, it.saksnummer, "NO")
             }
-        } else {
-            //Utenlandsk Inst
+        }
+        else {
             val utenlandsk = p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.filter { it.land != "NO" }?.map {
-                EessisakItem(institusjonsid = it.institusjonsid, institusjonsnavn = it.institusjonsnavn, land = it.land, saksnummer = saksnummerFraTilleggsInformasjon)
+                EessisakItem(it.institusjonsid, it.institusjonsnavn, saksnummerFraTilleggsInformasjon, it.land)
             }
             if(utenlandsk?.isEmpty() == true) {
                 p6000.nav?.eessisak?.filter { it.land != "NO" }?.map {
-                    EessisakItem(institusjonsid = it.institusjonsid, institusjonsnavn = it.institusjonsnavn, land = it.land, saksnummer = it.saksnummer)
+                    EessisakItem(it.institusjonsid, it.institusjonsnavn, it.saksnummer, it.land)
                 }
             }
             utenlandsk
@@ -252,10 +237,6 @@ class PensjonsinformasjonUtlandController(
         val eessisakItems = p6000.nav?.eessisak?.map {
             EessisakItem(institusjonsid = it.institusjonsid, institusjonsnavn = it.institusjonsnavn, land = it.land, saksnummer = it.saksnummer)
         }
-
-//        val andreInstitusjoner = p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.map {
-//            EessisakItem(institusjonsid = it.institusjonsid, institusjonsnavn = it.institusjonsnavn, land = it.land, saksnummer = saksnummerFraTilleggsInformasjon)
-//        }
 
         val institusjon = when {
             eessisakItems?.isNotEmpty() == true && norskeEllerUtlandskeInstitusjoner?.any { it.land != "NO" } == true -> norskeEllerUtlandskeInstitusjoner
@@ -298,9 +279,8 @@ class PensjonsinformasjonUtlandController(
 
         p6000erAvslaatt.map { p6000 ->
             val vedtak = p6000.pensjon?.vedtak?.first()
-//            val institusjonFraSed = eessiInstitusjoner(p6000)
 
-            if (p6000.retning == "UT" && flereEnnEnNorsk && retList.count { it.retning == "UT"} >= 1) {
+            if (p6000.retning.isNorsk() && flereEnnEnNorsk && retList.count { it.retning.isNorsk()  } >= 1) {
                 logger.error(" OBS OBS; Her kommer det inn mer enn 1 avslått pensjon fra Norge")
                 secureLog.info("Hopper over denne avslåtte seden: $p6000")
             } else {
@@ -404,8 +384,8 @@ class PensjonsinformasjonUtlandController(
                 return entries.find { it.value.equals(value, ignoreCase = true) }
                     ?: EMPTY
             }
-            fun gyldigeUtRetninger()= setOf(NEW, SENT)
-            fun gyldigeInRetninger()= setOf(RECEIVED)
+            fun norskSed()= setOf(NEW, SENT)
+            fun utenlandskSed()= setOf(RECEIVED)
 
 
         }
@@ -423,5 +403,11 @@ class PensjonsinformasjonUtlandController(
             ?.toList()
             ?.distinct() //TODO: Kan fjernes?
     }
+
+    private fun String?.isNorsk(): Boolean {
+        return this != null && SED_RETNING.valueOf(this) in SED_RETNING.norskSed()
+    }
+
 }
+
 
