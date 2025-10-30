@@ -215,20 +215,21 @@ class PensjonsinformasjonUtlandController(
     private fun eessiInstitusjoner(p6000: P6000): List<EessisakItem>? {
         val saksnummerFraTilleggsInformasjon = p6000.pensjon?.tilleggsinformasjon?.saksnummer
         val norskeEllerUtlandskeInstitusjoner = if(p6000.retning.isNorsk()) {
+            // primært hentes norske institusjoner fra eessisak
             if(p6000.nav?.eessisak?.isNotEmpty() == true) {
                 p6000.nav?.eessisak?.map {
                     EessisakItem(it.institusjonsid, it.institusjonsnavn, it.saksnummer, "NO")
                 }
             }
-            else if (p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.filter { it.land == "NO" }?.size == 1) {
+            // benytter andreinstitusjoner, hvis ingen norske institusjoner i eessisak
+            else {
                 p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.filter { it.land == "NO" }?.map {
                     EessisakItem(it.institusjonsid, it.institusjonsnavn, saksnummerFraTilleggsInformasjon, it.land)
                 }
-            } else {
-                emptyList()
             }
         }
         else {
+            // primært hentes utenlandske institusjoner fra andreinstitusjoner
             val utenlandsk = p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.filter { it.land != "NO" }?.map {
                 EessisakItem(it.institusjonsid, it.institusjonsnavn, saksnummerFraTilleggsInformasjon, it.land)
             }
