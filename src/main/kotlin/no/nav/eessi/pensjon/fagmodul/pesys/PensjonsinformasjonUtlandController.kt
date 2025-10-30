@@ -11,10 +11,8 @@ import no.nav.eessi.pensjon.eux.model.sed.P6000
 import no.nav.eessi.pensjon.eux.model.sed.Person
 import no.nav.eessi.pensjon.eux.model.sed.PinItem
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
-import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController.*
 import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController.BrukerEllerGjenlevende.FORSIKRET
 import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController.BrukerEllerGjenlevende.GJENLEVENDE
-import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController.SED_RETNING.Companion.norskSed
 import no.nav.eessi.pensjon.fagmodul.pesys.krav.AvslaattPensjon
 import no.nav.eessi.pensjon.fagmodul.pesys.krav.InnvilgetPensjon
 import no.nav.eessi.pensjon.fagmodul.pesys.krav.P1Dto
@@ -31,6 +29,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDate
+import kotlin.text.orEmpty
 
 
 /**
@@ -148,12 +147,8 @@ class PensjonsinformasjonUtlandController(
                 logger.warn("Mismatch: innvilgedePensjoner (${innvilgedePensjoner.size}) + avslåtteUtenlandskePensjoner (${avslaatteUtenlandskePensjoner.size}) != utenlandskeP6000er (${listeOverP6000FraGcp.size})")
             }
 
-            val innehaverPin = hentPin(
-                hentBrukerEllerGjenlevende(GJENLEVENDE, nyesteP6000.first())
-            )
-            val forsikredePin = hentPin(
-                hentBrukerEllerGjenlevende(FORSIKRET, nyesteP6000.first())
-            )
+            val innehaverPin = hentPin(GJENLEVENDE,  nyesteP6000)
+            val forsikredePin = hentPin(FORSIKRET,  nyesteP6000)
 
            P1Dto(
                 innehaver = person(nyesteP6000.first(), GJENLEVENDE, innehaverPin),
@@ -400,11 +395,19 @@ class PensjonsinformasjonUtlandController(
         }
     }
 
-    private fun hentPin(person: Person?): List<PinItem>? {
-        return person?.pin?.asSequence()
-            ?.filter { pinItem -> pinItem.land != null}
-            ?.toList()
-            ?.distinct() //TODO: Kan fjernes?
+    /**
+     * Hent PIN for bruker eller gjenlevende basert på SED-retning
+     * @param brukerEllerGjenlevende enten FORSIKRET eller GJENLEVENDE
+     * Henter norske pin fra norsk SED og utenlandske pin fra utenlandsk SED
+     */
+    private fun hentPin(brukerEllerGjenlevende: BrukerEllerGjenlevende, seds: List<P6000>): List<PinItem>? {
+        return seds.flatMap { sed ->
+            val person = hentBrukerEllerGjenlevende(brukerEllerGjenlevende, sed)
+            when {
+                sed.retning.isNorsk() -> person?.pin?.filter { it.land == "NO" }.orEmpty()
+                else -> person?.pin?.filter { it.land != "NO" }.orEmpty()
+            }
+        }.distinct()
     }
 
     private fun String?.isNorsk(): Boolean {
