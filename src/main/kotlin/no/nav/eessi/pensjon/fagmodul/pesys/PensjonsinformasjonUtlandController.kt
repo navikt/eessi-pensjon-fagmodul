@@ -123,11 +123,10 @@ class PensjonsinformasjonUtlandController(
                     val hentetP6000 = hentetJsonP6000 as P6000
                     val sedMetaData = euxKlientLib.hentSedMetadata(p6000Detaljer.rinaSakId, p6000)
                     hentetP6000.retning = sedMetaData?.status
-                    logger.debug("Dettaljer: ${hentetP6000.retning.toString()}")
                     hentetP6000.let { listeOverP6000FraGcp.add(it) }
                 }
             }
-                .onFailure { e -> logger.error("Feil ved parsing av trygdetid linje 127", e) }
+                .onFailure { e -> logger.error("Feil ved parsing av trygdetid linje 129", e) }
                 .onSuccess { logger.info("Hentet nye dok detaljer fra Rina for $pesysId") }
 
             val nyesteP6000 = listeOverP6000FraGcp.sortedWith(
