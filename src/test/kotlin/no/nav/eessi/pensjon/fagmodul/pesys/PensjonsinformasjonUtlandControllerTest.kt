@@ -189,7 +189,7 @@ class PensjonsinformasjonUtlandControllerTest {
             assertEquals("06448422184", forsikrede.pin?.first()?.identifikator)
             assertEquals("16888697822", innehaver.pin?.first()?.identifikator)
             assertEquals(1, innvilgedePensjoner.size)
-            assertEquals("[EessisakItem(institusjonsid=NO:NAVAT07, institusjonsnavn=NAV ACCEPTANCE TEST 07, saksnummer=null, land=NO)]", innvilgedePensjoner[0].institusjon.toString())
+            assertEquals("[EessisakItem(institusjonsid=NO:NAVAT07, institusjonsnavn=NAV ACCEPTANCE TEST 07, saksnummer=1003563, land=NO)]", innvilgedePensjoner[0].institusjon.toString())
         }
     }
 

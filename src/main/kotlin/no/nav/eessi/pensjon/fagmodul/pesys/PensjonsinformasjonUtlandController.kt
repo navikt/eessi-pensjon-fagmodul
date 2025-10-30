@@ -130,9 +130,11 @@ class PensjonsinformasjonUtlandController(
                 .onSuccess { logger.info("Hentet nye dok detaljer fra Rina for $pesysId") }
 
             val nyesteP6000 = listeOverP6000FraGcp.sortedWith(
-                compareBy<P6000> (
-                    {it.pensjon?.tilleggsinformasjon?.dato },
-                    { it.pensjon?.vedtak?.firstOrNull()?.virkningsdato})).reversed()
+                compareBy(
+                    { it.pensjon?.tilleggsinformasjon?.dato },
+                    { it.pensjon?.vedtak?.firstOrNull()?.virkningsdato }
+                )
+            ).reversed()
 
             val innvilgedePensjoner = innvilgedePensjoner(listeOverP6000FraGcp).also { secureLog.info("innvilgedePensjoner: " +it.toJson()) }
             val avslaatteUtenlandskePensjoner = avslaatteUtenlandskePensjoner(listeOverP6000FraGcp).also { secureLog.info("avslaatteUtenlandskePensjoner: " + it.toJson()) }
@@ -168,12 +170,11 @@ class PensjonsinformasjonUtlandController(
 
     private fun innvilgedePensjoner(p6000er: List<P6000>) : List<InnvilgetPensjon>{
         val ip6000Innvilgede = p6000er.filter { sed -> sed.pensjon?.vedtak?.any { it.resultat in listOf("01","03","04") } == true }
+            .sortedByDescending { it.nav?.eessisak?.isNotEmpty() == true }
         val flereEnnEnNorsk =  erDetFlereNorskeInstitusjoner(p6000er)
         val retList = mutableListOf<InnvilgetPensjon>()
 
-        ip6000Innvilgede.
-            sortedBy { it.nav?.eessisak?.size }
-            .map { p6000 ->
+        ip6000Innvilgede.map { p6000 ->
             val vedtak = p6000.pensjon?.vedtak?.first()
 
             if (p6000.retning.isNorsk() && flereEnnEnNorsk && retList.count { it.retning.isNorsk()  } >= 1) {
