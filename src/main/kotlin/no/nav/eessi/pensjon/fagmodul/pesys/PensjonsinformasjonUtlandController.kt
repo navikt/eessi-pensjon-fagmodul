@@ -29,6 +29,8 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDate
+import java.util.Locale
+import java.util.Locale.getDefault
 import kotlin.text.orEmpty
 
 
@@ -213,9 +215,18 @@ class PensjonsinformasjonUtlandController(
 
     private fun eessiInstitusjoner(p6000: P6000): List<EessisakItem>? {
         val saksnummerFraTilleggsInformasjon = p6000.pensjon?.tilleggsinformasjon?.saksnummer
-        val norskeEllerUtlandskeInstitusjoner = if(p6000.retning.isNorsk() && p6000.nav?.eessisak?.isNotEmpty() == true) {
-            p6000.nav?.eessisak?.map {
-                EessisakItem(it.institusjonsid, it.institusjonsnavn, it.saksnummer, "NO")
+        val norskeEllerUtlandskeInstitusjoner = if(p6000.retning.isNorsk()) {
+            if(p6000.nav?.eessisak?.isNotEmpty() == true) {
+                p6000.nav?.eessisak?.map {
+                    EessisakItem(it.institusjonsid, it.institusjonsnavn, it.saksnummer, "NO")
+                }
+            }
+            else if (p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.filter { it.land == "NO" }?.size == 1) {
+                p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.filter { it.land == "NO" }?.map {
+                    EessisakItem(it.institusjonsid, it.institusjonsnavn, saksnummerFraTilleggsInformasjon, it.land)
+                }
+            } else {
+                emptyList()
             }
         }
         else {
@@ -384,8 +395,6 @@ class PensjonsinformasjonUtlandController(
             }
             fun norskSed()= setOf(NEW, SENT)
             fun utenlandskSed()= setOf(RECEIVED)
-
-
         }
     }
 
@@ -411,7 +420,7 @@ class PensjonsinformasjonUtlandController(
     }
 
     private fun String?.isNorsk(): Boolean {
-        return this != null && SED_RETNING.valueOf(this) in SED_RETNING.norskSed()
+        return this != null && SED_RETNING.valueOf(this.uppercase(getDefault())) in SED_RETNING.norskSed()
     }
 
 }
