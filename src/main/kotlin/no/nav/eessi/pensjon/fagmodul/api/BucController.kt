@@ -2,6 +2,7 @@ package no.nav.eessi.pensjon.fagmodul.api
 
 import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.fagmodul.eux.*
+import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucView
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.logging.AuditLogger
@@ -51,22 +52,23 @@ class BucController(
     }
 
     @GetMapping("/bucs", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getBucsUtenSaksId() = ValidBucAndSed.pensjonsBucer()
+    fun getBucsUtenSaksId(): FrontEndResponse<List<String>> =
+        FrontEndResponse(ValidBucAndSed.pensjonsBucer(), HttpStatus.OK.name)
 
     @GetMapping("/{rinanr}")
-    fun getBuc(@PathVariable(value = "rinanr", required = true) rinanr: String): Buc =
+    fun getBuc(@PathVariable(value = "rinanr", required = true) rinanr: String): FrontEndResponse<Buc> =
         getBUC.measure {
             auditlogger.log("getBuc")
             logger.debug("Henter ut hele Buc data fra rina via eux-rina-api")
-            return@measure euxInnhentingService.getBuc(rinanr)
+            return@measure FrontEndResponse(euxInnhentingService.getBuc(rinanr), HttpStatus.OK.name)
         }
 
     @GetMapping("/enkeldetalj/{euxcaseid}")
-    fun hentSingleBucAndSedView(@PathVariable("euxcaseid") euxcaseid: String): BucAndSedView =
+    fun hentSingleBucAndSedView(@PathVariable("euxcaseid") euxcaseid: String): FrontEndResponse<BucAndSedView> =
         bucDetaljerEnkel.measure {
             auditlogger.log("hentSingleBucAndSedView")
             logger.debug(" prøver å hente ut en enkel buc med euxCaseId: $euxcaseid")
-            return@measure euxInnhentingService.getSingleBucAndSedView(euxcaseid)
+            return@measure FrontEndResponse(euxInnhentingService.getSingleBucAndSedView(euxcaseid), HttpStatus.OK.name)
         }
 
     @Deprecated("Utgår til fordel for hentBucerMedJournalforteSeder og getRinasakerFraRina")
@@ -74,7 +76,7 @@ class BucController(
     fun getRinasakerBrukerkontekst(
         @PathVariable("aktoerId", required = true) aktoerId: String,
         @PathVariable("saknr", required = false) pensjonSakNummer: String
-    ): List<EuxInnhentingService.BucView> {
+    ): FrontEndResponse<List<BucView>> {
         return bucView.measure {
             val start = System.currentTimeMillis()
             val timeTracking = mutableListOf<String>()
@@ -105,12 +107,12 @@ class BucController(
             val rinaIder = view.map { it.euxCaseId }.filter { gcpStorageService.gjennySakFinnes(it) }.also { logger.info("Det finnes ${it.size} SED som kommer fra GJENNY") }
 
             //return med sort og distict (avdodfnr og caseid)
-            return@measure view.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
+            return@measure FrontEndResponse(view.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
                 //Viser ep-bucer som ikke er gjenny-bucer
                 .filterNot { rinaIder.contains(it.euxCaseId) }
                 .also {
                     logger.info("Tidsbruk for getRinasakerBrukerkontekst: \n"+timeTracking.joinToString("\n").trimIndent())
-                }
+                }, HttpStatus.OK.name)
         }
     }
 
@@ -121,7 +123,7 @@ class BucController(
     fun hentBucerMedJournalforteSeder(
             @PathVariable("aktoerId", required = true) aktoerId: String,
             @PathVariable("saknr", required = false) pensjonSakNummer: String
-    ): List<Buc> {
+    ): FrontEndResponse<List<Buc>> {
         return bucerJoark.measure {
             val start = System.currentTimeMillis()
 
@@ -141,13 +143,13 @@ class BucController(
             logger.debug("bucer : ${bucer.toJson()}")
 
             //return med sort og distict (avdodfmr og caseid)
-            return@measure bucer
+            return@measure FrontEndResponse(bucer
                 .also {
                     logger.info("""
                         Buc count: ${it.size}
                         HentBucerMedJournalforteSeder: buc count: ${it.size} - total tid: ${System.currentTimeMillis()-start} ms
                         """.trimIndent())
-                }
+                }, HttpStatus.OK.name)
         }
     }
 
@@ -158,7 +160,7 @@ class BucController(
     fun getRinasakerFraRina(
             @PathVariable("aktoerId", required = true) aktoerId: String,
             @PathVariable("saknr", required = false) pensjonSakNummer: String
-    ): List<EuxInnhentingService.BucView> {
+    ): FrontEndResponse<List<BucView>> {
         return bucViewRina.measure {
             val start = System.currentTimeMillis()
 
@@ -174,7 +176,7 @@ class BucController(
 
 
             //return med sort og distict (avdodfnr og caseid)
-            return@measure rinaSaker.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
+            return@measure FrontEndResponse(rinaSaker.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
                 // Viser ikke Gjenny bucer
                 .filterNot { rinaIder.contains(it.euxCaseId) }
                 .also {
@@ -182,7 +184,7 @@ class BucController(
                         Total view size: ${it.size}
                         GetRinasakerFraRina -> BrukerRinasaker total tid: ${System.currentTimeMillis()-start} i ms
                     """.trimMargin())
-                }
+                }, HttpStatus.OK.name)
         }
     }
 
@@ -191,7 +193,7 @@ class BucController(
         @PathVariable("aktoerId", required = true) aktoerId: String,
         @PathVariable("saknr", required = false) sakNr: String,
         @PathVariable("vedtakid", required = false) vedtakId: String? = null
-    ): List<EuxInnhentingService.BucView> {
+    ): FrontEndResponse<List<BucView>> {
         return bucViewForVedtak.measure {
             val start = System.currentTimeMillis()
 
@@ -201,8 +203,8 @@ class BucController(
             val avdodeFraPesysVedtak = hentAvdodFraVedtak(vedtakId, sakNr)
 
             if (avdodeFraPesysVedtak.isEmpty()) {
-                return@measure emptyList<EuxInnhentingService.BucView>()
-                    .also { loggTimeAndViewSize("GjenlevendeRinasakerVedtak", start, 0) }
+                return@measure FrontEndResponse(emptyList(), HttpStatus.OK.name
+                    .also { loggTimeAndViewSize("GjenlevendeRinasakerVedtak", start, 0) })
             }
 
             //api: brukersaker fra Joark/saf
@@ -220,9 +222,9 @@ class BucController(
             val rinaIder = view.map { it.euxCaseId }.filter { gcpStorageService.gjennySakFinnes(it) }.also { logger.info("Det finnes ${it.size} SED som kommer fra GJENNY") }
 
             //return med sort og distinct (avdodfnr og caseid)
-            return@measure view.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
+            return@measure FrontEndResponse(view.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
                 .filterNot { rinaIder.contains(it.euxCaseId) }
-                .also { logger.info("GjenlevendeRinasakerVedtak: view size: ${it.size}, total tid: ${System.currentTimeMillis()-start} i ms") }
+                .also { logger.info("GjenlevendeRinasakerVedtak: view size: ${it.size}, total tid: ${System.currentTimeMillis()-start} i ms") }, HttpStatus.OK.name)
         }
     }
 
@@ -255,10 +257,9 @@ class BucController(
         @PathVariable("aktoerId", required = true) aktoerId: String,
         @PathVariable("saknr", required = true) sakNr: String,
         @PathVariable("avdodfnr", required = true) avdodfnr : String
-    ): List<EuxInnhentingService.BucView> {
+    ): FrontEndResponse<List<BucView>> {
         logger.info("Henter rinasaker på avdod: $aktoerId, saknr: $sakNr")
-
-        return euxInnhentingService.hentBucViewAvdod(avdodfnr, aktoerId, sakNr)
+        return FrontEndResponse(euxInnhentingService.hentBucViewAvdod(avdodfnr, aktoerId, sakNr), HttpStatus.OK.name)
 
     }
 
@@ -269,10 +270,17 @@ class BucController(
         @PathVariable("aktoerid", required = true) aktoerid: String,
         @PathVariable("saknr", required = true) saknr: String,
         @PathVariable("kilde", required = true) kilde: EuxInnhentingService.BucViewKilde
-    ): BucAndSedView {
+    ): FrontEndResponse<BucAndSedView> {
         return bucDetaljerEnkel.measure {
             logger.info("Henter ut en enkel buc med euxCaseId: $euxcaseid, saknr: $saknr, kilde: $kilde")
-            euxInnhentingService.getSingleBucAndSedView(euxcaseid)
+
+            val enkeltBucAndSedView = euxInnhentingService.getSingleBucAndSedView(euxcaseid)
+            if (enkeltBucAndSedView.error.isNullOrEmpty()) {
+                FrontEndResponse(enkeltBucAndSedView, HttpStatus.OK.name)
+            } else {
+                FrontEndResponse(enkeltBucAndSedView, enkeltBucAndSedView.error)
+            }
+
         }
     }
 
@@ -283,15 +291,16 @@ class BucController(
         @PathVariable("saknr", required = true) saknr: String,
         @PathVariable("avdodfnr", required = true) avdodFnr: String,
         @PathVariable("kilde", required = true) kilde: EuxInnhentingService.BucViewKilde
-    ): BucAndSedView {
+    ): FrontEndResponse<BucAndSedView> {
         logger.info("Henter ut en enkel buc for gjenlevende")
 
         val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerid)
         return if (kilde == EuxInnhentingService.BucViewKilde.SAF) {
             bucDetaljerEnkelGjenlevende.measure {
                 logger.info("saf euxCaseId: $euxcaseid, saknr: $saknr")
-                euxInnhentingService.getSingleBucAndSedView(euxcaseid)
+                val bucAnsSedView = euxInnhentingService.getSingleBucAndSedView(euxcaseid)
                 .copy(subject = BucAndSedSubject(SubjectFnr(gjenlevendeFnr?.id), SubjectFnr(avdodFnr)))
+                FrontEndResponse(bucAnsSedView, HttpStatus.OK.name)
             }
         } else {
             bucDetaljerEnkelavdod.measure {
@@ -301,7 +310,9 @@ class BucController(
                 val gyldigeBucs = gjenlevendeFnr?.let { euxInnhentingService.filterGyldigBucGjenlevendeAvdod(listeAvSedsPaaAvdod, it.id) }
 
                 val gjenlevendeBucAndSedView = gyldigeBucs?.let { euxInnhentingService.getBucAndSedViewWithBuc(it, gjenlevendeFnr.id, avdodFnr) }
-                gjenlevendeBucAndSedView?.firstOrNull() ?: BucAndSedView.fromErr("Ingen Buc Funnet!")
+                if (gjenlevendeBucAndSedView?.firstOrNull() != null)
+                    FrontEndResponse(gjenlevendeBucAndSedView.firstOrNull(), HttpStatus.OK.name) else
+                    FrontEndResponse(BucAndSedView.fromErr("Ingen Buc Funnet!"), HttpStatus.BAD_REQUEST.name)
             }
         }
 
