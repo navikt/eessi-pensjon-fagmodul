@@ -206,6 +206,8 @@ class PensjonsinformasjonUtlandController(
 
     //TODO: refaktorere metoden; for kompleks
     private fun eessiInstitusjoner(p6000: P6000): List<EessisakItem>? {
+
+
         val saksnummerFraTilleggsInformasjon = p6000.pensjon?.tilleggsinformasjon?.saksnummer
         val norskeEllerUtlandskeInstitusjoner = if(p6000.retning.isNorsk()) {
             // primært hentes norske institusjoner fra eessisak
@@ -237,27 +239,33 @@ class PensjonsinformasjonUtlandController(
         val eessisakItems = p6000.nav?.eessisak?.map {
             EessisakItem(institusjonsid = it.institusjonsid, institusjonsnavn = it.institusjonsnavn, land = it.land, saksnummer = it.saksnummer)
         }
-
-        val institusjon = when {
-            eessisakItems?.isNotEmpty() == true && norskeEllerUtlandskeInstitusjoner?.any { it.land != "NO" } == true -> norskeEllerUtlandskeInstitusjoner
-
-            eessisakItems == null && norskeEllerUtlandskeInstitusjoner?.isNotEmpty() == true && norskeEllerUtlandskeInstitusjoner.size > 1 -> {
-                logger.error("OBS OBS; Her kommer det inn mer enn 1 innvilget pensjon fra Norge (andreInstitusjoner); i Seden")
-                emptyList()
-            }
-
-            eessisakItems == null && norskeEllerUtlandskeInstitusjoner?.isNotEmpty() == true -> {
-                logger.warn("Det finnes ingen institusjon fra eessisak; henter institusjon fra andreInstitusjoner")
-                norskeEllerUtlandskeInstitusjoner
-            }
-
-            eessisakItems?.isNotEmpty() == true && eessisakItems.count { it.land == "NO" } > 1 || (norskeEllerUtlandskeInstitusjoner?.count { it.land == "NO" } ?: 0) > 1 -> {
-                logger.error("OBS OBS; Her kommer det inn mer enn 1 innvilget pensjon fra Norge i Seden")
-                emptyList()
-            }
-            else -> eessisakItems
+        if(eessisakItems?.isNotEmpty() == true && eessisakItems.count { it.land == "NO" } > 1 || (norskeEllerUtlandskeInstitusjoner?.count { it.land == "NO" } ?: 0) > 1) {
+            logger.error("OBS OBS; Her kommer det inn mer enn 1 innvilget pensjon fra Norge i Seden")
+            return emptyList()
         }
-        return institusjon
+        return  norskeEllerUtlandskeInstitusjoner ?: emptyList()
+
+
+//        val institusjon = when {
+//            eessisakItems?.isNotEmpty() == true && norskeEllerUtlandskeInstitusjoner?.any { it.land != "NO" } == true -> norskeEllerUtlandskeInstitusjoner
+//
+//            eessisakItems == null && norskeEllerUtlandskeInstitusjoner?.isNotEmpty() == true && norskeEllerUtlandskeInstitusjoner.size > 1 -> {
+//                logger.error("OBS OBS; Her kommer det inn mer enn 1 innvilget pensjon fra Norge (andreInstitusjoner); i Seden")
+//                emptyList()
+//            }
+//
+//            eessisakItems == null && norskeEllerUtlandskeInstitusjoner?.isNotEmpty() == true -> {
+//                logger.warn("Det finnes ingen institusjon fra eessisak; henter institusjon fra andreInstitusjoner")
+//                norskeEllerUtlandskeInstitusjoner
+//            }
+//
+//            eessisakItems?.isNotEmpty() == true && eessisakItems.count { it.land == "NO" } > 1 || (norskeEllerUtlandskeInstitusjoner?.count { it.land == "NO" } ?: 0) > 1 -> {
+//                logger.error("OBS OBS; Her kommer det inn mer enn 1 innvilget pensjon fra Norge i Seden")
+//                emptyList()
+//            }
+//            else -> eessisakItems
+//        }
+//        return institusjon
     }
 
     private fun adresse(p6000: AndreinstitusjonerItem) =
