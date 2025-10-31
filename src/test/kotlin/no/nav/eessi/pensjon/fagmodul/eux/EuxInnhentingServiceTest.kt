@@ -59,7 +59,7 @@ internal class EuxInnhentingServiceTest {
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this)
-        euxInnhentingService = EuxInnhentingService("q2", euxKlient)
+        euxInnhentingService = EuxInnhentingService("q2", euxKlient, gcpStorageService)
     }
 
     @Test
