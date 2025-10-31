@@ -6,7 +6,7 @@ import com.google.cloud.storage.BlobId
 import com.google.cloud.storage.Storage
 import io.mockk.every
 import io.mockk.mockk
-import no.nav.eessi.pensjon.eux.klient.EuxKlientLib
+import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.model.SedMetadata
 import no.nav.eessi.pensjon.eux.model.sed.P6000
 import no.nav.eessi.pensjon.eux.model.sed.SED
@@ -28,7 +28,7 @@ class PensjonsinformasjonUtlandControllerTest {
 
     private val gcpStorage = mockk<Storage>(relaxed = true)
     private val kodeverkClient = mockk<KodeverkClient>(relaxed = true)
-    private val euxKlientLib = mockk<EuxKlientLib>(relaxed = true)
+    private val euxKlientAsSystemUser = mockk<EuxKlientAsSystemUser>(relaxed = true)
     private val gcpStorageService = GcpStorageService(
         "_",
         "_",
@@ -43,7 +43,7 @@ class PensjonsinformasjonUtlandControllerTest {
         euxInnhentingService,
         kodeverkClient,
         trygdeTidService = mockk(relaxed = true),
-        euxKlientLib = euxKlientLib
+        euxKlientAsSystemUser = euxKlientAsSystemUser
     )
     private val aktoerId1 = "2477958344057"
     private val rinaNr = 1446033
@@ -131,7 +131,7 @@ class PensjonsinformasjonUtlandControllerTest {
             every { getContent() } returns p6000Detaljer(listOf("1111")).toByteArray()
         }
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(any(), any()) } returns hentTestP6000("P6000-RINA.json")
-        every { euxKlientLib.hentSedMetadata(any(), "1111") } returns sedMetadata()
+        every { euxKlientAsSystemUser.hentSedMetadata(any(), "1111") } returns sedMetadata()
 
 
         val result = controller.hentP6000Detaljer("22975052")
@@ -150,8 +150,8 @@ class PensjonsinformasjonUtlandControllerTest {
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "1111") } returns hentTestP6000("P6000-InnvilgedePensjonerUtlandOgInnland.json")
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "2222") } returns hentTestP6000("P6000-InnvilgedetPensjonNO.json")
 
-        every { euxKlientLib.hentSedMetadata("1446704", "1111") } returns sedMetadata(RECEIVED)
-        every { euxKlientLib.hentSedMetadata("1446704", "2222") } returns sedMetadata()
+        every { euxKlientAsSystemUser.hentSedMetadata("1446704", "1111") } returns sedMetadata(RECEIVED)
+        every { euxKlientAsSystemUser.hentSedMetadata("1446704", "2222") } returns sedMetadata()
 
 
         val result = controller.hentP6000Detaljer("22975052")
@@ -178,8 +178,8 @@ class PensjonsinformasjonUtlandControllerTest {
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "1111") } returns hentTestP6000("P6000-InnvilgedePensjonerUtenInstitusjon.json")
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "2222") } returns hentTestP6000("P6000-InnvilgedetPensjonNO.json")
 
-        every { euxKlientLib.hentSedMetadata(any(), "1111") } returns sedMetadata()
-        every { euxKlientLib.hentSedMetadata(any(), "2222") } returns sedMetadata()
+        every { euxKlientAsSystemUser.hentSedMetadata(any(), "1111") } returns sedMetadata()
+        every { euxKlientAsSystemUser.hentSedMetadata(any(), "2222") } returns sedMetadata()
 
         val result = controller.hentP6000Detaljer("22975052")
         with(result){
@@ -203,8 +203,8 @@ class PensjonsinformasjonUtlandControllerTest {
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "2222") } returns hentTestP6000("P6000-InnvilgedePensjonerDEogNorsk.json")
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "1111") } returns hentTestP6000("P6000-InnvilgedePensjonerNorskOgDE.json")
 
-        every { euxKlientLib.hentSedMetadata("1446704", "2222") } returns sedMetadata(RECEIVED)
-        every { euxKlientLib.hentSedMetadata("1446704", "1111") } returns sedMetadata()
+        every { euxKlientAsSystemUser.hentSedMetadata("1446704", "2222") } returns sedMetadata(RECEIVED)
+        every { euxKlientAsSystemUser.hentSedMetadata("1446704", "1111") } returns sedMetadata()
 
         val result = controller.hentP6000Detaljer("22975052")
         with(result){
@@ -226,8 +226,8 @@ class PensjonsinformasjonUtlandControllerTest {
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "2222") } returns hentTestP6000("P6000-InnvilgedePensjonerDEogNorsk.json")
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "1111") } returns hentTestP6000("P6000-InnvilgedePensjonerDEogNorskUtenTillegg.json")
 
-        every { euxKlientLib.hentSedMetadata("1446704", "1111") } returns sedMetadata(RECEIVED)
-        every { euxKlientLib.hentSedMetadata("1446704", "2222") } returns sedMetadata(RECEIVED)
+        every { euxKlientAsSystemUser.hentSedMetadata("1446704", "1111") } returns sedMetadata(RECEIVED)
+        every { euxKlientAsSystemUser.hentSedMetadata("1446704", "2222") } returns sedMetadata(RECEIVED)
 
         val result = controller.hentP6000Detaljer("22975052")
         with(result) {
@@ -248,8 +248,8 @@ class PensjonsinformasjonUtlandControllerTest {
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "2222") } returns hentTestP6000("P6000-InnvilgedePensjonerDEogNorsk.json")
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "1111") } returns hentTestP6000("P6000-InnvilgedePensjonerDEogNorskUtenTillegg.json")
 
-        every { euxKlientLib.hentSedMetadata("1446704", "1111") } returns sedMetadata(RECEIVED)
-        every { euxKlientLib.hentSedMetadata("1446704", "2222") } returns sedMetadata(RECEIVED)
+        every { euxKlientAsSystemUser.hentSedMetadata("1446704", "1111") } returns sedMetadata(RECEIVED)
+        every { euxKlientAsSystemUser.hentSedMetadata("1446704", "2222") } returns sedMetadata(RECEIVED)
 
         val result = controller.hentP6000Detaljer("22975052")
         with(result) {
@@ -271,7 +271,7 @@ class PensjonsinformasjonUtlandControllerTest {
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "b152e3cf041a4b829e56e6b1353dd8cb") } returns hentTestP6000("P6000-InnvilgedePensjonSomManglerAdresseNyVurdering.json")
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "a6bacca841cf4c7195d694729151d4f3") } returns hentTestP6000("P6000-InnvilgedePensjoner.json")
 
-        every { euxKlientLib.hentSedMetadata(any(), any()) } returns sedMetadata()
+        every { euxKlientAsSystemUser.hentSedMetadata(any(), any()) } returns sedMetadata()
 
         val result = controller.hentP6000Detaljer("22975052")
         println("resultat: ${result.toJson()}")
@@ -287,7 +287,7 @@ class PensjonsinformasjonUtlandControllerTest {
             every { getContent() } returns p6000Detaljer(listOf("11111")).toByteArray()
         }
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "11111") } returns hentTestP6000("P6000-InnvilgedePensjonerUtenInstitusjon.json")
-        every { euxKlientLib.hentSedMetadata(any(), any()) } returns sedMetadata()
+        every { euxKlientAsSystemUser.hentSedMetadata(any(), any()) } returns sedMetadata()
 
 
         val result = controller.hentP6000Detaljer("22975052")
@@ -305,7 +305,7 @@ class PensjonsinformasjonUtlandControllerTest {
             every { getContent() } returns p6000Detaljer(listOf("1111")).toByteArray()
         }
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(any(), "1111") } returns hentTestP6000("P6000-InnvilgedePensjoner.json")
-        every { euxKlientLib.hentSedMetadata(any(), any()) } returns sedMetadata()
+        every { euxKlientAsSystemUser.hentSedMetadata(any(), any()) } returns sedMetadata()
 
 
         val p6000Detaljer = controller.hentP6000Detaljer("22975052")
@@ -342,9 +342,9 @@ class PensjonsinformasjonUtlandControllerTest {
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "2222") } returns hentTestP6000("P6000-AvslaattPensjonNO2.json")
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "3333") } returns hentTestP6000("P6000-AvslaattePensjonerUtland.json")
 
-        every { euxKlientLib.hentSedMetadata("1446704", "1111") } returns sedMetadata(SENT)
-        every { euxKlientLib.hentSedMetadata("1446704", "2222") } returns sedMetadata(SENT)
-        every { euxKlientLib.hentSedMetadata("1446704", "3333") } returns sedMetadata(RECEIVED)
+        every { euxKlientAsSystemUser.hentSedMetadata("1446704", "1111") } returns sedMetadata(SENT)
+        every { euxKlientAsSystemUser.hentSedMetadata("1446704", "2222") } returns sedMetadata(SENT)
+        every { euxKlientAsSystemUser.hentSedMetadata("1446704", "3333") } returns sedMetadata(RECEIVED)
 
 
         val p6000Detaljer = controller.hentP6000Detaljer("22975052")

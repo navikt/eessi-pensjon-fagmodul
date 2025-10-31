@@ -42,7 +42,7 @@ class PensjonsinformasjonUtlandController(
     private val euxInnhentingService: EuxInnhentingService,
     private val kodeverkClient: KodeverkClient,
     private val trygdeTidService: HentTrygdeTid,
-    private val euxKlient: EuxKlientAsSystemUser,
+    private val euxKlientAsSystemUser: EuxKlientAsSystemUser,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
 
@@ -115,7 +115,7 @@ class PensjonsinformasjonUtlandController(
                 p6000Detaljer.dokumentId.forEach { p6000 ->
                     val hentetJsonP6000 = euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(p6000Detaljer.rinaSakId, p6000)
                     val hentetP6000 = hentetJsonP6000 as P6000
-                    val sedMetaData = euxKlient.hentSedMetadata(p6000Detaljer.rinaSakId, p6000)
+                    val sedMetaData = euxKlientAsSystemUser.hentSedMetadata(p6000Detaljer.rinaSakId, p6000)
                     hentetP6000.retning = sedMetaData?.status
                     hentetP6000.let { listeOverP6000FraGcp.add(it) }
                 }
