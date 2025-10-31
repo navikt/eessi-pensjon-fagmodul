@@ -137,6 +137,23 @@ class PensjonsinformasjonUtlandControllerTest {
     }
 
     @Test
+    fun `Gitt at vi har en innvilget norsk pensjon men resultat mangler og beloepbrutto er med i p6000 så skal vi returnere det som en innvilget norsk pensjon med beloep`() {
+        every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
+            every { exists() } returns true
+            every { getContent() } returns p6000Detaljer(listOf("1111")).toByteArray()
+        }
+        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "1111") } returns hentTestP6000("P6000-InnvilgedePensjonerUtenResultat.json")
+        every { euxInnhentingService.hentSedMetadata("1446704", "1111") } returns sedMetadata()
+
+        val result = controller.hentP6000Detaljer("22975052")
+        with(result) {
+            assertEquals("Gjenlevende", sakstype)
+            assertEquals(1, innvilgedePensjoner.size)
+            assertEquals("9174", innvilgedePensjoner.firstOrNull()?.bruttobeloep)
+        }
+    }
+
+    @Test
     fun `Gitt at vi en innvilget norsk og et avslag fra GB så skal innvilget norsk og avslått gb returneres`() {
         every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
             every { exists() } returns true
