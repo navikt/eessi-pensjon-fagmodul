@@ -4,6 +4,9 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.mockk
 import io.swagger.v3.oas.annotations.media.DiscriminatorMapping
+import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
+import no.nav.eessi.pensjon.eux.klient.EuxKlientLib
+import no.nav.eessi.pensjon.eux.model.SedMetadata
 import no.nav.eessi.pensjon.eux.model.sed.P6000
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
@@ -65,11 +68,14 @@ class PenInfoUtlandControllerMvcTest {
             }
         """.trimIndent()
 
+        val metadata = SedMetadata(sedTittel = "Vedtak om pensjon", sedType = "P6000", sedId = "a6bacca841cf4c7195d694729151d4f3", status = "sent")
+
         every { gcpStorageService.hentGcpDetlajerForP6000(any())} returns gcpDetlajerP6000
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(any(), any())
         } returns javaClass.getResource("/json/sed/${"P6000-InnvilgedePensjoner.json"}")?.readText()
             ?.let { json -> mapJsonToAny<P6000>(json) }!!
         every { kodeverkClient.hentPostSted(any()) } returns Postnummer("123456", "Oslo")
+        every { euxInnhentingService.hentSedMetadata(any(), any()) } returns metadata
 
         val repsonse = mvc.perform(
             MockMvcRequestBuilders.get("/pesys/hentP6000Detaljer")

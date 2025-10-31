@@ -6,21 +6,20 @@ import com.google.cloud.storage.BlobId
 import com.google.cloud.storage.Storage
 import io.mockk.every
 import io.mockk.mockk
+import no.nav.eessi.pensjon.eux.model.SedMetadata
 import no.nav.eessi.pensjon.eux.model.sed.P6000
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
+import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController.SED_RETNING
+import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController.SED_RETNING.RECEIVED
+import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController.SED_RETNING.SENT
 import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController.TrygdetidRequest
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.kodeverk.KodeverkClient
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
-import kotlin.jvm.Throws
 
 class PensjonsinformasjonUtlandControllerTest {
 
@@ -39,7 +38,7 @@ class PensjonsinformasjonUtlandControllerTest {
         gcpStorageService = gcpStorageService,
         euxInnhentingService,
         kodeverkClient,
-        mockk(relaxed = true)
+        trygdeTidService = mockk(relaxed = true)
     )
     private val aktoerId1 = "2477958344057"
     private val rinaNr = 1446033
@@ -127,12 +126,44 @@ class PensjonsinformasjonUtlandControllerTest {
             every { getContent() } returns p6000Detaljer(listOf("1111")).toByteArray()
         }
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(any(), any()) } returns hentTestP6000("P6000-RINA.json")
+        every { euxInnhentingService.hentSedMetadata(any(), "1111") } returns sedMetadata()
+
 
         val result = controller.hentP6000Detaljer("22975052")
 
         assertEquals("Gjenlevende", result.sakstype)
         assertEquals("æøå", result.innehaver.etternavn)
         assertEquals("æøå", result.forsikrede.fornavn)
+    }
+
+    @Test
+    fun `Gitt at vi en innvilget norsk og et avslag fra GB så skal innvilget norsk og avslått gb returneres`() {
+        every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
+            every { exists() } returns true
+            every { getContent() } returns p6000Detaljer(listOf("1111", "2222")).toByteArray()
+        }
+        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "2222") } returns hentTestP6000("P6000-InnvilgetPensjonNO.json")
+        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "1111") } returns hentTestP6000("P6000-AvslaattePensjonerUtlandGB.json")
+
+        every { euxInnhentingService.hentSedMetadata("1446704", "2222") } returns sedMetadata()
+        every { euxInnhentingService.hentSedMetadata("1446704", "1111") } returns sedMetadata(RECEIVED)
+
+
+        val result = controller.hentP6000Detaljer("22975052")
+        println("resultat: ${result.toJson()}")
+        with(result) {
+            assertEquals("Gjenlevende", sakstype)
+            assertEquals(null, innehaver.etternavn)
+            assertEquals("ROSA", forsikrede.fornavn)
+            assertEquals(2, forsikrede.pin?.size)
+            assertEquals("04117512849", forsikrede.pin?.first()?.identifikator)
+            assertEquals("JE 25 19 53 B", forsikrede.pin?.last()?.identifikator)
+
+            assertEquals(1, innvilgedePensjoner.size)
+            assertEquals(1, avslaattePensjoner.size)
+            assertEquals("[EessisakItem(institusjonsid=NO:889640782, institusjonsnavn=The Norwegian Labour and Welfare Administration, saksnummer=25814615, land=NO)]", innvilgedePensjoner[0].institusjon.toString())
+            assertEquals("[]", avslaattePensjoner[0].institusjon.toString())
+        }
     }
 
     @Test
@@ -143,6 +174,10 @@ class PensjonsinformasjonUtlandControllerTest {
         }
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "1111") } returns hentTestP6000("P6000-InnvilgedePensjonerUtlandOgInnland.json")
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "2222") } returns hentTestP6000("P6000-InnvilgedetPensjonNO.json")
+
+        every { euxInnhentingService.hentSedMetadata("1446704", "1111") } returns sedMetadata(RECEIVED)
+        every { euxInnhentingService.hentSedMetadata("1446704", "2222") } returns sedMetadata()
+
 
         val result = controller.hentP6000Detaljer("22975052")
         println("resultat: ${result.toJson()}")
@@ -168,6 +203,9 @@ class PensjonsinformasjonUtlandControllerTest {
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "1111") } returns hentTestP6000("P6000-InnvilgedePensjonerUtenInstitusjon.json")
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "2222") } returns hentTestP6000("P6000-InnvilgedetPensjonNO.json")
 
+        every { euxInnhentingService.hentSedMetadata(any(), "1111") } returns sedMetadata()
+        every { euxInnhentingService.hentSedMetadata(any(), "2222") } returns sedMetadata()
+
         val result = controller.hentP6000Detaljer("22975052")
         with(result){
             assertEquals("Gjenlevende", sakstype)
@@ -176,19 +214,22 @@ class PensjonsinformasjonUtlandControllerTest {
             assertEquals("06448422184", forsikrede.pin?.first()?.identifikator)
             assertEquals("16888697822", innehaver.pin?.first()?.identifikator)
             assertEquals(1, innvilgedePensjoner.size)
-            assertEquals("[EessisakItem(institusjonsid=NO:NAVAT07, institusjonsnavn=NAV ACCEPTANCE TEST 07, saksnummer=null, land=NO)]", innvilgedePensjoner[0].institusjon.toString())
+            assertEquals("[EessisakItem(institusjonsid=NO:NAVAT07, institusjonsnavn=NAV ACCEPTANCE TEST 07, saksnummer=1003563, land=NO)]", innvilgedePensjoner[0].institusjon.toString())
         }
     }
 
 
     @Test
-    fun `Gitt to innvilget pensjoner men en fra norge og en fra tyskland saa skal begge taes med inkl pin fra begge land`() {
+    fun `Gitt to innvilgede pensjoner en fra norge og en fra tyskland saa skal begge taes med inkl pin fra begge land`() {
         every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
             every { exists() } returns true
             every { getContent() } returns p6000Detaljer(listOf("1111", "2222")).toByteArray()
         }
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "2222") } returns hentTestP6000("P6000-InnvilgedePensjonerDEogNorsk.json")
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "1111") } returns hentTestP6000("P6000-InnvilgedePensjonerNorskOgDE.json")
+
+        every { euxInnhentingService.hentSedMetadata("1446704", "2222") } returns sedMetadata(RECEIVED)
+        every { euxInnhentingService.hentSedMetadata("1446704", "1111") } returns sedMetadata()
 
         val result = controller.hentP6000Detaljer("22975052")
         with(result){
@@ -200,6 +241,7 @@ class PensjonsinformasjonUtlandControllerTest {
 
         }
     }
+
     @Test
     fun `Gitt to innvilget pensjoner men en fra norge og en fra tyskland saa skal begge taes med inkl pin fra begge land selv om vi mangler tilleggsinformasjon`() {
         every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
@@ -209,16 +251,18 @@ class PensjonsinformasjonUtlandControllerTest {
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "2222") } returns hentTestP6000("P6000-InnvilgedePensjonerDEogNorsk.json")
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "1111") } returns hentTestP6000("P6000-InnvilgedePensjonerDEogNorskUtenTillegg.json")
 
+        every { euxInnhentingService.hentSedMetadata("1446704", "1111") } returns sedMetadata(RECEIVED)
+        every { euxInnhentingService.hentSedMetadata("1446704", "2222") } returns sedMetadata(RECEIVED)
+
         val result = controller.hentP6000Detaljer("22975052")
-        with(result){
-            assertEquals("06448422184", forsikrede.pin?.get(0)?.identifikator)
-            assertEquals("3453453434", forsikrede.pin?.get(1)?.identifikator)
+        with(result) {
+            assertEquals(1, forsikrede.pin?.size)
+            assertEquals("3453453434", forsikrede.pin?.first()?.identifikator)
             assertEquals(2, innvilgedePensjoner.size)
-            assertEquals("[EessisakItem(institusjonsid=NO:NAVAT07, institusjonsnavn=NAV ACCEPTANCE TEST 07, saksnummer=1003563, land=NO)]", innvilgedePensjoner[0].institusjon.toString())
+            assertEquals("[]", innvilgedePensjoner[0].institusjon.toString())
             assertEquals("[EessisakItem(institusjonsid=DE:111111, institusjonsnavn=Deutsche Bayersche Rentenversicherung, saksnummer=null, land=DE)]", innvilgedePensjoner[1].institusjon.toString())
         }
     }
-
 
     @Test
     fun `Gitt at vi får fler enn en innvilget pensjon fra Norge men den andre mangler adresseNyvurdering dermed returneres kun den ene norske med andreinstitusjoner oppgitt `() {
@@ -228,6 +272,8 @@ class PensjonsinformasjonUtlandControllerTest {
         }
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "b152e3cf041a4b829e56e6b1353dd8cb") } returns hentTestP6000("P6000-InnvilgedePensjonSomManglerAdresseNyVurdering.json")
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "a6bacca841cf4c7195d694729151d4f3") } returns hentTestP6000("P6000-InnvilgedePensjoner.json")
+
+        every { euxInnhentingService.hentSedMetadata(any(), any()) } returns sedMetadata()
 
         val result = controller.hentP6000Detaljer("22975052")
         println("resultat: ${result.toJson()}")
@@ -243,6 +289,8 @@ class PensjonsinformasjonUtlandControllerTest {
             every { getContent() } returns p6000Detaljer(listOf("11111")).toByteArray()
         }
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "11111") } returns hentTestP6000("P6000-InnvilgedePensjonerUtenInstitusjon.json")
+        every { euxInnhentingService.hentSedMetadata(any(), any()) } returns sedMetadata()
+
 
         val result = controller.hentP6000Detaljer("22975052")
         with(result){
@@ -259,6 +307,8 @@ class PensjonsinformasjonUtlandControllerTest {
             every { getContent() } returns p6000Detaljer(listOf("1111")).toByteArray()
         }
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(any(), "1111") } returns hentTestP6000("P6000-InnvilgedePensjoner.json")
+        every { euxInnhentingService.hentSedMetadata(any(), any()) } returns sedMetadata()
+
 
         val p6000Detaljer = controller.hentP6000Detaljer("22975052")
         assertEquals("[]", p6000Detaljer.avslaattePensjoner.toString())
@@ -285,14 +335,19 @@ class PensjonsinformasjonUtlandControllerTest {
     }
 
     @Test
-    fun `Gitt at vi skal hente ut avslaaatte pensjoner P1 saa skal vi returnere alle avslaatte pensjoner fra alle land`() {
+    fun `Gitt to norske avslaatte pensjoner og en fra utlandet saa det gi i én norsk og én utenlandsk`() {
         every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
             every { exists() } returns true
-            every { getContent() } returns p6000Detaljer().toByteArray()
+            every { getContent() } returns p6000Detaljer(listOf("3333", "1111", "2222")).toByteArray()
         }
-        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "b152e3cf041a4b829e56e6b1353dd8cb") } returns hentTestP6000("P6000-AvslaattPensjonNO.json")
-        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "a6bacca841cf4c7195dkdjfh7251d4f3") } returns hentTestP6000("P6000-AvslaattPensjonNO2.json")
-        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "a6bacca841cf4c7195d694729151d4f3") } returns hentTestP6000("P6000-AvslaattePensjonerUtland.json")
+        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "1111") } returns hentTestP6000("P6000-AvslaattPensjonNO.json")
+        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "2222") } returns hentTestP6000("P6000-AvslaattPensjonNO2.json")
+        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "3333") } returns hentTestP6000("P6000-AvslaattePensjonerUtland.json")
+
+        every { euxInnhentingService.hentSedMetadata("1446704", "1111") } returns sedMetadata(SENT)
+        every { euxInnhentingService.hentSedMetadata("1446704", "2222") } returns sedMetadata(SENT)
+        every { euxInnhentingService.hentSedMetadata("1446704", "3333") } returns sedMetadata(RECEIVED)
+
 
         val p6000Detaljer = controller.hentP6000Detaljer("22975052")
 
@@ -408,5 +463,12 @@ class PensjonsinformasjonUtlandControllerTest {
     private fun hentTestP6000(filnavn: String): SED {
         return javaClass.getResource("/json/sed/$filnavn")?.readText()?.let { json -> mapJsonToAny<P6000>(json) }!!
     }
+
+    private fun sedMetadata(status: SED_RETNING? = SENT) = SedMetadata(
+        sedTittel = "Vedtak om pensjon",
+        sedType = "P6000",
+        sedId = "a6bacca841cf4c7195d694729151d4f3",
+        status = status?.name
+    )
 }
 
