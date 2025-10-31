@@ -527,7 +527,7 @@ class EuxInnhentingService(
     }
 
     fun hentSedMetadata(rinaSakId: String, p6000: String): SedMetadata? {
-        return euxKlient.hentSedMetadata(rinaSakId, p6000)
+        return euxKlient.getMetaDataAsSystemuser(rinaSakId, p6000)
     }
 
     /**
