@@ -4,12 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
-import no.nav.eessi.pensjon.eux.klient.EuxKlientLib
-import no.nav.eessi.pensjon.eux.model.sed.AndreinstitusjonerItem
-import no.nav.eessi.pensjon.eux.model.sed.EessisakItem
-import no.nav.eessi.pensjon.eux.model.sed.P6000
-import no.nav.eessi.pensjon.eux.model.sed.Person
-import no.nav.eessi.pensjon.eux.model.sed.PinItem
+import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
+import no.nav.eessi.pensjon.eux.model.sed.*
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController.BrukerEllerGjenlevende.FORSIKRET
 import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController.BrukerEllerGjenlevende.GJENLEVENDE
@@ -29,9 +25,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDate
-import java.util.Locale
 import java.util.Locale.getDefault
-import kotlin.text.orEmpty
 
 
 /**
@@ -48,7 +42,7 @@ class PensjonsinformasjonUtlandController(
     private val euxInnhentingService: EuxInnhentingService,
     private val kodeverkClient: KodeverkClient,
     private val trygdeTidService: HentTrygdeTid,
-    private val euxKlientLib: EuxKlientLib,
+    private val euxKlient: EuxKlientAsSystemUser,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
 
@@ -121,7 +115,7 @@ class PensjonsinformasjonUtlandController(
                 p6000Detaljer.dokumentId.forEach { p6000 ->
                     val hentetJsonP6000 = euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(p6000Detaljer.rinaSakId, p6000)
                     val hentetP6000 = hentetJsonP6000 as P6000
-                    val sedMetaData = euxKlientLib.hentSedMetadata(p6000Detaljer.rinaSakId, p6000)
+                    val sedMetaData = euxKlient.hentSedMetadata(p6000Detaljer.rinaSakId, p6000)
                     hentetP6000.retning = sedMetaData?.status
                     hentetP6000.let { listeOverP6000FraGcp.add(it) }
                 }
