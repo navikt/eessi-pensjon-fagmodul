@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
-import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.model.sed.*
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController.BrukerEllerGjenlevende.FORSIKRET
@@ -42,7 +41,6 @@ class PensjonsinformasjonUtlandController(
     private val euxInnhentingService: EuxInnhentingService,
     private val kodeverkClient: KodeverkClient,
     private val trygdeTidService: HentTrygdeTid,
-    private val euxKlientAsSystemUser: EuxKlientAsSystemUser,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
 
@@ -115,7 +113,7 @@ class PensjonsinformasjonUtlandController(
                 p6000Detaljer.dokumentId.forEach { p6000 ->
                     val hentetJsonP6000 = euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(p6000Detaljer.rinaSakId, p6000)
                     val hentetP6000 = hentetJsonP6000 as P6000
-                    val sedMetaData = euxKlientAsSystemUser.hentSedMetadata(p6000Detaljer.rinaSakId, p6000)
+                    val sedMetaData = euxInnhentingService.hentSedMetadata(p6000Detaljer.rinaSakId, p6000)
                     hentetP6000.retning = sedMetaData?.status
                     hentetP6000.let { listeOverP6000FraGcp.add(it) }
                 }
@@ -417,7 +415,6 @@ class PensjonsinformasjonUtlandController(
     private fun String?.isNorsk(): Boolean {
         return this != null && SED_RETNING.valueOf(this.uppercase(getDefault())) in SED_RETNING.norskSed()
     }
-
 }
 
 

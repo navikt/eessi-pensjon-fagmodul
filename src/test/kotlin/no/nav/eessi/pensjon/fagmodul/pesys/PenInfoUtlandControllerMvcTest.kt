@@ -49,9 +49,6 @@ class PenInfoUtlandControllerMvcTest {
     @MockkBean
     lateinit var trygdeTidService: HentTrygdeTid
 
-    @MockkBean
-    lateinit var euxKlientLib: EuxKlientAsSystemUser
-
     @TestConfiguration
     class Config {
         @Bean
@@ -78,7 +75,7 @@ class PenInfoUtlandControllerMvcTest {
         } returns javaClass.getResource("/json/sed/${"P6000-InnvilgedePensjoner.json"}")?.readText()
             ?.let { json -> mapJsonToAny<P6000>(json) }!!
         every { kodeverkClient.hentPostSted(any()) } returns Postnummer("123456", "Oslo")
-        every { euxKlientLib.hentSedMetadata(any(), any()) } returns metadata
+        every { euxInnhentingService.hentSedMetadata(any(), any()) } returns metadata
 
         val repsonse = mvc.perform(
             MockMvcRequestBuilders.get("/pesys/hentP6000Detaljer")

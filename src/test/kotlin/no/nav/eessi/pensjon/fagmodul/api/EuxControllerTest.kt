@@ -38,8 +38,7 @@ class EuxControllerTest {
 
         mockEuxInnhentingService = EuxInnhentingService(
             "Q2",
-            EuxKlientAsSystemUser(euxRestTemplate, euxSystemRestTemplate),
-            gcpStorageService
+            EuxKlientAsSystemUser(euxRestTemplate, euxSystemRestTemplate)
         )
 
         MockKAnnotations.init(this, relaxed = true, relaxUnitFun = true)

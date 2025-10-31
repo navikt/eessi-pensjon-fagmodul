@@ -7,6 +7,7 @@ import no.nav.eessi.pensjon.eux.klient.Rinasak
 import no.nav.eessi.pensjon.eux.model.BucType
 import no.nav.eessi.pensjon.eux.model.BucType.*
 import no.nav.eessi.pensjon.eux.model.InstitusjonDetalj
+import no.nav.eessi.pensjon.eux.model.SedMetadata
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
@@ -17,7 +18,6 @@ import no.nav.eessi.pensjon.eux.model.sed.Person
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.X009
 import no.nav.eessi.pensjon.fagmodul.config.INSTITUTION_CACHE
-import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.shared.api.ApiRequest
 import no.nav.eessi.pensjon.shared.api.InstitusjonItem
@@ -46,7 +46,6 @@ import java.io.IOException
 class EuxInnhentingService(
     @Value("\${ENV}") private val environment: String,
     private val euxKlient: EuxKlientAsSystemUser,
-    private val gcpService: GcpStorageService,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
 
@@ -525,6 +524,10 @@ class EuxInnhentingService(
     fun lagPdf(pdfJson: String): PreviewPdf? {
         logger.info("Lager pdf fra json")
         return euxKlient.lagPdf(pdfJson)
+    }
+
+    fun hentSedMetadata(rinaSakId: String, p6000: String): SedMetadata? {
+        return euxKlient.hentSedMetadata(rinaSakId, p6000)
     }
 
     /**
