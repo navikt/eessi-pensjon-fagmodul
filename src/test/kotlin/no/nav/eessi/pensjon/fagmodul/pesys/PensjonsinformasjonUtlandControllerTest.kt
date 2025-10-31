@@ -137,6 +137,36 @@ class PensjonsinformasjonUtlandControllerTest {
     }
 
     @Test
+    fun `Gitt at vi en innvilget norsk og et avslag fra GB så skal innvilget norsk og avslått gb returneres`() {
+        every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
+            every { exists() } returns true
+            every { getContent() } returns p6000Detaljer(listOf("1111", "2222")).toByteArray()
+        }
+        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "2222") } returns hentTestP6000("P6000-InnvilgetPensjonNO.json")
+        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "1111") } returns hentTestP6000("P6000-AvslaattePensjonerUtlandGB.json")
+
+        every { euxInnhentingService.hentSedMetadata("1446704", "2222") } returns sedMetadata()
+        every { euxInnhentingService.hentSedMetadata("1446704", "1111") } returns sedMetadata(RECEIVED)
+
+
+        val result = controller.hentP6000Detaljer("22975052")
+        println("resultat: ${result.toJson()}")
+        with(result) {
+            assertEquals("Gjenlevende", sakstype)
+            assertEquals(null, innehaver.etternavn)
+            assertEquals("ROSA", forsikrede.fornavn)
+            assertEquals(2, forsikrede.pin?.size)
+            assertEquals("04117512849", forsikrede.pin?.first()?.identifikator)
+            assertEquals("JE 25 19 53 B", forsikrede.pin?.last()?.identifikator)
+
+            assertEquals(1, innvilgedePensjoner.size)
+            assertEquals(1, avslaattePensjoner.size)
+            assertEquals("[EessisakItem(institusjonsid=NO:889640782, institusjonsnavn=The Norwegian Labour and Welfare Administration, saksnummer=25814615, land=NO)]", innvilgedePensjoner[0].institusjon.toString())
+            assertEquals("[]", avslaattePensjoner[0].institusjon.toString())
+        }
+    }
+
+    @Test
     fun `Gitt at vi får fler enn en innvilget pensjon fra Norge men at den andre er fra DE saa skal vi levere ut P1Dto med DE sin institusjon`() {
         every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
             every { exists() } returns true
@@ -229,33 +259,10 @@ class PensjonsinformasjonUtlandControllerTest {
             assertEquals(1, forsikrede.pin?.size)
             assertEquals("3453453434", forsikrede.pin?.first()?.identifikator)
             assertEquals(2, innvilgedePensjoner.size)
-//            assertEquals("[EessisakItem(institusjonsid=NO:NAVAT07, institusjonsnavn=NAV ACCEPTANCE TEST 07, saksnummer=1003563, land=NO)]", innvilgedePensjoner[0].institusjon.toString())
+            assertEquals("[]", innvilgedePensjoner[0].institusjon.toString())
             assertEquals("[EessisakItem(institusjonsid=DE:111111, institusjonsnavn=Deutsche Bayersche Rentenversicherung, saksnummer=null, land=DE)]", innvilgedePensjoner[1].institusjon.toString())
         }
     }
-
-    @Test
-    fun `Gitt to innvilget pensjoner men en fra norge og en fra tyskland saa skal begge taes med inkl pin fra begge land selv om vi mangler tilleggsinformasjon med retning`() {
-        every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
-            every { exists() } returns true
-            every { getContent() } returns p6000Detaljer(listOf("1111", "2222")).toByteArray()
-        }
-        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "2222") } returns hentTestP6000("P6000-InnvilgedePensjonerDEogNorsk.json")
-        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "1111") } returns hentTestP6000("P6000-InnvilgedePensjonerDEogNorskUtenTillegg.json")
-
-        every { euxInnhentingService.hentSedMetadata("1446704", "1111") } returns sedMetadata(RECEIVED)
-        every { euxInnhentingService.hentSedMetadata("1446704", "2222") } returns sedMetadata(RECEIVED)
-
-        val result = controller.hentP6000Detaljer("22975052")
-        with(result) {
-            assertEquals(1, forsikrede.pin?.size)
-            assertEquals("3453453434", forsikrede.pin?.get(0)?.identifikator)
-            assertEquals(2, innvilgedePensjoner.size)
-//            assertEquals("[EessisakItem(institusjonsid=NO:NAVAT07, institusjonsnavn=NAV ACCEPTANCE TEST 07, saksnummer=1003563, land=NO)]", innvilgedePensjoner[0].institusjon.toString())
-            assertEquals("[EessisakItem(institusjonsid=DE:111111, institusjonsnavn=Deutsche Bayersche Rentenversicherung, saksnummer=null, land=DE)]", innvilgedePensjoner[1].institusjon.toString())
-        }
-    }
-
 
     @Test
     fun `Gitt at vi får fler enn en innvilget pensjon fra Norge men den andre mangler adresseNyvurdering dermed returneres kun den ene norske med andreinstitusjoner oppgitt `() {

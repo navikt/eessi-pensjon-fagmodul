@@ -206,8 +206,6 @@ class PensjonsinformasjonUtlandController(
 
     //TODO: refaktorere metoden; for kompleks
     private fun eessiInstitusjoner(p6000: P6000): List<EessisakItem>? {
-
-
         val saksnummerFraTilleggsInformasjon = p6000.pensjon?.tilleggsinformasjon?.saksnummer
         val norskeEllerUtlandskeInstitusjoner = if(p6000.retning.isNorsk()) {
             // primært hentes norske institusjoner fra eessisak
@@ -241,6 +239,9 @@ class PensjonsinformasjonUtlandController(
         }
         if(eessisakItems?.isNotEmpty() == true && eessisakItems.count { it.land == "NO" } > 1 || (norskeEllerUtlandskeInstitusjoner?.count { it.land == "NO" } ?: 0) > 1) {
             logger.error("OBS OBS; Her kommer det inn mer enn 1 innvilget pensjon fra Norge i Seden")
+            if(!p6000.retning.isNorsk()){
+                return norskeEllerUtlandskeInstitusjoner?.filter { it.land != "NO"}
+            }
             return emptyList()
         }
         return  norskeEllerUtlandskeInstitusjoner ?: emptyList()
