@@ -6,9 +6,13 @@ import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_01
 import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.fagmodul.api.BucController
+import no.nav.eessi.pensjon.fagmodul.api.FrontEndResponse
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
+import no.nav.eessi.pensjon.utils.mapJsonToAny
+import no.nav.eessi.pensjon.utils.toJson
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.beans.factory.annotation.Autowired
@@ -49,7 +53,7 @@ class BucControllerTest {
     @Test
     fun `hentAvdodFraVedtak skal returerer en tom liste om vedtaksId er noe annet enn tall`(){
         val result = mvcPerform("/buc/rinasaker/111/saknr/222/vedtak/undefined")
-        assertEquals("[]", result)
+        assertTrue(result.contains("[]"))
     }
 
     @Test
@@ -64,9 +68,10 @@ class BucControllerTest {
         every { euxInnhentingService.hentBucer(aktoerId, pesyssak, listOf(rinanummer)) } returns listOf(buc)
 
         val result = mvcPerform(endpointUrl)
+        val responseBody = mapJsonToAny<FrontEndResponse<List<Buc>>>(result)
         val expected = "[{\"processDefinitionName\":\"P_BUC_01\",\"id\":\"$rinanummer\"}]"
 
-        JSONAssert.assertEquals(expected, result, false)
+        JSONAssert.assertEquals(expected, responseBody.result?.toJson(), false)
     }
 
     @Test
@@ -80,9 +85,10 @@ class BucControllerTest {
         every { innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)} returns listOf(rinanummer, "2222")
 
         val result = mvcPerform(endpointUrl)
+        val responseBody = mapJsonToAny<FrontEndResponse<Buc>>(result)
         val expected = "{\"processDefinitionName\":\"P_BUC_01\",\"id\":\"$rinanummer\"}"
 
-        JSONAssert.assertEquals(expected, result, false)
+        JSONAssert.assertEquals(expected, responseBody.result?.toJson(), false)
     }
 
     @Test

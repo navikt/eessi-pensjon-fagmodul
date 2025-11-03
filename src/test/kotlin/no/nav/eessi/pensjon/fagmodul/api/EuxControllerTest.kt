@@ -1,6 +1,7 @@
 
 package no.nav.eessi.pensjon.fagmodul.api
 
+import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.SpyK
@@ -11,7 +12,9 @@ import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_06
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.shared.api.InstitusjonItem
+import no.nav.eessi.pensjon.utils.mapAnyToJson
 import no.nav.eessi.pensjon.utils.mapJsonToAny
+import no.nav.eessi.pensjon.utils.toJson
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertIterableEquals
 import org.junit.jupiter.api.BeforeEach
@@ -56,7 +59,7 @@ class EuxControllerTest {
 
         val result = euxController.getPaakobledeland(P_BUC_06)
 
-        val list = mapJsonToAny<List<String>>(result.body!!)
+        val list = mapJsonToAny<List<String>>(result.body!!.result!!)
         assertIterableEquals(backupList, list)
 
     }
@@ -67,7 +70,7 @@ class EuxControllerTest {
 
         val result = euxController.getPaakobledeland(P_BUC_06)
 
-        val list = mapJsonToAny<List<String>>(result.body!!)
+        val list = mapJsonToAny<List<String>>(result.body!!.result!!)
         assertEquals(1, list.size)
     }
 
@@ -89,6 +92,8 @@ class EuxControllerTest {
     fun `sendSedMedMottakere skal ta i mot en liste med mottakere og sende videre`() {
         val rinaSakId = "123"
         val dokumentId = "456"
+        val expected = "Sed er sendt til Rina"
+
         val mottakere = listOf("NO:974652382", "NO:NAVAT05", "NO:NAVAT04")
         every {
             euxRestTemplate.postForEntity(match<String> { path -> path.contains("/buc/$rinaSakId/sed/$dokumentId/sendTo") }, any<HttpEntity<String>>(), String::class.java)
@@ -97,7 +102,7 @@ class EuxControllerTest {
         val result = euxController.sendSedMedMottakere(rinaSakId, dokumentId, mottakere)
 
         assertEquals(HttpStatus.OK, result.statusCode)
-        assertEquals("Sed er sendt til Rina", result.body)
+        assertEquals(expected, result.body!!.result)
     }
 
     @Test
@@ -113,7 +118,7 @@ class EuxControllerTest {
         println("resultat: ${capturedRequestBody.captured.body}")
 
         assertEquals(HttpStatus.OK, result.statusCode)
-        assertEquals("Sederer resendt til Rina", result.body)
+        assertEquals("Seder er resendt til Rina", result.body!!.result)
         assert(capturedRequestBody.captured.body!!.contains("1452061_5120d7d59ae548a4a980fe93eb58f9bd_1"))
     }
 
@@ -152,7 +157,7 @@ class EuxControllerTest {
         println("resultat: ${capturedRequestBody.captured.body}")
 
         assertEquals(HttpStatus.OK, result.statusCode)
-        assertEquals("Sederer resendt til Rina", result.body)
+        assertEquals("Seder er resendt til Rina", result.body!!.result)
         assert(capturedRequestBody.captured.body!!.contains("1452061_5120d7d59ae548a4a980fe93eb58f9bd_1\n" +
                 "1452062_5120d7d59ae548a4a980fe93eb58f9bd_1"))
     }
