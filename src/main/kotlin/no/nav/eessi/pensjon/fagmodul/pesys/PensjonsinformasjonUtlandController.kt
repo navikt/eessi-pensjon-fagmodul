@@ -157,15 +157,13 @@ class PensjonsinformasjonUtlandController(
 
 
     private fun innvilgedePensjoner(p6000er: List<P6000>) : List<InnvilgetPensjon>{
-        val ip6000Innvilgede = p6000er.filter { sed -> sed.pensjon?.vedtak?.any { it.resultat in listOf("01","03","04") } == true }
-            .sortedByDescending { it.nav?.eessisak?.isNotEmpty() == true }
         val flereEnnEnNorsk =  erDetFlereNorskeInstitusjoner(p6000er)
         val retList = mutableListOf<InnvilgetPensjon>()
 
-        ip6000Innvilgede.map { p6000 ->
+        hentInnvilgedePensjonerFraP6000er(p6000er).map { p6000 ->
             val vedtak = p6000.pensjon?.vedtak?.first()
 
-            if (p6000.retning.isNorsk() && flereEnnEnNorsk && retList.count { it.retning.isNorsk()  } >= 1) {
+            if (p6000.retning.isNorsk() && flereEnnEnNorsk && retList.count { it.retning.isNorsk() } >= 1) {
                 logger.error(" OBS OBS; Her kommer det inn mer enn 1 innvilget pensjon fra Norge")
                 secureLog.info("Hopper over innvilget pensjon P6000: $p6000")
             } else {
@@ -190,6 +188,11 @@ class PensjonsinformasjonUtlandController(
         }
         return retList
     }
+
+    private fun hentInnvilgedePensjonerFraP6000er(p6000er: List<P6000>): List<P6000> = p6000er.filter { sed ->
+        sed.pensjon?.vedtak?.any { it.resultat in listOf("01", "03", "04")
+        } == true || sed.pensjon?.vedtak?.any { it.beregning?.any { it.beloepBrutto != null } == true } == true
+    }.sortedByDescending { it.nav?.eessisak?.isNotEmpty() == true }
 
     private fun erDetFlereNorskeInstitusjoner(p6000er: List<P6000>): Boolean {
         return p6000er.count { norskSed(it) }.let { antallUt ->
