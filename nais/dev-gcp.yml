@@ -88,6 +88,7 @@ spec:
   env:
     - name: SPRING_PROFILES_ACTIVE
       value: test
+
     - name: GCP_BUCKET_GJENNY
       value: eessi-pensjon-gjenny-dev
     - name: GCP_BUCKET_P8000

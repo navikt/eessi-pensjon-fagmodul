@@ -79,6 +79,10 @@ spec:
   env:
     - name: SPRING_PROFILES_ACTIVE
       value: prod
+
+    - name: JDK_JAVA_OPTIONS
+      value: -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp
+
     - name: GCP_BUCKET_GJENNY
       value: eessi-pensjon-gjenny
     - name: GCP_BUCKET_P8000
