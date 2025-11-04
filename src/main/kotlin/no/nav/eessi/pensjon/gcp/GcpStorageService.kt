@@ -78,7 +78,7 @@ class GcpStorageService(
             return blobIds.mapNotNull {
                 val trygdetid = gcpStorage.get(BlobId.of(saksBehandlApiBucket, it))
                 if (trygdetid.exists()) {
-                    logger.info("Trygdetid finnes for: $obfuscatedNr, bucket $saksBehandlApiBucket Trygdetid: $trygdetid")
+                    logger.info("Trygdetid finnes for: $obfuscatedNr, bucket $saksBehandlApiBucket")
                     Pair(trygdetid.getContent().decodeToString(), trygdetid.name)
                 } else {
                     null
