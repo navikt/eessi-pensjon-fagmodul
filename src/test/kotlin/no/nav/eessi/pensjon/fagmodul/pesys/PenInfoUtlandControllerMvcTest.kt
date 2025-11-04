@@ -35,9 +35,6 @@ class PenInfoUtlandControllerMvcTest {
     lateinit var mvc: MockMvc
 
     @MockkBean
-    lateinit var pensjonsinformasjonUtlandService: PensjonsinformasjonUtlandService
-
-    @MockkBean
     lateinit var gcpStorageService: GcpStorageService
 
     @MockkBean
@@ -45,18 +42,6 @@ class PenInfoUtlandControllerMvcTest {
 
     @MockkBean
     lateinit var kodeverkClient: KodeverkClient
-
-    @MockkBean
-    lateinit var trygdeTidService: HentTrygdeTid
-
-    @TestConfiguration
-    class Config {
-        @Bean
-        fun gcpStorageService(): GcpStorageService {
-            return GcpStorageService("gjenny", "p8000", "p6000", "saksApi",
-                mockk())
-        }
-    }
 
     @Test
     fun `avdodsdato sjekk for vedtak inneholder to avdod i pbuc06 og P5000 returneres den tidligere valgte avdod ut fra P5000 og returneres`() {

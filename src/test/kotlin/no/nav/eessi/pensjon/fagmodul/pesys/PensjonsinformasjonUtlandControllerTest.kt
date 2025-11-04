@@ -10,12 +10,12 @@ import no.nav.eessi.pensjon.eux.model.SedMetadata
 import no.nav.eessi.pensjon.eux.model.sed.P6000
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
-import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController.SED_RETNING
-import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController.SED_RETNING.RECEIVED
-import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController.SED_RETNING.SENT
-import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController.TrygdetidRequest
+import no.nav.eessi.pensjon.fagmodul.pesys.SED_RETNING.*
+import no.nav.eessi.pensjon.fagmodul.pesys.krav.AvslaattPensjon
+import no.nav.eessi.pensjon.fagmodul.pesys.krav.InnvilgetPensjon
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.kodeverk.KodeverkClient
+import no.nav.eessi.pensjon.kodeverk.Postnummer
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import org.junit.jupiter.api.*
@@ -25,6 +25,11 @@ class PensjonsinformasjonUtlandControllerTest {
 
     private val gcpStorage = mockk<Storage>(relaxed = true)
     private val kodeverkClient = mockk<KodeverkClient>(relaxed = true)
+    private val euxInnhentingService = mockk<EuxInnhentingService>(relaxed = true)
+    private val trygdeTidService = TrygdeTidService(
+        euxInnhentingService,
+        kodeverkClient
+    )
     private val gcpStorageService = GcpStorageService(
         "_",
         "_",
@@ -32,13 +37,19 @@ class PensjonsinformasjonUtlandControllerTest {
         "pesys",
         gcpStorage
     )
-    private val euxInnhentingService = mockk<EuxInnhentingService>(relaxed = true)
+
+    private val penInfoUtlandService = PensjonsinformasjonUtlandService(
+        mockk(),
+        mockk(),
+        euxInnhentingService,
+        kodeverkClient
+    )
+
     private val controller = PensjonsinformasjonUtlandController(
-        pensjonsinformasjonUtlandService = mockk(),
+        penInfoUtlandService = penInfoUtlandService,
         gcpStorageService = gcpStorageService,
         euxInnhentingService,
-        kodeverkClient,
-        trygdeTidService = mockk(relaxed = true)
+        trygdeTidService = trygdeTidService
     )
     private val aktoerId1 = "2477958344057"
     private val rinaNr = 1446033
@@ -107,14 +118,18 @@ class PensjonsinformasjonUtlandControllerTest {
     fun `gitt en aktorid tilknyttet flere buc saa skal den gi en liste med flere trygdetider`() {
         every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
             every { exists() } returns true
-            every { name } returns "${aktoerId1}___PESYS___111111" andThen "${aktoerId1}___PESYS___222222"
             every { getContent() } returns trygdeTidSamletJson().toJson().toByteArray()
+            every { name } returns "${aktoerId1}___PESYS___111111" andThen "${aktoerId1}___PESYS___222222"
         }
 
-        mockGcpListeSok(listOf("111111", "222222"))
+//        every { trygdeTidService.parseTrygdetid(any()) } returns listOf(Pair(trygdeTidSamletJson(),listOf("${aktoerId1}___PESYS___111111" andThen "${aktoerId1}___PESYS___222222")))
+
+        val mock = mockGcpListeSok(listOf("111111", "222222"))
+        println("mock: ${mock.toJson()}")
+
 
         val result = controller.hentTrygdetid(TrygdetidRequest(fnr = aktoerId1))
-        println(result.toJson())
+        println("result: ${result.toJson()}")
         assertEquals(aktoerId1, result.fnr)
         assertEquals(trygdeTidForFlereBuc(), result.toJson())
     }
@@ -159,19 +174,23 @@ class PensjonsinformasjonUtlandControllerTest {
             every { exists() } returns true
             every { getContent() } returns p6000Detaljer(listOf("1111", "2222")).toByteArray()
         }
+
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "2222") } returns hentTestP6000("P6000-InnvilgetPensjonNO.json")
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "1111") } returns hentTestP6000("P6000-AvslaattePensjonerUtlandGB.json")
 
         every { euxInnhentingService.hentSedMetadata("1446704", "2222") } returns sedMetadata()
         every { euxInnhentingService.hentSedMetadata("1446704", "1111") } returns sedMetadata(RECEIVED)
+        every { kodeverkClient.hentPostSted(any()) } returns Postnummer("0607", "Oslo")
+
 
 
         val result = controller.hentP6000Detaljer("22975052")
         println("resultat: ${result.toJson()}")
         with(result) {
             assertEquals("Gjenlevende", sakstype)
-            assertEquals(null, innehaver.etternavn)
+            println("innehaver: ${innehaver.toJson()}")
             assertEquals("ROSA", forsikrede.fornavn)
+            assertEquals(null, innehaver.etternavn)
             assertEquals(2, forsikrede.pin?.size)
             assertEquals("04117512849", forsikrede.pin?.first()?.identifikator)
             assertEquals("JE 25 19 53 B", forsikrede.pin?.last()?.identifikator)
