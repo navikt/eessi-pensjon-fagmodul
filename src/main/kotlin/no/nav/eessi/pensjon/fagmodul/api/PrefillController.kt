@@ -257,7 +257,7 @@ class PrefillController(
     }
 
     private fun getBucForPBuc06AndForEmptySed(bucType: BucType, bucDocuments: List<DocumentsItem>?, bucSedResponse: BucSedResponse, orginal: DocumentsItem?): DocumentsItem? {
-        logger.info("Henter BUC på nytt for buctype: $bucDocuments")
+        logger.info("Henter BUC på nytt for buctype: $bucType, inkl. ${bucDocuments?.size} SED")
         Thread.sleep(900)
         return if (bucType == P_BUC_06 || orginal == null && bucDocuments.isNullOrEmpty()) {
             val innhentetBuc = euxInnhentingService.getBuc(bucSedResponse.caseId)
