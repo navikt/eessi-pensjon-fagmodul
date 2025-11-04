@@ -61,7 +61,7 @@ class GcpStorageService(
             }
             lagre(documentid, options, p8000Bucket)
         }
-    fun hentTrygdetid(aktoerId: String): List<Pair<String, String?>>? {
+    fun hentTrygdetidFraGcp(aktoerId: String): List<Pair<String, String?>>? {
         val searchString = if (aktoerId.isNotEmpty() ) {
             "${aktoerId}___PESYS___"
         } else if (aktoerId.isNotEmpty()) {
@@ -78,7 +78,7 @@ class GcpStorageService(
             return blobIds.mapNotNull {
                 val trygdetid = gcpStorage.get(BlobId.of(saksBehandlApiBucket, it))
                 if (trygdetid.exists()) {
-                    logger.info("Trygdetid finnes for: $obfuscatedNr, bucket $saksBehandlApiBucket")
+                    logger.info("Trygdetid finnes for: $obfuscatedNr, bucket $saksBehandlApiBucket Trygdetid: $trygdetid")
                     Pair(trygdetid.getContent().decodeToString(), trygdetid.name)
                 } else {
                     null

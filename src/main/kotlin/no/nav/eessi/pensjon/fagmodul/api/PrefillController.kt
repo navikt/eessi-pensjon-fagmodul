@@ -12,6 +12,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.eux.EuxPrefillService
+import no.nav.eessi.pensjon.fagmodul.pesys.P6000Detaljer
 import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
@@ -172,7 +173,7 @@ class PrefillController(
                 logger.debug("Lagerer P7000: ${request.payload}")
                 request.payload?.let { mapJsonToAny<List<P6000Dokument>>(it) }?.let { listeOverP6000 ->
                     gcpStorageService.lagretilBackend(
-                        PensjonsinformasjonUtlandController.P6000Detaljer(
+                        P6000Detaljer(
                             request.sakId!!,
                             request.euxCaseId!!,
                             listeOverP6000.map { it.documentID }).toJson(), request.sakId
