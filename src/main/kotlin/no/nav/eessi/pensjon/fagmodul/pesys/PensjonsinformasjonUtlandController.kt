@@ -6,7 +6,8 @@ import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
 import no.nav.eessi.pensjon.eux.model.sed.P6000
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
-import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandService.BrukerEllerGjenlevende.*
+import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandService.BrukerEllerGjenlevende.FORSIKRET
+import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandService.BrukerEllerGjenlevende.GJENLEVENDE
 import no.nav.eessi.pensjon.fagmodul.pesys.krav.P1Dto
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.metrics.MetricsHelper
@@ -35,7 +36,6 @@ class PensjonsinformasjonUtlandController(
     private val trygdeTidService: TrygdeTidService,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
-
     private var pensjonUtland: MetricsHelper.Metric = metricsHelper.init("pensjonUtland")
     private var trygdeTidMetric: MetricsHelper.Metric = metricsHelper.init("trygdeTidMetric")
     private var p6000Metric: MetricsHelper.Metric = metricsHelper.init("p6000Metric")
@@ -106,31 +106,17 @@ class PensjonsinformasjonUtlandController(
                 .onFailure { e -> logger.error("Feil ved parsing av trygdetid linje 129", e) }
                 .onSuccess { logger.info("Hentet nye dok detaljer fra Rina for $pesysId") }
 
-            val nyesteP6000 = listeOverP6000FraGcp.sortedWith(
-                compareBy(
-                    { it.pensjon?.tilleggsinformasjon?.dato },
-                    { it.pensjon?.vedtak?.firstOrNull()?.virkningsdato }
-                )
-            ).reversed()
-
             val innvilgedePensjoner = penInfoUtlandService.innvilgedePensjoner(listeOverP6000FraGcp).also { secureLog.info("innvilgedePensjoner: " +it.toJson()) }
             val avslaatteUtenlandskePensjoner = penInfoUtlandService.avslaatteUtenlandskePensjoner(listeOverP6000FraGcp).also { secureLog.info("avslaatteUtenlandskePensjoner: " + it.toJson()) }
 
-            if(innvilgedePensjoner.isEmpty() && avslaatteUtenlandskePensjoner.isEmpty()) {
-                logger.error("Ingen gyldige pensjoner funnet i P6000er for pesysId: $pesysId")
-                throw ResponseStatusException(HttpStatus.NOT_FOUND, "Ingen gyldige pensjoner funnet i P6000er for pesysId: $pesysId")
-            }
+            penInfoUtlandService.sjekkPaaGyldigeInnvElAvslPensjoner(innvilgedePensjoner, avslaatteUtenlandskePensjoner, listeOverP6000FraGcp, pesysId)
 
-            if (innvilgedePensjoner.size + avslaatteUtenlandskePensjoner.size != listeOverP6000FraGcp.size) {
-                logger.warn("Mismatch: innvilgedePensjoner (${innvilgedePensjoner.size}) + avslåtteUtenlandskePensjoner (${avslaatteUtenlandskePensjoner.size}) != utenlandskeP6000er (${listeOverP6000FraGcp.size})")
-            }
-
-            val innehaverPin = penInfoUtlandService.hentPin(GJENLEVENDE,  nyesteP6000)
-            val forsikredePin =penInfoUtlandService.hentPin(FORSIKRET,  nyesteP6000)
+            val innehaverPin = penInfoUtlandService.hentPin(GJENLEVENDE, penInfoUtlandService.nyesteP6000(listeOverP6000FraGcp))
+            val forsikredePin = penInfoUtlandService.hentPin(FORSIKRET, penInfoUtlandService.nyesteP6000(listeOverP6000FraGcp))
 
            P1Dto(
-                innehaver = penInfoUtlandService.person(nyesteP6000.first(), GJENLEVENDE, innehaverPin),
-                forsikrede = penInfoUtlandService.person(nyesteP6000.first(), FORSIKRET, forsikredePin),
+                innehaver = penInfoUtlandService.person(penInfoUtlandService.nyesteP6000(listeOverP6000FraGcp).first(), GJENLEVENDE, innehaverPin),
+                forsikrede = penInfoUtlandService.person(penInfoUtlandService.nyesteP6000(listeOverP6000FraGcp).first(), FORSIKRET, forsikredePin),
                 sakstype = "Gjenlevende",
                 kravMottattDato = null,
                 innvilgedePensjoner = innvilgedePensjoner,
