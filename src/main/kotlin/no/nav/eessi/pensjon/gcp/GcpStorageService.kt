@@ -61,7 +61,7 @@ class GcpStorageService(
             }
             lagre(documentid, options, p8000Bucket)
         }
-    fun hentTrygdetid(aktoerId: String): List<Pair<String, String?>>? {
+    fun hentTrygdetidFraGcp(aktoerId: String): List<Pair<String, String?>>? {
         val searchString = if (aktoerId.isNotEmpty() ) {
             "${aktoerId}___PESYS___"
         } else if (aktoerId.isNotEmpty()) {
