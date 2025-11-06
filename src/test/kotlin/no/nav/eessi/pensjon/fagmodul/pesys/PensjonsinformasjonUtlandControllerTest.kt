@@ -398,6 +398,44 @@ class PensjonsinformasjonUtlandControllerTest {
         }
     }
 
+    @Test
+    fun `Gitt en norsk avslaatt utenlandsk pensjon og en norsk avslaatt pensjon saa skal det gis ut én norsk og én utenlandsk`() {
+        every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
+            every { exists() } returns true
+            every { getContent() } returns p6000Detaljer(listOf("3333", "1111", "2222")).toByteArray()
+        }
+        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "1111") } returns hentTestP6000("P6000-AvslaattPensjonNO.json")
+        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "3333") } returns hentTestP6000("P6000-AvslaattePensjonerUtlandMedUTLInst.json")
+
+        every { euxInnhentingService.hentSedMetadata("1446704", "1111") } returns sedMetadata(SENT)
+        every { euxInnhentingService.hentSedMetadata("1446704", "3333") } returns sedMetadata(RECEIVED)
+
+
+        val p6000Detaljer = controller.hentP6000Detaljer("22975052")
+
+        with(p6000Detaljer) {
+            assertEquals("Gjenlevende", sakstype)
+
+            assertEquals("ROSA", forsikrede.fornavn)
+            assertEquals("06448422184", forsikrede.pin?.first()?.identifikator)
+
+            assertEquals("AKROBAT", innehaver.etternavn)
+            assertEquals("16888697822", innehaver.pin?.first()?.identifikator)
+
+            assertEquals(0, innvilgedePensjoner.size)
+        }
+
+        val avslaattePensjoner = p6000Detaljer.avslaattePensjoner
+        with(avslaattePensjoner) {
+            assertEquals(2, avslaattePensjoner.size)
+            //Det nyeste avslaget fra Norge
+            assertEquals("2025-10-05", avslaattePensjoner.firstOrNull()?.vedtaksdato)
+            assertEquals("[EessisakItem(institusjonsid=NO:NAVAT07, institusjonsnavn=NAV ACCEPTANCE TEST 07, saksnummer=1003563, land=NO)]", avslaattePensjoner.firstOrNull()?.institusjon.toString())
+            //Avslått pensjon fra Tyskland
+            assertEquals("[EessisakItem(institusjonsid=DE:DEUTCHE, institusjonsnavn=Tysk Inst, saksnummer=88888, land=DE)]", avslaattePensjoner.last().institusjon.toString())
+        }
+    }
+
 
     @Nested
     @DisplayName("Feilsituasjoner")

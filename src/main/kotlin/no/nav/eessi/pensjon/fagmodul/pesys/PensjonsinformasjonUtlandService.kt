@@ -1,6 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.pesys
 
 import no.nav.eessi.pensjon.eux.model.SedType
+import no.nav.eessi.pensjon.eux.model.SedType.*
 import no.nav.eessi.pensjon.eux.model.sed.AndreinstitusjonerItem
 import no.nav.eessi.pensjon.eux.model.sed.EessisakItem
 import no.nav.eessi.pensjon.eux.model.sed.P6000
@@ -16,7 +17,6 @@ import no.nav.eessi.pensjon.fagmodul.pesys.krav.InnvilgetPensjon
 import no.nav.eessi.pensjon.fagmodul.pesys.krav.P1Person
 import no.nav.eessi.pensjon.fagmodul.pesys.krav.UforeUtlandKrav
 import no.nav.eessi.pensjon.kodeverk.KodeverkClient
-import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -38,7 +38,7 @@ class PensjonsinformasjonUtlandService(
     private val secureLog = LoggerFactory.getLogger("secureLog")
 
     private final val validBuc = listOf("P_BUC_01", "P_BUC_03")
-    private final val kravSedBucmap = mapOf("P_BUC_01" to SedType.P2000, "P_BUC_03" to SedType.P2200)
+    private final val kravSedBucmap = mapOf("P_BUC_01" to P2000, "P_BUC_03" to P2200)
 
     /**
      * funksjon for å hente buc-metadata fra RINA (eux-rina-api)
@@ -103,18 +103,21 @@ class PensjonsinformasjonUtlandService(
                     EessisakItem(it.institusjonsid, it.institusjonsnavn, saksnummerFraTilleggsInformasjon, it.land)
                 }
             }
-        }
-        else {
-            // primært hentes utenlandske institusjoner fra andreinstitusjoner
-            val utenlandsk = p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.filter { it.land != "NO" }?.map {
-                EessisakItem(it.institusjonsid, it.institusjonsnavn, saksnummerFraTilleggsInformasjon, it.land)
-            }
-            if(utenlandsk?.isEmpty() == true) {
-                p6000.nav?.eessisak?.filter { it.land != "NO" }?.map {
+        } else if(p6000.retning.isUtenlandsk()) {
+            // Henter utenlandske institusjoner fra eessisak dersom de finnes der
+            if(p6000.nav?.eessisak?.isNotEmpty() == true && p6000.nav?.eessisak?.any { it.land != "NO" } == true) {
+                p6000.nav?.eessisak?.map {
                     EessisakItem(it.institusjonsid, it.institusjonsnavn, it.saksnummer, it.land)
                 }
             }
-            utenlandsk
+            // benytter andreinstitusjoner, hvis ingen utenlandske institusjoner finnes i eessisak
+            else {
+                p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.filter { it.land != "NO" }?.map {
+                    EessisakItem(it.institusjonsid, it.institusjonsnavn, saksnummerFraTilleggsInformasjon, it.land)
+                }
+            }
+        } else {
+            null
         }
 
         val eessisakItems = p6000.nav?.eessisak?.map {
@@ -188,13 +191,23 @@ class PensjonsinformasjonUtlandService(
     }.sortedByDescending { it.nav?.eessisak?.isNotEmpty() == true }
 
     private fun erDetFlereNorskeInstitusjoner(p6000er: List<P6000>): Boolean {
-        return p6000er.count { it.retning.isNorsk() }.let { antallUt ->
+        return p6000er.count { norskSed(it) }.let { antallUt ->
             if (antallUt > 1) {
                 logger.error("OBS OBS; Her kommer det inn mer enn 1 P6000 med retning UT i Seden")
                 return true
             }
             false
         }
+    }
+        fun norskSed(p6000: P6000): Boolean =
+            SED_RETNING.valueOf(p6000.retning) in listOf(SED_RETNING.NEW, SED_RETNING.SENT)
+
+    fun String?.isNorsk(): Boolean {
+        return this != null && SED_RETNING.valueOf(this.uppercase(getDefault())) in SED_RETNING.norskSed()
+    }
+
+    fun String?.isUtenlandsk(): Boolean {
+        return this != null && SED_RETNING.valueOf(this.uppercase(getDefault())) in SED_RETNING.utenlandskSed()
     }
 
     fun debugPrintout(kravUtland: KravUtland) {
@@ -206,16 +219,10 @@ class PensjonsinformasjonUtlandService(
     }
 
     fun avslaatteUtenlandskePensjoner(p6000er: List<P6000>): List<AvslaattPensjon> {
-        val p6000erAvslaatt = p6000er.filter { sed -> sed.pensjon?.vedtak?.any { it.resultat == "02" } == true }
+        val p6000erAvslaatt = p6000er.filter { sed -> sed.pensjon?.vedtak?.any { it.resultat == "02" } == true}
             .sortedByDescending { it.pensjon?.tilleggsinformasjon?.dato }
 
-        fun hentInnvilgedePensjonerFraP6000er(p6000er: List<P6000>): List<P6000> = p6000er.filter { sed ->
-            sed.pensjon?.vedtak?.any { it.resultat in listOf("01", "03", "04")
-            } == true || sed.pensjon?.vedtak?.any { it.beregning?.any { it.beloepBrutto != null } == true } == true
-        }.sortedByDescending { it.nav?.eessisak?.isNotEmpty() == true }
 
-        fun norskSed(p6000: P6000): Boolean =
-            SED_RETNING.valueOf(p6000.retning) in listOf(SED_RETNING.NEW, SED_RETNING.SENT)
         val flereEnnEnNorsk = erDetFlereNorskeInstitusjoner(p6000erAvslaatt)
         val retList = mutableListOf<AvslaattPensjon>()
 
@@ -305,10 +312,6 @@ class PensjonsinformasjonUtlandService(
     else
         sed.pensjon?.gjenlevende?.person
 
-    fun String?.isNorsk(): Boolean {
-        return this != null && SED_RETNING.valueOf(this.uppercase(getDefault())) in SED_RETNING.norskSed()
-    }
-
     fun dato(foedselsdato: String?): LocalDate? {
         return try {
             foedselsdato?.let { LocalDate.parse(it) }
@@ -320,9 +323,9 @@ class PensjonsinformasjonUtlandService(
     fun getKravSedDocument(bucUtils: BucUtils, SedType: SedType?) =
         bucUtils.getAllDocuments().firstOrNull { it.status == "received" && it.type == SedType }
 
-    fun erAlderpensjon(sed: SED) = sed.type == SedType.P2000
+    fun erAlderpensjon(sed: SED) = sed.type == P2000
 
-    fun erUforepensjon(sed: SED) = sed.type == SedType.P2200
+    fun erUforepensjon(sed: SED) = sed.type == P2200
 
     enum class BrukerEllerGjenlevende(val person: String) {
         FORSIKRET ("forsikret"),
