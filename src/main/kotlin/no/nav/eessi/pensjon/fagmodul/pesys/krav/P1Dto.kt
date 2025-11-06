@@ -1,8 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.pesys.krav
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import no.nav.eessi.pensjon.eux.model.sed.AndreinstitusjonerItem
-import no.nav.eessi.pensjon.eux.model.sed.EessisakItem
-import no.nav.eessi.pensjon.eux.model.sed.PinItem
 import java.time.LocalDate
 
 data class P1Dto(
@@ -23,12 +22,11 @@ data class P1Dto(
         val adresselinje: String? = null,
         val poststed: String? = null,
         val postnummer: String? = null,
-        val landkode: String? = null,
-        val pin: List<PinItem>? = null,
+        val landkode: String? = null
     )
 
     data class InnvilgetPensjon(
-        val institusjon: List<EessisakItem>?,
+        val institusjon: List<EessisakItemP1>?,
         val pensjonstype: String,
         val datoFoersteUtbetaling: LocalDate?,
         val bruttobeloep: String?,
@@ -44,7 +42,7 @@ data class P1Dto(
     )
 
     data class AvslaattPensjon(
-        val institusjon: List<EessisakItem>?,
+        val institusjon: List<EessisakItemP1>?,
         val pensjonstype: String?,
         val avslagsbegrunnelse: String?,
         val vurderingsperiode: String?,
@@ -52,4 +50,15 @@ data class P1Dto(
         val vedtaksdato: String?,
         @Transient
         var retning: String? = null
+    )
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    data class EessisakItemP1(
+        val institusjonsid: String? = null,
+        val institusjonsnavn: String? = null,
+        val saksnummer: String? = null,
+        val land: String? = null,
+        val identifikatorForsikrede: String? = null,
+        val identifikatorInnehaver: String? = null
+
     )

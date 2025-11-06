@@ -13,6 +13,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandService.BrukerEllerGjenlevende.*
 import no.nav.eessi.pensjon.fagmodul.pesys.krav.AlderpensjonUtlandKrav
 import no.nav.eessi.pensjon.fagmodul.pesys.krav.AvslaattPensjon
+import no.nav.eessi.pensjon.fagmodul.pesys.krav.EessisakItemP1
 import no.nav.eessi.pensjon.fagmodul.pesys.krav.InnvilgetPensjon
 import no.nav.eessi.pensjon.fagmodul.pesys.krav.P1Person
 import no.nav.eessi.pensjon.fagmodul.pesys.krav.UforeUtlandKrav
@@ -88,32 +89,42 @@ class PensjonsinformasjonUtlandService(
     }
 
     //TODO: refaktorere metoden; for kompleks
-    fun eessiInstitusjoner(p6000: P6000): List<EessisakItem>? {
+    fun eessiInstitusjoner(p6000: P6000): List<EessisakItemP1>? {
         val saksnummerFraTilleggsInformasjon = p6000.pensjon?.tilleggsinformasjon?.saksnummer
         val norskeEllerUtlandskeInstitusjoner = if(p6000.retning.isNorsk()) {
             // primært hentes norske institusjoner fra eessisak
             if(p6000.nav?.eessisak?.isNotEmpty() == true) {
                 p6000.nav?.eessisak?.map {
-                    EessisakItem(it.institusjonsid, it.institusjonsnavn, it.saksnummer, "NO")
+                    EessisakItemP1(
+                        it.institusjonsid,
+                        it.institusjonsnavn,
+                        it.saksnummer,
+                        "NO",
+                        p6000.nav?.bruker?.person?.pin?.firstOrNull()?.identifikator,
+                        p6000.pensjon?.gjenlevende?.person?.pin?.firstOrNull()?.identifikator
+                    )
                 }
             }
             // benytter andreinstitusjoner, hvis ingen norske institusjoner i eessisak
             else {
                 p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.filter { it.land == "NO" }?.map {
-                    EessisakItem(it.institusjonsid, it.institusjonsnavn, saksnummerFraTilleggsInformasjon, it.land)
+                    EessisakItemP1(it.institusjonsid, it.institusjonsnavn, saksnummerFraTilleggsInformasjon, it.land,p6000.nav?.bruker?.person?.pin?.firstOrNull()?.identifikator,
+                        p6000.pensjon?.gjenlevende?.person?.pin?.firstOrNull()?.identifikator)
                 }
             }
         } else if(p6000.retning.isUtenlandsk()) {
             // Henter utenlandske institusjoner fra eessisak dersom de finnes der
             if(p6000.nav?.eessisak?.isNotEmpty() == true && p6000.nav?.eessisak?.any { it.land != "NO" } == true) {
                 p6000.nav?.eessisak?.map {
-                    EessisakItem(it.institusjonsid, it.institusjonsnavn, it.saksnummer, it.land)
+                    EessisakItemP1(it.institusjonsid, it.institusjonsnavn, it.saksnummer, it.land, p6000.nav?.bruker?.person?.pin?.firstOrNull()?.identifikator,
+                        p6000.pensjon?.gjenlevende?.person?.pin?.firstOrNull()?.identifikator)
                 }
             }
             // benytter andreinstitusjoner, hvis ingen utenlandske institusjoner finnes i eessisak
             else {
                 p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.filter { it.land != "NO" }?.map {
-                    EessisakItem(it.institusjonsid, it.institusjonsnavn, saksnummerFraTilleggsInformasjon, it.land)
+                    EessisakItemP1(it.institusjonsid, it.institusjonsnavn, saksnummerFraTilleggsInformasjon, it.land, p6000.nav?.bruker?.person?.pin?.firstOrNull()?.identifikator,
+                        p6000.pensjon?.gjenlevende?.person?.pin?.firstOrNull()?.identifikator)
                 }
             }
         } else {
@@ -251,7 +262,7 @@ class PensjonsinformasjonUtlandService(
         return retList
     }
 
-    fun person(sed: P6000, brukerEllerGjenlevende: BrukerEllerGjenlevende, innehaverPin: List<PinItem>?) : P1Person {
+    fun person(sed: P6000, brukerEllerGjenlevende: BrukerEllerGjenlevende) : P1Person {
         val personBruker = if (brukerEllerGjenlevende == FORSIKRET)
             Pair(sed.nav?.bruker?.person, sed.nav?.bruker?.adresse)
         else
@@ -265,8 +276,7 @@ class PensjonsinformasjonUtlandService(
             adresselinje = personBruker.second?.postadresse,
             poststed = kodeverkClient.hentPostSted(personBruker.second?.postnummer)?.sted,
             postnummer = personBruker.second?.postnummer,
-            landkode = personBruker.second?.land,
-            pin = innehaverPin
+            landkode = personBruker.second?.land
         )
     }
 
