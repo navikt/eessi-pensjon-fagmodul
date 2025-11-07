@@ -115,8 +115,8 @@ class PensjonsinformasjonUtlandController(
             val forsikredePin = penInfoUtlandService.hentPin(FORSIKRET, penInfoUtlandService.nyesteP6000(listeOverP6000FraGcp))
 
            P1Dto(
-                innehaver = penInfoUtlandService.person(penInfoUtlandService.nyesteP6000(listeOverP6000FraGcp).first(), GJENLEVENDE, innehaverPin),
-                forsikrede = penInfoUtlandService.person(penInfoUtlandService.nyesteP6000(listeOverP6000FraGcp).first(), FORSIKRET, forsikredePin),
+                innehaver = penInfoUtlandService.person(penInfoUtlandService.nyesteP6000(listeOverP6000FraGcp).first(), GJENLEVENDE),
+                forsikrede = penInfoUtlandService.person(penInfoUtlandService.nyesteP6000(listeOverP6000FraGcp).first(), FORSIKRET),
                 sakstype = "Gjenlevende",
                 kravMottattDato = null,
                 innvilgedePensjoner = innvilgedePensjoner,
