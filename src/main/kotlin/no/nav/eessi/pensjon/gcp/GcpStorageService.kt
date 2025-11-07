@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import java.nio.ByteBuffer
-import kotlin.text.get
 
 @Component
 class GcpStorageService(
@@ -62,7 +61,7 @@ class GcpStorageService(
             }
             lagre(documentid, options, p8000Bucket)
         }
-    fun hentTrygdetid(aktoerId: String): List<Pair<String, String?>>? {
+    fun hentTrygdetidFraGcp(aktoerId: String): List<Pair<String, String?>>? {
         val searchString = if (aktoerId.isNotEmpty() ) {
             "${aktoerId}___PESYS___"
         } else if (aktoerId.isNotEmpty()) {

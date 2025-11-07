@@ -80,11 +80,15 @@ spec:
         - application: pensjon-psak-q2
           namespace: pensjon-q2
           cluster: dev-fss
+        - application: pensjon-psak-q2
+          namespace: pensjon-q2
+          cluster: dev-gcp
 
   webproxy: true
   env:
     - name: SPRING_PROFILES_ACTIVE
       value: test
+
     - name: GCP_BUCKET_GJENNY
       value: eessi-pensjon-gjenny-dev
     - name: GCP_BUCKET_P8000

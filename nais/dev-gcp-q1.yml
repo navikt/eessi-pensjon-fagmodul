@@ -54,10 +54,12 @@ spec:
         - host: kodeverk-api.nav.no
         - host: saf-q2.dev-fss-pub.nais.io
         - host: pdl-api.dev-fss-pub.nais.io
-        - host: eux-rina-api-q1.dev-fss-pub.nais.io
-        - host: eessi-pensjon-prefill-q1.intern.dev.nav.no
-        - host: eessi-pensjon-journalforing-q1.intern.dev.nav.no
-        - host: eessi-pensjon-saksbehandling-api-q1.intern.dev.nav.no
+        - host: pensjon-pen-q2''.dev-fss-pub.nais.io
+        - host: pensjon-psak-q2.dev-fss-pub.nais.io
+        - host: eux-rina-api-gcp-q2.intern.dev.nav.no
+        - host: eessi-pensjon-prefill-q2.intern.dev.nav.no
+        - host: eessi-pensjon-journalforing-q2.intern.dev.nav.no
+        - host: eessi-pensjon-saksbehandling-api-q2.intern.dev.nav.no
     inbound:
       rules:
         - application: eessi-pensjon-frontend-ui-q1

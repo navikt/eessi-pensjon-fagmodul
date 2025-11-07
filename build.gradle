@@ -1,11 +1,11 @@
 buildscript {
 
     ext {
-        kotlinVersion = '2.2.20'
-        springBootVersion = '3.5.6'
+        kotlinVersion = '2.2.21'
+        springBootVersion = '3.5.7'
         springKafkaVersion = '3.3.10'
         springfoxVersion = '3.0.0'
-        tokenSupportVersion = '5.0.37'
+        tokenSupportVersion = '5.0.39'
     }
 }
 
@@ -42,16 +42,16 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-actuator")
 
     // Spring Framework BOM-fil overstyrer så vi får siste patch-versjon av Spring Framework
-    implementation(platform("org.springframework:spring-framework-bom:6.2.11"))
+    implementation(platform("org.springframework:spring-framework-bom:6.2.12"))
 
     implementation("org.yaml:snakeyaml:2.5") // Pga https://security.snyk.io/package/maven/org.yaml:snakeyaml
 
-    implementation("com.fasterxml.jackson.core:jackson-core:2.20.0")
+    implementation("com.fasterxml.jackson.core:jackson-core:2.20.1")
 
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
 
     // Logging
-    implementation("net.logstash.logback:logstash-logback-encoder:8.1")
+    implementation("net.logstash.logback:logstash-logback-encoder:9.0")
     configurations { all*.exclude group: 'commons-logging', module: 'commons-logging' }
     implementation("org.slf4j:jcl-over-slf4j:2.0.17")
 
@@ -60,11 +60,11 @@ dependencies {
     implementation("no.nav.security:token-validation-spring:${tokenSupportVersion}")
     implementation("no.nav.security:token-validation-jaxrs:${tokenSupportVersion}")
 
-    implementation ("no.nav.common:token-client:3.2025.09.03_08.33-728ff4acbfdb")
+    implementation ("no.nav.common:token-client:3.2025.10.10_08.21-bb7c7830d93c")
     implementation("org.springframework.kafka:spring-kafka:${springKafkaVersion}")
 
     //GCP
-    implementation("com.google.cloud:google-cloud-storage:2.58.1")
+    implementation("com.google.cloud:google-cloud-storage:2.59.0")
 
     implementation("no.nav.eessi.pensjon:ep-metrics:2.1.16")
     implementation("no.nav.eessi.pensjon:ep-logging:2.3.21")
@@ -92,7 +92,7 @@ dependencies {
     implementation("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:2643.2f3e8e9")
 
     // PDF box
-    testImplementation("org.apache.pdfbox:pdfbox-tools:3.0.5")
+    testImplementation("org.apache.pdfbox:pdfbox-tools:3.0.6")
 
     testImplementation("no.nav.security:token-validation-spring-test:${tokenSupportVersion}")
 
@@ -101,7 +101,7 @@ dependencies {
     testImplementation('org.pac4j:spring-webmvc-pac4j:8.0.1')
 
     
-    testImplementation("org.junit.jupiter:junit-jupiter:5.13.4")
+    testImplementation("org.junit.jupiter:junit-jupiter:6.0.1")
 
     //mock - test
     testImplementation("io.mockk:mockk:1.14.6")

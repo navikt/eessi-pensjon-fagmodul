@@ -7,6 +7,7 @@ import no.nav.eessi.pensjon.eux.klient.Rinasak
 import no.nav.eessi.pensjon.eux.model.BucType
 import no.nav.eessi.pensjon.eux.model.BucType.*
 import no.nav.eessi.pensjon.eux.model.InstitusjonDetalj
+import no.nav.eessi.pensjon.eux.model.SedMetadata
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
@@ -525,6 +526,10 @@ class EuxInnhentingService(
     fun lagPdf(pdfJson: String): PreviewPdf? {
         logger.info("Lager pdf fra json")
         return euxKlient.lagPdf(pdfJson)
+    }
+
+    fun hentSedMetadata(rinaSakId: String, p6000: String): SedMetadata? {
+        return euxKlient.getMetaDataAsSystemuser(rinaSakId, p6000)
     }
 
     /**
