@@ -66,10 +66,10 @@ dependencies {
     //GCP
     implementation("com.google.cloud:google-cloud-storage:2.58.1")
 
-    implementation("no.nav.eessi.pensjon:ep-metrics:2.1.10")
-    implementation("no.nav.eessi.pensjon:ep-logging:2.3.13")
-    implementation("no.nav.eessi.pensjon:ep-eux:2.5.17")
-    implementation("no.nav.eessi.pensjon:ep-kodeverk:4.3.28") {
+    implementation("no.nav.eessi.pensjon:ep-metrics:2.1.16")
+    implementation("no.nav.eessi.pensjon:ep-logging:2.3.21")
+    implementation("no.nav.eessi.pensjon:ep-eux:2.5.30")
+    implementation("no.nav.eessi.pensjon:ep-kodeverk:4.3.39") {
         exclude module: 'ep-eux'
         exclude module: 'ep-logging'
         exclude module: 'ep-metrics'
@@ -81,7 +81,7 @@ dependencies {
         exclude module: 'ep-metrics'
     }
 
-    implementation("no.nav.eessi.pensjon:ep-pensjonsinformasjon:3.1.19") {
+    implementation("no.nav.eessi.pensjon:ep-pensjonsinformasjon:3.1.33") {
         exclude module: 'ep-eux'
         exclude module: 'ep-logging'
         exclude module: 'ep-metrics'
