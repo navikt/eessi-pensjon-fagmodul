@@ -111,9 +111,6 @@ class PensjonsinformasjonUtlandController(
 
             penInfoUtlandService.sjekkPaaGyldigeInnvElAvslPensjoner(innvilgedePensjoner, avslaatteUtenlandskePensjoner, listeOverP6000FraGcp, pesysId)
 
-            val innehaverPin = penInfoUtlandService.hentPin(GJENLEVENDE, penInfoUtlandService.nyesteP6000(listeOverP6000FraGcp))
-            val forsikredePin = penInfoUtlandService.hentPin(FORSIKRET, penInfoUtlandService.nyesteP6000(listeOverP6000FraGcp))
-
            P1Dto(
                 innehaver = penInfoUtlandService.person(penInfoUtlandService.nyesteP6000(listeOverP6000FraGcp).first(), GJENLEVENDE),
                 forsikrede = penInfoUtlandService.person(penInfoUtlandService.nyesteP6000(listeOverP6000FraGcp).first(), FORSIKRET),
