@@ -58,8 +58,8 @@ spec:
         - host: pensjon-psak-q2.dev-fss-pub.nais.io
         - host: eux-rina-api-gcp-q1.intern.dev.nav.no
         - host: eessi-pensjon-prefill-q1.intern.dev.nav.no
-        - host: eessi-pensjon-journalforing-q2.intern.dev.nav.no
-        - host: eessi-pensjon-saksbehandling-api-q2.intern.dev.nav.no
+        - host: eessi-pensjon-journalforing-q1.intern.dev.nav.no
+        - host: eessi-pensjon-saksbehandling-api-q1.intern.dev.nav.no
     inbound:
       rules:
         - application: eessi-pensjon-frontend-ui-q1
