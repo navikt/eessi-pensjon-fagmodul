@@ -100,7 +100,7 @@ class PensjonsinformasjonUtlandService(
                         it.institusjonsnavn,
                         it.saksnummer,
                         "NO",
-                        p6000.nav?.bruker?.person?.pin?.firstOrNull()?.identifikator,
+                        p6000.nav?.bruker?.person?.pin?.firstOrNull { it.land == "NO" }?.identifikator,
                         p6000.pensjon?.gjenlevende?.person?.pin?.firstOrNull()?.identifikator
                     )
                 }
@@ -115,9 +115,10 @@ class PensjonsinformasjonUtlandService(
         } else if(p6000.retning.isUtenlandsk()) {
             // Henter utenlandske institusjoner fra eessisak dersom de finnes der
             if(p6000.nav?.eessisak?.isNotEmpty() == true && p6000.nav?.eessisak?.any { it.land != "NO" } == true) {
-                p6000.nav?.eessisak?.map {
-                    EessisakItemP1(it.institusjonsid, it.institusjonsnavn, it.saksnummer, it.land, p6000.nav?.bruker?.person?.pin?.firstOrNull()?.identifikator,
-                        p6000.pensjon?.gjenlevende?.person?.pin?.firstOrNull()?.identifikator)
+                p6000.nav?.eessisak?.filter { it.land != "NO" }?.map { inst ->
+                    EessisakItemP1(inst.institusjonsid, inst.institusjonsnavn, inst.saksnummer, inst.land,
+                        p6000.nav?.bruker?.person?.pin?.firstOrNull { it.land == inst.land }?.identifikator,
+                        p6000.pensjon?.gjenlevende?.person?.pin?.firstOrNull { it.land == inst.land }?.identifikator)
                 }
             }
             // benytter andreinstitusjoner, hvis ingen utenlandske institusjoner finnes i eessisak
@@ -132,7 +133,10 @@ class PensjonsinformasjonUtlandService(
         }
 
         val eessisakItems = p6000.nav?.eessisak?.map {
-            EessisakItem(institusjonsid = it.institusjonsid, institusjonsnavn = it.institusjonsnavn, land = it.land, saksnummer = it.saksnummer)
+            val personPinItem = p6000.nav?.bruker?.person?.pin?.firstOrNull()
+            EessisakItemP1(personPinItem?.institusjonsid,
+                institusjonsnavn = personPinItem?.institusjonsnavn, land = personPinItem?.land, saksnummer = personPinItem?.institusjon?.saksnummer, identifikatorForsikrede = personPinItem?.identifikator,
+                identifikatorInnehaver = p6000.pensjon?.gjenlevende?.person?.pin?.firstOrNull()?.identifikator)
         }
         if(eessisakItems?.isNotEmpty() == true && eessisakItems.count { it.land == "NO" } > 1 || (norskeEllerUtlandskeInstitusjoner?.count { it.land == "NO" } ?: 0) > 1) {
             logger.error("OBS OBS; Her kommer det inn mer enn 1 innvilget pensjon fra Norge i Seden")

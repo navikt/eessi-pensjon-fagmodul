@@ -208,8 +208,6 @@ class PensjonsinformasjonUtlandControllerTest {
             assertEquals("Gjenlevende", sakstype)
             assertEquals("AKROBAT", innehaver.etternavn)
             assertEquals("ROSA", forsikrede.fornavn)
-//            assertEquals("06448422184", forsikrede.pin?.first()?.identifikator)
-//            assertEquals("16888697822", innehaver.pin?.first()?.identifikator)
 
             assertEquals(2, innvilgedePensjoner.size)
             assertEquals("[EessisakItemP1(institusjonsid=DEEEEEEE, institusjonsnavn=Tysker, saksnummer=null, land=DE, identifikatorForsikrede=06448422184, identifikatorInnehaver=16888697822)]", innvilgedePensjoner[0].institusjon.toString())
@@ -334,9 +332,7 @@ class PensjonsinformasjonUtlandControllerTest {
 
         with(p6000Detaljer) {
             assertEquals("ROSA", forsikrede.fornavn)
-//            assertEquals("06448422184", forsikrede.pin?.first()?.identifikator)
             assertEquals("AKROBAT", innehaver.etternavn)
-//            assertEquals("16888697822", innehaver.pin?.first()?.identifikator)
 
             assertEquals("Gjenlevende", sakstype)
             assertEquals(1, innvilgedePensjoner.size)
@@ -372,14 +368,10 @@ class PensjonsinformasjonUtlandControllerTest {
 
         with(p6000Detaljer) {
             assertEquals("Gjenlevende", sakstype)
-
             assertEquals("ROSA", forsikrede.fornavn)
-//            assertEquals("06448422184", forsikrede.pin?.first()?.identifikator)
-
             assertEquals("AKROBAT", innehaver.etternavn)
-//            assertEquals("16888697822", innehaver.pin?.first()?.identifikator)
-
             assertEquals(0, innvilgedePensjoner.size)
+            assertEquals(2, avslaattePensjoner.size)
         }
 
         val avslaattePensjoner = p6000Detaljer.avslaattePensjoner
@@ -391,6 +383,35 @@ class PensjonsinformasjonUtlandControllerTest {
             //Avslått pensjon fra Tyskland
             assertEquals("2025-02-05", avslaattePensjoner.last().vedtaksdato)
             assertEquals("[EessisakItemP1(institusjonsid=DE:DEUTCHE, institusjonsnavn=Tysk Inst, saksnummer=null, land=DE, identifikatorForsikrede=06448422184, identifikatorInnehaver=16888697822)]", avslaattePensjoner.last().institusjon.toString())
+        }
+    }
+
+    @Test
+    fun `Gitt en avslaatt pensjon fra utland og en norsk innvilget pensjon`() {
+        every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
+            every { exists() } returns true
+            every { getContent() } returns p6000Detaljer(listOf("1111", "2222")).toByteArray()
+        }
+        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "1111") } returns hentTestP6000("p6000JsonNo.json")
+        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "2222") } returns hentTestP6000("P6000JsonUTL.json")
+
+        every { euxInnhentingService.hentSedMetadata("1446704", "1111") } returns sedMetadata(SENT)
+        every { euxInnhentingService.hentSedMetadata("1446704", "2222") } returns sedMetadata(RECEIVED)
+
+
+        val p6000Detaljer = controller.hentP6000Detaljer("22975052")
+
+        with(p6000Detaljer) {
+            assertEquals("UFORE", sakstype)
+            assertEquals(1, innvilgedePensjoner.size)
+            assertEquals(1, avslaattePensjoner.size)
+        }
+
+        val avslaattePensjoner = p6000Detaljer.avslaattePensjoner
+        with(avslaattePensjoner) {
+            assertEquals(1, avslaattePensjoner.size)
+            assertEquals("[EessisakItemP1(institusjonsid=IS:6602692669, institusjonsnavn=Tryggingastofnun rikisins, saksnummer=not known, land=IS, identifikatorForsikrede=not known, identifikatorInnehaver=null)]", avslaattePensjoner.firstOrNull()?.institusjon.toString())
+            //Avslått pensjon fra Tyskland
         }
     }
 
