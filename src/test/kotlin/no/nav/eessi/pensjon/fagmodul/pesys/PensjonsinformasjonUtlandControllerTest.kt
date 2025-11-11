@@ -362,7 +362,7 @@ class PensjonsinformasjonUtlandControllerTest {
         val p6000Detaljer = controller.hentP6000Detaljer("22975052")
 
         with(p6000Detaljer) {
-            assertEquals("Gjenlevende", sakstype)
+            assertEquals("GJENLEVENDE", sakstype)
             assertEquals("ROSA", forsikrede.fornavn)
             assertEquals("AKROBAT", innehaver.etternavn)
             assertEquals(0, innvilgedePensjoner.size)
@@ -440,7 +440,7 @@ class PensjonsinformasjonUtlandControllerTest {
             assertEquals("2025-10-05", avslaattePensjoner.firstOrNull()?.vedtaksdato)
             assertEquals("[EessisakItemP1(institusjonsid=NO:NAVAT07, institusjonsnavn=NAV ACCEPTANCE TEST 07, saksnummer=1003563, land=NO, identifikatorForsikrede=06448422184, identifikatorInnehaver=16888697822)]", avslaattePensjoner.firstOrNull()?.institusjon.toString())
             //Avslått pensjon fra Tyskland
-            assertEquals("[EessisakItemP1(institusjonsid=DE:DEUTCHE, institusjonsnavn=Tysk Inst, saksnummer=88888, land=DE, identifikatorForsikrede=06448422184, identifikatorInnehaver=16888697822)]", avslaattePensjoner.last().institusjon.toString())
+            assertEquals("[EessisakItemP1(institusjonsid=DE:DEUTCHE, institusjonsnavn=Tysk Inst, saksnummer=88888, land=DE, identifikatorForsikrede=null, identifikatorInnehaver=null)]", avslaattePensjoner.last().institusjon.toString())
         }
     }
 
