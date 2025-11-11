@@ -135,7 +135,7 @@ class PensjonsinformasjonUtlandControllerTest {
 
         val result = controller.hentP6000Detaljer("22975052")
 
-        assertEquals("Gjenlevende", result.sakstype)
+        assertEquals("ALDER", result.sakstype)
         assertEquals("æøå", result.innehaver.etternavn)
         assertEquals("æøå", result.forsikrede.fornavn)
     }
@@ -151,7 +151,7 @@ class PensjonsinformasjonUtlandControllerTest {
 
         val result = controller.hentP6000Detaljer("22975052")
         with(result) {
-            assertEquals("Gjenlevende", sakstype)
+            assertEquals("GJENLEVENDE", sakstype)
             assertEquals(1, innvilgedePensjoner.size)
             assertEquals("9174", innvilgedePensjoner.firstOrNull()?.bruttobeloep)
         }
@@ -174,13 +174,10 @@ class PensjonsinformasjonUtlandControllerTest {
         val result = controller.hentP6000Detaljer("22975052")
 
         with(result) {
-            assertEquals("Gjenlevende", sakstype)
+            assertEquals("UFORE", sakstype)
             println("innehaver: ${innehaver.toJson()}")
             assertEquals("ROSA", forsikrede.fornavn)
             assertEquals(null, innehaver.etternavn)
-//            assertEquals(2, forsikrede.pin?.size)
-//            assertEquals("04117512849", forsikrede.pin?.first()?.identifikator)
-//            assertEquals("JE 25 19 53 B", forsikrede.pin?.last()?.identifikator)
 
             assertEquals(1, innvilgedePensjoner.size)
             assertEquals(1, avslaattePensjoner.size)
@@ -205,7 +202,7 @@ class PensjonsinformasjonUtlandControllerTest {
         val result = controller.hentP6000Detaljer("22975052")
         println("resultat: ${result.toJson()}")
         with(result) {
-            assertEquals("Gjenlevende", sakstype)
+            assertEquals("GJENLEVENDE", sakstype)
             assertEquals("AKROBAT", innehaver.etternavn)
             assertEquals("ROSA", forsikrede.fornavn)
 
@@ -229,11 +226,9 @@ class PensjonsinformasjonUtlandControllerTest {
 
         val result = controller.hentP6000Detaljer("22975052")
         with(result){
-            assertEquals("Gjenlevende", sakstype)
+            assertEquals("GJENLEVENDE", sakstype)
             assertEquals("AKROBAT", innehaver.etternavn)
             assertEquals("ROSA", forsikrede.fornavn)
-//            assertEquals("06448422184", forsikrede.pin?.first()?.identifikator)
-//            assertEquals("16888697822", innehaver.pin?.first()?.identifikator)
             assertEquals(1, innvilgedePensjoner.size)
             assertEquals("[EessisakItemP1(institusjonsid=NO:NAVAT07, institusjonsnavn=NAV ACCEPTANCE TEST 07, saksnummer=1003563, land=NO, identifikatorForsikrede=06448422184, identifikatorInnehaver=16888697822)]", innvilgedePensjoner[0].institusjon.toString())
         }
@@ -334,7 +329,7 @@ class PensjonsinformasjonUtlandControllerTest {
             assertEquals("ROSA", forsikrede.fornavn)
             assertEquals("AKROBAT", innehaver.etternavn)
 
-            assertEquals("Gjenlevende", sakstype)
+            assertEquals("GJENLEVENDE", sakstype)
             assertEquals(1, innvilgedePensjoner.size)
         }
 
@@ -431,13 +426,9 @@ class PensjonsinformasjonUtlandControllerTest {
         val p6000Detaljer = controller.hentP6000Detaljer("22975052")
 
         with(p6000Detaljer) {
-            assertEquals("Gjenlevende", sakstype)
-
+            assertEquals("GJENLEVENDE", sakstype)
             assertEquals("ROSA", forsikrede.fornavn)
-//            assertEquals("06448422184", forsikrede.pin?.first()?.identifikator)
-
             assertEquals("AKROBAT", innehaver.etternavn)
-//            assertEquals("16888697822", innehaver.pin?.first()?.identifikator)
 
             assertEquals(0, innvilgedePensjoner.size)
         }

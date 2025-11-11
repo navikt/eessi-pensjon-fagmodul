@@ -130,8 +130,8 @@ class PensjonsinformasjonUtlandController(
         innvilgedePensjoner: List<InnvilgetPensjon>,
         avslaatteUtenlandskePensjoner: List<AvslaattPensjon>
     ): KravType? {
-        val saksType = innvilgedePensjoner.first().pensjonstype
-            ?: avslaatteUtenlandskePensjoner.first().pensjonstype
+        val saksType = innvilgedePensjoner.firstOrNull()?.pensjonstype
+            ?: avslaatteUtenlandskePensjoner.firstOrNull()?.pensjonstype
         return KravType.fraNavnEllerVerdi(saksType)
     }
 

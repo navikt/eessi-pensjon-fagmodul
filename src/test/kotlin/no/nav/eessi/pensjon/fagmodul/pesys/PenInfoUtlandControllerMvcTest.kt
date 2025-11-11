@@ -71,7 +71,7 @@ class PenInfoUtlandControllerMvcTest {
                 .andReturn()
         println(repsonse.response.contentAsString)
         //sakstype
-        assert( repsonse.response.contentAsString.contains(""""sakstype":"Gjenlevende""""))
+        assert( repsonse.response.contentAsString.contains(""""sakstype":"GJENLEVENDE""""))
         //vurderingsperiode
         assert( repsonse.response.contentAsString.contains("""six weeks from the date the decision is received"""))
         //institusjon
