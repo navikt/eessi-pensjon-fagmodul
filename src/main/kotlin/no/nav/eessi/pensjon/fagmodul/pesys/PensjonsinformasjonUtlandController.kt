@@ -1,6 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.pesys
 
 import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonValue
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
@@ -8,6 +9,8 @@ import no.nav.eessi.pensjon.eux.model.sed.P6000
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandService.BrukerEllerGjenlevende.FORSIKRET
 import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandService.BrukerEllerGjenlevende.GJENLEVENDE
+import no.nav.eessi.pensjon.fagmodul.pesys.krav.AvslaattPensjon
+import no.nav.eessi.pensjon.fagmodul.pesys.krav.InnvilgetPensjon
 import no.nav.eessi.pensjon.fagmodul.pesys.krav.P1Dto
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.metrics.MetricsHelper
@@ -114,7 +117,7 @@ class PensjonsinformasjonUtlandController(
            P1Dto(
                 innehaver = penInfoUtlandService.person(penInfoUtlandService.nyesteP6000(listeOverP6000FraGcp).first(), GJENLEVENDE),
                 forsikrede = penInfoUtlandService.person(penInfoUtlandService.nyesteP6000(listeOverP6000FraGcp).first(), FORSIKRET),
-                sakstype = "Gjenlevende",
+                sakstype = saksType(innvilgedePensjoner, avslaatteUtenlandskePensjoner)?.name,
                 kravMottattDato = null,
                 innvilgedePensjoner = innvilgedePensjoner,
                 avslaattePensjoner = avslaatteUtenlandskePensjoner,
@@ -123,9 +126,30 @@ class PensjonsinformasjonUtlandController(
         }
     }
 
+    private fun saksType(
+        innvilgedePensjoner: List<InnvilgetPensjon>,
+        avslaatteUtenlandskePensjoner: List<AvslaattPensjon>
+    ): KravType? {
+        val saksType = innvilgedePensjoner.firstOrNull()?.pensjonstype
+            ?: avslaatteUtenlandskePensjoner.firstOrNull()?.pensjonstype
+        return KravType.fraNavnEllerVerdi(saksType)
+    }
+
     class EmptyStringToNullDeserializer : JsonDeserializer<String?>() {
         override fun deserialize(p: JsonParser, ctxt: DeserializationContext): String? {
             return p.valueAsString.takeIf { !it.isNullOrBlank() }
+        }
+    }
+
+    enum class KravType(@JsonValue val verdi: String?) {
+        ALDER("01"),
+        UFORE("02"),
+        GJENLEVENDE("03");
+
+        companion object {
+            fun fraNavnEllerVerdi(input: String?): KravType? {
+                return entries.find { it.name == input || it.verdi == input }
+            }
         }
     }
 

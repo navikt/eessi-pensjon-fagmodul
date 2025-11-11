@@ -7,7 +7,7 @@ import java.time.LocalDate
 data class P1Dto(
     val innehaver: P1Person,
     val forsikrede: P1Person,
-    val sakstype: String,
+    val sakstype: String?,
     val kravMottattDato: LocalDate? = null,
     val innvilgedePensjoner: List<InnvilgetPensjon>,
     val avslaattePensjoner: List<AvslaattPensjon>,
@@ -27,7 +27,7 @@ data class P1Dto(
 
     data class InnvilgetPensjon(
         val institusjon: List<EessisakItemP1>?,
-        val pensjonstype: String,
+        val pensjonstype: String?,
         val datoFoersteUtbetaling: LocalDate?,
         val bruttobeloep: String?,
         val valuta: String?,
