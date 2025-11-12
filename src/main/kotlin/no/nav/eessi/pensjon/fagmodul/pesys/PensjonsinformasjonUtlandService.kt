@@ -18,6 +18,7 @@ import no.nav.eessi.pensjon.fagmodul.pesys.krav.InnvilgetPensjon
 import no.nav.eessi.pensjon.fagmodul.pesys.krav.P1Person
 import no.nav.eessi.pensjon.fagmodul.pesys.krav.UforeUtlandKrav
 import no.nav.eessi.pensjon.kodeverk.KodeverkClient
+import no.nav.eessi.pensjon.kodeverk.Landkode
 import no.nav.eessi.pensjon.utils.toJson
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -91,7 +92,7 @@ class PensjonsinformasjonUtlandService(
     //TODO: refaktorere metoden; for kompleks
     fun eessiInstitusjoner(p6000: P6000): List<EessisakItemP1>? {
         val saksnummerFraTilleggsInformasjon = p6000.pensjon?.tilleggsinformasjon?.saksnummer
-        val norskeEllerUtlandskeInstitusjoner = if(p6000.retning.isNorsk()) {
+        val norskeEllerUtlandskeInstitusjoner = if(p6000.avsender?.land.isNorsk()) {
             // primært hentes norske institusjoner fra eessisak
             if(p6000.nav?.eessisak?.isNotEmpty() == true) {
                 p6000.nav?.eessisak?.map {
@@ -101,18 +102,18 @@ class PensjonsinformasjonUtlandService(
                         it.saksnummer,
                         "NO",
                         p6000.nav?.bruker?.person?.pin?.firstOrNull { it.land == "NO" }?.identifikator,
-                        p6000.pensjon?.gjenlevende?.person?.pin?.firstOrNull()?.identifikator
+                        p6000.pensjon?.gjenlevende?.person?.pin?.firstOrNull { it.land == "NO" }?.identifikator
                     )
                 }
             }
             // benytter andreinstitusjoner, hvis ingen norske institusjoner i eessisak
             else {
                 p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.filter { it.land == "NO" }?.map {
-                    EessisakItemP1(it.institusjonsid, it.institusjonsnavn, saksnummerFraTilleggsInformasjon, it.land,p6000.nav?.bruker?.person?.pin?.firstOrNull()?.identifikator,
-                        p6000.pensjon?.gjenlevende?.person?.pin?.firstOrNull()?.identifikator)
+                    EessisakItemP1(it.institusjonsid, it.institusjonsnavn, saksnummerFraTilleggsInformasjon, it.land,p6000.nav?.bruker?.person?.pin?.firstOrNull{ it.land == "NO" }?.identifikator,
+                        p6000.pensjon?.gjenlevende?.person?.pin?.firstOrNull{ it.land == "NO" }?.identifikator)
                 }
             }
-        } else if(p6000.retning.isUtenlandsk()) {
+        } else if(p6000.avsender?.land.isUtenlandsk()) {
             // Henter utenlandske institusjoner fra eessisak dersom de finnes der
             if(p6000.nav?.eessisak?.isNotEmpty() == true && p6000.nav?.eessisak?.any { it.land != "NO" } == true) {
                 p6000.nav?.eessisak?.filter { it.land != "NO" }?.map { inst ->
@@ -140,7 +141,7 @@ class PensjonsinformasjonUtlandService(
         }
         if(eessisakItems?.isNotEmpty() == true && eessisakItems.count { it.land == "NO" } > 1 || (norskeEllerUtlandskeInstitusjoner?.count { it.land == "NO" } ?: 0) > 1) {
             logger.error("OBS OBS; Her kommer det inn mer enn 1 innvilget pensjon fra Norge i Seden")
-            if(!p6000.retning.isNorsk()){
+            if(!p6000.avsender?.land.isNorsk()){
                 return norskeEllerUtlandskeInstitusjoner?.filter { it.land != "NO"}
             }
             return emptyList()
@@ -156,11 +157,11 @@ class PensjonsinformasjonUtlandService(
         hentInnvilgedePensjonerFraP6000er(p6000er).map { p6000 ->
             val vedtak = p6000.pensjon?.vedtak?.first()
 
-            if (p6000.retning.isNorsk() && flereEnnEnNorsk && retList.count { it.retning.isNorsk() } >= 1) {
+            if (p6000.avsender?.land.isNorsk() && flereEnnEnNorsk && retList.count { it.avsender?.land.isNorsk() } >= 1) {
                 logger.error(" OBS OBS; Her kommer det inn mer enn 1 innvilget pensjon fra Norge")
                 secureLog.info("Hopper over innvilget pensjon P6000: $p6000")
             } else {
-                logger.info("Legger til innvilget pensjon fra sed med retning: ${p6000.retning}")
+                logger.info("Legger til innvilget pensjon fra land: ${p6000.avsender?.land}")
                 retList.add(
                     InnvilgetPensjon(
                         institusjon = eessiInstitusjoner(p6000),
@@ -174,7 +175,7 @@ class PensjonsinformasjonUtlandService(
                         vurderingsperiode = p6000.pensjon?.sak?.kravtype?.first()?.datoFrist,
                         adresseNyVurdering = p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.map { adresse(it) },
                         vedtaksdato = p6000.pensjon?.tilleggsinformasjon?.dato,
-                        retning = p6000.retning
+                        avsender = p6000.avsender
                     )
                 )
             }
@@ -206,7 +207,7 @@ class PensjonsinformasjonUtlandService(
     }.sortedByDescending { it.nav?.eessisak?.isNotEmpty() == true }
 
     private fun erDetFlereNorskeInstitusjoner(p6000er: List<P6000>): Boolean {
-        return p6000er.count { norskSed(it) }.let { antallUt ->
+        return p6000er.count { it.avsender?.land.isNorsk() }.let { antallUt ->
             if (antallUt > 1) {
                 logger.error("OBS OBS; Her kommer det inn mer enn 1 P6000 med retning UT i Seden")
                 return true
@@ -214,16 +215,9 @@ class PensjonsinformasjonUtlandService(
             false
         }
     }
-        fun norskSed(p6000: P6000): Boolean =
-            SED_RETNING.valueOf(p6000.retning) in listOf(SED_RETNING.NEW, SED_RETNING.SENT)
 
-    fun String?.isNorsk(): Boolean {
-        return this != null && SED_RETNING.valueOf(this.uppercase(getDefault())) in SED_RETNING.norskSed()
-    }
-
-    fun String?.isUtenlandsk(): Boolean {
-        return this != null && SED_RETNING.valueOf(this.uppercase(getDefault())) in SED_RETNING.utenlandskSed()
-    }
+    fun String?.isNorsk(): Boolean = this != null && this == "NO"
+    fun String?.isUtenlandsk(): Boolean = this != null && this != "NO"
 
     fun debugPrintout(kravUtland: KravUtland) {
         logger.info(
@@ -244,11 +238,11 @@ class PensjonsinformasjonUtlandService(
         p6000erAvslaatt.map { p6000 ->
             val vedtak = p6000.pensjon?.vedtak?.first()
 
-            if (p6000.retning.isNorsk() && flereEnnEnNorsk && retList.count { it.retning.isNorsk()  } >= 1) {
+            if (p6000.avsender?.land.isNorsk() && flereEnnEnNorsk && retList.count { it.avsender?.land.isNorsk()  } >= 1) {
                 logger.error(" OBS OBS; Her kommer det inn mer enn 1 avslått pensjon fra Norge")
                 secureLog.info("Hopper over denne avslåtte seden: $p6000")
             } else {
-                logger.info("Legger til avslått pensjon fra sed med retning: ${p6000.retning}")
+                logger.info("Legger til avslått pensjon fra sed med avsender?.land: ${p6000.avsender?.land}")
                 val institusjon = eessiInstitusjoner(p6000)
                 retList.add(
                     AvslaattPensjon(
@@ -258,7 +252,7 @@ class PensjonsinformasjonUtlandService(
                         vurderingsperiode = p6000.pensjon?.sak?.kravtype?.first()?.datoFrist,
                         adresseNyVurdering = p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.map { adresse(it) },
                         vedtaksdato = p6000.pensjon?.tilleggsinformasjon?.dato,
-                        retning = p6000.retning
+                        avsender = p6000.avsender
                     )
                 )
             }
@@ -305,7 +299,7 @@ class PensjonsinformasjonUtlandService(
         return seds.flatMap { sed ->
             val person = hentBrukerEllerGjenlevende(brukerEllerGjenlevende, sed)
             when {
-                sed.retning.isNorsk() -> person?.pin?.filter { it.land == "NO" }.orEmpty()
+                sed.avsender?.land.isNorsk() -> person?.pin?.filter { it.land == "NO" }.orEmpty()
                 else -> person?.pin?.filter { it.land != "NO" }.orEmpty()
             }
         }.distinct()
@@ -346,24 +340,5 @@ class PensjonsinformasjonUtlandService(
         GJENLEVENDE ("gjenlevende")
     }
 
-
-}
-
-enum class SED_RETNING (val value: String) {
-    SENT("SENT"),
-    NEW("NEW"),
-    RECEIVED("RECEIVED"),
-    EMPTY("EMPTY");
-
-    override fun toString(): String = value
-
-    companion object {
-        fun valueOf(value: String?): SED_RETNING {
-            return entries.find { it.value.equals(value, ignoreCase = true) }
-                ?: EMPTY
-        }
-        fun norskSed()= setOf(NEW, SENT)
-        fun utenlandskSed()= setOf(RECEIVED)
-    }
 
 }

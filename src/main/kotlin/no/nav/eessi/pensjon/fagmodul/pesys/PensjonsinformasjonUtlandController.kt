@@ -102,7 +102,7 @@ class PensjonsinformasjonUtlandController(
                     val hentetJsonP6000 = euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(p6000Detaljer.rinaSakId, p6000)
                     val hentetP6000 = hentetJsonP6000 as P6000
                     val sedMetaData = euxInnhentingService.hentSedMetadata(p6000Detaljer.rinaSakId, p6000)
-                    hentetP6000.retning = sedMetaData?.status
+                    hentetP6000.avsender = sedMetaData?.avsender
                     hentetP6000.let { listeOverP6000FraGcp.add(it) }
                 }
             }
