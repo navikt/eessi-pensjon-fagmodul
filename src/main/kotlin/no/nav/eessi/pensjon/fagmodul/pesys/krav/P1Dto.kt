@@ -1,5 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.pesys.krav
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonInclude
 import no.nav.eessi.pensjon.eux.model.sed.AndreinstitusjonerItem
 import java.time.LocalDate
@@ -37,7 +38,7 @@ data class P1Dto(
         val vurderingsperiode: String?,
         val adresseNyVurdering: List<AndreinstitusjonerItem>?,
         val vedtaksdato: String?,
-        @Transient
+        @JsonIgnore
         val retning: String? = null,
     )
 
@@ -48,7 +49,7 @@ data class P1Dto(
         val vurderingsperiode: String?,
         val adresseNyVurdering: List<AndreinstitusjonerItem>?,
         val vedtaksdato: String?,
-        @Transient
+        @JsonIgnore
         var retning: String? = null
     )
 
