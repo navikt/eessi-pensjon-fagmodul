@@ -105,11 +105,11 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         )
         val buc02 = Buc(id = EUXCASE_ID, processDefinitionName = "P_BUC_02", startDate = lastupdate, lastUpdate = lastupdate,  documents = docItems)
 
-        val rinabucpath = "/buc/$EUXCASE_ID"
+        val rinabucpath = "/cpi/buc/$EUXCASE_ID"
         every { euxNavIdentRestTemplate.exchange( rinabucpath, HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( buc02.toJson() )
 
         //buc02 sed
-        val rinabucdocumentidpath = "/buc/$EUXCASE_ID/sed/1"
+        val rinabucdocumentidpath = "/cpi/buc/$EUXCASE_ID/sed/1"
         val sedjson = javaClass.getResource("/json/nav/P2100-PinNO-NAV.json")!!.readText()
 
         every { euxNavIdentRestTemplate.exchange( rinabucdocumentidpath, HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( sedjson )
@@ -129,8 +129,8 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         """.trimIndent()
 
         JSONAssert.assertEquals(expected, response, false)
-        verify (exactly = 1) { euxNavIdentRestTemplate.exchange("/buc/$EUXCASE_ID", HttpMethod.GET, null, String::class.java)  }
-        verify (exactly = 1) { euxNavIdentRestTemplate.exchange("/buc/$EUXCASE_ID/sed/1", HttpMethod.GET, null, String::class.java) }
+        verify (exactly = 1) { euxNavIdentRestTemplate.exchange("/cpi/buc/$EUXCASE_ID", HttpMethod.GET, null, String::class.java)  }
+        verify (exactly = 1) { euxNavIdentRestTemplate.exchange("/cpi/buc/$EUXCASE_ID/sed/1", HttpMethod.GET, null, String::class.java) }
 
     }
 
@@ -146,7 +146,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         )
         val buc10 = Buc(id = EUXCASE_ID, processDefinitionName = "P_BUC_10", startDate = lastupdate, lastUpdate = lastupdate,  documents = docItems)
 
-        val rinabucpath = "/buc/$EUXCASE_ID"
+        val rinabucpath = "/cpi/buc/$EUXCASE_ID"
         every { euxNavIdentRestTemplate.exchange( rinabucpath, HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( buc10.toJson() )
 
         val result = mockMvc.perform(
@@ -163,7 +163,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         """.trimIndent()
 
         JSONAssert.assertEquals(expected, response, false)
-        verify (exactly = 1) { euxNavIdentRestTemplate.exchange("/buc/$EUXCASE_ID", HttpMethod.GET, null, String::class.java)  }
+        verify (exactly = 1) { euxNavIdentRestTemplate.exchange("/cpi/buc/$EUXCASE_ID", HttpMethod.GET, null, String::class.java)  }
 
     }
 
@@ -179,7 +179,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         )
         val buc01 = Buc(id = EUXCASE_ID2, processDefinitionName = "P_BUC_01", startDate = lastupdate, lastUpdate = lastupdate,  documents = docItems)
 
-        val rinabucpath = "/buc/$EUXCASE_ID2"
+        val rinabucpath = "/cpi/buc/$EUXCASE_ID2"
         every { euxNavIdentRestTemplate.exchange( rinabucpath, HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( buc01.toJson() )
 
         val result = mockMvc.perform(
@@ -196,7 +196,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         """.trimIndent()
 
         JSONAssert.assertEquals(expected, response, false)
-        verify (exactly = 1) { euxNavIdentRestTemplate.exchange("/buc/$EUXCASE_ID2", HttpMethod.GET, null, String::class.java)  }
+        verify (exactly = 1) { euxNavIdentRestTemplate.exchange("/cpi/buc/$EUXCASE_ID2", HttpMethod.GET, null, String::class.java)  }
     }
 
     @Test
@@ -204,7 +204,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         //aktoerid -> fnr
         every { personService.hentIdent(FOLKEREGISTERIDENT, AktoerId(AKTOERID)) } returns NorskIdent(FNR)
 
-        val rinabucpath = "/buc/$EUXCASE_ID2"
+        val rinabucpath = "/cpi/buc/$EUXCASE_ID2"
         every { euxNavIdentRestTemplate.exchange( rinabucpath, HttpMethod.GET, null, String::class.java) } throws HttpClientErrorException(HttpStatus.NOT_FOUND)
 
         val result = mockMvc.perform(
@@ -219,7 +219,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         val bucView = mapJsonToAny<BucAndSedView>(response)
         assertEquals("404 NOT_FOUND", bucView.error)
 
-        verify (exactly = 1) { euxNavIdentRestTemplate.exchange("/buc/$EUXCASE_ID2", HttpMethod.GET, null, String::class.java)  }
+        verify (exactly = 1) { euxNavIdentRestTemplate.exchange("/cpi/buc/$EUXCASE_ID2", HttpMethod.GET, null, String::class.java)  }
     }
 
     @Test
@@ -261,8 +261,8 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         val httpEntity = dummyHeader(dummySafReqeust(AKTOERID))
         every { safGraphQlOidcRestTemplate.exchange(eq("/"), eq(HttpMethod.POST), eq(httpEntity), eq(String::class.java)) } returns ResponseEntity.ok().body(  dummySafMetaResponseMedRina( "5010", "344000" ) )
 
-        every { euxNavIdentRestTemplate.exchange( "/buc/5010", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "5010", processDefinitionName = "P_BUC_02").toJson() )
-        every { euxNavIdentRestTemplate.exchange("/buc/344000", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "344000", processDefinitionName = "P_BUC_03").toJson() )
+        every { euxNavIdentRestTemplate.exchange( "/cpi/buc/5010", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "5010", processDefinitionName = "P_BUC_02").toJson() )
+        every { euxNavIdentRestTemplate.exchange("/cpi/buc/344000", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "344000", processDefinitionName = "P_BUC_03").toJson() )
         every { gcpStorageService.gjennySakFinnes(any()) } returns false
 
         val result = mockMvc.perform(
@@ -298,8 +298,8 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
        //gjenlevende rinasak
         every { euxNavIdentRestTemplate.exchange("/rinasaker?fødselsnummer=1234567890000&status=\"open\"", HttpMethod.GET, null, String::class.java) } .answers( FunctionAnswer { Thread.sleep(250);  ResponseEntity.ok().body( listOf(dummyRinasak("5195021", "P_BUC_05") ).toJson() ) } )
-        every { euxNavIdentRestTemplate.exchange( "/buc/5922554", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "5922554", processDefinitionName = "P_BUC_03").toJson() )
-        every { euxNavIdentRestTemplate.exchange( "/buc/5195021", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "5195021", processDefinitionName = "P_BUC_03").toJson() )
+        every { euxNavIdentRestTemplate.exchange( "/cpi/buc/5922554", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "5922554", processDefinitionName = "P_BUC_03").toJson() )
+        every { euxNavIdentRestTemplate.exchange( "/cpi/buc/5195021", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "5195021", processDefinitionName = "P_BUC_03").toJson() )
         every { gcpStorageService.gjennySakFinnes("5195021") } returns false
         every { gcpStorageService.gjennySakFinnes("5922554") } returns false
 
@@ -334,9 +334,9 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
         //gjenlevende rinasak
         every { euxNavIdentRestTemplate.exchange("/rinasaker?fødselsnummer=1234567890000&status=\"open\"", HttpMethod.GET, null, String::class.java) } .answers( FunctionAnswer { Thread.sleep(250);  ResponseEntity.ok().body( listOf(dummyRinasak("5195021", "P_BUC_05") ).toJson() ) } )
-        every { euxNavIdentRestTemplate.exchange( "/buc/5922554", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "5922554", processDefinitionName = "P_BUC_03").toJson() )
-        every { euxNavIdentRestTemplate.exchange( "/buc/5195021", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "5195021", processDefinitionName = "P_BUC_03").toJson() )
-        every { euxNavIdentRestTemplate.exchange( "/buc/000001", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "000001", processDefinitionName = "P_BUC_02").toJson() )
+        every { euxNavIdentRestTemplate.exchange( "/cpi/buc/5922554", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "5922554", processDefinitionName = "P_BUC_03").toJson() )
+        every { euxNavIdentRestTemplate.exchange( "/cpi/buc/5195021", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "5195021", processDefinitionName = "P_BUC_03").toJson() )
+        every { euxNavIdentRestTemplate.exchange( "/cpi/buc/000001", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "000001", processDefinitionName = "P_BUC_02").toJson() )
 
         every { gcpStorageService.gjennySakFinnes("5922554") } returns false
         every { gcpStorageService.gjennySakFinnes("5195021") } returns false

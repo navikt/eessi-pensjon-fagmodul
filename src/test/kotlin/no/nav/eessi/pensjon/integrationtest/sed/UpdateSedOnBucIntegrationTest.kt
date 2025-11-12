@@ -63,7 +63,7 @@ class UpdateSedOnBucIntegrationTest {
 
         /////cpi/buc/{RinaSakId}/sed/{DokumentId}
         every { restTemplate.exchange(
-            eq("/buc/$euxCaseId/sed/$documentId?ventePaAksjon=false"),
+            eq("/cpi/buc/$euxCaseId/sed/$documentId?ventePaAksjon=false"),
             eq(HttpMethod.PUT),
             any(),
             eq(String::class.java)) } returns ResponseEntity("", HttpStatus.OK)
@@ -108,7 +108,7 @@ class UpdateSedOnBucIntegrationTest {
 
         /////cpi/buc/{RinaSakId}/sed/{DokumentId}
         every { restTemplate.exchange(
-            eq("/buc/$euxCaseId/sed/$documentId?ventePaAksjon=false"),
+            eq("/cpi/buc/$euxCaseId/sed/$documentId?ventePaAksjon=false"),
             eq(HttpMethod.PUT),
             any(),
             eq(String::class.java)) } returns ResponseEntity("", HttpStatus.OK)
@@ -129,7 +129,7 @@ class UpdateSedOnBucIntegrationTest {
 
         /////cpi/buc/{RinaSakId}/sed/{DokumentId}
         every { restTemplate.exchange(
-            eq("/buc/$euxCaseId/sed/$documentId?ventePaAksjon=false"),
+            eq("/cpi/buc/$euxCaseId/sed/$documentId?ventePaAksjon=false"),
             eq(HttpMethod.PUT),
             any(),
             eq(String::class.java)) } returns ResponseEntity("", HttpStatus.OK)
