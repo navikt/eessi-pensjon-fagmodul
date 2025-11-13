@@ -53,7 +53,7 @@ class EuxServiceKallItegrationTest {
         val mockRina2020url = "https://rina-q.adeo.no/portal_new/case-management/"
 
         every { euxNavIdentRestTemplate.exchange(
-            eq("/cpi/url/buc/$fakeid"),
+            eq("/url/buc/$fakeid"),
             eq(HttpMethod.GET),
             any(),
             eq(String::class.java)) } returns ResponseEntity.ok().body( mockRina2020url+fakeid )
