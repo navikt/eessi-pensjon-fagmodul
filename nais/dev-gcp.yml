@@ -65,6 +65,12 @@ spec:
         - application: eessi-pensjon-frontend-ui-q2
           namespace: eessipensjon
           cluster: dev-gcp
+        - application: eessi-pensjon-frontend-ui-q1
+          namespace: eessipensjon
+          cluster: dev-gcp
+        - application: eessi-pensjon-frontend-ui-q1-experimental
+          namespace: eessipensjon
+          cluster: dev-gcp
         - application: eessi-pensjon-saksbehandling-api-q2
           namespace: eessipensjon
           cluster: dev-gcp
