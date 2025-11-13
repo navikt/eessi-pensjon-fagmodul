@@ -40,6 +40,7 @@ import org.springframework.retry.annotation.Backoff
 import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
+import org.springframework.web.client.RestTemplate
 import org.springframework.web.server.ResponseStatusException
 import java.io.IOException
 
@@ -48,6 +49,7 @@ class EuxInnhentingService(
     @Value("\${ENV}") private val environment: String,
     private val euxKlient: EuxKlientAsSystemUser,
     private val gcpService: GcpStorageService,
+    private val euxNavIdentRestTemplateV2: RestTemplate,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
 
@@ -528,10 +530,18 @@ class EuxInnhentingService(
         return euxKlient.lagPdf(pdfJson)
     }
 
-    fun hentSedMetadata(rinaSakId: String, p6000: String): SedMetadata? {
-        return euxKlient.getMetaDataAsSystemuser(rinaSakId, p6000)
-    }
+//    fun hentSedMetadata(rinaSakId: String, p6000: String): SedMetadata? {
+//        return euxKlient.getMetaDataAsSystemuser(rinaSakId, p6000)
+//    }
 
+
+    fun hentSedMetadata(rinasakId: String, dokumentId: String): SedMetadata? {
+        logger.info("Henter SED metadata for rinaSakId: $rinasakId , dokumentId: $dokumentId")
+
+        val response = euxNavIdentRestTemplateV2.getForObject("/buc/$rinasakId/sed/$dokumentId/oversikt", String::class.java)
+        return response?.let { mapJsonToAny<SedMetadata>(it) }
+
+    }
     /**
      * Utvalgt informasjon om en rinasak/Buc.
      */
