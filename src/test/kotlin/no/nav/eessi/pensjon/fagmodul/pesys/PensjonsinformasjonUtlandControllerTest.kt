@@ -18,6 +18,7 @@ import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.springframework.web.client.RestTemplate
 
 class PensjonsinformasjonUtlandControllerTest {
 
@@ -25,6 +26,7 @@ class PensjonsinformasjonUtlandControllerTest {
     private val kodeverkClient = mockk<KodeverkClient>(relaxed = true)
     private val euxInnhentingService = mockk<EuxInnhentingService>(relaxed = true)
     private val trygdeTidService = TrygdeTidService(euxInnhentingService, kodeverkClient)
+    private val euxRestTemplateV2 = mockk<RestTemplate>()
     private val gcpStorageService = GcpStorageService(
         "_",
         "_",

@@ -45,6 +45,7 @@ import org.springframework.web.client.RestTemplate
     MockkBean(name = "safRestOidcRestTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "euxNavIdentRestTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "safGraphQlOidcRestTemplate", classes = [RestTemplate::class]),
+    MockkBean(name = "euxNavIdentRestTemplateV2", classes = [RestTemplate::class]),
     MockkBean(name = "pensjonsinformasjonClient", classes = [PensjonsinformasjonClient::class])
 )
 class VedleggControllerSpringTest {

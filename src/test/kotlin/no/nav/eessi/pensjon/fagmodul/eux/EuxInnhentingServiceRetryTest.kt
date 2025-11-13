@@ -76,6 +76,8 @@ internal class EuxInnhentingServiceRetryTest {
         @Bean
         fun euxSystemRestTemplate(): RestTemplate = mockk()
         @Bean
+        fun euxNavIdentRestTemplateV2(): RestTemplate = mockk()
+        @Bean
         fun euxKlient(): EuxKlientAsSystemUser = EuxKlientAsSystemUser(euxNavIdentRestTemplate(), euxSystemRestTemplate())
     }
 

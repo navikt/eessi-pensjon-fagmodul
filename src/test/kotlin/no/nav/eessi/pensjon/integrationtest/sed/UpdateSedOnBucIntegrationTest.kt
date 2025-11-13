@@ -38,6 +38,7 @@ import java.nio.charset.Charset
     MockkBean(name = "gcpStorageService", classes = [GcpStorageService::class]),
     MockkBean(name = "safRestOidcRestTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "safGraphQlOidcRestTemplate", classes = [RestTemplate::class]),
+    MockkBean(name = "euxNavIdentRestTemplateV2", classes = [RestTemplate::class]),
     MockkBean(name = "pensjoninformasjonRestTemplate", classes = [RestTemplate::class])
 )
 class UpdateSedOnBucIntegrationTest {
