@@ -18,7 +18,7 @@ class KodeverkService(private val euxNavIdentRestTemplate: RestTemplate) {
     private val logger = LoggerFactory.getLogger(KodeverkService::class.java)
 
     fun getLandkoderAkseptertAvRina(format: String? = null): LandkodeMerKorrektFormat? {
-        val url = "/landkoder/rina${format?.let { "?format=$it" } ?: ""}"
+        val url = "/cpi/landkoder/rina${format?.let { "?format=$it" } ?: ""}"
         logger.debug("KodeverkService getLandkoderAkseptertAvRina: $url")
 
         return try {
