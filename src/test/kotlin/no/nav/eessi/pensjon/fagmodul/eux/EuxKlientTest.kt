@@ -75,10 +75,6 @@ class EuxKlientTest {
         euxKlient = EuxKlientAsSystemUser(euxRestTemplate, euxSystemRestTemplate, 100L)
     }
 
-    private companion object {
-        const val EUX_BUC_BASE = "/cpi/buc/"
-    }
-
     @TestConfiguration
     class Config {
         @Bean
@@ -434,7 +430,7 @@ class EuxKlientTest {
     fun `gitt en mock rest-template, så forventes en korrekt formatert response fra opprettSvarSed`() {
         val euxCaseId = "123456"
         val parentDocumentId = "11111"
-        server.expect(requestTo("$EUX_BUC_BASE$euxCaseId/sed/$parentDocumentId/svar")).andRespond(withSuccess("323413415dfvsdfgq343145sdfsdfg34135", MediaType.APPLICATION_JSON))
+        server.expect(requestTo("/cpi/buc/$euxCaseId/sed/$parentDocumentId/svar")).andRespond(withSuccess("323413415dfvsdfgq343145sdfsdfg34135", MediaType.APPLICATION_JSON))
         val result = euxKlient.opprettSvarSed(SED(P2000).toJsonSkipEmpty(), euxCaseId, parentDocumentId)
 
         assertEquals(euxCaseId, result.caseId)
@@ -446,9 +442,9 @@ class EuxKlientTest {
         val gyldigBuc = javaClass.getResource("/json/buc/buc-279020big.json")!!.readText()
 
         val euxCaseId = "279029"
-        server.expect(requestTo("$EUX_BUC_BASE$euxCaseId")).andRespond { throw IOException("This did not work 1") }
-        server.expect(requestTo("$EUX_BUC_BASE$euxCaseId")).andRespond { throw IOException("This did not work $it") }
-        server.expect(requestTo("$EUX_BUC_BASE$euxCaseId")).andRespond(withSuccess(gyldigBuc, MediaType.APPLICATION_JSON))
+        server.expect(requestTo("/cpi/buc/$euxCaseId")).andRespond { throw IOException("This did not work 1") }
+        server.expect(requestTo("/cpi/buc/$euxCaseId")).andRespond { throw IOException("This did not work $it") }
+        server.expect(requestTo("/cpi/buc/$euxCaseId")).andRespond(withSuccess(gyldigBuc, MediaType.APPLICATION_JSON))
 
         val actual = euxKlient.getBucJsonAsNavIdent(euxCaseId)
         assertEquals(euxCaseId, mapJsonToAny<Buc>(actual!!).id)
@@ -457,7 +453,7 @@ class EuxKlientTest {
     @Test
     fun `gitt at eux kaster forbidden skal det avsluttes kall med en gang`() {
         val euxCaseId = "123456"
-        server.expect(requestTo("$EUX_BUC_BASE$euxCaseId")).andRespond(withStatus(HttpStatus.FORBIDDEN))
+        server.expect(requestTo("/cpi/buc/$euxCaseId")).andRespond(withStatus(HttpStatus.FORBIDDEN))
 
         assertThrows<ForbiddenException> {
             euxKlient.getBucJsonAsNavIdent(euxCaseId)
@@ -472,7 +468,7 @@ class EuxKlientTest {
             Participant(organisation = Organisation(countryCode = "DK", id = "DK006")),
             Participant(organisation = Organisation(countryCode = "PL", id = "PolishAcc"))
         )
-        server.expect(requestTo("$EUX_BUC_BASE$mockEuxRinaid/bucdeltakere")).andRespond(withSuccess(mockResponse.toJson(), MediaType.APPLICATION_JSON))
+        server.expect(requestTo("/cpi/buc/$mockEuxRinaid/bucdeltakere")).andRespond(withSuccess(mockResponse.toJson(), MediaType.APPLICATION_JSON))
 
         val deltakere = euxKlient.getBucDeltakere(mockEuxRinaid)
         assertEquals(2, deltakere.size)

@@ -53,10 +53,6 @@ class PesysIntegrationSpringTest {
     @Autowired
     private lateinit var mockMvc: MockMvc
 
-    private companion object {
-        const val EUX_BUC_BASE = "/cpi/buc/"
-    }
-
     @Test
     fun `Uføre utlandskrav returnerer json ut fra behandle P2200`() {
 
@@ -67,12 +63,12 @@ class PesysIntegrationSpringTest {
 
         //euxrest kall buc
         val buc03 = ResourceUtils.getFile("classpath:json/buc/buc-1297512-kravP2200_v4.2.json").readText()
-        val rinabucpath = "$EUX_BUC_BASE$bucid"
+        val rinabucpath = "/cpi/buc/$bucid"
 
         every { euxSystemRestTemplate.exchange( eq(rinabucpath), eq(HttpMethod.GET), any(), eq(String::class.java)) } returns ResponseEntity.ok().body( buc03 )
 
         //euxrest kall til p2200
-        val sedurl = "$EUX_BUC_BASE$bucid/sed/$sedid"
+        val sedurl = "/cpi/buc/$bucid/sed/$sedid"
         val sedP2200 = ResourceUtils.getFile("classpath:json/nav/P2200-NAV-FRA-UTLAND-KRAV.json").readText()
 
         every { euxSystemRestTemplate.exchange( eq(sedurl), eq(HttpMethod.GET), any(), eq(String::class.java)) } returns ResponseEntity.ok().body( sedP2200 )
@@ -119,12 +115,12 @@ class PesysIntegrationSpringTest {
 
         //euxrest kall buc
         val buc01 = ResourceUtils.getFile("classpath:json/buc/buc-1297512-kravP2000_v4.2.json").readText()
-        val rinabucpath = "$EUX_BUC_BASE$bucid"
+        val rinabucpath = "/cpi/buc/$bucid"
 
         every { euxSystemRestTemplate.exchange( eq(rinabucpath), eq(HttpMethod.GET), any(), eq(String::class.java)) } returns ResponseEntity.ok().body( buc01 )
 
         //euxrest kall til p2000
-        val sedurl = "$EUX_BUC_BASE$bucid/sed/$sedid"
+        val sedurl = "/cpi/buc/$bucid/sed/$sedid"
         val sedP2000 = ResourceUtils.getFile("classpath:json/nav/P2000-NAV-FRA-UTLAND-KRAV.json").readText()
 
         every { euxSystemRestTemplate.exchange( eq(sedurl), eq(HttpMethod.GET), any(), eq(String::class.java)) } returns ResponseEntity.ok().body( sedP2000 )
@@ -181,12 +177,12 @@ class PesysIntegrationSpringTest {
         val p2000json = """{"nav":{"bruker":{"person":{"sivilstand":[{"status":"gift","fradato":"2006-01-03"}],"kjoenn":"K","etternavn":"MASKIN","fornavn":"LITEN\t","foedselsdato":"1953-09-24","pin":[{"land":"NO","identifikator":"64095349631"}],"statsborgerskap":[{"land":"NO"}]}},"krav":{"dato":"2021-02-10"}},"sedGVer":"4","sedVer":"2","sed":"P2000"}        """.trimIndent()
 
         val buc01 = ResourceUtils.getFile("classpath:json/buc/buc-1297512-kravP2000_v4.2.json").readText()
-        val rinabucpath = "$EUX_BUC_BASE$bucid"
+        val rinabucpath = "/cpi/buc/$bucid"
 
         every { euxSystemRestTemplate.exchange( eq(rinabucpath), eq(HttpMethod.GET), any(), eq(String::class.java)) } returns ResponseEntity.ok().body( buc01 )
 
         //euxrest kall til p2000
-        val sedurl = "$EUX_BUC_BASE$bucid/sed/$sedid"
+        val sedurl = "/cpi/buc/$bucid/sed/$sedid"
         every { euxSystemRestTemplate.exchange( eq(sedurl), eq(HttpMethod.GET), any(), eq(String::class.java)) } returns ResponseEntity.ok().body( p2000json )
 
         val result = mockMvc.perform(
@@ -242,7 +238,7 @@ class PesysIntegrationSpringTest {
             
         """.trimIndent()
 
-        val rinabucpath = "$EUX_BUC_BASE$bucid"
+        val rinabucpath = "/cpi/buc/$bucid"
 
         every { euxSystemRestTemplate.exchange( eq(rinabucpath), eq(HttpMethod.GET), any(), eq(String::class.java)) } returns ResponseEntity.ok().body( bucjson )
 
@@ -268,7 +264,7 @@ class PesysIntegrationSpringTest {
             
         """.trimIndent()
 
-        val rinabucpath = "$EUX_BUC_BASE$bucid"
+        val rinabucpath = "/cpi/buc/$bucid"
 
         every { euxSystemRestTemplate.exchange( eq(rinabucpath), eq(HttpMethod.GET), any(), eq(String::class.java)) } returns ResponseEntity.ok().body( bucjson )
 
@@ -319,7 +315,7 @@ class PesysIntegrationSpringTest {
             
         """.trimIndent()
 
-        val rinabucpath = "$EUX_BUC_BASE$bucid"
+        val rinabucpath = "/cpi/buc/$bucid"
         every { euxSystemRestTemplate.exchange( eq(rinabucpath), eq(HttpMethod.GET), any(), eq(String::class.java)) } returns ResponseEntity.ok().body( bucjson )
 
         val expectedError = """Ingen dokument metadata funnet i BUC med id: 998777."""

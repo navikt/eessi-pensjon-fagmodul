@@ -55,7 +55,6 @@ class UpdateSedOnBucIntegrationTest {
     private companion object {
         const val euxCaseId = "131231234"
         const val documentId = "12312j3g12jh3g12kj3g12kj3g12k3gh123k1g23"
-        const val EUX_BUC_BASE = "/cpi/buc/"
     }
 
     @Test
@@ -64,7 +63,7 @@ class UpdateSedOnBucIntegrationTest {
 
         /////cpi/buc/{RinaSakId}/sed/{DokumentId}
         every { restTemplate.exchange(
-            eq("$EUX_BUC_BASE$euxCaseId/sed/$documentId?ventePaAksjon=false"),
+            eq("/cpi/buc/$euxCaseId/sed/$documentId?ventePaAksjon=false"),
             eq(HttpMethod.PUT),
             any(),
             eq(String::class.java)) } returns ResponseEntity("", HttpStatus.OK)
@@ -109,7 +108,7 @@ class UpdateSedOnBucIntegrationTest {
 
         /////cpi/buc/{RinaSakId}/sed/{DokumentId}
         every { restTemplate.exchange(
-            eq("$EUX_BUC_BASE$euxCaseId/sed/$documentId?ventePaAksjon=false"),
+            eq("/cpi/buc/$euxCaseId/sed/$documentId?ventePaAksjon=false"),
             eq(HttpMethod.PUT),
             any(),
             eq(String::class.java)) } returns ResponseEntity("", HttpStatus.OK)
@@ -130,7 +129,7 @@ class UpdateSedOnBucIntegrationTest {
 
         /////cpi/buc/{RinaSakId}/sed/{DokumentId}
         every { restTemplate.exchange(
-            eq("$EUX_BUC_BASE$euxCaseId/sed/$documentId?ventePaAksjon=false"),
+            eq("/cpi/buc/$euxCaseId/sed/$documentId?ventePaAksjon=false"),
             eq(HttpMethod.PUT),
             any(),
             eq(String::class.java)) } returns ResponseEntity("", HttpStatus.OK)
