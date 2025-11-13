@@ -176,7 +176,7 @@ internal class BucControllerIT: BucBaseTest() {
                 documentsItem("2", "draft", P4000))
             val buc02 = Buc(id = "1010", internationalId = "1000100010001000", processDefinitionName = "P_BUC_02", startDate = lastupdate, lastUpdate = lastupdate,  documents = docItems)
 
-            val rinabucpath = "/cpi/buc/1010"
+            val rinabucpath = "/buc/1010"
             every { euxNavIdentRestTemplate.exchange( rinabucpath, HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( buc02.toJson() )
 
             //saf (vedlegg meta) gjenlevende
@@ -187,7 +187,7 @@ internal class BucControllerIT: BucBaseTest() {
             every { euxNavIdentRestTemplate.exchange( eq(rinaSafUrl.toUriString()), eq(HttpMethod.GET), null, eq(String::class.java)) } returns ResponseEntity.ok().body( rinaSakerBuc02.toJson())
 
             //buc02 sed
-            val rinabucdocumentidpath = "/cpi/buc/1010/sed/1"
+            val rinabucdocumentidpath = "/buc/1010/sed/1"
             every { euxNavIdentRestTemplate.exchange( rinabucdocumentidpath, HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( sedjson )
 
             every { euxNavIdentRestTemplate.exchange( "/rinasaker?fødselsnummer=01010100001&status=\"open\"", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(emptyList<Rinasak>().toJson())
@@ -235,7 +235,7 @@ internal class BucControllerIT: BucBaseTest() {
         )
         val buc02 = Buc(id = "1010", internationalId = "1000100010001000", processDefinitionName = "P_BUC_02", startDate = lastupdate, lastUpdate = lastupdate,  documents = docItems)
 
-        val rinabucpath = "/cpi/buc/1010"
+        val rinabucpath = "/buc/1010"
         every { euxNavIdentRestTemplate.exchange( rinabucpath, HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( buc02.toJson() )
 
         //saf (vedlegg meta) gjenlevende
@@ -244,7 +244,7 @@ internal class BucControllerIT: BucBaseTest() {
         every { restSafTemplate.exchange(eq("/"), eq(HttpMethod.POST), eq(httpEntity), eq(String::class.java)) } returns  ResponseEntity.ok().body(  dummySafMetaResponseMedRina("1010") )
 
         //buc02 sed
-        val rinabucdocumentidpath = "/cpi/buc/1010/sed/1"
+        val rinabucdocumentidpath = "/buc/1010/sed/1"
         every { euxNavIdentRestTemplate.exchange( rinabucdocumentidpath, HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( sedjson )
 
         every { euxNavIdentRestTemplate.exchange( "/rinasaker?fødselsnummer=01010100001&status=\"open\"", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(emptyList<Rinasak>().toJson())
@@ -262,7 +262,7 @@ internal class BucControllerIT: BucBaseTest() {
 
         val response = result.response.getContentAsString(charset("UTF-8"))
         verify (exactly = 1) { euxNavIdentRestTemplate.exchange("/rinasaker?fødselsnummer=01010100001&status=\"open\"", HttpMethod.GET, null, String::class.java) }
-        verify (exactly = 1) { euxNavIdentRestTemplate.exchange("/cpi/buc/1010", HttpMethod.GET, null, String::class.java) }
+        verify (exactly = 1) { euxNavIdentRestTemplate.exchange("/buc/1010", HttpMethod.GET, null, String::class.java) }
         verify (exactly = 1) { restSafTemplate.exchange("/", HttpMethod.POST, httpEntity, String::class.java) }
         assertTrue { response.contains(AVDOD_FNR) }
         JSONAssert.assertEquals(response, bucViewResponse, false)

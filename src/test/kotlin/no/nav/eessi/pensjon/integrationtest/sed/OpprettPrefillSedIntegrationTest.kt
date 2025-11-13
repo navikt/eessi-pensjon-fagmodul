@@ -102,7 +102,7 @@ class OpprettPrefillSedIntegrationTest {
 
         every { personService.hentIdent(FOLKEREGISTERIDENT, AktoerId(AKTOER_ID)) } returns NorskIdent(FNR_VOKSEN)
 
-        every { euxNavIdentRestTemplate.exchange( "/cpi/buc/$euxRinaid", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(tomBucJson)
+        every { euxNavIdentRestTemplate.exchange( "/buc/$euxRinaid", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(tomBucJson)
 
         val result = mockMvc.perform(
             post("/sed/add")
@@ -213,7 +213,7 @@ class OpprettPrefillSedIntegrationTest {
         every { personService.hentIdent(AKTORID, NorskIdent(FNR_VOKSEN_2)) } returns AktoerId("23423423423423423423423423423423423423423423423423")
 
         val tomBucJson = javaClass.getResource("/json/buc/buc-rina2020-P2K-X005.json").readText()
-        every { euxNavIdentRestTemplate.exchange( "/cpi/buc/$euxRinaid", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(tomBucJson)
+        every { euxNavIdentRestTemplate.exchange( "/buc/$euxRinaid", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(tomBucJson)
 
         val result = mockMvc.perform(
             post("/sed/add")
