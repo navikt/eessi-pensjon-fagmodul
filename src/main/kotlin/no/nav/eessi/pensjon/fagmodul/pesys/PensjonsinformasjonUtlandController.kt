@@ -102,8 +102,8 @@ class PensjonsinformasjonUtlandController(
                     val hentetJsonP6000 = euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(p6000Detaljer.rinaSakId, p6000)
                     val hentetP6000 = hentetJsonP6000 as P6000
                     val sedMetaData = euxInnhentingService.hentSedMetadata(p6000Detaljer.rinaSakId, p6000).also { secureLog.info("SedMetaData: $it") }
-                    hentetP6000.avsender = sedMetaData?.avsender
-                    hentetP6000.let { listeOverP6000FraGcp.add(it) }
+                    hentetP6000.avsender = sedMetaData?.avsender.also { logger.info("Avsender sedMetaData: $it") }
+                    hentetP6000.let { listeOverP6000FraGcp.add(it) }.also { logger.debug("hentet P6000: $it") }
                 }
             }
                 .onFailure { e -> logger.error("Feil ved parsing av trygdetid linje 129", e) }
