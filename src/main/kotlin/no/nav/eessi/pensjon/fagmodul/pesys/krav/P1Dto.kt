@@ -16,51 +16,51 @@ data class P1Dto(
     val utfyllendeInstitusjon: String
 )
 
-    data class P1Person(
-        val fornavn: String? = null,
-        val etternavn: String? = null,
-        val etternavnVedFoedsel: String? = null,
-        val foedselsdato: LocalDate? = null,
-        val adresselinje: String? = null,
-        val poststed: String? = null,
-        val postnummer: String? = null,
-        val landkode: String? = null
-    )
+data class P1Person(
+    val fornavn: String? = null,
+    val etternavn: String? = null,
+    val etternavnVedFoedsel: String? = null,
+    val foedselsdato: LocalDate? = null,
+    val adresselinje: String? = null,
+    val poststed: String? = null,
+    val postnummer: String? = null,
+    val landkode: String? = null
+)
 
-    data class InnvilgetPensjon(
-        val institusjon: List<EessisakItemP1>?,
-        val pensjonstype: String?,
-        val datoFoersteUtbetaling: LocalDate?,
-        val bruttobeloep: String?,
-        val valuta: String?,
-        val utbetalingsHyppighet: String?,
-        val grunnlagInnvilget: String?,
-        val reduksjonsgrunnlag: String?,
-        val vurderingsperiode: String?,
-        val adresseNyVurdering: List<AndreinstitusjonerItem>?,
-        val vedtaksdato: String?,
-        @JsonIgnore
-        val avsender: Avsender? = null
-    )
+data class InnvilgetPensjon(
+    val institusjon: List<EessisakItemP1>?,
+    val pensjonstype: String?,
+    val datoFoersteUtbetaling: LocalDate?,
+    val bruttobeloep: String?,
+    val valuta: String?,
+    val utbetalingsHyppighet: String?,
+    val grunnlagInnvilget: String?,
+    val reduksjonsgrunnlag: String?,
+    val vurderingsperiode: String?,
+    val adresseNyVurdering: List<AndreinstitusjonerItem>?,
+    val vedtaksdato: String?,
+    @JsonIgnore
+    val avsender: Avsender? = null
+)
 
-    data class AvslaattPensjon(
-        val institusjon: List<EessisakItemP1>?,
-        val pensjonstype: String?,
-        val avslagsbegrunnelse: String?,
-        val vurderingsperiode: String?,
-        val adresseNyVurdering: List<AndreinstitusjonerItem>?,
-        val vedtaksdato: String?,
-        @JsonIgnore
-        val avsender: Avsender? = null
-    )
+data class AvslaattPensjon(
+    val institusjon: List<EessisakItemP1>?,
+    val pensjonstype: String?,
+    val avslagsbegrunnelse: String?,
+    val vurderingsperiode: String?,
+    val adresseNyVurdering: List<AndreinstitusjonerItem>?,
+    val vedtaksdato: String?,
+    @JsonIgnore
+    val avsender: Avsender? = null
+)
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    data class EessisakItemP1(
-        val institusjonsid: String? = null,
-        val institusjonsnavn: String? = null,
-        val saksnummer: String? = null,
-        val land: String? = null,
-        val identifikatorForsikrede: String? = null,
-        val identifikatorInnehaver: String? = null
+@JsonInclude(JsonInclude.Include.NON_NULL)
+data class EessisakItemP1(
+    val institusjonsid: String? = null,
+    val institusjonsnavn: String? = null,
+    val saksnummer: String? = null,
+    val land: String? = null,
+    val identifikatorForsikrede: String? = null,
+    val identifikatorInnehaver: String? = null
 
-    )
+)
