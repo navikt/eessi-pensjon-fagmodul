@@ -103,20 +103,28 @@ spec:
 
     - name: PENSJONSINFORMASJON_URL
       value: https://pensjon-pen-q2.dev-fss-pub.nais.io/pen/api/pensjonsinformasjon/v1
+
     - name: EESSIPEN_EUX_RINA_URL
       value: https://eux-rina-api-gcp-q2.intern.dev.nav.no/cpi
+
     - name: EESSIPEN_EUX_RINA_URL_v2
       value: https://eux-rina-api-gcp-q2.intern.dev.nav.no/v2
+
     - name: EESSIPENSJON_PREFILL_GCP_URL
       value: https://eessi-pensjon-prefill-q2.intern.dev.nav.no
+
     - name: RINA_HOST_URL
       value: rina-ss1-q.adeo.no
+
     - name: SAF_GRAPHQL_URL
       value: https://saf-q2.dev-fss-pub.nais.io/graphql
+
     - name: SAF_HENTDOKUMENT_URL
       value: https://saf-q2.dev-fss-pub.nais.io/rest/hentdokument
+
     - name: PDL_URL
       value: https://pdl-api.dev-fss-pub.nais.io/graphql
+
     - name: KODEVERK_URL
       value: https://kodeverk-api.nav.no
 
