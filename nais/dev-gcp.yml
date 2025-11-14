@@ -106,7 +106,6 @@ spec:
 
     - name: EESSIPEN_EUX_RINA_URL
       value: https://eux-rina-api-gcp-q2.intern.dev.nav.no/cpi
-
     - name: EESSIPEN_EUX_RINA_URL_v2
       value: https://eux-rina-api-gcp-q2.intern.dev.nav.no/v2
 
@@ -115,10 +114,8 @@ spec:
 
     - name: RINA_HOST_URL
       value: rina-ss1-q.adeo.no
-
     - name: SAF_GRAPHQL_URL
       value: https://saf-q2.dev-fss-pub.nais.io/graphql
-
     - name: SAF_HENTDOKUMENT_URL
       value: https://saf-q2.dev-fss-pub.nais.io/rest/hentdokument
 
