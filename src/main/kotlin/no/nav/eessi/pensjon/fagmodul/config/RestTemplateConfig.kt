@@ -89,7 +89,7 @@ class RestTemplateConfig(
     fun euxNavIdentRestTemplate(): RestTemplate = restTemplate(euxUrl, onBehalfOfBearerTokenInterceptor(euxClientId), EuxErrorHandler())
 
     @Bean
-    fun euxNavIdentRestTemplateV2(): RestTemplate = restTemplate(euxUrlV2, oAuth2BearerTokenInterceptor(clientProperties("eux-credentials"), oAuth2AccessTokenService), EuxErrorHandler())
+    fun euxNavIdentRestTemplateV2(): RestTemplate = restTemplate(euxUrlV2, onBehalfOfBearerTokenInterceptor(euxClientId), EuxErrorHandler())
 
     @Bean
     fun euxSystemRestTemplate() = restTemplate(euxUrl, oAuth2BearerTokenInterceptor(clientProperties("eux-credentials"), oAuth2AccessTokenService), EuxErrorHandler())
