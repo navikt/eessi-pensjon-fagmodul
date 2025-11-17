@@ -40,8 +40,10 @@ data class InnvilgetPensjon(
     val adresseNyVurdering: List<AndreinstitusjonerItem>?,
     val vedtaksdato: String?,
     @JsonIgnore
-    val avsender: Avsender? = null
-)
+    val avsender: Avsender? = null,
+) {
+    fun erNorskInnvilget(): Boolean = Avsender.erNorsk(avsender)
+}
 
 data class AvslaattPensjon(
     val institusjon: List<EessisakItemP1>?,
@@ -52,7 +54,9 @@ data class AvslaattPensjon(
     val vedtaksdato: String?,
     @JsonIgnore
     val avsender: Avsender? = null
-)
+) {
+    fun erNorskAvslag(): Boolean = Avsender.erNorsk(avsender)
+}
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class EessisakItemP1(

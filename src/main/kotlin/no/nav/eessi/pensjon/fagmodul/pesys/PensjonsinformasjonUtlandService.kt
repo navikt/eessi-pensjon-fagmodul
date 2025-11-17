@@ -1,21 +1,14 @@
 package no.nav.eessi.pensjon.fagmodul.pesys
 
 import no.nav.eessi.pensjon.eux.model.SedType
-import no.nav.eessi.pensjon.eux.model.SedType.*
-import no.nav.eessi.pensjon.eux.model.sed.AndreinstitusjonerItem
-import no.nav.eessi.pensjon.eux.model.sed.P6000
-import no.nav.eessi.pensjon.eux.model.sed.Person
-import no.nav.eessi.pensjon.eux.model.sed.PinItem
-import no.nav.eessi.pensjon.eux.model.sed.SED
+import no.nav.eessi.pensjon.eux.model.SedType.P2000
+import no.nav.eessi.pensjon.eux.model.SedType.P2200
+import no.nav.eessi.pensjon.eux.model.sed.*
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
-import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandService.BrukerEllerGjenlevende.*
-import no.nav.eessi.pensjon.fagmodul.pesys.krav.AlderpensjonUtlandKrav
-import no.nav.eessi.pensjon.fagmodul.pesys.krav.AvslaattPensjon
-import no.nav.eessi.pensjon.fagmodul.pesys.krav.EessisakItemP1
-import no.nav.eessi.pensjon.fagmodul.pesys.krav.InnvilgetPensjon
-import no.nav.eessi.pensjon.fagmodul.pesys.krav.P1Person
-import no.nav.eessi.pensjon.fagmodul.pesys.krav.UforeUtlandKrav
+import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandService.BrukerEllerGjenlevende.FORSIKRET
+import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandService.BrukerEllerGjenlevende.GJENLEVENDE
+import no.nav.eessi.pensjon.fagmodul.pesys.krav.*
 import no.nav.eessi.pensjon.kodeverk.KodeverkClient
 import no.nav.eessi.pensjon.utils.toJson
 import org.slf4j.LoggerFactory
@@ -23,7 +16,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDate
-import kotlin.collections.orEmpty
 
 @Service
 class PensjonsinformasjonUtlandService(
@@ -109,7 +101,7 @@ class PensjonsinformasjonUtlandService(
         hentInnvilgedePensjonerFraP6000er(p6000er).map { p6000 ->
             val vedtak = p6000.pensjon?.vedtak?.first()
 
-            if (p6000.avsender?.land.isNorsk() && flereEnnEnNorsk && retList.count { it.avsender?.land.isNorsk() } >= 1) {
+            if (p6000.erNorskSed() && flereEnnEnNorsk && retList.count { it.erNorskInnvilget() } >= 1) {
                 logger.error(" OBS OBS; Her kommer det inn mer enn 1 innvilget pensjon fra Norge")
                 secureLog.info("Hopper over innvilget pensjon P6000: $p6000")
             } else {
@@ -159,7 +151,7 @@ class PensjonsinformasjonUtlandService(
     }.sortedByDescending { it.nav?.eessisak?.isNotEmpty() == true }
 
     private fun erDetFlereNorskeInstitusjoner(p6000er: List<P6000>): Boolean {
-        return p6000er.count { it.avsender?.land.isNorsk() }.let { antallUt ->
+        return p6000er.count { it.erNorskSed() }.let { antallUt ->
             if (antallUt > 1) {
                 logger.error("OBS OBS; Her kommer det inn mer enn 1 P6000 med retning UT i Seden")
                 return true
@@ -167,9 +159,6 @@ class PensjonsinformasjonUtlandService(
             false
         }
     }
-
-    fun String?.isNorsk(): Boolean = this != null && this == "NO"
-    fun String?.isUtenlandsk(): Boolean = this != null && this != "NO"
 
     fun debugPrintout(kravUtland: KravUtland) {
         logger.info(
@@ -187,7 +176,7 @@ class PensjonsinformasjonUtlandService(
         val flereEnnEnNorsk = erDetFlereNorskeInstitusjoner(p6000erAvslaatt)
         val retList = mutableListOf<AvslaattPensjon>()
         p6000erAvslaatt.map { p6000 ->
-            if (p6000.avsender?.land.isNorsk() && flereEnnEnNorsk && retList.count { it.avsender?.land.isNorsk()  } >= 1) {
+            if (p6000.erNorskSed() && flereEnnEnNorsk && retList.count { it.erNorskAvslag()  } >= 1) {
                 logger.error(" OBS OBS; Her kommer det inn mer enn 1 avslått pensjon fra Norge")
                 secureLog.info("Hopper over denne avslåtte seden: $p6000")
             } else {
@@ -247,7 +236,7 @@ class PensjonsinformasjonUtlandService(
     fun hentPin(brukerEllerGjenlevende: BrukerEllerGjenlevende, sed: P6000): List<PinItem>? {
         val person = hentBrukerEllerGjenlevende(brukerEllerGjenlevende, sed)
         return when {
-            sed.avsender?.land.isNorsk() -> person?.pin?.filter { it.land == "NO" }.orEmpty()
+            sed.erNorskSed() -> person?.pin?.filter { it.land == "NO" }.orEmpty()
             else -> person?.pin?.filter { it.land != "NO"  && it.land == sed.avsender?.land}.orEmpty()
         }
     }
