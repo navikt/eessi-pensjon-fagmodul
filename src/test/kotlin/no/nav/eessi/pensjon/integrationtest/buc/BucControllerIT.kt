@@ -67,6 +67,7 @@ private val lastupdate = LocalDate.of(2020, Month.AUGUST, 7).toString()
     MockkBean(name = "safRestOidcRestTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "euxNavIdentRestTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "safGraphQlOidcRestTemplate", classes = [RestTemplate::class]),
+    MockkBean(name = "euxNavIdentRestTemplateV2", classes = [RestTemplate::class]),
     MockkBean(name = "pensjonsinformasjonClient", classes = [PensjonsinformasjonClient::class])
 )
 internal class BucControllerIT: BucBaseTest() {

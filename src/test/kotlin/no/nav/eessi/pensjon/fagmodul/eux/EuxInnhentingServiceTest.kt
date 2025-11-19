@@ -4,6 +4,7 @@ import com.ninjasquad.springmockk.MockkBean
 import com.ninjasquad.springmockk.MockkBeans
 import io.mockk.MockKAnnotations
 import io.mockk.every
+import io.mockk.mockk
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.klient.Properties
 import no.nav.eessi.pensjon.eux.klient.Rinasak
@@ -35,6 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig
 import org.springframework.web.client.HttpClientErrorException
+import org.springframework.web.client.RestTemplate
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -46,20 +48,24 @@ private const val INTERNATIONAL_ID = "e94e1be2daff414f8a49c3149ec00e66"
 
 @SpringJUnitConfig(classes = [EuxInnhentingService::class ])
 @MockkBeans(
-    MockkBean(name = "gcpStorageService", classes = [GcpStorageService::class], relaxed = true)
-)
+    MockkBean(name = "gcpStorageService", classes = [GcpStorageService::class], relaxed = true),
+    MockkBean(name = "euxNavIdentRestTemplateV2", classes = [RestTemplate::class]),
+
+    )
 internal class EuxInnhentingServiceTest {
 
     @MockkBean( relaxed = true)
     private lateinit var euxKlient: EuxKlientAsSystemUser
     @Autowired
     private lateinit var gcpStorageService: GcpStorageService
+    @Autowired
+    private lateinit var euxNavIdentRestTemplateV2: RestTemplate
     private lateinit var euxInnhentingService: EuxInnhentingService
 
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this)
-        euxInnhentingService = EuxInnhentingService("q2", euxKlient, gcpStorageService)
+        euxInnhentingService = EuxInnhentingService("q2", euxKlient, gcpStorageService, euxNavIdentRestTemplateV2)
     }
 
     @Test

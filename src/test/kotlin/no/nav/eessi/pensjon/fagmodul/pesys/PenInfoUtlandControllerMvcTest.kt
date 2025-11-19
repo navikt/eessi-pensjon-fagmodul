@@ -6,6 +6,7 @@ import io.mockk.mockk
 import io.swagger.v3.oas.annotations.media.DiscriminatorMapping
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.klient.EuxKlientLib
+import no.nav.eessi.pensjon.eux.model.Avsender
 import no.nav.eessi.pensjon.eux.model.SedMetadata
 import no.nav.eessi.pensjon.eux.model.sed.P6000
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
@@ -45,6 +46,12 @@ class PenInfoUtlandControllerMvcTest {
 
     @Test
     fun `avdodsdato sjekk for vedtak inneholder to avdod i pbuc06 og P5000 returneres den tidligere valgte avdod ut fra P5000 og returneres`() {
+        val avsender = Avsender(
+        id = "NO:NAVAT07",
+        navn = "NAV ACCEPTANCE TEST 07",
+        land = "NO"
+        )
+
         val gcpDetlajerP6000 = """
             {
               "pesysId" : "22580170",
@@ -53,7 +60,7 @@ class PenInfoUtlandControllerMvcTest {
             }
         """.trimIndent()
 
-        val metadata = SedMetadata(sedTittel = "Vedtak om pensjon", sedType = "P6000", sedId = "a6bacca841cf4c7195d694729151d4f3", status = "sent")
+        val metadata = SedMetadata(sedTittel = "Vedtak om pensjon", sedType = "P6000", sedId = "a6bacca841cf4c7195d694729151d4f3", avsender = avsender)
 
         every { gcpStorageService.hentGcpDetlajerForP6000(any())} returns gcpDetlajerP6000
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(any(), any())

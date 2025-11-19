@@ -28,6 +28,7 @@ import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
+import org.springframework.web.client.RestTemplate
 
 @ActiveProfiles(profiles = ["unsecured-webmvctest"])
 @ComponentScan(basePackages = ["no.nav.eessi.pensjon.api.gjenny"])
@@ -36,6 +37,7 @@ import org.springframework.test.web.servlet.get
     MockkBean(name = "sedController", classes = [SedController::class], relaxed = true),
     MockkBean(name = "kodeverkClient", classes = [KodeverkClient::class], relaxed = true),
     MockkBean(name = "euxKlient", classes = [EuxKlientAsSystemUser::class], relaxed = true),
+    MockkBean(name = "euxNavIdentRestTemplateV2", classes = [RestTemplate::class]),
     MockkBean(name = "gcpStorageService", classes = [GcpStorageService::class], relaxed = true),
     MockkBean(name = "prefillController", classes = [PrefillController::class], relaxed = true)
 )

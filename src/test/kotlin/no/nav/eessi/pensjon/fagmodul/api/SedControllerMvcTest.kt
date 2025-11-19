@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.web.client.RestTemplate
 
 @ActiveProfiles(profiles = ["unsecured-webmvctest"])
 @ComponentScan(basePackages = ["no.nav.eessi.pensjon.fagmodul.api"])
@@ -29,6 +30,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
     MockkBean(name = "euxController", classes = [EuxController::class], relaxed = true),
     MockkBean(name = "euxKlient", classes = [EuxKlientAsSystemUser::class], relaxed = true),
     MockkBean(name = "prefillController", classes = [PrefillController::class], relaxed = true),
+    MockkBean(name = "euxNavIdentRestTemplateV2", classes = [RestTemplate::class]),
     MockkBean(name = "gcpStorageService", classes = [GcpStorageService::class], relaxed = true)
 )
 class SedControllerMvcTest {
