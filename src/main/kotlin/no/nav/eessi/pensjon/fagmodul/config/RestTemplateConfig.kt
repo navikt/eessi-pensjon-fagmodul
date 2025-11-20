@@ -1,7 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.config
 
 import com.fasterxml.jackson.core.StreamReadConstraints
-import com.nimbusds.jwt.JWTClaimsSet
 import io.micrometer.core.instrument.MeterRegistry
 import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
 import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
@@ -34,7 +33,6 @@ import org.springframework.web.client.RestTemplate
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import java.time.Duration
-import java.util.*
 
 @Configuration
 @Profile("prod", "test")
@@ -93,7 +91,6 @@ class RestTemplateConfig(
 
     @Bean
     fun euxSystemRestTemplate() = restTemplate(euxUrl, oAuth2BearerTokenInterceptor(clientProperties("eux-credentials"), oAuth2AccessTokenService), EuxErrorHandler())
-
 
     @Bean
     fun prefillOAuthTemplate() = restTemplate(prefillUrl, onBehalfOfBearerTokenInterceptor(prefillClientId))

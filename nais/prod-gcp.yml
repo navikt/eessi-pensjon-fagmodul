@@ -98,7 +98,7 @@ spec:
     - name: EESSIPEN_EUX_RINA_URL
       value: https://eux-rina-api.intern.nav.no/cpi
     - name: EESSIPEN_EUX_RINA_URL_v2
-      value: https://eux-rina-api.intern.nav.no
+      value: https://eux-rina-api.intern.nav.no/v2
 
     - name: EESSIPENSJON_PREFILL_GCP_URL
       value: https://eessi-pensjon-prefill.intern.nav.no
