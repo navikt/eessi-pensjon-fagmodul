@@ -65,6 +65,9 @@ spec:
         - application: eessi-pensjon-frontend-ui-q1
           namespace: eessipensjon
           cluster: dev-gcp
+        - application: eessi-pensjon-frontend-ui-q1-experimental
+          namespace: eessipensjon
+          cluster: dev-gcp
         - application: eessi-pensjon-saksbehandling-api-q1
           namespace: eessipensjon
           cluster: dev-gcp
@@ -96,8 +99,12 @@ spec:
 
     - name: PENSJONSINFORMASJON_URL
       value: https://pensjon-pen-q2.dev-fss-pub.nais.io/pen/api/pensjonsinformasjon/v1
+
     - name: EESSIPEN_EUX_RINA_URL
       value: https://eux-rina-api-gcp-q1.intern.dev.nav.no/cpi
+    - name: EESSIPEN_EUX_RINA_URL_v2
+      value: https://eux-rina-api-gcp-q1.intern.dev.nav.no/v2
+
     - name: EESSIPENSJON_PREFILL_GCP_URL
       value: https://eessi-pensjon-prefill-q1.intern.dev.nav.no
     - name: RINA_HOST_URL
