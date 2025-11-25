@@ -97,7 +97,7 @@ class GjennyController (
 
             //api: henter rinasaker basert på tidligere journalførte saker
             val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
-                .also { timeTracking.add("rinaSakIderFraJoark tid: ${System.currentTimeMillis()-start} i ms") }
+            .also { timeTracking.add("rinaSakIderFraJoark:${it}, tid: ${System.currentTimeMillis()-start} i ms") }
 
             //api: bruker saker fra eux/rina
             val brukerView = gjenlevendeFnr?.let { euxInnhentingService.hentBucViewBruker(it.id, aktoerId, null) }.also {
