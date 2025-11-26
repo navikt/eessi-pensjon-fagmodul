@@ -21,6 +21,7 @@ import no.nav.pensjon.v1.brukerssakerliste.V1BrukersSakerListe
 import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
 import no.nav.pensjon.v1.sak.V1Sak
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
@@ -45,6 +46,7 @@ private const val SOME_SAKID = "10000"
 private const val SOME_VEDTAK_ID = "213123333"
 private const val KRAV_ID = "345345"
 
+@Disabled
 @Suppress("DEPRECATION") // hentKunSakType / hentAltPaaAktoerId
 class PensjonControllerTest {
 

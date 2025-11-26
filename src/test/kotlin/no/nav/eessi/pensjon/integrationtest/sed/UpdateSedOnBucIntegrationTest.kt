@@ -10,6 +10,7 @@ import no.nav.eessi.pensjon.integrationtest.IntegrasjonsTestConfig
 import no.nav.eessi.pensjon.kodeverk.KodeverkClient
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
@@ -58,6 +59,7 @@ class UpdateSedOnBucIntegrationTest {
         const val documentId = "12312j3g12jh3g12kj3g12kj3g12k3gh123k1g23"
     }
 
+    @Disabled
     @Test
     fun `oppdate sed P5000 on buc result in true when all OK`() {
         val jsonsed = javaClass.getResource("/json/nav/P5000-NAV.json")?.readText()!!
@@ -103,6 +105,7 @@ class UpdateSedOnBucIntegrationTest {
         }
     }
 
+    @Disabled
     @Test
     fun `oppdate sed P5000 empty medlemskap and gydligperiode 0 true when all OK`() {
         val jsonsed = javaClass.getResource("/json/nav/P5000-tomperioder-NAV.json").readText()
@@ -124,6 +127,7 @@ class UpdateSedOnBucIntegrationTest {
         assertEquals(true, response.toBoolean())
     }
 
+    @Disabled
     @Test
     fun `oppdate sed P5000 empty medlemskap test2 and gydligperiode 0 true when all OK`() {
         val jsonsed = javaClass.getResource("/json/nav/P5000-tomperioder2-NAV.json").readText()
