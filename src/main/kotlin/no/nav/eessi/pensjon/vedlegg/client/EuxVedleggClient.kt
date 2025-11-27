@@ -44,12 +44,17 @@ class EuxVedleggClient(private val euxNavIdentRestTemplate: RestTemplate,
                     .builder("form-data")
                     .filename("filename")
                     .name("file")
-                    .build().toString()
+                    .build()
 
             val attachmentMeta = LinkedMultiValueMap<String, String>()
-            attachmentMeta.add(HttpHeaders.CONTENT_DISPOSITION, disposition)
+//            attachmentMeta.add(HttpHeaders.CONTENT_DISPOSITION, disposition)
             val dokumentInnholdBinary = Base64.getDecoder().decode(filInnhold)
-            val attachmentPart = HttpEntity(dokumentInnholdBinary, attachmentMeta)
+            //val attachmentPart = HttpEntity(dokumentInnholdBinary, attachmentMeta)
+            val attachmentPart =  HttpEntity(dokumentInnholdBinary, HttpHeaders().apply {
+                contentType = MediaType.APPLICATION_JSON
+                contentDisposition = disposition
+            })
+
 
             val body = LinkedMultiValueMap<String, Any>()
             body.add("multipart", attachmentPart)
@@ -91,7 +96,7 @@ class EuxVedleggClient(private val euxNavIdentRestTemplate: RestTemplate,
         }
     }
 
-    fun <T> restTemplateErrorhandler(restTemplateFunction: () -> ResponseEntity<T>, euxCaseId: String, metric: MetricsHelper.Metric, prefixErrorMessage: String): ResponseEntity<T> {
+    fun <T : Any> restTemplateErrorhandler(restTemplateFunction: () -> ResponseEntity<T>, euxCaseId: String, metric: MetricsHelper.Metric, prefixErrorMessage: String): ResponseEntity<T> {
         return metric.measure {
             return@measure try {
                 val response = retryHelper( func = { restTemplateFunction.invoke() } )

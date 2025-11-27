@@ -96,12 +96,22 @@ class VedleggControllerMockTest {
         val disposition = ContentDisposition
                 .builder("form-data")
                 .name("file")
-                .build().toString()
+                .build()
+
+//        val attachmentMeta = LinkedMultiValueMap<String, String>()
+//        attachmentMeta.add(HttpHeaders.CONTENT_DISPOSITION, disposition)
+//        val dokumentInnholdBinary = Base64.getDecoder().decode(filInnhold)
+//        val attachmentPart = HttpEntity(dokumentInnholdBinary, attachmentMeta)
+
 
         val attachmentMeta = LinkedMultiValueMap<String, String>()
-        attachmentMeta.add(HttpHeaders.CONTENT_DISPOSITION, disposition)
+//            attachmentMeta.add(HttpHeaders.CONTENT_DISPOSITION, disposition)
         val dokumentInnholdBinary = Base64.getDecoder().decode(filInnhold)
-        val attachmentPart = HttpEntity(dokumentInnholdBinary, attachmentMeta)
+        //val attachmentPart = HttpEntity(dokumentInnholdBinary, attachmentMeta)
+        val attachmentPart =  HttpEntity(dokumentInnholdBinary, HttpHeaders().apply {
+            contentType = MediaType.APPLICATION_JSON
+            contentDisposition = disposition
+        })
 
         val body = LinkedMultiValueMap<String, Any>()
         body.add("multipart", attachmentPart)
