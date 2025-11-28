@@ -1,7 +1,6 @@
 package no.nav.eessi.pensjon.api.gjenny
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import com.ninjasquad.springmockk.MockkBean
 import com.ninjasquad.springmockk.MockkBeans
 import com.ninjasquad.springmockk.SpykBean
@@ -131,7 +130,7 @@ class GjennyControllerTest {
             .andReturn()
 
         val responseContent = result.response.contentAsString
-        val bucViews: List<EuxInnhentingService.BucView> = ObjectMapper().readValue(responseContent)
+        val bucViews: List<EuxInnhentingService.BucView> = ObjectMapper().readValue(responseContent, Array<EuxInnhentingService.BucView>::class.java).toList()
 
         assertTrue(bucViews.isEmpty(), "Expected an empty list in the response")
     }

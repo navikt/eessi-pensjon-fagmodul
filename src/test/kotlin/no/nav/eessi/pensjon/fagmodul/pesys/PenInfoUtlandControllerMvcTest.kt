@@ -77,7 +77,7 @@ class PenInfoUtlandControllerMvcTest {
         //institusjon
         assert( repsonse.response.contentAsString.contains(""""institusjonsid":"NO:NAVAT07","institusjonsnavn":"NAV ACCEPTANCE TEST 07","saksnummer":"1003563","land":"NO""""))
         //VurderingNyAdresse
-        assert( repsonse.response.contentAsString.contains(""""institusjonsadresse":"Postboks 6600 Etterstad","institusjonsid":"NO:NAVAT07","institusjonsnavn":"NAV ACCEPTANCE TEST 07","land":"NO","postnummer":"0607","poststed":"Oslo","region":null"""))
+        assert( repsonse.response.contentAsString.contains(""""institusjonsadresse":"Postboks 6600 Etterstad","postnummer":"0607","bygningsnavn":null,"land":"NO","region":null,"poststed":"Oslo"}],"vedtaksdato":"2025-02-05"}],"avslaattePensjoner":[],"utfyllendeInstitusjon"""))
         //innehaver
 //        assert( repsonse.response.contentAsString.contains("""innehaver":{"fornavn":"KOGNITIV","etternavn":"AKROBAT","etternavnVedFoedsel":null,"foedselsdato":"1986-08-16","adresselinje":null,"poststed":"Oslo","postnummer":"1554","landkode":"NO"},"pin":[{"institusjonsnavn":"NAV ACCEPTANCE TEST 07","institusjonsid":"NO:NAVAT07","sektor":null,"land":"NO","institusjon":null}]}"""))
     }

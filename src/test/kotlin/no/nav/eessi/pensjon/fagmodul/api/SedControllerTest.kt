@@ -1,6 +1,5 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_06
@@ -71,13 +70,12 @@ class SedControllerTest {
             "{\"institutions\":[{\"country\":\"NO\",\"institution\":\"DUMMY\"}],\"buc\":\"P_BUC_06\",\"sed\":\"P6000\",\"sakId\":\"123456\",\"aktoerId\":\"0105094340092\"}"
 
         //map json request back to FrontendRequest obj
-        val map = jacksonObjectMapper()
-        val req = map.readValue(json, ApiRequest::class.java)
+        val req = mapJsonToAny<ApiRequest>(json)
 
 
         assertEquals(P_BUC_06, req.buc)
         assertEquals("DUMMY", req.institutions!![0].institution)
-        assertEquals("123456", req?.sakId)
+        assertEquals("123456", req.sakId)
     }
 
     @Test

@@ -55,7 +55,7 @@ class SedControllerMvcTest {
                 .content("Sed er sendt til Rina")
         )
             .andExpect(status().isOk())
-            .andExpect(content().string("{\"contentType\":\"\",\"filInnhold\":\"\",\"fileName\":\"\"}"))
+            .andExpect(content().string("{\"filInnhold\":\"\",\"fileName\":\"\",\"contentType\":\"\"}"))
 
     }
 
