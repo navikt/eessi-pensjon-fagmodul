@@ -345,6 +345,7 @@ class EuxInnhentingService(
 
         logger.info(
             """hentViewsForSafOgRinaForAvdode resultat: 
+                    Rinasak: ${sakNr}
                     safView: ${safView.size}
                     avdodView : ${avdodView.size}
                     safViewAvdod: ${safViewAvdod.size}
