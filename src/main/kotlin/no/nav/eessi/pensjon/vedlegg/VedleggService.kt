@@ -86,7 +86,7 @@ class VedleggService(private val safClient: SafClient,
     )
     fun hentRinaSakerFraMetaForOmstillingstonad(aktoerId: String): List<String> =
         hentDokumentMetadata(aktoerId).data.dokumentoversiktBruker.journalposter
-            .filter { it.tema.contains("omstilling") }
+            .filter { it.tema.contains("EYO", true) || it.tema.contains("EYB", true) || it.tema.contains("oms", true) || it.tema.contains("barn", true) }
             .flatMap { journalpost ->
                 journalpost.tilleggsopplysninger
                     .filter { it["nokkel"].equals(TILLEGGSOPPLYSNING_RINA_SAK_ID_KEY) }
