@@ -1,16 +1,22 @@
 package no.nav.eessi.pensjon.api.gjenny
 
-import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_01
-import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_03
+import no.nav.eessi.pensjon.eux.klient.Rinasak
+import no.nav.eessi.pensjon.eux.model.BucType
+import no.nav.eessi.pensjon.eux.model.BucType.*
 import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
 import no.nav.eessi.pensjon.fagmodul.api.PrefillController
 import no.nav.eessi.pensjon.fagmodul.api.SedController
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
+import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucView
+import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucViewKilde
 import no.nav.eessi.pensjon.fagmodul.eux.ValidBucAndSed
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.gcp.GjennySak
 import no.nav.eessi.pensjon.metrics.MetricsHelper
+import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
+import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentGruppe
+import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
 import no.nav.eessi.pensjon.shared.api.ApiRequest
 import no.nav.security.token.support.core.api.Unprotected
 import org.slf4j.LoggerFactory
@@ -18,6 +24,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
+import kotlin.collections.distinct
+import kotlin.collections.filter
+import kotlin.collections.plus
 
 @Unprotected
 @RestController
@@ -30,6 +39,7 @@ class GjennyController (
     private val innhentingService: InnhentingService,
     private val prefillController: PrefillController,
     private val sedController: SedController,
+    private val personService: PersonService,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
     private val logger = LoggerFactory.getLogger(GjennyController::class.java)
@@ -51,37 +61,68 @@ class GjennyController (
                    @RequestBody(required = true) gjennySak: GjennySak):
         BucAndSedView = prefillController.createBuc(buctype, gjennySak).also { logger.info("Create buc for gjenny: ${it.caseId}, buctype: $buctype") }
 
+//    @GetMapping("/rinasaker/{aktoerId}/avdodfnr/{avdodfnr}")
+//    fun getGjenlevendeRinasakerAvdodGjenny(
+//        @PathVariable("aktoerId", required = true) aktoerId: String,
+//        @PathVariable("avdodfnr", required = true) avdodfnr: String,
+//    ): List<EuxInnhentingService.BucView> {
+//        return bucerForAvdodGjenny.measure {
+//            val start = System.currentTimeMillis()
+//
+//            logger.info("henter rinasaker på valgt aktoerid: $aktoerId")
+//
+//            //api: henter rinasaker fra eux
+//            val avdodesSakerFraRina = euxInnhentingService.hentBucViewAvdod(avdodfnr, aktoerId)
+//
+//            if (avdodesSakerFraRina.isEmpty()) {
+//                return@measure emptyList<EuxInnhentingService.BucView>()
+//                    .also { loggTimeAndViewSize("Get gjenlevende Rinasaker for Gjenny", start, 0) }
+//            }
+//            //api: brukersaker fra Joark/saf
+//            val brukerRinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadataForOmstilling(aktoerId)
+//
+//            //api: avdødSaf + avdødUtenSaf + avdødsaf + safBruker
+//            val viewTotal = euxInnhentingService.hentViewsForSafOgRinaForAvdode(
+//                listOf(avdodfnr),
+//                aktoerId,
+//                null,
+//                brukerRinaSakIderFraJoark
+//            ).filter { it.buctype !in listOf(P_BUC_01, P_BUC_03) }
+//
+//            val fellesForBrukerOgAvdod = viewTotal.filter { it.euxCaseId in brukerRinaSakIderFraJoark }
+//
+//            return@measure fellesForBrukerOgAvdod.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
+//                .also { logger.info("getGjenlevendeRinasakerAvdodGjenny: view size: ${it.size}, total tid: ${System.currentTimeMillis()-start} i ms") }
+//        }
+//    }
+
     @GetMapping("/rinasaker/{aktoerId}/avdodfnr/{avdodfnr}")
     fun getGjenlevendeRinasakerAvdodGjenny(
         @PathVariable("aktoerId", required = true) aktoerId: String,
         @PathVariable("avdodfnr", required = true) avdodfnr: String,
-    ): List<EuxInnhentingService.BucView> {
-        return bucerForAvdodGjenny.measure {
-            val start = System.currentTimeMillis()
+    ): List<BucView> {
+        logger.info("henter rinasaker for gjenlevende med aktoerid: $aktoerId")
 
-            logger.info("henter rinasaker på valgt aktoerid: $aktoerId")
+        val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerId)
+        val avdodAktoerId = personService.hentPerson(NorskIdent(avdodfnr))?.identer?.firstOrNull { it.gruppe == IdentGruppe.AKTORID }?.ident
 
-            //api: henter rinasaker fra eux
-            val avdodesSakerFraRina = euxInnhentingService.hentBucViewAvdod(avdodfnr, aktoerId)
+        //Saker for gjenlevende eux og joark
+        val totaleSakerGjenlevende = sakerFraRinaOgJoark(gjenlevendeFnr?.id, aktoerId)
 
-            if (avdodesSakerFraRina.isEmpty()) {
-                return@measure emptyList<EuxInnhentingService.BucView>()
-                    .also { loggTimeAndViewSize("Get gjenlevende Rinasaker for Gjenny", start, 0) }
+        //Saker for avdød eux og joark
+        val avdodSakerFraRinaOgJoark = sakerFraRinaOgJoark(avdodfnr,avdodAktoerId)
+
+        return totaleSakerGjenlevende.filter{ rinasak -> rinasak.id in avdodSakerFraRinaOgJoark.map { it.id }  }
+        .filter { BucType.from(it.processDefinitionId) !in listOf(P_BUC_01,P_BUC_03)}
+            .map { rinasak ->
+                BucView(rinasak.id!!, BucType.from(rinasak.processDefinitionId), aktoerId, null, avdodfnr, BucViewKilde.SAF)
             }
-            //api: brukersaker fra Joark/saf
-            val brukerRinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadataForOmstilling(aktoerId)
+    }
 
-            //api: avdødSaf + avdødUtenSaf + avdødsaf + safBruker
-            val viewTotal = euxInnhentingService.hentViewsForSafOgRinaForAvdode(
-                listOf(avdodfnr),
-                aktoerId,
-                null,
-                brukerRinaSakIderFraJoark
-            ).filter { it.buctype !in listOf(P_BUC_01, P_BUC_03) }
-
-            return@measure viewTotal.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
-                .also { logger.info("getGjenlevendeRinasakerAvdodGjenny: view size: ${it.size}, total tid: ${System.currentTimeMillis()-start} i ms") }
-        }
+    fun sakerFraRinaOgJoark(fnr: String?, aktoerId: String?) : List<Rinasak> {
+        val rinsakerGjenlevende = fnr?.let { euxInnhentingService.hentBucViewGjenlevende(fnr)} ?: emptyList()
+        val gjenlevendeRinaSakIderFraJoark = aktoerId?.let { innhentingService.hentRinaSakIderFraJoarksMetadataForOmstilling(aktoerId)} ?: emptyList()
+        return rinsakerGjenlevende.filter { it.id in gjenlevendeRinaSakIderFraJoark }.distinct()
     }
 
     @GetMapping("/rinasaker/{aktoerId}")
@@ -95,7 +136,7 @@ class GjennyController (
             //api: henter fnr fra aktørid
             val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerId)
 
-            //api: henter rinasaker basert på tidligere journalførte saker
+            //api: henter rinasaker basert på tidligere journalførte saker fra Joark
             val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
             .also { timeTracking.add("rinaSakIderFraJoark:${it}, tid: ${System.currentTimeMillis()-start} i ms") }
 

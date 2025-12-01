@@ -632,7 +632,7 @@ class PersonPDLControllerTest {
         )
     }
 
-    private fun lagPerson(
+    fun lagPerson(
         fnr: String = FNR ,
         fornavn: String = "Fornavn",
         etternavn: String = "Etternavn",

@@ -14,7 +14,6 @@ import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
 import no.nav.eessi.pensjon.eux.model.buc.MissingBuc
 import no.nav.eessi.pensjon.eux.model.buc.PreviewPdf
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
-import no.nav.eessi.pensjon.eux.model.sed.Person
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.X009
 import no.nav.eessi.pensjon.fagmodul.config.INSTITUTION_CACHE
@@ -268,15 +267,7 @@ class EuxInnhentingService(
         }
     }
 
-    private fun filterPinGjenlevendePin(gjenlevende: Person?, sedType: SedType, rinaidAvdod: String): String? {
-        val pin = gjenlevende?.pin?.firstOrNull { it.land == "NO" }
-        return if (pin == null) {
-            logger.warn("Ingen fnr funnet på gjenlevende. ${sedType}, rinaid: $rinaidAvdod")
-            null
-        } else {
-            pin.identifikator
-        }
-    }
+    fun hentBucViewGjenlevende(fnr: String): List<Rinasak> = euxKlient.getRinasaker(fnr = fnr, euxCaseId = null)
 
     fun hentBucViewBruker(fnr: String, aktoerId: String, pesysSaksnr: String?): List<BucView> {
         val start = System.currentTimeMillis()
@@ -298,6 +289,7 @@ class EuxInnhentingService(
             }
         }
     }
+
     fun hentViewsForSafOgRinaForAvdode(
         avdodListe: List<String>,
         aktoerId: String,
@@ -359,10 +351,6 @@ class EuxInnhentingService(
         return view
     }
 
-    fun hentBucerGjenny(fnr: String): List<Rinasak> {
-        return euxKlient.getRinasaker(fnr)
-    }
-
     fun lagBucViews(aktoerId: String, pesysSaksnr: String?, rinaSakIder: List<String>, rinaSakIdKilde: BucViewKilde): List<BucView> {
         val start = System.currentTimeMillis()
 
@@ -397,7 +385,7 @@ class EuxInnhentingService(
         backoff = Backoff(delayExpression = "@euxKlientRetryConfig.initialRetryMillis", maxDelay = 200000L, multiplier = 3.0),
         listeners  = ["euxKlientRetryLogger"]
     )
-    fun hentBucer(aktoerId: String, pesysSaksnr: String, rinaSakIder: List<String>): List<Buc> {
+    fun hentBucer(rinaSakIder: List<String>): List<Buc> {
         val start = System.currentTimeMillis()
 
         return rinaSakIder
