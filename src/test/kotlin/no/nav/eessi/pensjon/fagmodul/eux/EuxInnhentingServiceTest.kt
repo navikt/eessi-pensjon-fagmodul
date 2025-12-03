@@ -1,10 +1,8 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
 import com.ninjasquad.springmockk.MockkBean
-import com.ninjasquad.springmockk.MockkBeans
 import io.mockk.MockKAnnotations
 import io.mockk.every
-import io.mockk.mockk
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.klient.Properties
 import no.nav.eessi.pensjon.eux.klient.Rinasak
@@ -47,11 +45,8 @@ private const val AKTOERID = "1234568"
 private const val INTERNATIONAL_ID = "e94e1be2daff414f8a49c3149ec00e66"
 
 @SpringJUnitConfig(classes = [EuxInnhentingService::class ])
-@MockkBeans(
-    MockkBean(name = "gcpStorageService", classes = [GcpStorageService::class], relaxed = true),
-    MockkBean(name = "euxNavIdentRestTemplateV2", classes = [RestTemplate::class]),
-
-    )
+@MockkBean(name = "gcpStorageService", types = [GcpStorageService::class], relaxed = true)
+@MockkBean(name = "euxNavIdentRestTemplateV2", types = [RestTemplate::class])
 internal class EuxInnhentingServiceTest {
 
     @MockkBean( relaxed = true)

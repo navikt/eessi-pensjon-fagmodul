@@ -1,7 +1,6 @@
 package no.nav.eessi.pensjon.integrationtest.sed
 
 import com.ninjasquad.springmockk.MockkBean
-import com.ninjasquad.springmockk.MockkBeans
 import io.mockk.every
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
 import no.nav.eessi.pensjon.eux.model.BucType
@@ -42,23 +41,26 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.web.client.RestTemplate
 
 
-@SpringBootTest(classes = [IntegrasjonsTestConfig::class,UnsecuredWebMvcTestLauncher::class], webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@SpringBootTest(
+    classes = [IntegrasjonsTestConfig::class, UnsecuredWebMvcTestLauncher::class],
+    webEnvironment = SpringBootTest.WebEnvironment.MOCK
+)
 @ActiveProfiles(profiles = ["unsecured-webmvctest"])
 @AutoConfigureMockMvc
 @EmbeddedKafka
-@MockkBeans(
-    MockkBean(name = "personService", classes = [PersonService::class]),
-    MockkBean(name = "pdlRestTemplate", classes = [RestTemplate::class]),
-    MockkBean(name = "kodeverkRestTemplate", classes = [RestTemplate::class]),
-    MockkBean(name = "prefillOAuthTemplate", classes = [RestTemplate::class]),
-    MockkBean(name = "euxSystemRestTemplate", classes = [RestTemplate::class]),
-    MockkBean(name = "gcpStorageService", classes = [GcpStorageService::class]),
-    MockkBean(name = "safRestOidcRestTemplate", classes = [RestTemplate::class]),
-    MockkBean(name = "euxNavIdentRestTemplate", classes = [RestTemplate::class]),
-    MockkBean(name = "safGraphQlOidcRestTemplate", classes = [RestTemplate::class]),
-    MockkBean(name = "euxNavIdentRestTemplateV2", classes = [RestTemplate::class]),
-    MockkBean(name = "pensjonsinformasjonClient", classes = [PensjonsinformasjonClient::class])
-)
+
+@MockkBean(name = "personService", types = [PersonService::class])
+@MockkBean(name = "pdlRestTemplate", types = [RestTemplate::class])
+@MockkBean(name = "kodeverkRestTemplate", types = [RestTemplate::class])
+@MockkBean(name = "prefillOAuthTemplate", types = [RestTemplate::class])
+@MockkBean(name = "euxSystemRestTemplate", types = [RestTemplate::class])
+@MockkBean(name = "gcpStorageService", types = [GcpStorageService::class])
+@MockkBean(name = "safRestOidcRestTemplate", types = [RestTemplate::class])
+@MockkBean(name = "euxNavIdentRestTemplate", types = [RestTemplate::class])
+@MockkBean(name = "safGraphQlOidcRestTemplate", types = [RestTemplate::class])
+@MockkBean(name = "euxNavIdentRestTemplateV2", types = [RestTemplate::class])
+@MockkBean(name = "pensjonsinformasjonClient", types = [PensjonsinformasjonClient::class])
+
 class OpprettPrefillSedIntegrationTest {
 
     @Autowired
@@ -103,12 +105,20 @@ class OpprettPrefillSedIntegrationTest {
 
         every { personService.hentIdent(FOLKEREGISTERIDENT, AktoerId(AKTOER_ID)) } returns NorskIdent(FNR_VOKSEN)
 
-        every { euxNavIdentRestTemplate.exchange( "/buc/$euxRinaid", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(tomBucJson)
+        every {
+            euxNavIdentRestTemplate.exchange(
+                "/buc/$euxRinaid",
+                HttpMethod.GET,
+                null,
+                String::class.java
+            )
+        } returns ResponseEntity.ok().body(tomBucJson)
 
         val result = mockMvc.perform(
             post("/sed/add")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(apiRequest.toJson()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(apiRequest.toJson())
+        )
             .andExpect(MockMvcResultMatchers.status().is4xxClientError)
             .andReturn()
 
@@ -194,8 +204,8 @@ class OpprettPrefillSedIntegrationTest {
         val euxRinaid = "1000000001"
 
         val nyDeltakere = listOf(
-            InstitusjonItem(country = "FI", institution = "FI:200032", name="Finland test"),
-            InstitusjonItem(country = "DK", institution = "DK:120030", name="Danmark test")
+            InstitusjonItem(country = "FI", institution = "FI:200032", name = "Finland test"),
+            InstitusjonItem(country = "DK", institution = "DK:120030", name = "Danmark test")
         )
 
         val apiRequest = dummyApijson(
@@ -208,19 +218,33 @@ class OpprettPrefillSedIntegrationTest {
             FNR_VOKSEN_2,
             KravType.GJENLEV,
             euxRinaid = euxRinaid,
-            institutions = nyDeltakere)
+            institutions = nyDeltakere
+        )
 
         every { personService.hentIdent(FOLKEREGISTERIDENT, AktoerId(AKTOER_ID)) } returns NorskIdent(FNR_VOKSEN)
-        every { personService.hentIdent(AKTORID, NorskIdent(FNR_VOKSEN_2)) } returns AktoerId("23423423423423423423423423423423423423423423423423")
+        every {
+            personService.hentIdent(
+                AKTORID,
+                NorskIdent(FNR_VOKSEN_2)
+            )
+        } returns AktoerId("23423423423423423423423423423423423423423423423423")
 
         val tomBucJson = javaClass.getResource("/json/buc/buc-rina2020-P2K-X005.json").readText()
-        every { euxNavIdentRestTemplate.exchange( "/buc/$euxRinaid", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(tomBucJson)
+        every {
+            euxNavIdentRestTemplate.exchange(
+                "/buc/$euxRinaid",
+                HttpMethod.GET,
+                null,
+                String::class.java
+            )
+        } returns ResponseEntity.ok().body(tomBucJson)
 
         val result = mockMvc.perform(
             post("/sed/add")
                 .header("x-request-id", X_REQUEST_ID)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(apiRequest.toJson()))
+                .content(apiRequest.toJson())
+        )
             .andExpect(MockMvcResultMatchers.status().isBadRequest)
             .andReturn()
 
@@ -270,9 +294,13 @@ class OpprettPrefillSedIntegrationTest {
     }
 
     fun responseMvcDecode(result: MvcResult): Pair<HttpStatus, String> {
-        return when(val status = valueOf(result.response.status)) {
-            OK, ACCEPTED, CREATED -> Pair(OK, result.response.getContentAsString(charset("UTF-8"))).also { println("ResponseDecode: $it") }
-            else ->  Pair(status, result.response.errorMessage!!)
+        return when (val status = valueOf(result.response.status)) {
+            OK, ACCEPTED, CREATED -> Pair(
+                OK,
+                result.response.getContentAsString(charset("UTF-8"))
+            ).also { println("ResponseDecode: $it") }
+
+            else -> Pair(status, result.response.errorMessage!!)
         }
     }
 }

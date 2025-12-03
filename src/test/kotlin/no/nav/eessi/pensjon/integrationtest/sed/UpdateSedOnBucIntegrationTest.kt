@@ -1,7 +1,6 @@
 package no.nav.eessi.pensjon.integrationtest.sed
 
 import com.ninjasquad.springmockk.MockkBean
-import com.ninjasquad.springmockk.MockkBeans
 import io.mockk.every
 import jakarta.servlet.ServletException
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
@@ -27,21 +26,23 @@ import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
 import java.nio.charset.Charset
 
-@SpringBootTest(classes = [IntegrasjonsTestConfig::class, UnsecuredWebMvcTestLauncher::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+    classes = [IntegrasjonsTestConfig::class, UnsecuredWebMvcTestLauncher::class],
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
+)
 @ActiveProfiles(profiles = ["unsecured-webmvctest"])
 @AutoConfigureMockMvc
 @EmbeddedKafka
-@MockkBeans(
-    MockkBean(name = "pdlRestTemplate", classes = [RestTemplate::class]),
-    MockkBean(name = "kodeverkRestTemplate", classes = [RestTemplate::class]),
-    MockkBean(name = "prefillOAuthTemplate", classes = [RestTemplate::class]),
-    MockkBean(name = "euxSystemRestTemplate", classes = [RestTemplate::class]),
-    MockkBean(name = "gcpStorageService", classes = [GcpStorageService::class]),
-    MockkBean(name = "safRestOidcRestTemplate", classes = [RestTemplate::class]),
-    MockkBean(name = "safGraphQlOidcRestTemplate", classes = [RestTemplate::class]),
-    MockkBean(name = "euxNavIdentRestTemplateV2", classes = [RestTemplate::class]),
-    MockkBean(name = "pensjoninformasjonRestTemplate", classes = [RestTemplate::class])
-)
+@MockkBean(name = "pdlRestTemplate", types = [RestTemplate::class])
+@MockkBean(name = "kodeverkRestTemplate", types = [RestTemplate::class])
+@MockkBean(name = "prefillOAuthTemplate", types = [RestTemplate::class])
+@MockkBean(name = "euxSystemRestTemplate", types = [RestTemplate::class])
+@MockkBean(name = "gcpStorageService", types = [GcpStorageService::class])
+@MockkBean(name = "safRestOidcRestTemplate", types = [RestTemplate::class])
+@MockkBean(name = "safGraphQlOidcRestTemplate", types = [RestTemplate::class])
+@MockkBean(name = "euxNavIdentRestTemplateV2", types = [RestTemplate::class])
+@MockkBean(name = "pensjoninformasjonRestTemplate", types = [RestTemplate::class])
+
 class UpdateSedOnBucIntegrationTest {
 
     @MockkBean(name = "euxNavIdentRestTemplate")
@@ -65,22 +66,27 @@ class UpdateSedOnBucIntegrationTest {
         val jsonsed = javaClass.getResource("/json/nav/P5000-NAV.json")?.readText()!!
 
         /////cpi/buc/{RinaSakId}/sed/{DokumentId}
-        every { restTemplate.exchange(
-            eq("/buc/$euxCaseId/sed/$documentId?ventePaAksjon=false"),
-            eq(HttpMethod.PUT),
-            any(),
-            eq(String::class.java)) } returns ResponseEntity("", HttpStatus.OK)
+        every {
+            restTemplate.exchange(
+                eq("/buc/$euxCaseId/sed/$documentId?ventePaAksjon=false"),
+                eq(HttpMethod.PUT),
+                any(),
+                eq(String::class.java)
+            )
+        } returns ResponseEntity("", HttpStatus.OK)
 
-        val result = mockMvc.perform(put("/sed/put/$euxCaseId/$documentId")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(jsonsed))
+        val result = mockMvc.perform(
+            put("/sed/put/$euxCaseId/$documentId")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonsed)
+        )
             .andExpect(status().isOk)
             .andReturn()
         val response = result.response.getContentAsString(charset("UTF-8"))
 
         assertEquals(true, response.toBoolean())
 
-   }
+    }
 
     @Test
     fun `oppdate sed P5000 on buc results in false when eux throws an UNAUTHORIZED Exception`() {
@@ -88,18 +94,22 @@ class UpdateSedOnBucIntegrationTest {
         val jsonsed = javaClass.getResource("/json/nav/P5000-NAV.json")?.readText()!!
         //cpi/buc/{RinaSakId}/sed/{DokumentId}
 
-        every { restTemplate.exchange(
-            eq("/buc/$euxCaseId/sed/$documentId?ventePaAksjon=false"),
-            eq(HttpMethod.PUT),
-            any(),
-            eq(String::class.java)) } throws createDummyClientRestExecption(HttpStatus.UNAUTHORIZED, "Unauthorized")
+        every {
+            restTemplate.exchange(
+                eq("/buc/$euxCaseId/sed/$documentId?ventePaAksjon=false"),
+                eq(HttpMethod.PUT),
+                any(),
+                eq(String::class.java)
+            )
+        } throws createDummyClientRestExecption(HttpStatus.UNAUTHORIZED, "Unauthorized")
 
         val expectedError = """Authorization token required for Rina.""".trimIndent()
         assertThrows<ServletException> {
             mockMvc.perform(
                 put("/sed/put/$euxCaseId/$documentId")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(jsonsed))
+                    .content(jsonsed)
+            )
                 .andExpect(status().is4xxClientError)
                 .andExpect(status().reason(Matchers.containsString(expectedError)))
         }
@@ -111,15 +121,20 @@ class UpdateSedOnBucIntegrationTest {
         val jsonsed = javaClass.getResource("/json/nav/P5000-tomperioder-NAV.json").readText()
 
         /////cpi/buc/{RinaSakId}/sed/{DokumentId}
-        every { restTemplate.exchange(
-            eq("/buc/$euxCaseId/sed/$documentId?ventePaAksjon=false"),
-            eq(HttpMethod.PUT),
-            any(),
-            eq(String::class.java)) } returns ResponseEntity("", HttpStatus.OK)
+        every {
+            restTemplate.exchange(
+                eq("/buc/$euxCaseId/sed/$documentId?ventePaAksjon=false"),
+                eq(HttpMethod.PUT),
+                any(),
+                eq(String::class.java)
+            )
+        } returns ResponseEntity("", HttpStatus.OK)
 
-        val result = mockMvc.perform(put("/sed/put/$euxCaseId/$documentId")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(jsonsed))
+        val result = mockMvc.perform(
+            put("/sed/put/$euxCaseId/$documentId")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonsed)
+        )
             .andExpect(status().isOk)
             .andReturn()
         val response = result.response.getContentAsString(charset("UTF-8"))
@@ -133,15 +148,20 @@ class UpdateSedOnBucIntegrationTest {
         val jsonsed = javaClass.getResource("/json/nav/P5000-tomperioder2-NAV.json").readText()
 
         /////cpi/buc/{RinaSakId}/sed/{DokumentId}
-        every { restTemplate.exchange(
-            eq("/buc/$euxCaseId/sed/$documentId?ventePaAksjon=false"),
-            eq(HttpMethod.PUT),
-            any(),
-            eq(String::class.java)) } returns ResponseEntity("", HttpStatus.OK)
+        every {
+            restTemplate.exchange(
+                eq("/buc/$euxCaseId/sed/$documentId?ventePaAksjon=false"),
+                eq(HttpMethod.PUT),
+                any(),
+                eq(String::class.java)
+            )
+        } returns ResponseEntity("", HttpStatus.OK)
 
-        val result = mockMvc.perform(put("/sed/put/$euxCaseId/$documentId")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(jsonsed))
+        val result = mockMvc.perform(
+            put("/sed/put/$euxCaseId/$documentId")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonsed)
+        )
             .andExpect(status().isOk)
             .andReturn()
         val response = result.response.getContentAsString(charset("UTF-8"))
@@ -164,13 +184,20 @@ class UpdateSedOnBucIntegrationTest {
         mockMvc.perform(
             put("/sed/put/$euxCaseId/$documentId")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonsed))
+                .content(jsonsed)
+        )
             .andExpect(status().isBadRequest)
             .andExpect(status().reason(Matchers.containsStringIgnoringCase(expectedError)))
     }
 
-    private fun createDummyClientRestExecption(httpstatus: HttpStatus, dummyBody: String)
-            = HttpClientErrorException.create (httpstatus, httpstatus.name, HttpHeaders(), dummyBody.toByteArray(), Charset.defaultCharset())
+    private fun createDummyClientRestExecption(httpstatus: HttpStatus, dummyBody: String) =
+        HttpClientErrorException.create(
+            httpstatus,
+            httpstatus.name,
+            HttpHeaders(),
+            dummyBody.toByteArray(),
+            Charset.defaultCharset()
+        )
 
 }
 

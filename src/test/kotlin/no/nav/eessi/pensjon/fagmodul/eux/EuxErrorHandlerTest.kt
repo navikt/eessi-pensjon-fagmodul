@@ -4,7 +4,6 @@ import ch.qos.logback.classic.Logger
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.read.ListAppender
 import com.ninjasquad.springmockk.MockkBean
-import com.ninjasquad.springmockk.MockkBeans
 import io.mockk.mockk
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.klient.IkkeFunnetException
@@ -39,9 +38,7 @@ import org.springframework.web.client.RestTemplate
     EuxErrorHandlerTest.Config::class]
 )
 @EnableRetry
-@MockkBeans(
-    MockkBean(name = "gcpStorageService", classes = [GcpStorageService::class], relaxed = true)
-)
+@MockkBean(name = "gcpStorageService", types = [GcpStorageService::class], relaxed = true)
 class EuxErrorHandlerTest {
 
     @Autowired

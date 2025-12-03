@@ -1,7 +1,6 @@
 package no.nav.eessi.pensjon.api.geo
 
 import com.ninjasquad.springmockk.MockkBean
-import com.ninjasquad.springmockk.MockkBeans
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.integrationtest.IntegrasjonsTestConfig
@@ -16,12 +15,9 @@ import org.mockserver.integration.ClientAndServer
 import org.mockserver.model.HttpRequest
 import org.mockserver.model.HttpResponse
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.resttestclient.TestRestTemplate
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
 import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.client.RestTestClient
@@ -34,23 +30,22 @@ import org.springframework.web.client.RestTemplate
 @ActiveProfiles(profiles = ["unsecured-webmvctest"])
 @AutoConfigureRestTestClient
 @EmbeddedKafka
-@MockkBeans(
-    value = [
-//        MockkBean(name = "restTemplate", classes = [TestRestTemplate::class], relaxed = true),
-        MockkBean(name = "personService", classes = [PersonService::class]),
-        MockkBean(name = "pdlRestTemplate", classes = [RestTemplate::class]),
-        MockkBean(name = "restEuxTemplate", classes = [RestTemplate::class]),
-        MockkBean(name = "kodeverkRestTemplate", classes = [RestTemplate::class]),
-        MockkBean(name = "prefillOAuthTemplate", classes = [RestTemplate::class]),
-        MockkBean(name = "euxSystemRestTemplate", classes = [RestTemplate::class]),
-        MockkBean(name = "gcpStorageService", classes = [GcpStorageService::class]),
-        MockkBean(name = "euxNavIdentRestTemplate", classes = [RestTemplate::class]),
-        MockkBean(name = "euxNavIdentRestTemplateV2", classes = [RestTemplate::class]),
-        MockkBean(name = "safRestOidcRestTemplate", classes = [RestTemplate::class]),
-        MockkBean(name = "safGraphQlOidcRestTemplate", classes = [RestTemplate::class]),
-        MockkBean(name = "pensjonsinformasjonClient", classes = [PensjonsinformasjonClient::class])
-    ]
-)
+//@MockkBeans(
+//    value = [
+////        MockkBean(name = "restTemplate", types = [TestRestTemplate::class], relaxed = true),
+        @MockkBean(name = "personService", types = [PersonService::class])
+        @MockkBean(name = "pdlRestTemplate", types = [RestTemplate::class])
+        @MockkBean(name = "restEuxTemplate", types = [RestTemplate::class])
+        @MockkBean(name = "kodeverkRestTemplate", types = [RestTemplate::class])
+        @MockkBean(name = "prefillOAuthTemplate", types = [RestTemplate::class])
+        @MockkBean(name = "euxSystemRestTemplate", types = [RestTemplate::class])
+        @MockkBean(name = "gcpStorageService", types = [GcpStorageService::class])
+        @MockkBean(name = "euxNavIdentRestTemplate", types = [RestTemplate::class])
+        @MockkBean(name = "euxNavIdentRestTemplateV2", types = [RestTemplate::class])
+        @MockkBean(name = "safRestOidcRestTemplate", types = [RestTemplate::class])
+        @MockkBean(name = "safGraphQlOidcRestTemplate", types = [RestTemplate::class])
+        @MockkBean(name = "pensjonsinformasjonClient", types = [PensjonsinformasjonClient::class])//    ]
+//)
 class LandkoderControllerIntegrationTest {
 
     @Autowired
