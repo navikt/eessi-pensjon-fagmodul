@@ -46,7 +46,6 @@ private const val SOME_SAKID = "10000"
 private const val SOME_VEDTAK_ID = "213123333"
 private const val KRAV_ID = "345345"
 
-@Disabled
 @Suppress("DEPRECATION") // hentKunSakType / hentAltPaaAktoerId
 class PensjonControllerTest {
 
