@@ -281,7 +281,7 @@ class EuxInnhentingService(
     fun hentBucViewBruker(fnr: String, aktoerId: String, pesysSaksnr: String?): List<BucView> {
         val start = System.currentTimeMillis()
 
-        return hentRinasaker.measure {  euxKlient.getRinasaker(fnr = fnr, euxCaseId = null)
+        return hentRinasaker.measure {  euxKlient.getRinasaker(fnr = fnr, euxCaseId = null).also { logger.info("Henter ${it.size} rinasaker: $it") }
             .filter { erRelevantForVisningIEessiPensjon(it) }
             .map { rinasak ->
                 BucView(
@@ -294,7 +294,7 @@ class EuxInnhentingService(
                 )
             }.also {
                 val end = System.currentTimeMillis()
-                logger.info("hentBucViewBruker tid ${end - start} i ms")
+                logger.info("hentBucViewBruker tid ${end - start} i ms for antall saker: ${it.size} " )
             }
         }
     }
