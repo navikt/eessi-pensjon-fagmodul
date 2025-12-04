@@ -2,11 +2,13 @@ package no.nav.eessi.pensjon.fagmodul.eux
 
 import no.nav.eessi.pensjon.eux.klient.*
 import org.slf4j.LoggerFactory
+import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus.*
 import org.springframework.http.client.ClientHttpResponse
 import org.springframework.util.StreamUtils
 import org.springframework.web.client.ResponseErrorHandler
 import java.io.IOException
+import java.net.URI
 import java.nio.charset.Charset
 
 
@@ -30,22 +32,38 @@ open class EuxErrorHandler : ResponseErrorHandler {
         return response.statusCode.isError
     }
 
-    @Throws(IOException::class)
-    @Deprecated("Deprecated i ResponseErrorHandler" )
-    override fun handleError(httpResponse: ClientHttpResponse) {
-        logResponse(httpResponse)
+    override fun handleError(url: URI, method: HttpMethod, response: ClientHttpResponse) {
+//        super.handleError(url, method, response)
+        logResponse(response)
 
-        when (httpResponse.statusCode) {
-            BAD_REQUEST -> handleBadRequest(httpResponse)
+        when (response.statusCode) {
+            BAD_REQUEST -> handleBadRequest(response)
             NOT_FOUND -> throw IkkeFunnetException("Ikke funnet")
             FORBIDDEN -> throw ForbiddenException("Forbidden, Ikke tilgang")
             CONFLICT -> throw EuxConflictException("En konflikt oppstod under oppdatering av data")
             UNAUTHORIZED -> throw RinaIkkeAutorisertBrukerException("Authorization token mangler eller er ugyldig")
             GATEWAY_TIMEOUT -> throw GatewayTimeoutException("Gateway timeout")
             INTERNAL_SERVER_ERROR -> throw EuxRinaServerException("Rina serverfeil, kan også skyldes ugyldig input")
-            else -> handleBadRequest(httpResponse)
+            else -> handleBadRequest(response)
         }
     }
+
+//    @Throws(IOException::class)
+//    @Deprecated("Deprecated i ResponseErrorHandler" )
+//    override fun handleError(httpResponse: ClientHttpResponse) {
+//        logResponse(httpResponse)
+//
+//        when (httpResponse.statusCode) {
+//            BAD_REQUEST -> handleBadRequest(httpResponse)
+//            NOT_FOUND -> throw IkkeFunnetException("Ikke funnet")
+//            FORBIDDEN -> throw ForbiddenException("Forbidden, Ikke tilgang")
+//            CONFLICT -> throw EuxConflictException("En konflikt oppstod under oppdatering av data")
+//            UNAUTHORIZED -> throw RinaIkkeAutorisertBrukerException("Authorization token mangler eller er ugyldig")
+//            GATEWAY_TIMEOUT -> throw GatewayTimeoutException("Gateway timeout")
+//            INTERNAL_SERVER_ERROR -> throw EuxRinaServerException("Rina serverfeil, kan også skyldes ugyldig input")
+//            else -> handleBadRequest(httpResponse)
+//        }
+//    }
 
     @Throws(IOException::class)
     private fun handleBadRequest(httpResponse: ClientHttpResponse) {

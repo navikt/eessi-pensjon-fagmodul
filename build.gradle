@@ -2,10 +2,11 @@ buildscript {
 
     ext {
         kotlinVersion = '2.2.21'
-        springBootVersion = '3.5.7'
-        springKafkaVersion = '3.3.10'
+        springBootVersion = '4.0.0'
+        springKafkaVersion = '4.0.0'
         springfoxVersion = '3.0.0'
-        tokenSupportVersion = '5.0.39'
+        tokenSupportVersion = '6.0.0'
+        jacksonModuleKotlinVersion = '2.20.1'
     }
 }
 
@@ -36,13 +37,20 @@ dependencies {
     // Spring-boot BOM-fil spesifiserer versjoner for Spring Boot-avhengigheter
     implementation(platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}"))
     implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.boot:spring-boot-starter-aop")
+    implementation("org.springframework.boot:spring-boot-starter-aop:3.5.8")
     implementation("org.springframework.boot:spring-boot-starter-cache")
+    implementation("org.springframework.boot:spring-boot-restclient")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-actuator")
+    implementation("org.springframework.retry:spring-retry:2.0.7")
+    implementation("org.springframework.boot:spring-boot-starter-webmvc-test")
+
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonModuleKotlinVersion}")
+
+    implementation 'io.dropwizard.metrics:metrics-core:4.2.20'
 
     // Spring Framework BOM-fil overstyrer så vi får siste patch-versjon av Spring Framework
-    implementation(platform("org.springframework:spring-framework-bom:6.2.12"))
+    implementation(platform("org.springframework:spring-framework-bom:7.0.1"))
 
     implementation("org.yaml:snakeyaml:2.5") // Pga https://security.snyk.io/package/maven/org.yaml:snakeyaml
 
@@ -66,22 +74,22 @@ dependencies {
     //GCP
     implementation("com.google.cloud:google-cloud-storage:2.59.0")
 
-    implementation("no.nav.eessi.pensjon:ep-metrics:2.1.16")
-    implementation("no.nav.eessi.pensjon:ep-logging:2.3.21")
-    implementation("no.nav.eessi.pensjon:ep-eux:2.6.1")
-    implementation("no.nav.eessi.pensjon:ep-kodeverk:4.3.39") {
+    implementation("no.nav.eessi.pensjon:ep-metrics:2.1.19")
+    implementation("no.nav.eessi.pensjon:ep-logging:2.3.25")
+    implementation("no.nav.eessi.pensjon:ep-eux:2.6.4")
+    implementation("no.nav.eessi.pensjon:ep-kodeverk:4.3.46") {
         exclude module: 'ep-eux'
         exclude module: 'ep-logging'
         exclude module: 'ep-metrics'
     }
 
-    implementation("no.nav.eessi.pensjon:ep-personoppslag:13.3.54") {
+    implementation("no.nav.eessi.pensjon:ep-personoppslag:13.3.57") {
         exclude module: 'ep-eux'
         exclude module: 'ep-logging'
         exclude module: 'ep-metrics'
     }
 
-    implementation("no.nav.eessi.pensjon:ep-pensjonsinformasjon:3.1.33") {
+    implementation("no.nav.eessi.pensjon:ep-pensjonsinformasjon:3.1.39") {
         exclude module: 'ep-eux'
         exclude module: 'ep-logging'
         exclude module: 'ep-metrics'

@@ -1,7 +1,6 @@
 package no.nav.eessi.pensjon.api.gjenny
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import com.ninjasquad.springmockk.MockkBean
 import com.ninjasquad.springmockk.MockkBeans
 import com.ninjasquad.springmockk.SpykBean
@@ -22,7 +21,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
@@ -131,7 +130,7 @@ class GjennyControllerTest {
             .andReturn()
 
         val responseContent = result.response.contentAsString
-        val bucViews: List<EuxInnhentingService.BucView> = ObjectMapper().readValue(responseContent)
+        val bucViews: List<EuxInnhentingService.BucView> = ObjectMapper().readValue(responseContent, Array<EuxInnhentingService.BucView>::class.java).toList()
 
         assertTrue(bucViews.isEmpty(), "Expected an empty list in the response")
     }

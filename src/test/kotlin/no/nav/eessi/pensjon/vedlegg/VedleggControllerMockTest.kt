@@ -1,12 +1,12 @@
 package no.nav.eessi.pensjon.vedlegg
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.mockk.every
 import io.mockk.impl.annotations.SpyK
 import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.eessi.pensjon.logging.AuditLogger
+import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.vedlegg.client.Dokument
 import no.nav.eessi.pensjon.vedlegg.client.HentMetadataResponse
 import no.nav.eessi.pensjon.vedlegg.client.HentdokumentInnholdResponse
@@ -50,9 +50,8 @@ class VedleggControllerMockTest {
                 .replace("\r", "")
                 .replace("\n", "")
                 .replace(" ", "")
-        val mapper = jacksonObjectMapper()
 
-        every { vedleggService.hentDokumentMetadata("123") } returns mapper.readValue(responseJson, HentMetadataResponse::class.java)
+        every { vedleggService.hentDokumentMetadata("123") } returns mapJsonToAny<HentMetadataResponse>(responseJson)
 
         val resp = vedleggController.hentDokumentMetadata("123")
         assertEquals(HttpStatus.valueOf(200), resp.statusCode)
@@ -96,12 +95,22 @@ class VedleggControllerMockTest {
         val disposition = ContentDisposition
                 .builder("form-data")
                 .name("file")
-                .build().toString()
+                .build()
+
+//        val attachmentMeta = LinkedMultiValueMap<String, String>()
+//        attachmentMeta.add(HttpHeaders.CONTENT_DISPOSITION, disposition)
+//        val dokumentInnholdBinary = Base64.getDecoder().decode(filInnhold)
+//        val attachmentPart = HttpEntity(dokumentInnholdBinary, attachmentMeta)
+
 
         val attachmentMeta = LinkedMultiValueMap<String, String>()
-        attachmentMeta.add(HttpHeaders.CONTENT_DISPOSITION, disposition)
+//            attachmentMeta.add(HttpHeaders.CONTENT_DISPOSITION, disposition)
         val dokumentInnholdBinary = Base64.getDecoder().decode(filInnhold)
-        val attachmentPart = HttpEntity(dokumentInnholdBinary, attachmentMeta)
+        //val attachmentPart = HttpEntity(dokumentInnholdBinary, attachmentMeta)
+        val attachmentPart =  HttpEntity(dokumentInnholdBinary, HttpHeaders().apply {
+            contentType = MediaType.APPLICATION_JSON
+            contentDisposition = disposition
+        })
 
         val body = LinkedMultiValueMap<String, Any>()
         body.add("multipart", attachmentPart)

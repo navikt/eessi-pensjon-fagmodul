@@ -5,8 +5,6 @@ import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
-import kafka.utils.Json
-import no.nav.eessi.pensjon.fagmodul.api.FrontEndResponse
 import no.nav.eessi.pensjon.api.person.PersonPDLController.PersoninformasjonAvdode
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_02
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_06
@@ -16,7 +14,7 @@ import no.nav.eessi.pensjon.eux.model.buc.ActionsItem
 import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
 import no.nav.eessi.pensjon.eux.model.sed.*
-import no.nav.eessi.pensjon.fagmodul.api.EuxController
+import no.nav.eessi.pensjon.fagmodul.api.FrontEndResponse
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
@@ -36,8 +34,8 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.http.MediaType
@@ -45,7 +43,6 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDate
 import java.time.LocalDateTime

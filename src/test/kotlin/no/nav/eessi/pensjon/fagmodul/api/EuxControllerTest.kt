@@ -119,7 +119,6 @@ class EuxControllerTest {
     }
 
     @Test
-    @Disabled
     fun `resendtDokumenter skal gi feil ved BAD_REQUEST`() {
         val dokumentListe = "1452061_5120d7d59ae548a4a980fe93eb58f9bd_2"
         val capturedRequestBody = slot<HttpEntity<String>>()
@@ -135,7 +134,6 @@ class EuxControllerTest {
         assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
         assert(result.toString().contains("Seder ble IKKE resendt til Rina"))
     }
-
     @Test
     fun `resendtDokumenter skal gi 200 ved gyldig input ved innsending av flere dokumenter`() {
         val dokumentListe = """

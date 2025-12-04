@@ -2,10 +2,6 @@ package no.nav.eessi.pensjon.fagmodul.pesys
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
-import io.mockk.mockk
-import io.swagger.v3.oas.annotations.media.DiscriminatorMapping
-import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
-import no.nav.eessi.pensjon.eux.klient.EuxKlientLib
 import no.nav.eessi.pensjon.eux.model.Avsender
 import no.nav.eessi.pensjon.eux.model.SedMetadata
 import no.nav.eessi.pensjon.eux.model.sed.P6000
@@ -14,12 +10,9 @@ import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.kodeverk.KodeverkClient
 import no.nav.eessi.pensjon.kodeverk.Postnummer
 import no.nav.eessi.pensjon.utils.mapJsonToAny
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
-import org.springframework.boot.test.context.TestConfiguration
-import org.springframework.context.annotation.Bean
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
@@ -84,7 +77,7 @@ class PenInfoUtlandControllerMvcTest {
         //institusjon
         assert( repsonse.response.contentAsString.contains(""""institusjonsid":"NO:NAVAT07","institusjonsnavn":"NAV ACCEPTANCE TEST 07","saksnummer":"1003563","land":"NO""""))
         //VurderingNyAdresse
-        assert( repsonse.response.contentAsString.contains("""institusjonsadresse":"Postboks 6600 Etterstad","postnummer":"0607","bygningsnavn":null,"land":"NO","region":null,"poststed":"Oslo"""))
+        assert( repsonse.response.contentAsString.contains(""""institusjonsadresse":"Postboks 6600 Etterstad","postnummer":"0607","bygningsnavn":null,"land":"NO","region":null,"poststed":"Oslo"}],"vedtaksdato":"2025-02-05"}],"avslaattePensjoner":[],"utfyllendeInstitusjon"""))
         //innehaver
 //        assert( repsonse.response.contentAsString.contains("""innehaver":{"fornavn":"KOGNITIV","etternavn":"AKROBAT","etternavnVedFoedsel":null,"foedselsdato":"1986-08-16","adresselinje":null,"poststed":"Oslo","postnummer":"1554","landkode":"NO"},"pin":[{"institusjonsnavn":"NAV ACCEPTANCE TEST 07","institusjonsid":"NO:NAVAT07","sektor":null,"land":"NO","institusjon":null}]}"""))
     }
