@@ -112,7 +112,6 @@ class PersonPDLControllerTest {
     }
 
     @Test
-    @Disabled
     fun `getPerson should return Person as json`() {
         every { pdlService.hentPerson(any()) } returns lagPerson(etternavn = "NORDMANN", fornavn = "OLA")
         val response = mvc.perform(
