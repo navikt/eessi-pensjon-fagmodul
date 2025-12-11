@@ -130,7 +130,7 @@ internal class VedleggServiceTest  {
         val mockDokumentMetadata = createMockDokumentMetadata(rinaSakId)
         every { safClient.hentDokumentMetadata(any()) } returns mockDokumentMetadata
 
-        val result = vedleggService.hentRinaSakerFraMetaForOmstillingstonad("mockActorId")
+        val result = vedleggService.hentRinaSakerFraMetaForGjenny("mockActorId")
 
         assertEquals(rinaSakId, result.firstOrNull())
     }

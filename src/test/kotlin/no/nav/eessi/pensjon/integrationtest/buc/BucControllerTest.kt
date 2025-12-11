@@ -61,7 +61,7 @@ class BucControllerTest {
         val buc = Buc(id = rinanummer, processDefinitionName = P_BUC_01.name)
 
         every { innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)} returns listOf(rinanummer)
-        every { euxInnhentingService.hentBucer(aktoerId, pesyssak, listOf(rinanummer)) } returns listOf(buc)
+        every { euxInnhentingService.hentBucer(listOf(rinanummer)) } returns listOf(buc)
 
         val result = mvcPerform(endpointUrl)
         val expected = "[{\"processDefinitionName\":\"P_BUC_01\",\"id\":\"$rinanummer\"}]"

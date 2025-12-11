@@ -84,7 +84,7 @@ class VedleggService(private val safClient: SafClient,
         backoff = Backoff(delayExpression = "@euxKlientVedleggServiceRetryConfig.initialRetryMillis", maxDelay = 200000L, multiplier = 3.0),
         listeners  = ["euxKlientVedleggServiceRetryLogger"]
     )
-    fun hentRinaSakerFraMetaForOmstillingstonad(aktoerId: String): List<String> =
+    fun hentRinaSakerFraMetaForGjenny(aktoerId: String): List<String> =
         hentDokumentMetadata(aktoerId).data.dokumentoversiktBruker.journalposter
             .filter { it.tema.contains("EYO", true) || it.tema.contains("EYB", true) || it.tema.contains("oms", true) || it.tema.contains("barn", true) }
             .flatMap { journalpost ->

@@ -134,8 +134,6 @@ class BucController(
 
             //saker fra saf og eux/rina
             val bucer = euxInnhentingService.hentBucer(
-                aktoerId,
-                pensjonSakNummer,
                 rinaSakIderFraJoark
             )
             logger.debug("bucer : ${bucer.toJson()}")

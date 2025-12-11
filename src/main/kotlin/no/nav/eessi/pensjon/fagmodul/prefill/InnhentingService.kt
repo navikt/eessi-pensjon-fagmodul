@@ -88,7 +88,7 @@ class InnhentingService(
         vedleggService.hentRinaSakIderFraMetaData(aktoerid)
 
     fun hentRinaSakIderFraJoarksMetadataForOmstilling(aktoerid: String): List<String> =
-        vedleggService.hentRinaSakerFraMetaForOmstillingstonad(aktoerid)
+        vedleggService.hentRinaSakerFraMetaForGjenny(aktoerid)
 
     fun hentPreutyltSed(apiRequest: ApiRequest, processDefinitionVersion: String): String =
         prefillKlient.hentPreutfyltSed(apiRequest.copy(processDefinitionVersion = processDefinitionVersion))
