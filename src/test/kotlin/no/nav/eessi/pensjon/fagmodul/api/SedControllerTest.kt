@@ -3,7 +3,7 @@ package no.nav.eessi.pensjon.fagmodul.api
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_06
-import no.nav.eessi.pensjon.eux.model.SedType
+import no.nav.eessi.pensjon.eux.model.SedType.*
 import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.eux.model.sed.P5000
 import no.nav.eessi.pensjon.eux.model.sed.P8000
@@ -80,7 +80,7 @@ class SedControllerTest {
 
     @Test
     fun getDocumentfromRina() {
-        val sed = SED(SedType.P2000)
+        val sed = SED(P2000)
         every { mockEuxInnhentingService.getSedOnBucByDocumentId("2313", "23123123123") } returns sed
 
         val result = sedController.getDocument("2313", "23123123123")
@@ -131,7 +131,7 @@ class SedControllerTest {
 
         val actualResponse = sedController.getSeds(buc, rinanr)
 
-        val expectedResponse = ResponseEntity.ok().body(mapAnyToJson(listOf(SedType.P2000)))
+        val expectedResponse = ResponseEntity.ok().body(mapAnyToJson(listOf(P2000)))
 
         assertEquals(expectedResponse, actualResponse)
 
@@ -150,7 +150,7 @@ class SedControllerTest {
         val actualResponse = sedController.getSeds(buc, rinanr)
 
         val expectedResponse =
-            ResponseEntity.ok(mapAnyToJson(listOf(SedType.P5000, SedType.P6000, SedType.P7000, SedType.P10000)))
+            ResponseEntity.ok(mapAnyToJson(listOf(P5000, P6000, P7000, P10000)))
 
         assertEquals(expectedResponse, actualResponse)
 
@@ -160,14 +160,13 @@ class SedControllerTest {
 
     @Test
     fun `getFiltrerteGyldigSedAksjonListAsString buc_06 ingen documents skal retutnere 4 gyldige sedtyper`() {
-        val mockBuc = mapJsonToAny<Buc>(javaClass.getResource("/json/buc/P_BUC_06_emptyDocumentsList.json").readText())
-        val buc = "P_BUC_06"
+        val mockBuc = mapJsonToAny<Buc>(javaClass.getResource("/json/buc/P_BUC_06_emptyDocumentsList.json")!!.readText())
         val rinanr = "434164"
 
         every { mockEuxInnhentingService.getBuc(rinanr) } returns mockBuc
 
-        val actualResponse = sedController.getSeds(buc, rinanr)
-        val expectedResponse = ResponseEntity.ok(mapAnyToJson(listOf(SedType.P5000, SedType.P6000, SedType.P7000, SedType.P10000)))
+        val actualResponse = sedController.getSeds(P_BUC_06.name, rinanr)
+        val expectedResponse = ResponseEntity.ok(mapAnyToJson(listOf(P5000, P6000, P7000, P10000)))
 
         assertEquals(expectedResponse, actualResponse)
 
@@ -180,16 +179,15 @@ class SedControllerTest {
     @Test
     fun `getFiltrerteGyldigSedAksjonListAsString   buc_06 returns 3 seds if a sed already exists`() {
         val mockBuc =
-            mapJsonToAny<Buc>(javaClass.getResource("/json/buc/buc-P_BUC_06_4.2_P5000.json").readText())
-        val buc = "P_BUC_06"
+            mapJsonToAny<Buc>(javaClass.getResource("/json/buc/buc-P_BUC_06_4.2_P5000.json")!!.readText())
         val rinanr = "1000101"
 
         every { mockEuxInnhentingService.getBuc(rinanr) } returns mockBuc
 
-        val actualResponse = sedController.getSeds(buc, rinanr)
+        val actualResponse = sedController.getSeds(P_BUC_06.name, rinanr)
 
         val expectedResponse =
-            ResponseEntity.ok().body(mapAnyToJson(listOf(SedType.P10000, SedType.P6000, SedType.P7000)))
+            ResponseEntity.ok().body(mapAnyToJson(listOf(P10000, P6000, P7000)))
 
         assertEquals(expectedResponse, actualResponse)
 
@@ -207,18 +205,7 @@ class SedControllerTest {
 
         val actualResponse = sedController.getSeds(buc, rinanr)
 
-        val sedList = listOf(
-            SedType.H020,
-            SedType.H070,
-            SedType.H120,
-            SedType.P10000,
-            SedType.P3000_NO,
-            SedType.P4000,
-            SedType.P5000,
-            SedType.P6000,
-            SedType.P7000,
-            SedType.P8000
-        )
+        val sedList = listOf(H020, H070, H120, P10000, P3000_NO, P4000, P5000, P6000, P7000, P8000)
         val expectedResponse = ResponseEntity.ok().body(mapAnyToJson(sedList))
 
         assertEquals(expectedResponse, actualResponse)
@@ -230,7 +217,7 @@ class SedControllerTest {
     @Test
     fun `getFiltrerteGyldigSedAksjonListAsString buc_06 returns 0 seds if a sed is sent`() {
         val mockBuc =
-            mapJsonToAny<Buc>(javaClass.getResource("/json/buc/buc-P_BUC_06-P5000_Sendt.json").readText())
+            mapJsonToAny<Buc>(javaClass.getResource("/json/buc/buc-P_BUC_06-P5000_Sendt.json")!!.readText())
         val buc = "P_BUC_06"
         val rinanr = "1000101"
 
@@ -249,9 +236,9 @@ class SedControllerTest {
     @Test
     fun `sjekk for gyldig liste av beregninger i P5000oppdatering`() {
 
-        val mockP5000 = mapJsonToAny<P5000>(javaClass.getResource("/json/nav/P5000OppdateringNAV.json").readText())
+        val mockP5000 = mapJsonToAny<P5000>(javaClass.getResource("/json/nav/P5000OppdateringNAV.json")!!.readText())
 
-        val mockP5000Rina = mapJsonToAny<P5000>(javaClass.getResource("/json/nav/P5000OppdateringRinaNav.json").readText())
+        val mockP5000Rina = mapJsonToAny<P5000>(javaClass.getResource("/json/nav/P5000OppdateringRinaNav.json")!!.readText())
 
         val trygdetidberegning = mockP5000.pensjon?.trygdetid?.map { it.beregning }
         val medlemskapsberegning = mockP5000.pensjon?.medlemskapboarbeid?.medlemskap?.map { it.beregning }
@@ -268,8 +255,7 @@ class SedControllerTest {
 
     @Test
     fun `mockinnhenting`() {
-
-        val json = javaClass.getResource("/json/nav/P5000OppdateringNAV.json").readText()
+        val json = javaClass.getResource("/json/nav/P5000OppdateringNAV.json")!!.readText()
 
         val mockP5000 = SED.fromJsonToConcrete(json) as P5000
 
@@ -281,10 +267,6 @@ class SedControllerTest {
 
     }
 
-
-    fun mockP8000() :String {
-        return "%7B%22type%22:%7B%22bosettingsstatus%22:%22UTL%22,%22spraak%22:%22nb%22,%22ytelse%22:%22UT%22%7D,%22ofteEtterspurtInformasjon%22:%7B%22tiltak%22:%7B%22value%22:true%7D,%22inntektFoerUfoerhetIUtlandet%22:%7B%22value%22:true,%22landkode%22:%22NO%22,%22periodeFra%22:%221980%22,%22periodeTil%22:%222025%22%7D%7D%7D".trimIndent()
-    }
     fun p8000Lagret() :String {
         return """{"type":{"bosettingsstatus":"UTL","spraak":"nb","ytelse":"UT"},"ofteEtterspurtInformasjon":{"tiltak":{"value":true},"inntektFoerUfoerhetIUtlandet":{"value":true,"landkode":"NO","periodeFra":"1980","periodeTil":"2025"}}}""".trimIndent()
     }
