@@ -77,7 +77,7 @@ class GjennyController (
         val fnrForAktoerId = innhentingService.hentFnrEllerNpidForAktoerIdfraPDL(aktoerId)
 
         val totaleBrukerSaker = sakerFraRinaOgJoark(fnrForAktoerId?.id, aktoerId)
-        logger.info("TotaleBrukerSaker for bruker; ${totaleBrukerSaker.toJson()}")
+        logger.info("Antall totale brukersaker: ${totaleBrukerSaker.size}")
 
         return@measure totaleBrukerSaker
             .filter { BucType.from(it.processDefinitionId) !in listOf(P_BUC_01, P_BUC_03) }
