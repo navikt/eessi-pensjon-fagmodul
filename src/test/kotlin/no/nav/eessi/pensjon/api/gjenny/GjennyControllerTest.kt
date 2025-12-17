@@ -8,12 +8,12 @@ import io.mockk.every
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.klient.Rinasak
 import no.nav.eessi.pensjon.eux.model.BucType
-import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_01
-import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_02
+import no.nav.eessi.pensjon.eux.model.BucType.*
 import no.nav.eessi.pensjon.fagmodul.api.PrefillController
 import no.nav.eessi.pensjon.fagmodul.api.SedController
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
-import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucViewKilde.AVDOD
+import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.*
+import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucViewKilde.*
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.kodeverk.KodeverkClient
@@ -45,6 +45,7 @@ import org.springframework.test.web.servlet.get
 import org.springframework.web.client.RestTemplate
 import java.time.LocalDate
 import java.time.LocalDateTime
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Metadata as PDLMetaData
 
 private const val AKTOERID = "12345678900"
@@ -88,7 +89,7 @@ class GjennyControllerTest {
         val pdlPerson = lagPerson(AVDOD_FNR)
         every { personService.hentPerson(NorskIdent(AVDOD_FNR))} returns pdlPerson
         every { innhentingService.hentFnrfraAktoerService(AKTOERID)} returns NorskIdent(AVDOD_FNR)
-        every { euxInnhentingService.hentBucViewGjenlevende(any()) } returns listeOverBucerForAvdod
+        every { euxInnhentingService.hentRinasaker(any()) } returns listeOverBucerForAvdod
         every { innhentingService.hentRinaSakIderFraJoarksMetadataForOmstilling(any()) } returns listOf("123456", "12345678901")
 
         val expected = """
@@ -111,7 +112,7 @@ class GjennyControllerTest {
         val pdlPerson = lagPerson(AVDOD_FNR)
         every { personService.hentPerson(NorskIdent(AVDOD_FNR))} returns pdlPerson
         every { innhentingService.hentFnrfraAktoerService(AKTOERID)} returns NorskIdent(AVDOD_FNR)
-        every { euxInnhentingService.hentBucViewGjenlevende(any()) } returns listeOverBucerForAvdod
+        every { euxInnhentingService.hentRinasaker(any()) } returns listeOverBucerForAvdod
         every { innhentingService.hentRinaSakIderFraJoarksMetadataForOmstilling(any()) } returns listOf("123456", "1234567")
 
         val expected = """
@@ -139,8 +140,8 @@ class GjennyControllerTest {
 
         every { personService.hentPerson(NorskIdent(AVDOD_FNR))} returns pdlPersonAvdod
         every { innhentingService.hentFnrfraAktoerService(AKTOERID_LEV)} returns NorskIdent(GJENLEV_FNR)
-        every { euxInnhentingService.hentBucViewGjenlevende(eq(AVDOD_FNR)) } returns listeOverBucerForAvdod
-        every { euxInnhentingService.hentBucViewGjenlevende(eq(GJENLEV_FNR)) } returns listeOverBucerForGjenlev
+        every { euxInnhentingService.hentRinasaker(eq(AVDOD_FNR)) } returns listeOverBucerForAvdod
+        every { euxInnhentingService.hentRinasaker(eq(GJENLEV_FNR)) } returns listeOverBucerForGjenlev
         every { innhentingService.hentRinaSakIderFraJoarksMetadataForOmstilling(eq(AVDOD_FNR)) } returns listOf("123456", "321654")
         every { innhentingService.hentRinaSakIderFraJoarksMetadataForOmstilling(eq(AKTOERID_LEV)) } returns listOf("123456")
 
@@ -149,6 +150,65 @@ class GjennyControllerTest {
         """.trimIndent()
 
         val result = mockMvc.get(endpointUrl).andReturn().response.contentAsString.toJson()
+        assertEquals(expected, result)
+    }
+
+    @Test
+    fun `Ved innhenting av bucer for gjenny bruker med ukjent avdod returneres bucer som kan ha gjenlvende for brukeren`() {
+        val euxCaseId = "123456"
+        val aktoerId = "1010753569812"
+        val endpointUrl = "/gjenny/rinasaker/brukersakergjenny"
+
+        val listeOverBucerForGjenlev = listOf(
+            Rinasak(euxCaseId, P_BUC_02.name),
+        )
+
+        val listeOverBucerForBruker = listOf(BucView(euxCaseId, P_BUC_02, aktoerId, null, null, BRUKER))
+        every { innhentingService.hentFnrEllerNpidForAktoerIdfraPDL(aktoerId)} returns NorskIdent(GJENLEV_FNR)
+        every { euxInnhentingService.hentBucViewBruker(GJENLEV_FNR, aktoerId, any()) } returns listeOverBucerForBruker
+        every { euxInnhentingService.hentRinasaker(GJENLEV_FNR) } returns listeOverBucerForGjenlev
+        every { innhentingService.hentRinaSakIderFraJoarksMetadataForOmstilling(any()) } returns listOf("123456")
+
+        val expected = """
+           "[{\"euxCaseId\":\"123456\",\"buctype\":\"P_BUC_02\",\"aktoerId\":\"1010753569812\",\"saknr\":null,\"avdodFnr\":null,\"kilde\":\"BRUKER\"}]"
+        """.trimIndent()
+
+        val result = mockMvc.perform(
+            get(endpointUrl)
+                .content(aktoerId)
+        )
+            .andReturn().response.contentAsString.toJson()
+        assertEquals(expected, result)
+    }
+
+    @Test
+    fun `Ved innhenting av bucer for gjenny bruker med ukjent avdod returneres kun bucer som allerede er journalført og finnes i joark`() {
+        val euxCaseId = "123456"
+        val euxCaseId2 = "654321"
+        val aktoerId = "1010753569812"
+        val endpointUrl = "/gjenny/rinasaker/brukersakergjenny"
+
+        val listeOverBucerForGjenlev = listOf(
+            Rinasak(euxCaseId2, P_BUC_08.name),
+            Rinasak(euxCaseId, P_BUC_02.name),
+            Rinasak("852147", P_BUC_02.name), //Denne blir ikke med, da denne ikke finnes i joark
+        )
+
+        val listeOverBucerForBruker = listOf(BucView(euxCaseId, P_BUC_02, aktoerId, null, null, BRUKER))
+        every { innhentingService.hentFnrEllerNpidForAktoerIdfraPDL(aktoerId)} returns NorskIdent(GJENLEV_FNR)
+        every { euxInnhentingService.hentBucViewBruker(GJENLEV_FNR, aktoerId, any()) } returns listeOverBucerForBruker
+        every { euxInnhentingService.hentRinasaker(GJENLEV_FNR) } returns listeOverBucerForGjenlev
+        every { innhentingService.hentRinaSakIderFraJoarksMetadataForOmstilling(any()) } returns listOf(euxCaseId, euxCaseId2)
+
+        val expected = """
+           "[{\"euxCaseId\":\"654321\",\"buctype\":\"P_BUC_08\",\"aktoerId\":\"1010753569812\",\"saknr\":null,\"avdodFnr\":null,\"kilde\":\"BRUKER\"},{\"euxCaseId\":\"123456\",\"buctype\":\"P_BUC_02\",\"aktoerId\":\"1010753569812\",\"saknr\":null,\"avdodFnr\":null,\"kilde\":\"BRUKER\"}]"
+        """.trimIndent()
+
+        val result = mockMvc.perform(
+            get(endpointUrl)
+                .content(aktoerId)
+        )
+            .andReturn().response.contentAsString.toJson()
         assertEquals(expected, result)
     }
 
@@ -179,8 +239,8 @@ class GjennyControllerTest {
         assertEquals(expected, result)
     }
 
-    private fun bucviews(rinasakId: String, bucType: BucType = P_BUC_02): EuxInnhentingService.BucView =
-        EuxInnhentingService.BucView(rinasakId, bucType, AKTOERID, null, AVDOD_FNR, AVDOD)
+    private fun bucviews(rinasakId: String, bucType: BucType = P_BUC_02): BucView =
+        BucView(rinasakId, bucType, AKTOERID, null, AVDOD_FNR, AVDOD)
 
     @Test
     fun `getRinasakerBrukerkontekstGjenny burde gi en OK og en tom liste`() {
@@ -196,7 +256,7 @@ class GjennyControllerTest {
             .andReturn()
 
         val responseContent = result.response.contentAsString
-        val bucViews: List<EuxInnhentingService.BucView> = ObjectMapper().readValue(responseContent, Array<EuxInnhentingService.BucView>::class.java).toList()
+        val bucViews: List<BucView> = ObjectMapper().readValue(responseContent, Array<BucView>::class.java).toList()
 
         assertTrue(bucViews.isEmpty(), "Expected an empty list in the response")
     }
