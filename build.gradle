@@ -47,7 +47,7 @@ dependencies {
 
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonModuleKotlinVersion}")
 
-    implementation 'io.dropwizard.metrics:metrics-core:4.2.20'
+//    implementation 'io.dropwizard.metrics:metrics-core:4.2.20'
 
     // Spring Framework BOM-fil overstyrer så vi får siste patch-versjon av Spring Framework
     implementation(platform("org.springframework:spring-framework-bom:7.0.2"))
