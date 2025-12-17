@@ -267,7 +267,7 @@ class EuxInnhentingService(
         }
     }
 
-    fun hentBucViewGjenlevende(fnr: String): List<Rinasak> = euxKlient.getRinasaker(fnr = fnr, euxCaseId = null)
+    fun hentRinasaker(fnr: String): List<Rinasak> = euxKlient.getRinasaker(fnr = fnr, euxCaseId = null)
 
     fun hentBucViewBruker(fnr: String, aktoerId: String, pesysSaksnr: String?): List<BucView> {
         val start = System.currentTimeMillis()

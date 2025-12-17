@@ -40,7 +40,7 @@ class InnhentingService(
     }
 
     //TODO hentFnrEllerNpidForAktoerIdfraPDL burde ikke tillate null eller tom AktoerId
-    private fun hentFnrEllerNpidForAktoerIdfraPDL(aktoerid: String): Ident? {
+    fun hentFnrEllerNpidForAktoerIdfraPDL(aktoerid: String): Ident? {
         if (aktoerid.isBlank()) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Fant ingen aktoerident")
 
         val fnr = personService.hentIdent(FOLKEREGISTERIDENT, AktoerId(aktoerid))
