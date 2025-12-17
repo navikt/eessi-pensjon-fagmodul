@@ -36,14 +36,14 @@ dependencies {
 
     // Spring-boot BOM-fil spesifiserer versjoner for Spring Boot-avhengigheter
     implementation(platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}"))
-    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-aop:3.5.8")
-    implementation("org.springframework.boot:spring-boot-starter-cache")
-    implementation("org.springframework.boot:spring-boot-restclient")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-cache")
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-restclient")
     implementation("org.springframework.boot:spring-boot-actuator")
     implementation("org.springframework.retry:spring-retry:2.0.12")
-    implementation("org.springframework.boot:spring-boot-starter-webmvc-test")
 
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonModuleKotlinVersion}")
 
@@ -63,8 +63,8 @@ dependencies {
 
     //auth
     implementation("no.nav.security:token-client-spring:${tokenSupportVersion}")
-    implementation("no.nav.security:token-validation-spring:${tokenSupportVersion}")
     implementation("no.nav.security:token-validation-jaxrs:${tokenSupportVersion}")
+    implementation("no.nav.security:token-validation-spring:${tokenSupportVersion}")
 
     implementation ("no.nav.common:token-client:3.2025.11.10_14.07-a9f44944d7bc")
     implementation("org.springframework.kafka:spring-kafka:${springKafkaVersion}")
@@ -81,7 +81,7 @@ dependencies {
         exclude module: 'ep-metrics'
     }
 
-    implementation("no.nav.eessi.pensjon:ep-personoppslag:13.3.57") {
+    implementation("no.nav.eessi.pensjon:ep-personoppslag:14.0.6") {
         exclude module: 'ep-eux'
         exclude module: 'ep-logging'
         exclude module: 'ep-metrics'
@@ -113,10 +113,10 @@ dependencies {
     testImplementation("io.mockk:mockk:1.14.7")
     testImplementation("org.skyscreamer:jsonassert:1.5.3")
 
-    //Kafka
-    testImplementation("org.springframework.kafka:spring-kafka-test:${springKafkaVersion}")
-
     testImplementation("com.tngtech.archunit:archunit:1.4.1")
+
+    testImplementation("org.springframework.kafka:spring-kafka-test:${springKafkaVersion}")
+    testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude module: 'junit'
         exclude module: "mockito-core"
