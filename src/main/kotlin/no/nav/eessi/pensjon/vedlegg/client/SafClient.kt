@@ -25,9 +25,9 @@ class SafClient(private val safGraphQlOidcRestTemplate: RestTemplate,
 
     private val logger = LoggerFactory.getLogger(SafClient::class.java)
 
-    private lateinit var hentDokumentMetadata: MetricsHelper.Metric
-    private lateinit var hentDokumentInnhold: MetricsHelper.Metric
-    private lateinit var hentRinaSakIderFraDokumentMetadata: MetricsHelper.Metric
+    private  var hentDokumentMetadata: MetricsHelper.Metric
+    private  var hentDokumentInnhold: MetricsHelper.Metric
+    private  var hentRinaSakIderFraDokumentMetadata: MetricsHelper.Metric
 
     init {
         hentDokumentMetadata = metricsHelper.init("HentDokumentMetadata", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))

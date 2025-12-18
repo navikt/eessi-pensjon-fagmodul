@@ -25,14 +25,14 @@ class EuxController(
 ) {
     private val logger = LoggerFactory.getLogger(EuxController::class.java)
 
-    private lateinit var rinaUrl: MetricsHelper.Metric
-    private lateinit var resend: MetricsHelper.Metric
-    private lateinit var resendMedRinaId: MetricsHelper.Metric
-    private lateinit var sedsendt: MetricsHelper.Metric
-    private lateinit var euxKodeverk: MetricsHelper.Metric
-    private lateinit var paakobledeland: MetricsHelper.Metric
-    private lateinit var euxKodeverkLand: MetricsHelper.Metric
-    private lateinit var euxInstitusjoner: MetricsHelper.Metric
+    private  var rinaUrl: MetricsHelper.Metric
+    private  var resend: MetricsHelper.Metric
+    private  var resendMedRinaId: MetricsHelper.Metric
+    private  var sedsendt: MetricsHelper.Metric
+    private  var euxKodeverk: MetricsHelper.Metric
+    private  var paakobledeland: MetricsHelper.Metric
+    private  var euxKodeverkLand: MetricsHelper.Metric
+    private  var euxInstitusjoner: MetricsHelper.Metric
 
     init {
             rinaUrl = metricsHelper.init("RinaUrl")

@@ -380,7 +380,7 @@ class PersonPDLControllerTest {
             .andExpect(status().is2xxSuccessful)
             .andReturn()
         val expected = """{"result":[{"doedsdato":"2020-06-20","sammensattNavn":"Fornavn Etternavn","ident":"18077443335"}],"status":"OK","message":null,"stackTrace":null}""".trimIndent()
-        JSONAssert.assertEquals(expected, result.response.contentAsString.toString(), false)
+        JSONAssert.assertEquals(expected, result.response.contentAsString, false)
     }
 
     @Test

@@ -43,10 +43,10 @@ class PensjonController(
 ) {
     private val logger = LoggerFactory.getLogger(PensjonController::class.java)
 
-    private lateinit var pensjonControllerHentSakType: MetricsHelper.Metric
-    private lateinit var pensjonControllerHentSakListe: MetricsHelper.Metric
-    private lateinit var pensjonControllerValidateSak: MetricsHelper.Metric
-    private lateinit var pensjonControllerKravDato: MetricsHelper.Metric
+    private  var pensjonControllerHentSakType: MetricsHelper.Metric
+    private  var pensjonControllerHentSakListe: MetricsHelper.Metric
+    private  var pensjonControllerValidateSak: MetricsHelper.Metric
+    private  var pensjonControllerKravDato: MetricsHelper.Metric
     init {
         pensjonControllerHentSakType = metricsHelper.init("PensjonControllerHentSakType")
         pensjonControllerHentSakListe = metricsHelper.init("PensjonControllerHentSakListe")

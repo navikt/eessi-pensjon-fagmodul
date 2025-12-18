@@ -41,10 +41,10 @@ class PersonPDLController(
 ) {
     private val logger = LoggerFactory.getLogger(PersonPDLController::class.java)
 
-    private lateinit var personControllerHentPerson: MetricsHelper.Metric
-    private lateinit var personControllerHentPersonNavn: MetricsHelper.Metric
-    private lateinit var personControllerHentPersonAvdod: MetricsHelper.Metric
-    private lateinit var personControllerHentAktoerid: MetricsHelper.Metric
+    private  var personControllerHentPerson: MetricsHelper.Metric
+    private  var personControllerHentPersonNavn: MetricsHelper.Metric
+    private  var personControllerHentPersonAvdod: MetricsHelper.Metric
+    private  var personControllerHentAktoerid: MetricsHelper.Metric
     init {
         personControllerHentPerson = metricsHelper.init("PersonControllerHentPerson")
         personControllerHentAktoerid = metricsHelper.init("PersonControllerHentAktoerId")

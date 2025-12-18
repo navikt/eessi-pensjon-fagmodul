@@ -30,8 +30,8 @@ class InnhentingService(
     private val pensjonsinformasjonService: PensjonsinformasjonService,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
-    private lateinit var hentPerson: MetricsHelper.Metric
-    private lateinit var addInstutionAndDocumentBucUtils: MetricsHelper.Metric
+    private  var hentPerson: MetricsHelper.Metric
+    private  var addInstutionAndDocumentBucUtils: MetricsHelper.Metric
 
     private val logger = LoggerFactory.getLogger(InnhentingService::class.java)
     init {

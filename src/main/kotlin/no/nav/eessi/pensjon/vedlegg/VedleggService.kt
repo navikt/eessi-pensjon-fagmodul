@@ -24,7 +24,7 @@ class VedleggService(private val safClient: SafClient,
     private final val TILLEGGSOPPLYSNING_RINA_SAK_ID_KEY = "eessi_pensjon_bucid"
     private val logger = LoggerFactory.getLogger(VedleggService::class.java)
 
-    private lateinit var HentRinaSakIderFraDokumentMetadata: MetricsHelper.Metric
+    private  var HentRinaSakIderFraDokumentMetadata: MetricsHelper.Metric
 
     init {
         HentRinaSakIderFraDokumentMetadata = metricsHelper.init("HentRinaSakIderFraDokumentMetadata", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))

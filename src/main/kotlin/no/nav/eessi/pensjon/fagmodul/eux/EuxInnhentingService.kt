@@ -52,13 +52,13 @@ class EuxInnhentingService(
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
 
-    private lateinit var sedByDocumentId: MetricsHelper.Metric
-    private lateinit var bucDeltakere: MetricsHelper.Metric
-    private lateinit var getKodeverk: MetricsHelper.Metric
-    private lateinit var createBUC: MetricsHelper.Metric
-    private lateinit var hentRinasaker: MetricsHelper.Metric
-    private lateinit var putDocument: MetricsHelper.Metric
-    private lateinit var pingEux: MetricsHelper.Metric
+    private  var sedByDocumentId: MetricsHelper.Metric
+    private  var bucDeltakere: MetricsHelper.Metric
+    private  var getKodeverk: MetricsHelper.Metric
+    private  var createBUC: MetricsHelper.Metric
+    private  var hentRinasaker: MetricsHelper.Metric
+    private  var putDocument: MetricsHelper.Metric
+    private  var pingEux: MetricsHelper.Metric
 
     init {
         sedByDocumentId = metricsHelper.init("SEDByDocumentId", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))

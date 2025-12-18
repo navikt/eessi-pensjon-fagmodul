@@ -20,8 +20,8 @@ class VedleggController(private val vedleggService: VedleggService,
                         @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()) {
     private val logger = LoggerFactory.getLogger(VedleggController::class.java)
 
-    private lateinit var vedleggControllerMetadata: MetricsHelper.Metric
-    private lateinit var vedleggControllerInnhold: MetricsHelper.Metric
+    private  var vedleggControllerMetadata: MetricsHelper.Metric
+    private  var vedleggControllerInnhold: MetricsHelper.Metric
     init {
         vedleggControllerMetadata = metricsHelper.init("VedleggControllerMetadata", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         vedleggControllerInnhold = metricsHelper.init("VedleggControllerInnhold", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))

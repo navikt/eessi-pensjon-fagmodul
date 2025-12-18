@@ -38,7 +38,7 @@ class AlderpensjonUtlandKrav(
         logger.debug("CaseOwnerName   : ${caseOwner.name}")
 
         val mottattDato = mottattDocumentDato(doc, bucUtils)
-        val kravdato = LocalDate.parse(kravSed.nav?.krav?.dato) ?: null
+        val kravdato = LocalDate.parse(kravSed.nav?.krav?.dato)
 
         return KravUtland(
             mottattDato = mottattDato,                     // når SED ble mottatt i NAV-RINA

@@ -42,7 +42,7 @@ class SedController(
     private val logger = LoggerFactory.getLogger(SedController::class.java)
 
     private lateinit var sedsendt: MetricsHelper.Metric
-    private lateinit var pdfGenerert: MetricsHelper.Metric
+    private var pdfGenerert: MetricsHelper.Metric
 
     init {
         pdfGenerert = metricsHelper.init("PdfGenerert")

@@ -31,14 +31,14 @@ class BucController(
 ) {
     private val logger = LoggerFactory.getLogger(BucController::class.java)
 
-    private lateinit var bucDetaljerEnkel: MetricsHelper.Metric
-    private lateinit var bucDetaljerEnkelGjenlevende: MetricsHelper.Metric
-    private lateinit var bucDetaljerEnkelavdod: MetricsHelper.Metric
-    private lateinit var bucViewForVedtak: MetricsHelper.Metric
-    private lateinit var bucView: MetricsHelper.Metric
-    private lateinit var bucerJoark: MetricsHelper.Metric
-    private lateinit var bucViewRina: MetricsHelper.Metric
-    private lateinit var getBUC: MetricsHelper.Metric
+    private  var bucDetaljerEnkel: MetricsHelper.Metric
+    private  var bucDetaljerEnkelGjenlevende: MetricsHelper.Metric
+    private  var bucDetaljerEnkelavdod: MetricsHelper.Metric
+    private  var bucViewForVedtak: MetricsHelper.Metric
+    private  var bucView: MetricsHelper.Metric
+    private  var bucerJoark: MetricsHelper.Metric
+    private  var bucViewRina: MetricsHelper.Metric
+    private  var getBUC: MetricsHelper.Metric
     init {
         bucDetaljerEnkel = metricsHelper.init("BucDetaljerEnkel", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
         bucDetaljerEnkelGjenlevende = metricsHelper.init("bucDetaljerEnkelGjenlevende", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))

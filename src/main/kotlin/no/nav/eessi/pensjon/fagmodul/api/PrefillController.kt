@@ -47,11 +47,11 @@ class PrefillController(
 ) {
     private val logger = LoggerFactory.getLogger(PrefillController::class.java)
 
-    private lateinit var addInstution: MetricsHelper.Metric
-    private lateinit var addInstutionAndDocument: MetricsHelper.Metric
-    private lateinit var addDocumentToParent: MetricsHelper.Metric
-    private lateinit var addInstutionAndDocumentBucUtils: MetricsHelper.Metric
-    private lateinit var addDocumentToParentBucUtils: MetricsHelper.Metric
+    private  var addInstution: MetricsHelper.Metric
+    private  var addInstutionAndDocument: MetricsHelper.Metric
+    private  var addDocumentToParent: MetricsHelper.Metric
+    private  var addInstutionAndDocumentBucUtils: MetricsHelper.Metric
+    private  var addDocumentToParentBucUtils: MetricsHelper.Metric
     init {
         addInstution = metricsHelper.init("AddInstution", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
         addInstutionAndDocument = metricsHelper.init("AddInstutionAndDocument", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))

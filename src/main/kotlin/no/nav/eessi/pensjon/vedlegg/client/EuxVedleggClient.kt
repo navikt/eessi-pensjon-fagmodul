@@ -23,7 +23,7 @@ class EuxVedleggClient(private val euxNavIdentRestTemplate: RestTemplate,
 
     private val logger = LoggerFactory.getLogger(EuxVedleggClient::class.java)
 
-    private lateinit var VedleggPaaDokument: MetricsHelper.Metric
+    private  var VedleggPaaDokument: MetricsHelper.Metric
 
     init {
         VedleggPaaDokument = metricsHelper.init("VedleggPaaDokument")

@@ -44,10 +44,10 @@ class GjennyController (
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
     private val logger = LoggerFactory.getLogger(GjennyController::class.java)
-    private lateinit var bucerForGjenny: MetricsHelper.Metric
-    private lateinit var bucerForAvdodGjenny: MetricsHelper.Metric
-    private lateinit var bucerForBrukerGjenny: MetricsHelper.Metric
-    private lateinit var bucViewGjenny: MetricsHelper.Metric
+    private  var bucerForGjenny: MetricsHelper.Metric
+    private  var bucerForAvdodGjenny: MetricsHelper.Metric
+    private  var bucerForBrukerGjenny: MetricsHelper.Metric
+    private  var bucViewGjenny: MetricsHelper.Metric
 
     init {
         bucViewGjenny = metricsHelper.init("BucView", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
