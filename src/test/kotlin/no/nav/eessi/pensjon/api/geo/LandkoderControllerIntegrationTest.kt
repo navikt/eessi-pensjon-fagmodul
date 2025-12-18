@@ -23,6 +23,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.kafka.test.context.EmbeddedKafka
+import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.client.RestTestClient
 import org.springframework.web.client.RestTemplate
@@ -34,9 +35,9 @@ import org.springframework.web.client.RestTemplate
 @ActiveProfiles(profiles = ["unsecured-webmvctest"])
 @AutoConfigureRestTestClient
 @EmbeddedKafka
+@DirtiesContext
 @MockkBeans(
     value = [
-//        MockkBean(name = "restTemplate", classes = [TestRestTemplate::class], relaxed = true),
         MockkBean(name = "personService", classes = [PersonService::class]),
         MockkBean(name = "pdlRestTemplate", classes = [RestTemplate::class]),
         MockkBean(name = "restEuxTemplate", classes = [RestTemplate::class]),

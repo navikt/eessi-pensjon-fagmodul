@@ -36,6 +36,7 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.kafka.test.context.EmbeddedKafka
+import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
@@ -57,6 +58,7 @@ private val lastupdate = LocalDate.of(2020, Month.AUGUST, 7).toString()
 @ActiveProfiles(profiles = ["unsecured-webmvctest"])
 @AutoConfigureMockMvc
 @EmbeddedKafka
+@DirtiesContext
 @MockkBeans(
     MockkBean(name = "personService", classes = [PersonService::class]),
     MockkBean(name = "pdlRestTemplate", classes = [RestTemplate::class]),

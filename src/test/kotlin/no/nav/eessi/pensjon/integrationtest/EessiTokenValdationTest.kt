@@ -24,6 +24,7 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.test.context.EmbeddedKafka
+import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
@@ -39,6 +40,7 @@ import java.util.*
 )
 @ActiveProfiles(profiles = ["unsecured-webmvctest"])
 @EmbeddedKafka
+@DirtiesContext
 @EnableMockOAuth2Server
 @AutoConfigureMockMvc
 @MockkBeans(
