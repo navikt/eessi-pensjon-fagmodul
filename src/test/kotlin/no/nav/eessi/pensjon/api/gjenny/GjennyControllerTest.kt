@@ -216,23 +216,31 @@ class GjennyControllerTest {
     fun `Ved innhenting av bucer for gjennybrukere returneres alle bucer utenom pbuc01 og pbuc03 `() {
         val endpointUrl = "/gjenny/rinasaker/$AKTOERID"
         val euxCaseId = "123456"
-        val listeOverBucerForAvdod = listOf(
-            bucviews(euxCaseId),
-            bucviews(euxCaseId, P_BUC_01)
-        )
 
-        val listeOverBucViews = listOf(
-            bucviews("123456", P_BUC_02),
-            bucviews("1234567", P_BUC_01),
+        val listeOverRinasaker = listOf(
+            Rinasak("654987", P_BUC_08.name),
+            Rinasak(euxCaseId, P_BUC_02.name),
+            Rinasak("852147", P_BUC_02.name), //Denne blir ikke med, da denne ikke finnes i joark
         )
+//        val listeOverBucerForAvdod = listOf(
+//            bucviews(euxCaseId),
+//            bucviews(euxCaseId, P_BUC_01)
+//        )
+//
+//        val listeOverBucViews = listOf(
+//            bucviews("123456", P_BUC_02),
+//            bucviews("1234567", P_BUC_01),
+//        )
 
         every { innhentingService.hentFnrfraAktoerService(any()) } returns NorskIdent(AVDOD_FNR)
         every { innhentingService.hentRinaSakIderFraJoarksMetadata(any()) } returns listOf("123456", "1234567")
-        every { euxInnhentingService.hentBucViewBruker(any(), any(), null) } returns listeOverBucViews
-        every { euxInnhentingService.lagBucViews(any(), any(), any(), any()) } returns listeOverBucerForAvdod
+        every { euxInnhentingService.hentRinasaker(AVDOD_FNR) } returns listeOverRinasaker
+        every { innhentingService.hentRinaSakIderFraJoarksMetadataForOmstilling(AKTOERID) } returns listOf("123456", "1234567")
+//        every { euxInnhentingService.hentBucViewBruker(AVDOD_FNR, AKTOERID, null) } returns listeOverBucViews
+//        every { euxInnhentingService.lagBucViews(AKTOERID, any(), any(), any()) } returns listeOverBucerForAvdod
 
         val expected = """
-           "[{\"euxCaseId\":\"123456\",\"buctype\":\"P_BUC_02\",\"aktoerId\":\"$AKTOERID\",\"saknr\":null,\"avdodFnr\":\"$AVDOD_FNR\",\"kilde\":\"AVDOD\"}]"
+           "[{\"euxCaseId\":\"123456\",\"buctype\":\"P_BUC_02\",\"aktoerId\":\"$AKTOERID\",\"saknr\":null,\"avdodFnr\":\"$AVDOD_FNR\",\"kilde\":\"BRUKER\"}]"
         """.trimIndent()
 
         val result = mockMvc.get(endpointUrl).andReturn().response.contentAsString.toJson()
@@ -246,6 +254,7 @@ class GjennyControllerTest {
     fun `getRinasakerBrukerkontekstGjenny burde gi en OK og en tom liste`() {
         every { innhentingService.hentFnrfraAktoerService(any()) } returns null
         every { innhentingService.hentRinaSakIderFraJoarksMetadata(any()) } returns listOf("12345")
+        every { innhentingService.hentRinaSakIderFraJoarksMetadataForOmstilling(any()) } returns listOf("12345")
         every { euxInnhentingService.lagBucViews(any(), any(), any(), any()) } returns emptyList()
 
         val result = mockMvc.get("/gjenny/rinasaker/123456")

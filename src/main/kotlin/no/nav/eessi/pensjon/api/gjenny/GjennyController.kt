@@ -118,44 +118,67 @@ class GjennyController (
         return rinsakerForFnr.filter { it.id in gjenlevendeRinaSakIderFraJoark }.distinct()
     }
 
+//    @GetMapping("/rinasaker/{aktoerId}")
+//    fun getRinasakerBrukerkontekstGjennyV1(
+//        @PathVariable("aktoerId", required = true) aktoerId: String
+//    ): List<BucView> {
+//        return bucViewGjenny.measure {
+//            val start = System.currentTimeMillis()
+//            val timeTracking = mutableListOf<String>()
+//
+//            //api: henter fnr fra aktørid
+//            val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerId)
+//
+//            //api: henter rinasaker basert på tidligere journalførte saker fra Joark
+//            val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
+//            .also { timeTracking.add("rinaSakIderFraJoark:${it}, tid: ${System.currentTimeMillis()-start} i ms") }
+//
+//            //api: bruker saker fra eux/rina
+//            val brukerView = gjenlevendeFnr?.let { euxInnhentingService.hentBucViewBruker(it.id, aktoerId, null) }.also {
+//                timeTracking.add("hentBucViewBruker, gjenlevendeFnr tid: ${System.currentTimeMillis()-start} i ms")
+//            }?: emptyList()
+//
+//            //filter: brukersaker fra saf
+//            val filterBrukerRinaSakIderFraJoark = rinaSakIderFraJoark.filterNot { rinaid -> rinaid in brukerView.map { it.euxCaseId }  }
+//
+//            //api: saker fra saf og eux/rina
+//            val safView = euxInnhentingService.lagBucViews(
+//                aktoerId,
+//                null,
+//                filterBrukerRinaSakIderFraJoark,
+//                BucViewKilde.SAF
+//            ).also {timeTracking.add("hentBucViews tid: ${System.currentTimeMillis()-start} i ms")}
+//
+//            val view = (brukerView + safView)
+//                .filter { it.buctype !in listOf(P_BUC_01, P_BUC_03) }
+//                .also { logger.info("Antall for brukerview+safView: ${it.size}") }
+//
+//            return@measure view.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
+//                .also {
+//                    logger.info("Tidsbruk for getRinasakerBrukerkontekst: \n"+timeTracking.joinToString("\n").trimIndent())
+//                }
+//        }
+//    }
+
     @GetMapping("/rinasaker/{aktoerId}")
     fun getRinasakerBrukerkontekstGjenny(
         @PathVariable("aktoerId", required = true) aktoerId: String
-    ): List<EuxInnhentingService.BucView> {
+    ): List<BucView> {
         return bucViewGjenny.measure {
-            val start = System.currentTimeMillis()
-            val timeTracking = mutableListOf<String>()
 
             //api: henter fnr fra aktørid
             val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerId)
+            logger.info("henter rinasaker for bruker")
 
-            //api: henter rinasaker basert på tidligere journalførte saker fra Joark
-            val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
-            .also { timeTracking.add("rinaSakIderFraJoark:${it}, tid: ${System.currentTimeMillis()-start} i ms") }
+            val totaleBrukerSaker = sakerFraRinaOgJoark(gjenlevendeFnr?.id, aktoerId)
+            logger.info("Antall totale brukersaker: ${totaleBrukerSaker.size}")
 
-            //api: bruker saker fra eux/rina
-            val brukerView = gjenlevendeFnr?.let { euxInnhentingService.hentBucViewBruker(it.id, aktoerId, null) }.also {
-                timeTracking.add("hentBucViewBruker, gjenlevendeFnr tid: ${System.currentTimeMillis()-start} i ms")
-            }?: emptyList()
-
-            //filter: brukersaker fra saf
-            val filterBrukerRinaSakIderFraJoark = rinaSakIderFraJoark.filterNot { rinaid -> rinaid in brukerView.map { it.euxCaseId }  }
-
-            //api: saker fra saf og eux/rina
-            val safView = euxInnhentingService.lagBucViews(
-                aktoerId,
-                null,
-                filterBrukerRinaSakIderFraJoark,
-                EuxInnhentingService.BucViewKilde.SAF
-            ).also {timeTracking.add("hentBucViews tid: ${System.currentTimeMillis()-start} i ms")}
-
-            val view = (brukerView + safView)
-                .filter { it.buctype !in listOf(P_BUC_01, P_BUC_03) }
-                .also { logger.info("Antall for brukerview+safView: ${it.size}") }
-
-            return@measure view.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
-                .also {
-                    logger.info("Tidsbruk for getRinasakerBrukerkontekst: \n"+timeTracking.joinToString("\n").trimIndent())
+            return@measure totaleBrukerSaker
+                .filter { BucType.from(it.processDefinitionId) !in listOf(P_BUC_01, P_BUC_03) }
+                .map { rinasak ->
+                    BucView(rinasak.id!!, BucType.from(rinasak.processDefinitionId),
+                        aktoerId, null, gjenlevendeFnr?.id, BucViewKilde.BRUKER
+                    )
                 }
         }
     }
