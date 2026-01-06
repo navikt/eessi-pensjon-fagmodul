@@ -46,6 +46,8 @@ spec:
   accessPolicy:
     outbound:
       rules:
+        - application: logging
+          namespace: nais-system
         - application: eessi-pensjon-prefill-q1
           namespace: eessipensjon
           cluster: dev-gcp
