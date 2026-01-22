@@ -115,9 +115,6 @@ data class ApiRequest(
 
         private fun populerAvdodPersonId(request: ApiRequest, avdodaktoerID: String?, kreverAvdod: Boolean = false): PersonInfo? {
             if (kreverAvdod && avdodaktoerID == null) {
-                if (request.gjenny) {
-                    return null
-                }
                 logger.error("Mangler fnr for avdød")
                 throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mangler fnr for avdød")
             }
