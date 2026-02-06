@@ -46,7 +46,7 @@ class PrefillKlient(
 
         } catch (ex1: HttpStatusCodeException) {
             logger.error("En HttpStatusCodeException oppstod under henting av preutfylt SED", ex1.cause)
-
+            logger.info("Exception msg: ${ex1.message}, status code: ${ex1.statusCode}, response body: ${ex1.responseBodyAsString}")
             val errorMessage = ResponseErrorData.from(ex1)
             if (ex1.statusCode == HttpStatus.BAD_REQUEST) logger.warn(errorMessage.message, ex1) else logger.error(errorMessage.message, ex1)
             throw ResponseStatusException(ex1.statusCode, errorMessage.message)
