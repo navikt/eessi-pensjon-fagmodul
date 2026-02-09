@@ -186,7 +186,7 @@ class PensjonsinformasjonUtlandService(
                     AvslaattPensjon(
                         institusjon = listOf(eessiInstitusjoner(p6000)),
                         pensjonstype = pensjon?.vedtak?.first()?.type,
-                        avslagsbegrunnelse = pensjon?.vedtak?.first()?.avslagbegrunnelse?.first { !it.begrunnelse.isNullOrEmpty() }?.begrunnelse,
+                        avslagsbegrunnelse = pensjon?.vedtak?.first()?.avslagbegrunnelse?.firstOrNull { !it.begrunnelse.isNullOrEmpty() }?.begrunnelse,
                         vurderingsperiode = pensjon?.sak?.kravtype?.first()?.datoFrist,
                         adresseNyVurdering = pensjon?.tilleggsinformasjon?.andreinstitusjoner?.map { adresse(it) },
                         vedtaksdato = pensjon?.tilleggsinformasjon?.dato,
