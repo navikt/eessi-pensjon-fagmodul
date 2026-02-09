@@ -32,8 +32,8 @@ open class EuxErrorHandler : ResponseErrorHandler {
         return response.statusCode.isError
     }
 
+    @Throws(IOException::class)
     override fun handleError(url: URI, method: HttpMethod, response: ClientHttpResponse) {
-//        super.handleError(url, method, response)
         logResponse(response)
 
         when (response.statusCode) {
@@ -48,30 +48,13 @@ open class EuxErrorHandler : ResponseErrorHandler {
         }
     }
 
-//    @Throws(IOException::class)
-//    @Deprecated("Deprecated i ResponseErrorHandler" )
-//    override fun handleError(httpResponse: ClientHttpResponse) {
-//        logResponse(httpResponse)
-//
-//        when (httpResponse.statusCode) {
-//            BAD_REQUEST -> handleBadRequest(httpResponse)
-//            NOT_FOUND -> throw IkkeFunnetException("Ikke funnet")
-//            FORBIDDEN -> throw ForbiddenException("Forbidden, Ikke tilgang")
-//            CONFLICT -> throw EuxConflictException("En konflikt oppstod under oppdatering av data")
-//            UNAUTHORIZED -> throw RinaIkkeAutorisertBrukerException("Authorization token mangler eller er ugyldig")
-//            GATEWAY_TIMEOUT -> throw GatewayTimeoutException("Gateway timeout")
-//            INTERNAL_SERVER_ERROR -> throw EuxRinaServerException("Rina serverfeil, kan også skyldes ugyldig input")
-//            else -> handleBadRequest(httpResponse)
-//        }
-//    }
-
     @Throws(IOException::class)
     private fun handleBadRequest(httpResponse: ClientHttpResponse) {
         val responseBody = StreamUtils.copyToString(httpResponse.body, Charset.defaultCharset())
         if (responseBody.contains("postalCode")) {
             throw KanIkkeOppretteSedFeilmelding("Postnummer overskrider maks antall tegn (25) i PDL.")
         }
-        throw GenericUnprocessableEntity("Bad request, en feil har oppstått")
+        throw GenericUnprocessableEntity("Bad request, en feil har oppstått: $responseBody")
     }
 
     @Throws(IOException::class)

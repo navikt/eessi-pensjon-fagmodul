@@ -44,27 +44,19 @@ class PrefillKlient(
                 String::class.java
             ).body!!
 
-        } catch (ex1: HttpStatusCodeException) {
-            logger.error("En HttpStatusCodeException oppstod under henting av preutfylt SED", ex1.cause)
-            logger.info("Exception msg: ${ex1.message}, status code: ${ex1.statusCode}, response body: ${ex1.responseBodyAsString}")
-            val errorMessage = ResponseErrorData.from(ex1)
-            if (ex1.statusCode == HttpStatus.BAD_REQUEST) logger.warn(errorMessage.message, ex1) else logger.error(errorMessage.message, ex1)
-            throw ResponseStatusException(ex1.statusCode, errorMessage.message)
+        } catch (ex: HttpStatusCodeException) {
+            logger.error("HttpStatusCodeException under henting av preutfylt SED", ex)
+            val errorMessage = ResponseErrorData.from(ex)
+            if (ex.statusCode == HttpStatus.BAD_REQUEST) logger.warn(errorMessage.message, ex)
+            throw ResponseStatusException(ex.statusCode, errorMessage.message)
 
-        } catch (ex2: HttpClientErrorException) {
-            logger.error("En HttpClientErrorException oppstod under henting av preutfylt SED", ex2.cause)
+        } catch (ex: ResponseStatusException) {
+            logger.error("ResponseStatusException under henting av preutfylt SED", ex)
+            throw ResponseStatusException(ex.statusCode, ex.reason)
 
-            val errorMessage = ResponseErrorData.from(ex2)
-            if (ex2.statusCode == HttpStatus.BAD_REQUEST) logger.warn(errorMessage.message, ex2) else logger.error(ex2.message, ex2)
-            throw ResponseStatusException(ex2.statusCode, errorMessage.message)
-
-        } catch (ex3: ResponseStatusException) {
-            logger.error("En ResponseStatusException oppstod under henting av preutfylt SED", ex3)
-            throw ResponseStatusException(ex3.statusCode, ex3.reason)
-
-        } catch (ex4: Exception) {
-            logger.error("En feil oppstod under henting av preutfylt SED ex: ", ex4)
-            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "En feil oppstod under henting av preutfylt SED ex: ${ex4.message}")
+        } catch (ex: Exception) {
+            logger.error("Feil under henting av preutfylt SED", ex)
+            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "En feil oppstod under henting av preutfylt SED ex: ${ex.message}")
         }
 
     }
