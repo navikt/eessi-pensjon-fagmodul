@@ -167,7 +167,7 @@ class EuxKlientTest {
         val exception = assertThrows<GenericUnprocessableEntity> {
             euxKlient.getBucJsonAsNavIdent(P_BUC_99 )
         }
-        assertEquals("Bad request, en feil har oppstått", exception.reason)
+        assertEquals("Bad request, en feil har oppstått: ", exception.reason)
     }
 
     @Test
@@ -187,7 +187,7 @@ class EuxKlientTest {
         val exception = assertThrows<GenericUnprocessableEntity> {
             euxKlient.getBucJsonAsNavIdent(P_BUC_99 )
         }
-        assertEquals("Bad request, en feil har oppstått", exception.reason)
+        assertEquals("Bad request, en feil har oppstått: ", exception.reason)
     }
 
     @Test
