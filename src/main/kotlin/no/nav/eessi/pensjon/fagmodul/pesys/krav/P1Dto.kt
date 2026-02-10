@@ -32,6 +32,7 @@ data class InnvilgetPensjon(
     val pensjonstype: String?,
     val datoFoersteUtbetaling: LocalDate?,
     val bruttobeloep: String?,
+    val nettobeloep: String?,
     val valuta: String?,
     val utbetalingsHyppighet: String?,
     val grunnlagInnvilget: String?,

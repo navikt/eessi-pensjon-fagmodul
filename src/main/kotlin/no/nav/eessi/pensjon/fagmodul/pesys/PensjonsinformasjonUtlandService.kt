@@ -112,6 +112,7 @@ class PensjonsinformasjonUtlandService(
                         pensjonstype = vedtak?.type ?: "",
                         datoFoersteUtbetaling = dato(vedtak?.beregning?.first()?.periode?.fom),
                         bruttobeloep = vedtak?.beregning?.first()?.beloepBrutto?.beloep,
+                        nettobeloep = vedtak?.beregning?.first()?.beloepNetto?.beloep,
                         valuta = vedtak?.beregning?.first()?.valuta,
                         utbetalingsHyppighet = vedtak?.beregning?.first()?.utbetalingshyppighet,
                         grunnlagInnvilget = vedtak?.artikkel,
