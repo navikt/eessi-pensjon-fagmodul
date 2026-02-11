@@ -41,6 +41,9 @@
             },
             "beloepBrutto": {
               "beloep": "9174"
+            },
+            "beloepNetto": {
+              "beloep": "9174"
             }
           }
         ],

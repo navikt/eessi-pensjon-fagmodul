@@ -153,6 +153,7 @@ class PensjonsinformasjonUtlandControllerTest {
 
         val result = controller.hentP6000Detaljer("22975052")
         with(result) {
+            assertEquals("9174", innvilgedePensjoner.firstOrNull()?.nettobeloep)
             assertEquals("GJENLEVENDE", sakstype)
             assertEquals(1, innvilgedePensjoner.size)
             assertEquals("9174", innvilgedePensjoner.firstOrNull()?.bruttobeloep)
@@ -341,7 +342,7 @@ class PensjonsinformasjonUtlandControllerTest {
             assertEquals("9174", bruttobeloep)
             assertEquals(null, grunnlagInnvilget)
             assertEquals("2025-02-05", vedtaksdato)
-            assertEquals(null, reduksjonsgrunnlag)
+            assertEquals(null, reduksjonsgrunnlag?.firstOrNull())
             assertEquals("six weeks from the date the decision is received", vurderingsperiode)
         }
     }
