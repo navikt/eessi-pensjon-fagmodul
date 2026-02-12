@@ -9,6 +9,7 @@ import no.nav.eessi.pensjon.integrationtest.IntegrasjonsTestConfig
 import no.nav.eessi.pensjon.kodeverk.KodeverkClient
 import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.PesysService
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
@@ -32,8 +33,9 @@ import org.springframework.web.client.RestTemplate
 @AutoConfigureMockMvc
 @EmbeddedKafka
 @DirtiesContext
-@MockkBeans(
+@MockkBeans(value = [
     MockkBean(name = "personService", classes = [PersonService::class]),
+    MockkBean(name = "pesysService", classes = [PesysService::class]),
     MockkBean(name = "pdlRestTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "kodeverkRestTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "prefillOAuthTemplate", classes = [RestTemplate::class]),
@@ -43,7 +45,7 @@ import org.springframework.web.client.RestTemplate
     MockkBean(name = "euxNavIdentRestTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "safGraphQlOidcRestTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "euxNavIdentRestTemplateV2", classes = [RestTemplate::class]),
-    MockkBean(name = "pensjonsinformasjonClient", classes = [PensjonsinformasjonClient::class])
+    MockkBean(name = "pensjonsinformasjonClient", classes = [PensjonsinformasjonClient::class])]
 )
 class PesysIntegrationSpringTest {
 

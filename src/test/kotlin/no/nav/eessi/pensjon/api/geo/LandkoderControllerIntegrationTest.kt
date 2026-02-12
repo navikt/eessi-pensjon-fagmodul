@@ -7,6 +7,7 @@ import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.integrationtest.IntegrasjonsTestConfig
 import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.PesysService
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
@@ -38,6 +39,7 @@ import org.springframework.web.client.RestTemplate
 @DirtiesContext
 @MockkBeans(
     value = [
+        MockkBean(name = "pesysService", classes = [PesysService::class]),
         MockkBean(name = "personService", classes = [PersonService::class]),
         MockkBean(name = "pdlRestTemplate", classes = [RestTemplate::class]),
         MockkBean(name = "restEuxTemplate", classes = [RestTemplate::class]),

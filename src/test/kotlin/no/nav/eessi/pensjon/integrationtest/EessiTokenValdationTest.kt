@@ -9,6 +9,7 @@ import no.nav.eessi.pensjon.fagmodul.config.RestTemplateConfig
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.PesysService
 import no.nav.eessi.pensjon.vedlegg.client.EuxVedleggClient
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
 import org.apache.pdfbox.pdmodel.PDDocument
@@ -45,20 +46,21 @@ import java.util.*
 @AutoConfigureMockMvc
 @MockkBeans(
     value = [
-        MockkBean(name = "kafkaTemplate", classes = [KafkaTemplate::class], relaxed = true),
+        MockkBean(name = "pesysService", classes = [PesysService::class]),
+        MockkBean(name = "personService", classes = [PersonService::class]),
+        MockkBean(name = "restEuxTemplate", classes = [RestTemplate::class]),
+        MockkBean(name = "pdlRestTemplate", classes = [RestTemplate::class]),
+        MockkBean(name = "euxKlient", classes = [EuxKlientAsSystemUser::class]),
         MockkBean(name = "kodeverkRestTemplate", classes = [RestTemplate::class]),
         MockkBean(name = "prefillOAuthTemplate", classes = [RestTemplate::class]),
         MockkBean(name = "euxSystemRestTemplate", classes = [RestTemplate::class]),
+        MockkBean(name = "gcpStorageService", classes = [GcpStorageService::class]),
         MockkBean(name = "safRestOidcRestTemplate", classes = [RestTemplate::class]),
-        MockkBean(name = "pdlRestTemplate", classes = [RestTemplate::class]),
         MockkBean(name = "euxNavIdentRestTemplate", classes = [RestTemplate::class]),
         MockkBean(name = "euxNavIdentRestTemplateV2", classes = [RestTemplate::class]),
-        MockkBean(name = "restEuxTemplate", classes = [RestTemplate::class]),
         MockkBean(name = "safGraphQlOidcRestTemplate", classes = [RestTemplate::class]),
+        MockkBean(name = "kafkaTemplate", classes = [KafkaTemplate::class], relaxed = true),
         MockkBean(name = "pensjonsinformasjonClient", classes = [PensjonsinformasjonClient::class]),
-        MockkBean(name = "personService", classes = [PersonService::class]),
-        MockkBean(name = "gcpStorageService", classes = [GcpStorageService::class]),
-        MockkBean(name = "euxKlient", classes = [EuxKlientAsSystemUser::class])
     ]
 )
 class EessiTokenValdationTest {
