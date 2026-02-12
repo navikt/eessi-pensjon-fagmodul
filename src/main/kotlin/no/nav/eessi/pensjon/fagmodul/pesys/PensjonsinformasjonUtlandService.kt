@@ -116,7 +116,7 @@ class PensjonsinformasjonUtlandService(
                         valuta = vedtak?.beregning?.first()?.valuta,
                         utbetalingsHyppighet = vedtak?.beregning?.first()?.utbetalingshyppighet,
                         grunnlagInnvilget = vedtak?.artikkel,
-                        reduksjonsgrunnlag = p6000.pensjon?.sak?.artikkel54,
+                        reduksjonsgrunnlag = P1DataForReduksjon(p6000),
                         vurderingsperiode = p6000.pensjon?.sak?.kravtype?.first()?.datoFrist,
                         adresseNyVurdering = p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.map { adresse(it) },
                         vedtaksdato = p6000.pensjon?.tilleggsinformasjon?.dato,
@@ -126,6 +126,15 @@ class PensjonsinformasjonUtlandService(
             }
         }
         return retList
+    }
+
+    private fun P1DataForReduksjon(p6000: P6000): String? {
+        val reduksjonsType = p6000.pensjon?.sak?.reduksjon?.firstOrNull { it.type != null }?.type
+        return when (reduksjonsType) {
+            "02" -> "08"
+            "01" -> "07"
+            else -> null
+        }
     }
 
     fun sjekkPaaGyldigeInnvElAvslPensjoner(
