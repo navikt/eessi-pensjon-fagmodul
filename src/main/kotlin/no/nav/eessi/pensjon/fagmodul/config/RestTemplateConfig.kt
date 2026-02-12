@@ -77,6 +77,9 @@ class RestTemplateConfig(
     @Value("\${PENSJONSINFORMASJON_URL}")
     lateinit var pensjonUrl: String
 
+    @Value("\${PESYS_URL}")
+    lateinit var pesysUrl: String
+
     @Value("\${SAF_GRAPHQL_URL}")
     lateinit var graphQlUrl: String
 
@@ -97,6 +100,9 @@ class RestTemplateConfig(
 
     @Bean
     fun pensjoninformasjonRestTemplate() = restTemplate(pensjonUrl, oAuth2BearerTokenInterceptor(clientProperties("pensjon-credentials"), oAuth2AccessTokenService), EuxErrorHandler())
+
+    @Bean
+    fun pesysClientRestTemplate() = restTemplate(pesysUrl, oAuth2BearerTokenInterceptor(clientProperties("pensjon-credentials"), oAuth2AccessTokenService), EuxErrorHandler())
 
     @Bean
     fun safGraphQlOidcRestTemplate() = restTemplate(graphQlUrl, oAuth2BearerTokenInterceptor(clientProperties("saf-credentials"), oAuth2AccessTokenService))

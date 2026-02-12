@@ -103,6 +103,8 @@ spec:
 
     - name: PENSJONSINFORMASJON_URL
       value: https://pensjon-pen-q2.dev-fss-pub.nais.io/pen/api/pensjonsinformasjon/v1
+    - name: PESYS_URL
+      value: https://pensjon-pen-q2.dev-fss-pub.nais.io/pen/api/eessi
 
     - name: EESSIPEN_EUX_RINA_URL
       value: https://eux-rina-api-gcp-q2.intern.dev.nav.no/cpi
