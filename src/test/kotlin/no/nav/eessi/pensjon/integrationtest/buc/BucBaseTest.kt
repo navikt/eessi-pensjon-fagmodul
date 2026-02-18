@@ -8,9 +8,9 @@ import no.nav.eessi.pensjon.vedlegg.client.BrukerId
 import no.nav.eessi.pensjon.vedlegg.client.BrukerIdType
 import no.nav.eessi.pensjon.vedlegg.client.SafRequest
 import no.nav.eessi.pensjon.vedlegg.client.Variables
-import no.nav.pensjon.v1.avdod.V1Avdod
-import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
-import no.nav.pensjon.v1.person.V1Person
+//import no.nav.pensjon.v1.avdod.V1Avdod
+//import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
+//import no.nav.pensjon.v1.person.V1Person
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
@@ -142,23 +142,23 @@ open class BucBaseTest {
         return Rinasak(rinaSakId, bucType, Traits(), "", Properties(), "open")
     }
 
-    fun mockVedtak(avdofnr: String, gjenlevAktoerid: String): Pensjonsinformasjon {
-        val pen = Pensjonsinformasjon()
-        val avdod = V1Avdod()
-        val person = V1Person()
-        avdod.avdod = avdofnr
-        person.aktorId = gjenlevAktoerid
-        pen.avdod = avdod
-        pen.person = person
-
-        return pen
-    }
-    fun mockVedtakUtenAvdod(gjenlevAktoerid: String): Pensjonsinformasjon {
-        val pen = Pensjonsinformasjon()
-        val person = V1Person()
-        person.aktorId = gjenlevAktoerid
-        pen.person = person
-        return pen
-    }
+//    fun mockVedtak(avdofnr: String, gjenlevAktoerid: String): Pensjonsinformasjon {
+//        val pen = Pensjonsinformasjon()
+//        val avdod = V1Avdod()
+//        val person = V1Person()
+//        avdod.avdod = avdofnr
+//        person.aktorId = gjenlevAktoerid
+//        pen.avdod = avdod
+//        pen.person = person
+//
+//        return pen
+//    }
+//    fun mockVedtakUtenAvdod(gjenlevAktoerid: String): Pensjonsinformasjon {
+//        val pen = Pensjonsinformasjon()
+//        val person = V1Person()
+//        person.aktorId = gjenlevAktoerid
+//        pen.person = person
+//        return pen
+//    }
 
 }

@@ -7,7 +7,6 @@ import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.integrationtest.IntegrasjonsTestConfig
 import no.nav.eessi.pensjon.kodeverk.KodeverkClient
-import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PesysService
 import org.hamcrest.Matchers
@@ -44,8 +43,9 @@ import org.springframework.web.client.RestTemplate
     MockkBean(name = "safRestOidcRestTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "euxNavIdentRestTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "safGraphQlOidcRestTemplate", classes = [RestTemplate::class]),
-    MockkBean(name = "euxNavIdentRestTemplateV2", classes = [RestTemplate::class]),
-    MockkBean(name = "pensjonsinformasjonClient", classes = [PensjonsinformasjonClient::class])]
+    MockkBean(name = "euxNavIdentRestTemplateV2", classes = [RestTemplate::class])
+//    MockkBean(name = "pensjonsinformasjonClient", classes = [PensjonsinformasjonClient::class])
+   ]
 )
 class PesysIntegrationSpringTest {
 

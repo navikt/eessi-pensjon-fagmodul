@@ -1,9 +1,9 @@
 package no.nav.eessi.pensjon.api.person
 
-import no.nav.eessi.pensjon.fagmodul.api.FrontEndResponse
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_02
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_06
 import no.nav.eessi.pensjon.eux.model.SedType
+import no.nav.eessi.pensjon.fagmodul.api.FrontEndResponse
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.logging.AuditLogger
@@ -11,7 +11,7 @@ import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonoppslagException
 import no.nav.eessi.pensjon.personoppslag.pdl.model.*
-import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonService
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.PesysService
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
@@ -35,7 +35,7 @@ const val PERSON_IKKE_FUNNET = "Person ikke funnet"
 class PersonPDLController(
     private val pdlService: PersonService,
     private val auditLogger: AuditLogger,
-    private val pensjonsinformasjonService: PensjonsinformasjonService,
+    private val pensjonsinformasjonService: PesysService,
     private val euxInnhenting: EuxInnhentingService,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
@@ -93,11 +93,11 @@ class PersonPDLController(
 
         return personControllerHentPersonAvdod.measure {
 
-            val pensjonInfo = pensjonsinformasjonService.hentAltPaaVedtak(vedtaksId).also {
-                logger.debug("pensjonInfo: ${it.toJsonSkipEmpty()}")
+            val pensjonInfo = pensjonsinformasjonService.hentAvdod(vedtaksId).also {
+                logger.debug("pensjonInfo: ${it?.toJsonSkipEmpty()}")
             }
 
-            if (pensjonInfo.avdod == null) {
+            if (pensjonInfo?.avdod == null) {
                 logger.info("Ingen avdøde return empty list")
                 return@measure ResponseEntity.ok(FrontEndResponse(result = emptyList(), status = HttpStatus.OK.name))
             }
@@ -106,9 +106,9 @@ class PersonPDLController(
             logger.debug("gjenlevende : $gjenlevende")
 
             val avdode = mapOf(
-                pensjonInfo.avdod?.avdod to null,
-                pensjonInfo.avdod?.avdodFar to Familierelasjonsrolle.FAR,
-                pensjonInfo.avdod?.avdodMor to Familierelasjonsrolle.MOR
+                pensjonInfo.avdod to null,
+                pensjonInfo.avdodFar to Familierelasjonsrolle.FAR,
+                pensjonInfo.avdodMor to Familierelasjonsrolle.MOR
             )
 
             logger.debug("avdød map : $avdode")
@@ -149,7 +149,7 @@ class PersonPDLController(
         @PathVariable(value = "vedtakid", required = true) vedtakid: String,
         @PathVariable(value = "rinanr", required = true) euxCaseId: String
     ): ResponseEntity<FrontEndResponse<List<DodsDatoPdl>>> {
-        val vedtak = pensjonsinformasjonService.hentAltPaaVedtak(vedtakid)
+        val vedtak = pensjonsinformasjonService.hentAvdod(vedtakid)
         val avdodlist = pensjonsinformasjonService.hentGyldigAvdod(vedtak) ?: return ResponseEntity.ok(FrontEndResponse(result = emptyList(), status = HttpStatus.OK.name))
 
         val avdodDato = when {

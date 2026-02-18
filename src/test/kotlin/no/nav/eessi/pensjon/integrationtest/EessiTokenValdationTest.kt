@@ -7,7 +7,7 @@ import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.fagmodul.config.RestTemplateConfig
 import no.nav.eessi.pensjon.gcp.GcpStorageService
-import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
+//import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PesysService
 import no.nav.eessi.pensjon.vedlegg.client.EuxVedleggClient
@@ -60,7 +60,7 @@ import java.util.*
         MockkBean(name = "euxNavIdentRestTemplateV2", classes = [RestTemplate::class]),
         MockkBean(name = "safGraphQlOidcRestTemplate", classes = [RestTemplate::class]),
         MockkBean(name = "kafkaTemplate", classes = [KafkaTemplate::class], relaxed = true),
-        MockkBean(name = "pensjonsinformasjonClient", classes = [PensjonsinformasjonClient::class]),
+//        MockkBean(name = "pensjonsinformasjonClient", classes = [PensjonsinformasjonClient::class]),
     ]
 )
 class EessiTokenValdationTest {

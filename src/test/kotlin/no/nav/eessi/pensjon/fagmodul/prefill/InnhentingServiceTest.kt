@@ -13,7 +13,8 @@ import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
 import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentGruppe
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Npid
-import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonService
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.PesysService
+//import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonService
 import no.nav.eessi.pensjon.shared.api.ApiRequest
 import no.nav.eessi.pensjon.shared.api.ApiSubject
 import no.nav.eessi.pensjon.shared.api.SubjectFnr
@@ -39,7 +40,7 @@ internal class InnhentingServiceTest {
     lateinit var vedleggService: VedleggService
 
     @MockK
-    private lateinit var pensjonsinformasjonService: PensjonsinformasjonService
+    private lateinit var pesysService: PesysService
 
     @MockK
     lateinit var prefillKlient: PrefillKlient
@@ -50,7 +51,7 @@ internal class InnhentingServiceTest {
     @BeforeEach
     fun before() {
         MockKAnnotations.init(this)
-        innhentingService = InnhentingService(personService, vedleggService, prefillKlient, pensjonsinformasjonService)
+        innhentingService = InnhentingService(personService, vedleggService, prefillKlient, pesysService)
     }
 
     @Test
