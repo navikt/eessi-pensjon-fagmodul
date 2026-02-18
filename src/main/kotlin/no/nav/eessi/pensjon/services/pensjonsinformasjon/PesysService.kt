@@ -33,7 +33,7 @@ class PesysService(
             "kravId" to kravId,
         )
 
-    fun hentSaktype(sakId: String?): String? =
+    fun hentSaktype(sakId: String?): EessiFellesDto.EessiSakType? =
         getWithHeaders(
             "/sak/{sakId}/saktype",
             "sakId" to sakId,

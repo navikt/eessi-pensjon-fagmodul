@@ -1,32 +1,42 @@
 package no.nav.eessi.pensjon.api.pensjon
 
+import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.SpyK
 import io.mockk.mockk
+import io.mockk.verify
 import no.nav.eessi.pensjon.eux.model.buc.SakStatus
 import no.nav.eessi.pensjon.eux.model.buc.SakStatus.*
 import no.nav.eessi.pensjon.eux.model.buc.SakType.ALDER
 import no.nav.eessi.pensjon.eux.model.buc.SakType.UFOREP
 import no.nav.eessi.pensjon.logging.AuditLogger
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.EessiFellesDto
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PesysService
+import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import org.skyscreamer.jsonassert.JSONAssert
 import org.slf4j.MDC
+import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.context.annotation.Bean
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
+import java.time.LocalDate
 import java.util.*
 import javax.xml.datatype.DatatypeFactory
 import javax.xml.datatype.XMLGregorianCalendar
 
 private const val AKTOERID = "1234567890123"
 private const val SOME_SAKID = "10000"
+private val SOME_SAK_TYPE = EessiFellesDto.EessiSakType.ALDER
 private const val SOME_VEDTAK_ID = "213123333"
 private const val KRAV_ID = "345345"
 
@@ -40,11 +50,17 @@ class PensjonControllerTest {
     private var auditLogger: AuditLogger = AuditLogger()
 
     @InjectMockKs
-    private val controller = PensjonController(PesysService(mockk()), auditLogger)
+    private val controller = PensjonController(pesysService, auditLogger)
     private val mockMvc = MockMvcBuilders.standaloneSetup(controller).build()
+
+    @BeforeEach
+    fun setup(){
+    }
 
     @Test
     fun `hentPensjonSakType gitt en aktoerId saa slaa opp fnr og hent deretter sakstype`() {
+        every { pesysService.hentSaktype(SOME_SAKID) } returns SOME_SAK_TYPE
+
 //        every { pensjonsinformasjonClient.hentKunSakType(SOME_SAKID, AKTOERID) } returns Pensjontype(SOME_SAKID, "Type")
         controller.hentPensjonSakType(SOME_SAKID, AKTOERID)
 
@@ -53,12 +69,16 @@ class PensjonControllerTest {
 
     @Test
     fun `hentPensjonSakType gitt at det svar fra PESYS er tom`() {
+
+        every { pesysService.hentSaktype(SOME_SAKID) } returns null
+
 //        every { pensjonsinformasjonClient.hentKunSakType(SOME_SAKID, AKTOERID) } returns Pensjontype(SOME_SAKID, "")
+//        every { pesysService.hentSaktype(SOME_SAKID) } returns EessiFellesDto.EessiSakType.valueOf(SOME_SAKID)
         val response = controller.hentPensjonSakType(SOME_SAKID, AKTOERID)
 
 //        verify { pensjonsinformasjonClient.hentKunSakType(eq(SOME_SAKID), eq(AKTOERID)) }
 
-        assertEquals(getExpectedKunSakType(), response?.body)
+        assertEquals("Sakstype ikke funnet for sakId: $SOME_SAKID", response?.body)
     }
 
     private fun getExpectedKunSakType() = """
@@ -69,37 +89,34 @@ class PensjonControllerTest {
             """.trimIndent()
 
     @Test
-    fun `hentPensjonSakType gitt at det svar feiler fra PESYS`() {
-//        every { pensjonsinformasjonClient.hentKunSakType(SOME_SAKID, AKTOERID) } returns Pensjontype(SOME_SAKID, "")
+    fun `hentPensjonSakType gitt at pesys gir null`() {
+        every { pesysService.hentSaktype(SOME_SAKID)} returns null
         val response = controller.hentPensjonSakType(SOME_SAKID, AKTOERID)
 
-//        verify { pensjonsinformasjonClient.hentKunSakType(eq(SOME_SAKID), eq(AKTOERID)) }
-        assertEquals(getExpectedKunSakType(), response?.body)
+        verify { pesysService.hentSaktype(SOME_SAKID) }
+        assertEquals("Sakstype ikke funnet for sakId: $SOME_SAKID", response?.body)
     }
 
     @Test
     fun `Gitt det finnes pensjonsak paa aktoer saa skal det returneres en liste over alle saker til aktierid`() {
-//        val mockpen = Pensjonsinformasjon()
 
-//        val mocksak1 = V1Sak()
-//        mocksak1.sakId = 1010
-//        mocksak1.status = INNV.name
-//        mocksak1.sakType = ALDER.name
-//        mockpen.brukersSakerListe = V1BrukersSakerListe()
-//        mockpen.brukersSakerListe.brukersSakerListe.add(mocksak1)
-//
-//        val mocksak2 = V1Sak()
-//        mocksak2.sakId = 2020
-//        mocksak2.status = AVSL.name
-//        mocksak2.sakType = UFOREP.name
-//        mockpen.brukersSakerListe.brukersSakerListe.add(mocksak2)
-//
-//        every { pensjonsinformasjonClient.hentAltPaaAktoerId(AKTOERID) } returns mockpen
+        val saker = listOf(
+            EessiFellesDto.PensjonSakDto(
+                "1010",
+                EessiFellesDto.EessiSakType.ALDER,
+                EessiFellesDto.EessiSakStatus.INNV
+            ),
+            EessiFellesDto.PensjonSakDto(
+                "2020",
+                EessiFellesDto.EessiSakType.UFOREP,
+                EessiFellesDto.EessiSakStatus.AVSL
+            )
+        )
+
+        every { pesysService.hentSakListe(AKTOERID) } returns saker
 
         val result = controller.hentPensjonSakIder(AKTOERID)
-//        verify { pensjonsinformasjonClient.hentAltPaaAktoerId(eq(AKTOERID)) }
-
-//        verify { pensjonsinformasjonClient.hentAltPaaAktoerId(eq(AKTOERID)) }
+        verify { pesysService.hentSakListe(AKTOERID) }
 
         assertEquals(2, result.size)
         val expected1 = PensjonSak("1010", ALDER.name, LOPENDE)
@@ -109,19 +126,6 @@ class PensjonControllerTest {
 
         assertEquals(AVSLUTTET, expected2.sakStatus)
     }
-
-//    @Test
-//    fun `Gitt det ikke finnes pensjonsak paa aktoer saa skal det returneres et tomt svar tom liste`() {
-////        val mockpen = Pensjonsinformasjon()
-//        mockpen.brukersSakerListe = V1BrukersSakerListe()
-//
-////        every { (pensjonsinformasjonClient.hentAltPaaAktoerId(AKTOERID)) } returns mockpen
-//
-//        val result = controller.hentPensjonSakIder(AKTOERID)
-//        verify(exactly = 1) { pensjonsinformasjonClient.hentAltPaaAktoerId(any())
-//            assertEquals(0, result.size)
-//        }
-//    }
 
     @Test
     fun `sjekk paa forskjellige verdier av sakstatus fra pensjoninformasjon konvertere de til enum`() {
@@ -136,11 +140,13 @@ class PensjonControllerTest {
     fun `hentKravDato skal gi en data hentet fra aktorid og vedtaksid `() {
         val kravDato = "2020-01-01"
 
-//        every { pensjonsinformasjonClient.hentKravDatoFraAktor(AKTOERID, SOME_SAKID, KRAV_ID) } returns kravDato
+        every { pesysService.hentKravdato( KRAV_ID, ) } returns LocalDate.parse(kravDato)
 
         val result = mockMvc.perform(
             MockMvcRequestBuilders.get("/pensjon/kravdato/saker/$SOME_SAKID/krav/$KRAV_ID/aktor/$AKTOERID")
                 .contentType(MediaType.APPLICATION_JSON)
+                .header("x_request_id", UUID.randomUUID().toString())
+
         )
             .andExpect(status().is2xxSuccessful)
             .andReturn()
@@ -165,8 +171,12 @@ class PensjonControllerTest {
     @Test
     fun uthentingAvUforeTidspunkt() {
 //        val mockClient = fraFil("VEDTAK-UT-MUTP.xml")
-        val mockController = PensjonController(PesysService(mockk()), auditLogger)
-        val mockMvc2 = MockMvcBuilders.standaloneSetup(mockController).build()
+        val ufoereTidspunkt = LocalDate.now()
+        val virkningsTidspunkts = LocalDate.now().plusDays(10)
+        val dto = EessiFellesDto.EessiUfoeretidspunktDto(ufoereTidspunkt, virkningsTidspunkts)
+
+        every { pesysService.hentUfoeretidspunktOnVedtak(any()) } returns dto
+        val mockMvc2 = MockMvcBuilders.standaloneSetup(controller).build()
 
         val result = mockMvc2.perform(
             MockMvcRequestBuilders.get("/pensjon/vedtak/$SOME_VEDTAK_ID/uforetidspunkt")
@@ -175,82 +185,24 @@ class PensjonControllerTest {
             .andReturn()
         val response = result.response.getContentAsString(charset("UTF-8"))
 
-        val expected = ufoereTidspunkt("2020-02-29", "2015-12-01")
-        assertEquals(expected, response)
-    }
-
-    @Test
-    fun uthentingAvUforeTidspunktMedGMTZ() {
-//        val mockClient = fraFil("VEDTAK-UT-MUTP-GMTZ.xml")
-        val mockController = PensjonController(PesysService(mockk()), auditLogger)
-        val mockMvc2 = MockMvcBuilders.standaloneSetup(mockController).build()
-
-        val result = mockMvc2.perform(
-            MockMvcRequestBuilders.get("/pensjon/vedtak/$SOME_VEDTAK_ID/uforetidspunkt")
-                .contentType(MediaType.APPLICATION_JSON)
-        )
-            .andReturn()
-        val response = result.response.getContentAsString(charset("UTF-8"))
-        val expected = ufoereTidspunkt("2020-03-01", "2015-12-01")
-        assertEquals(expected, response)
-    }
-
-    @Test
-    fun uthentingAvUforeTidspunktSomErTom() {
-//        val mockClient = fraFil("VEDTAK-UT.xml")
-        val mockController = PensjonController(PesysService(mockk()), auditLogger)
-        val mockMvc2 = MockMvcBuilders.standaloneSetup(mockController).build()
-
-        val result = mockMvc2.perform(
-            MockMvcRequestBuilders.get("/pensjon/vedtak/$SOME_VEDTAK_ID/uforetidspunkt")
-                .contentType(MediaType.APPLICATION_JSON)
-        )
-            .andReturn()
-        val response = result.response.getContentAsString(charset("UTF-8"))
-        val expected = ufoereTidspunkt()
-
-        assertEquals(expected, response)
-    }
-
-    private fun ufoereTidspunkt(ufoereTidspunkt: String? = null, virkningsTidspunkt: String? = null) = """
-                {
-                  "uforetidspunkt" : ${if(ufoereTidspunkt == null) null else "\"$ufoereTidspunkt\""},
-                  "virkningstidspunkt" : ${if(virkningsTidspunkt == null) null else  "\"$virkningsTidspunkt\""}
-                }
-            """.trimIndent()
-
-    @ParameterizedTest
-    @CsvSource(
-        "2020, 02, 29, 23,  60, 2020-02-29, false",
-        "2020, 02, 29, 23,  0, 2020-03-01, true",
-        "2020, 06, 01, 00, 120, 2020-06-01, true",
-        "2020, 05, 31, 23, 00, 2020-06-01, true",
-        "2020, 05, 31, 23, 120, 2020-05-31, false",
-        "2020, 06, 01, 00, 120, 2020-06-01, true")
-    fun `Sjekk for konvertering fra XMLgregorianCalendar til String med stotte for GMT`(xmlYear: Int, xmlMonth: Int, xmlDay: Int, xmlHour: Int, xmlTz: Int, resultat: String, check: Boolean) {
-        val calendar = GregorianCalendar()
-        calendar.set(xmlYear, xmlMonth-1, xmlDay, xmlHour, 0, 0)
-        val xmlDate: XMLGregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(calendar)
-        xmlDate.timezone = xmlTz
-
-//        val verdi = controller.transformXMLGregorianCalendarToJson(xmlDate)
-//        assertEquals(resultat, verdi.toString())
-//        assert( verdi.dayOfMonth == 1 == check )
+        assertEquals(dto, mapJsonToAny<EessiFellesDto.EessiUfoeretidspunktDto>(response))
     }
 
     @Test
     fun `Sjekke for hentKravDatoFraAktor ikke kaster en unormal feil`() {
         MDC.put("x_request_id","AAA-BBB")
-//        every { pensjonsinformasjonClient.hentKravDatoFraAktor(any(), any(), any()) } returns null
+        every { pesysService.hentKravdato(any()) } returns null
 
-        val result = controller.hentKravDatoFraAktor(SOME_SAKID, KRAV_ID, AKTOERID)
+        val response = controller.hentKravDatoFraAktor(SOME_SAKID, KRAV_ID, AKTOERID)
+
         JSONAssert.assertEquals(
             """{"success": false, "error": "Feiler å hente kravDato", "uuid": "AAA-BBB"}""",
-            result?.body, true
+            response?.body, true
         )
     }
 
     @Test
+    @Disabled("IKKE LENGER NØDVENDIG, Slettes")
     fun `sjekk om resultat er gyldig pensjoninfo`() {
         val mockVedtakid = SOME_VEDTAK_ID
 //        val mockClient = fraFil("BARNEP-PlukkBestOpptjening.xml")

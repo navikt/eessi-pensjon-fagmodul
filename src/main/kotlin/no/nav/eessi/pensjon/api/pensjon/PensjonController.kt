@@ -23,7 +23,9 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.util.UUID
 import javax.xml.datatype.XMLGregorianCalendar
+import kotlin.text.get
 
 @Protected
 @RestController
@@ -54,9 +56,15 @@ class PensjonController(
         auditlogger.log("hentPensjonSakType", aktoerId)
 
         return pensjonControllerHentSakType.measure {
-            logger.info("Henter sakstype på $sakId / $aktoerId")
-
-            ResponseEntity.ok(pesysService.hentSaktype(sakId))
+            try {
+                logger.info("Henter sakstype på $sakId / $aktoerId")
+                pesysService.hentSaktype(sakId)?.let {
+                    ResponseEntity.ok(it.name)
+                } ?: ResponseEntity.status(HttpStatus.NOT_FOUND).body("Sakstype ikke funnet for sakId: $sakId")
+            } catch (e: Exception) {
+                logger.warn("Feil ved henting av sakstype på saksid: $sakId")
+                ResponseEntity.status(HttpStatus.BAD_REQUEST).body("")
+            }
         }
     }
 
@@ -66,19 +74,17 @@ class PensjonController(
     @GetMapping("/kravdato/saker/{saksId}/krav/{kravId}/aktor/{aktoerId}")
     fun hentKravDatoFraAktor(@PathVariable("saksId", required = true) sakId: String, @PathVariable("kravId", required = true) kravId: String, @PathVariable("aktoerId", required = true) aktoerId: String) : ResponseEntity<String>? {
         return pensjonControllerKravDato.measure {
-            val xid =  MDC.get("x_request_id").toString()
+            val xid = MDC.get("x_request_id") ?: UUID.randomUUID().toString()
             if (sakId.isEmpty() || kravId.isEmpty() || aktoerId.isEmpty()) {
                 logger.warn("Det mangler verdier: saksId $sakId, kravId: $kravId, aktørId: $aktoerId")
-                ResponseEntity.status(HttpStatus.BAD_REQUEST).body("")
+                return@measure ResponseEntity.status(HttpStatus.BAD_REQUEST).body("")
             }
-            try {
-                pesysService.hentKravdato(kravId = kravId)?.let {
-                   return@measure ResponseEntity.ok("""{ "kravDato": "$it" }""")
-               }
-               return@measure ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorBody("Feiler å hente kravDato", xid))
-
+            return@measure try {
+                pesysService.hentKravdato(kravId)?.let {
+                    ResponseEntity.ok("""{ "kravDato": "$it" }""")
+                } ?: ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorBody("Feiler å hente kravDato", xid))
             } catch (e: Exception) {
-                logger.warn("Feil ved henting av kravdato på saksid: $sakId")
+                logger.warn("Feil ved henting av kravdato på saksid: $sakId", e)
                 ResponseEntity.status(HttpStatus.BAD_REQUEST).body("")
             }
         }
