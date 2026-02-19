@@ -24,6 +24,7 @@ import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
 import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentGruppe
 import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Npid
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.EessiFellesDto
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PesysService
 import no.nav.eessi.pensjon.utils.toJson
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -92,6 +93,9 @@ internal class BucControllerIT: BucBaseTest() {
     private lateinit var gcpStorageService: GcpStorageService
 
     @Autowired
+    private lateinit var pesysService: PesysService
+
+    @Autowired
     private lateinit var mockMvc: MockMvc
 
     @Test
@@ -126,6 +130,8 @@ internal class BucControllerIT: BucBaseTest() {
     fun `Gitt det finnes gjenlevende og en avdød på P_BUC_02 så skal det hentes og returneres en liste av buc`() {
         val sedjson = javaClass.getResource("/json/nav/P2100-PinNO-NAV.json")!!.readText()
 
+        every { pesysService.hentAvdod(VEDTAKID) } returns EessiFellesDto.EessiAvdodDto(avdod = AVDOD_FNR, avdodMor = null, avdodFar = null)
+        every { pesysService.hentGyldigAvdod(any()) } returns listOf(AVDOD_FNR)
 //        every { pensjonsinformasjonClient.hentAltPaaVedtak(VEDTAKID) } returns mockVedtak(AVDOD_FNR, GJENLEV_AKTOERID)
 
         //gjenlevende aktoerid -> gjenlevendefnr
@@ -166,6 +172,8 @@ internal class BucControllerIT: BucBaseTest() {
         @Test
         fun `Gitt det finnes gjenlevende og en avdød på buc02 og fra SAF så skal det hentes og lever en liste av buc`() {
             val sedjson = javaClass.getResource("/json/nav/P2100-PinNO-NAV.json")!!.readText()
+            every { pesysService.hentAvdod(VEDTAKID) } returns EessiFellesDto.EessiAvdodDto(avdod = AVDOD_FNR, avdodMor = null, avdodFar = null)
+            every { pesysService.hentGyldigAvdod(any()) } returns listOf(AVDOD_FNR)
 
 //            every { pensjonsinformasjonClient.hentAltPaaVedtak(VEDTAKID) } returns mockVedtak(AVDOD_FNR, GJENLEV_AKTOERID)
             //gjenlevende aktoerid -> gjenlevendefnr
@@ -221,6 +229,8 @@ internal class BucControllerIT: BucBaseTest() {
         val sedjson = javaClass.getResource("/json/nav/P2100-PinNO-NAV.json")!!.readText()
 
 //        every { pensjonsinformasjonClient.hentAltPaaVedtak(VEDTAKID) } returns mockVedtak(AVDOD_FNR, GJENLEV_AKTOERID)
+        every { pesysService.hentAvdod(VEDTAKID) } returns EessiFellesDto.EessiAvdodDto(avdod = AVDOD_FNR, avdodMor = null, avdodFar = null)
+        every { pesysService.hentGyldigAvdod(any()) } returns listOf(AVDOD_FNR)
 
         //gjenlevende aktoerid -> gjenlevendefnr
         every { personService.hentIdent(IdentGruppe.FOLKEREGISTERIDENT, AktoerId(GJENLEV_AKTOERID)) } returns NorskIdent(GJENLEVENDE_FNR)
@@ -278,6 +288,8 @@ internal class BucControllerIT: BucBaseTest() {
     fun `Gitt det finnes en gjenlevende og avdød hvor buc05 buc06 og buc10 finnes Så skal det returneres en liste av buc`() {
 
 //        every { pensjonsinformasjonClient.hentAltPaaVedtak(VEDTAKID)  } returns mockVedtak(AVDOD_FNR, GJENLEV_AKTOERID)
+        every { pesysService.hentAvdod(VEDTAKID) } returns EessiFellesDto.EessiAvdodDto(avdod = AVDOD_FNR, avdodMor = null, avdodFar = null)
+        every { pesysService.hentGyldigAvdod(any()) } returns listOf(AVDOD_FNR)
 
         //gjenlevende aktoerid -> gjenlevendefnr
         every {personService.hentIdent(IdentGruppe.FOLKEREGISTERIDENT, AktoerId(GJENLEV_AKTOERID))  } returns NorskIdent(GJENLEVENDE_FNR)
