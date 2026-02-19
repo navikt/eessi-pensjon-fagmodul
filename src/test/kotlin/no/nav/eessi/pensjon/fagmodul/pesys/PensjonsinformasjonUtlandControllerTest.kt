@@ -183,6 +183,10 @@ class PensjonsinformasjonUtlandControllerTest {
             assertEquals(null, innehaver.etternavn)
 
             assertEquals(1, innvilgedePensjoner.size)
+            assertEquals("24160", innvilgedePensjoner.firstOrNull()?.bruttobeloep)
+            assertEquals("1555555", innvilgedePensjoner.firstOrNull()?.nettobeloep)
+
+
             assertEquals(1, avslaattePensjoner.size)
             assertEquals("[EessisakItemP1(institusjonsid=NO:889640782, institusjonsnavn=The Norwegian Labour and Welfare Administration, saksnummer=25814615, land=NO, identifikatorForsikrede=04117512849, identifikatorInnehaver=null)]", innvilgedePensjoner[0].institusjon.toString())
             assertEquals("[EessisakItemP1(institusjonsid=GB:Britisk, institusjonsnavn=The Brits, saksnummer=25814615, land=GB, identifikatorForsikrede=JE 25 19 53 B, identifikatorInnehaver=null)]", avslaattePensjoner[0].institusjon.toString())

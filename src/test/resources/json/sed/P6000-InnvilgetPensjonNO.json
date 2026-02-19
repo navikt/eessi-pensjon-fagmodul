@@ -103,7 +103,12 @@
           "ytelseskomponentGrunnpensjon" : null,
           "ytelseskomponentAnnen" : null
         },
-        "beloepNetto" : null,
+        "beloepNetto" : {
+          "ytelseskomponentTilleggspensjon" : null,
+          "beloep" : "1555555",
+          "ytelseskomponentGrunnpensjon" : null,
+          "ytelseskomponentAnnen" : null
+        },
         "periode" : {
           "fom" : "2024-06-01",
           "tom" : null,
