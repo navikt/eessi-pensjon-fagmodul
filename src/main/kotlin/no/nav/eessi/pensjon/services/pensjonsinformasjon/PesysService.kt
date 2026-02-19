@@ -23,20 +23,17 @@ class PesysService(
 
     fun hentAvdod(vedtakId: String?): EessiFellesDto.EessiAvdodDto? =
         getWithHeaders(
-            "/vedtak/{vedtakId}/avdoed",
-            "vedtakId" to vedtakId,
+            "/vedtak/$vedtakId/avdoed"
         )
 
     fun hentKravdato(kravId: String?): LocalDate? =
         getWithHeaders(
-            "/krav/{kravId}/mottattDato",
-            "kravId" to kravId,
+            "/krav/$kravId/mottattDato"
         )
 
     fun hentSaktype(sakId: String?): EessiFellesDto.EessiSakType? =
         getWithHeaders(
-            "/sak/{sakId}/saktype",
-            "sakId" to sakId,
+            "/sak/$sakId/saktype",
         )
 
     fun hentSakListe(fnr: String?): List<EessiFellesDto.PensjonSakDto> =
