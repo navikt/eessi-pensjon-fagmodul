@@ -98,10 +98,10 @@ class PensjonsinformasjonUtlandController(
             val listeOverP6000FraGcp = mutableListOf<P6000>()
             val p6000Detaljer = mapJsonToAny<P6000Detaljer>(p6000FraGcp).also { logger.info("P6000Detaljer: ${it.toJson()}") }
             runCatching {
-                p6000Detaljer.dokumentId.forEach { p6000 ->
-                    val hentetJsonP6000 = euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(p6000Detaljer.rinaSakId, p6000)
+                p6000Detaljer.dokumentId.forEach { sedDokumentId ->
+                    val hentetJsonP6000 = euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(p6000Detaljer.rinaSakId, sedDokumentId)
                     val hentetP6000 = hentetJsonP6000 as P6000
-                    val sedMetaData = euxInnhentingService.hentSedMetadata(p6000Detaljer.rinaSakId, p6000).also { secureLog.info("SedMetaData: $it") }
+                    val sedMetaData = euxInnhentingService.hentSedMetadata(p6000Detaljer.rinaSakId, sedDokumentId).also { secureLog.info("SedMetaData: $it") }
                     hentetP6000.avsender = sedMetaData?.avsender
                     hentetP6000.let { listeOverP6000FraGcp.add(it) }
                 }
@@ -114,16 +114,20 @@ class PensjonsinformasjonUtlandController(
 
             sjekkPaaGyldigeInnvElAvslPensjoner(innvilgedePensjoner, avslaatteUtenlandskePensjoner, listeOverP6000FraGcp, pesysId)
 
-           val nyesteP6000 = penInfoUtlandService.nyesteP6000(listeOverP6000FraGcp).firstOrNull()
-           P1Dto(
-               innehaver = nyesteP6000?.let { penInfoUtlandService.person(it, GJENLEVENDE) } ,
-               forsikrede = nyesteP6000?.let { penInfoUtlandService.person(it, FORSIKRET) } ,
-                sakstype = saksType(innvilgedePensjoner, avslaatteUtenlandskePensjoner)?.name,
-                kravMottattDato = null,
-                innvilgedePensjoner = innvilgedePensjoner,
-                avslaattePensjoner = avslaatteUtenlandskePensjoner,
-                utfyllendeInstitusjon = ""
-            ).also { secureLog.info("P1Dto: " + it.toJson())}
+            val nyesteP6000 = penInfoUtlandService.nyesteP6000(listeOverP6000FraGcp).firstOrNull()
+            if (innvilgedePensjoner.isEmpty() && avslaatteUtenlandskePensjoner.isEmpty()) {
+                hentP7000FraRina(p6000Detaljer.rinaSakId)
+            } else {
+                P1Dto(
+                    innehaver = nyesteP6000?.let { penInfoUtlandService.person(it, GJENLEVENDE) },
+                    forsikrede = nyesteP6000?.let { penInfoUtlandService.person(it, FORSIKRET) },
+                    sakstype = saksType(innvilgedePensjoner, avslaatteUtenlandskePensjoner)?.name,
+                    kravMottattDato = null,
+                    innvilgedePensjoner = innvilgedePensjoner,
+                    avslaattePensjoner = avslaatteUtenlandskePensjoner,
+                    utfyllendeInstitusjon = ""
+                ).also { secureLog.info("P1Dto: " + it.toJson()) }
+            }
         }
     }
 
@@ -168,6 +172,25 @@ class PensjonsinformasjonUtlandController(
             }
         }
     }
+    private fun hentP7000FraRina(rinaSakId: String): P1Dto {
+        val buc = euxInnhentingService.getBucAsSystemuser(rinaSakId)
+        val p7000 = buc?.documents?.firstOrNull { it.type?.name == "P7000" }
+        if(p7000 == null) {
+            logger.error("Ingen P7000 dokumenter funnet i Rina for rinaSakId: $rinaSakId")
+        }
+        val hentet7000 = p7000?.id?.let { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(rinaSakId, it) }
 
+        return P1Dto(
+            innehaver = hentet7000?.let { penInfoUtlandService.person(it, GJENLEVENDE) },
+            forsikrede = hentet7000?.let { penInfoUtlandService.person(it, FORSIKRET) },
+            sakstype = null,
+            kravMottattDato = null,
+            innvilgedePensjoner = null,
+            avslaattePensjoner = null,
+            utfyllendeInstitusjon = ""
+        ).also { secureLog.info("P1Dto fra P7000: " + it.toJson())}
+    }
 }
+
+
 
