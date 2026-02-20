@@ -8,7 +8,13 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.eessi.pensjon.eux.model.Avsender
 import no.nav.eessi.pensjon.eux.model.SedMetadata
+import no.nav.eessi.pensjon.eux.model.SedType
+import no.nav.eessi.pensjon.eux.model.SedType.P7000
+import no.nav.eessi.pensjon.eux.model.buc.Attachment
+import no.nav.eessi.pensjon.eux.model.buc.Buc
+import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
 import no.nav.eessi.pensjon.eux.model.sed.P6000
+import no.nav.eessi.pensjon.eux.model.sed.P7000
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
@@ -19,6 +25,7 @@ import no.nav.eessi.pensjon.utils.toJson
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.springframework.web.client.RestTemplate
+import kotlin.text.toByteArray
 
 class PensjonsinformasjonUtlandControllerTest {
 
@@ -186,6 +193,32 @@ class PensjonsinformasjonUtlandControllerTest {
             assertEquals(1, avslaattePensjoner?.size)
             assertEquals("[EessisakItemP1(institusjonsid=NO:889640782, institusjonsnavn=The Norwegian Labour and Welfare Administration, saksnummer=25814615, land=NO, identifikatorForsikrede=04117512849, identifikatorInnehaver=null)]", innvilgedePensjoner?.get(0)?.institusjon.toString())
             assertEquals("[EessisakItemP1(institusjonsid=GB:Britisk, institusjonsnavn=The Brits, saksnummer=25814615, land=GB, identifikatorForsikrede=JE 25 19 53 B, identifikatorInnehaver=null)]", avslaattePensjoner?.get(0)?.institusjon.toString())
+        }
+    }
+
+    @Test
+    fun `Gitt at vi ikke noen P6000 til aa bruke ved preutfylling av en P7000 så returneres en minimum preutfylt P7000`() {
+        every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
+            every { exists() } returns true
+            every { getContent() } returns p6000Detaljer(emptyList()).toByteArray()
+        }
+
+        val p7000 = mapJsonToAny<P7000>(javaClass.getResource("/json/sed/P7000-RINA.json")!!.readText())
+        val buc = Buc(documents = listOf(DocumentsItem(type = P7000, id = "2222")))
+
+        every { euxInnhentingService.getBucAsSystemuser("1446704") } returns buc
+        every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "2222") } returns p7000
+
+        val result = controller.hentP6000Detaljer("22975052")
+
+        with(result) {
+            assertEquals(0, innvilgedePensjoner?.size)
+            assertEquals(0, avslaattePensjoner?.size)
+            assertEquals("RØD", innehaver?.etternavn)
+            assertEquals("GRØNN", innehaver?.fornavn)
+            assertEquals("ORANGE", forsikrede?.fornavn)
+            assertEquals("BLÅ", forsikrede?.etternavn)
+
         }
     }
 
