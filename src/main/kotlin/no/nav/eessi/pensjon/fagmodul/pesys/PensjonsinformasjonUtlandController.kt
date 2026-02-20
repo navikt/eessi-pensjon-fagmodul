@@ -185,8 +185,8 @@ class PensjonsinformasjonUtlandController(
             forsikrede = hentet7000?.let { penInfoUtlandService.person(it, FORSIKRET) },
             sakstype = null,
             kravMottattDato = null,
-            innvilgedePensjoner = null,
-            avslaattePensjoner = null,
+            innvilgedePensjoner = emptyList(),
+            avslaattePensjoner = emptyList(),
             utfyllendeInstitusjon = ""
         ).also { secureLog.info("P1Dto fra P7000: " + it.toJson())}
     }
