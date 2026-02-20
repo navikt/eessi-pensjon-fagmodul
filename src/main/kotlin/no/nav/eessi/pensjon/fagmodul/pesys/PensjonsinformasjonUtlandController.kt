@@ -112,17 +112,33 @@ class PensjonsinformasjonUtlandController(
             val innvilgedePensjoner = penInfoUtlandService.innvilgedePensjoner(listeOverP6000FraGcp).also { secureLog.info("innvilgedePensjoner: " +it.toJson()) }
             val avslaatteUtenlandskePensjoner = penInfoUtlandService.avslaatteUtenlandskePensjoner(listeOverP6000FraGcp).also { secureLog.info("avslaatteUtenlandskePensjoner: " + it.toJson()) }
 
-            penInfoUtlandService.sjekkPaaGyldigeInnvElAvslPensjoner(innvilgedePensjoner, avslaatteUtenlandskePensjoner, listeOverP6000FraGcp, pesysId)
+            sjekkPaaGyldigeInnvElAvslPensjoner(innvilgedePensjoner, avslaatteUtenlandskePensjoner, listeOverP6000FraGcp, pesysId)
 
+           val nyesteP6000 = penInfoUtlandService.nyesteP6000(listeOverP6000FraGcp).firstOrNull()
            P1Dto(
-                innehaver = penInfoUtlandService.person(penInfoUtlandService.nyesteP6000(listeOverP6000FraGcp).first(), GJENLEVENDE),
-                forsikrede = penInfoUtlandService.person(penInfoUtlandService.nyesteP6000(listeOverP6000FraGcp).first(), FORSIKRET),
+               innehaver = nyesteP6000?.let { penInfoUtlandService.person(it, GJENLEVENDE) } ,
+               forsikrede = nyesteP6000?.let { penInfoUtlandService.person(it, FORSIKRET) } ,
                 sakstype = saksType(innvilgedePensjoner, avslaatteUtenlandskePensjoner)?.name,
                 kravMottattDato = null,
                 innvilgedePensjoner = innvilgedePensjoner,
                 avslaattePensjoner = avslaatteUtenlandskePensjoner,
                 utfyllendeInstitusjon = ""
             ).also { secureLog.info("P1Dto: " + it.toJson())}
+        }
+    }
+
+
+    fun sjekkPaaGyldigeInnvElAvslPensjoner(
+        innvilgedePensjoner: List<InnvilgetPensjon>,
+        avslaatteUtenlandskePensjoner: List<AvslaattPensjon>,
+        listeOverP6000FraGcp: MutableList<P6000>,
+        pesysId: String
+    ) {
+        if (innvilgedePensjoner.isEmpty() && avslaatteUtenlandskePensjoner.isEmpty()) {
+            logger.error("Ingen gyldige pensjoner funnet i P6000er for pesysId: $pesysId")
+        }
+        if (innvilgedePensjoner.size + avslaatteUtenlandskePensjoner.size != listeOverP6000FraGcp.size) {
+            logger.warn("Mismatch: innvilgedePensjoner (${innvilgedePensjoner.size}) + avslåtteUtenlandskePensjoner (${avslaatteUtenlandskePensjoner.size}) != utenlandskeP6000er (${listeOverP6000FraGcp.size})")
         }
     }
 
@@ -154,5 +170,4 @@ class PensjonsinformasjonUtlandController(
     }
 
 }
-
 

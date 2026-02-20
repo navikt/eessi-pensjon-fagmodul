@@ -137,24 +137,6 @@ class PensjonsinformasjonUtlandService(
         }
     }
 
-    fun sjekkPaaGyldigeInnvElAvslPensjoner(
-        innvilgedePensjoner: List<InnvilgetPensjon>,
-        avslaatteUtenlandskePensjoner: List<AvslaattPensjon>,
-        listeOverP6000FraGcp: MutableList<P6000>,
-        pesysId: String
-    ) {
-        if (innvilgedePensjoner.isEmpty() && avslaatteUtenlandskePensjoner.isEmpty()) {
-            logger.error("Ingen gyldige pensjoner funnet i P6000er for pesysId: $pesysId")
-            throw ResponseStatusException(
-                HttpStatus.NOT_FOUND,
-                "Ingen gyldige pensjoner funnet i P6000er for pesysId: $pesysId"
-            )
-        }
-        if (innvilgedePensjoner.size + avslaatteUtenlandskePensjoner.size != listeOverP6000FraGcp.size) {
-            logger.warn("Mismatch: innvilgedePensjoner (${innvilgedePensjoner.size}) + avslåtteUtenlandskePensjoner (${avslaatteUtenlandskePensjoner.size}) != utenlandskeP6000er (${listeOverP6000FraGcp.size})")
-        }
-    }
-
     private fun hentInnvilgedePensjonerFraP6000er(p6000er: List<P6000>): List<P6000> = p6000er.filter { sed ->
         sed.pensjon?.vedtak?.any { it.resultat in listOf("01", "03", "04")
         } == true || sed.pensjon?.vedtak?.any { it.beregning?.any { it.beloepBrutto != null } == true } == true

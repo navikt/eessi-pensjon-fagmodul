@@ -8,13 +8,13 @@ import no.nav.eessi.pensjon.eux.model.sed.ReduksjonItem
 import java.time.LocalDate
 
 data class P1Dto(
-    val innehaver: P1Person,
-    val forsikrede: P1Person,
+    val innehaver: P1Person?,
+    val forsikrede: P1Person?,
     val sakstype: String?,
     val kravMottattDato: LocalDate? = null,
-    val innvilgedePensjoner: List<InnvilgetPensjon>,
-    val avslaattePensjoner: List<AvslaattPensjon>,
-    val utfyllendeInstitusjon: String
+    val innvilgedePensjoner: List<InnvilgetPensjon>?,
+    val avslaattePensjoner: List<AvslaattPensjon>?,
+    val utfyllendeInstitusjon: String?
 )
 
 data class P1Person(
