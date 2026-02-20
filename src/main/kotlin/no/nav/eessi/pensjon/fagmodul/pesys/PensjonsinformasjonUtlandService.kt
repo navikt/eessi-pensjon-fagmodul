@@ -190,7 +190,7 @@ class PensjonsinformasjonUtlandService(
         return retList
     }
 
-    fun person(sed: P6000, brukerEllerGjenlevende: BrukerEllerGjenlevende) : P1Person {
+    fun person(sed: SED, brukerEllerGjenlevende: BrukerEllerGjenlevende) : P1Person {
         val personBruker = if (brukerEllerGjenlevende == FORSIKRET)
             Pair(sed.nav?.bruker?.person, sed.nav?.bruker?.adresse)
         else
