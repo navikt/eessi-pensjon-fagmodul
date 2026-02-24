@@ -128,7 +128,6 @@ class PersonPDLControllerTest {
     }
 
     @Test
-    @Disabled
     fun `getPerson should return Person as json`() {
         every { pdlService.hentPerson(any()) } returns lagPerson(etternavn = "NORDMANN", fornavn = "OLA")
         val response = mvc.perform(
@@ -138,7 +137,7 @@ class PersonPDLControllerTest {
             .andReturn().response
         val result = mapJsonToAny<FrontEndResponse<*>>(
             response.getContentAsString(charset("UTF-8"))).result
-        JSONAssert.assertEquals(personResponseAsJson3, result as String, false)
+        JSONAssert.assertEquals(personResponseAsJson3, result?.toJson(), false)
     }
 
     @Test
@@ -175,7 +174,6 @@ class PersonPDLControllerTest {
 //        mockPensjoninfo.avdod.avdodMor = AVDOD_MOR_FNR
 //        mockPensjoninfo.avdod.avdodFar = AVDOD_FAR_FNR
 //        mockPensjoninfo.person.aktorId = AKTOERID
-        every { pesysService.hentAvdod(any())} returns EessiFellesDto.EessiAvdodDto(avdod = AVDOD_FNR, avdodMor = AVDOD_MOR_FNR, avdodFar = AVDOD_FAR_FNR)
 
         val avdodMor = lagPerson(
             AVDOD_MOR_FNR, "Fru", "Blyant",
@@ -209,10 +207,13 @@ class PersonPDLControllerTest {
                 ForelderBarnRelasjon(AVDOD_MOR_FNR, Familierelasjonsrolle.MOR, Familierelasjonsrolle.BARN, mockMeta())
             )
         )
+        every { pesysService.hentAvdod(any())} returns EessiFellesDto.EessiAvdodDto(avdod = null, avdodMor = AVDOD_MOR_FNR, avdodFar = AVDOD_FAR_FNR)
+
 //        every { mockPensjonClient.hentAltPaaVedtak(VEDTAK_ID) } returns mockPensjoninfo
+        every { pdlService.hentPerson(NorskIdent(AVDOD_FNR)) } returns barn
         every { pdlService.hentPerson(NorskIdent(AVDOD_MOR_FNR)) } returns avdodMor
         every { pdlService.hentPerson(NorskIdent(AVDOD_FAR_FNR)) } returns avdodFar
-        every { pdlService.hentPerson(AktoerId(AKTOERID)) } returns barn
+        every { pdlService.hentPerson(AktoerId(AKTOERID)) } returns avdodFar
 
         val actual = mvc.perform(
             get("/person/pdl/$AKTOERID/avdode/vedtak/$VEDTAK_ID")
@@ -233,7 +234,6 @@ class PersonPDLControllerTest {
     }
 
     @Test
-    @Disabled
     fun `getDeceased should return a list of one parent given a remaining, living child`() {
 //        val mockPensjoninfo = Pensjonsinformasjon()
 //        mockPensjoninfo.avdod = V1Avdod()
@@ -262,7 +262,7 @@ class PersonPDLControllerTest {
                     mockMeta()
                 ))
         )
-        every { pesysService.hentAvdod(any())} returns EessiFellesDto.EessiAvdodDto(avdod = AVDOD_FNR, avdodMor = null, avdodFar = null)
+        every { pesysService.hentAvdod(any())} returns EessiFellesDto.EessiAvdodDto(avdod = AVDOD_MOR_FNR, avdodMor = AVDOD_MOR_FNR, avdodFar = null)
 
 //        every { mockPensjonClient.hentAltPaaVedtak(VEDTAK_ID) } returns mockPensjoninfo
         every { pdlService.hentPerson(NorskIdent(AVDOD_MOR_FNR)) } returns avdodmor
@@ -283,7 +283,6 @@ class PersonPDLControllerTest {
     }
 
     @Test
-    @Disabled
     fun `getDeceased with npid should return a list of one parent given a remaining, living child`() {
         val npidGjenlevende = "01220049651"
 
@@ -316,7 +315,7 @@ class PersonPDLControllerTest {
         )
 
 //        every { mockPensjonClient.hentAltPaaVedtak(VEDTAK_ID) } returns mockPensjoninfo
-        every { pesysService.hentAvdod(any()) } returns EessiFellesDto.EessiAvdodDto(avdod = AVDOD_FNR, avdodMor = AVDOD_MOR_FNR, avdodFar = null)
+        every { pesysService.hentAvdod(any()) } returns EessiFellesDto.EessiAvdodDto(avdod = AVDOD_MOR_FNR, avdodMor = AVDOD_MOR_FNR, avdodFar = null)
         every { pdlService.hentPerson(NorskIdent(AVDOD_MOR_FNR)) } returns avdodmor
         every { pdlService.hentPerson(AktoerId(AKTOERID)) } returns barn
 
