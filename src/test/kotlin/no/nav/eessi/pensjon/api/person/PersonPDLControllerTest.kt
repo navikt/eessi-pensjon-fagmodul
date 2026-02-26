@@ -166,7 +166,6 @@ class PersonPDLControllerTest {
     }
 
     @Test
-    @Disabled
     fun `PDL getDeceased should return a list of deceased parents given a remaining, living child`() {
 //        val mockPensjoninfo = Pensjonsinformasjon()
 //        mockPensjoninfo.avdod = V1Avdod()
@@ -207,13 +206,11 @@ class PersonPDLControllerTest {
                 ForelderBarnRelasjon(AVDOD_MOR_FNR, Familierelasjonsrolle.MOR, Familierelasjonsrolle.BARN, mockMeta())
             )
         )
-        every { pesysService.hentAvdod(any())} returns EessiFellesDto.EessiAvdodDto(avdod = null, avdodMor = AVDOD_MOR_FNR, avdodFar = AVDOD_FAR_FNR)
+        every { pesysService.hentAvdod(VEDTAK_ID)} returns EessiFellesDto.EessiAvdodDto(avdod = null, avdodMor = AVDOD_MOR_FNR, avdodFar = AVDOD_FAR_FNR)
 
-//        every { mockPensjonClient.hentAltPaaVedtak(VEDTAK_ID) } returns mockPensjoninfo
-        every { pdlService.hentPerson(NorskIdent(AVDOD_FNR)) } returns barn
         every { pdlService.hentPerson(NorskIdent(AVDOD_MOR_FNR)) } returns avdodMor
         every { pdlService.hentPerson(NorskIdent(AVDOD_FAR_FNR)) } returns avdodFar
-        every { pdlService.hentPerson(AktoerId(AKTOERID)) } returns avdodFar
+        every { pdlService.hentPerson(AktoerId(AKTOERID)) } returns barn
 
         val actual = mvc.perform(
             get("/person/pdl/$AKTOERID/avdode/vedtak/$VEDTAK_ID")

@@ -97,7 +97,7 @@ class PersonPDLController(
                 logger.debug("pensjonInfo: ${it?.toJsonSkipEmpty()}")
             }
 
-            if (pensjonInfo?.avdod == null) {
+            if (pensjonInfo?.avdod.isNullOrEmpty() && pensjonInfo?.avdodFar.isNullOrEmpty() && pensjonInfo?.avdodMor.isNullOrEmpty()) {
                 logger.info("Ingen avdøde return empty list")
                 return@measure ResponseEntity.ok(FrontEndResponse(result = emptyList(), status = HttpStatus.OK.name))
             }
