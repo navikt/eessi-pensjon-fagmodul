@@ -45,6 +45,7 @@ class PrefillController(
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
     private val logger = LoggerFactory.getLogger(PrefillController::class.java)
+    private val secureLog = LoggerFactory.getLogger("secureLog")
 
     private  var addInstution: MetricsHelper.Metric
     private  var addInstutionAndDocument: MetricsHelper.Metric
@@ -164,7 +165,7 @@ class PrefillController(
         val sed = innhentingService.hentPreutyltSed(
             euxInnhentingService.checkForP7000AndAddP6000(requestMedGjenlevendeFnr),
             bucUtil.getProcessDefinitionVersion()
-        ).also { logger.debug("Prefill av SED: $it") }
+        ).also { secureLog.info("Prefill av SED: $it") }
 
         //Lagrer P6000 detaljer til GCP Storage
         try {
