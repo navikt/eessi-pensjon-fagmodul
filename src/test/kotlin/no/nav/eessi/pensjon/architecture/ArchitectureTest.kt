@@ -177,7 +177,7 @@ class ArchitectureTest {
     }
 
     @Test
-    @Disabled
+    @Disabled //TODO: Gjenny-kontroller skal endres slik at den ikke lenger benytter sedcontroller
     fun `RestControllers should not call each other`() {
         classes()
             .that().areAnnotatedWith(RestController::class.java)
