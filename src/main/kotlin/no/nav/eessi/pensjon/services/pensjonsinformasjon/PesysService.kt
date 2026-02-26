@@ -58,7 +58,9 @@ class PesysService(
         logger.debug("Henter pesys informasjon fra: $path (headers=${httpHeaders})")
 
         val entity = HttpEntity<Void>(httpHeaders)
-        return pesysClientRestTemplate.exchange(path, HttpMethod.GET, entity, T::class.java).body
+        return pesysClientRestTemplate
+            .exchange(path, HttpMethod.GET, entity, T::class.java).body
+            .also { logger.debug("Pesys response: $it") }
     }
 
     fun hentGyldigAvdod(avdod: EessiFellesDto.EessiAvdodDto?) : List<String>? {
