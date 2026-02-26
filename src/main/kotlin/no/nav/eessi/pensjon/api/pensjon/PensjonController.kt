@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializerProvider
 import no.nav.eessi.pensjon.eux.model.buc.SakStatus
+import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PesysService
@@ -22,10 +23,8 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.UUID
 import javax.xml.datatype.XMLGregorianCalendar
-import kotlin.text.get
 
 @Protected
 @RestController
@@ -33,6 +32,7 @@ import kotlin.text.get
 class PensjonController(
     private val pesysService: PesysService,
     private val auditlogger: AuditLogger,
+    private val innhentingService: InnhentingService,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
     private val logger = LoggerFactory.getLogger(PensjonController::class.java)
@@ -221,28 +221,23 @@ class PensjonController(
      * Brukes for å henter sakliste for aktoer fra journalføring
      */
     @GetMapping("/sakliste/{aktoerId}")
-    fun hentPensjonSakIder(@PathVariable("aktoerId", required = true) aktoerId: String): List<PensjonSak> {
-        return pensjonControllerHentSakListe.measure {
-            logger.info("henter sakliste for aktoer: $aktoerId")
-            return@measure try {
-                val brukersSakerListe = pesysService.hentSakListe(aktoerId)
-//                val brukersSakerListe = pensjonInformasjon
-                if (brukersSakerListe.isNullOrEmpty()) {
-                    logger.error("Ingen brukersSakerListe funnet i pensjoninformasjon for aktoer: $aktoerId")
-                    throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Ingen brukersSakerListe funnet i pensjoninformasjon for aktoer: $aktoerId")
-                }
-                    brukersSakerListe.map { sak ->
-                        logger.debug("PensjonSak for journalføring: sakId: ${sak.sakId} sakType: ${sak.sakType} sakStatus: ${sak.sakStatus} ")
-                        PensjonSak(sak.sakId, sak.sakType.name, SakStatus.from(sak.sakStatus.name))
-                    }
-//                brukersSakerListe.map { sak ->
-//                    logger.debug("PensjonSak for journalføring: sakId: ${sak.sakId} sakType: ${sak.sakType} sakStatus: ${sak.status} ")
-//                    PensjonSak(sak.sakId.toString(), sak.sakType, SakStatus.from(sak.status))
-//                }
-            } catch (ex: Exception) {
-                logger.warn("Ingen pensjoninformasjon kunne hentes", ex)
-                listOf()
+    fun hentPensjonSakIder(@PathVariable aktoerId: String): List<PensjonSak> = pensjonControllerHentSakListe.measure {
+        logger.info("Henter sakliste for aktoer: $aktoerId")
+        try {
+            val fnr = innhentingService.hentFnrfraAktoerService(aktoerId)
+                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Fant ikke fnr for aktoerId: $aktoerId")
+            val brukersSakerListe = pesysService.hentSakListe(fnr.id)
+            if (brukersSakerListe.isEmpty()) {
+                logger.error("Ingen brukersSakerListe funnet i pensjoninformasjon for aktoer: $aktoerId")
+                throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Ingen brukersSakerListe funnet i pensjoninformasjon for aktoer: $aktoerId")
             }
+            brukersSakerListe.map { sak ->
+                logger.debug("PensjonSak for journalføring: sakId: ${sak.sakId} sakType: ${sak.sakType} sakStatus: ${sak.sakStatus}")
+                PensjonSak(sak.sakId, sak.sakType.name, SakStatus.from(sak.sakStatus.name))
+            }
+        } catch (ex: Exception) {
+            logger.warn("Ingen pensjoninformasjon kunne hentes", ex)
+            emptyList()
         }
     }
 }

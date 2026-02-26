@@ -9,7 +9,10 @@ import no.nav.eessi.pensjon.eux.model.buc.SakStatus
 import no.nav.eessi.pensjon.eux.model.buc.SakStatus.*
 import no.nav.eessi.pensjon.eux.model.buc.SakType.ALDER
 import no.nav.eessi.pensjon.eux.model.buc.SakType.UFOREP
+import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.logging.AuditLogger
+import no.nav.eessi.pensjon.personoppslag.pdl.model.Ident
+import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.EessiFellesDto
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PesysService
 import no.nav.eessi.pensjon.utils.mapJsonToAny
@@ -18,12 +21,8 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.CsvSource
 import org.skyscreamer.jsonassert.JSONAssert
 import org.slf4j.MDC
-import org.springframework.boot.test.context.TestConfiguration
-import org.springframework.context.annotation.Bean
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
@@ -31,8 +30,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import java.time.LocalDate
 import java.util.*
-import javax.xml.datatype.DatatypeFactory
-import javax.xml.datatype.XMLGregorianCalendar
 
 private const val AKTOERID = "1234567890123"
 private const val SOME_SAKID = "10000"
@@ -45,12 +42,13 @@ class PensjonControllerTest {
 
 //    private var pensjonsinformasjonClient: PensjonsinformasjonClient = mockk()
     private var pesysService: PesysService = mockk()
+    private var innhentingService: InnhentingService = mockk()
 
     @SpyK
     private var auditLogger: AuditLogger = AuditLogger()
 
     @InjectMockKs
-    private val controller = PensjonController(pesysService, auditLogger)
+    private val controller = PensjonController(pesysService, auditLogger, innhentingService)
     private val mockMvc = MockMvcBuilders.standaloneSetup(controller).build()
 
     @BeforeEach
@@ -99,7 +97,7 @@ class PensjonControllerTest {
 
     @Test
     fun `Gitt det finnes pensjonsak paa aktoer saa skal det returneres en liste over alle saker til aktierid`() {
-
+        every { innhentingService.hentFnrfraAktoerService(any()) } returns NorskIdent(AKTOERID)
         val saker = listOf(
             EessiFellesDto.PensjonSakDto(
                 "1010",
@@ -207,7 +205,7 @@ class PensjonControllerTest {
         val mockVedtakid = SOME_VEDTAK_ID
 //        val mockClient = fraFil("BARNEP-PlukkBestOpptjening.xml")
 
-        val mockController = PensjonController(PesysService(mockk()), auditLogger)
+        val mockController = PensjonController(PesysService(mockk()), auditLogger, innhentingService)
         val mockMvc2 = MockMvcBuilders.standaloneSetup(mockController).build()
 
         val result = mockMvc2.perform(
