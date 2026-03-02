@@ -161,4 +161,4 @@ spec:
       memory: 2Gi
     requests:
       cpu: 600m
-      memory: 1250Mi
+      memory: 1500Mi
