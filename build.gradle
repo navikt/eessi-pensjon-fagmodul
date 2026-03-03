@@ -2,11 +2,11 @@ buildscript {
 
     ext {
         kotlinVersion = '2.3.10'
-        springBootVersion = '4.0.2'
-        springKafkaVersion = '4.0.2'
+        springBootVersion = '4.0.3'
+        springKafkaVersion = '4.0.3'
         springfoxVersion = '3.0.0'
-        tokenSupportVersion = '6.0.2'
-        jacksonModuleKotlinVersion = '2.21.0'
+        tokenSupportVersion = '6.0.3'
+        jacksonModuleKotlinVersion = '2.21.1'
     }
 }
 
@@ -47,7 +47,7 @@ dependencies {
 
 
     // Spring Framework BOM-fil overstyrer så vi får siste patch-versjon av Spring Framework
-    implementation(platform("org.springframework:spring-framework-bom:7.0.3"))
+    implementation(platform("org.springframework:spring-framework-bom:7.0.5"))
 
     implementation("org.yaml:snakeyaml:2.5") // Pga https://security.snyk.io/package/maven/org.yaml:snakeyaml
 
@@ -70,7 +70,7 @@ dependencies {
     implementation("org.springframework.kafka:spring-kafka:${springKafkaVersion}")
 
     //GCP
-    implementation("com.google.cloud:google-cloud-storage:2.62.1")
+    implementation("com.google.cloud:google-cloud-storage:2.63.0")
 
     implementation("no.nav.eessi.pensjon:ep-metrics:3.0.15")
     implementation("no.nav.eessi.pensjon:ep-logging:3.0.20")
