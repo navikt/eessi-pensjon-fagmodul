@@ -220,16 +220,16 @@ class PensjonController(
     /**
      * Brukes for å henter sakliste for aktoer fra journalføring
      */
-    @GetMapping("/sakliste/{aktoerId}")
-    fun hentPensjonSakIder(@PathVariable aktoerId: String): List<PensjonSak> = pensjonControllerHentSakListe.measure {
-        logger.info("Henter sakliste for aktoer: $aktoerId")
+    @GetMapping("/sakliste/{fnr}")
+    fun hentPensjonSakIder(@PathVariable fnr: String): List<PensjonSak> = pensjonControllerHentSakListe.measure {
+        logger.info("Henter sakliste for aktoer: $fnr")
         try {
-            val fnr = innhentingService.hentFnrfraAktoerService(aktoerId)
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Fant ikke fnr for aktoerId: $aktoerId")
-            val brukersSakerListe = pesysService.hentSakListe(fnr.id)
+//            val fnr = innhentingService.hentFnrfraAktoerService(fnr)
+//                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Fant ikke fnr for aktoerId: $fnr")
+            val brukersSakerListe = pesysService.hentSakListe(fnr)
             if (brukersSakerListe.isEmpty()) {
-                logger.error("Ingen brukersSakerListe funnet i pensjoninformasjon for aktoer: $aktoerId")
-                throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Ingen brukersSakerListe funnet i pensjoninformasjon for aktoer: $aktoerId")
+                logger.error("Ingen brukersSakerListe funnet i pensjoninformasjon for aktoer: $fnr")
+                throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Ingen brukersSakerListe funnet i pensjoninformasjon for aktoer: $fnr")
             }
             brukersSakerListe.map { sak ->
                 logger.debug("PensjonSak for journalføring: sakId: ${sak.sakId} sakType: ${sak.sakType} sakStatus: ${sak.sakStatus}")
