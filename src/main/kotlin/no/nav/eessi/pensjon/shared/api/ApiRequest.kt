@@ -133,6 +133,6 @@ data class ApiRequest(
 class KravTypeDeserializer : JsonDeserializer<KravType>() {
     override fun deserialize(p: JsonParser, ctxt: DeserializationContext?): KravType? {
         val value = p.text
-        return KravType.fraNavnEllerVerdi(value)
+        return KravType.fromValue(value)
     }
 }
