@@ -14,7 +14,7 @@ import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.fagmodul.prefill.klient.PrefillKlient
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
-import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonService
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.PesysService
 import no.nav.eessi.pensjon.shared.api.ApiRequest
 import no.nav.eessi.pensjon.utils.mapAnyToJson
 import no.nav.eessi.pensjon.utils.mapJsonToAny
@@ -38,13 +38,13 @@ class SedControllerTest {
     lateinit var vedleggService: VedleggService
 
     @MockK
-    lateinit var pensjonsinformasjonService: PensjonsinformasjonService
-
-    @MockK
     lateinit var personService: PersonService
 
     @MockK
     lateinit var prefillKlient: PrefillKlient
+
+    @MockK
+    lateinit var pesysService: PesysService
 
     @MockK
     lateinit var gcpStorageService: GcpStorageService
@@ -54,7 +54,7 @@ class SedControllerTest {
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this, relaxed = true)
-        InnhentingService(personService, vedleggService, prefillKlient, pensjonsinformasjonService)
+        InnhentingService(personService, vedleggService, prefillKlient, pesysService)
 
         this.sedController = SedController(
             mockEuxInnhentingService,

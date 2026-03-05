@@ -17,17 +17,18 @@ import no.nav.eessi.pensjon.eux.model.sed.*
 import no.nav.eessi.pensjon.fagmodul.api.FrontEndResponse
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.logging.AuditLogger
-import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
+//import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonoppslagException
 import no.nav.eessi.pensjon.personoppslag.pdl.model.*
-import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonService
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.EessiFellesDto
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.PesysService
 import no.nav.eessi.pensjon.shared.person.FodselsnummerGenerator
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
-import no.nav.pensjon.v1.avdod.V1Avdod
-import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
-import no.nav.pensjon.v1.person.V1Person
+//import no.nav.pensjon.v1.avdod.V1Avdod
+//import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
+//import no.nav.pensjon.v1.person.V1Person
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
@@ -44,6 +45,7 @@ import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.web.client.RestTemplate
 import java.time.LocalDate
 import java.time.LocalDateTime
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Metadata as PDLMetaData
@@ -59,7 +61,6 @@ private const val AVDOD_FAR_FNR = "101020223123"
 private const val GJENLEVENDE_FNR = "13057065487"
 
 @WebMvcTest(PersonPDLController::class)
-@ContextConfiguration(classes = [PersonPDLControllerTest.Config::class])
 @ComponentScan(basePackages = ["no.nav.eessi.pensjon.api.person"])
 @ActiveProfiles("unsecured-webmvctest")
 class PersonPDLControllerTest {
@@ -75,27 +76,42 @@ class PersonPDLControllerTest {
 
     @MockkBean
     lateinit var euxService: EuxInnhentingService
+//
+//    @Autowired
+    @MockkBean
+    lateinit var pesysService: PesysService
 
-    @Autowired
-    lateinit var mockPensjonClient: PensjonsinformasjonClient
-
-    @TestConfiguration
-    class Config {
-        @Bean
-        fun mockPensjonClient(): PensjonsinformasjonClient {
-            return mockk(relaxed = true)
-        }
-
-        @Bean
-        fun pensjonsinformasjonService(): PensjonsinformasjonService {
-            return PensjonsinformasjonService(mockPensjonClient())
-        }
-    }
+//    @Autowired
+//@MockkBean
+//    var pesysClientRestTemplate: RestTemplate = mockk()
+//
+//
+//    @TestConfiguration
+//    class Config {
+//        @Bean
+//        fun pesysClientRestTemplate(): RestTemplate {
+//            return mockk(relaxed = true)
+//        }
+//
+//        @Bean
+//        fun pesysService(): PesysService {
+//            return PesysService(mockk())
+//        }
+//    }
 
     @BeforeEach
     fun before() {
         MockKAnnotations.init(this, relaxed = true, relaxUnitFun = true)
         justRun { auditLogger.log(any(), any()) }
+//        every {
+//            pesysClientRestTemplate.exchange(
+//                any<String>(),
+//                any(),
+//                any(),
+//                EessiFellesDto.EessiAvdodDto::class.java,
+//                any<Array<Any>>()
+//            )
+//        } returns mockk(relaxed = true)
     }
 
     @Test
@@ -112,7 +128,6 @@ class PersonPDLControllerTest {
     }
 
     @Test
-    @Disabled
     fun `getPerson should return Person as json`() {
         every { pdlService.hentPerson(any()) } returns lagPerson(etternavn = "NORDMANN", fornavn = "OLA")
         val response = mvc.perform(
@@ -122,7 +137,7 @@ class PersonPDLControllerTest {
             .andReturn().response
         val result = mapJsonToAny<FrontEndResponse<*>>(
             response.getContentAsString(charset("UTF-8"))).result
-        JSONAssert.assertEquals(personResponseAsJson3, result as String, false)
+        JSONAssert.assertEquals(personResponseAsJson3, result?.toJson(), false)
     }
 
     @Test
@@ -152,12 +167,12 @@ class PersonPDLControllerTest {
 
     @Test
     fun `PDL getDeceased should return a list of deceased parents given a remaining, living child`() {
-        val mockPensjoninfo = Pensjonsinformasjon()
-        mockPensjoninfo.avdod = V1Avdod()
-        mockPensjoninfo.person = V1Person()
-        mockPensjoninfo.avdod.avdodMor = AVDOD_MOR_FNR
-        mockPensjoninfo.avdod.avdodFar = AVDOD_FAR_FNR
-        mockPensjoninfo.person.aktorId = AKTOERID
+//        val mockPensjoninfo = Pensjonsinformasjon()
+//        mockPensjoninfo.avdod = V1Avdod()
+//        mockPensjoninfo.person = V1Person()
+//        mockPensjoninfo.avdod.avdodMor = AVDOD_MOR_FNR
+//        mockPensjoninfo.avdod.avdodFar = AVDOD_FAR_FNR
+//        mockPensjoninfo.person.aktorId = AKTOERID
 
         val avdodMor = lagPerson(
             AVDOD_MOR_FNR, "Fru", "Blyant",
@@ -191,7 +206,8 @@ class PersonPDLControllerTest {
                 ForelderBarnRelasjon(AVDOD_MOR_FNR, Familierelasjonsrolle.MOR, Familierelasjonsrolle.BARN, mockMeta())
             )
         )
-        every { mockPensjonClient.hentAltPaaVedtak(VEDTAK_ID) } returns mockPensjoninfo
+        every { pesysService.hentAvdod(VEDTAK_ID)} returns EessiFellesDto.EessiAvdodDto(avdod = null, avdodMor = AVDOD_MOR_FNR, avdodFar = AVDOD_FAR_FNR)
+
         every { pdlService.hentPerson(NorskIdent(AVDOD_MOR_FNR)) } returns avdodMor
         every { pdlService.hentPerson(NorskIdent(AVDOD_FAR_FNR)) } returns avdodFar
         every { pdlService.hentPerson(AktoerId(AKTOERID)) } returns barn
@@ -216,11 +232,11 @@ class PersonPDLControllerTest {
 
     @Test
     fun `getDeceased should return a list of one parent given a remaining, living child`() {
-        val mockPensjoninfo = Pensjonsinformasjon()
-        mockPensjoninfo.avdod = V1Avdod()
-        mockPensjoninfo.person = V1Person()
-        mockPensjoninfo.avdod.avdodMor = AVDOD_MOR_FNR
-        mockPensjoninfo.person.aktorId = AKTOERID
+//        val mockPensjoninfo = Pensjonsinformasjon()
+//        mockPensjoninfo.avdod = V1Avdod()
+//        mockPensjoninfo.person = V1Person()
+//        mockPensjoninfo.avdod.avdodMor = AVDOD_MOR_FNR
+//        mockPensjoninfo.person.aktorId = AKTOERID
 
         val avdodmor = lagPerson(
             AVDOD_MOR_FNR, "Stor", "Blyant",
@@ -243,8 +259,9 @@ class PersonPDLControllerTest {
                     mockMeta()
                 ))
         )
+        every { pesysService.hentAvdod(any())} returns EessiFellesDto.EessiAvdodDto(avdod = AVDOD_MOR_FNR, avdodMor = AVDOD_MOR_FNR, avdodFar = null)
 
-        every { mockPensjonClient.hentAltPaaVedtak(VEDTAK_ID) } returns mockPensjoninfo
+//        every { mockPensjonClient.hentAltPaaVedtak(VEDTAK_ID) } returns mockPensjoninfo
         every { pdlService.hentPerson(NorskIdent(AVDOD_MOR_FNR)) } returns avdodmor
         every { pdlService.hentPerson(AktoerId(AKTOERID)) } returns barn
 
@@ -266,11 +283,11 @@ class PersonPDLControllerTest {
     fun `getDeceased with npid should return a list of one parent given a remaining, living child`() {
         val npidGjenlevende = "01220049651"
 
-        val mockPensjoninfo = Pensjonsinformasjon()
-        mockPensjoninfo.avdod = V1Avdod()
-        mockPensjoninfo.person = V1Person()
-        mockPensjoninfo.avdod.avdodMor = AVDOD_MOR_FNR
-        mockPensjoninfo.person.aktorId = AKTOERID
+//        val mockPensjoninfo = Pensjonsinformasjon()
+//        mockPensjoninfo.avdod = V1Avdod()
+//        mockPensjoninfo.person = V1Person()
+//        mockPensjoninfo.avdod.avdodMor = AVDOD_MOR_FNR
+//        mockPensjoninfo.person.aktorId = AKTOERID
 
         val avdodmor = lagPerson(
             AVDOD_MOR_FNR, "Stor", "Blyant",
@@ -294,7 +311,8 @@ class PersonPDLControllerTest {
                 ))
         )
 
-        every { mockPensjonClient.hentAltPaaVedtak(VEDTAK_ID) } returns mockPensjoninfo
+//        every { mockPensjonClient.hentAltPaaVedtak(VEDTAK_ID) } returns mockPensjoninfo
+        every { pesysService.hentAvdod(any()) } returns EessiFellesDto.EessiAvdodDto(avdod = AVDOD_MOR_FNR, avdodMor = AVDOD_MOR_FNR, avdodFar = null)
         every { pdlService.hentPerson(NorskIdent(AVDOD_MOR_FNR)) } returns avdodmor
         every { pdlService.hentPerson(AktoerId(AKTOERID)) } returns barn
 
@@ -314,12 +332,12 @@ class PersonPDLControllerTest {
 
     @Test
     fun `getDeceased should return an empty list when both partents are alive`() {
-        val mockPensjoninfo = Pensjonsinformasjon()
-        mockPensjoninfo.person = V1Person()
-        mockPensjoninfo.person.aktorId = AKTOERID
+//        val mockPensjoninfo = Pensjonsinformasjon()
+//        mockPensjoninfo.person = V1Person()
+//        mockPensjoninfo.person.aktorId = AKTOERID
 
-        every { mockPensjonClient.hentAltPaaVedtak(VEDTAK_ID) } returns mockPensjoninfo
-
+//        every { mockPensjonClient.hentAltPaaVedtak(VEDTAK_ID) } returns mockPensjoninfo
+        every { pesysService.hentAvdod(any()) } returns null
         val barn = lagPerson(
             GJENLEVENDE_FNR, "Liten", "Blyant",
             listOf(
@@ -346,12 +364,13 @@ class PersonPDLControllerTest {
 
     @Test
     fun `Dodsdato sjekk for sjekk om vedtak inneholder avdod hvis null return tom liste`() {
-        val pen = Pensjonsinformasjon()
-        val penavdod = V1Avdod()
-        pen.avdod = penavdod
-
-        every { mockPensjonClient.hentAltPaaVedtak(any()) } returns pen
-
+//        val pen = Pensjonsinformasjon()
+//        val penavdod = V1Avdod()
+//        pen.avdod = penavdod
+//
+//        every { mockPensjonClient.hentAltPaaVedtak(any()) } returns pen
+        every { pesysService.hentAvdod(any()) } returns null
+        every { pesysService.hentGyldigAvdod(any()) } returns null
         val result = mvc.perform(
             get("/person/vedtak/$VEDTAK_ID/buc/$RINA_NR/avdodsdato")
             .contentType(MediaType.APPLICATION_JSON)
@@ -365,12 +384,13 @@ class PersonPDLControllerTest {
     @Test
     fun `avdodsdato sjekk for vedtak inneholder en avdod returneres den`() {
         val doedsPerson = lagPerson(AVDOD_FNR).copy(doedsfall = Doedsfall(LocalDate.of(2020, 6, 20), null, mockMeta()))
-        val pen = Pensjonsinformasjon()
-        val penavdod = V1Avdod()
-        penavdod.avdod = AVDOD_FNR
-        pen.avdod = penavdod
+//        val pen = Pensjonsinformasjon()
+//        val penavdod = V1Avdod()
+//        penavdod.avdod = AVDOD_FNR
+//        pen.avdod = penavdod
 
-        every { mockPensjonClient.hentAltPaaVedtak(any()) } returns pen
+        every { pesysService.hentAvdod(any())} returns EessiFellesDto.EessiAvdodDto(avdod = AVDOD_FNR, avdodMor = null, avdodFar = null)
+        every { pesysService.hentGyldigAvdod(any()) } returns listOf("18077443335")
         every { pdlService.hentPerson(any()) } returns doedsPerson
 
         val result = mvc.perform(
@@ -409,15 +429,18 @@ class PersonPDLControllerTest {
             documents = listOf(DocumentsItem(id = documentid, direction = "OUT", type = SedType.P2100))
         )
 
-        val pen = Pensjonsinformasjon()
-        val penavdod = V1Avdod()
-        penavdod.avdodMor = AVDOD_FNR
-        penavdod.avdodFar = avdodfnr2
-        pen.avdod = penavdod
+//        val pen = Pensjonsinformasjon()
+//        val penavdod = V1Avdod()
+//        penavdod.avdodMor = AVDOD_FNR
+//        penavdod.avdodFar = avdodfnr2
+//        pen.avdod = penavdod
+
+        every { pesysService.hentAvdod(any()) } returns EessiFellesDto.EessiAvdodDto(avdod = AVDOD_FNR, avdodMor = null, avdodFar = null)
+        every { pesysService.hentGyldigAvdod(any()) } returns listOf(AVDOD_FNR)
 
         every { euxService.getBuc(any()) } returns buc
         every { euxService.getSedOnBucByDocumentId(any(), any()) } returns sedP2100
-        every { mockPensjonClient.hentAltPaaVedtak(any()) } returns pen
+//        every { mockPensjonClient.hentAltPaaVedtak(any()) } returns pen
         every { pdlService.hentPerson(any()) } returns doedsPerson
 
         val result = mvc.perform(
@@ -445,15 +468,17 @@ class PersonPDLControllerTest {
             documents = listOf(DocumentsItem(id = documentid, direction = "OUT", type = SedType.P2100))
         )
 
-        val pen = Pensjonsinformasjon()
-        val penavdod = V1Avdod()
-        penavdod.avdodMor = avdodfnr
-        penavdod.avdodFar = avdodfnr2
-        pen.avdod = penavdod
+//        val pen = Pensjonsinformasjon()
+//        val penavdod = V1Avdod()
+//        penavdod.avdodMor = avdodfnr
+//        penavdod.avdodFar = avdodfnr2
+//        pen.avdod = penavdod
+        every { pesysService.hentAvdod(any())} returns EessiFellesDto.EessiAvdodDto(avdod = AVDOD_FNR, avdodMor = null, avdodFar = null)
+        every { pesysService.hentGyldigAvdod(any())} returns listOf(avdodfnr, avdodfnr2)
 
         every { euxService.getBuc(any()) } returns buc
         every { euxService.getSedOnBucByDocumentId(any(), any()) } returns sedP2100
-        every { mockPensjonClient.hentAltPaaVedtak(any()) } returns pen
+//        every { mockPensjonClient.hentAltPaaVedtak(any()) } returns pen
         every { pdlService.hentPerson(any()) } returns doedsPerson
 
         val result = mvc.perform(
@@ -500,15 +525,18 @@ class PersonPDLControllerTest {
             documents = listOf(DocumentsItem(id = documentid, direction = "OUT", type = SedType.P5000))
         )
 
-        val pen = Pensjonsinformasjon()
-        val penavdod = V1Avdod()
-        penavdod.avdodMor = AVDOD_FNR
-        penavdod.avdodFar = avdodfnr2
-        pen.avdod = penavdod
+//        val pen = Pensjonsinformasjon()
+//        val penavdod = V1Avdod()
+//        penavdod.avdodMor = AVDOD_FNR
+//        penavdod.avdodFar = avdodfnr2
+//        pen.avdod = penavdod
+
+        every { pesysService.hentAvdod(any()) } returns EessiFellesDto.EessiAvdodDto(avdod = AVDOD_FNR, avdodMor = null, avdodFar = null)
+        every { pesysService.hentGyldigAvdod(any()) } returns listOf(AVDOD_FNR)
 
         every { euxService.getBuc(any()) } returns buc
         every { euxService.getSedOnBucByDocumentId(any(), any()) } returns sedP5000
-        every { mockPensjonClient.hentAltPaaVedtak(any()) } returns pen
+//        every { mockPensjonClient.hentAltPaaVedtak(any()) } returns pen
         every { pdlService.hentPerson(any()) } returns doedsPerson
 
         val result = mvc.perform(

@@ -170,7 +170,7 @@ class PrefillController(
         //Lagrer P6000 detaljer til GCP Storage
         try {
             if(request.sed == SedType.P7000) {
-                logger.info("Lagerer P6000: ${request.payload}")
+                logger.info("Lagerer P6000: buc: ${request.buc}, rinaId: ${request.euxCaseId}, sakId: ${request.sakId}, euxCaseId: ${request.documentid}")
                 request.payload?.let { mapJsonToAny<List<P6000Dokument>>(it) }?.let { listeOverP6000 ->
                     gcpStorageService.lagretilBackend(
                         P6000Detaljer(

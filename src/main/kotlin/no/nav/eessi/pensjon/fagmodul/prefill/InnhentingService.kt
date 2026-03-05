@@ -10,11 +10,11 @@ import no.nav.eessi.pensjon.personoppslag.pdl.model.Ident
 import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentGruppe.*
 import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Npid
-import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonService
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.EessiFellesDto
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.PesysService
 import no.nav.eessi.pensjon.shared.api.ApiRequest
 import no.nav.eessi.pensjon.shared.person.Fodselsnummer
 import no.nav.eessi.pensjon.vedlegg.VedleggService
-import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
@@ -27,7 +27,7 @@ class InnhentingService(
     private val personService: PersonService,
     private val vedleggService: VedleggService,
     private val prefillKlient: PrefillKlient,
-    private val pensjonsinformasjonService: PensjonsinformasjonService,
+    private val pesysService: PesysService,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
     private  var hentPerson: MetricsHelper.Metric
@@ -97,9 +97,9 @@ class InnhentingService(
     fun hentPreutyltSed(apiRequest: ApiRequest, processDefinitionVersion: String): String =
         prefillKlient.hentPreutfyltSed(apiRequest.copy(processDefinitionVersion = processDefinitionVersion))
 
-    fun hentPensjoninformasjonVedtak(vedtakId: String) = pensjonsinformasjonService.hentAltPaaVedtak(vedtakId)
+    fun hentPensjoninformasjonVedtak(vedtakId: String) = pesysService.hentAvdod(vedtakId)
 
-    fun hentAvdodeFnrfraPensjoninformasjon(pensjoninformasjon: Pensjonsinformasjon): List<String>? =
-        pensjonsinformasjonService.hentGyldigAvdod(pensjoninformasjon)
+    fun hentAvdodeFnrfraPensjoninformasjon(pensjoninformasjon: EessiFellesDto.EessiAvdodDto): List<String>? =
+        pesysService.hentGyldigAvdod(pensjoninformasjon)
 
 }
