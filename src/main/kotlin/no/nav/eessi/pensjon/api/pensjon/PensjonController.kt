@@ -3,10 +3,10 @@ package no.nav.eessi.pensjon.api.pensjon
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializerProvider
-import no.nav.eessi.pensjon.eux.model.buc.SakStatus
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.EessiPensjonSak
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PesysService
 import no.nav.eessi.pensjon.utils.errorBody
 import no.nav.eessi.pensjon.utils.toJson
@@ -221,29 +221,18 @@ class PensjonController(
      * Brukes for å henter sakliste for aktoer fra journalføring
      */
     @GetMapping("/sakliste/{fnr}")
-    fun hentPensjonSakIder(@PathVariable fnr: String): List<PensjonSak> = pensjonControllerHentSakListe.measure {
+    fun hentPensjonSakIder(@PathVariable fnr: String): List<EessiPensjonSak> = pensjonControllerHentSakListe.measure {
         logger.info("Henter sakliste for aktoer: $fnr")
         try {
-//            val fnr = innhentingService.hentFnrfraAktoerService(fnr)
-//                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Fant ikke fnr for aktoerId: $fnr")
             val brukersSakerListe = pesysService.hentSakListe(fnr)
             if (brukersSakerListe.isEmpty()) {
                 logger.error("Ingen brukersSakerListe funnet i pensjoninformasjon for aktoer: $fnr")
                 throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Ingen brukersSakerListe funnet i pensjoninformasjon for aktoer: $fnr")
             }
-            brukersSakerListe.map { sak ->
-                logger.debug("PensjonSak for journalføring: sakId: ${sak.sakId} sakType: ${sak.sakType} sakStatus: ${sak.sakStatus}")
-                PensjonSak(sak.sakId, sak.sakType.name, SakStatus.from(sak.sakStatus.name))
-            }
+            brukersSakerListe
         } catch (ex: Exception) {
             logger.warn("Ingen pensjoninformasjon kunne hentes", ex)
             emptyList()
         }
     }
 }
-
-class PensjonSak (
-        val sakId: String,
-        val sakType: String,
-        val sakStatus: SakStatus
-)

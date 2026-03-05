@@ -6,12 +6,10 @@ import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.server.ResponseStatusException
+import tools.jackson.databind.ObjectMapper
 import java.time.LocalDate
 
 @Service
@@ -36,11 +34,23 @@ class PesysService(
             "/sak/$sakId/saktype",
         )
 
-    fun hentSakListe(fnr: String?): List<EessiFellesDto.PensjonSakDto> =
-            getWithHeaders(
-                "/bruker/sakliste",
-                "fnr" to fnr,
-            ) ?: emptyList()
+    fun hentSakListe(fnr: String?): List<EessiPensjonSak> {
+        val response = getWithHeaders<Any>(
+            "/bruker/sakliste",
+            "fnr" to fnr,
+        ) ?: return emptyList()
+
+        return when (response) {
+            is List<*> -> response.mapNotNull {
+                when (it) {
+                    is EessiPensjonSak -> it
+                    is Map<*, *> -> ObjectMapper().convertValue(it, EessiPensjonSak::class.java)
+                    else -> null
+                }
+            }
+            else -> emptyList()
+        }.also { logger.info("HentSakListe: $it") }
+    }
 
     fun hentUfoeretidspunktOnVedtak(vedtakId: String?): EessiFellesDto.EessiUfoeretidspunktDto? =
         getWithHeaders("/vedtak/$vedtakId/ufoeretidspunkt")

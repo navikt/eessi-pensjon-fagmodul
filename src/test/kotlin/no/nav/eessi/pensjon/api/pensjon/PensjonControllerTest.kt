@@ -7,13 +7,11 @@ import io.mockk.mockk
 import io.mockk.verify
 import no.nav.eessi.pensjon.eux.model.buc.SakStatus
 import no.nav.eessi.pensjon.eux.model.buc.SakStatus.*
-import no.nav.eessi.pensjon.eux.model.buc.SakType.ALDER
-import no.nav.eessi.pensjon.eux.model.buc.SakType.UFOREP
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.logging.AuditLogger
-import no.nav.eessi.pensjon.personoppslag.pdl.model.Ident
 import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.EessiFellesDto
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.EessiPensjonSak
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PesysService
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
@@ -99,12 +97,12 @@ class PensjonControllerTest {
     fun `Gitt det finnes pensjonsak paa aktoer saa skal det returneres en liste over alle saker til aktierid`() {
         every { innhentingService.hentFnrfraAktoerService(any()) } returns NorskIdent(AKTOERID)
         val saker = listOf(
-            EessiFellesDto.PensjonSakDto(
+            EessiPensjonSak(
                 "1010",
                 EessiFellesDto.EessiSakType.ALDER,
                 EessiFellesDto.EessiSakStatus.INNV
             ),
-            EessiFellesDto.PensjonSakDto(
+            EessiPensjonSak(
                 "2020",
                 EessiFellesDto.EessiSakType.UFOREP,
                 EessiFellesDto.EessiSakStatus.AVSL
@@ -117,12 +115,12 @@ class PensjonControllerTest {
         verify { pesysService.hentSakListe(AKTOERID) }
 
         assertEquals(2, result.size)
-        val expected1 = PensjonSak("1010", ALDER.name, LOPENDE)
+        val expected1 = EessiPensjonSak("1010", EessiFellesDto.EessiSakType.ALDER, EessiFellesDto.EessiSakStatus.INNV)
         assertEquals(expected1.toJson(), result.first().toJson())
-        val expected2 = PensjonSak("2020", UFOREP.name, AVSLUTTET)
+        val expected2 = EessiPensjonSak("2020", EessiFellesDto.EessiSakType.UFOREP, EessiFellesDto.EessiSakStatus.AVSL)
         assertEquals(expected2.toJson(), result.last().toJson())
 
-        assertEquals(AVSLUTTET, expected2.sakStatus)
+        assertEquals(EessiFellesDto.EessiSakStatus.AVSL, expected2.sakStatus)
     }
 
     @Test
