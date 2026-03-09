@@ -9,6 +9,7 @@ import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.EessiPensjonSak
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PesysService
 import no.nav.eessi.pensjon.utils.errorBody
+import no.nav.eessi.pensjon.utils.mapAnyToJson
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import no.nav.security.token.support.core.api.Protected
@@ -23,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDate
-import java.util.UUID
+import java.util.*
 import javax.xml.datatype.XMLGregorianCalendar
 
 @Protected
@@ -59,7 +60,7 @@ class PensjonController(
             try {
                 logger.info("Henter sakstype på $sakId / $aktoerId")
                 pesysService.hentSaktype(sakId)?.let {
-                    ResponseEntity.ok(it.name)
+                    ResponseEntity.ok(mapAnyToJson(Pensjontype(sakId, it.name)))
                 } ?: ResponseEntity.status(HttpStatus.NOT_FOUND).body("Sakstype ikke funnet for sakId: $sakId")
             } catch (e: Exception) {
                 logger.warn("Feil ved henting av sakstype på saksid: $sakId")
@@ -67,6 +68,11 @@ class PensjonController(
             }
         }
     }
+
+    data class Pensjontype(
+        val sakId: String,
+        val sakType: String
+    )
 
     /**
      * Brukes for å hente kravdato fra frontend / EP
