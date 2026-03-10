@@ -77,7 +77,7 @@ class PensjonsinformasjonUtlandController(
 
     @PostMapping("/hentTrygdetidV2")
     fun hentTrygdetidV2(@RequestBody request: TrygdetidRequest): TrygdetidForPesys {
-        logger.debug("Henter trygdetid for fnr: ${request.fnr.takeLast(4)}, rinaNr: ${request.rinaNr}")
+        logger.info("Henter trygdetid for fnr: ${request.fnr.takeLast(4)}, rinaNr: ${request.rinaNr}")
         return trygdeTidMetric.measure {
                 runCatching { trygdeTidService.hentBucFraEux(request.rinaNr, request.fnr) }
                     .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
