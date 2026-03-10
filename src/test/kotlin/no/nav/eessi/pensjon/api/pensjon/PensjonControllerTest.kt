@@ -38,7 +38,6 @@ private const val KRAV_ID = "345345"
 @Suppress("DEPRECATION") // hentKunSakType / hentAltPaaAktoerId
 class PensjonControllerTest {
 
-//    private var pensjonsinformasjonClient: PensjonsinformasjonClient = mockk()
     private var pesysService: PesysService = mockk()
     private var innhentingService: InnhentingService = mockk()
 
