@@ -56,7 +56,7 @@ class PensjonsinformasjonUtlandController(
 
     @PostMapping("/hentTrygdetid")
     fun hentTrygdetid(@RequestBody request: TrygdetidRequest): TrygdetidForPesys{
-        logger.debug("Henter trygdetid for fnr: ${request.fnr.takeLast(4)}, rinaNr: ${request.rinaNr}")
+        logger.info("Henter trygdetid for fnr: ${request.fnr.takeLast(4)}, rinaNr: ${request.rinaNr}")
         return trygdeTidMetric.measure {
             gcpStorageService.hentTrygdetidFraGcp(request.fnr)?.let {
                 runCatching { trygdeTidService.parseTrygdetid(it) }
