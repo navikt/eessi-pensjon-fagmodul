@@ -24,7 +24,9 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.*
+import javax.swing.text.DateFormatter
 import javax.xml.datatype.XMLGregorianCalendar
 
 @Protected
@@ -193,10 +195,10 @@ class PensjonController(
 //
 //        val virkningstidspunktXML = pensjonsinformasjon.vedtak?.virkningstidspunkt // Kan teoretisk ikke inneholde vedtak
 //        val virkningstidspunkt = if (virkningstidspunktXML != null) transformXMLGregorianCalendarToJson(virkningstidspunktXML).toString() else null
-
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
         val resultatJson = mapOf(
-            "uforetidspunkt" to pensjonsinformasjon?.uforetidspunkt,
-            "virkningstidspunkt" to pensjonsinformasjon?.virkningstidspunkt
+            "uforetidspunkt" to pensjonsinformasjon?.uforetidspunkt?.let { formatter.format(it) },
+            "virkningstidspunkt" to pensjonsinformasjon?.virkningstidspunkt?.let { formatter.format(it) }
         ).toJson()
 
         logger.info("Oppslag på uføretidspunkt ga: $resultatJson")
