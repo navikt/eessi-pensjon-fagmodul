@@ -55,12 +55,12 @@ class GcpStorageService(
         }
     }
 
-        fun lagreP8000Options(documentid: String, options: String) {
-            if(p8000SakFinnes(documentid)){
-                gcpStorage.delete(BlobId.of(p8000Bucket, documentid))
-            }
-            lagre(documentid, options, p8000Bucket)
+    fun lagreP8000Options(documentid: String, options: String) {
+        if (p8000SakFinnes(documentid)) {
+            gcpStorage.delete(BlobId.of(p8000Bucket, documentid))
         }
+        lagre(documentid, options, p8000Bucket)
+    }
     fun hentTrygdetidFraGcp(aktoerId: String): List<Pair<String, String?>>? {
         val searchString = if (aktoerId.isNotEmpty() ) {
             "${aktoerId}___PESYS___"
