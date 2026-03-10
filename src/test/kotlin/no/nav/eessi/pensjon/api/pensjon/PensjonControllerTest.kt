@@ -56,11 +56,12 @@ class PensjonControllerTest {
     @Test
     fun `hentPensjonSakType gitt en aktoerId saa slaa opp fnr og hent deretter sakstype`() {
         every { pesysService.hentSaktype(SOME_SAKID) } returns SOME_SAK_TYPE
-
-//        every { pensjonsinformasjonClient.hentKunSakType(SOME_SAKID, AKTOERID) } returns Pensjontype(SOME_SAKID, "Type")
-        controller.hentPensjonSakType(SOME_SAKID, AKTOERID)
-
-//        verify { pensjonsinformasjonClient.hentKunSakType(eq(SOME_SAKID), eq(AKTOERID)) }
+        val result = controller.hentPensjonSakType(SOME_SAKID, AKTOERID)
+        JSONAssert.assertEquals(
+            """{
+              "sakId": "10000",
+              "sakType": "ALDER"
+        }""".trimIndent(), result?.body,true)
     }
 
     @Test
