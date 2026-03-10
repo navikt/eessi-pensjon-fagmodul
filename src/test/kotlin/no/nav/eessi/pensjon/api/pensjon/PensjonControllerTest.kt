@@ -94,6 +94,21 @@ class PensjonControllerTest {
     }
 
     @Test
+    fun `hentVedtakforForUfor skal gi dato med korrekt format`() {
+        every { pesysService.hentUfoeretidspunktOnVedtak(SOME_SAKID)} returns
+                EessiFellesDto.EessiUfoeretidspunktDto(
+                    LocalDate.of(2021, 1, 1),
+                    LocalDate.of(2021, 1, 31))
+        val response = controller.hentVedtakforForUfor(SOME_SAKID)
+        assertEquals("""
+            {
+              "uforetidspunkt" : "2021-01-01",
+              "virkningstidspunkt" : "2021-01-31"
+            }
+        """.trimIndent(), response)
+    }
+
+    @Test
     fun `Gitt det finnes pensjonsak paa aktoer saa skal det returneres en liste over alle saker til aktierid`() {
         every { innhentingService.hentFnrfraAktoerService(any()) } returns NorskIdent(AKTOERID)
         val saker = listOf(
@@ -166,7 +181,6 @@ class PensjonControllerTest {
 
     @Test
     fun uthentingAvUforeTidspunkt() {
-//        val mockClient = fraFil("VEDTAK-UT-MUTP.xml")
         val ufoereTidspunkt = LocalDate.now()
         val virkningsTidspunkts = LocalDate.now().plusDays(10)
         val dto = EessiFellesDto.EessiUfoeretidspunktDto(ufoereTidspunkt, virkningsTidspunkts)
