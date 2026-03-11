@@ -44,16 +44,16 @@ object ValidBucAndSed {
      */
     private fun initSedOnBuc(): Map<String, List<SedType>> {
         return mapOf(
-                "P_BUC_01" to listOf(SedType.P2000),
-                "P_BUC_02" to listOf(SedType.P2100),
-                "P_BUC_03" to listOf(SedType.P2200),
-                "P_BUC_05" to listOf(SedType.P8000),
-                "P_BUC_06" to listOf(SedType.P5000, SedType.P6000, SedType.P7000, SedType.P10000),
-                "P_BUC_09" to listOf(SedType.P14000),
-                "P_BUC_10" to listOf(SedType.P15000),
-                "P_BUC_04" to listOf(SedType.P1000),
-                "P_BUC_07" to listOf(SedType.P11000),
-                "P_BUC_08" to listOf(SedType.P12000)
+            "P_BUC_01" to listOf(SedType.P2000),
+            "P_BUC_02" to listOf(SedType.P2100),
+            "P_BUC_03" to listOf(SedType.P2200),
+            "P_BUC_04" to listOf(SedType.P1000),
+            "P_BUC_05" to listOf(SedType.P8000),
+            "P_BUC_06" to listOf(SedType.P5000, SedType.P6000, SedType.P7000, SedType.P10000),
+            "P_BUC_07" to listOf(SedType.P11000),
+            "P_BUC_08" to listOf(SedType.P12000),
+            "P_BUC_09" to listOf(SedType.P14000),
+            "P_BUC_10" to listOf(SedType.P15000)
         )
     }
 
