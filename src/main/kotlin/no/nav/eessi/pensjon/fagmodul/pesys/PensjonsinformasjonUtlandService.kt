@@ -172,7 +172,7 @@ class PensjonsinformasjonUtlandService(
                 logger.error(" OBS OBS; Her kommer det inn mer enn 1 avslått pensjon fra Norge")
                 secureLog.info("Hopper over denne avslåtte seden: $p6000")
             } else {
-                logger.info("Legger til avslått pensjon fra sed med avsender?.land: ${p6000.toJson()}")
+                logger.info("Legger til avslått pensjon fra sed med avsender?.land: ${p6000.avsender?.land}")
                 val pensjon = p6000.pensjon
                 retList.add(
                     AvslaattPensjon(
