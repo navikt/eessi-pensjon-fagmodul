@@ -21,9 +21,9 @@ class PesysService(
     private val logger: Logger = LoggerFactory.getLogger(PesysService::class.java)
 
     fun hentAvdod(vedtakId: String?): EessiAvdodDto? =
-        getWithHeaders(
+        getWithHeaders<EessiAvdodDto>(
             "/vedtak/$vedtakId/avdoed"
-        )
+        ).also { logger.debug("Henter avdod: $it") }
 
     fun hentKravdato(kravId: String?): LocalDate? =
         getWithHeaders(

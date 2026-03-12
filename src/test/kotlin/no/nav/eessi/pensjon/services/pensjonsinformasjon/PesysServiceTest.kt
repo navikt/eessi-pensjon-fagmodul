@@ -58,13 +58,13 @@ class PesysServiceTest {
             .andExpect(method(HttpMethod.GET))
             .andRespond(withSuccess(
                 """{
-                      "avdod": null,
-                      "avdodMor": "2131232321",
-                      "avdodFar": "3432434234"
-                    }""".trimIndent(), MediaType.APPLICATION_JSON))
+                  "avdod" : "66526810121",
+                  "avdodMor" : null,
+                  "avdodFar" : null
+                }""".trimIndent(), MediaType.APPLICATION_JSON))
 
         with(pesysService.hentAvdod(vedtakId)) {
-            assert(this == EessiAvdodDto(avdod = null, avdodMor = "2131232321", avdodFar = "3432434234"))
+            assert(this == EessiAvdodDto(avdod="66526810121", avdodMor=null, avdodFar=null))
         }
         server.verify()
     }
