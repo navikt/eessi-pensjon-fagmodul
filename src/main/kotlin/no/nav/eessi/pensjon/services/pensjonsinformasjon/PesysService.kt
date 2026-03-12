@@ -72,8 +72,8 @@ class PesysService(
         }.also { logger.info("HentSakListe: $it") }
     }
 
-    fun hentUfoeretidspunktOnVedtak(vedtakId: String?): EessiFellesDto.EessiUfoeretidspunktDto? =
-        getWithHeaders("/vedtak/$vedtakId/ufoeretidspunkt")
+    fun hentUfoeretidspunktOnVedtak(sakId: String?): EessiFellesDto.EessiUfoeretidspunktDto? =
+        getWithHeaders("/sak/$sakId/ufoeretidspunkt")
 
     private inline fun <reified T : Any> getWithHeaders(
         path: String,

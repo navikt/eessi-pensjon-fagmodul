@@ -149,6 +149,7 @@ class PersonPDLController(
         @PathVariable(value = "vedtakid", required = true) vedtakid: String,
         @PathVariable(value = "rinanr", required = true) euxCaseId: String
     ): ResponseEntity<FrontEndResponse<List<DodsDatoPdl>>> {
+        logger.info("Henter avdødeinfo for vedtak: $vedtakid")
         val vedtak = pesysService.hentAvdod(vedtakid)
         val avdodlist = pesysService.hentGyldigAvdod(vedtak) ?: return ResponseEntity.ok(FrontEndResponse(result = emptyList(), status = HttpStatus.OK.name))
 
