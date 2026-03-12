@@ -2,9 +2,7 @@ package no.nav.eessi.pensjon.services.pensjonsinformasjon
 
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.EessiFellesDto.EessiAvdodDto
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.EessiFellesDto.EessiSakStatus
-import no.nav.eessi.pensjon.utils.toJson
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
@@ -54,17 +52,18 @@ class PesysServiceTest {
 
     @Test
     fun `hentAvdod skal sortere listen fra prioritert liste og gi riktig EessiAvdodDto tilbake`() {
-        val avdodListeJson = listOf(
-            EessiAvdodDto(null, null, null),
-            EessiAvdodDto(null, "2131232321", null),
-            EessiAvdodDto(null, "2131232321", "3432434234")
-        ).toJson()
-        val fnr = "11111111111"
-        server.expect(requestTo("/vedtak/$fnr/avdoed"))
-            .andExpect(method(HttpMethod.GET))
-            .andRespond(withSuccess(avdodListeJson, MediaType.APPLICATION_JSON))
+        val vedtakId = "11111111111"
 
-        with(pesysService.hentAvdod(fnr)) {
+        server.expect(requestTo("/vedtak/$vedtakId/avdoed"))
+            .andExpect(method(HttpMethod.GET))
+            .andRespond(withSuccess(
+                """{
+                      "avdod": null,
+                      "avdodMor": "2131232321",
+                      "avdodFar": "3432434234"
+                    }""".trimIndent(), MediaType.APPLICATION_JSON))
+
+        with(pesysService.hentAvdod(vedtakId)) {
             assert(this == EessiAvdodDto(avdod = null, avdodMor = "2131232321", avdodFar = "3432434234"))
         }
         server.verify()
