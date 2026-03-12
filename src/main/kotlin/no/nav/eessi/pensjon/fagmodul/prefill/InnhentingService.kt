@@ -97,7 +97,7 @@ class InnhentingService(
     fun hentPreutyltSed(apiRequest: ApiRequest, processDefinitionVersion: String): String =
         prefillKlient.hentPreutfyltSed(apiRequest.copy(processDefinitionVersion = processDefinitionVersion))
 
-    fun hentPensjoninformasjonVedtak(vedtakId: String) = pesysService.hentAvdod(vedtakId)
+    fun hentAvdodInfoFraPesys(vedtakId: String) = pesysService.hentAvdod(vedtakId)
 
     fun hentAvdodeFnrfraPensjoninformasjon(pensjoninformasjon: EessiFellesDto.EessiAvdodDto): List<String>? =
         pesysService.hentGyldigAvdod(pensjoninformasjon)
