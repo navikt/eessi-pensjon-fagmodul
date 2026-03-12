@@ -25,14 +25,6 @@ class PesysService(
             "/vedtak/$vedtakId/avdoed"
         )
 
-
-    fun List<EessiAvdodDto>.sortedByAvdodFamilie(): List<EessiAvdodDto> =
-        sortedWith(
-            compareByDescending<EessiAvdodDto> { it.avdod != null }
-                .thenByDescending { it.avdodMor != null }
-                .thenByDescending { it.avdodFar != null }
-        )
-
     fun hentKravdato(kravId: String?): LocalDate? =
         getWithHeaders(
             "/krav/$kravId/mottattDato"
