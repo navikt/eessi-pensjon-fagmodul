@@ -1,5 +1,6 @@
 package no.nav.eessi.pensjon.services.pensjonsinformasjon
 
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.EessiFellesDto.EessiAvdodDto
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpEntity
@@ -19,9 +20,28 @@ class PesysService(
 
     private val logger: Logger = LoggerFactory.getLogger(PesysService::class.java)
 
-    fun hentAvdod(vedtakId: String?): EessiFellesDto.EessiAvdodDto? =
-        getWithHeaders(
+    fun hentAvdod(vedtakId: String?): EessiAvdodDto? {
+        val response = getWithHeaders<Any>(
             "/vedtak/$vedtakId/avdoed"
+        )?: return null
+
+        return when (response) {
+            is List<*> -> response.mapNotNull {
+                when (it) {
+                    is EessiAvdodDto -> it
+                    is Map<*, *> -> ObjectMapper().convertValue(it, EessiAvdodDto::class.java)
+                    else -> null
+                }
+            }
+            else -> null
+        }?.sortedByAvdodFamilie()?.firstOrNull().also { logger.info("hentAvdod: $it") }
+    }
+
+    fun List<EessiAvdodDto>.sortedByAvdodFamilie(): List<EessiAvdodDto> =
+        sortedWith(
+            compareByDescending<EessiAvdodDto> { it.avdod != null }
+                .thenByDescending { it.avdodMor != null }
+                .thenByDescending { it.avdodFar != null }
         )
 
     fun hentKravdato(kravId: String?): LocalDate? =
@@ -73,7 +93,7 @@ class PesysService(
             .also { logger.debug("Pesys response: $it") }
     }
 
-    fun hentGyldigAvdod(avdod: EessiFellesDto.EessiAvdodDto?) : List<String>? {
+    fun hentGyldigAvdod(avdod: EessiAvdodDto?) : List<String>? {
         val avdodMor = avdod?.avdodMor
         val avdodFar = avdod?.avdodFar
         val annenAvdod = avdod?.avdod
