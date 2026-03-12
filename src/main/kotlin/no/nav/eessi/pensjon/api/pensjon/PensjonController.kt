@@ -185,16 +185,6 @@ class PensjonController(
         val pensjonsinformasjon = pesysService.hentUfoeretidspunktOnVedtak(vedtakId).also {
             logger.debug("pensjonInfo: ${it?.toJsonSkipEmpty()}")
         }
-
-//        val vilkarsvurderingListe = pensjonsinformasjon.vilkarsvurderingListe.vilkarsvurderingListe
-//        val vilkarsvurderingUforetrygdListe = vilkarsvurderingListe.mapNotNull { it.vilkarsvurderingUforetrygd }
-//        val uforetidspunkt = vilkarsvurderingUforetrygdListe.map { v1ufore ->
-//            logger.debug("Uforetidspunkt-kandidat: ${v1ufore.uforetidspunkt}")
-//            if (v1ufore.uforetidspunkt != null) transformXMLGregorianCalendarToJson(v1ufore.uforetidspunkt).toString() else null
-//        }.firstOrNull()
-//
-//        val virkningstidspunktXML = pensjonsinformasjon.vedtak?.virkningstidspunkt // Kan teoretisk ikke inneholde vedtak
-//        val virkningstidspunkt = if (virkningstidspunktXML != null) transformXMLGregorianCalendarToJson(virkningstidspunktXML).toString() else null
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
         val resultatJson = mapOf(
             "uforetidspunkt" to pensjonsinformasjon?.uforetidspunkt?.let { formatter.format(it) },
@@ -204,26 +194,6 @@ class PensjonController(
         logger.info("Oppslag på uføretidspunkt ga: $resultatJson")
         return resultatJson
     }
-
-//    fun transformXMLGregorianCalendarToJson(v1uforetidpunkt: XMLGregorianCalendar): LocalDate {
-//        val xmltimezone = v1uforetidpunkt.timezone
-//        logger.debug("xmlTimeZone: $xmltimezone, xmlUforetidspunkt: $v1uforetidpunkt")
-//
-//        val uft = LocalDateTime.of(v1uforetidpunkt.year, v1uforetidpunkt.month, v1uforetidpunkt.day, v1uforetidpunkt.hour, v1uforetidpunkt.minute, v1uforetidpunkt.second)
-//        logger.info("Uforetidspunkt: $uft")
-//
-//        val uforetidspunkt = if (xmltimezone == 0) {
-//            logger.info("Konverterer uføretidspunkt tidssone +1time")
-//            uft.plusHours(1).toLocalDate()
-//        } else {
-//            logger.info("Ingen konverterer av uføretidspunkt")
-//            uft.toLocalDate()
-//        }
-//
-//        if (uforetidspunkt?.dayOfMonth != 1) logger.error("Feiler ved uføretidspunkt: $uforetidspunkt, Dag er ikke første i mnd")
-//        logger.debug("utføretidspunkt: $uforetidspunkt")
-//        return uforetidspunkt
-//    }
 
     /**
      * Brukes for å henter sakliste for aktoer fra journalføring
