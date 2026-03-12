@@ -67,13 +67,7 @@ class PensjonControllerTest {
     fun `hentPensjonSakType gitt at det svar fra PESYS er tom`() {
 
         every { pesysService.hentSaktype(SOME_SAKID) } returns null
-
-//        every { pensjonsinformasjonClient.hentKunSakType(SOME_SAKID, AKTOERID) } returns Pensjontype(SOME_SAKID, "")
-//        every { pesysService.hentSaktype(SOME_SAKID) } returns EessiFellesDto.EessiSakType.valueOf(SOME_SAKID)
         val response = controller.hentPensjonSakType(SOME_SAKID, AKTOERID)
-
-//        verify { pensjonsinformasjonClient.hentKunSakType(eq(SOME_SAKID), eq(AKTOERID)) }
-
         assertEquals("Sakstype ikke funnet for sakId: $SOME_SAKID", response?.body)
     }
 
@@ -112,16 +106,8 @@ class PensjonControllerTest {
     fun `Gitt det finnes pensjonsak paa aktoer saa skal det returneres en liste over alle saker til aktierid`() {
         every { innhentingService.hentFnrfraAktoerService(any()) } returns NorskIdent(AKTOERID)
         val saker = listOf(
-            EessiPensjonSak(
-                "1010",
-                EessiFellesDto.EessiSakType.ALDER,
-                EessiFellesDto.EessiSakStatus.INNV
-            ),
-            EessiPensjonSak(
-                "2020",
-                EessiFellesDto.EessiSakType.UFOREP,
-                EessiFellesDto.EessiSakStatus.AVSL
-            )
+            EessiPensjonSak("1010", EessiFellesDto.EessiSakType.ALDER, EessiFellesDto.EessiSakStatus.INNV),
+            EessiPensjonSak("2020", EessiFellesDto.EessiSakType.UFOREP, EessiFellesDto.EessiSakStatus.AVSL)
         )
 
         every { pesysService.hentSakListe(AKTOERID) } returns saker
@@ -130,12 +116,9 @@ class PensjonControllerTest {
         verify { pesysService.hentSakListe(AKTOERID) }
 
         assertEquals(2, result.size)
-        val expected1 = EessiPensjonSak("1010", EessiFellesDto.EessiSakType.ALDER, EessiFellesDto.EessiSakStatus.INNV)
-        assertEquals(expected1.toJson(), result.first().toJson())
-        val expected2 = EessiPensjonSak("2020", EessiFellesDto.EessiSakType.UFOREP, EessiFellesDto.EessiSakStatus.AVSL)
-        assertEquals(expected2.toJson(), result.last().toJson())
+        assertEquals(saker[0].toJson(), result.first().toJson())
+        assertEquals(saker[1].toJson(), result.last().toJson())
 
-        assertEquals(EessiFellesDto.EessiSakStatus.AVSL, expected2.sakStatus)
     }
 
     @Test
@@ -418,18 +401,5 @@ class PensjonControllerTest {
         """.trimIndent()
         assertEquals(expected, response)
     }
-
-
-//    fun fraFil(responseXMLfilename: String): PensjonsinformasjonClient {
-//        val resource = ResourceUtils.getFile("classpath:pensjonsinformasjon/$responseXMLfilename").readText()
-//        val readXMLresponse = ResponseEntity(resource, HttpStatus.OK)
-//
-//        val mockRestTemplate: RestTemplate = mockk()
-//
-//        every { mockRestTemplate.exchange(any<String>(), any(), any<HttpEntity<Unit>>(), eq(String::class.java)) } returns readXMLresponse
-//        val pensjonsinformasjonClient = PensjonsinformasjonClient(mockRestTemplate, PensjonRequestBuilder())
-//        pensjonsinformasjonClient.initMetrics()
-//        return pensjonsinformasjonClient
-//    }
 }
 
