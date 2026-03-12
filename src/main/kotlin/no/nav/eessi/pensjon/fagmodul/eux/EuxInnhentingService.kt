@@ -469,6 +469,7 @@ class EuxInnhentingService(
 
     fun updateSedOnBuc(euxcaseid: String, documentid: String, sedPayload: String): Boolean {
         logger.info("Oppdaterer eksisterende sed på rina: $euxcaseid. docid: $documentid")
+        secureLog.info("Oppdaterer eksisterende sedId $euxcaseid, med payload: $sedPayload")
         return putDocument.measure { euxKlient.updateSedOnBuc(euxcaseid, documentid, sedPayload) }
     }
 
