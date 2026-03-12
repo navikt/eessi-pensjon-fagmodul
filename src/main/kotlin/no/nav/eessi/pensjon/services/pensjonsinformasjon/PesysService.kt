@@ -20,22 +20,11 @@ class PesysService(
 
     private val logger: Logger = LoggerFactory.getLogger(PesysService::class.java)
 
-    fun hentAvdod(vedtakId: String?): EessiAvdodDto? {
-        val response = getWithHeaders<Any>(
+    fun hentAvdod(vedtakId: String?): EessiAvdodDto? =
+        getWithHeaders(
             "/vedtak/$vedtakId/avdoed"
-        )?: return null
+        )
 
-        return when (response) {
-            is List<*> -> response.mapNotNull {
-                when (it) {
-                    is EessiAvdodDto -> it
-                    is Map<*, *> -> ObjectMapper().convertValue(it, EessiAvdodDto::class.java)
-                    else -> null
-                }
-            }
-            else -> null
-        }?.sortedByAvdodFamilie()?.firstOrNull().also { logger.info("hentAvdod: $it") }
-    }
 
     fun List<EessiAvdodDto>.sortedByAvdodFamilie(): List<EessiAvdodDto> =
         sortedWith(
