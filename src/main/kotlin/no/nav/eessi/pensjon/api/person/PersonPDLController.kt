@@ -35,7 +35,7 @@ const val PERSON_IKKE_FUNNET = "Person ikke funnet"
 class PersonPDLController(
     private val pdlService: PersonService,
     private val auditLogger: AuditLogger,
-    private val pensjonsinformasjonService: PesysService,
+    private val pesysService: PesysService,
     private val euxInnhenting: EuxInnhentingService,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
@@ -93,7 +93,7 @@ class PersonPDLController(
 
         return personControllerHentPersonAvdod.measure {
 
-            val pensjonInfo = pensjonsinformasjonService.hentAvdod(vedtaksId).also {
+            val pensjonInfo = pesysService.hentAvdod(vedtaksId).also {
                 logger.debug("pensjonInfo: ${it?.toJsonSkipEmpty()}")
             }
 
@@ -149,8 +149,8 @@ class PersonPDLController(
         @PathVariable(value = "vedtakid", required = true) vedtakid: String,
         @PathVariable(value = "rinanr", required = true) euxCaseId: String
     ): ResponseEntity<FrontEndResponse<List<DodsDatoPdl>>> {
-        val vedtak = pensjonsinformasjonService.hentAvdod(vedtakid)
-        val avdodlist = pensjonsinformasjonService.hentGyldigAvdod(vedtak) ?: return ResponseEntity.ok(FrontEndResponse(result = emptyList(), status = HttpStatus.OK.name))
+        val vedtak = pesysService.hentAvdod(vedtakid)
+        val avdodlist = pesysService.hentGyldigAvdod(vedtak) ?: return ResponseEntity.ok(FrontEndResponse(result = emptyList(), status = HttpStatus.OK.name))
 
         val avdodDato = when {
             avdodlist.size >= 2 -> hentFlereAvdode(avdodlist, euxCaseId)
