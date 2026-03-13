@@ -66,7 +66,7 @@ class PesysService(
                 .forEach { (k, v) -> set(k, v) }
         }
 
-        logger.debug("Henter pesys informasjon fra: $path (headers=${httpHeaders})")
+        logger.info("Henter pesys informasjon for: $path ")
 
         val entity = HttpEntity<Void>(httpHeaders)
         return pesysClientRestTemplate
