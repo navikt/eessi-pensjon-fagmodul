@@ -111,7 +111,7 @@ class PesysServiceTest {
             EessiFellesDto.EessiUfoeretidspunktDto(enDato, enDato.plusDays(10).plusDays(4))
         )
 
-        server.expect(requestTo("/sak/111/ufoeretidspunkt"))
+        server.expect(requestTo("/vedtak/111/ufoeretidspunkt"))
             .andExpect(method(HttpMethod.GET))
             .andRespond(withSuccess(dto.toJson(), MediaType.APPLICATION_JSON))
         val result = pesysService.hentUfoeretidspunktOnVedtak("111")

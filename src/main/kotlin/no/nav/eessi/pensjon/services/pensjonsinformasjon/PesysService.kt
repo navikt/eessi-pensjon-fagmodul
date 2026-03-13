@@ -56,7 +56,7 @@ class PesysService(
     }
 
     fun hentUfoeretidspunktOnVedtak(sakId: String?): EessiUfoeretidspunktDto? {
-        val response = getWithHeaders<Any>("/sak/$sakId/ufoeretidspunkt") ?: return  null
+        val response = getWithHeaders<Any>("/vedtak/$sakId/ufoeretidspunkt") ?: return  null
 
         logger.info("Response fra hentUfoeretidspunktOnVedtak: $response")
         val result = when (response) {
