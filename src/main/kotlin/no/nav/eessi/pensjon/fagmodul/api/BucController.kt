@@ -237,7 +237,7 @@ class BucController(
 
         val start = System.currentTimeMillis()
         val pensjonsinformasjon = try {
-            innhentingService.hentPensjoninformasjonVedtak(vedtakId)
+            innhentingService.hentAvdodInfoFraPesys(vedtakId)
         } catch (ex: Exception) {
             logger.warn("Feiler ved henting av pensjoninformasjon (saknr: $sakNr, vedtak: $vedtakId), forsetter uten.")
             null

@@ -1,5 +1,6 @@
 package no.nav.eessi.pensjon.services.pensjonsinformasjon
 
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.EessiFellesDto.EessiAvdodDto
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpEntity
@@ -19,10 +20,10 @@ class PesysService(
 
     private val logger: Logger = LoggerFactory.getLogger(PesysService::class.java)
 
-    fun hentAvdod(vedtakId: String?): EessiFellesDto.EessiAvdodDto? =
-        getWithHeaders(
+    fun hentAvdod(vedtakId: String?): EessiAvdodDto? =
+        getWithHeaders<EessiAvdodDto>(
             "/vedtak/$vedtakId/avdoed"
-        )
+        ).also { logger.debug("Henter avdod: $it") }
 
     fun hentKravdato(kravId: String?): LocalDate? =
         getWithHeaders(
@@ -52,8 +53,8 @@ class PesysService(
         }.also { logger.info("HentSakListe: $it") }
     }
 
-    fun hentUfoeretidspunktOnVedtak(vedtakId: String?): EessiFellesDto.EessiUfoeretidspunktDto? =
-        getWithHeaders("/vedtak/$vedtakId/ufoeretidspunkt")
+    fun hentUfoeretidspunktOnVedtak(sakId: String?): EessiFellesDto.EessiUfoeretidspunktDto? =
+        getWithHeaders("/sak/$sakId/ufoeretidspunkt")
 
     private inline fun <reified T : Any> getWithHeaders(
         path: String,
@@ -73,7 +74,7 @@ class PesysService(
             .also { logger.debug("Pesys response: $it") }
     }
 
-    fun hentGyldigAvdod(avdod: EessiFellesDto.EessiAvdodDto?) : List<String>? {
+    fun hentGyldigAvdod(avdod: EessiAvdodDto?) : List<String>? {
         val avdodMor = avdod?.avdodMor
         val avdodFar = avdod?.avdodFar
         val annenAvdod = avdod?.avdod
