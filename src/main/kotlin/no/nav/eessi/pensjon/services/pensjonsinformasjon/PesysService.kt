@@ -57,6 +57,7 @@ class PesysService(
     fun hentUfoeretidspunktOnVedtak(sakId: String?): EessiFellesDto.EessiUfoeretidspunktDto? {
         val response = getWithHeaders<Any>("/sak/$sakId/ufoeretidspunkt") ?: return  null
 
+        logger.info("Response fra hentUfoeretidspunktOnVedtak: $response")
         val result = when (response) {
             is List<*> -> response.mapNotNull {
                 when (it) {
@@ -67,7 +68,7 @@ class PesysService(
             }
 
             else -> emptyList()
-        }.also { logger.info("hentUfoeretidspunktOnVedtak : $it") }
+        }.also { logger.info("Returnerer hentUfoeretidspunktOnVedtak : $it") }
         return result.sortUfore().firstOrNull()
     }
     fun List<EessiFellesDto.EessiUfoeretidspunktDto>.sortUfore(): List<EessiFellesDto.EessiUfoeretidspunktDto> =
