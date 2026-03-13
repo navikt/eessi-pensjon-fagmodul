@@ -12,6 +12,7 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.server.ResponseStatusException
 import tools.jackson.databind.ObjectMapper
 import java.time.LocalDate
+import kotlin.collections.firstOrNull
 
 @Service
 class PesysService(
@@ -53,8 +54,27 @@ class PesysService(
         }.also { logger.info("HentSakListe: $it") }
     }
 
-    fun hentUfoeretidspunktOnVedtak(sakId: String?): EessiFellesDto.EessiUfoeretidspunktDto? =
-        getWithHeaders("/sak/$sakId/ufoeretidspunkt")
+    fun hentUfoeretidspunktOnVedtak(sakId: String?): EessiFellesDto.EessiUfoeretidspunktDto? {
+        val response = getWithHeaders<Any>("/sak/$sakId/ufoeretidspunkt") ?: return  null
+
+        val result = when (response) {
+            is List<*> -> response.mapNotNull {
+                when (it) {
+                    is EessiFellesDto.EessiUfoeretidspunktDto -> it
+                    is Map<*, *> -> ObjectMapper().convertValue(it, EessiFellesDto.EessiUfoeretidspunktDto::class.java)
+                    else -> null
+                }
+            }
+
+            else -> emptyList()
+        }.also { logger.info("HentSakListe: $it") }
+        return result.sortUfore().firstOrNull()
+    }
+    fun List<EessiFellesDto.EessiUfoeretidspunktDto>.sortUfore(): List<EessiFellesDto.EessiUfoeretidspunktDto> =
+        sortedWith(
+            compareByDescending<EessiFellesDto.EessiUfoeretidspunktDto> { it.virkningstidspunkt != null  }
+                .thenByDescending { it.uforetidspunkt != null  }
+        )
 
     private inline fun <reified T : Any> getWithHeaders(
         path: String,
