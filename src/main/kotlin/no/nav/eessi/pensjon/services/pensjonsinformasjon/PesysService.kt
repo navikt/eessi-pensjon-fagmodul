@@ -1,6 +1,7 @@
 package no.nav.eessi.pensjon.services.pensjonsinformasjon
 
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.EessiFellesDto.EessiAvdodDto
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.EessiFellesDto.EessiUfoeretidspunktDto
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpEntity
@@ -54,15 +55,15 @@ class PesysService(
         }.also { logger.info("HentSakListe: $it") }
     }
 
-    fun hentUfoeretidspunktOnVedtak(sakId: String?): EessiFellesDto.EessiUfoeretidspunktDto? {
+    fun hentUfoeretidspunktOnVedtak(sakId: String?): EessiUfoeretidspunktDto? {
         val response = getWithHeaders<Any>("/sak/$sakId/ufoeretidspunkt") ?: return  null
 
         logger.info("Response fra hentUfoeretidspunktOnVedtak: $response")
         val result = when (response) {
             is List<*> -> response.mapNotNull {
                 when (it) {
-                    is EessiFellesDto.EessiUfoeretidspunktDto -> it
-                    is Map<*, *> -> ObjectMapper().convertValue(it, EessiFellesDto.EessiUfoeretidspunktDto::class.java)
+                    is EessiUfoeretidspunktDto -> it
+                    is Map<*, *> -> ObjectMapper().convertValue(it, EessiUfoeretidspunktDto::class.java)
                     else -> null
                 }
             }
@@ -71,10 +72,12 @@ class PesysService(
         }.also { logger.info("Returnerer hentUfoeretidspunktOnVedtak : $it") }
         return result.sortUfore().firstOrNull()
     }
-    fun List<EessiFellesDto.EessiUfoeretidspunktDto>.sortUfore(): List<EessiFellesDto.EessiUfoeretidspunktDto> =
+
+    fun List<EessiUfoeretidspunktDto>.sortUfore(): List<EessiUfoeretidspunktDto> =
         sortedWith(
-            compareByDescending<EessiFellesDto.EessiUfoeretidspunktDto> { it.virkningstidspunkt != null  }
-                .thenByDescending { it.uforetidspunkt != null  }
+            compareBy<EessiUfoeretidspunktDto> { it.uforetidspunkt == null }
+                .thenBy { it.uforetidspunkt }
+                .thenBy { it.virkningstidspunkt }
         )
 
     private inline fun <reified T : Any> getWithHeaders(
