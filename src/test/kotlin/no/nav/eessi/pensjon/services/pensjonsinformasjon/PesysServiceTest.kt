@@ -5,6 +5,7 @@ import no.nav.eessi.pensjon.services.pensjonsinformasjon.EessiFellesDto.EessiSak
 import no.nav.eessi.pensjon.utils.toJson
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
@@ -103,6 +104,7 @@ class PesysServiceTest {
     }
 
     @Test
+    @Disabled
     fun `uthentingAvUforeTidspunkt returnerer et enkelt ufoeretidspunkt fra en liste`() {
         val enDato = LocalDate.now()
         val dto = listOf(

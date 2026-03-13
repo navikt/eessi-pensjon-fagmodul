@@ -55,23 +55,9 @@ class PesysService(
         }.also { logger.info("HentSakListe: $it") }
     }
 
-    fun hentUfoeretidspunktOnVedtak(sakId: String?): EessiUfoeretidspunktDto? {
-        val response = getWithHeaders<Any>("/vedtak/$sakId/ufoeretidspunkt") ?: return  null
+    fun hentUfoeretidspunktOnVedtak(sakId: String?): EessiUfoeretidspunktDto? =
+        getWithHeaders("/vedtak/$sakId/ufoeretidspunkt")
 
-        logger.info("Response fra hentUfoeretidspunktOnVedtak: $response")
-        val result = when (response) {
-            is List<*> -> response.mapNotNull {
-                when (it) {
-                    is EessiUfoeretidspunktDto -> it
-                    is Map<*, *> -> ObjectMapper().convertValue(it, EessiUfoeretidspunktDto::class.java)
-                    else -> null
-                }
-            }
-
-            else -> emptyList()
-        }.also { logger.info("Returnerer hentUfoeretidspunktOnVedtak : $it") }
-        return result.sortUfore().firstOrNull()
-    }
 
     fun List<EessiUfoeretidspunktDto>.sortUfore(): List<EessiUfoeretidspunktDto> =
         sortedWith(
