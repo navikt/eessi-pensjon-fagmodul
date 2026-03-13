@@ -1,11 +1,11 @@
 package no.nav.eessi.pensjon.api.geo
 
+//import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
 import com.ninjasquad.springmockk.MockkBean
 import com.ninjasquad.springmockk.MockkBeans
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.integrationtest.IntegrasjonsTestConfig
-//import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PesysService
 import org.junit.jupiter.api.AfterAll
@@ -17,12 +17,9 @@ import org.mockserver.integration.ClientAndServer
 import org.mockserver.model.HttpRequest
 import org.mockserver.model.HttpResponse
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.resttestclient.TestRestTemplate
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
 import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles

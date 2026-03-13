@@ -2,6 +2,8 @@ package no.nav.eessi.pensjon.services.pensjonsinformasjon
 
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.EessiFellesDto.EessiAvdodDto
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.EessiFellesDto.EessiSakStatus
+import no.nav.eessi.pensjon.utils.toJson
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpMethod
@@ -98,6 +100,22 @@ class PesysServiceTest {
         val result = pesysService.hentSakListe(fnr)
         assert(result.isEmpty())
         server.verify()
+    }
+
+    @Test
+    fun `uthentingAvUforeTidspunkt returnerer et enkelt ufoeretidspunkt fra en liste`() {
+        val enDato = LocalDate.now()
+        val dto = listOf(
+            EessiFellesDto.EessiUfoeretidspunktDto(enDato, enDato.plusDays(10).plusDays(1)) ,
+            EessiFellesDto.EessiUfoeretidspunktDto(enDato, enDato.plusDays(10)) ,
+            EessiFellesDto.EessiUfoeretidspunktDto(enDato, enDato.plusDays(10).plusDays(4))
+        )
+
+        server.expect(requestTo("/sak/111/ufoeretidspunkt"))
+            .andExpect(method(HttpMethod.GET))
+            .andRespond(withSuccess(dto.toJson(), MediaType.APPLICATION_JSON))
+        val result = pesysService.hentUfoeretidspunktOnVedtak("111")
+        assertEquals(dto[1], result)
     }
 
 }
