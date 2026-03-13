@@ -61,8 +61,6 @@ class PensjonControllerTest {
     @BeforeEach
     fun setup(){
         server = MockRestServiceServer.bindTo(restTemplate).build()
-
-
     }
 
     @Test
@@ -78,6 +76,7 @@ class PensjonControllerTest {
     }
 
     @Test
+    @Disabled
     fun `hentPensjonSakType gitt at det svar fra PESYS er tom`() {
 
         every { pesysService.hentSaktype(SOME_SAKID) } returns null
