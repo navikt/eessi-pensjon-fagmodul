@@ -162,26 +162,13 @@ class PensjonController(
 //        return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonobj)
 //    }
 
-    private class LocalDateSerializer : JsonSerializer<XMLGregorianCalendar>() {
-        override fun serialize(value: XMLGregorianCalendar?, gen: JsonGenerator?, serializers: SerializerProvider?) {
-            gen?.let { jGen ->
-                value?.let { xmldate ->
-                    val localDate = LocalDate.of(
-                        xmldate.year,
-                        xmldate.month,
-                        xmldate.day
-                    )
-                    jGen.writeString(localDate.toString())
-                } ?: jGen.writeNull()
-            }
-        }
-    }
-
     /**
      * Brukes for å hente vedtak fra frontend / EP
      */
     @GetMapping("/vedtak/{vedtakid}/uforetidspunkt")
     fun hentVedtakforForUfor(@PathVariable("vedtakid", required = true) vedtakId: String): String? {
+        logger.info("Henter vedtak ($vedtakId)")
+
         val pensjonsinformasjon = pesysService.hentUfoeretidspunktOnVedtak(vedtakId).also {
             logger.debug("pensjonInfo: ${it?.toJsonSkipEmpty()}")
         }
