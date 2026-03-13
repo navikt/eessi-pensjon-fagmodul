@@ -67,7 +67,7 @@ class PesysService(
             }
 
             else -> emptyList()
-        }.also { logger.info("HentSakListe: $it") }
+        }.also { logger.info("hentUfoeretidspunktOnVedtak : $it") }
         return result.sortUfore().firstOrNull()
     }
     fun List<EessiFellesDto.EessiUfoeretidspunktDto>.sortUfore(): List<EessiFellesDto.EessiUfoeretidspunktDto> =
