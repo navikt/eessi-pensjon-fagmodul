@@ -193,9 +193,9 @@ class PensjonController(
         try {
             val brukersSakerListe = pesysService.hentSakListe(fnr)
             if (brukersSakerListe.isEmpty()) {
-                logger.error("Ingen brukersSakerListe funnet i pensjoninformasjon for aktoer: $fnr")
+                logger.warn("Ingen brukersSakerListe funnet i pensjoninformasjon for ${fnr.takeLast(4)}")
             }
-            brukersSakerListe
+            brukersSakerListe.also { logger.info("BrukersSakerListe funnet: $it") }
         } catch (ex: Exception) {
             logger.error("Feil under henting av pensjoninformasjon kunne hentes", ex)
             throw ex
