@@ -42,6 +42,7 @@ class PesysService(
             "/bruker/sakliste",
             "fnr" to fnr,
         ) ?: return emptyList()
+        logger.info("Henter sakliste: $response")
 
         return when (response) {
             is List<*> -> response.mapNotNull {
