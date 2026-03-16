@@ -13,7 +13,6 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.server.ResponseStatusException
 import tools.jackson.databind.ObjectMapper
 import java.time.LocalDate
-import kotlin.collections.firstOrNull
 
 @Service
 class PesysService(
