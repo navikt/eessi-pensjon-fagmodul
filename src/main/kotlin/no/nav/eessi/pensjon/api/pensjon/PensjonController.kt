@@ -39,6 +39,7 @@ class PensjonController(
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
     private val logger = LoggerFactory.getLogger(PensjonController::class.java)
+    private val secureLog = LoggerFactory.getLogger("secureLog")
 
     private  var pensjonControllerHentSakType: MetricsHelper.Metric
     private  var pensjonControllerHentSakListe: MetricsHelper.Metric
@@ -187,7 +188,8 @@ class PensjonController(
      */
     @GetMapping("/sakliste/{fnr}")
     fun hentPensjonSakIder(@PathVariable fnr: String): List<EessiPensjonSak> = pensjonControllerHentSakListe.measure {
-        logger.info("Henter sakliste for aktoer: $fnr")
+        secureLog.info("Henter sakliste for fnr: $fnr")
+
         try {
             val brukersSakerListe = pesysService.hentSakListe(fnr)
             if (brukersSakerListe.isEmpty()) {
