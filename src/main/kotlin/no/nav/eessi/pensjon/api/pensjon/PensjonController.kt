@@ -1,8 +1,5 @@
 package no.nav.eessi.pensjon.api.pensjon
 
-import com.fasterxml.jackson.core.JsonGenerator
-import com.fasterxml.jackson.databind.JsonSerializer
-import com.fasterxml.jackson.databind.SerializerProvider
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
@@ -22,12 +19,8 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.server.ResponseStatusException
-import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
-import javax.swing.text.DateFormatter
-import javax.xml.datatype.XMLGregorianCalendar
 
 @Protected
 @RestController
@@ -187,7 +180,7 @@ class PensjonController(
      * Brukes for å henter sakliste for aktoer fra journalføring
      */
     @GetMapping("/sakliste/{fnr}")
-    fun hentPensjonSakIder(@PathVariable fnr: String): List<EessiPensjonSak> = pensjonControllerHentSakListe.measure {
+    fun hentsakListeFraPesys(@PathVariable fnr: String): List<EessiPensjonSak> = pensjonControllerHentSakListe.measure {
         secureLog.info("Henter sakliste for fnr: $fnr")
 
         try {

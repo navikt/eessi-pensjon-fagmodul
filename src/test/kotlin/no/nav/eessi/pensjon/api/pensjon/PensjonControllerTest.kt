@@ -112,7 +112,7 @@ class PensjonControllerTest {
 
         every { pesysService.hentSakListe(AKTOERID) } returns saker
 
-        val result = controller.hentPensjonSakIder(AKTOERID)
+        val result = controller.hentsakListeFraPesys(AKTOERID)
         verify { pesysService.hentSakListe(AKTOERID) }
 
         assertEquals(2, result.size)
