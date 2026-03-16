@@ -101,8 +101,6 @@ spec:
     - name: GCP_BUCKET_SAKSBEHANDLING_API
       value: eessi-pensjon-saksbehandling-api-dev
 
-    - name: PENSJONSINFORMASJON_URL
-      value: https://pensjon-pen-q2.dev-fss-pub.nais.io/pen/api/pensjonsinformasjon/v1
     - name: PESYS_URL
       value: https://pensjon-pen-q2.dev-fss-pub.nais.io/pen/api/eessi/v2
 
