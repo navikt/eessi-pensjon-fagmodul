@@ -160,7 +160,7 @@ class PensjonsinformasjonUtlandControllerTest {
 
         val result = controller.hentP6000Detaljer("22975052")
         with(result) {
-            assertEquals("9174", innvilgedePensjoner?.firstOrNull()?.nettobeloep)
+            assertEquals(null, innvilgedePensjoner?.firstOrNull()?.nettobeloep)
             assertEquals("GJENLEVENDE", sakstype)
             assertEquals(1, innvilgedePensjoner?.size)
             assertEquals("9174", innvilgedePensjoner?.firstOrNull()?.bruttobeloep)
