@@ -74,9 +74,6 @@ class RestTemplateConfig(
     @Value("\${EESSIPENSJON_PREFILL_GCP_URL}")
     lateinit var prefillUrl: String
 
-    @Value("\${PENSJONSINFORMASJON_URL}")
-    lateinit var pensjonUrl: String
-
     @Value("\${PESYS_URL}")
     lateinit var pesysUrl: String
 
@@ -97,9 +94,6 @@ class RestTemplateConfig(
 
     @Bean
     fun prefillOAuthTemplate() = restTemplate(prefillUrl, onBehalfOfBearerTokenInterceptor(prefillClientId))
-
-    @Bean
-    fun pensjoninformasjonRestTemplate() = restTemplate(pensjonUrl, oAuth2BearerTokenInterceptor(clientProperties("pensjon-credentials"), oAuth2AccessTokenService), EuxErrorHandler())
 
     @Bean
     fun pesysClientRestTemplate() = restTemplate(pesysUrl, oAuth2BearerTokenInterceptor(clientProperties("pensjon-credentials"), oAuth2AccessTokenService), EuxErrorHandler())
