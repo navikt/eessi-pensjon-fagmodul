@@ -180,27 +180,8 @@ class PensjonController(
     /**
      * Brukes for å henter sakliste for aktoer fra journalføring
      */
-    @GetMapping("/sakliste/{fnr}")
-    fun hentsakListeFraPesys(@PathVariable fnr: String): List<EessiPensjonSak> = pensjonControllerHentSakListe.measure {
-        secureLog.info("Henter sakliste for fnr: $fnr")
-
-        try {
-            val brukersSakerListe = pesysService.hentSakListe(fnr)
-            if (brukersSakerListe.isEmpty()) {
-                logger.warn("Ingen brukersSakerListe funnet i pensjoninformasjon for ${fnr.takeLast(4)}")
-            }
-            brukersSakerListe.also { logger.info("BrukersSakerListe funnet: $it") }
-        } catch (ex: Exception) {
-            logger.error("Feil under henting av pensjoninformasjon kunne hentes", ex)
-            throw ex
-        }
-    }
-
-    /**
-     * Brukes for å henter sakliste for aktoer fra journalføring
-     */
     @GetMapping("/saklisteFraPesys")
-    fun hentsakListeFraPesysV2(@RequestHeader("fnr") fnr: String): List<EessiPensjonSak> = pensjonControllerHentSakListe.measure {
+    fun hentsakListeFraPesys(@RequestHeader("fnr") fnr: String): List<EessiPensjonSak> = pensjonControllerHentSakListe.measure {
         secureLog.info("Henter sakliste for fnr: $fnr")
 
         try {
