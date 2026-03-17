@@ -139,7 +139,7 @@ class PensjonsinformasjonUtlandController(
         pesysId: String
     ) {
         if (innvilgedePensjoner.isEmpty() && avslaatteUtenlandskePensjoner.isEmpty()) {
-            logger.error("Ingen gyldige pensjoner funnet i P6000er for pesysId: $pesysId")
+            logger.warn("Ingen gyldige pensjoner funnet i P6000er for pesysId: $pesysId")
         }
         if (innvilgedePensjoner.size + avslaatteUtenlandskePensjoner.size != listeOverP6000FraGcp.size) {
             logger.warn("Mismatch: innvilgedePensjoner (${innvilgedePensjoner.size}) + avslåtteUtenlandskePensjoner (${avslaatteUtenlandskePensjoner.size}) != utenlandskeP6000er (${listeOverP6000FraGcp.size})")
