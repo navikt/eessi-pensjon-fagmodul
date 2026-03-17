@@ -76,7 +76,6 @@ private val lastupdate = LocalDate.of(2020, Month.AUGUST, 7).toString()
     MockkBean(name = "euxNavIdentRestTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "euxNavIdentRestTemplateV2", classes = [RestTemplate::class]),
     MockkBean(name = "safGraphQlOidcRestTemplate", classes = [RestTemplate::class]),
-//    MockkBean(name = "pensjonsinformasjonClient", classes = [PensjonsinformasjonClient::class])
 ])
 internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
@@ -85,9 +84,6 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
     @Autowired
     private lateinit var safGraphQlOidcRestTemplate: RestTemplate
-
-//    @Autowired
-//    private lateinit var pensjonsinformasjonClient: PensjonsinformasjonClient
 
     @Autowired
     private lateinit var personService: PersonService
@@ -232,8 +228,6 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
     @Test
     fun `Hent mulige rinasaker for aktoer og saf med vedtak uten avdod`() {
-//        every { pensjonsinformasjonClient.hentAltPaaVedtak(VEDTAKID) } .answers( FunctionAnswer { Thread.sleep(56); mockVedtakUtenAvdod(AKTOERID) } )
-
         val result = mockMvc.perform(
             MockMvcRequestBuilders.get("/buc/rinasaker/$AKTOERID/saknr/$SAKNR2/vedtak/$VEDTAKID")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -248,7 +242,6 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
     @Test
     fun `Hent mulige rinasaker for aktoer og saf med vedtak med avdod`() {
-//        every { pensjonsinformasjonClient.hentAltPaaVedtak(VEDTAKID) } .answers( FunctionAnswer { Thread.sleep(56); mockVedtak(AVDOD_FNR2, AKTOERID) } )
         every { pesysService.hentAvdod(VEDTAKID) } returns EessiFellesDto.EessiAvdodDto(avdod = AVDOD_FNR2, avdodMor = null, avdodFar = null)
         every { pesysService.hentGyldigAvdod(any()) } returns listOf(AVDOD_FNR2)
 

@@ -1,6 +1,5 @@
 package no.nav.eessi.pensjon.api.geo
 
-//import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
 import com.ninjasquad.springmockk.MockkBean
 import com.ninjasquad.springmockk.MockkBeans
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
@@ -48,7 +47,6 @@ import org.springframework.web.client.RestTemplate
         MockkBean(name = "euxNavIdentRestTemplateV2", classes = [RestTemplate::class]),
         MockkBean(name = "safRestOidcRestTemplate", classes = [RestTemplate::class]),
         MockkBean(name = "safGraphQlOidcRestTemplate", classes = [RestTemplate::class]),
-//        MockkBean(name = "pensjonsinformasjonClient", classes = [PensjonsinformasjonClient::class])
     ]
 )
 class LandkoderControllerIntegrationTest {

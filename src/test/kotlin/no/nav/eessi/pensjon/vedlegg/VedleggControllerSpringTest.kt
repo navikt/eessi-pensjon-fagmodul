@@ -9,7 +9,6 @@ import io.mockk.verify
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.gcp.GcpStorageService
-//import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PesysService
 import no.nav.eessi.pensjon.utils.mapJsonToAny
@@ -49,7 +48,6 @@ import org.springframework.web.client.RestTemplate
     MockkBean(name = "safGraphQlOidcRestTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "euxNavIdentRestTemplateV2", classes = [RestTemplate::class]),
     MockkBean(name = "kafkaTemplate", classes = [KafkaTemplate::class], relaxed = true),
-//    MockkBean(name = "pensjonsinformasjonClient", classes = [PensjonsinformasjonClient::class])
 ])
 class VedleggControllerSpringTest {
     @MockkBean

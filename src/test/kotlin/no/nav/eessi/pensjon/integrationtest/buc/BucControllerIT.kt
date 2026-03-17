@@ -18,7 +18,6 @@ import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.integrationtest.IntegrasjonsTestConfig
-//import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
 import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentGruppe
@@ -73,7 +72,6 @@ private val lastupdate = LocalDate.of(2020, Month.AUGUST, 7).toString()
     MockkBean(name = "euxNavIdentRestTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "safGraphQlOidcRestTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "euxNavIdentRestTemplateV2", classes = [RestTemplate::class]),
-//    MockkBean(name = "pensjonsinformasjonClient", classes = [PensjonsinformasjonClient::class])
 )
 internal class BucControllerIT: BucBaseTest() {
 
@@ -82,9 +80,6 @@ internal class BucControllerIT: BucBaseTest() {
 
     @Autowired
     private lateinit var euxNavIdentRestTemplate: RestTemplate
-
-//    @Autowired
-//    private lateinit var pensjonsinformasjonClient: PensjonsinformasjonClient
 
     @Autowired
     private lateinit var personService: PersonService
@@ -132,7 +127,6 @@ internal class BucControllerIT: BucBaseTest() {
 
         every { pesysService.hentAvdod(VEDTAKID) } returns EessiFellesDto.EessiAvdodDto(avdod = AVDOD_FNR, avdodMor = null, avdodFar = null)
         every { pesysService.hentGyldigAvdod(any()) } returns listOf(AVDOD_FNR)
-//        every { pensjonsinformasjonClient.hentAltPaaVedtak(VEDTAKID) } returns mockVedtak(AVDOD_FNR, GJENLEV_AKTOERID)
 
         //gjenlevende aktoerid -> gjenlevendefnr
         every { personService.hentIdent(IdentGruppe.FOLKEREGISTERIDENT, AktoerId(GJENLEV_AKTOERID)) } returns NorskIdent(GJENLEVENDE_FNR)
@@ -175,7 +169,6 @@ internal class BucControllerIT: BucBaseTest() {
             every { pesysService.hentAvdod(VEDTAKID) } returns EessiFellesDto.EessiAvdodDto(avdod = AVDOD_FNR, avdodMor = null, avdodFar = null)
             every { pesysService.hentGyldigAvdod(any()) } returns listOf(AVDOD_FNR)
 
-//            every { pensjonsinformasjonClient.hentAltPaaVedtak(VEDTAKID) } returns mockVedtak(AVDOD_FNR, GJENLEV_AKTOERID)
             //gjenlevende aktoerid -> gjenlevendefnr
             every { personService.hentIdent(IdentGruppe.FOLKEREGISTERIDENT, AktoerId(GJENLEV_AKTOERID)) } returns NorskIdent(GJENLEVENDE_FNR)
             //buc02 - avdød rinasak
@@ -228,7 +221,6 @@ internal class BucControllerIT: BucBaseTest() {
     fun `Gitt det finnes gjenlevende og en avdød kun fra SAF så skal det hentes og lever en liste av buc med subject`() {
         val sedjson = javaClass.getResource("/json/nav/P2100-PinNO-NAV.json")!!.readText()
 
-//        every { pensjonsinformasjonClient.hentAltPaaVedtak(VEDTAKID) } returns mockVedtak(AVDOD_FNR, GJENLEV_AKTOERID)
         every { pesysService.hentAvdod(VEDTAKID) } returns EessiFellesDto.EessiAvdodDto(avdod = AVDOD_FNR, avdodMor = null, avdodFar = null)
         every { pesysService.hentGyldigAvdod(any()) } returns listOf(AVDOD_FNR)
 
@@ -287,7 +279,6 @@ internal class BucControllerIT: BucBaseTest() {
     @Test
     fun `Gitt det finnes en gjenlevende og avdød hvor buc05 buc06 og buc10 finnes Så skal det returneres en liste av buc`() {
 
-//        every { pensjonsinformasjonClient.hentAltPaaVedtak(VEDTAKID)  } returns mockVedtak(AVDOD_FNR, GJENLEV_AKTOERID)
         every { pesysService.hentAvdod(VEDTAKID) } returns EessiFellesDto.EessiAvdodDto(avdod = AVDOD_FNR, avdodMor = null, avdodFar = null)
         every { pesysService.hentGyldigAvdod(any()) } returns listOf(AVDOD_FNR)
 
