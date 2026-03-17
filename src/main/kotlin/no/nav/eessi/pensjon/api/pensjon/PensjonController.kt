@@ -1,6 +1,5 @@
 package no.nav.eessi.pensjon.api.pensjon
 
-import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.EessiPensjonSak
@@ -29,7 +28,6 @@ import java.util.*
 class PensjonController(
     private val pesysService: PesysService,
     private val auditlogger: AuditLogger,
-    private val innhentingService: InnhentingService,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
     private val logger = LoggerFactory.getLogger(PensjonController::class.java)
@@ -92,70 +90,6 @@ class PensjonController(
             }
         }
     }
-
-
-//    @GetMapping("/validate/{aktoerId}/sakId/{sakId}/buctype/{buctype}")
-//    fun validerKravPensjon(@PathVariable("aktoerId", required = true) aktoerId: String, @PathVariable("sakId", required = true) sakId: String, @PathVariable("buctype", required = true) bucType: String): Boolean {
-//        return pensjonControllerValidateSak.measure {
-//
-//            val pendata = pensjonsinformasjonService.hentAltPaaAktoerId(aktoerId)
-//            if (pendata.brukersSakerListe == null) {
-//                logger.warn("Ingen gyldig brukerSakerListe funnet")
-//                throw PensjoninformasjonException("Ingen gyldig brukerSakerListe, mangler data fra pesys")
-//            }
-//
-//            val sak = FinnSak.finnSak(sakId, pendata) ?: return@measure false
-//
-//            return@measure when(bucType) {
-//                "P_BUC_01", "P_BUC_03" -> {
-//                    PensjoninformasjonValiderKrav.validerGyldigKravtypeOgArsak(sak, bucType)
-//                    true
-//                }
-//                "P_BUC_02" -> {
-//                    PensjoninformasjonValiderKrav.validerGyldigKravtypeOgArsakGjenlevnde(sak, bucType)
-//                    true
-//                }
-//                else -> true
-//            }
-//        }
-//    }
-
-//    @GetMapping("/vedtak/{vedtakid}/vilkarsvurdering")
-//    fun hentVedtakforVilkarsVurderingList(@PathVariable("vedtakid", required = true) vedtakId: String): List<V1Vilkarsvurdering> {
-//        val pensjonsinformasjon = pensjonsinformasjonService.hentAltPaaVedtak(vedtakId).also {
-//            logger.debug("pensjonInfo: ${it.toJsonSkipEmpty()}")
-//        }
-//        logger.debug("--".repeat(100))
-//        logger.debug("vilkarsliste sizze : ${pensjonsinformasjon.vilkarsvurderingListe.vilkarsvurderingListe.size}")
-//
-//        val vilkarsvurderingListe = pensjonsinformasjon.vilkarsvurderingListe.vilkarsvurderingListe
-//
-//        val vilkarsvurderingUforetrygdListe = vilkarsvurderingListe.mapNotNull { it.vilkarsvurderingUforetrygd }
-//        logger.debug("vilkarsvurdering ufore: ${vilkarsvurderingUforetrygdListe.size}")
-//
-//        vilkarsvurderingUforetrygdListe.forEach { v1ufore ->
-//            logger.debug("--".repeat(100))
-//            logger.debug("Uforetidspunkt: ${v1ufore.uforetidspunkt}")
-//
-//            logger.debug("ungUfor: ${v1ufore.ungUfor}")
-//            logger.debug("isYrkesskade: ${v1ufore.isYrkesskade}")
-//            logger.debug("hensiktsmessigArbeidsrettedeTiltak: ${v1ufore.hensiktsmessigArbeidsrettedeTiltak}")
-//        }
-//
-//        return vilkarsvurderingListe
-//    }
-
-//    @GetMapping("/vedtak/{vedtakid}/pensjoninfo")
-//    fun hentVedtakforPensjonsinformasjon(@PathVariable("vedtakid", required = true) vedtakId: String): String {
-//        val vedtak = pensjonsinformasjonService.hentAltPaaVedtak(vedtakId).also {
-//            logger.debug("pensjonInfo: ${it.toJsonSkipEmpty()}")
-//        }
-//        val mapper = ObjectMapper()
-//            .registerModule(JavaTimeModule())
-//            .registerModule(SimpleModule().addSerializer(XMLGregorianCalendar::class.java, LocalDateSerializer()))
-//        val jsonobj: Any = mapper.readValue(mapper.writeValueAsString(vedtak), Any::class.java)
-//        return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonobj)
-//    }
 
     /**
      * Brukes for å hente vedtak fra frontend / EP

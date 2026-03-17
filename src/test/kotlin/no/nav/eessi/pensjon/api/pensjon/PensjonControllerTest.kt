@@ -45,7 +45,7 @@ class PensjonControllerTest {
     private var auditLogger: AuditLogger = AuditLogger()
 
     @InjectMockKs
-    private val controller = PensjonController(pesysService, auditLogger, innhentingService)
+    private val controller = PensjonController(pesysService, auditLogger)
     private val mockMvc = MockMvcBuilders.standaloneSetup(controller).build()
 
     @BeforeEach
@@ -201,7 +201,7 @@ class PensjonControllerTest {
         val mockVedtakid = SOME_VEDTAK_ID
 //        val mockClient = fraFil("BARNEP-PlukkBestOpptjening.xml")
 
-        val mockController = PensjonController(PesysService(mockk()), auditLogger, innhentingService)
+        val mockController = PensjonController(PesysService(mockk()), auditLogger)
         val mockMvc2 = MockMvcBuilders.standaloneSetup(mockController).build()
 
         val result = mockMvc2.perform(
