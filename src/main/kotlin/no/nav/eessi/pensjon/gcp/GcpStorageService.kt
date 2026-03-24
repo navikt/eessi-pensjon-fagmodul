@@ -142,7 +142,7 @@ class GcpStorageService(
                 logger.info("Henter melding med pesysnr $storageKey, for bucket p6000Bucket")
                 options.getContent().decodeToString()
             } else {
-                logger.warn("Melding med pesysnr $storageKey, for bucket p6000Bucket eksister ikke")
+                logger.info("Melding med pesysnr $storageKey, for bucket p6000Bucket eksister ikke")
                 null
             }
         }.getOrElse { e ->
