@@ -26,6 +26,7 @@ data class SafRequest(
                         "dokumentvarianter {" +
                             "filnavn " +
                             "variantformat" +
+                            "filstoerrelse" +
                         "} " +
                     "} " +
                     "relevanteDatoer {" +
@@ -103,9 +104,11 @@ data class Dokument(
         val dokumentvarianter: List<Dokumentvarianter>
 )
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 data class Dokumentvarianter(
         val filnavn: String?,
-        val variantformat: VariantFormat
+        val variantformat: VariantFormat,
+        val filstoerrelse: String?
 )
 
 class HentdokumentInnholdResponse (

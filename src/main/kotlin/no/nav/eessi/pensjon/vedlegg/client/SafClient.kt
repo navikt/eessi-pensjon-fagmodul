@@ -120,7 +120,7 @@ class SafClient(private val safGraphQlOidcRestTemplate: RestTemplate,
 
     private fun genererQuery(aktoerId: String): String {
         val request = SafRequest(variables = Variables(BrukerId(aktoerId, BrukerIdType.AKTOERID), 10000))
-        return request.toJson()
+        return request.toJson().also { logger.debug("SafRequesten: $it") }
     }
 }
 
