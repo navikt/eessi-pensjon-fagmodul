@@ -67,7 +67,7 @@ class EuxServiceKallItegrationTest {
             .andReturn()
 
         val result = response.response.contentAsString
-        val expected = """{"rinaUrl":"https://rina-q.adeo.no/portal_new/case-management/"}""".trimIndent()
+        val expected = """{"result":{"rinaUrl":"https://rina-q.adeo.no/portal_new/case-management/"},"status":null,"message":null,"stackTrace":null}""".trimIndent()
         assertEquals(expected, result)
 
     }
