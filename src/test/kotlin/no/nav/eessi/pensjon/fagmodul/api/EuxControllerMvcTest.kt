@@ -25,6 +25,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
+import org.springframework.web.client.RestTemplate
 
 @ActiveProfiles(profiles = ["unsecured-webmvctest"])
 @ComponentScan(basePackages = ["no.nav.eessi.pensjon.fagmodul.api"])
@@ -71,8 +72,8 @@ class EuxControllerMvcTest {
     }
 
     @Test
-    fun `Hent påkoblede land som institusjoner`() {
-        val expected = """ {"result":"[ \"NO\", \"SE\" ]","status":"OK","message":null,"stackTrace":null} """.trimIndent()
+    fun `Hent paakoblede land som institusjoner`() {
+        val expected = """ {"result":"[ \"NO\", \"SE\" ]","status":"OK","message":null,"stackTrace":null}""".trimIndent()
 
         val institusjoner = listOf(
             InstitusjonItem("NO", "institusjonId", "institusjonNavn"),
