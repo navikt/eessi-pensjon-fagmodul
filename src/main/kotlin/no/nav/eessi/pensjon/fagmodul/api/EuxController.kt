@@ -54,7 +54,7 @@ class EuxController(
 
     @Protected
     @GetMapping("/countries/{buctype}")
-    fun getPaakobledeland(@PathVariable(value = "buctype") bucType: BucType): ResponseEntity<FrontEndResponse<String>> {
+    fun getPaakobledeland(@PathVariable(value = "buctype") bucType: BucType): ResponseEntity<FrontEndResponse<List<String>>> {
         return paakobledeland.measure {
             logger.info("Henter ut liste over land knyttet til buc: $bucType")
             return@measure try {
@@ -65,11 +65,11 @@ class EuxController(
                     logger.warn("Ingen svar fra /institusjoner?BuCType, kjører backupliste")
                     backupList
                 }
-                ResponseEntity.ok(FrontEndResponse(landlist.toJson(), HttpStatus.OK.name))
+                ResponseEntity.ok(FrontEndResponse(landlist, HttpStatus.OK.name))
             } catch (sce: HttpStatusCodeException) {
-                ResponseEntity.status(sce.statusCode).body(FrontEndResponse(errorBody(sce.responseBodyAsString), sce.statusCode.toString()))
+                ResponseEntity.status(sce.statusCode).body(FrontEndResponse(null, errorBody(sce.responseBodyAsString), sce.statusCode.toString()))
             } catch (ex: Exception) {
-                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(FrontEndResponse(ex.message?.let { errorBody(it) }, HttpStatus.INTERNAL_SERVER_ERROR.toString()))
+                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(FrontEndResponse(null, ex.message?.let { errorBody(it) }, HttpStatus.INTERNAL_SERVER_ERROR.toString()))
             }
         }
     }
