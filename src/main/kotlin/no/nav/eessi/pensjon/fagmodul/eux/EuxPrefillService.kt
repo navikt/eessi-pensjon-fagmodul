@@ -119,7 +119,7 @@ class EuxPrefillService (private val euxKlient: EuxKlientLib,
 
         x005Liste.forEach { x005 ->
             try {
-                updateSEDVersion(x005, bucVersion)
+//                updateSEDVersion(x005, bucVersion)
                 opprettJsonSedOnBuc(x005.toJson(), x005.type, dataModel.euxCaseID, dataModel.vedtakId)
             } catch (eux: EuxRinaServerException) {
                 execptionError = eux
@@ -137,16 +137,16 @@ class EuxPrefillService (private val euxKlient: EuxKlientLib,
     }
 
     //flyttes til prefill / en eller annen service?
-    fun updateSEDVersion(sed: SED, bucVersion: String) {
-        when (bucVersion) {
-            "v4.2" -> {
-                sed.sedVer = "2"
-            }
-            else -> {
-                sed.sedVer = "1"
-            }
-        }
-    }
+//    fun updateSEDVersion(sed: SED, bucVersion: String) {
+//        when (bucVersion) {
+//            "v4.2" -> {
+//                sed.sedVer = "2"
+//            }
+//            else -> {
+//                sed.sedVer = "1"
+//            }
+//        }
+//    }
 
 
 }
