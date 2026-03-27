@@ -25,7 +25,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestTemplate
 
-class EuxControllerTest {
+class  EuxControllerTest {
 
     @SpyK
     private lateinit var mockEuxInnhentingService: EuxInnhentingService
@@ -60,7 +60,7 @@ class EuxControllerTest {
 
         val result = euxController.getPaakobledeland(P_BUC_06)
 
-        val list = mapJsonToAny<List<String>>(result.body!!.result!!)
+        val list = result.body!!.result!!
         assertIterableEquals(backupList, list)
 
     }
@@ -71,7 +71,7 @@ class EuxControllerTest {
 
         val result = euxController.getPaakobledeland(P_BUC_06)
 
-        val list = mapJsonToAny<List<String>>(result.body!!.result!!)
+        val list = result.body!!.result!!
         assertEquals(1, list.size)
     }
 

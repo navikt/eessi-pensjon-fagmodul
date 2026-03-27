@@ -73,7 +73,7 @@ class EuxControllerMvcTest {
 
     @Test
     fun `Hent paakoblede land som institusjoner`() {
-        val expected = """ {"result":"[ \"NO\", \"SE\" ]","status":"OK","message":null,"stackTrace":null}""".trimIndent()
+        val expected = """ {"result":["NO","SE"],"status":"OK","message":null,"stackTrace":null}""".trimIndent()
 
         val institusjoner = listOf(
             InstitusjonItem("NO", "institusjonId", "institusjonNavn"),
