@@ -1,9 +1,9 @@
 package no.nav.eessi.pensjon.api.person
 
-import no.nav.eessi.pensjon.fagmodul.api.FrontEndResponse
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_02
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_06
 import no.nav.eessi.pensjon.eux.model.SedType
+import no.nav.eessi.pensjon.fagmodul.api.FrontEndResponse
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.logging.AuditLogger
@@ -11,8 +11,7 @@ import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonoppslagException
 import no.nav.eessi.pensjon.personoppslag.pdl.model.*
-import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonService
-import no.nav.eessi.pensjon.utils.toJson
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.PesysService
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
@@ -36,16 +35,16 @@ const val PERSON_IKKE_FUNNET = "Person ikke funnet"
 class PersonPDLController(
     private val pdlService: PersonService,
     private val auditLogger: AuditLogger,
-    private val pensjonsinformasjonService: PensjonsinformasjonService,
+    private val pesysService: PesysService,
     private val euxInnhenting: EuxInnhentingService,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
     private val logger = LoggerFactory.getLogger(PersonPDLController::class.java)
 
-    private lateinit var personControllerHentPerson: MetricsHelper.Metric
-    private lateinit var personControllerHentPersonNavn: MetricsHelper.Metric
-    private lateinit var personControllerHentPersonAvdod: MetricsHelper.Metric
-    private lateinit var personControllerHentAktoerid: MetricsHelper.Metric
+    private  var personControllerHentPerson: MetricsHelper.Metric
+    private  var personControllerHentPersonNavn: MetricsHelper.Metric
+    private  var personControllerHentPersonAvdod: MetricsHelper.Metric
+    private  var personControllerHentAktoerid: MetricsHelper.Metric
     init {
         personControllerHentPerson = metricsHelper.init("PersonControllerHentPerson")
         personControllerHentAktoerid = metricsHelper.init("PersonControllerHentAktoerId")
@@ -94,11 +93,11 @@ class PersonPDLController(
 
         return personControllerHentPersonAvdod.measure {
 
-            val pensjonInfo = pensjonsinformasjonService.hentAltPaaVedtak(vedtaksId).also {
-                logger.debug("pensjonInfo: ${it.toJsonSkipEmpty()}")
+            val pensjonInfo = pesysService.hentAvdod(vedtaksId).also {
+                logger.debug("pensjonInfo: ${it?.toJsonSkipEmpty()}")
             }
 
-            if (pensjonInfo.avdod == null) {
+            if (pensjonInfo?.avdod.isNullOrEmpty() && pensjonInfo?.avdodFar.isNullOrEmpty() && pensjonInfo?.avdodMor.isNullOrEmpty()) {
                 logger.info("Ingen avdøde return empty list")
                 return@measure ResponseEntity.ok(FrontEndResponse(result = emptyList(), status = HttpStatus.OK.name))
             }
@@ -107,9 +106,9 @@ class PersonPDLController(
             logger.debug("gjenlevende : $gjenlevende")
 
             val avdode = mapOf(
-                pensjonInfo.avdod?.avdod to null,
-                pensjonInfo.avdod?.avdodFar to Familierelasjonsrolle.FAR,
-                pensjonInfo.avdod?.avdodMor to Familierelasjonsrolle.MOR
+                pensjonInfo.avdod to null,
+                pensjonInfo.avdodFar to Familierelasjonsrolle.FAR,
+                pensjonInfo.avdodMor to Familierelasjonsrolle.MOR
             )
 
             logger.debug("avdød map : $avdode")
@@ -149,49 +148,36 @@ class PersonPDLController(
     fun getAvdodDateFromVedtakOrSed(
         @PathVariable(value = "vedtakid", required = true) vedtakid: String,
         @PathVariable(value = "rinanr", required = true) euxCaseId: String
-    ): ResponseEntity<FrontEndResponse<List<DodsDatoPdl>>>  {
-        val vedtak = pensjonsinformasjonService.hentAltPaaVedtak(vedtakid)
-        val avdodlist = pensjonsinformasjonService.hentGyldigAvdod(vedtak) ?: return ResponseEntity.ok(FrontEndResponse(result = emptyList(), status = HttpStatus.OK.name))
+    ): ResponseEntity<FrontEndResponse<List<DodsDatoPdl>>> {
+        logger.info("Henter avdødeinfo for vedtak: $vedtakid")
+        val vedtak = pesysService.hentAvdod(vedtakid)
+        val avdodlist = pesysService.hentGyldigAvdod(vedtak) ?: return ResponseEntity.ok(FrontEndResponse(result = emptyList(), status = HttpStatus.OK.name))
 
-        //hvis 2 avdøde..
-        val avdodDato = if (avdodlist.size >= 2) {
-            //henter ut ident på P2100 søker(kap 2.) ident
-            val buc = euxInnhenting.getBuc(euxCaseId)
-            logger.debug("name: ${buc.processDefinitionName}, actions: ${buc.actions.toString()} ")
-
-            //hvis p_buc_02
-            when (buc.processDefinitionName) {
-                P_BUC_02.name -> {
-                    logger.debug("2 avdøde fra vedtak, henter buc for å kunne velge ut den avdod som finnes i P2100")
-                    val bucUtils = BucUtils(buc)
-                    val p2100id = bucUtils.getAllDocuments().firstOrNull { doc -> doc.type == SedType.P2100 && doc.direction == "OUT" }?.id
-                    val sedAvdodident = p2100id?.let { docid -> hentSedAvdodIdent(euxCaseId, docid ) }
-                    //valider sedident mot vedtakident på avdøde
-                    val korrektid = avdodlist.firstOrNull { it == sedAvdodident }
-                    //henter person for doeadsdato
-                    hentDoedsdatoFraPDL(korrektid)
-                }
-                P_BUC_06.name -> {
-                    val bucUtils = BucUtils(buc)
-                    val p5000id = bucUtils.getAllDocuments().firstOrNull { doc -> doc.type == SedType.P5000 && doc.direction == "OUT" }?.id
-                    logger.debug("2 avdøde fra vedtak, henter buc for å kunne velge ut den avdod som finnes i P5000")
-                    val sedAvdodident = p5000id?.let { docid -> hentSedAvdodIdent(euxCaseId, docid ) }
-                    val korrektid = avdodlist.firstOrNull { it == sedAvdodident }
-                    //henter person for doeadsdato
-                    hentDoedsdatoFraPDL(korrektid)
-                }
-                //alle andre BUC støttes ikke for tiden..
-                else -> emptyList()
-            }
-
-        //hvis 1 avdød
-        } else {
-            logger.debug("Kun 1 avdød fra vedtak så enkelt å hente ut metadata..")
-            val singeAvdodident = avdodlist.first()
-            //henter person for doeadsdato
-            hentDoedsdatoFraPDL(singeAvdodident)
+        val avdodDato = when {
+            avdodlist.size >= 2 -> hentFlereAvdode(avdodlist, euxCaseId)
+            else -> hentDoedsdatoFraPDL(avdodlist.first())
         }
+
         return ResponseEntity.ok(FrontEndResponse(result = avdodDato, status = HttpStatus.OK.name))
+    }
+
+    private fun hentFlereAvdode(avdodlist: List<String>, euxCaseId: String): List<DodsDatoPdl> {
+        val buc = euxInnhenting.getBuc(euxCaseId)
+        logger.debug("name: ${buc.processDefinitionName}, actions: ${buc.actions}")
+
+        val sedType = when (buc.processDefinitionName) {
+            P_BUC_02.name -> SedType.P2100
+            P_BUC_06.name -> SedType.P5000
+            else -> return emptyList()
+        }
+
+        val sedAvdodident = BucUtils(buc).getAllDocuments()
+            .firstOrNull { it.type == sedType && it.direction == "OUT" }
+            ?.id
+            ?.let { hentSedAvdodIdent(euxCaseId, it) }
+
+        // valider sedident mot vedtakident på avdøde og henter person for doeadsdato
+        return hentDoedsdatoFraPDL(avdodlist.firstOrNull { it == sedAvdodident })
     }
 
     private fun pairPersonFnr(

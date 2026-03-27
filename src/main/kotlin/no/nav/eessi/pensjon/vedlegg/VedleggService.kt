@@ -24,7 +24,7 @@ class VedleggService(private val safClient: SafClient,
     private final val TILLEGGSOPPLYSNING_RINA_SAK_ID_KEY = "eessi_pensjon_bucid"
     private val logger = LoggerFactory.getLogger(VedleggService::class.java)
 
-    private lateinit var HentRinaSakIderFraDokumentMetadata: MetricsHelper.Metric
+    private  var HentRinaSakIderFraDokumentMetadata: MetricsHelper.Metric
 
     init {
         HentRinaSakIderFraDokumentMetadata = metricsHelper.init("HentRinaSakIderFraDokumentMetadata", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
@@ -84,9 +84,9 @@ class VedleggService(private val safClient: SafClient,
         backoff = Backoff(delayExpression = "@euxKlientVedleggServiceRetryConfig.initialRetryMillis", maxDelay = 200000L, multiplier = 3.0),
         listeners  = ["euxKlientVedleggServiceRetryLogger"]
     )
-    fun hentRinaSakerFraMetaForOmstillingstonad(aktoerId: String): List<String> =
+    fun hentRinaSakerFraMetaForGjenny(aktoerId: String): List<String> =
         hentDokumentMetadata(aktoerId).data.dokumentoversiktBruker.journalposter
-            .filter { it.tema.contains("omstilling") }
+            .filter { it.tema.contains("EYO", true) || it.tema.contains("EYB", true) || it.tema.contains("oms", true) || it.tema.contains("barn", true) }
             .flatMap { journalpost ->
                 journalpost.tilleggsopplysninger
                     .filter { it["nokkel"].equals(TILLEGGSOPPLYSNING_RINA_SAK_ID_KEY) }

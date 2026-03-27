@@ -1,0 +1,120 @@
+{
+  "sed": "P6000",
+  "nav": {
+    "eessisak": [
+      {
+        "institusjonsid": "NO:889640782",
+        "institusjonsnavn": "The Norwegian Labour and Welfare Administration",
+        "saksnummer": "25814615",
+        "land": "NO"
+      }
+    ],
+    "bruker": {
+      "mor": null,
+      "far": null,
+      "person": {
+        "pin": [
+          {
+            "institusjonsnavn": "Department for Work and Pensions",
+            "institusjonsid": "UK:UK030",
+            "sektor": "pensjoner",
+            "identifikator": "JE 25 19 53 B",
+            "land": "GB",
+            "institusjon": null
+          },
+          {
+            "institusjonsnavn": "The Norwegian Labour and Welfare Administration",
+            "institusjonsid": "NO:889640782",
+            "sektor": "pensjoner",
+            "identifikator": "4117512849",
+            "land": "NO",
+            "institusjon": null
+          }
+        ],
+        "pinland": null,
+        "statsborgerskap": [
+          {
+            "land": "GB"
+          }
+        ],
+        "etternavn": "GRIBBIN",
+        "etternavnvedfoedsel": null,
+        "fornavn": "ROSA",
+        "fornavnvedfoedsel": null,
+        "tidligerefornavn": null,
+        "tidligereetternavn": null,
+        "kjoenn": "K",
+        "foedested": {
+          "by": "Unknown",
+          "land": "GB",
+          "region": null
+        },
+        "foedselsdato": "1975-11-04",
+        "sivilstand": null,
+        "relasjontilavdod": null,
+        "rolle": null,
+        "kontakt": null,
+        "doedsdato": null
+      },
+      "adresse": {
+        "gate": "OLAF BULLS GATE 28",
+        "bygning": null,
+        "by": "HAUGESAN 5537",
+        "postnummer": null,
+        "postkode": null,
+        "region": null,
+        "land": "NO",
+        "kontaktpersonadresse": null,
+        "datoforadresseendring": null,
+        "postadresse": null,
+        "startdato": null,
+        "type": null,
+        "annen": null
+      },
+      "arbeidsforhold": null,
+      "bank": null
+    },
+    "ektefelle": null,
+    "barn": null,
+    "verge": null,
+    "krav": null,
+    "annenperson": null
+  },
+  "pensjon": {
+    "gjenlevende": null,
+    "reduksjon": null,
+    "vedtak": [
+      {
+        "grunnlag": null,
+        "virkningsdato": null,
+        "ukjent": null,
+        "type": "02",
+        "resultat": "02",
+        "beregning": null,
+        "avslagbegrunnelse": [
+          {
+            "begrunnelse": "03",
+            "annenbegrunnelse": null
+          }
+        ],
+        "basertPaa": "02",
+        "artikkel": null,
+        "basertPaaAnnen": null,
+        "delvisstans": null,
+        "kjoeringsdato": null,
+        "begrunnelseAnnen": null
+      }
+    ],
+    "sak": null,
+    "tilleggsinformasjon": null,
+    "ytterligeinformasjon": null,
+    "kravDato": null,
+    "angitidligstdato": null,
+    "utsettelse": null,
+    "ytelser": null,
+    "forespurtstartdato": null,
+    "landspesifikk": null
+  },
+  "sedGVer": "4",
+  "sedVer": "2"
+}

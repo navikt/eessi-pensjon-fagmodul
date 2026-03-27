@@ -23,7 +23,7 @@ class EuxVedleggClient(private val euxNavIdentRestTemplate: RestTemplate,
 
     private val logger = LoggerFactory.getLogger(EuxVedleggClient::class.java)
 
-    private lateinit var VedleggPaaDokument: MetricsHelper.Metric
+    private  var VedleggPaaDokument: MetricsHelper.Metric
 
     init {
         VedleggPaaDokument = metricsHelper.init("VedleggPaaDokument")
@@ -44,12 +44,12 @@ class EuxVedleggClient(private val euxNavIdentRestTemplate: RestTemplate,
                     .builder("form-data")
                     .filename("filename")
                     .name("file")
-                    .build().toString()
+                    .build()
 
-            val attachmentMeta = LinkedMultiValueMap<String, String>()
-            attachmentMeta.add(HttpHeaders.CONTENT_DISPOSITION, disposition)
             val dokumentInnholdBinary = Base64.getDecoder().decode(filInnhold)
-            val attachmentPart = HttpEntity(dokumentInnholdBinary, attachmentMeta)
+            val attachmentPart =  HttpEntity(dokumentInnholdBinary, HttpHeaders().apply {
+                contentDisposition = disposition
+            })
 
             val body = LinkedMultiValueMap<String, Any>()
             body.add("multipart", attachmentPart)
@@ -91,7 +91,7 @@ class EuxVedleggClient(private val euxNavIdentRestTemplate: RestTemplate,
         }
     }
 
-    fun <T> restTemplateErrorhandler(restTemplateFunction: () -> ResponseEntity<T>, euxCaseId: String, metric: MetricsHelper.Metric, prefixErrorMessage: String): ResponseEntity<T> {
+    fun <T : Any> restTemplateErrorhandler(restTemplateFunction: () -> ResponseEntity<T>, euxCaseId: String, metric: MetricsHelper.Metric, prefixErrorMessage: String): ResponseEntity<T> {
         return metric.measure {
             return@measure try {
                 val response = retryHelper( func = { restTemplateFunction.invoke() } )

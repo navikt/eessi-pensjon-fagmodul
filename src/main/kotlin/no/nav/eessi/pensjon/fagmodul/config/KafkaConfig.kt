@@ -39,7 +39,7 @@ class KafkaConfig(
     @Bean
     fun kafkaTemplate(): KafkaTemplate<String, String> {
         val kafkaTemplate = KafkaTemplate(producerFactory())
-        kafkaTemplate.defaultTopic = automatiseringTopic
+        kafkaTemplate.setDefaultTopic( automatiseringTopic)
         return kafkaTemplate
     }
 

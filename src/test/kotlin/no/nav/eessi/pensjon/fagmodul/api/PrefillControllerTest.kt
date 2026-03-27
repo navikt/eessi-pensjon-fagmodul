@@ -27,7 +27,8 @@ import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
 import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentGruppe
 import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
-import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonService
+//import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonService
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.PesysService
 import no.nav.eessi.pensjon.services.statistikk.StatistikkHandler
 import no.nav.eessi.pensjon.shared.api.ApiRequest
 import no.nav.eessi.pensjon.shared.api.InstitusjonItem
@@ -60,7 +61,12 @@ internal class PrefillControllerTest {
     private var gcpStorageService: GcpStorageService = mockk(relaxed = true)
 
     @SpyK
-    private var mockEuxInnhentingService: EuxInnhentingService = EuxInnhentingService("Q2", mockEuxKlient, gcpStorageService)
+    private var mockEuxInnhentingService: EuxInnhentingService = EuxInnhentingService(
+        "Q2",
+        mockEuxKlient,
+        gcpStorageService,
+        mockk(relaxed = true),
+    )
 
     @MockK
     private lateinit var kafkaTemplate: KafkaTemplate<String, String>
@@ -72,7 +78,7 @@ internal class PrefillControllerTest {
     private lateinit var personService: PersonService
 
     @MockK
-    private lateinit var pensjonsinformasjonService: PensjonsinformasjonService
+    private lateinit var pesysService: PesysService
 
     @MockK
     private lateinit var prefillKlient: PrefillKlient
@@ -87,7 +93,7 @@ internal class PrefillControllerTest {
 
         MockKAnnotations.init(this, relaxed = true)
 
-        val innhentingService = InnhentingService(personService, vedleggService, prefillKlient, pensjonsinformasjonService)
+        val innhentingService = InnhentingService(personService, vedleggService, prefillKlient, pesysService)
         prefillController = PrefillController(
             mockEuxPrefillService,
             mockEuxInnhentingService,
@@ -122,7 +128,6 @@ internal class PrefillControllerTest {
 
         val expected = BucAndSedView.from(buc)
         val actual = prefillController.createBuc(P_BUC_03.name, GjennySak("321321", "BARNEP"))
-        println(actual.toJson())
 
         assertEquals(expected.toJson(), actual.toJson())
     }

@@ -5,18 +5,13 @@ import com.ninjasquad.springmockk.MockkBeans
 import com.ninjasquad.springmockk.SpykBean
 import io.mockk.every
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
-import no.nav.eessi.pensjon.eux.klient.EuxKlientLib
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
-import no.nav.eessi.pensjon.shared.api.InstitusjonItem
-import no.nav.eessi.pensjon.utils.toJson
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
 import org.springframework.context.annotation.ComponentScan
-import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
@@ -34,6 +29,7 @@ import org.springframework.util.MultiValueMap
     MockkBean(name = "bucController", classes = [BucController::class], relaxed = true),
     MockkBean(name = "prefillController", classes = [PrefillController::class], relaxed = true),
     MockkBean(name = "gcpStorageService", classes = [GcpStorageService::class], relaxed = true),
+    MockkBean(name = "euxNavIdentRestTemplateV2", classes = [RestTemplate::class]),
     MockkBean(name = "sedController", classes = [SedController::class], relaxed = true)
     )
 class EuxControllerMvcTest {

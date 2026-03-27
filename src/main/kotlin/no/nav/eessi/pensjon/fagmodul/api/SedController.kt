@@ -42,7 +42,7 @@ class SedController(
     private val logger = LoggerFactory.getLogger(SedController::class.java)
 
     private lateinit var sedsendt: MetricsHelper.Metric
-    private lateinit var pdfGenerert: MetricsHelper.Metric
+    private var pdfGenerert: MetricsHelper.Metric
 
     init {
         pdfGenerert = metricsHelper.init("PdfGenerert")
@@ -129,7 +129,7 @@ class SedController(
     fun getSeds(
         @PathVariable(value = "buctype", required = true) bucType: String,
         @PathVariable(value = "rinanr", required = true) euxCaseId: String
-    ): ResponseEntity<String?> {
+    ): ResponseEntity<String> {
         val resultListe = BucUtils(euxInnhentingService.getBuc(euxCaseId)).getFiltrerteGyldigSedAksjonListAsString()
         logger.info("Henter liste over SED som kan opprettes på buctype: $bucType seds: $resultListe")
         return ResponseEntity.ok().body(resultListe.toJsonSkipEmpty())

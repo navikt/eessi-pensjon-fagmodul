@@ -11,12 +11,13 @@ spec:
       destinations:
         - id: elastic
         - id: loki
+    autoInstrumentation:
+      enabled: true
+      runtime: java
   kafka:
     pool: nav-prod
   envFrom:
     - secret: fagmodul-prod #secret name in Google Secret Manager
-  secureLogs:
-    enabled: true
   azure:
     application:
       enabled: true
@@ -42,6 +43,8 @@ spec:
   accessPolicy:
     outbound:
       rules:
+        - application: logging
+          namespace: nais-system
         - application: eessi-pensjon-prefill
           namespace: eessipensjon
           cluster: prod-gcp
@@ -76,6 +79,10 @@ spec:
   env:
     - name: SPRING_PROFILES_ACTIVE
       value: prod
+
+    - name: JDK_JAVA_OPTIONS
+      value: -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp
+
     - name: GCP_BUCKET_GJENNY
       value: eessi-pensjon-gjenny
     - name: GCP_BUCKET_P8000
@@ -85,10 +92,14 @@ spec:
     - name: GCP_BUCKET_SAKSBEHANDLING_API
       value: eessi-pensjon-saksbehandling-api-prod
 
-    - name: PENSJONSINFORMASJON_URL
-      value: https://pensjon-pen.prod-fss-pub.nais.io/pen/api/pensjonsinformasjon/v1
+    - name: PESYS_URL
+      value: https://pensjon-pen.prod-fss-pub.nais.io/pen/api/eessi/v2
+
     - name: EESSIPEN_EUX_RINA_URL
       value: https://eux-rina-api.intern.nav.no/cpi
+    - name: EESSIPEN_EUX_RINA_URL_v2
+      value: https://eux-rina-api.intern.nav.no/v2
+
     - name: EESSIPENSJON_PREFILL_GCP_URL
       value: https://eessi-pensjon-prefill.intern.nav.no
     - name: RINA_HOST_URL
@@ -145,8 +156,7 @@ spec:
     cpuThresholdPercentage: 80
   resources:
     limits:
-      cpu: 2000m
       memory: 2Gi
     requests:
       cpu: 600m
-      memory: 1Gi
+      memory: 1500Mi

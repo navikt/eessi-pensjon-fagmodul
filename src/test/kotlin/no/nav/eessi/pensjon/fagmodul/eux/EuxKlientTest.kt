@@ -22,11 +22,12 @@ import org.hamcrest.core.StringContains.containsString
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.restclient.RestTemplateBuilder
 import org.springframework.boot.test.context.TestConfiguration
-import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -166,7 +167,7 @@ class EuxKlientTest {
         val exception = assertThrows<GenericUnprocessableEntity> {
             euxKlient.getBucJsonAsNavIdent(P_BUC_99 )
         }
-        assertEquals("Bad request, en feil har oppstått", exception.reason)
+        assertEquals("Bad request, en feil har oppstått: ", exception.reason)
     }
 
     @Test
@@ -186,7 +187,7 @@ class EuxKlientTest {
         val exception = assertThrows<GenericUnprocessableEntity> {
             euxKlient.getBucJsonAsNavIdent(P_BUC_99 )
         }
-        assertEquals("Bad request, en feil har oppstått", exception.reason)
+        assertEquals("Bad request, en feil har oppstått: ", exception.reason)
     }
 
     @Test

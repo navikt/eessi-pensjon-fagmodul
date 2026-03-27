@@ -8,13 +8,13 @@ import no.nav.eessi.pensjon.eux.klient.Rinasak
 import no.nav.eessi.pensjon.eux.model.BucType
 import no.nav.eessi.pensjon.eux.model.BucType.*
 import no.nav.eessi.pensjon.eux.model.InstitusjonDetalj
+import no.nav.eessi.pensjon.eux.model.SedMetadata
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
 import no.nav.eessi.pensjon.eux.model.buc.MissingBuc
 import no.nav.eessi.pensjon.eux.model.buc.PreviewPdf
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
-import no.nav.eessi.pensjon.eux.model.sed.Person
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.X009
 import no.nav.eessi.pensjon.fagmodul.api.FrontEndResponse
@@ -41,6 +41,7 @@ import org.springframework.retry.annotation.Backoff
 import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
+import org.springframework.web.client.RestTemplate
 import org.springframework.web.server.ResponseStatusException
 import java.io.IOException
 
@@ -49,16 +50,17 @@ class EuxInnhentingService(
     @Value("\${ENV}") private val environment: String,
     private val euxKlient: EuxKlientAsSystemUser,
     private val gcpService: GcpStorageService,
+    private val euxNavIdentRestTemplateV2: RestTemplate,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
 
-    private lateinit var sedByDocumentId: MetricsHelper.Metric
-    private lateinit var bucDeltakere: MetricsHelper.Metric
-    private lateinit var getKodeverk: MetricsHelper.Metric
-    private lateinit var createBUC: MetricsHelper.Metric
-    private lateinit var hentRinasaker: MetricsHelper.Metric
-    private lateinit var putDocument: MetricsHelper.Metric
-    private lateinit var pingEux: MetricsHelper.Metric
+    private  var sedByDocumentId: MetricsHelper.Metric
+    private  var bucDeltakere: MetricsHelper.Metric
+    private  var getKodeverk: MetricsHelper.Metric
+    private  var createBUC: MetricsHelper.Metric
+    private  var hentRinasaker: MetricsHelper.Metric
+    private  var putDocument: MetricsHelper.Metric
+    private  var pingEux: MetricsHelper.Metric
 
     init {
         sedByDocumentId = metricsHelper.init("SEDByDocumentId", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
@@ -75,6 +77,7 @@ class EuxInnhentingService(
     }
 
     private val logger = LoggerFactory.getLogger(EuxInnhentingService::class.java)
+    private val secureLog = LoggerFactory.getLogger("secureLog")
 
     @Retryable(
         exclude = [IOException::class],
@@ -112,9 +115,8 @@ class EuxInnhentingService(
 
     fun getSedOnBucByDocumentIdAsSystemuser(euxCaseId: String, documentId: String): SED {
         val json = sedByDocumentId.measure { euxKlient.getSedOnBucByDocumentIdAsSystemuser(euxCaseId, documentId) }
-        logger.info("JSON: $json")
         return try {
-            SED.fromJsonToConcrete(json).also { logger.info("JsonToConcrete: $it") }
+            SED.fromJsonToConcrete(json).also { secureLog.info("JsonToConcrete: $it") }
 
         } catch (ex: Exception) {
             logger.error("Feiler ved mapping av kravSED. Rina: $euxCaseId, documentid: $documentId")
@@ -267,20 +269,12 @@ class EuxInnhentingService(
         }
     }
 
-    private fun filterPinGjenlevendePin(gjenlevende: Person?, sedType: SedType, rinaidAvdod: String): String? {
-        val pin = gjenlevende?.pin?.firstOrNull { it.land == "NO" }
-        return if (pin == null) {
-            logger.warn("Ingen fnr funnet på gjenlevende. ${sedType}, rinaid: $rinaidAvdod")
-            null
-        } else {
-            pin.identifikator
-        }
-    }
+    fun hentRinasaker(fnr: String): List<Rinasak> = euxKlient.getRinasaker(fnr = fnr, euxCaseId = null)
 
     fun hentBucViewBruker(fnr: String, aktoerId: String, pesysSaksnr: String?): List<BucView> {
         val start = System.currentTimeMillis()
 
-        return hentRinasaker.measure {  euxKlient.getRinasaker(fnr = fnr, euxCaseId = null)
+        return hentRinasaker.measure {  euxKlient.getRinasaker(fnr = fnr, euxCaseId = null).also { logger.info("Henter ${it.size} rinasaker: $it") }
             .filter { erRelevantForVisningIEessiPensjon(it) }
             .map { rinasak ->
                 BucView(
@@ -293,10 +287,11 @@ class EuxInnhentingService(
                 )
             }.also {
                 val end = System.currentTimeMillis()
-                logger.info("hentBucViewBruker tid ${end - start} i ms")
+                logger.info("hentBucViewBruker tid ${end - start} i ms for antall saker: ${it.size} " )
             }
         }
     }
+
     fun hentViewsForSafOgRinaForAvdode(
         avdodListe: List<String>,
         aktoerId: String,
@@ -344,6 +339,7 @@ class EuxInnhentingService(
 
         logger.info(
             """hentViewsForSafOgRinaForAvdode resultat: 
+                    Rinasak: ${sakNr}
                     safView: ${safView.size}
                     avdodView : ${avdodView.size}
                     safViewAvdod: ${safViewAvdod.size}
@@ -355,10 +351,6 @@ class EuxInnhentingService(
                 """.trimMargin()
         )
         return view
-    }
-
-    fun hentBucerGjenny(fnr: String): List<Rinasak> {
-        return euxKlient.getRinasaker(fnr)
     }
 
     fun lagBucViews(aktoerId: String, pesysSaksnr: String?, rinaSakIder: List<String>, rinaSakIdKilde: BucViewKilde): List<BucView> {
@@ -395,7 +387,7 @@ class EuxInnhentingService(
         backoff = Backoff(delayExpression = "@euxKlientRetryConfig.initialRetryMillis", maxDelay = 200000L, multiplier = 3.0),
         listeners  = ["euxKlientRetryLogger"]
     )
-    fun hentBucer(aktoerId: String, pesysSaksnr: String, rinaSakIder: List<String>): List<Buc> {
+    fun hentBucer(rinaSakIder: List<String>): List<Buc> {
         val start = System.currentTimeMillis()
 
         return rinaSakIder
@@ -479,6 +471,7 @@ class EuxInnhentingService(
 
     fun updateSedOnBuc(euxcaseid: String, documentid: String, sedPayload: String): Boolean {
         logger.info("Oppdaterer eksisterende sed på rina: $euxcaseid. docid: $documentid")
+        secureLog.info("Oppdaterer eksisterende sedId $euxcaseid, med payload: $sedPayload")
         return putDocument.measure { euxKlient.updateSedOnBuc(euxcaseid, documentid, sedPayload) }
     }
 
@@ -529,6 +522,18 @@ class EuxInnhentingService(
         return euxKlient.lagPdf(pdfJson)
     }
 
+//    fun hentSedMetadata(rinaSakId: String, p6000: String): SedMetadata? {
+//        return euxKlient.getMetaDataAsSystemuser(rinaSakId, p6000)
+//    }
+
+
+    fun hentSedMetadata(rinasakId: String, dokumentId: String): SedMetadata? {
+        logger.info("Henter SED metadata for rinaSakId: $rinasakId , dokumentId: $dokumentId")
+
+        val response = euxNavIdentRestTemplateV2.getForObject("/buc/$rinasakId/sed/$dokumentId/oversikt", String::class.java)
+        return response?.let { mapJsonToAny<SedMetadata>(it) }
+
+    }
     /**
      * Utvalgt informasjon om en rinasak/Buc.
      */

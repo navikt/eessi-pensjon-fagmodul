@@ -1,7 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.config
 
 import com.fasterxml.jackson.core.StreamReadConstraints
-import com.nimbusds.jwt.JWTClaimsSet
 import io.micrometer.core.instrument.MeterRegistry
 import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
 import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient
@@ -19,7 +18,7 @@ import no.nav.security.token.support.client.spring.ClientConfigurationProperties
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.web.client.RestTemplateBuilder
+import org.springframework.boot.restclient.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
@@ -34,7 +33,6 @@ import org.springframework.web.client.RestTemplate
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import java.time.Duration
-import java.util.*
 
 @Configuration
 @Profile("prod", "test")
@@ -70,11 +68,14 @@ class RestTemplateConfig(
     @Value("\${EESSIPEN_EUX_RINA_URL}")
     lateinit var euxUrl: String
 
+    @Value("\${EESSIPEN_EUX_RINA_URL_v2}")
+    lateinit var euxUrlV2: String
+
     @Value("\${EESSIPENSJON_PREFILL_GCP_URL}")
     lateinit var prefillUrl: String
 
-    @Value("\${PENSJONSINFORMASJON_URL}")
-    lateinit var pensjonUrl: String
+    @Value("\${PESYS_URL}")
+    lateinit var pesysUrl: String
 
     @Value("\${SAF_GRAPHQL_URL}")
     lateinit var graphQlUrl: String
@@ -85,16 +86,17 @@ class RestTemplateConfig(
     @Bean
     fun euxNavIdentRestTemplate(): RestTemplate = restTemplate(euxUrl, onBehalfOfBearerTokenInterceptor(euxClientId), EuxErrorHandler())
 
+    @Bean
+    fun euxNavIdentRestTemplateV2(): RestTemplate = restTemplate(euxUrlV2, oAuth2BearerTokenInterceptor(clientProperties("eux-credentials"), oAuth2AccessTokenService), EuxErrorHandler())
 
     @Bean
     fun euxSystemRestTemplate() = restTemplate(euxUrl, oAuth2BearerTokenInterceptor(clientProperties("eux-credentials"), oAuth2AccessTokenService), EuxErrorHandler())
-
 
     @Bean
     fun prefillOAuthTemplate() = restTemplate(prefillUrl, onBehalfOfBearerTokenInterceptor(prefillClientId))
 
     @Bean
-    fun pensjoninformasjonRestTemplate() = restTemplate(pensjonUrl, oAuth2BearerTokenInterceptor(clientProperties("pensjon-credentials"), oAuth2AccessTokenService), EuxErrorHandler())
+    fun pesysClientRestTemplate() = restTemplate(pesysUrl, oAuth2BearerTokenInterceptor(clientProperties("pensjon-credentials"), oAuth2AccessTokenService), EuxErrorHandler())
 
     @Bean
     fun safGraphQlOidcRestTemplate() = restTemplate(graphQlUrl, oAuth2BearerTokenInterceptor(clientProperties("saf-credentials"), oAuth2AccessTokenService))
@@ -105,7 +107,7 @@ class RestTemplateConfig(
     @Bean
     fun euxKlient() = EuxKlientAsSystemUser(euxNavIdentRestTemplate(), euxSystemRestTemplate())
 
-    private fun restTemplate(url: String, tokenIntercetor: ClientHttpRequestInterceptor?, defaultErrorHandler: ResponseErrorHandler = DefaultResponseErrorHandler()) : RestTemplate {
+    private fun restTemplate(url: String, tokenIntercetor: ClientHttpRequestInterceptor, defaultErrorHandler: ResponseErrorHandler = DefaultResponseErrorHandler()) : RestTemplate {
         logger.info("init restTemplate: $url")
         return RestTemplateBuilder()
             .rootUri(url)

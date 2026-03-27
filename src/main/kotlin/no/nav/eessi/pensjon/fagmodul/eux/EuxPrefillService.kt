@@ -22,10 +22,10 @@ class EuxPrefillService (private val euxKlient: EuxKlientLib,
                          @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()) {
     private val logger = LoggerFactory.getLogger(EuxPrefillService::class.java)
 
-    private lateinit var opprettSvarSED: MetricsHelper.Metric
-    private lateinit var opprettSED: MetricsHelper.Metric
-    private lateinit var putMottaker: MetricsHelper.Metric
-    private lateinit var getBUC: MetricsHelper.Metric
+    private  var opprettSvarSED: MetricsHelper.Metric
+    private  var opprettSED: MetricsHelper.Metric
+    private  var putMottaker: MetricsHelper.Metric
+    private  var getBUC: MetricsHelper.Metric
     init {
         opprettSvarSED = metricsHelper.init("OpprettSvarSED")
         opprettSED = metricsHelper.init("OpprettSED")
