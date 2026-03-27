@@ -48,8 +48,8 @@ class EuxController(
 
     @Unprotected
     @GetMapping("/rinaurl")
-    fun getRinaUrl2020(): ResponseEntity<Map<String, String>> = rinaUrl.measure {
-        return@measure ResponseEntity.ok(mapOf("rinaUrl" to euxInnhentingService.getRinaUrl()))
+    fun getRinaUrl2020(): ResponseEntity<FrontEndResponse<Map<String, String>>> = rinaUrl.measure {
+        return@measure ResponseEntity.ok(FrontEndResponse(mapOf("rinaUrl" to euxInnhentingService.getRinaUrl())))
     }
 
     @Protected
