@@ -94,7 +94,7 @@ class SafClient(private val safGraphQlOidcRestTemplate: RestTemplate,
                 val response = safRestOidcRestTemplate.exchange(path,
                         HttpMethod.GET,
                         HttpEntity("/", headers),
-                        Resource::class.java).also { logger.debug("Response: ${it.toJson()}") }
+                        Resource::class.java)
 
                 val filnavn = response.headers.contentDisposition.filename
                 val contentType = response.headers.contentType!!.toString()
