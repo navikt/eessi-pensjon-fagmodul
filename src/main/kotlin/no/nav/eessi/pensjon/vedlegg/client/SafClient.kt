@@ -2,6 +2,7 @@ package no.nav.eessi.pensjon.vedlegg.client
 
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.utils.mapJsonToAny
+import no.nav.eessi.pensjon.utils.toJson
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Profile
@@ -93,7 +94,7 @@ class SafClient(private val safGraphQlOidcRestTemplate: RestTemplate,
                 val response = safRestOidcRestTemplate.exchange(path,
                         HttpMethod.GET,
                         HttpEntity("/", headers),
-                        Resource::class.java)
+                        Resource::class.java).also { logger.debug("Response: ${it.toJson()}") }
 
                 val filnavn = response.headers.contentDisposition.filename
                 val contentType = response.headers.contentType!!.toString()

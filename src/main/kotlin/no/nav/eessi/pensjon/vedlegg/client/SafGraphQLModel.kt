@@ -25,8 +25,8 @@ data class SafRequest(
                         "tittel " +
                         "dokumentvarianter {" +
                             "filnavn " +
-                            "variantformat" +
-                            "filstoerrelse" +
+                            "variantformat " +
+                            "filstoerrelse " +
                         "} " +
                     "} " +
                     "relevanteDatoer {" +
