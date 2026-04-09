@@ -109,8 +109,12 @@ data class Dokumentvarianter(
         val filnavn: String?,
         val variantformat: VariantFormat,
         val filstoerrelse: String?
-)
-
+) {
+    val filstoerrelseMB: Double?
+        get() = filstoerrelse?.toLongOrNull()?.let { bytes ->
+            "%.2f".format(bytes / 1_000_000.0).toDouble()
+        }
+}
 class HentdokumentInnholdResponse (
         val filInnhold: String,
         val fileName: String,
