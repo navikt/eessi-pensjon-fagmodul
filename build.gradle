@@ -1,11 +1,12 @@
 buildscript {
 
     ext {
-        kotlinVersion = '2.2.20'
-        springBootVersion = '3.5.6'
-        springKafkaVersion = '3.3.10'
+        kotlinVersion = '2.3.20'
+        springBootVersion = '4.0.5'
+        springKafkaVersion = '4.0.4'
         springfoxVersion = '3.0.0'
-        tokenSupportVersion = '5.0.37'
+        tokenSupportVersion = '6.0.4'
+        jacksonModuleKotlinVersion = '2.21.2'
     }
 }
 
@@ -35,64 +36,59 @@ dependencies {
 
     // Spring-boot BOM-fil spesifiserer versjoner for Spring Boot-avhengigheter
     implementation(platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}"))
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.boot:spring-boot-starter-aop")
-    implementation("org.springframework.boot:spring-boot-starter-cache")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.boot:spring-boot-starter-aop:3.5.11")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-cache")
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-restclient")
     implementation("org.springframework.boot:spring-boot-actuator")
+    implementation("org.springframework.retry:spring-retry:2.0.12")
+
 
     // Spring Framework BOM-fil overstyrer så vi får siste patch-versjon av Spring Framework
-    implementation(platform("org.springframework:spring-framework-bom:6.2.11"))
+    implementation(platform("org.springframework:spring-framework-bom:7.0.6"))
 
-    implementation("org.yaml:snakeyaml:2.5") // Pga https://security.snyk.io/package/maven/org.yaml:snakeyaml
+    implementation("org.yaml:snakeyaml:2.6") // Pga https://security.snyk.io/package/maven/org.yaml:snakeyaml
 
-    implementation("com.fasterxml.jackson.core:jackson-core:2.20.0")
+    implementation("com.fasterxml.jackson.core:jackson-core:${jacksonModuleKotlinVersion}")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonModuleKotlinVersion}")
 
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
 
     // Logging
-    implementation("net.logstash.logback:logstash-logback-encoder:8.1")
+    implementation("net.logstash.logback:logstash-logback-encoder:9.0")
     configurations { all*.exclude group: 'commons-logging', module: 'commons-logging' }
     implementation("org.slf4j:jcl-over-slf4j:2.0.17")
 
     //auth
     implementation("no.nav.security:token-client-spring:${tokenSupportVersion}")
-    implementation("no.nav.security:token-validation-spring:${tokenSupportVersion}")
     implementation("no.nav.security:token-validation-jaxrs:${tokenSupportVersion}")
+    implementation("no.nav.security:token-validation-spring:${tokenSupportVersion}")
 
-    implementation ("no.nav.common:token-client:3.2025.09.03_08.33-728ff4acbfdb")
+    implementation ("no.nav.common:token-client:3.2026.03.04_12.35-b34c347c6239")
     implementation("org.springframework.kafka:spring-kafka:${springKafkaVersion}")
 
     //GCP
-    implementation("com.google.cloud:google-cloud-storage:2.58.1")
+    implementation("com.google.cloud:google-cloud-storage:2.64.0")
 
-    implementation("no.nav.eessi.pensjon:ep-metrics:2.1.10")
-    implementation("no.nav.eessi.pensjon:ep-logging:2.3.13")
-    implementation("no.nav.eessi.pensjon:ep-eux:2.5.17")
-    implementation("no.nav.eessi.pensjon:ep-kodeverk:4.3.28") {
+    implementation("no.nav.eessi.pensjon:ep-metrics:3.0.20")
+    implementation("no.nav.eessi.pensjon:ep-logging:3.0.27")
+    implementation("no.nav.eessi.pensjon:ep-eux:3.0.44")
+    implementation("no.nav.eessi.pensjon:ep-kodeverk:5.0.45") {
         exclude module: 'ep-eux'
         exclude module: 'ep-logging'
         exclude module: 'ep-metrics'
     }
 
-    implementation("no.nav.eessi.pensjon:ep-personoppslag:13.3.38") {
+    implementation("no.nav.eessi.pensjon:ep-personoppslag:14.0.45") {
         exclude module: 'ep-eux'
         exclude module: 'ep-logging'
         exclude module: 'ep-metrics'
     }
-
-    implementation("no.nav.eessi.pensjon:ep-pensjonsinformasjon:3.1.19") {
-        exclude module: 'ep-eux'
-        exclude module: 'ep-logging'
-        exclude module: 'ep-metrics'
-    }
-
-    implementation 'javax.xml.bind:jaxb-api:2.3.1'
-    implementation('org.glassfish.jaxb:jaxb-runtime:2.3.9')
-    implementation("no.nav.tjenestespesifikasjoner:pensjonsinformasjon-v1-tjenestespesifikasjon:2643.2f3e8e9")
 
     // PDF box
-    testImplementation("org.apache.pdfbox:pdfbox-tools:3.0.5")
+    testImplementation("org.apache.pdfbox:pdfbox-tools:3.0.6")
 
     testImplementation("no.nav.security:token-validation-spring-test:${tokenSupportVersion}")
 
@@ -100,17 +96,16 @@ dependencies {
     testImplementation("com.ninja-squad:springmockk:4.0.2")
     testImplementation('org.pac4j:spring-webmvc-pac4j:8.0.1')
 
-    
-    testImplementation("org.junit.jupiter:junit-jupiter:5.13.4")
+    testImplementation("org.junit.jupiter:junit-jupiter:6.0.1")
 
     //mock - test
-    testImplementation("io.mockk:mockk:1.14.6")
+    testImplementation("io.mockk:mockk:1.14.7")
     testImplementation("org.skyscreamer:jsonassert:1.5.3")
 
-    //Kafka
-    testImplementation("org.springframework.kafka:spring-kafka-test:${springKafkaVersion}")
-
     testImplementation("com.tngtech.archunit:archunit:1.4.1")
+
+    testImplementation("org.springframework.kafka:spring-kafka-test:${springKafkaVersion}")
+    testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude module: 'junit'
         exclude module: "mockito-core"

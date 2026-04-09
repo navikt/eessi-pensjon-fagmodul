@@ -16,9 +16,9 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
 import org.springframework.context.annotation.Bean
 import org.springframework.http.MediaType
 import org.springframework.test.context.ContextConfiguration
@@ -65,7 +65,7 @@ class BucControllerTest {
         val buc = Buc(id = rinanummer, processDefinitionName = P_BUC_01.name)
 
         every { innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)} returns listOf(rinanummer)
-        every { euxInnhentingService.hentBucer(aktoerId, pesyssak, listOf(rinanummer)) } returns listOf(buc)
+        every { euxInnhentingService.hentBucer(listOf(rinanummer)) } returns listOf(buc)
 
         val result = mvcPerform(endpointUrl)
         val responseBody = mapJsonToAny<FrontEndResponse<List<Buc>>>(result)

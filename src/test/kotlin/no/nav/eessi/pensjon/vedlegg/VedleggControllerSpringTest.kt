@@ -9,19 +9,19 @@ import io.mockk.verify
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.gcp.GcpStorageService
-import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.PesysService
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.vedlegg.client.Dokument
 import no.nav.eessi.pensjon.vedlegg.client.HentdokumentInnholdResponse
 import org.hamcrest.Matchers.containsString
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
 import org.springframework.http.HttpStatus
+import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
@@ -33,7 +33,8 @@ import org.springframework.web.client.RestTemplate
 @SpringBootTest(classes = [UnsecuredWebMvcTestLauncher::class] ,webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(profiles = ["unsecured-webmvctest"])
 @AutoConfigureMockMvc
-@MockkBeans(
+@MockkBeans(value = [
+    MockkBean(name = "pesysService", classes = [PesysService::class]),
     MockkBean(name = "personService", classes = [PersonService::class]),
     MockkBean(name = "pdlRestTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "restEuxTemplate", classes = [RestTemplate::class]),
@@ -45,8 +46,9 @@ import org.springframework.web.client.RestTemplate
     MockkBean(name = "safRestOidcRestTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "euxNavIdentRestTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "safGraphQlOidcRestTemplate", classes = [RestTemplate::class]),
-    MockkBean(name = "pensjonsinformasjonClient", classes = [PensjonsinformasjonClient::class])
-)
+    MockkBean(name = "euxNavIdentRestTemplateV2", classes = [RestTemplate::class]),
+    MockkBean(name = "kafkaTemplate", classes = [KafkaTemplate::class], relaxed = true),
+])
 class VedleggControllerSpringTest {
     @MockkBean
     lateinit var vedleggService: VedleggService

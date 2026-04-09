@@ -1,21 +1,18 @@
 package no.nav.eessi.pensjon.fagmodul.pesys
 
 import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonValue
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
-import no.nav.eessi.pensjon.eux.model.sed.AndreinstitusjonerItem
-import no.nav.eessi.pensjon.eux.model.sed.EessisakItem
 import no.nav.eessi.pensjon.eux.model.sed.P6000
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
-import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController.BrukerEllerGjenlevende.FORSIKRET
-import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController.BrukerEllerGjenlevende.GJENLEVENDE
+import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandService.BrukerEllerGjenlevende.FORSIKRET
+import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandService.BrukerEllerGjenlevende.GJENLEVENDE
 import no.nav.eessi.pensjon.fagmodul.pesys.krav.AvslaattPensjon
 import no.nav.eessi.pensjon.fagmodul.pesys.krav.InnvilgetPensjon
 import no.nav.eessi.pensjon.fagmodul.pesys.krav.P1Dto
-import no.nav.eessi.pensjon.fagmodul.pesys.krav.P1Person
 import no.nav.eessi.pensjon.gcp.GcpStorageService
-import no.nav.eessi.pensjon.kodeverk.KodeverkClient
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
@@ -25,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
-import java.time.LocalDate
 
 
 /**
@@ -37,39 +33,33 @@ import java.time.LocalDate
 @RequestMapping("/pesys")
 @Protected
 class PensjonsinformasjonUtlandController(
-    private val pensjonsinformasjonUtlandService: PensjonsinformasjonUtlandService,
+    private val penInfoUtlandService: PensjonsinformasjonUtlandService,
     private val gcpStorageService: GcpStorageService,
     private val euxInnhentingService: EuxInnhentingService,
-    private val kodeverkClient: KodeverkClient,
-    private val trygdeTidService: HentTrygdeTid,
+    private val trygdeTidService: TrygdeTidService,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
-
     private var pensjonUtland: MetricsHelper.Metric = metricsHelper.init("pensjonUtland")
     private var trygdeTidMetric: MetricsHelper.Metric = metricsHelper.init("trygdeTidMetric")
     private var p6000Metric: MetricsHelper.Metric = metricsHelper.init("p6000Metric")
 
     private val logger = LoggerFactory.getLogger(PensjonsinformasjonUtlandController::class.java)
+    private val secureLog = LoggerFactory.getLogger("secureLog")
 
     @GetMapping("/hentKravUtland/{bucId}")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     fun hentKravUtland(@PathVariable("bucId", required = true) bucId: Int): KravUtland {
         return pensjonUtland.measure {
-            pensjonsinformasjonUtlandService.hentKravUtland(bucId)!!
+            penInfoUtlandService.hentKravUtland(bucId)!!
         }
     }
 
-    data class TrygdetidRequest(
-        val fnr: String,
-        val rinaNr: Int? = null
-    )
-
     @PostMapping("/hentTrygdetid")
     fun hentTrygdetid(@RequestBody request: TrygdetidRequest): TrygdetidForPesys{
-        logger.debug("Henter trygdetid for fnr: ${request.fnr.takeLast(4)}, rinaNr: ${request.rinaNr}")
+        logger.info("Henter trygdetid for fnr: ${request.fnr.takeLast(4)}, rinaNr: ${request.rinaNr}")
         return trygdeTidMetric.measure {
-            gcpStorageService.hentTrygdetid(request.fnr)?.let {
-                runCatching { parseTrygdetid(it) }
+            gcpStorageService.hentTrygdetidFraGcp(request.fnr)?.let {
+                runCatching { trygdeTidService.parseTrygdetid(it) }
                     .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
                     .getOrNull()
             }?.let { trygdetid ->
@@ -87,7 +77,7 @@ class PensjonsinformasjonUtlandController(
 
     @PostMapping("/hentTrygdetidV2")
     fun hentTrygdetidV2(@RequestBody request: TrygdetidRequest): TrygdetidForPesys {
-        logger.debug("Henter trygdetid for fnr: ${request.fnr.takeLast(4)}, rinaNr: ${request.rinaNr}")
+        logger.info("Henter trygdetid for fnr: ${request.fnr.takeLast(4)}, rinaNr: ${request.rinaNr}")
         return trygdeTidMetric.measure {
                 runCatching { trygdeTidService.hentBucFraEux(request.rinaNr, request.fnr) }
                     .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
@@ -106,143 +96,64 @@ class PensjonsinformasjonUtlandController(
                 "Ingen P6000-detaljer funnet for pesysId: $pesysId"
             )
             val listeOverP6000FraGcp = mutableListOf<P6000>()
-            val p6000Detaljer = mapJsonToAny<P6000Detaljer>(p6000FraGcp)
-            logger.info("P6000Detaljer: ${p6000Detaljer.toJson()}")
+            val p6000Detaljer = mapJsonToAny<P6000Detaljer>(p6000FraGcp).also { logger.info("P6000Detaljer: ${it.toJson()}") }
             runCatching {
-                p6000Detaljer.dokumentId.forEach { p6000 ->
-                    val hentetJsonP6000 = euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(p6000Detaljer.rinaSakId, p6000)
-                            val somP6000 = hentetJsonP6000 as P6000
-                    logger.info("somP6000: $somP6000")
-                    somP6000.let { listeOverP6000FraGcp.add(it) }
-
+                p6000Detaljer.dokumentId.forEach { sedDokumentId ->
+                    val hentetJsonP6000 = euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(p6000Detaljer.rinaSakId, sedDokumentId)
+                    val hentetP6000 = hentetJsonP6000 as P6000
+                    val sedMetaData = euxInnhentingService.hentSedMetadata(p6000Detaljer.rinaSakId, sedDokumentId).also { secureLog.info("SedMetaData: $it") }
+                    hentetP6000.avsender = sedMetaData?.avsender
+                    hentetP6000.let { listeOverP6000FraGcp.add(it) }
                 }
             }
-                .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
+                .onFailure { e -> logger.error("Feil ved parsing av trygdetid linje 129", e) }
                 .onSuccess { logger.info("Hentet nye dok detaljer fra Rina for $pesysId") }
-            val nyesteP6000 = listeOverP6000FraGcp.sortedBy { it.pensjon?.tilleggsinformasjon?.dato }.first()
-            val innvilgedePensjoner = innvilgedePensjoner(listeOverP6000FraGcp).also { logger.debug(it.toJson()) }
-            val avslaatteUtenlandskePensjoner = avslaatteUtenlandskePensjoner(listeOverP6000FraGcp).also { logger.debug(it.toJson()) }
 
-            if (innvilgedePensjoner.size + avslaatteUtenlandskePensjoner.size != listeOverP6000FraGcp.size) {
-                logger.warn("Mismatch: innvilgedePensjoner (${innvilgedePensjoner.size}) + avslåtteUtenlandskePensjoner (${avslaatteUtenlandskePensjoner.size}) != utenlandskeP6000er (${listeOverP6000FraGcp.size})")
+            val innvilgedePensjoner = penInfoUtlandService.innvilgedePensjoner(listeOverP6000FraGcp).also { secureLog.info("innvilgedePensjoner: " +it.toJson()) }
+            val avslaatteUtenlandskePensjoner = penInfoUtlandService.avslaatteUtenlandskePensjoner(listeOverP6000FraGcp).also { secureLog.info("avslaatteUtenlandskePensjoner: " + it.toJson()) }
+
+            sjekkPaaGyldigeInnvElAvslPensjoner(innvilgedePensjoner, avslaatteUtenlandskePensjoner, listeOverP6000FraGcp, pesysId)
+
+            val nyesteP6000 = penInfoUtlandService.nyesteP6000(listeOverP6000FraGcp).firstOrNull()
+            if (innvilgedePensjoner.isEmpty() && avslaatteUtenlandskePensjoner.isEmpty()) {
+                hentP7000FraRina(p6000Detaljer.rinaSakId)
+            } else {
+                P1Dto(
+                    innehaver = nyesteP6000?.let { penInfoUtlandService.person(it, GJENLEVENDE) },
+                    forsikrede = nyesteP6000?.let { penInfoUtlandService.person(it, FORSIKRET) },
+                    sakstype = saksType(innvilgedePensjoner, avslaatteUtenlandskePensjoner)?.name,
+                    kravMottattDato = null,
+                    innvilgedePensjoner = innvilgedePensjoner,
+                    avslaattePensjoner = avslaatteUtenlandskePensjoner,
+                    utfyllendeInstitusjon = ""
+                ).also { secureLog.info("P1Dto: " + it.toJson()) }
             }
-
-           P1Dto(
-                innehaver = person(nyesteP6000, GJENLEVENDE),
-                forsikrede = person(nyesteP6000, FORSIKRET),
-                sakstype = "Gjenlevende",
-                kravMottattDato = null,
-                innvilgedePensjoner = innvilgedePensjoner,
-                avslaattePensjoner = avslaatteUtenlandskePensjoner,
-                utfyllendeInstitusjon = ""
-            )
         }
     }
 
-    private fun innvilgedePensjoner(p6000er: List<P6000>) : List<InnvilgetPensjon>{
-        val ip6000Innvilgede = p6000er.filter { sed -> sed.pensjon?.vedtak?.any { it.resultat == "01" } == true }
-        return ip6000Innvilgede.map { p6000 ->
-            val vedtak = p6000.pensjon?.vedtak?.first()
-            InnvilgetPensjon(
-                institusjon = p6000.nav?.eessisak?.map { institusjon(it) },
-                pensjonstype = vedtak?.type ?: "",
-                datoFoersteUtbetaling = dato(vedtak?.beregning?.first()?.periode?.fom!!),
-                bruttobeloep = vedtak.beregning?.first()?.beloepBrutto?.beloep,
-                valuta = vedtak.beregning?.first()?.valuta,
-                utbetalingsHyppighet = vedtak.beregning?.first()?.utbetalingshyppighet,
-                grunnlagInnvilget = vedtak.artikkel,
-                reduksjonsgrunnlag = p6000.pensjon?.sak?.artikkel54,
-                vurderingsperiode = p6000.pensjon?.sak?.kravtype?.first()?.datoFrist,
-                adresseNyVurdering = p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.map { adresse(it) },
-                vedtaksdato = p6000.pensjon?.tilleggsinformasjon?.dato
-            )
+
+    fun sjekkPaaGyldigeInnvElAvslPensjoner(
+        innvilgedePensjoner: List<InnvilgetPensjon>,
+        avslaatteUtenlandskePensjoner: List<AvslaattPensjon>,
+        listeOverP6000FraGcp: MutableList<P6000>,
+        pesysId: String
+    ) {
+        if (innvilgedePensjoner.isEmpty() && avslaatteUtenlandskePensjoner.isEmpty()) {
+            logger.warn("Ingen gyldige pensjoner funnet i P6000er for pesysId: $pesysId")
+        }
+        if (innvilgedePensjoner.size + avslaatteUtenlandskePensjoner.size != listeOverP6000FraGcp.size) {
+            logger.warn("Mismatch: innvilgedePensjoner (${innvilgedePensjoner.size}) + avslåtteUtenlandskePensjoner (${avslaatteUtenlandskePensjoner.size}) != utenlandskeP6000er (${listeOverP6000FraGcp.size})")
         }
     }
 
-    private fun adresse(p6000: AndreinstitusjonerItem) =
-        AndreinstitusjonerItem(
-            institusjonsid = p6000.institusjonsid,
-            institusjonsnavn = p6000.institusjonsnavn,
-            institusjonsadresse = p6000.institusjonsadresse,
-            postnummer = p6000.postnummer,
-            bygningsnavn = p6000.bygningsnavn,
-            land = p6000.land,
-            region = p6000.region,
-            poststed = p6000.poststed
-        )
-
-    private fun institusjon(p6000: EessisakItem?) =
-        EessisakItem(
-            institusjonsid = p6000?.institusjonsid,
-            institusjonsnavn = p6000?.institusjonsnavn,
-            land = p6000?.land
-        )
-
-    private fun avslaatteUtenlandskePensjoner(p6000er: List<P6000>): List<AvslaattPensjon> {
-        val p6000erAvslaatt = p6000er.filter { sed -> sed.pensjon?.vedtak?.any { it.resultat == "02" } == true }
-        return p6000erAvslaatt.map { p6000 ->
-            val vedtak = p6000.pensjon?.vedtak?.first()
-            AvslaattPensjon(
-                institusjon = institusjon(p6000.nav?.eessisak?.first()),
-                pensjonstype = vedtak?.type,
-                avslagsbegrunnelse = vedtak?.avslagbegrunnelse?.first { !it.begrunnelse.isNullOrEmpty() }?.begrunnelse,
-                vurderingsperiode = p6000.pensjon?.sak?.kravtype?.first()?.datoFrist,
-                adresseNyVurdering = p6000.pensjon?.tilleggsinformasjon?.andreinstitusjoner?.map { adresse(it) },
-                vedtaksdato = p6000.pensjon?.tilleggsinformasjon?.dato
-            )
-        }
+    private fun saksType(
+        innvilgedePensjoner: List<InnvilgetPensjon>,
+        avslaatteUtenlandskePensjoner: List<AvslaattPensjon>
+    ): KravType? {
+        val saksType = innvilgedePensjoner.firstOrNull()?.pensjonstype
+            ?: avslaatteUtenlandskePensjoner.firstOrNull()?.pensjonstype
+        return KravType.fraNavnEllerVerdi(saksType)
     }
-
-    private fun person(sed: P6000, brukerEllerGjenlevende: BrukerEllerGjenlevende) : P1Person {
-        val personBruker = if (brukerEllerGjenlevende == FORSIKRET)
-            Pair(sed.nav?.bruker?.person, sed.nav?.bruker?.adresse)
-        else
-            Pair(sed.pensjon?.gjenlevende?.person, sed.pensjon?.gjenlevende?.adresse)
-
-        return P1Person(
-            fornavn = personBruker.first?.fornavn,
-            etternavn = personBruker.first?.etternavn,
-            etternavnVedFoedsel = personBruker.first?.etternavnvedfoedsel,
-            foedselsdato = dato(personBruker.first?.foedselsdato),
-            adresselinje = personBruker.second?.postadresse,
-            poststed = kodeverkClient.hentPostSted(personBruker.second?.postnummer)?.sted,
-            postnummer = personBruker.second?.postnummer,
-            landkode = personBruker.second?.land
-        )
-    }
-
-    enum class BrukerEllerGjenlevende(val person: String) {
-        FORSIKRET ("forsikret"),
-        GJENLEVENDE ("gjenlevende")
-    }
-
-    private fun dato(foedselsdato: String?): LocalDate? {
-        return try {
-            foedselsdato?.let { LocalDate.parse(it) }
-        } catch (ex: Exception) {
-            null
-        }
-    }
-
-    fun parseTrygdetid(input: List<Pair<String, String?>>): List<Pair<String?, List<Trygdetid>>>{
-        return input.mapNotNull { jsonString ->
-            val trygdetid = jsonString.first
-            val rinaNr = jsonString.second?.split(Regex("\\D+"))?.lastOrNull { it.isNotEmpty() }
-            val cleanedJson = trygdetid.trim('"').replace("\\n", "").replace("\\\"", "\"")
-            val trygdeTidListe = mapJsonToAny<List<Trygdetid>>(cleanedJson).map {
-                if (it.land.length == 2) {
-                    it.copy(land = kodeverkClient.finnLandkode(it.land) ?: it.land)
-                } else it
-            }
-            Pair(rinaNr, trygdeTidListe)
-        }
-    }
-
-    data class P6000Detaljer(
-        val pesysId: String,
-        val rinaSakId: String,
-        val dokumentId: List<String>
-    )
 
     class EmptyStringToNullDeserializer : JsonDeserializer<String?>() {
         override fun deserialize(p: JsonParser, ctxt: DeserializationContext): String? {
@@ -250,4 +161,36 @@ class PensjonsinformasjonUtlandController(
         }
     }
 
+    enum class KravType(@JsonValue val verdi: String?) {
+        ALDER("01"),
+        UFORE("02"),
+        GJENLEVENDE("03");
+
+        companion object {
+            fun fraNavnEllerVerdi(input: String?): KravType? {
+                return entries.find { it.name == input || it.verdi == input }
+            }
+        }
+    }
+    private fun hentP7000FraRina(rinaSakId: String): P1Dto {
+        val buc = euxInnhentingService.getBucAsSystemuser(rinaSakId)
+        val p7000 = buc?.documents?.firstOrNull { it.type?.name == "P7000" }
+        if(p7000 == null) {
+            logger.error("Ingen P7000 dokumenter funnet i Rina for rinaSakId: $rinaSakId")
+        }
+        val hentet7000 = p7000?.id?.let { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(rinaSakId, it) }
+
+        return P1Dto(
+            innehaver = hentet7000?.let { penInfoUtlandService.person(it, GJENLEVENDE) },
+            forsikrede = hentet7000?.let { penInfoUtlandService.person(it, FORSIKRET) },
+            sakstype = null,
+            kravMottattDato = null,
+            innvilgedePensjoner = emptyList(),
+            avslaattePensjoner = emptyList(),
+            utfyllendeInstitusjon = ""
+        ).also { secureLog.info("P1Dto fra P7000: " + it.toJson())}
+    }
 }
+
+
+

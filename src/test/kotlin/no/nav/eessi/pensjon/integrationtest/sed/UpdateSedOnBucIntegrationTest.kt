@@ -8,15 +8,17 @@ import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.integrationtest.IntegrasjonsTestConfig
 import no.nav.eessi.pensjon.kodeverk.KodeverkClient
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.PesysService
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
 import org.springframework.http.*
 import org.springframework.kafka.test.context.EmbeddedKafka
+import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.test.web.servlet.MockMvc
@@ -30,15 +32,17 @@ import java.nio.charset.Charset
 @ActiveProfiles(profiles = ["unsecured-webmvctest"])
 @AutoConfigureMockMvc
 @EmbeddedKafka
-@MockkBeans(
+@DirtiesContext
+@MockkBeans(value = [
     MockkBean(name = "pdlRestTemplate", classes = [RestTemplate::class]),
+    MockkBean(name = "pesysService", classes = [PesysService::class]),
     MockkBean(name = "kodeverkRestTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "prefillOAuthTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "euxSystemRestTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "gcpStorageService", classes = [GcpStorageService::class]),
     MockkBean(name = "safRestOidcRestTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "safGraphQlOidcRestTemplate", classes = [RestTemplate::class]),
-    MockkBean(name = "pensjoninformasjonRestTemplate", classes = [RestTemplate::class])
+    MockkBean(name = "euxNavIdentRestTemplateV2", classes = [RestTemplate::class])]
 )
 class UpdateSedOnBucIntegrationTest {
 

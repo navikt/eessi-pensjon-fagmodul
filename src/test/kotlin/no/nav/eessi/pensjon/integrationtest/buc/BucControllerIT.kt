@@ -34,12 +34,13 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.kafka.test.context.EmbeddedKafka
+import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
@@ -62,8 +63,10 @@ private val lastupdate = LocalDate.of(2020, Month.AUGUST, 7).toString()
 @ActiveProfiles(profiles = ["unsecured-webmvctest"])
 @AutoConfigureMockMvc
 @EmbeddedKafka
+@DirtiesContext
 @MockkBeans(
     MockkBean(name = "personService", classes = [PersonService::class]),
+    MockkBean(name = "pesysService", classes = [PesysService::class]),
     MockkBean(name = "pdlRestTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "kodeverkRestTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "prefillOAuthTemplate", classes = [RestTemplate::class]),
@@ -72,7 +75,7 @@ private val lastupdate = LocalDate.of(2020, Month.AUGUST, 7).toString()
     MockkBean(name = "safRestOidcRestTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "euxNavIdentRestTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "safGraphQlOidcRestTemplate", classes = [RestTemplate::class]),
-    MockkBean(name = "pensjonsinformasjonClient", classes = [PensjonsinformasjonClient::class])
+    MockkBean(name = "euxNavIdentRestTemplateV2", classes = [RestTemplate::class]),
 )
 internal class BucControllerIT: BucBaseTest() {
 
@@ -83,13 +86,13 @@ internal class BucControllerIT: BucBaseTest() {
     private lateinit var euxNavIdentRestTemplate: RestTemplate
 
     @Autowired
-    private lateinit var pensjonsinformasjonClient: PensjonsinformasjonClient
-
-    @Autowired
     private lateinit var personService: PersonService
 
     @Autowired
     private lateinit var gcpStorageService: GcpStorageService
+
+    @Autowired
+    private lateinit var pesysService: PesysService
 
     @Autowired
     private lateinit var mockMvc: MockMvc
@@ -126,7 +129,8 @@ internal class BucControllerIT: BucBaseTest() {
     fun `Gitt det finnes gjenlevende og en avdød på P_BUC_02 så skal det hentes og returneres en liste av buc`() {
         val sedjson = javaClass.getResource("/json/nav/P2100-PinNO-NAV.json")!!.readText()
 
-        every { pensjonsinformasjonClient.hentAltPaaVedtak(VEDTAKID) } returns mockVedtak(AVDOD_FNR, GJENLEV_AKTOERID)
+        every { pesysService.hentAvdod(VEDTAKID) } returns EessiFellesDto.EessiAvdodDto(avdod = AVDOD_FNR, avdodMor = null, avdodFar = null)
+        every { pesysService.hentGyldigAvdod(any()) } returns listOf(AVDOD_FNR)
 
         //gjenlevende aktoerid -> gjenlevendefnr
         every { personService.hentIdent(IdentGruppe.FOLKEREGISTERIDENT, AktoerId(GJENLEV_AKTOERID)) } returns NorskIdent(GJENLEVENDE_FNR)
@@ -158,17 +162,18 @@ internal class BucControllerIT: BucBaseTest() {
             [{"euxCaseId":"1010","buctype":"P_BUC_02","aktoerId":"1123123123123123","saknr":"1203201322","avdodFnr":"01010100001","kilde":"AVDOD"}]
         """.trimIndent()
 
-//        verify(atLeast = 1) { euxNavIdentRestTemplate.exchange("/rinasaker?fødselsnummer=01010100001&status=\"open\"", HttpMethod.GET, any(), String::class.java) }
-//        verify(atLeast = 1) { restSafTemplate.exchange("/", HttpMethod.POST, eq(httpEntity), String::class.java) }
-        JSONAssert.assertEquals(expected, svar.result?.toJson(), false)
+        verify(atLeast = 1) { euxNavIdentRestTemplate.exchange("/rinasaker?fødselsnummer=01010100001&status=\"open\"", HttpMethod.GET, any(), String::class.java) }
+        verify(atLeast = 1) { restSafTemplate.exchange("/", HttpMethod.POST, eq(httpEntity), String::class.java) }
+        JSONAssert.assertEquals(expected, response, false)
 
     }
 
         @Test
         fun `Gitt det finnes gjenlevende og en avdød på buc02 og fra SAF så skal det hentes og lever en liste av buc`() {
             val sedjson = javaClass.getResource("/json/nav/P2100-PinNO-NAV.json")!!.readText()
+            every { pesysService.hentAvdod(VEDTAKID) } returns EessiFellesDto.EessiAvdodDto(avdod = AVDOD_FNR, avdodMor = null, avdodFar = null)
+            every { pesysService.hentGyldigAvdod(any()) } returns listOf(AVDOD_FNR)
 
-            every { pensjonsinformasjonClient.hentAltPaaVedtak(VEDTAKID) } returns mockVedtak(AVDOD_FNR, GJENLEV_AKTOERID)
             //gjenlevende aktoerid -> gjenlevendefnr
             every { personService.hentIdent(IdentGruppe.FOLKEREGISTERIDENT, AktoerId(GJENLEV_AKTOERID)) } returns NorskIdent(GJENLEVENDE_FNR)
             //buc02 - avdød rinasak
@@ -223,7 +228,8 @@ internal class BucControllerIT: BucBaseTest() {
     fun `Gitt det finnes gjenlevende og en avdød kun fra SAF så skal det hentes og lever en liste av buc med subject`() {
         val sedjson = javaClass.getResource("/json/nav/P2100-PinNO-NAV.json")!!.readText()
 
-        every { pensjonsinformasjonClient.hentAltPaaVedtak(VEDTAKID) } returns mockVedtak(AVDOD_FNR, GJENLEV_AKTOERID)
+        every { pesysService.hentAvdod(VEDTAKID) } returns EessiFellesDto.EessiAvdodDto(avdod = AVDOD_FNR, avdodMor = null, avdodFar = null)
+        every { pesysService.hentGyldigAvdod(any()) } returns listOf(AVDOD_FNR)
 
         //gjenlevende aktoerid -> gjenlevendefnr
         every { personService.hentIdent(IdentGruppe.FOLKEREGISTERIDENT, AktoerId(GJENLEV_AKTOERID)) } returns NorskIdent(GJENLEVENDE_FNR)
@@ -281,7 +287,8 @@ internal class BucControllerIT: BucBaseTest() {
     @Test
     fun `Gitt det finnes en gjenlevende og avdød hvor buc05 buc06 og buc10 finnes Så skal det returneres en liste av buc`() {
 
-        every { pensjonsinformasjonClient.hentAltPaaVedtak(VEDTAKID)  } returns mockVedtak(AVDOD_FNR, GJENLEV_AKTOERID)
+        every { pesysService.hentAvdod(VEDTAKID) } returns EessiFellesDto.EessiAvdodDto(avdod = AVDOD_FNR, avdodMor = null, avdodFar = null)
+        every { pesysService.hentGyldigAvdod(any()) } returns listOf(AVDOD_FNR)
 
         //gjenlevende aktoerid -> gjenlevendefnr
         every {personService.hentIdent(IdentGruppe.FOLKEREGISTERIDENT, AktoerId(GJENLEV_AKTOERID))  } returns NorskIdent(GJENLEVENDE_FNR)

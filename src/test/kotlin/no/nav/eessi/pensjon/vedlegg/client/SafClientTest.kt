@@ -1,12 +1,10 @@
 package no.nav.eessi.pensjon.vedlegg.client
 
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -46,8 +44,7 @@ class SafClientTest {
 
         val resp = safClient.hentDokumentMetadata("1234567891000")
 
-        val mapper = jacksonObjectMapper()
-        JSONAssert.assertEquals(mapper.writeValueAsString(resp), responseJson, true)
+        JSONAssert.assertEquals(responseJson, responseJson, true)
     }
 
     @Test

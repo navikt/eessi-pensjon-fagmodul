@@ -116,6 +116,9 @@ data class ApiRequest(
         private fun populerAvdodPersonId(request: ApiRequest, avdodaktoerID: String?, kreverAvdod: Boolean = false): PersonInfo? {
             if (kreverAvdod && avdodaktoerID == null) {
                 logger.error("Mangler fnr for avdød")
+                if (request.gjenny) {
+                    return null
+                }
                 throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mangler fnr for avdød")
             }
             request.riktigAvdod() ?: return null
@@ -130,6 +133,6 @@ data class ApiRequest(
 class KravTypeDeserializer : JsonDeserializer<KravType>() {
     override fun deserialize(p: JsonParser, ctxt: DeserializationContext?): KravType? {
         val value = p.text
-        return KravType.fraNavnEllerVerdi(value)
+        return KravType.fromValue(value)
     }
 }

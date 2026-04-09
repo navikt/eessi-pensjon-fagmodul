@@ -34,9 +34,9 @@ class UforeUtlandKrav(
         logger.debug("CaseOwnerName   : ${caseOwner.name}")
 
         return KravUtland(
-            mottattDato = mottattDocumentDato(doc, bucUtils),                       // når SED ble mottatt i NAV-RINA
-            iverksettelsesdato = iverksettDatoUfore(kravSed),                         // hentes fra kp. 9.1 kravdato - 3 mnd
-            fremsattKravdato = LocalDate.parse(kravSed.nav?.krav?.dato) ?: null, // hentes fra kp. 9.1 kravdato
+            mottattDato = mottattDocumentDato(doc, bucUtils),                     // når SED ble mottatt i NAV-RINA
+            iverksettelsesdato = iverksettDatoUfore(kravSed),                     // hentes fra kp. 9.1 kravdato - 3 mnd
+            fremsattKravdato = LocalDate.parse(kravSed.nav?.krav?.dato),    // hentes fra kp. 9.1 kravdato
 
             vurdereTrygdeavtale = true,
 

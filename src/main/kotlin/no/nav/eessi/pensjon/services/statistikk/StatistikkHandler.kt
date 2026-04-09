@@ -48,7 +48,7 @@ class StatistikkHandler(private val kafkaTemplate: KafkaTemplate<String, String>
     }
 
     private fun produserKafkaMelding(melding: StatistikkMelding) {
-            kafkaTemplate.defaultTopic = statistikkTopic
+            kafkaTemplate.setDefaultTopic(statistikkTopic)
 
             val key = populerMDC()
 

@@ -12,13 +12,14 @@ import no.nav.eessi.pensjon.logging.AuditLogger
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.web.client.RestTemplate
 
 @ActiveProfiles(profiles = ["unsecured-webmvctest"])
 @ComponentScan(basePackages = ["no.nav.eessi.pensjon.fagmodul.api"])
@@ -29,6 +30,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
     MockkBean(name = "euxController", classes = [EuxController::class], relaxed = true),
     MockkBean(name = "euxKlient", classes = [EuxKlientAsSystemUser::class], relaxed = true),
     MockkBean(name = "prefillController", classes = [PrefillController::class], relaxed = true),
+    MockkBean(name = "euxNavIdentRestTemplateV2", classes = [RestTemplate::class]),
     MockkBean(name = "gcpStorageService", classes = [GcpStorageService::class], relaxed = true)
 )
 class SedControllerMvcTest {

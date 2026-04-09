@@ -17,11 +17,12 @@ import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucView
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucViewKilde.*
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.integrationtest.IntegrasjonsTestConfig
-import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
 import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentGruppe.FOLKEREGISTERIDENT
 import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.EessiFellesDto
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.PesysService
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import org.assertj.core.api.Assertions.assertThat
@@ -30,13 +31,14 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.kafka.test.context.EmbeddedKafka
+import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
@@ -65,18 +67,20 @@ private val lastupdate = LocalDate.of(2020, Month.AUGUST, 7).toString()
 @ActiveProfiles(profiles = ["unsecured-webmvctest"])
 @AutoConfigureMockMvc
 @EmbeddedKafka
-@MockkBeans(
+@DirtiesContext
+@MockkBeans(value = [
+    MockkBean(name = "pesysService", classes = [PesysService::class]),
     MockkBean(name = "personService", classes = [PersonService::class]),
     MockkBean(name = "pdlRestTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "kodeverkRestTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "prefillOAuthTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "euxSystemRestTemplate", classes = [RestTemplate::class]),
-    MockkBean(name = "safRestOidcRestTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "gcpStorageService", classes = [GcpStorageService::class]),
+    MockkBean(name = "safRestOidcRestTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "euxNavIdentRestTemplate", classes = [RestTemplate::class]),
+    MockkBean(name = "euxNavIdentRestTemplateV2", classes = [RestTemplate::class]),
     MockkBean(name = "safGraphQlOidcRestTemplate", classes = [RestTemplate::class]),
-    MockkBean(name = "pensjonsinformasjonClient", classes = [PensjonsinformasjonClient::class])
-)
+])
 internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
     @Autowired
@@ -86,10 +90,10 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
     private lateinit var safGraphQlOidcRestTemplate: RestTemplate
 
     @Autowired
-    private lateinit var pensjonsinformasjonClient: PensjonsinformasjonClient
+    private lateinit var personService: PersonService
 
     @Autowired
-    private lateinit var personService: PersonService
+    private lateinit var pesysService: PesysService
 
     @Autowired
     private lateinit var gcpStorageService: GcpStorageService
@@ -121,7 +125,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
         val result = mockMvc.perform(
             MockMvcRequestBuilders.get("/buc/enkeldetalj/$EUXCASE_ID/aktoerid/$AKTOERID/saknr/$SAKNR/avdodfnr/$AVDOD_FNR/kilde/$AVDOD")
-            .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andReturn()
@@ -187,7 +191,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
         val result = mockMvc.perform(
             MockMvcRequestBuilders.get("/buc/enkeldetalj/$EUXCASE_ID2/aktoerid/$AKTOERID/saknr/$SAKNR/kilde/$BRUKER")
-            .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andReturn().response.contentAsString
@@ -211,7 +215,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
         val result = mockMvc.perform(
             MockMvcRequestBuilders.get("/buc/enkeldetalj/$EUXCASE_ID2/aktoerid/$AKTOERID/saknr/$SAKNR/kilde/$SAF")
-            .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().is2xxSuccessful)
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andReturn()
@@ -226,8 +230,6 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
     @Test
     fun `Hent mulige rinasaker for aktoer og saf med vedtak uten avdod`() {
-        every { pensjonsinformasjonClient.hentAltPaaVedtak(VEDTAKID) } .answers( FunctionAnswer { Thread.sleep(56); mockVedtakUtenAvdod(AKTOERID) } )
-
         val result = mockMvc.perform(
             MockMvcRequestBuilders.get("/buc/rinasaker/$AKTOERID/saknr/$SAKNR2/vedtak/$VEDTAKID")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -243,7 +245,8 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
     @Test
     fun `Hent mulige rinasaker for aktoer og saf med vedtak med avdod`() {
-        every { pensjonsinformasjonClient.hentAltPaaVedtak(VEDTAKID) } .answers( FunctionAnswer { Thread.sleep(56); mockVedtak(AVDOD_FNR2, AKTOERID) } )
+        every { pesysService.hentAvdod(VEDTAKID) } returns EessiFellesDto.EessiAvdodDto(avdod = AVDOD_FNR2, avdodMor = null, avdodFar = null)
+        every { pesysService.hentGyldigAvdod(any()) } returns listOf(AVDOD_FNR2)
 
         //gjenlevende aktoerid -> gjenlevendefnr
         every { personService.hentIdent(FOLKEREGISTERIDENT, AktoerId(AKTOERID)) } returns NorskIdent(FNR)
@@ -300,7 +303,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         val httpEntity = dummyHeader(dummySafReqeust(AKTOERID))
         every { safGraphQlOidcRestTemplate.exchange(eq("/"), eq(HttpMethod.POST), eq(httpEntity), eq(String::class.java)) } returns ResponseEntity.ok().body(  dummySafMetaResponseMedRina( "5195021", "5922554" ) )
 
-       //gjenlevende rinasak
+        //gjenlevende rinasak
         every { euxNavIdentRestTemplate.exchange("/rinasaker?fødselsnummer=1234567890000&status=\"open\"", HttpMethod.GET, null, String::class.java) } .answers( FunctionAnswer { Thread.sleep(250);  ResponseEntity.ok().body( listOf(dummyRinasak("5195021", "P_BUC_05") ).toJson() ) } )
         every { euxNavIdentRestTemplate.exchange( "/buc/5922554", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "5922554", processDefinitionName = "P_BUC_03").toJson() )
         every { euxNavIdentRestTemplate.exchange( "/buc/5195021", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "5195021", processDefinitionName = "P_BUC_03").toJson() )
@@ -388,7 +391,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
         val result = mockMvc.perform(
             MockMvcRequestBuilders.get("/buc/rinasaker/$AKTOERID/saknr/$SAKNR2")
-            .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andReturn()
@@ -422,11 +425,11 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         every { gcpStorageService.gjennySakFinnes(any()) } returns false
 
         val result = mockMvc.perform(
-                MockMvcRequestBuilders.get("/buc/rinasaker/$AKTOERID/saknr/$SAKNR2")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk)
-                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andReturn()
+            MockMvcRequestBuilders.get("/buc/rinasaker/$AKTOERID/saknr/$SAKNR2")
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andReturn()
 
         val response = result.response.getContentAsString(charset("UTF-8"))
         val responseBody = mapJsonToBucViewResponse(response)
@@ -461,7 +464,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
         val result = mockMvc.perform(
             MockMvcRequestBuilders.get("/buc/rinasaker/$AKTOERID/saknr/$SAKNR2/avdod/$AVDOD_FNR")
-            .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andReturn()

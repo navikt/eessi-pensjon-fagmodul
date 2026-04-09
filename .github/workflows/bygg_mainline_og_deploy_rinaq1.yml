@@ -53,7 +53,6 @@ jobs:
       - name: 'Deploy to DEV Q2 med Q1 RINA'
         uses: nais/deploy/actions/deploy@v2
         env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
           RESOURCE: nais/dev-gcp-q1.yml
           IMAGE: ${{ steps.docker-push.outputs.image }}

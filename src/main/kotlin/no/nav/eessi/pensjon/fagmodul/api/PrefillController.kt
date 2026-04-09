@@ -12,7 +12,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.eux.EuxPrefillService
-import no.nav.eessi.pensjon.fagmodul.pesys.PensjonsinformasjonUtlandController
+import no.nav.eessi.pensjon.fagmodul.pesys.P6000Detaljer
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.gcp.GjennySak
@@ -45,12 +45,13 @@ class PrefillController(
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
     private val logger = LoggerFactory.getLogger(PrefillController::class.java)
+    private val secureLog = LoggerFactory.getLogger("secureLog")
 
-    private lateinit var addInstution: MetricsHelper.Metric
-    private lateinit var addInstutionAndDocument: MetricsHelper.Metric
-    private lateinit var addDocumentToParent: MetricsHelper.Metric
-    private lateinit var addInstutionAndDocumentBucUtils: MetricsHelper.Metric
-    private lateinit var addDocumentToParentBucUtils: MetricsHelper.Metric
+    private  var addInstution: MetricsHelper.Metric
+    private  var addInstutionAndDocument: MetricsHelper.Metric
+    private  var addDocumentToParent: MetricsHelper.Metric
+    private  var addInstutionAndDocumentBucUtils: MetricsHelper.Metric
+    private  var addDocumentToParentBucUtils: MetricsHelper.Metric
     init {
         addInstution = metricsHelper.init("AddInstution", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
         addInstutionAndDocument = metricsHelper.init("AddInstutionAndDocument", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
@@ -138,7 +139,7 @@ class PrefillController(
         if (request.buc == null) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mangler Buc")
 
         val norskIdent = innhentingService.hentFnrfraAktoerService(request.aktoerId) ?: throw HttpClientErrorException(HttpStatus.BAD_REQUEST)
-        val avdodaktoerID = innhentingService.getAvdodId(BucType.from(request.buc.name)!!, request.riktigAvdod())
+        val avdodaktoerID = innhentingService.getAvdodId(BucType.from(request.buc.name)!!, request.riktigAvdod(), request.gjenny)
         val dataModel = ApiRequest.buildPrefillDataModelOnExisting(request, PersonInfo(norskIdent.id, request.aktoerId), avdodaktoerID)
 
         //Hente metadata for valgt BUC
@@ -164,15 +165,15 @@ class PrefillController(
         val sed = innhentingService.hentPreutyltSed(
             euxInnhentingService.checkForP7000AndAddP6000(requestMedGjenlevendeFnr),
             bucUtil.getProcessDefinitionVersion()
-        ).also { logger.debug("Prefill av SED: $it") }
+        ).also { secureLog.info("Prefill av SED: $it") }
 
         //Lagrer P6000 detaljer til GCP Storage
         try {
             if(request.sed == SedType.P7000) {
-                logger.debug("Lagerer P7000: ${request.payload}")
+                logger.info("Lagerer P6000: buc: ${request.buc}, rinaId: ${request.euxCaseId}, sakId: ${request.sakId}, euxCaseId: ${request.documentid}")
                 request.payload?.let { mapJsonToAny<List<P6000Dokument>>(it) }?.let { listeOverP6000 ->
                     gcpStorageService.lagretilBackend(
-                        PensjonsinformasjonUtlandController.P6000Detaljer(
+                        P6000Detaljer(
                             request.sakId!!,
                             request.euxCaseId!!,
                             listeOverP6000.map { it.documentID }).toJson(), request.sakId
@@ -213,7 +214,7 @@ class PrefillController(
         if (request.buc == null) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mangler Buc")
 
         val norskIdent = innhentingService.hentFnrfraAktoerService(request.aktoerId) ?: throw HttpClientErrorException(HttpStatus.BAD_REQUEST, "Mangler norsk fnr")
-        val avdodaktoerID = innhentingService.getAvdodId(BucType.from(request.buc.name)!!, request.riktigAvdod())
+        val avdodaktoerID = innhentingService.getAvdodId(BucType.from(request.buc.name)!!, request.riktigAvdod(), false)
         val dataModel = ApiRequest.buildPrefillDataModelOnExisting(request, PersonInfo(norskIdent.id, request.aktoerId), avdodaktoerID)
 
         //Hente metadata for valgt BUC
@@ -257,7 +258,7 @@ class PrefillController(
     }
 
     private fun getBucForPBuc06AndForEmptySed(bucType: BucType, bucDocuments: List<DocumentsItem>?, bucSedResponse: BucSedResponse, orginal: DocumentsItem?): DocumentsItem? {
-        logger.info("Henter BUC på nytt for buctype: $bucDocuments")
+        logger.info("Henter BUC på nytt for buctype: $bucType, inkl. ${bucDocuments?.size} SED")
         Thread.sleep(900)
         return if (bucType == P_BUC_06 || orginal == null && bucDocuments.isNullOrEmpty()) {
             val innhentetBuc = euxInnhentingService.getBuc(bucSedResponse.caseId)

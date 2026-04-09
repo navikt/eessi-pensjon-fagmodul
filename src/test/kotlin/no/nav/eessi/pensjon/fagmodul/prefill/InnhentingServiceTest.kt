@@ -13,7 +13,8 @@ import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
 import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentGruppe
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Npid
-import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonService
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.PesysService
+//import no.nav.eessi.pensjon.services.pensjonsinformasjon.PensjonsinformasjonService
 import no.nav.eessi.pensjon.shared.api.ApiRequest
 import no.nav.eessi.pensjon.shared.api.ApiSubject
 import no.nav.eessi.pensjon.shared.api.SubjectFnr
@@ -39,7 +40,7 @@ internal class InnhentingServiceTest {
     lateinit var vedleggService: VedleggService
 
     @MockK
-    private lateinit var pensjonsinformasjonService: PensjonsinformasjonService
+    private lateinit var pesysService: PesysService
 
     @MockK
     lateinit var prefillKlient: PrefillKlient
@@ -50,7 +51,7 @@ internal class InnhentingServiceTest {
     @BeforeEach
     fun before() {
         MockKAnnotations.init(this)
-        innhentingService = InnhentingService(personService, vedleggService, prefillKlient, pensjonsinformasjonService)
+        innhentingService = InnhentingService(personService, vedleggService, prefillKlient, pesysService)
     }
 
     @Test
@@ -58,7 +59,7 @@ internal class InnhentingServiceTest {
         val apiRequest = apiRequest(SedType.P2100, P_BUC_02, AKTOER_ID, AVDOD_FNR)
         every { personService.hentIdent(eq(IdentGruppe.AKTORID), any()) } returns AktoerId(AKTOER_ID)
 
-        val result = innhentingService.getAvdodId(BucType.from(apiRequest.buc?.name)!!, apiRequest.riktigAvdod())
+        val result = innhentingService.getAvdodId(BucType.from(apiRequest.buc?.name)!!, apiRequest.riktigAvdod(), false)
 
         assertEquals(AKTOER_ID, result)
     }
@@ -68,7 +69,7 @@ internal class InnhentingServiceTest {
         val apiRequest = apiRequest(SedType.P2100, P_BUC_02, AKTOER_ID, NPID)
         every { personService.hentIdent((IdentGruppe.AKTORID), Npid(NPID)) } returns AktoerId(AKTOER_ID)
 
-        val result = innhentingService.getAvdodId(BucType.from(apiRequest.buc?.name)!!, apiRequest.riktigAvdod())
+        val result = innhentingService.getAvdodId(BucType.from(apiRequest.buc?.name)!!, apiRequest.riktigAvdod(), false)
 
         assertEquals(AKTOER_ID, result)
     }
@@ -82,7 +83,7 @@ internal class InnhentingServiceTest {
 
         every { personService.hentIdent(eq(IdentGruppe.AKTORID), any()) } returns AktoerId(AKTOER_ID)
 
-        val result = innhentingService.getAvdodId(BucType.from(apiRequest.buc?.name)!!, apiRequest.riktigAvdod())
+        val result = innhentingService.getAvdodId(BucType.from(apiRequest.buc?.name)!!, apiRequest.riktigAvdod(), false)
         assertEquals(AKTOER_ID, result)
     }
 
@@ -90,7 +91,7 @@ internal class InnhentingServiceTest {
     fun `Gitt en P2100 mangler fnr saa skal vi kaste en ResponseStatusException`() {
         val apiRequest = apiRequest(SedType.P2100, P_BUC_02, AKTOER_ID)
         assertThrows<ResponseStatusException> {
-            innhentingService.getAvdodId(BucType.from(apiRequest.buc?.name)!!, apiRequest.riktigAvdod())
+            innhentingService.getAvdodId(BucType.from(apiRequest.buc?.name)!!, apiRequest.riktigAvdod(), false)
         }
     }
 
@@ -99,7 +100,7 @@ internal class InnhentingServiceTest {
         val apiRequest = apiRequest(SedType.P15000, P_BUC_10, AKTOER_ID, AVDOD_FNR)
 
         assertThrows<ResponseStatusException> {
-            innhentingService.getAvdodId(BucType.from(apiRequest.buc?.name)!!, apiRequest.riktigAvdod())
+            innhentingService.getAvdodId(BucType.from(apiRequest.buc?.name)!!, apiRequest.riktigAvdod(), false)
         }
     }
 
@@ -107,7 +108,7 @@ internal class InnhentingServiceTest {
     fun `Gitt en P2000 saa skal getAvdodAktoerId returnere null da det ikke skal finnes avdod på en p2000`() {
         val apiRequest = apiRequest(SedType.P2000, P_BUC_01, AKTOER_ID, AVDOD_FNR)
 
-        val result = innhentingService.getAvdodId(BucType.from(apiRequest.buc?.name)!!, apiRequest.avdodfnr)
+        val result = innhentingService.getAvdodId(BucType.from(apiRequest.buc?.name)!!, apiRequest.avdodfnr, false)
         assertEquals(null, result)
     }
 

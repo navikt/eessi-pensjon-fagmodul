@@ -7,20 +7,18 @@ import no.nav.eessi.pensjon.eux.model.sed.P5000
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.kodeverk.KodeverkClient
+import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
 import java.time.Instant
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
-import kotlin.text.orEmpty
 
 @Service
-class HentTrygdeTid (val euxInnhentingService: EuxInnhentingService, private val kodeverkClient: KodeverkClient) {
+class TrygdeTidService (val euxInnhentingService: EuxInnhentingService, private val kodeverkClient: KodeverkClient) {
 
-    private val logger = LoggerFactory.getLogger(HentTrygdeTid::class.java)
+    private val logger = LoggerFactory.getLogger(TrygdeTidService::class.java)
 
     fun hentBucFraEux(bucId: Int?, fnr: String): TrygdetidForPesys? {
         logger.info("** Innhenting av kravdata for BUC: $bucId **")
@@ -87,6 +85,27 @@ class HentTrygdeTid (val euxInnhentingService: EuxInnhentingService, private val
         val medlemskap = sed.pensjon?.medlemskapboarbeid?.medlemskap.orEmpty()
         val org = sedIdOgMedlemskap.second
         return Pair(medlemskap, org)
+    }
+
+    fun parseTrygdetid(lagretTrygdetid: List<Pair<String, String?>>): List<Pair<String?, List<Trygdetid>>>? {
+        return lagretTrygdetid.map { (trygdetid, rinaNr) ->
+            val json = trygdetid.trim('"')
+                .replace("\\n", "")
+                .replace("\\\"", "\"")
+
+            val trygdeTidListe = hentLandFraKodeverk(json)
+
+            val rinaId = rinaNr?.split(Regex("\\D+"))
+                ?.lastOrNull { it.isNotEmpty() }
+
+            rinaId to trygdeTidListe
+        }
+    }
+
+    fun hentLandFraKodeverk(json: String): List<Trygdetid> = mapJsonToAny<List<Trygdetid>>(json).map { trygdetid ->
+        trygdetid.takeIf { it.land.length != 2 } ?: trygdetid.copy(
+            land = kodeverkClient.finnLandkode(trygdetid.land) ?: trygdetid.land
+        )
     }
 
     /**

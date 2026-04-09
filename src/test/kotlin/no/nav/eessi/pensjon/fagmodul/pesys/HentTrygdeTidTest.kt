@@ -21,7 +21,7 @@ class HentTrygdeTidTest {
     @MockK
     private lateinit var kodeverkClient: KodeverkClient
 
-    private lateinit var hentTrygdeTid : HentTrygdeTid
+    private lateinit var trygdeTidService : TrygdeTidService
 
     @BeforeEach
     fun setup() {
@@ -31,7 +31,7 @@ class HentTrygdeTidTest {
         every { kodeverkClient.finnLandkode(eq("DK")) } returns "DNK"
         every { kodeverkClient.finnLandkode(eq("NO")) } returns "NOK"
 
-        hentTrygdeTid = HentTrygdeTid(euxInnhentingService, kodeverkClient)
+        trygdeTidService = TrygdeTidService(euxInnhentingService, kodeverkClient)
     }
 
     @Test
@@ -44,9 +44,9 @@ class HentTrygdeTidTest {
         val sed1 = mapJsonToAny<P5000>(javaClass.getResource("/json/trygdetid/p5000_78a8b06bcce8406697e06c56fd28f795.json")!!.readText())
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1452582", "78a8b06bcce8406697e06c56fd28f795") } returns sed1
 
-        hentTrygdeTid = HentTrygdeTid(euxInnhentingService, kodeverkClient)
+        trygdeTidService = TrygdeTidService(euxInnhentingService, kodeverkClient)
 
-        val result = hentTrygdeTid.hentBucFraEux(1452582, "12345678901")
+        val result = trygdeTidService.hentBucFraEux(1452582, "12345678901")
         val forventetTrygdetid = javaClass.getResource("/json/trygdetid/trygdetid_enkelt_medlemskap_452582.json")!!.readText()
         println(forventetTrygdetid)
         assertEquals(forventetTrygdetid, result?.toJson())
@@ -62,7 +62,7 @@ class HentTrygdeTidTest {
         val sed1 = mapJsonToAny<P5000>(javaClass.getResource("/json/trygdetid/p5000_eced18dddec1401789c1d59b1c969602.json")!!.readText())
         every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1442897", "9826099264d04ea780a9b2ee06683b79") } returns sed1
 
-        val result = hentTrygdeTid.hentBucFraEux(1442897, "12345678901")
+        val result = trygdeTidService.hentBucFraEux(1442897, "12345678901")
         val forventetTrygdetid = javaClass.getResource("/json/trygdetid/trygdetid_flere_medlemskap_1442897.json")!!.readText()
         println(forventetTrygdetid)
         assertEquals(forventetTrygdetid, result?.toJson())
