@@ -21,12 +21,13 @@ import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucView
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.integrationtest.IntegrasjonsTestConfig
-import no.nav.eessi.pensjon.pensjonsinformasjon.clients.PensjonsinformasjonClient
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
 import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentGruppe
 import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Npid
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.EessiFellesDto
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.PesysService
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -64,7 +65,7 @@ private val lastupdate = LocalDate.of(2020, Month.AUGUST, 7).toString()
 @AutoConfigureMockMvc
 @EmbeddedKafka
 @DirtiesContext
-@MockkBeans(
+@MockkBeans(value = [
     MockkBean(name = "personService", classes = [PersonService::class]),
     MockkBean(name = "pesysService", classes = [PesysService::class]),
     MockkBean(name = "pdlRestTemplate", classes = [RestTemplate::class]),
@@ -75,7 +76,7 @@ private val lastupdate = LocalDate.of(2020, Month.AUGUST, 7).toString()
     MockkBean(name = "safRestOidcRestTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "euxNavIdentRestTemplate", classes = [RestTemplate::class]),
     MockkBean(name = "safGraphQlOidcRestTemplate", classes = [RestTemplate::class]),
-    MockkBean(name = "euxNavIdentRestTemplateV2", classes = [RestTemplate::class]),
+    MockkBean(name = "euxNavIdentRestTemplateV2", classes = [RestTemplate::class])]
 )
 internal class BucControllerIT: BucBaseTest() {
 
@@ -156,7 +157,6 @@ internal class BucControllerIT: BucBaseTest() {
                 .andReturn()
 
         val response = result.response.getContentAsString(charset("UTF-8"))
-        val svar = mapJsonToAny<FrontEndResponse<List<EuxInnhentingService.BucView>>>(response)
 
         val expected = """
             [{"euxCaseId":"1010","buctype":"P_BUC_02","aktoerId":"1123123123123123","saknr":"1203201322","avdodFnr":"01010100001","kilde":"AVDOD"}]
@@ -210,14 +210,12 @@ internal class BucControllerIT: BucBaseTest() {
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andReturn().response.contentAsString
 
-            val responseBodyResult = mapJsonToAny<FrontEndResponse<List<EuxInnhentingService.BucView>>>(response)
-
             val bucViewResponse = """
                 [{"euxCaseId":"1010","buctype":"P_BUC_02","aktoerId":"1123123123123123","saknr":"1203201322","avdodFnr":"01010100001","kilde":"SAF","internationalId":"1000100010001000"}]
             """.trimIndent()
 
-            assertTrue { responseBodyResult.result?.toJson()?.contains(AVDOD_FNR) == true }
-            JSONAssert.assertEquals(responseBodyResult.result?.toJson(), bucViewResponse, false)
+            assertTrue {response.contains(AVDOD_FNR)}
+            JSONAssert.assertEquals(response, bucViewResponse, false)
 
             verify (exactly = 1) { euxNavIdentRestTemplate.exchange("/rinasaker?fødselsnummer=01010100001&status=\"open\"", HttpMethod.GET, null, String::class.java) }
             verify (exactly = 1) { restSafTemplate.exchange("/", HttpMethod.POST, httpEntity, String::class.java) }
