@@ -46,8 +46,10 @@ class KodeverkService(private val euxNavIdentRestTemplate: RestTemplate) {
 
 data class LandkodeMerKorrektFormat(
     @JsonProperty("v4.2")
-    val v43 : LandkodeRinaFormat? = null,
+    val v42 : LandkodeRinaFormat? = null,
     @JsonProperty("v4.3")
+    val v43 : LandkodeRinaFormat? = null,
+    @JsonProperty("v4.4")
     val v44 : LandkodeRinaFormat? = null
 )
 
