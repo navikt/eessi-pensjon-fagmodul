@@ -104,13 +104,12 @@ class EuxPrefillService (private val euxKlient: EuxKlientLib,
                         throw ResponseStatusException(HttpStatus.BAD_REQUEST, "NAV er ikke sakseier. Du kan ikke legge til deltakere utenfor Norge")
                     }
                 }
-                addInstitutionMedX005(dataModel, bucUtil.getProcessDefinitionVersion(), x005Liste)
+                addInstitutionMedX005(dataModel, x005Liste)
             }
     }
 
     private fun addInstitutionMedX005(
         dataModel: PrefillDataModel,
-        bucVersion: String,
         x005Liste: List<SED>
     ) {
 
@@ -119,7 +118,6 @@ class EuxPrefillService (private val euxKlient: EuxKlientLib,
 
         x005Liste.forEach { x005 ->
             try {
-                updateSEDVersion(x005, bucVersion)
                 opprettJsonSedOnBuc(x005.toJson(), x005.type, dataModel.euxCaseID, dataModel.vedtakId)
             } catch (eux: EuxRinaServerException) {
                 execptionError = eux
@@ -135,19 +133,6 @@ class EuxPrefillService (private val euxKlient: EuxKlientLib,
         }
 
     }
-
-    //flyttes til prefill / en eller annen service?
-    fun updateSEDVersion(sed: SED, bucVersion: String) {
-        when (bucVersion) {
-            "v4.2" -> {
-                sed.sedVer = "2"
-            }
-            else -> {
-                sed.sedVer = "1"
-            }
-        }
-    }
-
 
 }
 open class KanIkkeOppretteSedFeilmelding(message: String?) : ResponseStatusException(HttpStatus.BAD_REQUEST, message)
