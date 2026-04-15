@@ -522,17 +522,16 @@ class EuxInnhentingService(
         return euxKlient.lagPdf(pdfJson)
     }
 
-//    fun hentSedMetadata(rinaSakId: String, p6000: String): SedMetadata? {
-//        return euxKlient.getMetaDataAsSystemuser(rinaSakId, p6000)
-//    }
-
-
+    @Retryable(
+        exclude = [IOException::class],
+        backoff = Backoff(delayExpression = "@euxKlientRetryConfig.initialRetryMillis", maxDelay = 200000L, multiplier = 3.0),
+        listeners  = ["euxKlientRetryLogger"]
+    )
     fun hentSedMetadata(rinasakId: String, dokumentId: String): SedMetadata? {
         logger.info("Henter SED metadata for rinaSakId: $rinasakId , dokumentId: $dokumentId")
 
         val response = euxNavIdentRestTemplateV2.getForObject("/buc/$rinasakId/sed/$dokumentId/oversikt", String::class.java)
         return response?.let { mapJsonToAny<SedMetadata>(it) }
-
     }
     /**
      * Utvalgt informasjon om en rinasak/Buc.
