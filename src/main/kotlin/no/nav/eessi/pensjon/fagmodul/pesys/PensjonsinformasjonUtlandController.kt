@@ -106,7 +106,7 @@ class PensjonsinformasjonUtlandController(
                     hentetP6000.let { listeOverP6000FraGcp.add(it) }
                 }
             }
-                .onFailure { e -> logger.error("Feil ved parsing av trygdetid linje 129", e) }
+                .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
                 .onSuccess { logger.info("Hentet nye dok detaljer fra Rina for $pesysId") }
 
             val innvilgedePensjoner = penInfoUtlandService.innvilgedePensjoner(listeOverP6000FraGcp).also { secureLog.info("innvilgedePensjoner: " +it.toJson()) }
