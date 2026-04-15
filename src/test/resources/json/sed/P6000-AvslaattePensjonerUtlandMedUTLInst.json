@@ -47,7 +47,6 @@
     },
     "tilleggsinformasjon": {}
   },
-  "sedVer": "3",
   "nav": {
     "bruker": {
       "person": {
@@ -83,6 +82,5 @@
       }
     ]
   },
-  "sedGVer": "4",
   "sed": "P6000"
 }

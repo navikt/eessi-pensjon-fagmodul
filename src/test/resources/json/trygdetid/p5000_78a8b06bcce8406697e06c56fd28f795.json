@@ -64,7 +64,6 @@
       "ignore": "0"
     }
   },
-  "sedGVer": "4",
   "nav": {
     "bruker": {
       "person": {
@@ -81,6 +80,5 @@
       }
     }
   },
-  "sedVer": "3",
   "sed": "P5000"
 }

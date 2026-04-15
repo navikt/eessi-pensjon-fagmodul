@@ -178,7 +178,7 @@ class PesysIntegrationSpringTest {
         every { kodeverkClient.finnLandkode(any())  } returns "SWE"
 
         //euxrest kall buc
-        val p2000json = """{"nav":{"bruker":{"person":{"sivilstand":[{"status":"gift","fradato":"2006-01-03"}],"kjoenn":"K","etternavn":"MASKIN","fornavn":"LITEN\t","foedselsdato":"1953-09-24","pin":[{"land":"NO","identifikator":"64095349631"}],"statsborgerskap":[{"land":"NO"}]}},"krav":{"dato":"2021-02-10"}},"sedGVer":"4","sedVer":"2","sed":"P2000"}        """.trimIndent()
+        val p2000json = """{"nav":{"bruker":{"person":{"sivilstand":[{"status":"gift","fradato":"2006-01-03"}],"kjoenn":"K","etternavn":"MASKIN","fornavn":"LITEN\t","foedselsdato":"1953-09-24","pin":[{"land":"NO","identifikator":"64095349631"}],"statsborgerskap":[{"land":"NO"}]}},"krav":{"dato":"2021-02-10"}},"sed":"P2000"}        """.trimIndent()
 
         val buc01 = ResourceUtils.getFile("classpath:json/buc/buc-1297512-kravP2000_v4.2.json").readText()
         val rinabucpath = "/buc/$bucid"
