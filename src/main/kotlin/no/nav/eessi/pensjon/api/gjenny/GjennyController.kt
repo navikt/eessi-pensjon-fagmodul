@@ -58,7 +58,7 @@ class GjennyController (
     }
 
     @GetMapping("/bucs", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getBucs() = ValidBucAndSed.pensjonsBucerForGjenny()
+    fun getBucs(): FrontEndResponse<List<String>> = FrontEndResponse(ValidBucAndSed.pensjonsBucerForGjenny(), HttpStatus.OK.name)
 
     @PostMapping("/buc/{buctype}")
     fun createBuc(@PathVariable("buctype", required = true) buctype: String,
@@ -71,7 +71,7 @@ class GjennyController (
     @GetMapping("/rinasaker/brukersakergjenny")
     fun getGjenlevendeRinasakerUtenAvdodGjenny(
         @RequestBody(required = true) aktoerId: String
-    ): List<BucView> {
+    ): FrontEndResponse<List<BucView>> {
         return bucerForBrukerGjenny.measure {
 
         logger.info("henter rinasaker for bruker")
@@ -80,13 +80,13 @@ class GjennyController (
         val totaleBrukerSaker = sakerFraRinaOgJoark(fnrForAktoerId?.id, aktoerId)
         logger.info("Antall totale brukersaker: ${totaleBrukerSaker.size}")
 
-        return@measure totaleBrukerSaker
+        return@measure FrontEndResponse(totaleBrukerSaker
             .filter { BucType.from(it.processDefinitionId) !in listOf(P_BUC_01, P_BUC_03) }
             .map { rinasak ->
                 BucView(rinasak.id!!, BucType.from(rinasak.processDefinitionId),
                     aktoerId, null, null, BucViewKilde.BRUKER
                 )
-            }
+            }, HttpStatus.OK.name)
         }
     }
 
@@ -94,7 +94,7 @@ class GjennyController (
     fun getGjenlevendeRinasakerAvdodGjenny(
         @PathVariable("aktoerId", required = true) aktoerId: String,
         @PathVariable("avdodfnr", required = true) avdodfnr: String,
-    ): List<BucView> {
+    ): FrontEndResponse<List<BucView>> {
         logger.info("henter rinasaker for gjenlevende med aktoerid: $aktoerId")
 
         val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerId)
@@ -106,11 +106,11 @@ class GjennyController (
         //Saker for avdød eux og joark
         val avdodSakerFraRinaOgJoark = sakerFraRinaOgJoark(avdodfnr,avdodAktoerId)
 
-        return totaleSakerGjenlevende.filter{ rinasak -> rinasak.id in avdodSakerFraRinaOgJoark.map { it.id }  }
+        return FrontEndResponse(totaleSakerGjenlevende.filter{ rinasak -> rinasak.id in avdodSakerFraRinaOgJoark.map { it.id }  }
         .filter { BucType.from(it.processDefinitionId) !in listOf(P_BUC_01,P_BUC_03)}
             .map { rinasak ->
                 BucView(rinasak.id!!, BucType.from(rinasak.processDefinitionId), aktoerId, null, avdodfnr, BucViewKilde.SAF)
-            }
+            }, HttpStatus.OK.name)
     }
 
     fun sakerFraRinaOgJoark(fnr: String?, aktoerId: String?) : List<Rinasak> {
@@ -122,7 +122,7 @@ class GjennyController (
     @GetMapping("/rinasaker/{aktoerId}")
     fun getRinasakerBrukerkontekstGjenny(
         @PathVariable("aktoerId", required = true) aktoerId: String
-    ): List<EuxInnhentingService.BucView> {
+    ): FrontEndResponse<List<EuxInnhentingService.BucView>> {
         return bucViewGjenny.measure {
             val start = System.currentTimeMillis()
             val timeTracking = mutableListOf<String>()
@@ -154,10 +154,10 @@ class GjennyController (
                 .filter { it.buctype !in listOf(P_BUC_01, P_BUC_03) }
                 .also { logger.info("Antall for brukerview+safView: ${it.size}") }
 
-            return@measure view.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
+            return@measure FrontEndResponse(view.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
                 .also {
                     logger.info("Tidsbruk for getRinasakerBrukerkontekst: \n"+timeTracking.joinToString("\n").trimIndent())
-                }
+                }, HttpStatus.OK.name)
         }
     }
 
@@ -177,7 +177,7 @@ class GjennyController (
         @PathVariable("euxcaseid", required = true) euxcaseid: String,
         @PathVariable("documentid", required = true) documentid: String,
         @RequestBody sedPayload: String
-    ): Boolean = sedController.updateSed(euxcaseid, documentid, sedPayload)
+    ): FrontEndResponse<Boolean> = FrontEndResponse(sedController.updateSed(euxcaseid, documentid, sedPayload), HttpStatus.OK.name)
 
 
     private fun loggTimeAndViewSize(servicename: String, start: Long, viewsize: Long = 0) {
