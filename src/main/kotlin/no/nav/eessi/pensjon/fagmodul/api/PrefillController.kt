@@ -88,8 +88,13 @@ class PrefillController(
         auditlogger.log("createBuc")
         logger.info("Prøver å opprette en ny BUC $buctype i RINA med GjennySakId: ${gjennySak?.sakId} med saktype: ${gjennySak?.sakType}.")
 
+        val sakId = gjennySak?.sakId
+            ?: return FrontEndResponse(result = null, status = HttpStatus.BAD_REQUEST.name, message = "Mangler sakId i GjennySak")
+
         return createBuc(buctype).also {
-            gcpStorageService.lagreGjennySak(it.result?.caseId!!, GjennySak(gjennySak?.sakId!!, gjennySak.sakType))
+            val caseId = it.result?.caseId
+                ?: return FrontEndResponse(result = null, status = HttpStatus.INTERNAL_SERVER_ERROR.name, message = "Mangler caseId fra opprettet BUC")
+            gcpStorageService.lagreGjennySak(caseId, GjennySak(sakId, gjennySak.sakType))
         }
     }
 
