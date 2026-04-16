@@ -65,7 +65,7 @@ class PrefillController(
     @PostMapping("/buc/{buctype}")
     fun createBuc(
         @PathVariable("buctype", required = true) buctype: String
-    ): BucAndSedView {
+    ): FrontEndResponse<BucAndSedView> {
         auditlogger.log("createBuc")
         logger.info("Prøver å opprette en ny BUC i RINA av type: $buctype")
 
@@ -78,18 +78,18 @@ class PrefillController(
 
         logger.info("Følgende bucdetalj er hentet: ${buc.processDefinitionName}, id: ${buc.id}")
 
-        return BucAndSedView.from(buc)
+        return FrontEndResponse(BucAndSedView.from(buc), HttpStatus.OK.name)
     }
 
     fun createBuc(
         buctype: String,
         gjennySak: GjennySak? = null
-    ): BucAndSedView {
+    ): FrontEndResponse<BucAndSedView> {
         auditlogger.log("createBuc")
         logger.info("Prøver å opprette en ny BUC $buctype i RINA med GjennySakId: ${gjennySak?.sakId} med saktype: ${gjennySak?.sakType}.")
 
         return createBuc(buctype).also {
-            gcpStorageService.lagreGjennySak(it.caseId, GjennySak(gjennySak?.sakId!!, gjennySak.sakType))
+            gcpStorageService.lagreGjennySak(it.result?.caseId!!, GjennySak(gjennySak?.sakId!!, gjennySak.sakType))
         }
     }
 
@@ -124,7 +124,7 @@ class PrefillController(
     }
 
     @PostMapping("/sed/add")
-    fun addInstutionAndDocument(@RequestBody request: ApiRequest): DocumentsItem? {
+    fun addInstutionAndDocument(@RequestBody request: ApiRequest): FrontEndResponse<DocumentsItem?> {
 
         logger.info("Avdød fnr finnes i requesten: ${request.subject?.avdod?.fnr != null}, Subject finnes: ${request.subject != null}, gjenlevende finnes: ${request.subject?.gjenlevende != null}")
         logger.info("Legger til institusjoner og SED for " +
@@ -204,7 +204,7 @@ class PrefillController(
 
             val documentItem = getBucForPBuc06AndForEmptySed(dataModel.buc, bucUtil.getBuc().documents, bucAndSedResponse, sedDocument)
             logger.info("******* Legge til ny SED - slutt *******")
-            documentItem
+            FrontEndResponse(documentItem, HttpStatus.OK.name)
         }
     }
 
@@ -212,7 +212,7 @@ class PrefillController(
     fun addDocumentToParent(
         @RequestBody(required = true) request: ApiRequest,
         @PathVariable("parentid", required = true) parentId: String
-    ): DocumentsItem? {
+    ): FrontEndResponse<DocumentsItem?> {
         if (request.buc == null) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mangler Buc")
 
         val norskIdent = innhentingService.hentFnrfraAktoerService(request.aktoerId) ?: throw HttpClientErrorException(HttpStatus.BAD_REQUEST, "Mangler norsk fnr")
@@ -255,7 +255,7 @@ class PrefillController(
 
             logger.info("Buc: (${dataModel.euxCaseID}, hovedSED type: ${parent?.type}, docId: ${parent?.id}, svarSED type: ${documentItem?.type} docID: ${documentItem?.id}")
             logger.info("******* Legge til svarSED - slutt *******")
-            documentItem
+            FrontEndResponse(documentItem, HttpStatus.OK.name)
         }
     }
 

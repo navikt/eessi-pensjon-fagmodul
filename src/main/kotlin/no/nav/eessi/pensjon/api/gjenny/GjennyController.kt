@@ -4,6 +4,7 @@ import no.nav.eessi.pensjon.eux.klient.Rinasak
 import no.nav.eessi.pensjon.eux.model.BucType
 import no.nav.eessi.pensjon.eux.model.BucType.*
 import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
+import no.nav.eessi.pensjon.fagmodul.api.FrontEndResponse
 import no.nav.eessi.pensjon.fagmodul.api.PrefillController
 import no.nav.eessi.pensjon.fagmodul.api.SedController
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
@@ -62,7 +63,7 @@ class GjennyController (
     @PostMapping("/buc/{buctype}")
     fun createBuc(@PathVariable("buctype", required = true) buctype: String,
                    @RequestBody(required = true) gjennySak: GjennySak):
-        BucAndSedView = prefillController.createBuc(buctype, gjennySak).also { logger.info("Create buc for gjenny: ${it.caseId}, buctype: $buctype") }
+        FrontEndResponse<BucAndSedView> = prefillController.createBuc(buctype, gjennySak).also { logger.info("Create buc for gjenny: ${it.result?.caseId}, buctype: $buctype") }
 
     /**
     *
@@ -161,7 +162,7 @@ class GjennyController (
     }
 
     @PostMapping("/sed/add")
-    fun leggTilInstitusjon(@RequestBody request: ApiRequest): DocumentsItem? {
+    fun leggTilInstitusjon(@RequestBody request: ApiRequest): FrontEndResponse<DocumentsItem?> {
         return prefillController.addInstutionAndDocument(request.copy(gjenny = true)).also { logger.info("Legg til institusjon fra gjenny for ${request.sed}, rinaid: ${request.euxCaseId}, sedid: ${request.documentid}") }
     }
 
@@ -169,7 +170,7 @@ class GjennyController (
     fun prefillSed(
         @RequestBody(required = true) request: ApiRequest,
         @PathVariable("parentid", required = true) parentId: String
-    ): DocumentsItem? = prefillController.addDocumentToParent(request.copy(gjenny = true), parentId).also { logger.info("Prefil fra gjenny for ${request.sed}, rinaid: ${request.euxCaseId}, sedid: ${request.documentid}") }
+    ): FrontEndResponse<DocumentsItem?> = prefillController.addDocumentToParent(request.copy(gjenny = true), parentId).also { logger.info("Prefil fra gjenny for ${request.sed}, rinaid: ${request.euxCaseId}, sedid: ${request.documentid}") }
 
     @PutMapping("/sed/document/{euxcaseid}/{documentid}")
     fun oppdaterSed(
