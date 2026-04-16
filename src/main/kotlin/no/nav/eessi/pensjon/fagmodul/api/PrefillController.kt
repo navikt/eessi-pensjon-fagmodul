@@ -30,11 +30,13 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.server.ResponseStatusException
 
 @Protected
+@RequestMapping("/prefill")
 @RestController
 class PrefillController(
     private val euxPrefillService: EuxPrefillService,
@@ -60,7 +62,7 @@ class PrefillController(
         addDocumentToParentBucUtils = metricsHelper.init("AddDocumentToParentBucUtils", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
     }
 
-    @PostMapping("buc/{buctype}")
+    @PostMapping("/buc/{buctype}")
     fun createBuc(
         @PathVariable("buctype", required = true) buctype: String
     ): BucAndSedView {
@@ -121,7 +123,7 @@ class PrefillController(
         }
     }
 
-    @PostMapping("sed/add")
+    @PostMapping("/sed/add")
     fun addInstutionAndDocument(@RequestBody request: ApiRequest): DocumentsItem? {
 
         logger.info("Avdød fnr finnes i requesten: ${request.subject?.avdod?.fnr != null}, Subject finnes: ${request.subject != null}, gjenlevende finnes: ${request.subject?.gjenlevende != null}")
@@ -206,7 +208,7 @@ class PrefillController(
         }
     }
 
-    @PostMapping("sed/replysed/{parentid}")
+    @PostMapping("/sed/replysed/{parentid}")
     fun addDocumentToParent(
         @RequestBody(required = true) request: ApiRequest,
         @PathVariable("parentid", required = true) parentId: String

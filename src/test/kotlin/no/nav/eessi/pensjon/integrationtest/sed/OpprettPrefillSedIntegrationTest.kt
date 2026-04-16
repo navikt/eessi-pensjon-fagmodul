@@ -108,7 +108,7 @@ class OpprettPrefillSedIntegrationTest {
         every { euxNavIdentRestTemplate.exchange( "/buc/$euxRinaid", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(tomBucJson)
 
         val result = mockMvc.perform(
-            post("/sed/add")
+            post("/prefill/sed/add")
             .contentType(MediaType.APPLICATION_JSON)
             .content(apiRequest.toJson()))
             .andExpect(MockMvcResultMatchers.status().is4xxClientError)
@@ -219,7 +219,7 @@ class OpprettPrefillSedIntegrationTest {
         every { euxNavIdentRestTemplate.exchange( "/buc/$euxRinaid", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body(tomBucJson)
 
         val result = mockMvc.perform(
-            post("/sed/add")
+            post("/prefill/sed/add")
                 .header("x-request-id", X_REQUEST_ID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(apiRequest.toJson()))
