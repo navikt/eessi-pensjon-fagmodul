@@ -336,8 +336,6 @@ internal class EuxInnhentingServiceTest {
         val manglerPinGjenlevende = """
             {
               "sed" : "P2000",
-              "sedGVer" : "4",
-              "sedVer" : "1",
               "nav" : {
                 "bruker" : {
                   "person" : {
@@ -454,8 +452,6 @@ internal class EuxInnhentingServiceTest {
                       }
                     }
                   },
-                  "sedGVer" : "4",
-                  "sedVer" : "2",
                   "pensjon" : null
                 }
             """.trimIndent()

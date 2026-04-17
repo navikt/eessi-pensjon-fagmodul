@@ -56,7 +56,6 @@
       "ignore": "0"
     }
   },
-  "sedGVer": "4",
   "nav": {
     "bruker": {
       "person": {
@@ -72,7 +71,5 @@
         "foedselsdato": "1957-03-31"
       }
     }
-  },
-  "sedVer": "3",
-  "sed": "P5000"
+  }
 }
