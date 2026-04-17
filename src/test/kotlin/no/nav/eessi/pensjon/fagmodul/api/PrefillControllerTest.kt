@@ -45,6 +45,7 @@ import org.junit.jupiter.api.assertThrows
 import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.kafka.core.DefaultKafkaProducerFactory
 import org.springframework.kafka.core.KafkaTemplate
+import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDate
 import java.time.Month
@@ -112,7 +113,7 @@ internal class PrefillControllerTest {
         every { mockEuxPrefillService.createdBucForType(P_BUC_03.name) } returns "1231231"
         every { mockEuxInnhentingService.getBuc(any()) } returns buc
 
-        val expected = BucAndSedView.from(buc)
+        val expected = FrontEndResponse(BucAndSedView.from(buc), HttpStatus.OK.name)
         val actual = prefillController.createBuc(P_BUC_03.name)
 
         assertEquals(expected.toJson(), actual.toJson())
@@ -126,7 +127,7 @@ internal class PrefillControllerTest {
         every { mockEuxPrefillService.createdBucForType(P_BUC_03.name) } returns "1231231"
         every { mockEuxInnhentingService.getBuc(any()) } returns buc
 
-        val expected = BucAndSedView.from(buc)
+        val expected = FrontEndResponse(BucAndSedView.from(buc), HttpStatus.OK.name)
         val actual = prefillController.createBuc(P_BUC_03.name, GjennySak("321321", "BARNEP"))
 
         assertEquals(expected.toJson(), actual.toJson())
@@ -191,7 +192,7 @@ internal class PrefillControllerTest {
         every { mockEuxKlient.getBucJsonAsNavIdent(euxCaseId) } returns buc.toJson()
         every { mockEuxKlient.opprettSed(any(), any()) } returns BucSedResponse(euxCaseId, "0aa6a0d67e4046e38aa126987ab2763f")
 
-        val docItem = prefillController.addInstutionAndDocument(apiRequest)!!
+        val docItem = prefillController.addInstutionAndDocument(apiRequest).result!!
 
         val participant = docItem.participants
             ?.filter { it?.organisation?.name == "The Swedish Pensions Agency" }
@@ -344,8 +345,8 @@ internal class PrefillControllerTest {
 
         val responseresult = prefillController.addInstutionAndDocument(apirequest)
 
-        assertEquals("5a61468eb8cb4fd78c5c44d75b9bb890", responseresult?.id)
-        assertEquals(SedType.P2000, responseresult?.type)
+        assertEquals("5a61468eb8cb4fd78c5c44d75b9bb890", responseresult.result?.id)
+        assertEquals(SedType.P2000, responseresult.result?.type)
 
     }
 
@@ -429,7 +430,7 @@ internal class PrefillControllerTest {
         }
         """.trimIndent()
 
-        JSONAssert.assertEquals(expected, result?.toJson(), true)
+        JSONAssert.assertEquals(expected, result.result?.toJson(), true)
 
         verify(exactly = 2) { mockEuxInnhentingService.getBuc(any()) }
         verify(exactly = 1) { mockEuxPrefillService.opprettSvarJsonSedOnBuc(any(), any(), any(), any(), any()) }
@@ -500,8 +501,8 @@ internal class PrefillControllerTest {
         verify (exactly = 1) { mockEuxPrefillService.opprettJsonSedOnBuc(any(), any(), eq(euxCaseId), apiRequest.vedtakId) }
         verify (exactly = 2) { mockEuxInnhentingService.getBuc(eq(euxCaseId)) }
 
-        Assertions.assertNotNull(result)
-        assertEquals(DocumentsItem::class.java, result?.javaClass)
+        Assertions.assertNotNull(result.result)
+        assertEquals(DocumentsItem::class.java, result.result?.javaClass)
     }
 
     @Test

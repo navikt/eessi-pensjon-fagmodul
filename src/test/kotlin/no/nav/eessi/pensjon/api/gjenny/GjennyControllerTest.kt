@@ -96,7 +96,10 @@ class GjennyControllerTest {
            "[{\"euxCaseId\":\"$euxCaseId\",\"buctype\":\"P_BUC_02\",\"aktoerId\":\"$AKTOERID\",\"saknr\":null,\"avdodFnr\":\"$AVDOD_FNR\",\"kilde\":\"SAF\"}]"
         """.trimIndent()
 
-        val result = mockMvc.get(endpointUrl).andReturn().response.contentAsString.toJson()
+        val response = mockMvc.get(endpointUrl).andReturn().response.contentAsString
+        val jsonNode = ObjectMapper().readTree(response)
+        assertEquals("OK", jsonNode.get("status").asText())
+        val result = jsonNode.get("result").toString().toJson()
         assertEquals(expected, result)
     }
 
@@ -119,7 +122,10 @@ class GjennyControllerTest {
            "[{\"euxCaseId\":\"123456\",\"buctype\":\"P_BUC_02\",\"aktoerId\":\"$AKTOERID\",\"saknr\":null,\"avdodFnr\":\"$AVDOD_FNR\",\"kilde\":\"SAF\"}]"
         """.trimIndent()
 
-        val result = mockMvc.get(endpointUrl).andReturn().response.contentAsString.toJson()
+        val response = mockMvc.get(endpointUrl).andReturn().response.contentAsString
+        val jsonNode = ObjectMapper().readTree(response)
+        assertEquals("OK", jsonNode.get("status").asText())
+        val result = jsonNode.get("result").toString().toJson()
         assertEquals(expected, result)
     }
 
@@ -149,7 +155,10 @@ class GjennyControllerTest {
            "[{\"euxCaseId\":\"123456\",\"buctype\":\"P_BUC_02\",\"aktoerId\":\"$AKTOERID_LEV\",\"saknr\":null,\"avdodFnr\":\"$AVDOD_FNR\",\"kilde\":\"SAF\"}]"
         """.trimIndent()
 
-        val result = mockMvc.get(endpointUrl).andReturn().response.contentAsString.toJson()
+        val response = mockMvc.get(endpointUrl).andReturn().response.contentAsString
+        val jsonNode = ObjectMapper().readTree(response)
+        assertEquals("OK", jsonNode.get("status").asText())
+        val result = jsonNode.get("result").toString().toJson()
         assertEquals(expected, result)
     }
 
@@ -173,11 +182,14 @@ class GjennyControllerTest {
            "[{\"euxCaseId\":\"123456\",\"buctype\":\"P_BUC_02\",\"aktoerId\":\"1010753569812\",\"saknr\":null,\"avdodFnr\":null,\"kilde\":\"BRUKER\"}]"
         """.trimIndent()
 
-        val result = mockMvc.perform(
+        val response = mockMvc.perform(
             get(endpointUrl)
                 .content(aktoerId)
         )
-            .andReturn().response.contentAsString.toJson()
+            .andReturn().response.contentAsString
+        val jsonNode = ObjectMapper().readTree(response)
+        assertEquals("OK", jsonNode.get("status").asText())
+        val result = jsonNode.get("result").toString().toJson()
         assertEquals(expected, result)
     }
 
@@ -204,11 +216,14 @@ class GjennyControllerTest {
            "[{\"euxCaseId\":\"654321\",\"buctype\":\"P_BUC_08\",\"aktoerId\":\"1010753569812\",\"saknr\":null,\"avdodFnr\":null,\"kilde\":\"BRUKER\"},{\"euxCaseId\":\"123456\",\"buctype\":\"P_BUC_02\",\"aktoerId\":\"1010753569812\",\"saknr\":null,\"avdodFnr\":null,\"kilde\":\"BRUKER\"}]"
         """.trimIndent()
 
-        val result = mockMvc.perform(
+        val response = mockMvc.perform(
             get(endpointUrl)
                 .content(aktoerId)
         )
-            .andReturn().response.contentAsString.toJson()
+            .andReturn().response.contentAsString
+        val jsonNode = ObjectMapper().readTree(response)
+        assertEquals("OK", jsonNode.get("status").asText())
+        val result = jsonNode.get("result").toString().toJson()
         assertEquals(expected, result)
     }
 
@@ -235,7 +250,10 @@ class GjennyControllerTest {
            "[{\"euxCaseId\":\"123456\",\"buctype\":\"P_BUC_02\",\"aktoerId\":\"$AKTOERID\",\"saknr\":null,\"avdodFnr\":\"$AVDOD_FNR\",\"kilde\":\"AVDOD\"}]"
         """.trimIndent()
 
-        val result = mockMvc.get(endpointUrl).andReturn().response.contentAsString.toJson()
+        val response = mockMvc.get(endpointUrl).andReturn().response.contentAsString
+        val jsonNode = ObjectMapper().readTree(response)
+        assertEquals("OK", jsonNode.get("status").asText())
+        val result = jsonNode.get("result").toString().toJson()
         assertEquals(expected, result)
     }
 
@@ -256,18 +274,24 @@ class GjennyControllerTest {
             .andReturn()
 
         val responseContent = result.response.contentAsString
-        val bucViews: List<BucView> = ObjectMapper().readValue(responseContent, Array<BucView>::class.java).toList()
+        val responseJson = ObjectMapper().readTree(responseContent)
+        assertEquals("OK", responseJson.get("status").asText())
+        val bucViews: List<BucView> = ObjectMapper().readValue(responseJson.get("result").toString(), Array<BucView>::class.java).toList()
 
         assertTrue(bucViews.isEmpty(), "Expected an empty list in the response")
     }
 
     @Test
     fun `getbucs burde gi en liste av godkjente bucs `() {
-        mockMvc.get("/gjenny/bucs")
+        val response = mockMvc.get("/gjenny/bucs")
             .andExpect {
                 status { isOk() }
-                content { string("[\"P_BUC_02\",\"P_BUC_04\",\"P_BUC_05\",\"P_BUC_06\",\"P_BUC_07\",\"P_BUC_08\",\"P_BUC_09\",\"P_BUC_10\"]") }
             }
+            .andReturn().response.contentAsString
+
+        val jsonNode = ObjectMapper().readTree(response)
+        assertEquals("OK", jsonNode.get("status").asText())
+        assertEquals("[\"P_BUC_02\",\"P_BUC_04\",\"P_BUC_05\",\"P_BUC_06\",\"P_BUC_07\",\"P_BUC_08\",\"P_BUC_09\",\"P_BUC_10\"]", jsonNode.get("result").toString())
     }
 
     fun lagPerson(
