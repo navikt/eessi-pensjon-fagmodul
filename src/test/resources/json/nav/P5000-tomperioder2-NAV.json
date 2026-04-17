@@ -1,5 +1,7 @@
 {
   "sed" : "P5000",
+  "sedGVer" : "4",
+  "sedVer" : "2",
   "nav" : {
     "eessisak" : [ {
       "institusjonsid" : "NO:NAVAT07",
