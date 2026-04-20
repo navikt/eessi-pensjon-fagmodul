@@ -145,7 +145,7 @@ class PensjonsinformasjonUtlandService(
     private fun erDetFlereNorskeInstitusjoner(p6000er: List<P6000>): Boolean {
         return p6000er.count { it.erNorskSed() }.let { antallUt ->
             if (antallUt > 1) {
-                logger.error("OBS OBS; Her kommer det inn mer enn 1 P6000 med retning UT i Seden")
+                logger.warn("OBS OBS; Her kommer det inn mer enn 1 P6000 med retning UT i Seden")
                 return true
             }
             false
