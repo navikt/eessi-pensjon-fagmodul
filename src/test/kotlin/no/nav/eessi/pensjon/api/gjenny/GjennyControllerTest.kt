@@ -75,6 +75,9 @@ class GjennyControllerTest {
     @MockkBean
     private lateinit var personService: PersonService
 
+    @MockkBean
+    private lateinit var vedleggService: no.nav.eessi.pensjon.vedlegg.VedleggService
+
     @Autowired
     private lateinit var mockMvc: MockMvc
 
@@ -345,5 +348,4 @@ class GjennyControllerTest {
         )
     }
 }
-
 
