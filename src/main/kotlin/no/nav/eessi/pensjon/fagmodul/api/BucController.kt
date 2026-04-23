@@ -18,6 +18,7 @@ import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 
@@ -73,17 +74,14 @@ class BucController(
             return@measure FrontEndResponse(euxInnhentingService.getSingleBucAndSedView(euxcaseid), HttpStatus.OK.name)
         }
 
-    @GetMapping("/enkeldetalj/{euxcaseid}/aktoerid/{aktoerid}")
+    @GetMapping("/{bucId}/metadata")
     fun hentSingleBucAndSedViewMedMetadata(
-        @PathVariable("euxcaseid") euxcaseid: String,
-        @PathVariable("aktoerid") aktorId: String): FrontEndResponse<BucAndSedView> =
+        @PathVariable("bucId") euxcaseid: String,
+        @RequestParam aktoerId: String): FrontEndResponse<BucAndSedView> =
         bucDetaljerEnkel.measure {
             auditlogger.log("hentSingleBucAndSedView")
             logger.debug(" prøver å hente ut en enkel buc med euxCaseId: $euxcaseid")
-//             euxInnhentingService.getSingleBucAndSedView(euxcaseid)
-//            val joarkInfo = vedleggService.hentJournalPostOgDokumenter(aktorId)
-
-            return@measure FrontEndResponse(euxInnhentingService.getSingleBucAndSedViewMedMetadata(euxcaseid, aktorId), HttpStatus.OK.name)
+            return@measure FrontEndResponse(euxInnhentingService.getSingleBucAndSedViewMedMetadata(euxcaseid, aktoerId), HttpStatus.OK.name)
         }
 
     @Deprecated("Utgår til fordel for hentBucerMedJournalforteSeder og getRinasakerFraRina")
