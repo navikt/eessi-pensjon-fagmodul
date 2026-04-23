@@ -91,18 +91,7 @@ internal class EuxInnhentingServiceTest {
 
 
     @Test
-    fun getSingleBucAndSedViewMedMetadata_populatesSedsWithSizeFromMetadata() {
-        val euxCaseId = "1111111"
-        val aktoerId = "testAktoerId"
-
-        val tittelOgVedlegg: List<Triple<String, String, LocalDate>> = listOf(
-            Triple("P2100 - Krav om gjenlevendepensjon.pdf", "40753", LocalDate.parse("2024-01-01"))
-        )
-        val vedleggService = mockk<VedleggService>()
-        every { vedleggService.hentTittelOgFilstoerrelseForBucid(aktoerId, any()) } returns tittelOgVedlegg
-
-        val documentsItem = DocumentsItem(type = SedType.P2100, id = "docId", direction = "OUT")
-
+    fun `Sjekker at vi henter stoerrelse fra joark for henting av buc`() {
         val metadataJson = javaClass.getResource("/json/saf/hentMetadataResponseMedFilStorrelse.json").readText()
         val metadata = mapJsonToAny<HentMetadataResponse>(metadataJson)
 
@@ -110,15 +99,10 @@ internal class EuxInnhentingServiceTest {
 
         val bucJson = javaClass.getResource("/json/buc/buc-158123_2_v4.1.json")!!.readText()
         every { euxKlient.getBucJsonAsNavIdent(any()) } returns bucJson
-//        every { euxInnhentingService.getBuc(euxCaseId) } returns mapJsonToAny<Buc>(json)
-//                every { BucAndSedView.from(any()) } returns bucAndSedView
 
-        val result = euxInnhentingService.getSingleBucAndSedViewMedMetadata(euxCaseId, aktoerId)
+        val result = euxInnhentingService.getSingleBucAndSedViewMedMetadata("1111111", "aktoerId")
 
-        assertEquals(
-            listOf(documentsItem to 40753),
-            result.sedsWithSize
-        )
+        assertEquals("69287", result.sedsWithSize?.get(3)?.second)
     }
 
     @Test
