@@ -76,10 +76,10 @@ class BucController(
         return response
     }
 
-    @GetMapping("/{bucId}/metadata")
+    @GetMapping("/{bucId}/metadata/{aktoerId}")
     fun hentBucMedMetadata(
-        @PathVariable("bucId", required = true) bucId: String,
-        @RequestParam(required = true) aktoerId: String
+        @PathVariable(required = true) bucId: String,
+        @PathVariable(required = true) aktoerId: String,
     ): FrontEndResponse<BucAndSedView> {
         val start = System.currentTimeMillis()
         val response = bucDetaljerEnkel.measure {
