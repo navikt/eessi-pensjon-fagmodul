@@ -83,7 +83,7 @@ class BucController(
 //             euxInnhentingService.getSingleBucAndSedView(euxcaseid)
 //            val joarkInfo = vedleggService.hentJournalPostOgDokumenter(aktorId)
 
-            return@measure FrontEndResponse(euxInnhentingService.getSingleBucAndSedView(euxcaseid), HttpStatus.OK.name)
+            return@measure FrontEndResponse(euxInnhentingService.getSingleBucAndSedViewMedMetadata(euxcaseid, aktorId), HttpStatus.OK.name)
         }
 
     @Deprecated("Utgår til fordel for hentBucerMedJournalforteSeder og getRinasakerFraRina")
