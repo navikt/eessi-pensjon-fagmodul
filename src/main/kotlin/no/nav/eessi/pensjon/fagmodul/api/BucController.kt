@@ -73,7 +73,7 @@ class BucController(
             return@measure FrontEndResponse(euxInnhentingService.getSingleBucAndSedView(euxcaseid), HttpStatus.OK.name)
         }
 
-    @GetMapping("/enkeldetalj/{euxcaseid}/aktorID/{aktoerid}")
+    @GetMapping("/enkeldetalj/{euxcaseid}/aktoerid/{aktoerid}")
     fun hentSingleBucAndSedViewMedMetadata(
         @PathVariable("euxcaseid") euxcaseid: String,
         @PathVariable("aktoerid") aktorId: String): FrontEndResponse<BucAndSedView> =
