@@ -51,7 +51,6 @@ class BucControllerTest {
             mockk( relaxed = true),
             innhentingService(),
             mockk(),
-            mockk(relaxed = true),
         )
     }
 
