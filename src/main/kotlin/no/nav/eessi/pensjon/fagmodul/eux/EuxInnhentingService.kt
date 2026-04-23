@@ -138,7 +138,7 @@ class EuxInnhentingService(
     fun getSingleBucAndSedViewMedMetadata(euxCaseId: String, aktorId: String): BucAndSedView {
         return try {
             val bucAndSedView = BucAndSedView.from(getBuc(euxCaseId))
-            val tittelOgVedlegg = vedleggService.hentTittelOgFilstoerrelseForBucid(aktorId, euxCaseId)
+            val tittelOgVedlegg = vedleggService.hentTittelOgFilstoerrelseForBucid(aktorId, euxCaseId).also { logger.info("Hentet tittelOgVedlegg: $it") }
 
             val seds = bucAndSedView.seds ?: emptyList()
             val sedsWithSize = seds.map { sed ->
