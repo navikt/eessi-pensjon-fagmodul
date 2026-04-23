@@ -65,22 +65,31 @@ class BucController(
         }
 
     @GetMapping("/enkeldetalj/{euxcaseid}")
-    fun hentSingleBucAndSedView(@PathVariable("euxcaseid") euxcaseid: String): FrontEndResponse<BucAndSedView> =
-        bucDetaljerEnkel.measure {
+    fun hentSingleBucAndSedView(@PathVariable("euxcaseid") euxcaseid: String): FrontEndResponse<BucAndSedView> {
+        val start = System.currentTimeMillis()
+        val response = bucDetaljerEnkel.measure {
             auditlogger.log("hentSingleBucAndSedView")
             logger.debug(" prøver å hente ut en enkel buc med euxCaseId: $euxcaseid")
-            return@measure FrontEndResponse(euxInnhentingService.getSingleBucAndSedView(euxcaseid), HttpStatus.OK.name)
+            FrontEndResponse(euxInnhentingService.getSingleBucAndSedView(euxcaseid), HttpStatus.OK.name)
         }
+        logger.info("hentSingleBucAndSedView brukte ${System.currentTimeMillis() - start} ms")
+        return response
+    }
 
     @GetMapping("/{bucId}/metadata")
-    fun hentSingleBucAndSedViewMedMetadata(
+    fun hentBucMedMetadata(
         @PathVariable("bucId", required = true) bucId: String,
-        @RequestParam(required = true) aktoerId: String): FrontEndResponse<BucAndSedView> =
-        bucDetaljerEnkel.measure {
+        @RequestParam(required = true) aktoerId: String
+    ): FrontEndResponse<BucAndSedView> {
+        val start = System.currentTimeMillis()
+        val response = bucDetaljerEnkel.measure {
             auditlogger.log("hentSingleBucAndSedView")
             logger.debug(" prøver å hente ut en enkel buc med euxCaseId: $bucId")
-            return@measure FrontEndResponse(euxInnhentingService.getSingleBucAndSedViewMedMetadata(bucId, aktoerId), HttpStatus.OK.name)
+            FrontEndResponse(euxInnhentingService.getSingleBucAndSedViewMedMetadata(bucId, aktoerId), HttpStatus.OK.name)
         }
+        logger.info("hentSingleBucAndSedViewMedMetadata brukte ${System.currentTimeMillis() - start} ms")
+        return response
+    }
 
     @Deprecated("Utgår til fordel for hentBucerMedJournalforteSeder og getRinasakerFraRina")
     @GetMapping("/rinasaker/{aktoerId}/saknr/{saknr}")
