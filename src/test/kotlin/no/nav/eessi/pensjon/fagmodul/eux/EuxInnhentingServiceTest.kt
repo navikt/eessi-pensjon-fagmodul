@@ -5,7 +5,7 @@ import com.ninjasquad.springmockk.MockkBeans
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.spyk
+// ...existing code...
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.klient.Properties
 import no.nav.eessi.pensjon.eux.klient.Rinasak
@@ -26,10 +26,10 @@ import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import no.nav.eessi.pensjon.utils.validateJson
 import no.nav.eessi.pensjon.vedlegg.VedleggService
+import no.nav.eessi.pensjon.vedlegg.client.HentMetadataResponse
 import no.nav.eessi.pensjon.vedlegg.client.SafClient
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
@@ -44,6 +44,7 @@ import org.springframework.web.client.RestTemplate
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.time.LocalDate
 
 private const val SAKSNR = "1111111"
 private const val FNR = "13057065487"
@@ -51,24 +52,25 @@ private const val AKTOERID = "1234568"
 private const val INTERNATIONAL_ID = "e94e1be2daff414f8a49c3149ec00e66"
 
 @SpringJUnitConfig(classes = [EuxInnhentingService::class ])
-@MockkBeans(
+@MockkBeans(value = [
     MockkBean(name = "gcpStorageService", classes = [GcpStorageService::class], relaxed = true),
     MockkBean(name = "euxNavIdentRestTemplateV2", classes = [RestTemplate::class]),
-
-    )
-@Disabled
+    MockkBean(name = "vedleggService", classes = [VedleggService::class])
+    ]
+)
 internal class EuxInnhentingServiceTest {
 
     @MockkBean( relaxed = true)
     private lateinit var euxKlient: EuxKlientAsSystemUser
-    private lateinit var vedleggService: VedleggService
     @Autowired
     private lateinit var gcpStorageService: GcpStorageService
     @Autowired
     private lateinit var euxNavIdentRestTemplateV2: RestTemplate
-    private lateinit var euxInnhentingService: EuxInnhentingService
-    private var safClient: SafClient = mockk(relaxed = true)
 
+    private lateinit var vedleggService: VedleggService
+    private lateinit var euxInnhentingService: EuxInnhentingService
+
+    private var safClient: SafClient = mockk(relaxed = true)
 
     @BeforeEach
     fun setUp() {
@@ -78,43 +80,46 @@ internal class EuxInnhentingServiceTest {
             euxVedleggClient = mockk(relaxed = true)
         )
 
-        euxInnhentingService = EuxInnhentingService("q2", euxKlient, gcpStorageService, euxNavIdentRestTemplateV2, vedleggService)
+        euxInnhentingService = EuxInnhentingService(
+            environment = "q2",
+            euxKlient = euxKlient,
+            gcpService = gcpStorageService,
+            vedleggService = vedleggService,
+            euxNavIdentRestTemplateV2 = euxNavIdentRestTemplateV2
+        )
     }
 
 
+    @Test
+    fun getSingleBucAndSedViewMedMetadata_populatesSedsWithSizeFromMetadata() {
+        val euxCaseId = "1111111"
+        val aktoerId = "testAktoerId"
 
-//    @Test
-//    fun getSingleBucAndSedViewMedMetadata_populatesSedsWithSizeFromMetadata() {
-//        val euxCaseId = "testEuxCaseId"
-//        val aktoerId = "testAktoerId"
-//
-//        val tittelOgVedlegg = listOf("P2100 - Krav om gjenlevendepensjon.pdf" to 40753)
-//
-//        val vedleggService = mockk<VedleggService>()
-//        every { vedleggService.hentTittelOgFilstoerrelseForBucid(aktoerId, any()) } returns tittelOgVedlegg
-//
-//        val sedType = "P2100"
-//        val documentsItem = DocumentsItem(sedType = sedType, id = "docId", direction = "OUT")
-//        val bucAndSedView = BucAndSedView(
-//            type = "type",
-//            caseId = euxCaseId,
-//            internationalId = "intId",
-//            seds = listOf(documentsItem)
-//            // ...other fields as needed
-//        )
-//
-//        every { euxInnhentingService.getBuc(euxCaseId) } returns /* your Buc object */
+        val tittelOgVedlegg: List<Triple<String, String, LocalDate>> = listOf(
+            Triple("P2100 - Krav om gjenlevendepensjon.pdf", "40753", LocalDate.parse("2024-01-01"))
+        )
+        val vedleggService = mockk<VedleggService>()
+        every { vedleggService.hentTittelOgFilstoerrelseForBucid(aktoerId, any()) } returns tittelOgVedlegg
+
+        val documentsItem = DocumentsItem(type = SedType.P2100, id = "docId", direction = "OUT")
+
+        val metadataJson = javaClass.getResource("/json/saf/hentMetadataResponseMedFilStorrelse.json").readText()
+        val metadata = mapJsonToAny<HentMetadataResponse>(metadataJson)
+
+        every { safClient.hentDokumentMetadata(any()) } returns metadata
+
+        val bucJson = javaClass.getResource("/json/buc/buc-158123_2_v4.1.json")!!.readText()
+        every { euxKlient.getBucJsonAsNavIdent(any()) } returns bucJson
+//        every { euxInnhentingService.getBuc(euxCaseId) } returns mapJsonToAny<Buc>(json)
 //                every { BucAndSedView.from(any()) } returns bucAndSedView
-//
-//        // Call the method under test
-//        val result = euxInnhentingService.getSingleBucAndSedViewMedMetadata(euxCaseId, aktoerId)
-//
-//        // Assert that sedsWithSize is populated as expected
-//        assertEquals(
-//            listOf(documentsItem to 40753),
-//            result.sedsWithSize
-//        )
-//    }
+
+        val result = euxInnhentingService.getSingleBucAndSedViewMedMetadata(euxCaseId, aktoerId)
+
+        assertEquals(
+            listOf(documentsItem to 40753),
+            result.sedsWithSize
+        )
+    }
 
     @Test
     fun `Sjekker at vi faar alle instanser ved kall til getbuc`() {

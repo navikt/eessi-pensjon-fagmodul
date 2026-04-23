@@ -1,0 +1,269 @@
+{
+  "data": {
+    "dokumentoversiktBruker": {
+      "journalposter": [
+        {
+          "tilleggsopplysninger": [
+            {
+              "nokkel": "eessi_pensjon_bucid",
+              "verdi": "1111111"
+            }
+          ],
+          "journalpostId": "454066088",
+          "datoOpprettet": "2026-01-16T10:33:38",
+          "tittel": "Utgående P2100 - Krav om gjenlevendepensjon",
+          "tema": "EYO",
+          "dokumenter": [
+            {
+              "dokumentInfoId": "454486497",
+              "tittel": "P10000 - Krav om gjenlevendepensjon.pdf",
+              "dokumentvarianter": [
+                {
+                  "filnavn": null,
+                  "variantformat": "ARKIV",
+                  "filstoerrelse": 69287
+                }
+              ]
+            }
+          ],
+          "relevanteDatoer": [
+            {
+              "dato": "2026-01-16T10:33:38",
+              "datotype": "DATO_DOKUMENT"
+            },
+            {
+              "dato": "2026-01-16T10:39:58",
+              "datotype": "DATO_JOURNALFOERT"
+            }
+          ]
+        },
+        {
+          "tilleggsopplysninger": [
+            {
+              "nokkel": "eessi_pensjon_bucid",
+              "verdi": "1111111"
+            }
+          ],
+          "journalpostId": "454066088",
+          "datoOpprettet": "2019-05-09T10:33:38",
+          "tittel": "Utgående P6000 - Krav om gjenlevendepensjon",
+          "tema": "EYO",
+          "dokumenter": [
+            {
+              "dokumentInfoId": "454486497",
+              "tittel": "P10000 - Krav om gjenlevendepensjon.pdf",
+              "dokumentvarianter": [
+                {
+                  "filnavn": null,
+                  "variantformat": "ARKIV",
+                  "filstoerrelse": 69287
+                }
+              ]
+            }
+          ],
+          "relevanteDatoer": [
+            {
+              "dato": "2026-01-16T10:33:38",
+              "datotype": "DATO_DOKUMENT"
+            },
+            {
+              "dato": "2026-01-16T10:39:58",
+              "datotype": "DATO_JOURNALFOERT"
+            }
+          ]
+        },
+        {
+          "tilleggsopplysninger": [
+            {
+              "nokkel": "eessi_pensjon_bucid",
+              "verdi": "1111111"
+            }
+          ],
+          "journalpostId": "454059943",
+          "datoOpprettet": "2024-01-01T11:07:04",
+          "tittel": "P2100 - Krav om gjenlevendepensjon.pdf",
+          "tema": "EYO",
+          "dokumenter": [
+            {
+              "dokumentInfoId": "454480042",
+              "tittel": "P2100 - Krav om gjenlevendepensjon.pdf",
+              "dokumentvarianter": [
+                {
+                  "filnavn": null,
+                  "variantformat": "ARKIV",
+                  "filstoerrelse": 40753
+                }
+              ]
+            }
+          ],
+          "relevanteDatoer": [
+            {
+              "dato": "2026-01-05T11:07:04",
+              "datotype": "DATO_DOKUMENT"
+            },
+            {
+              "dato": "2026-01-05T11:36:37",
+              "datotype": "DATO_JOURNALFOERT"
+            },
+            {
+              "dato": "2026-01-05T11:07:04",
+              "datotype": "DATO_REGISTRERT"
+            }
+          ]
+        },
+        {
+          "tilleggsopplysninger": [
+            {
+              "nokkel": "dokdistBestillingsId",
+              "verdi": "345fb245-964c-4033-8e1c-c6e8ac58d141"
+            }
+          ],
+          "journalpostId": "453940729",
+          "datoOpprettet": "2025-02-05T15:08:28",
+          "tittel": "P10000 Vedtak om innvilget omstillingsstønad",
+          "tema": "EYO",
+          "dokumenter": [
+            {
+              "dokumentInfoId": "454342794",
+              "tittel": "Vedtak om innvilget omstillingsstønad",
+              "dokumentvarianter": [
+                {
+                  "filnavn": null,
+                  "variantformat": "ARKIV",
+                  "filstoerrelse": 51738
+                }
+              ]
+            }
+          ],
+          "relevanteDatoer": [
+            {
+              "dato": "2025-02-05T15:08:28",
+              "datotype": "DATO_DOKUMENT"
+            },
+            {
+              "dato": "2025-02-05T15:08:29",
+              "datotype": "DATO_JOURNALFOERT"
+            }
+          ]
+        },
+        {
+          "tilleggsopplysninger": [],
+          "journalpostId": "453928664",
+          "datoOpprettet": "2025-01-23T08:00:58",
+          "tittel": "Søknad om omstillingsstønad",
+          "tema": "EYO",
+          "dokumenter": [
+            {
+              "dokumentInfoId": "454330545",
+              "tittel": "Søknad om omstillingsstønad",
+              "dokumentvarianter": [
+                {
+                  "filnavn": null,
+                  "variantformat": "ARKIV",
+                  "filstoerrelse": 320878
+                },
+                {
+                  "filnavn": null,
+                  "variantformat": "ORIGINAL",
+                  "filstoerrelse": 7005
+                }
+              ]
+            }
+          ],
+          "relevanteDatoer": [
+            {
+              "dato": "2025-01-23T08:00:58",
+              "datotype": "DATO_DOKUMENT"
+            },
+            {
+              "dato": "2025-01-23T08:00:58",
+              "datotype": "DATO_JOURNALFOERT"
+            },
+            {
+              "dato": "2025-01-23T08:00:58",
+              "datotype": "DATO_REGISTRERT"
+            }
+          ]
+        },
+        {
+          "tilleggsopplysninger": [],
+          "journalpostId": "453928412",
+          "datoOpprettet": "2025-01-22T14:30:57",
+          "tittel": "Søknad om omstillingsstønad",
+          "tema": "EYO",
+          "dokumenter": [
+            {
+              "dokumentInfoId": "454330427",
+              "tittel": "Søknad om omstillingsstønad",
+              "dokumentvarianter": [
+                {
+                  "filnavn": null,
+                  "variantformat": "ARKIV",
+                  "filstoerrelse": 318527
+                },
+                {
+                  "filnavn": null,
+                  "variantformat": "ORIGINAL",
+                  "filstoerrelse": 6006
+                }
+              ]
+            }
+          ],
+          "relevanteDatoer": [
+            {
+              "dato": "2025-01-22T14:30:57",
+              "datotype": "DATO_DOKUMENT"
+            },
+            {
+              "dato": "2025-01-22T14:30:57",
+              "datotype": "DATO_JOURNALFOERT"
+            },
+            {
+              "dato": "2025-01-22T14:30:57",
+              "datotype": "DATO_REGISTRERT"
+            }
+          ]
+        },
+        {
+          "tilleggsopplysninger": [],
+          "journalpostId": "453882015",
+          "datoOpprettet": "2024-08-23T09:30:49",
+          "tittel": "P6000 - Søknad om omstillingsstønad",
+          "tema": "EYO",
+          "dokumenter": [
+            {
+              "dokumentInfoId": "454278984",
+              "tittel": "Søknad om omstillingsstønad",
+              "dokumentvarianter": [
+                {
+                  "filnavn": null,
+                  "variantformat": "ARKIV",
+                  "filstoerrelse": 326087
+                },
+                {
+                  "filnavn": null,
+                  "variantformat": "ORIGINAL",
+                  "filstoerrelse": 7663
+                }
+              ]
+            }
+          ],
+          "relevanteDatoer": [
+            {
+              "dato": "2024-08-23T09:30:49",
+              "datotype": "DATO_DOKUMENT"
+            },
+            {
+              "dato": "2024-08-23T09:30:49",
+              "datotype": "DATO_JOURNALFOERT"
+            },
+            {
+              "dato": "2024-08-23T09:30:49",
+              "datotype": "DATO_REGISTRERT"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
