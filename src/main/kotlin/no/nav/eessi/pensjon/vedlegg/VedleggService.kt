@@ -34,6 +34,25 @@ class VedleggService(private val safClient: SafClient,
         return safClient.hentDokumentMetadata(aktoerId)
     }
 
+    fun hentTittelOgFilstoerrelseForBucid(aktoerId: String, bucid: String): List<Pair<String?, String>> {
+        val metadata = hentDokumentMetadata(aktoerId)
+        return metadata.data.dokumentoversiktBruker.journalposter
+            .filter { journalpost ->
+                journalpost.tilleggsopplysninger.any {
+                    it["nokkel"] == "eessi_pensjon_bucid" && it["verdi"] == bucid
+                }
+            }
+            .flatMap { journalpost ->
+                val tittel = journalpost.tittel
+                journalpost.dokumenter.flatMap { dokument ->
+                    dokument.dokumentvarianter.mapNotNull { variant ->
+                        val filstoerrelse = variant.filstoerrelse
+                        if (filstoerrelse != null) Pair(tittel, filstoerrelse) else null
+                    }
+                }
+            }
+    }
+
     fun hentDokumentMetadata(aktoerId: String,
                              journalpostId : String,
                              dokumentInfoId: String) : Dokument? {

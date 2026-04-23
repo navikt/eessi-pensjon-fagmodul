@@ -32,7 +32,7 @@ class EuxPrefillServiceTest {
     fun setup() {
         MockKAnnotations.init(this)
         euxPrefillService = EuxPrefillService(euxKlientForSystemUser, statistikkHandler)
-        euxinnhentingService = EuxInnhentingService("q2", euxKlientForSystemUser, gcpStorageService, mockk())
+        euxinnhentingService = EuxInnhentingService("q2", euxKlientForSystemUser, gcpStorageService, mockk(), mockk(relaxed = true))
     }
 
     @Test

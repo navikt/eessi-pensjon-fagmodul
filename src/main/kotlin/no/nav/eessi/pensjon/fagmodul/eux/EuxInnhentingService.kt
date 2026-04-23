@@ -1,7 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
-import no.nav.eessi.pensjon.eux.klient.EuxKlientLib
 import no.nav.eessi.pensjon.eux.klient.EuxKlientLib.*
 import no.nav.eessi.pensjon.eux.klient.ForbiddenException
 import no.nav.eessi.pensjon.eux.klient.Rinasak
@@ -17,7 +16,6 @@ import no.nav.eessi.pensjon.eux.model.buc.PreviewPdf
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.X009
-import no.nav.eessi.pensjon.fagmodul.api.FrontEndResponse
 import no.nav.eessi.pensjon.fagmodul.config.INSTITUTION_CACHE
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.metrics.MetricsHelper
@@ -28,6 +26,7 @@ import no.nav.eessi.pensjon.utils.mapAnyToJson
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
+import no.nav.eessi.pensjon.vedlegg.VedleggService
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -51,6 +50,7 @@ class EuxInnhentingService(
     private val euxKlient: EuxKlientAsSystemUser,
     private val gcpService: GcpStorageService,
     private val euxNavIdentRestTemplateV2: RestTemplate,
+    private val vedleggService: VedleggService,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
 
@@ -127,6 +127,26 @@ class EuxInnhentingService(
     fun getSingleBucAndSedView(euxCaseId: String): BucAndSedView {
         return try {
             BucAndSedView.from(getBuc(euxCaseId))
+        } catch (ex: Exception) {
+            logger.error("Feiler ved utlevering av enkel bucandsedview ${ex.message}", ex)
+            BucAndSedView.fromErr(ex.message)
+        }
+    }
+
+    fun getSingleBucAndSedViewMedMetadata(euxCaseId: String, aktorId: String): BucAndSedView {
+        return try {
+            val bucAndSedView = BucAndSedView.from(getBuc(euxCaseId))
+            val tittelOgVedlegg = vedleggService.hentTittelOgFilstoerrelseForBucid(aktorId, euxCaseId)
+
+            val seds = bucAndSedView.seds ?: emptyList()
+            val sedsWithSize = seds.map { sed ->
+                val size = tittelOgVedlegg
+                    .firstOrNull { (tittel, _) -> sed.type?.name?.let { tittel?.contains(it, ignoreCase = true) } == true }
+                    ?.second
+                sed to size
+            }
+            bucAndSedView.copy(sedsWithSize = sedsWithSize)
+
         } catch (ex: Exception) {
             logger.error("Feiler ved utlevering av enkel bucandsedview ${ex.message}", ex)
             BucAndSedView.fromErr(ex.message)

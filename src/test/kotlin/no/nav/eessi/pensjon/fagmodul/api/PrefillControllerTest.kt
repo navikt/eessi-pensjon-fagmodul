@@ -66,7 +66,7 @@ internal class PrefillControllerTest {
         "Q2",
         mockEuxKlient,
         gcpStorageService,
-        mockk(relaxed = true),
+        mockk(relaxed = true), mockk(relaxed = true),
     )
 
     @MockK

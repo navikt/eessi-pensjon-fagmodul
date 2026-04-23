@@ -9,6 +9,7 @@ import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.personoppslag.pdl.model.AktoerId
 import no.nav.eessi.pensjon.utils.toJson
+import no.nav.eessi.pensjon.vedlegg.VedleggService
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -28,6 +29,7 @@ class BucController(
     private val auditlogger: AuditLogger,
     private val innhentingService: InnhentingService,
     private val gcpStorageService: GcpStorageService,
+    private val vedleggService: VedleggService,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
     private val logger = LoggerFactory.getLogger(BucController::class.java)
@@ -68,6 +70,19 @@ class BucController(
         bucDetaljerEnkel.measure {
             auditlogger.log("hentSingleBucAndSedView")
             logger.debug(" prøver å hente ut en enkel buc med euxCaseId: $euxcaseid")
+            return@measure FrontEndResponse(euxInnhentingService.getSingleBucAndSedView(euxcaseid), HttpStatus.OK.name)
+        }
+
+    @GetMapping("/enkeldetalj/{euxcaseid}/aktorID/{aktoerid}")
+    fun hentSingleBucAndSedViewMedMetadata(
+        @PathVariable("euxcaseid") euxcaseid: String,
+        @PathVariable("aktoerid") aktorId: String): FrontEndResponse<BucAndSedView> =
+        bucDetaljerEnkel.measure {
+            auditlogger.log("hentSingleBucAndSedView")
+            logger.debug(" prøver å hente ut en enkel buc med euxCaseId: $euxcaseid")
+//             euxInnhentingService.getSingleBucAndSedView(euxcaseid)
+//            val joarkInfo = vedleggService.hentJournalPostOgDokumenter(aktorId)
+
             return@measure FrontEndResponse(euxInnhentingService.getSingleBucAndSedView(euxcaseid), HttpStatus.OK.name)
         }
 
