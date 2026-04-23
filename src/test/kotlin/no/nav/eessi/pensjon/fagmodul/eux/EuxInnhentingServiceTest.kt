@@ -92,7 +92,7 @@ internal class EuxInnhentingServiceTest {
 
     @Test
     fun `Sjekker at vi henter stoerrelse fra joark for henting av buc`() {
-        val metadataJson = javaClass.getResource("/json/saf/hentMetadataResponseMedFilStorrelse.json").readText()
+        val metadataJson = javaClass.getResource("/json/saf/hentMetadataResponseMedFilStorrelse.json")!!.readText()
         val metadata = mapJsonToAny<HentMetadataResponse>(metadataJson)
 
         every { safClient.hentDokumentMetadata(any()) } returns metadata
