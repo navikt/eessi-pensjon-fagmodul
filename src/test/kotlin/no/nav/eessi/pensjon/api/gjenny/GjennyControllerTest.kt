@@ -32,6 +32,7 @@ import no.nav.eessi.pensjon.personoppslag.pdl.model.PdlPerson
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Sivilstand
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Statsborgerskap
 import no.nav.eessi.pensjon.utils.toJson
+import no.nav.eessi.pensjon.vedlegg.VedleggService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -62,8 +63,9 @@ private const val GJENLEV_FNR = "12345678503"
     MockkBean(name = "euxKlient", classes = [EuxKlientAsSystemUser::class], relaxed = true),
     MockkBean(name = "euxNavIdentRestTemplateV2", classes = [RestTemplate::class]),
     MockkBean(name = "gcpStorageService", classes = [GcpStorageService::class], relaxed = true),
-    MockkBean(name = "prefillController", classes = [PrefillController::class], relaxed = true)
-)
+    MockkBean(name = "prefillController", classes = [PrefillController::class], relaxed = true),
+    MockkBean(name = "vedleggService", classes = [VedleggService::class], relaxed = true),
+    )
 class GjennyControllerTest {
 
     @SpykBean

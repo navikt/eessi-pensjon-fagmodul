@@ -10,6 +10,8 @@ import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.klient.IkkeFunnetException
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.shared.retry.IOExceptionRetryInterceptor
+import no.nav.eessi.pensjon.vedlegg.VedleggService
+import no.nav.eessi.pensjon.vedlegg.client.SafClient
 import org.hamcrest.core.StringContains
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -40,7 +42,8 @@ import org.springframework.web.client.RestTemplate
 )
 @EnableRetry
 @MockkBeans(
-    MockkBean(name = "gcpStorageService", classes = [GcpStorageService::class], relaxed = true)
+    MockkBean(name = "vedleggService", classes = [VedleggService::class], relaxed = true),
+            MockkBean(name = "gcpStorageService", classes = [GcpStorageService::class], relaxed = true)
 )
 class EuxErrorHandlerTest {
 
