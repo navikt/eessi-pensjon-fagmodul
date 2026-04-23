@@ -142,9 +142,9 @@ class EuxInnhentingService(
 
             val seds = bucAndSedView.seds ?: emptyList()
             val sedsWithSize = seds.map { sed ->
-                val sedDate = Instant.ofEpochMilli(sed.creationDate as Long).atZone(ZoneId.systemDefault()).toLocalDate()
+//                val sedDate = Instant.ofEpochMilli(sed.creationDate as Long).atZone(ZoneId.systemDefault()).toLocalDate()
                 val size = tittelOgVedlegg.firstOrNull { (tittel, _, opprettetDato) ->
-                    tittel?.contains(sed.type?.name ?: "", ignoreCase = true) == true && sedDate == opprettetDato
+                    tittel?.contains(sed.type?.name ?: "", ignoreCase = true) == true
                 }?.second
                 sed to size
             }
