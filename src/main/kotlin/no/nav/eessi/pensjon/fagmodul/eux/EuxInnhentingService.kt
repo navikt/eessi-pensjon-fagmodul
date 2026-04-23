@@ -43,6 +43,8 @@ import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.server.ResponseStatusException
 import java.io.IOException
+import java.time.Instant
+import java.time.ZoneId
 
 @Service
 class EuxInnhentingService(
@@ -140,8 +142,16 @@ class EuxInnhentingService(
 
             val seds = bucAndSedView.seds ?: emptyList()
             val sedsWithSize = seds.map { sed ->
+                val sedDate = Instant.ofEpochMilli(sed.creationDate as Long).atZone(ZoneId.systemDefault()).toLocalDate()
                 val size = tittelOgVedlegg
-                    .firstOrNull { (tittel, _) -> sed.type?.name?.let { tittel?.contains(it, ignoreCase = true) } == true }
+                    .firstOrNull { (tittel, _, opprettetDato) ->
+                        sed.type?.name?.let {
+                            tittel?.contains(
+                                it,
+                                ignoreCase = true
+                            )
+                        } == true && sedDate == opprettetDato
+                    }
                     ?.second
                 sed to size
             }

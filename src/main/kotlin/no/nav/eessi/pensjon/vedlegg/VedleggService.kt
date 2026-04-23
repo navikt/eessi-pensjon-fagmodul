@@ -6,6 +6,7 @@ import no.nav.eessi.pensjon.vedlegg.client.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Profile
+import org.springframework.format.datetime.DateFormatter
 import org.springframework.http.HttpStatus
 import org.springframework.retry.RetryCallback
 import org.springframework.retry.RetryContext
@@ -15,6 +16,9 @@ import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import java.io.IOException
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @Service
 class VedleggService(private val safClient: SafClient,
@@ -34,7 +38,7 @@ class VedleggService(private val safClient: SafClient,
         return safClient.hentDokumentMetadata(aktoerId)
     }
 
-    fun hentTittelOgFilstoerrelseForBucid(aktoerId: String, bucid: String): List<Pair<String?, String>> {
+    fun hentTittelOgFilstoerrelseForBucid(aktoerId: String, bucid: String): List<Triple<String?, String, LocalDate?>> {
         val metadata = hentDokumentMetadata(aktoerId)
         return metadata.data.dokumentoversiktBruker.journalposter
             .filter { journalpost ->
@@ -47,7 +51,8 @@ class VedleggService(private val safClient: SafClient,
                 journalpost.dokumenter.flatMap { dokument ->
                     dokument.dokumentvarianter.mapNotNull { variant ->
                         val filstoerrelse = variant.filstoerrelse
-                        if (filstoerrelse != null) Pair(tittel, filstoerrelse) else null
+                        val oppretteDato = LocalDateTime.parse(journalpost.datoOpprettet, DateTimeFormatter.ISO_LOCAL_DATE_TIME).toLocalDate()
+                        if (filstoerrelse != null) Triple(tittel, filstoerrelse, oppretteDato) else null
                     }
                 }
             }
