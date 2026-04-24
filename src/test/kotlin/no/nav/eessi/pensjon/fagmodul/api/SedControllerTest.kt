@@ -1,5 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_06
@@ -114,14 +115,19 @@ class SedControllerTest {
         every { mockEuxInnhentingService.getSedOnBucByDocumentId(any(), any()) } returns p8000sed
         every { gcpStorageService.hentGcpDetlajerPaaId(any()) } returns p8000Lagret()
 
-        sedController.getDocument("123456", "222222").also { response ->
-            assertEquals(HttpStatus.OK.name, response.status)
-            val json = response.toJson()
-            println(json)
-            assertTrue(json.contains("ofteEtterspurtInformasjon"))
-            assertTrue(json.contains("inntektFoerUfoerhetIUtlandet"))
-            assertTrue(json.contains("9876543210"))
-        }
+        val response = sedController.getDocument("123456", "222222")
+        assertEquals(HttpStatus.OK.name, response.status)
+
+        val mapper = ObjectMapper()
+        val serialized = mapper.writeValueAsString(response.result)
+        val tree = mapper.readTree(serialized)
+        val options = tree.get("options")
+
+        assertTrue(options.isObject, "options should be a JSON object, got: $options (serialized: $serialized)")
+        assertEquals("UTL", options.get("type").get("bosettingsstatus").asText())
+        assertEquals("nb", options.get("type").get("spraak").asText())
+        assertTrue(options.get("ofteEtterspurtInformasjon").has("inntektFoerUfoerhetIUtlandet"))
+        assertEquals("NO", options.get("ofteEtterspurtInformasjon").get("inntektFoerUfoerhetIUtlandet").get("landkode").asText())
     }
 
 

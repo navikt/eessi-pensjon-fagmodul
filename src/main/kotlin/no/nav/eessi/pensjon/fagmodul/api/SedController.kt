@@ -3,8 +3,7 @@ package no.nav.eessi.pensjon.fagmodul.api
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.annotation.JsonRawValue
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.PreviewPdf
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
@@ -79,8 +78,7 @@ class SedController(
             } else {
                 logger.warn("Henter P8000 uten options")
             }
-            val parsedOptions: JsonNode? = lagretOptions?.let { ObjectMapper().readTree(it) }
-            val response = P8000FrontendResponse(sed.type, sed.nav, sed.p8000Pensjon, parsedOptions)
+            val response = P8000FrontendResponse(sed.type, sed.nav, sed.p8000Pensjon, lagretOptions)
             return FrontEndResponse(response, HttpStatus.OK.name)
         }
         return FrontEndResponse(sed, HttpStatus.OK.name)
@@ -169,8 +167,14 @@ class P8000Frontend(
 
 /**
  * Response variant of [P8000Frontend] used by `GET /sed/get/{euxcaseid}/{documentid}`.
- * `options` is exposed as a JSON object (parsed from GCP-stored JSON) instead of a string,
- * so the frontend can consume it directly without a second JSON.parse.
+ * `options` is exposed as a JSON object (the raw JSON stored in GCP) instead of a quoted
+ * string, so the frontend can consume it directly without a second JSON.parse.
+ *
+ * Uses `@JsonRawValue` on a `String` field rather than a `JsonNode` field, because Spring's
+ * default Jackson configuration serializes `JsonNode` properties via bean introspection in
+ * this code path (emitting `isObject`, `nodeType`, etc. accessors) instead of the node's
+ * actual tree content. This class is response-only so the round-trip concerns that apply to
+ * [P8000Frontend] (URL-encoded inbound `options`) do not apply here.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 class P8000FrontendResponse(
@@ -180,5 +184,6 @@ class P8000FrontendResponse(
     @JsonProperty("pensjon")
     p8000Pensjon: P8000Pensjon?,
     @JsonInclude(JsonInclude.Include.ALWAYS)
-    var options: JsonNode? = null,
+    @JsonRawValue
+    var options: String? = null,
 ) : P8000(type, nav, p8000Pensjon)
