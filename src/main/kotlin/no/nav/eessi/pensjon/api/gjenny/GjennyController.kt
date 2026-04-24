@@ -177,7 +177,7 @@ class GjennyController (
         @PathVariable("euxcaseid", required = true) euxcaseid: String,
         @PathVariable("documentid", required = true) documentid: String,
         @RequestBody sedPayload: String
-    ): FrontEndResponse<Boolean> = FrontEndResponse(sedController.updateSed(euxcaseid, documentid, sedPayload), HttpStatus.OK.name)
+    ): FrontEndResponse<Boolean> = sedController.updateSed(euxcaseid, documentid, sedPayload)
 
 
     private fun loggTimeAndViewSize(servicename: String, start: Long, viewsize: Long = 0) {
