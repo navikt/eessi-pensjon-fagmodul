@@ -3,8 +3,7 @@ package no.nav.eessi.pensjon.fagmodul.api
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.annotation.JsonRawValue
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.PreviewPdf
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
@@ -22,7 +21,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import java.net.URLDecoder
@@ -49,47 +47,41 @@ class SedController(
     }
 
     @GetMapping("/getP6000/{euxcaseid}")
-    fun getDocumentP6000list(@PathVariable("euxcaseid", required = true) euxcaseid: String): List<P6000Dokument>? {
+    fun getDocumentP6000list(
+        @PathVariable("euxcaseid", required = true) euxcaseid: String
+    ): FrontEndResponse<List<P6000Dokument>?> {
         val bucUtils = BucUtils(euxInnhentingService.getBuc(euxcaseid))
-        return bucUtils.getAllP6000AsDocumentItem(euxrinaurl)
-
+        return FrontEndResponse(bucUtils.getAllP6000AsDocumentItem(euxrinaurl), HttpStatus.OK.name)
     }
 
     @GetMapping("/get/{euxcaseid}/{documentid}/pdf")
     fun getPdfFromRina(
         @PathVariable("euxcaseid", required = true) euxcaseid: String,
-        @PathVariable("documentid", required = true) documentid: String): PreviewPdf {
-        return euxInnhentingService.getPdfContents(euxcaseid, documentid)
+        @PathVariable("documentid", required = true) documentid: String
+    ): FrontEndResponse<PreviewPdf> {
+        return FrontEndResponse(euxInnhentingService.getPdfContents(euxcaseid, documentid), HttpStatus.OK.name)
     }
 
     @GetMapping("/get/{euxcaseid}/{documentid}")
     fun getDocument(
         @PathVariable("euxcaseid", required = true) euxcaseid: String,
         @PathVariable("documentid", required = true) documentid: String
-    ): String {
+    ): FrontEndResponse<Any> {
         auditlogger.logBuc("getDocument", " euxCaseId: $euxcaseid documentId: $documentid")
         logger.info("Hente SED innhold for /${euxcaseid}/${documentid} ")
         val sed = euxInnhentingService.getSedOnBucByDocumentId(euxcaseid, documentid)
 
         if (sed is P8000) {
-            val p8000Frontend = P8000Frontend(sed.type, sed.nav, sed.p8000Pensjon)
-            logger.info("Henter options for: ${p8000Frontend.type}, rinaid: $euxcaseid, options: ${p8000Frontend.options}")
-
-            gcpStorageService.hentGcpDetlajerPaaId(documentid)?.let { lagretOptions ->
-                return p8000Frontend.toJsonSkipEmpty()
-                    .replace("\"options\" : null", "\"options\":${prettifyJson(lagretOptions)}")
+            val lagretOptions = gcpStorageService.hentGcpDetlajerPaaId(documentid)
+            if (lagretOptions != null) {
+                logger.info("Henter options for: ${sed.type}, rinaid: $euxcaseid, options: $lagretOptions")
+            } else {
+                logger.warn("Henter P8000 uten options")
             }
-
-            logger.warn("Henter P8000 uten options")
-            return P8000Frontend(sed.type, sed.nav, sed.p8000Pensjon).toJson()
+            val response = P8000FrontendResponse(sed.type, sed.nav, sed.p8000Pensjon, lagretOptions)
+            return FrontEndResponse(response, HttpStatus.OK.name)
         }
-        return sed.toJson()
-    }
-
-    private fun prettifyJson(jsonString: String): String {
-        val mapper = ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
-        val jsonNode = mapper.readTree(jsonString)
-        return mapper.writeValueAsString(jsonNode)
+        return FrontEndResponse(sed, HttpStatus.OK.name)
     }
 
     @PutMapping("/put/{euxcaseid}/{documentid}")
@@ -97,7 +89,7 @@ class SedController(
         @PathVariable("euxcaseid", required = true) euxcaseid: String,
         @PathVariable("documentid", required = true) documentid: String,
         @RequestBody sedPayload: String
-    ): Boolean {
+    ): FrontEndResponse<Boolean> {
         val validsed = try {
             secureLog.info("Følgende SED payload: $sedPayload")
 
@@ -122,17 +114,18 @@ class SedController(
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Lagring av P8000 feilet, ugyldig SED: ${ex.message}", ex)
         }
         val jsonToRina = validsed.toJsonSkipEmpty().also { logger.debug("Følgende SED prøves å oppdateres til RINA: rinaID: $euxcaseid, documentid: $documentid, validsed: $it") }
-        return  euxInnhentingService.updateSedOnBuc(euxcaseid, documentid, jsonToRina).also { logger.info("Oppdatering av SED: $it") }
+        val updated = euxInnhentingService.updateSedOnBuc(euxcaseid, documentid, jsonToRina).also { logger.info("Oppdatering av SED: $it") }
+        return FrontEndResponse(updated, HttpStatus.OK.name)
     }
 
     @GetMapping("/seds/{buctype}/{rinanr}")
     fun getSeds(
         @PathVariable(value = "buctype", required = true) bucType: String,
         @PathVariable(value = "rinanr", required = true) euxCaseId: String
-    ): ResponseEntity<String> {
+    ): FrontEndResponse<List<SedType>> {
         val resultListe = BucUtils(euxInnhentingService.getBuc(euxCaseId)).getFiltrerteGyldigSedAksjonListAsString()
         logger.info("Henter liste over SED som kan opprettes på buctype: $bucType seds: $resultListe")
-        return ResponseEntity.ok().body(resultListe.toJsonSkipEmpty())
+        return FrontEndResponse(resultListe, HttpStatus.OK.name)
     }
 
     //Ektend P5000 updateFromUI før den sendes og oppdateres i Rina.
@@ -154,9 +147,10 @@ class SedController(
     }
 
     @PostMapping("/pdf")
-    fun lagPdf(@RequestBody pdfJson: String): PreviewPdf? {
+    fun lagPdf(@RequestBody pdfJson: String): FrontEndResponse<PreviewPdf?> {
         logger.info("Lager PDF")
-        return euxInnhentingService.lagPdf(pdfJson).also { logger.info("SED for generering av PDF: $it") }
+        val pdf = euxInnhentingService.lagPdf(pdfJson).also { logger.info("SED for generering av PDF: $it") }
+        return FrontEndResponse(pdf, HttpStatus.OK.name)
     }
 }
 
@@ -168,5 +162,28 @@ class P8000Frontend(
     @JsonProperty("pensjon")
     p8000Pensjon: P8000Pensjon?,
     @JsonInclude(JsonInclude.Include.ALWAYS)
+    var options: String? = null,
+) : P8000(type, nav, p8000Pensjon)
+
+/**
+ * Response variant of [P8000Frontend] used by `GET /sed/get/{euxcaseid}/{documentid}`.
+ * `options` is exposed as a JSON object (the raw JSON stored in GCP) instead of a quoted
+ * string, so the frontend can consume it directly without a second JSON.parse.
+ *
+ * Uses `@JsonRawValue` on a `String` field rather than a `JsonNode` field, because Spring's
+ * default Jackson configuration serializes `JsonNode` properties via bean introspection in
+ * this code path (emitting `isObject`, `nodeType`, etc. accessors) instead of the node's
+ * actual tree content. This class is response-only so the round-trip concerns that apply to
+ * [P8000Frontend] (URL-encoded inbound `options`) do not apply here.
+ */
+@JsonIgnoreProperties(ignoreUnknown = true)
+class P8000FrontendResponse(
+    @JsonProperty("sed")
+    type: SedType = SedType.P8000,
+    nav: Nav? = null,
+    @JsonProperty("pensjon")
+    p8000Pensjon: P8000Pensjon?,
+    @JsonInclude(JsonInclude.Include.ALWAYS)
+    @JsonRawValue
     var options: String? = null,
 ) : P8000(type, nav, p8000Pensjon)
