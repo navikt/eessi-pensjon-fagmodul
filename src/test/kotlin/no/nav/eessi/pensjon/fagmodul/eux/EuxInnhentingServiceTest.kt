@@ -102,7 +102,7 @@ internal class EuxInnhentingServiceTest {
 
         val result = euxInnhentingService.getSingleBucAndSedViewMedMetadata("1111111", "aktoerId")
 
-        assertEquals("69287", result.sedsWithSize?.get(3)?.second)
+        assertEquals("2.0", result.sedsWithSize?.get(3)?.second)
     }
 
     @Test

@@ -7,6 +7,14 @@
             {
               "nokkel": "eessi_pensjon_bucid",
               "verdi": "1111111"
+            },
+            {
+              "nokkel": "eessi_pensjon_sedid",
+              "verdi": "3b82e3d56f304ca0ac05c1ce626d9472"
+            },
+            {
+              "nokkel": "eessi_pensjon_dokStr",
+              "verdi": "2.0"
             }
           ],
           "journalpostId": "454066088",

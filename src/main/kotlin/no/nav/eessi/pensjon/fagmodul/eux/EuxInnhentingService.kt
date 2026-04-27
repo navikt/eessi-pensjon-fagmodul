@@ -138,15 +138,15 @@ class EuxInnhentingService(
     fun getSingleBucAndSedViewMedMetadata(euxCaseId: String, aktorId: String): BucAndSedView {
         return try {
             val bucAndSedView = BucAndSedView.from(getBuc(euxCaseId))
+
+            // Henter alle sed og str fra jorak som matcher på bucID
             val tittelOgVedlegg = vedleggService.hentTittelOgFilstoerrelseForBucid(aktorId, euxCaseId).also { logger.info("Hentet tittelOgVedlegg: $it") }
 
             val seds = bucAndSedView.seds ?: emptyList()
+            // Henter kun ut størrelse for de SEDene som finnes i BUC, og matcher på SED ID
             val sedsWithSize = seds.map { sed ->
-//                val sedDate = Instant.ofEpochMilli(sed.creationDate as Long).atZone(ZoneId.systemDefault()).toLocalDate()
-                val size = tittelOgVedlegg.firstOrNull { (tittel, _, opprettetDato) ->
-                    tittel?.contains(sed.type?.name ?: "", ignoreCase = true) == true
-                }?.second
-                sed to size
+                val size = tittelOgVedlegg.firstOrNull { (sedIdJP, _) -> sedIdJP == sed.id }?.second
+                Pair(sed.id, size)
             }
             bucAndSedView.copy(sedsWithSize = sedsWithSize)
 

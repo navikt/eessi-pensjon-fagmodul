@@ -38,21 +38,23 @@ class VedleggService(private val safClient: SafClient,
         return safClient.hentDokumentMetadata(aktoerId)
     }
 
-    fun hentTittelOgFilstoerrelseForBucid(aktoerId: String, bucid: String): List<Triple<String?, String, LocalDate?>> {
+    fun hentTittelOgFilstoerrelseForBucid(aktoerId: String, bucid: String): List<Pair<String?, String?>> {
         val metadata = hentDokumentMetadata(aktoerId)
-        return metadata.data.dokumentoversiktBruker.journalposter
-            .filter { journalpost ->
+        return metadata.data.dokumentoversiktBruker.journalposter.filter { journalpost ->
                 journalpost.tilleggsopplysninger.any {
                     it["nokkel"] == "eessi_pensjon_bucid" && it["verdi"] == bucid
                 }
-            }
-            .flatMap { journalpost ->
-                val tittel = journalpost.tittel
+            }.flatMap { journalpost ->
                 journalpost.dokumenter.flatMap { dokument ->
                     dokument.dokumentvarianter.mapNotNull { variant ->
+                        val sedId = journalpost.tilleggsopplysninger.find { it["nokkel"] == "eessi_pensjon_sedid" }
+                            ?.get("verdi") ?: return@mapNotNull null
+                        val filStr = journalpost.tilleggsopplysninger.find { it["nokkel"] == "eessi_pensjon_dokStr" }
+                            ?.get("verdi")
                         val filstoerrelse = variant.filstoerrelse
-                        val oppretteDato = LocalDateTime.parse(journalpost.datoOpprettet, DateTimeFormatter.ISO_LOCAL_DATE_TIME).toLocalDate()
-                        if (filstoerrelse != null) Triple(tittel, filstoerrelse, oppretteDato) else null
+
+                        logger.debug("Filstørrelse fra joark: $filstoerrelse, mot str fra JF")
+                        Pair(sedId, filStr)
                     }
                 }
             }
