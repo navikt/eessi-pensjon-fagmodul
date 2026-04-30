@@ -134,6 +134,7 @@ class EuxInnhentingService(
             BucAndSedView.fromErr(ex.message)
         }
     }
+    data class DokumentInfo(val filnavn: String, val storrelse: String)
 
     fun getSingleBucAndSedViewMedMetadata(euxCaseId: String, aktorId: String): BucAndSedView {
         return try {
@@ -142,13 +143,22 @@ class EuxInnhentingService(
             // Henter alle sed og str fra jorak som matcher på bucID
             val tittelOgVedlegg = vedleggService.hentTittelOgFilstoerrelseForBucid(aktorId, euxCaseId).also { logger.info("Hentet tittelOgVedlegg: $it") }
 
-            val seds = bucAndSedView.seds ?: emptyList()
             // Henter kun ut størrelse for de SEDene som finnes i BUC, og matcher på SED ID
-            val sedsWithSize = seds.map { sed ->
+            bucAndSedView.seds?.forEach { sed ->
                 val size = tittelOgVedlegg.firstOrNull { (sedIdJP, _) -> sedIdJP == sed.id }?.second
-                Pair(sed.id, size)
+                size?.let {
+                    val docInfos = mapJsonToAny<List<DokumentInfo>>(size)
+                    sed.attachments?.forEach { attachment ->
+                        val matchingDoc = docInfos.firstOrNull { docInfo ->
+                            docInfo.filnavn.equals(attachment.fileName, ignoreCase = true) || docInfo.filnavn.contains(attachment.fileName ?: "", ignoreCase = true) || (attachment.fileName?.contains(docInfo.filnavn, ignoreCase = true) == true)
+                        }
+                        if (matchingDoc != null) {
+                            attachment.filesize = matchingDoc.storrelse
+                        }
+                    }
+                }
             }
-            bucAndSedView.copy(sedsWithSize = sedsWithSize)
+            bucAndSedView
 
         } catch (ex: Exception) {
             logger.error("Feiler ved utlevering av enkel bucandsedview ${ex.message}", ex)

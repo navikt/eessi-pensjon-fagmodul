@@ -25,7 +25,6 @@ data class BucAndSedView(
     val lastUpdate: String? = null,
     val institusjon: List<InstitusjonItem>? = null,
     val seds: List<DocumentsItem>? = null,
-    val sedsWithSize: List<Pair<String?, String?>>? = null,
     val error: String? = null,
     val readOnly: Boolean? = false,
     val subject: BucAndSedSubject? = null,

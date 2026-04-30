@@ -6,7 +6,6 @@ import no.nav.eessi.pensjon.vedlegg.client.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Profile
-import org.springframework.format.datetime.DateFormatter
 import org.springframework.http.HttpStatus
 import org.springframework.retry.RetryCallback
 import org.springframework.retry.RetryContext
@@ -16,9 +15,6 @@ import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import java.io.IOException
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 @Service
 class VedleggService(private val safClient: SafClient,
@@ -49,12 +45,12 @@ class VedleggService(private val safClient: SafClient,
                     dokument.dokumentvarianter.mapNotNull { variant ->
                         val sedId = journalpost.tilleggsopplysninger.find { it["nokkel"] == "eessi_pensjon_sedid" }
                             ?.get("verdi") ?: return@mapNotNull null
-                        val filStr = journalpost.tilleggsopplysninger.find { it["nokkel"] == "eessi_pensjon_dokStr" }
+                        val tittelOgStr = journalpost.tilleggsopplysninger.find { it["nokkel"] == "eessi_pensjon_dokStr" }
                             ?.get("verdi")
-                        val filstoerrelse = variant.filstoerrelse
+                        val sedStr = variant.filstoerrelse
 
-                        logger.debug("Filstørrelse fra joark: $filstoerrelse, mot str fra JF")
-                        Pair(sedId, filStr)
+                        logger.debug("Filstørrelse fra joark: $sedStr, mot str fra JF")
+                        Pair(sedId, tittelOgStr)
                     }
                 }
             }
