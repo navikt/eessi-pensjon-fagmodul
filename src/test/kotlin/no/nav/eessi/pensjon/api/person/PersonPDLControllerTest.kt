@@ -314,7 +314,7 @@ class PersonPDLControllerTest {
 
     @Test
     fun `avdodsdato sjekk for vedtak inneholder en avdod returneres den`() {
-        val doedsPerson = lagPerson(AVDOD_FNR).copy(doedsfall = Doedsfall(LocalDate.of(2020, 6, 20), null, mockMeta()))
+        val doedsPerson = lagPerson(AVDOD_FNR).copy(doedsfall = no.nav.eessi.pensjon.personoppslag.pdl.model.Doedsfall(LocalDate.of(2020, 6, 20), null, mockMeta()))
 
         every { pesysService.hentAvdod(any())} returns EessiFellesDto.EessiAvdodDto(avdod = AVDOD_FNR, avdodMor = null, avdodFar = null)
         every { pesysService.hentGyldigAvdod(any()) } returns listOf("18077443335")
@@ -334,7 +334,7 @@ class PersonPDLControllerTest {
     fun `avdodsdato sjekk for vedtak inneholder to avdod i pbuc02 returneres den tidligere valgte avdod ut fra p2100 og returneres`() {
         val documentid = "23242342a234vd423452asddf"
 
-        val doedsPerson = lagPerson(AVDOD_FNR).copy(doedsfall = Doedsfall(LocalDate.of(2020, 6, 20), null, mockMeta()))
+        val doedsPerson = lagPerson(AVDOD_FNR).copy(doedsfall = no.nav.eessi.pensjon.personoppslag.pdl.model.Doedsfall(LocalDate.of(2020, 6, 20), null, mockMeta()))
         val sedP2100 = P2100(
             nav = Nav(
                 bruker = Bruker(
@@ -379,7 +379,7 @@ class PersonPDLControllerTest {
         val avdodfnr2 = FodselsnummerGenerator.generateFnrForTest(49)
         val documentid = "23242342a234vd423452asddf"
 
-        val doedsPerson = lagPerson(avdodfnr).copy(doedsfall = Doedsfall(LocalDate.of(2010, 6, 20), null, mockMeta()))
+        val doedsPerson = lagPerson(avdodfnr).copy(doedsfall = no.nav.eessi.pensjon.personoppslag.pdl.model.Doedsfall(LocalDate.of(2010, 6, 20), null, mockMeta()))
         val sedP2100 = P2100(nav = Nav(bruker = Bruker(person = Person(pin = listOf(PinItem(land = "NO", identifikator = AVDOD_FNR))))), pensjon = null)
         val buc = Buc(
             id = RINA_NR,
@@ -413,7 +413,7 @@ class PersonPDLControllerTest {
             AVDOD_FNR,
             fornavn = "AVDØD",
             etternavn = "HELTAVØD"
-        ).copy(doedsfall = Doedsfall(LocalDate.of(2007, 6, 20), null, mockMeta()))
+        ).copy(doedsfall = no.nav.eessi.pensjon.personoppslag.pdl.model.Doedsfall(LocalDate.of(2007, 6, 20), null, mockMeta()))
         val sedP5000 = P5000(
             nav = Nav(
                 bruker = Bruker(
