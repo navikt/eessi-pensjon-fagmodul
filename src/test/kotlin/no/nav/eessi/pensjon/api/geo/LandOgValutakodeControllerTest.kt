@@ -6,9 +6,9 @@ import io.mockk.every
 import no.nav.eessi.pensjon.fagmodul.api.FrontEndResponse
 import no.nav.eessi.pensjon.kodeverk.KodeverkClient
 import no.nav.eessi.pensjon.utils.mapJsonToAny
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
 import org.springframework.context.annotation.ComponentScan
@@ -60,7 +60,7 @@ class LandOgValutakodeControllerTest {
             .andReturn().response
 
         val response = mapJsonToAny<FrontEndResponse<*>>(repsonse.contentAsString)
-        JSONAssert.assertEquals(resultatFraRina(), response.result.toString(), false)
+        assertEquals(resultatFraRina(), response.result.toString())
     }
 
     fun resultatFraRina(): String {
