@@ -72,32 +72,24 @@ internal class PrefillControllerTest {
     @MockK
     private lateinit var kafkaTemplate: KafkaTemplate<String, String>
 
-    @MockK
-    private lateinit var vedleggService: VedleggService
-
-    @MockK
-    private lateinit var personService: PersonService
-
-    @MockK
-    private lateinit var pesysService: PesysService
-
-    @MockK
-    private lateinit var prefillKlient: PrefillKlient
+    var vedleggService: VedleggService = mockk(relaxed = true)
+    var personService: PersonService = mockk(relaxed = true)
+    var pesysService: PesysService = mockk(relaxed = true)
+    var prefillKlient: PrefillKlient = mockk(relaxed = true)
 
     lateinit var innhentingService: InnhentingService
 
-    private lateinit var prefillController: PrefillController
+    lateinit var prefillController: PrefillController
 
     @BeforeEach
     fun before() {
-        innhentingService = mockk(relaxed = true)
+        innhentingService = InnhentingService(personService, vedleggService, prefillKlient, pesysService)
         mockEuxPrefillService = EuxPrefillService(mockEuxKlient, innhentingService,
             StatistikkHandler( KafkaTemplate(DefaultKafkaProducerFactory(emptyMap())), "")
         )
 
         MockKAnnotations.init(this, relaxed = true)
 
-        val innhentingService = InnhentingService(personService, vedleggService, prefillKlient, pesysService)
         prefillController = PrefillController(
             mockEuxPrefillService,
             mockEuxInnhentingService,
@@ -239,49 +231,6 @@ internal class PrefillControllerTest {
     private fun createDummyX005(newParticipants: InstitusjonItem): String {
         return X005(xnav = XNav(sak = Navsak(leggtilinstitusjon = Leggtilinstitusjon(institusjon = InstitusjonX005(id = newParticipants.institution, navn = newParticipants.name ?: "" ))))).toJson()
     }
-
-/*    @Test
-    fun `call addInstutionAndDocument mock check on X007 will fail on matching newparticipants with exception`() {
-
-        val euxCaseId = "1234567890"
-        val mockParticipants = listOf(Participant(role = "CaseOwner", organisation = Organisation(countryCode = "SE", name = "SE", id = "SE")))
-        val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = mockParticipants)
-        mockBuc.documents = listOf(
-            createDummyBucDocumentItem(),
-            DocumentsItem(
-                type = X007, status = "received" ,
-                conversations = listOf(
-                    ConversationsItem(
-                        id = "1",
-                        userMessages =listOf(
-                            UserMessagesItem(
-                                sender = Sender(
-                                    name = "Danish test",
-                                    id = "DK:213231"
-                                )
-                            )
-                        )
-                    )
-                ),
-                direction = "OUT"
-            )
-        )
-        mockBuc.actions = listOf(ActionsItem(operation = ActionOperation.Send))
-
-        val newParticipants = listOf(
-            InstitusjonItem(country = "FI", institution = "FI:213231", name="Finland test"),
-            InstitusjonItem(country = "DK", institution = "DK:213231", name="Tyskland test")
-        )
-
-        every { personService.hentIdent(eq(IdentGruppe.FOLKEREGISTERIDENT), any<AktoerId>()) } returns NorskIdent("12345")
-        every { mockEuxInnhentingService.getBuc(euxCaseId) } returns mockBuc
-
-        assertThrows<ResponseStatusException> {
-            prefillController.addInstutionAndDocument(apiRequestWith(euxCaseId, newParticipants))
-        }
-        verify(exactly = 1 ) { mockEuxInnhentingService.getBuc(any()) }
-
-    }*/
 
     @Test
     fun `call addInstutionAndDocument add newInstitusjonItem on empty buc NAV is caseOwner`() {
