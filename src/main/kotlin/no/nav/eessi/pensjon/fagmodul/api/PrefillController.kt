@@ -4,10 +4,8 @@ import no.nav.eessi.pensjon.eux.klient.BucSedResponse
 import no.nav.eessi.pensjon.eux.model.BucType
 import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_06
 import no.nav.eessi.pensjon.eux.model.SedType
-import no.nav.eessi.pensjon.eux.model.buc.ActionOperation
 import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
-import no.nav.eessi.pensjon.eux.model.sed.X005
 import no.nav.eessi.pensjon.fagmodul.eux.BucAndSedView
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
@@ -20,7 +18,6 @@ import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.shared.api.ApiRequest
 import no.nav.eessi.pensjon.shared.api.PersonInfo
-import no.nav.eessi.pensjon.shared.api.PrefillDataModel
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.security.token.support.core.api.Protected
@@ -49,13 +46,11 @@ class PrefillController(
     private val logger = LoggerFactory.getLogger(PrefillController::class.java)
     private val secureLog = LoggerFactory.getLogger("secureLog")
 
-    private  var addInstution: MetricsHelper.Metric
     private  var addInstutionAndDocument: MetricsHelper.Metric
     private  var addDocumentToParent: MetricsHelper.Metric
     private  var addInstutionAndDocumentBucUtils: MetricsHelper.Metric
     private  var addDocumentToParentBucUtils: MetricsHelper.Metric
     init {
-        addInstution = metricsHelper.init("AddInstution", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
         addInstutionAndDocument = metricsHelper.init("AddInstutionAndDocument", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
         addDocumentToParent = metricsHelper.init("AddDocumentToParent", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
         addInstutionAndDocumentBucUtils = metricsHelper.init("AddInstutionAndDocumentBucUtils", ignoreHttpCodes = listOf(HttpStatus.BAD_REQUEST))
@@ -98,36 +93,6 @@ class PrefillController(
         }
     }
 
-    private fun addInstitution(request: ApiRequest, dataModel: PrefillDataModel, bucUtil: BucUtils) {
-        addInstution.measure {
-            logger.info("*** Sjekker og legger til Instiusjoner på BUC eller X005 ***")
-            val nyeInstitusjoner = bucUtil.findNewParticipants(dataModel.getInstitutionsList())
-            val x005docs = bucUtil.findX005DocumentByTypeAndStatus()
-
-            if (nyeInstitusjoner.isNotEmpty()) {
-                logger.info("""
-                    eksiterendeInstiusjoner: ${bucUtil.getParticipantsAsInstitusjonItem().toJson()}
-                    nyeInstitusjoner: ${nyeInstitusjoner.toJson()}
-                """.trimIndent())
-
-                if (x005docs.isEmpty()) {
-                    euxPrefillService.checkAndAddInstitution(dataModel, bucUtil, emptyList(), nyeInstitusjoner)
-                } else if (x005docs.firstOrNull { it.status == "empty"} != null ) {
-                    val x005Liste = nyeInstitusjoner.map { nyeInstitusjonerMap ->
-                        logger.debug("Prefiller X005, legger til Institusjon på X005 ${nyeInstitusjonerMap.institution}")
-                        // ID og Navn på X005 er påkrevd må hente innn navn fra UI.
-                        val x005request = request.copy(avdodfnr = null, sed = SedType.X005, institutions = listOf(nyeInstitusjonerMap))
-                        mapJsonToAny<X005>(innhentingService.hentPreutyltSed(
-                            x005request,
-                            bucUtil.getProcessDefinitionVersion()
-                        ))
-                    }
-                    euxPrefillService.checkAndAddInstitution(dataModel, bucUtil, x005Liste, nyeInstitusjoner)
-                } else if (!bucUtil.isValidSedtypeOperation(SedType.X005, ActionOperation.Create)) { /* nada */  }
-            }
-        }
-    }
-
     @PostMapping("/sed/add")
     fun addInstutionAndDocument(@RequestBody request: ApiRequest): FrontEndResponse<DocumentsItem?> {
 
@@ -163,7 +128,7 @@ class PrefillController(
         logger.debug("bucUtil BucType: ${bucUtil.getBuc().processDefinitionName} apiRequest Buc: ${request.buc}")
 
         //AddInstitution
-        addInstitution(request, dataModel, bucUtil)
+        euxPrefillService.addInstitution(request, dataModel, bucUtil)
 
         //Preutfyll av SED, pensjon og personer samt oppdatering av versjon
         //sjekk på P7000-- hente nødvendige P6000 sed fra eux.. legg til på request->prefilll

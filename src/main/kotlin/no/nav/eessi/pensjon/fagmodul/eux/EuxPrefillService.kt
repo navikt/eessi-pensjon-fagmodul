@@ -2,13 +2,17 @@ package no.nav.eessi.pensjon.fagmodul.eux
 
 import no.nav.eessi.pensjon.eux.klient.*
 import no.nav.eessi.pensjon.eux.model.SedType
+import no.nav.eessi.pensjon.eux.model.buc.ActionOperation
 import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.X005
 import no.nav.eessi.pensjon.metrics.MetricsHelper
+import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.services.statistikk.StatistikkHandler
+import no.nav.eessi.pensjon.shared.api.ApiRequest
 import no.nav.eessi.pensjon.shared.api.InstitusjonItem
 import no.nav.eessi.pensjon.shared.api.PrefillDataModel
+import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -18,6 +22,7 @@ import org.springframework.web.server.ResponseStatusException
 
 @Service
 class EuxPrefillService (private val euxKlient: EuxKlientLib,
+                         private val innhentingService: InnhentingService,
                          private val statistikk: StatistikkHandler,
                          @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()) {
     private val logger = LoggerFactory.getLogger(EuxPrefillService::class.java)
@@ -65,6 +70,39 @@ class EuxPrefillService (private val euxKlient: EuxKlientLib,
     fun addInstitution(euxCaseID: String, nyeInstitusjoner: List<String>) {
         logger.info("Legger til Deltakere/Institusjon på vanlig måte, ny Buc")
         putMottaker.measure { euxKlient.putBucMottakere(euxCaseID, nyeInstitusjoner) }
+    }
+
+    fun addInstitution(request: ApiRequest, dataModel: PrefillDataModel, bucUtil: BucUtils) {
+        logger.info("*** Sjekker og legger til Instiusjoner på BUC eller X005 ***")
+        val nyeInstitusjoner = bucUtil.findNewParticipants(dataModel.getInstitutionsList())
+        val x005docs = bucUtil.findX005DocumentByTypeAndStatus()
+
+        if (nyeInstitusjoner.isNotEmpty()) {
+            logger.info(
+                """
+                eksiterendeInstiusjoner: ${bucUtil.getParticipantsAsInstitusjonItem().toJson()}
+                nyeInstitusjoner: ${nyeInstitusjoner.toJson()}
+                """.trimIndent()
+            )
+
+            if (x005docs.isEmpty()) {
+                checkAndAddInstitution(dataModel, bucUtil, emptyList(), nyeInstitusjoner)
+            } else if (x005docs.firstOrNull { it.status == "empty" } != null) {
+                val x005Liste = nyeInstitusjoner.map { nyInstitusjon ->
+                    logger.debug("Prefiller X005, legger til Institusjon på X005 ${nyInstitusjon.institution}")
+                    val x005request = request.copy(avdodfnr = null, sed = SedType.X005, institutions = listOf(nyInstitusjon))
+                    mapJsonToAny<X005>(
+                        innhentingService.hentPreutyltSed(
+                            x005request,
+                            bucUtil.getProcessDefinitionVersion()
+                        )
+                    )
+                }
+                checkAndAddInstitution(dataModel, bucUtil, x005Liste, nyeInstitusjoner)
+            } else if (!bucUtil.isValidSedtypeOperation(SedType.X005, ActionOperation.Create)) {
+                // no-op
+            }
+        }
     }
 
     fun createdBucForType(buctype: String): String {

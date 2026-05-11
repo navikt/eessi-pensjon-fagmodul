@@ -5,11 +5,8 @@ import no.nav.eessi.pensjon.eux.klient.Rinasak
 import no.nav.eessi.pensjon.eux.model.BucType
 import no.nav.eessi.pensjon.eux.model.BucType.*
 import no.nav.eessi.pensjon.eux.model.SedType
-import no.nav.eessi.pensjon.eux.model.buc.ActionOperation
 import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
-import no.nav.eessi.pensjon.eux.model.sed.*
 import no.nav.eessi.pensjon.fagmodul.api.FrontEndResponse
-import no.nav.eessi.pensjon.fagmodul.api.P8000Frontend
 import no.nav.eessi.pensjon.fagmodul.eux.*
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucView
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucViewKilde
@@ -23,10 +20,7 @@ import no.nav.eessi.pensjon.personoppslag.pdl.model.IdentGruppe
 import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
 import no.nav.eessi.pensjon.shared.api.ApiRequest
 import no.nav.eessi.pensjon.shared.api.PersonInfo
-import no.nav.eessi.pensjon.shared.api.PrefillDataModel
-import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
-import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import no.nav.eessi.pensjon.vedlegg.VedleggService
 import no.nav.security.token.support.core.api.Unprotected
 import org.slf4j.LoggerFactory
@@ -226,7 +220,7 @@ class GjennyController (
 
         logger.debug("bucUtil BucType: ${bucUtil.getBuc().processDefinitionName} apiRequest Buc: ${request.buc}")
 
-        addInstitution(request.copy(gjenny = true), dataModel, bucUtil)
+        euxPrefillService.addInstitution(request.copy(gjenny = true), dataModel, bucUtil)
 
         val requestMedGjenlevendeFnr = request.copy(fnr = norskIdent.id, gjenny = true)
         logger.debug("***Request med gjenlevende fnr: ${requestMedGjenlevendeFnr.toJson()} ***")
@@ -309,29 +303,7 @@ class GjennyController (
         @PathVariable("euxcaseid", required = true) euxcaseid: String,
         @PathVariable("documentid", required = true) documentid: String,
         @RequestBody sedPayload: String
-    ): FrontEndResponse<Boolean> = sedController.updateSed(euxcaseid, documentid, sedPayload)
-
-        if (nyeInstitusjoner.isNotEmpty()) {
-            logger.info("""
-                eksiterendeInstiusjoner: ${bucUtil.getParticipantsAsInstitusjonItem().toJson()}
-                nyeInstitusjoner: ${nyeInstitusjoner.toJson()}
-            """.trimIndent())
-
-            if (x005docs.isEmpty()) {
-                euxPrefillService.checkAndAddInstitution(dataModel, bucUtil, emptyList(), nyeInstitusjoner)
-            } else if (x005docs.firstOrNull { it.status == "empty" } != null) {
-                val x005Liste = nyeInstitusjoner.map { nyeInstitusjonerMap ->
-                    logger.debug("Prefiller X005, legger til Institusjon på X005 ${nyeInstitusjonerMap.institution}")
-                    val x005request = request.copy(avdodfnr = null, sed = SedType.X005, institutions = listOf(nyeInstitusjonerMap))
-                    mapJsonToAny<X005>(innhentingService.hentPreutyltSed(
-                        x005request,
-                        bucUtil.getProcessDefinitionVersion()
-                    ))
-                }
-                euxPrefillService.checkAndAddInstitution(dataModel, bucUtil, x005Liste, nyeInstitusjoner)
-            } else if (!bucUtil.isValidSedtypeOperation(SedType.X005, ActionOperation.Create)) { /* nada */ }
-        }
-    }
+    ): FrontEndResponse<Boolean> = FrontEndResponse(euxInnhentingService.updateSedOnBuc(euxcaseid, documentid, sedPayload), HttpStatus.OK.name)
 
     private fun getBucForPBuc06AndForEmptySed(
         bucType: BucType,

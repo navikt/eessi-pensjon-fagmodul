@@ -84,11 +84,14 @@ internal class PrefillControllerTest {
     @MockK
     private lateinit var prefillKlient: PrefillKlient
 
+    lateinit var innhentingService: InnhentingService
+
     private lateinit var prefillController: PrefillController
 
     @BeforeEach
     fun before() {
-        mockEuxPrefillService = EuxPrefillService(mockEuxKlient,
+        innhentingService = mockk(relaxed = true)
+        mockEuxPrefillService = EuxPrefillService(mockEuxKlient, innhentingService,
             StatistikkHandler( KafkaTemplate(DefaultKafkaProducerFactory(emptyMap())), "")
         )
 
