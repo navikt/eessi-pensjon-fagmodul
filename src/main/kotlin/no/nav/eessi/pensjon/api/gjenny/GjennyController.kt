@@ -48,12 +48,12 @@ class GjennyController (
     private val vedleggService: VedleggService,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
-            @GetMapping("/metadata/{aktoerId}")
-            fun hentMetadata(@PathVariable("aktoerId", required = true) aktoerId: String): ResponseEntity<String> {
-                logger.info("Henter metadata for dokumenter i SAF for aktørid: $aktoerId via GjennyController")
-                val metadata = vedleggService.hentDokumentMetadata(aktoerId)
-                return ResponseEntity.ok().body(metadata.toJson())
-            }
+    @GetMapping("/metadata/{aktoerId}")
+    fun hentMetadata(@PathVariable("aktoerId", required = true) aktoerId: String): ResponseEntity<String> {
+        logger.info("Henter metadata for dokumenter i SAF for aktørid: $aktoerId via GjennyController")
+        val metadata = vedleggService.hentDokumentMetadata(aktoerId)
+        return ResponseEntity.ok().body(metadata.toJson())
+    }
     private val logger = LoggerFactory.getLogger(GjennyController::class.java)
     private val secureLog = LoggerFactory.getLogger("secureLog")
     private val bucerForGjenny: MetricsHelper.Metric
