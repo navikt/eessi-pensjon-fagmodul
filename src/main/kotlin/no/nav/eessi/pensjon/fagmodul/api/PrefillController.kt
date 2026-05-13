@@ -1,8 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
-import no.nav.eessi.pensjon.eux.klient.BucSedResponse
 import no.nav.eessi.pensjon.eux.model.BucType
-import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_06
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
@@ -156,25 +154,8 @@ class PrefillController(
             logger.error(e.message, e)
         }
 
-        //val institusjonerFraRequest = request.institutions
-        //Sjekk og opprette deltaker og legge sed på valgt BUC
         return addInstutionAndDocument.measure {
-            logger.info("******* Legge til ny SED - start *******")
-
-            val sedType = SedType.from(request.sed?.name!!)!!
-            logger.info("Prøver å sende SED: $sedType inn på BUC: ${dataModel.euxCaseID}")
-
-            val bucAndSedResponse = euxPrefillService.opprettJsonSedOnBuc(sed, sedType, dataModel.euxCaseID, request.vedtakId)
-
-            logger.info("Opprettet ny SED med dokumentId: ${bucAndSedResponse.documentId}")
-            val sedDocument = bucUtil.findDocument(bucAndSedResponse.documentId)
-            sedDocument?.message = dataModel.melding
-
-            logger.info("Har documentItem ${sedDocument?.id}")
-
-            val documentItem = getBucForPBuc06AndForEmptySed(dataModel.buc, bucUtil.getBuc().documents, bucAndSedResponse, sedDocument)
-            logger.info("******* Legge til ny SED - slutt *******")
-            FrontEndResponse(documentItem, HttpStatus.OK.name)
+            FrontEndResponse(euxPrefillService.opprettSedOgHentDocumentItem(sed, request, dataModel, bucUtil), HttpStatus.OK.name)
         }
     }
 
@@ -207,21 +188,12 @@ class PrefillController(
         return addDocumentToParent.measure {
             logger.info("Prøver å sende SED: ${dataModel.sedType} inn på BUC: ${dataModel.euxCaseID}")
 
-            val docresult = euxPrefillService.opprettSvarJsonSedOnBuc(
-                sed,
-                dataModel.euxCaseID,
-                parentId,
-                request.vedtakId,
-                dataModel.sedType
-            )
             if (request.gjenny) {
                 gcpStorageService.lagreGjennySak(request.euxCaseId!!, GjennySak(request.sakId!!, request.sakType!!))
             }
 
             val parent = bucUtil.findDocument(parentId)
-            val result = bucUtil.findDocument(docresult.documentId)
-
-            val documentItem = getBucForPBuc06AndForEmptySed(dataModel.buc, bucUtil.getBuc().documents, docresult, result)
+            val documentItem = euxPrefillService.opprettSvarSedOgHentDocumentItem(sed, dataModel, parentId, bucUtil)
 
             logger.info("Buc: (${dataModel.euxCaseID}, hovedSED type: ${parent?.type}, docId: ${parent?.id}, svarSED type: ${documentItem?.type} docID: ${documentItem?.id}")
             logger.info("******* Legge til svarSED - slutt *******")
@@ -229,15 +201,5 @@ class PrefillController(
         }
     }
 
-    private fun getBucForPBuc06AndForEmptySed(bucType: BucType, bucDocuments: List<DocumentsItem>?, bucSedResponse: BucSedResponse, orginal: DocumentsItem?): DocumentsItem? {
-        logger.info("Henter BUC på nytt for buctype: $bucType, inkl. ${bucDocuments?.size} SED")
-        Thread.sleep(900)
-        return if (bucType == P_BUC_06 || orginal == null && bucDocuments.isNullOrEmpty()) {
-            val innhentetBuc = euxInnhentingService.getBuc(bucSedResponse.caseId)
-            BucUtils(innhentetBuc).findDocument(bucSedResponse.documentId)
-        } else {
-            orginal
-        }
-    }
 
 }

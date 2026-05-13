@@ -4,6 +4,7 @@ import no.nav.eessi.pensjon.eux.klient.*
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.ActionOperation
 import no.nav.eessi.pensjon.eux.model.buc.Buc
+import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.X005
 import no.nav.eessi.pensjon.metrics.MetricsHelper
@@ -24,6 +25,7 @@ import org.springframework.web.server.ResponseStatusException
 class EuxPrefillService (private val euxKlient: EuxKlientLib,
                          private val innhentingService: InnhentingService,
                          private val statistikk: StatistikkHandler,
+                         private val euxInnhentingService: EuxInnhentingService,
                          @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()) {
     private val logger = LoggerFactory.getLogger(EuxPrefillService::class.java)
 
@@ -103,6 +105,45 @@ class EuxPrefillService (private val euxKlient: EuxKlientLib,
                 // no-op
             }
         }
+    }
+
+    fun opprettSedOgHentDocumentItem(
+        sed: String,
+        request: ApiRequest,
+        dataModel: PrefillDataModel,
+        bucUtil: BucUtils
+    ): DocumentsItem? {
+        logger.info("******* Legge til ny SED - start *******")
+        val sedType = SedType.from(request.sed?.name!!)!!
+        logger.info("Prøver å sende SED: $sedType inn på BUC: ${dataModel.euxCaseID}")
+
+        val bucAndSedResponse = opprettJsonSedOnBuc(sed, sedType, dataModel.euxCaseID, request.vedtakId)
+        logger.info("Opprettet ny SED med dokumentId: ${bucAndSedResponse.documentId}")
+
+        val sedDocument = bucUtil.findDocument(bucAndSedResponse.documentId)
+        sedDocument?.message = dataModel.melding
+        logger.info("Har documentItem ${sedDocument?.id}")
+
+        val documentItem = euxInnhentingService.getBucForPBuc06AndForEmptySed(
+            dataModel.buc, bucUtil.getBuc().documents, bucAndSedResponse, sedDocument
+        )
+        logger.info("******* Legge til ny SED - slutt *******")
+        return documentItem
+    }
+
+    fun opprettSvarSedOgHentDocumentItem(
+        sed: String,
+        dataModel: PrefillDataModel,
+        parentId: String,
+        bucUtil: BucUtils
+    ): DocumentsItem? {
+        val docresult = opprettSvarJsonSedOnBuc(sed, dataModel.euxCaseID, parentId, dataModel.vedtakId, dataModel.sedType)
+        return euxInnhentingService.getBucForPBuc06AndForEmptySed(
+            dataModel.buc,
+            bucUtil.getBuc().documents,
+            docresult,
+            bucUtil.findDocument(docresult.documentId)
+        )
     }
 
     fun createdBucForType(buctype: String): String {
