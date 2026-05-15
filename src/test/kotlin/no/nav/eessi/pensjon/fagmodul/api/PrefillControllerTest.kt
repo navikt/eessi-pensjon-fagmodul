@@ -387,7 +387,7 @@ internal class PrefillControllerTest {
 
         JSONAssert.assertEquals(expected, result.result?.toJson(), true)
 
-        verify(exactly = 2) { mockEuxInnhentingService.getBuc(any()) }
+        verify(exactly = 1) { mockEuxInnhentingService.getBuc(any()) }
         verify(exactly = 1) { mockEuxPrefillService.opprettSvarJsonSedOnBuc(any(), any(), any(), any(), any()) }
         verify(exactly = 1) { personService.hentIdent(any(), any<AktoerId>()) }
         verify(exactly = 1) { prefillKlient.hentPreutfyltSed(any()) }
@@ -442,7 +442,8 @@ internal class PrefillControllerTest {
         val mockBucJson = javaClass.getResource("/json/buc/buc_P_BUC_06_4.2_tom.json")!!.readText()
         val mockBucJson2 = javaClass.getResource("/json/buc/P_BUC_06_P10000.json")!!.readText()
 
-        every { mockEuxInnhentingService.getBuc(euxCaseId) } returns mapJsonToAny(mockBucJson) andThen mapJsonToAny<Buc>((mockBucJson2))
+//        every { mockEuxInnhentingService.getBuc(euxCaseId) } returns mapJsonToAny(mockBucJson) //andThen mapJsonToAny<Buc>((mockBucJson2))
+        every { mockEuxKlient.getBucJsonAsNavIdent(euxCaseId) } returns mockBucJson
         val newParticipants = listOf(
             InstitusjonItem(country = "FI", institution = "FI:Finland", name="Finland test")
         )
@@ -450,15 +451,11 @@ internal class PrefillControllerTest {
 
         every { mockEuxPrefillService.opprettJsonSedOnBuc(any(), any(), euxCaseId, apiRequest.vedtakId) } returns BucSedResponse(euxCaseId, "58c26271b21f4feebcc36b949b4865fe")
         justRun { mockEuxPrefillService.addInstitution(any(), any()) }
-        every { mockEuxKlient.getBucJsonAsNavIdent(euxCaseId) } returns mockBucJson
-        every { mockEuxInnhentingService.getBuc(euxCaseId) } returns mapJsonToAny(mockBucJson)
-
-        every { mockEuxInnhentingService.getBuc(euxCaseId) } returns mapJsonToAny(mockBucJson2)
 
         val result =  prefillController.addInstutionAndDocument(apiRequest)
 
         verify (exactly = 1) { mockEuxPrefillService.opprettJsonSedOnBuc(any(), any(), eq(euxCaseId), apiRequest.vedtakId) }
-        verify (exactly = 2) { mockEuxInnhentingService.getBuc(eq(euxCaseId)) }
+        verify (exactly = 1) { mockEuxInnhentingService.getBuc(eq(euxCaseId)) }
 
         Assertions.assertNotNull(result.result)
         assertEquals(DocumentsItem::class.java, result.result?.javaClass)
