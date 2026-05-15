@@ -85,7 +85,8 @@ internal class PrefillControllerTest {
     fun before() {
         innhentingService = InnhentingService(personService, vedleggService, prefillKlient, pesysService)
         mockEuxPrefillService = EuxPrefillService(mockEuxKlient, innhentingService,
-            StatistikkHandler( KafkaTemplate(DefaultKafkaProducerFactory(emptyMap())), "")
+            StatistikkHandler( KafkaTemplate(DefaultKafkaProducerFactory(emptyMap())), ""),
+            mockEuxInnhentingService
         )
 
         MockKAnnotations.init(this, relaxed = true)
@@ -294,6 +295,7 @@ internal class PrefillControllerTest {
             euxCaseId,
             "5a61468eb8cb4fd78c5c44d75b9bb890"
         )
+        every { mockEuxKlient.getBucJsonAsNavIdent(euxCaseId) } returns jsonDocbuc
 
         val responseresult = prefillController.addInstutionAndDocument(apirequest)
 
@@ -352,6 +354,7 @@ internal class PrefillControllerTest {
         every { mockEuxInnhentingService.getBuc(euxCaseId) } returns mockBuc
         every { prefillKlient.hentPreutfyltSed(any()) } returns sed.toJsonSkipEmpty()
         every { mockEuxPrefillService.opprettSvarJsonSedOnBuc(any(), euxCaseId, parentDocumentId, api.vedtakId, SedType.P9000) } returns BucSedResponse(euxCaseId, "3123123")
+        every { mockEuxKlient.getBucJsonAsNavIdent(euxCaseId) } returns mockBuc.toJson()
 
         val result = prefillController.addDocumentToParent(api, parentDocumentId)
         val expected = """
@@ -447,6 +450,10 @@ internal class PrefillControllerTest {
 
         every { mockEuxPrefillService.opprettJsonSedOnBuc(any(), any(), euxCaseId, apiRequest.vedtakId) } returns BucSedResponse(euxCaseId, "58c26271b21f4feebcc36b949b4865fe")
         justRun { mockEuxPrefillService.addInstitution(any(), any()) }
+        every { mockEuxKlient.getBucJsonAsNavIdent(euxCaseId) } returns mockBucJson
+        every { mockEuxInnhentingService.getBuc(euxCaseId) } returns mapJsonToAny(mockBucJson)
+
+        every { mockEuxInnhentingService.getBuc(euxCaseId) } returns mapJsonToAny(mockBucJson2)
 
         val result =  prefillController.addInstutionAndDocument(apiRequest)
 

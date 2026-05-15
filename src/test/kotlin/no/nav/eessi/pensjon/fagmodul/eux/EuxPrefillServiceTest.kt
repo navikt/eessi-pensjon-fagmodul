@@ -3,6 +3,7 @@ package no.nav.eessi.pensjon.fagmodul.eux
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.impl.annotations.SpyK
 import io.mockk.justRun
 import io.mockk.mockk
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
@@ -30,12 +31,14 @@ class EuxPrefillServiceTest {
     @MockK
     private lateinit var innhentingService: InnhentingService
 
+    private var mockInnhentingService: EuxInnhentingService = mockk(relaxed = true)
+
     var statistikkHandler: StatistikkHandler = mockk()
 
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
-        euxPrefillService = EuxPrefillService(euxKlientForSystemUser, innhentingService, statistikkHandler)
+        euxPrefillService = EuxPrefillService(euxKlientForSystemUser, innhentingService, statistikkHandler, mockInnhentingService)
         euxinnhentingService = EuxInnhentingService("q2", euxKlientForSystemUser, gcpStorageService, mockk())
     }
 
