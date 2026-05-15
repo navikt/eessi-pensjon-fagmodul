@@ -14,9 +14,11 @@ import no.nav.eessi.pensjon.fagmodul.api.SedController
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.*
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucViewKilde.*
+import no.nav.eessi.pensjon.fagmodul.eux.EuxPrefillService
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.kodeverk.KodeverkClient
+import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Endring
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Endringstype
@@ -56,13 +58,15 @@ private const val GJENLEV_FNR = "12345678503"
 @ActiveProfiles(profiles = ["unsecured-webmvctest"])
 @ComponentScan(basePackages = ["no.nav.eessi.pensjon.api.gjenny"])
 @WebMvcTest(GjennyController::class)
-@MockkBeans(
+@MockkBeans(value = [
+    MockkBean(name = "euxNavIdentRestTemplateV2", classes = [RestTemplate::class]),
+    MockkBean(name = "auditLogger", classes = [AuditLogger::class], relaxed = true),
     MockkBean(name = "sedController", classes = [SedController::class], relaxed = true),
     MockkBean(name = "kodeverkClient", classes = [KodeverkClient::class], relaxed = true),
     MockkBean(name = "euxKlient", classes = [EuxKlientAsSystemUser::class], relaxed = true),
-    MockkBean(name = "euxNavIdentRestTemplateV2", classes = [RestTemplate::class]),
     MockkBean(name = "gcpStorageService", classes = [GcpStorageService::class], relaxed = true),
-    MockkBean(name = "prefillController", classes = [PrefillController::class], relaxed = true)
+    MockkBean(name = "euxPrefillService", classes = [EuxPrefillService::class], relaxed = true),
+    MockkBean(name = "prefillController", classes = [PrefillController::class], relaxed = true)]
 )
 class GjennyControllerTest {
 
@@ -74,6 +78,9 @@ class GjennyControllerTest {
 
     @MockkBean
     private lateinit var personService: PersonService
+
+    @MockkBean
+    private lateinit var vedleggService: no.nav.eessi.pensjon.vedlegg.VedleggService
 
     @Autowired
     private lateinit var mockMvc: MockMvc
@@ -345,5 +352,4 @@ class GjennyControllerTest {
         )
     }
 }
-
 

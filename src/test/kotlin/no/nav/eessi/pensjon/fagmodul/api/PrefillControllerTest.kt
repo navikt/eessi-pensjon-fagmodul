@@ -72,29 +72,25 @@ internal class PrefillControllerTest {
     @MockK
     private lateinit var kafkaTemplate: KafkaTemplate<String, String>
 
-    @MockK
-    private lateinit var vedleggService: VedleggService
+    var vedleggService: VedleggService = mockk(relaxed = true)
+    var personService: PersonService = mockk(relaxed = true)
+    var pesysService: PesysService = mockk(relaxed = true)
+    var prefillKlient: PrefillKlient = mockk(relaxed = true)
 
-    @MockK
-    private lateinit var personService: PersonService
+    lateinit var innhentingService: InnhentingService
 
-    @MockK
-    private lateinit var pesysService: PesysService
-
-    @MockK
-    private lateinit var prefillKlient: PrefillKlient
-
-    private lateinit var prefillController: PrefillController
+    lateinit var prefillController: PrefillController
 
     @BeforeEach
     fun before() {
-        mockEuxPrefillService = EuxPrefillService(mockEuxKlient,
-            StatistikkHandler( KafkaTemplate(DefaultKafkaProducerFactory(emptyMap())), "")
+        innhentingService = InnhentingService(personService, vedleggService, prefillKlient, pesysService)
+        mockEuxPrefillService = EuxPrefillService(mockEuxKlient, innhentingService,
+            StatistikkHandler( KafkaTemplate(DefaultKafkaProducerFactory(emptyMap())), ""),
+            mockEuxInnhentingService
         )
 
         MockKAnnotations.init(this, relaxed = true)
 
-        val innhentingService = InnhentingService(personService, vedleggService, prefillKlient, pesysService)
         prefillController = PrefillController(
             mockEuxPrefillService,
             mockEuxInnhentingService,
@@ -237,49 +233,6 @@ internal class PrefillControllerTest {
         return X005(xnav = XNav(sak = Navsak(leggtilinstitusjon = Leggtilinstitusjon(institusjon = InstitusjonX005(id = newParticipants.institution, navn = newParticipants.name ?: "" ))))).toJson()
     }
 
-/*    @Test
-    fun `call addInstutionAndDocument mock check on X007 will fail on matching newparticipants with exception`() {
-
-        val euxCaseId = "1234567890"
-        val mockParticipants = listOf(Participant(role = "CaseOwner", organisation = Organisation(countryCode = "SE", name = "SE", id = "SE")))
-        val mockBuc = Buc(id = "23123", processDefinitionName = "P_BUC_01", participants = mockParticipants)
-        mockBuc.documents = listOf(
-            createDummyBucDocumentItem(),
-            DocumentsItem(
-                type = X007, status = "received" ,
-                conversations = listOf(
-                    ConversationsItem(
-                        id = "1",
-                        userMessages =listOf(
-                            UserMessagesItem(
-                                sender = Sender(
-                                    name = "Danish test",
-                                    id = "DK:213231"
-                                )
-                            )
-                        )
-                    )
-                ),
-                direction = "OUT"
-            )
-        )
-        mockBuc.actions = listOf(ActionsItem(operation = ActionOperation.Send))
-
-        val newParticipants = listOf(
-            InstitusjonItem(country = "FI", institution = "FI:213231", name="Finland test"),
-            InstitusjonItem(country = "DK", institution = "DK:213231", name="Tyskland test")
-        )
-
-        every { personService.hentIdent(eq(IdentGruppe.FOLKEREGISTERIDENT), any<AktoerId>()) } returns NorskIdent("12345")
-        every { mockEuxInnhentingService.getBuc(euxCaseId) } returns mockBuc
-
-        assertThrows<ResponseStatusException> {
-            prefillController.addInstutionAndDocument(apiRequestWith(euxCaseId, newParticipants))
-        }
-        verify(exactly = 1 ) { mockEuxInnhentingService.getBuc(any()) }
-
-    }*/
-
     @Test
     fun `call addInstutionAndDocument add newInstitusjonItem on empty buc NAV is caseOwner`() {
         val euxCaseId = "1234567890"
@@ -342,6 +295,7 @@ internal class PrefillControllerTest {
             euxCaseId,
             "5a61468eb8cb4fd78c5c44d75b9bb890"
         )
+        every { mockEuxKlient.getBucJsonAsNavIdent(euxCaseId) } returns jsonDocbuc
 
         val responseresult = prefillController.addInstutionAndDocument(apirequest)
 
@@ -400,6 +354,7 @@ internal class PrefillControllerTest {
         every { mockEuxInnhentingService.getBuc(euxCaseId) } returns mockBuc
         every { prefillKlient.hentPreutfyltSed(any()) } returns sed.toJsonSkipEmpty()
         every { mockEuxPrefillService.opprettSvarJsonSedOnBuc(any(), euxCaseId, parentDocumentId, api.vedtakId, SedType.P9000) } returns BucSedResponse(euxCaseId, "3123123")
+        every { mockEuxKlient.getBucJsonAsNavIdent(euxCaseId) } returns mockBuc.toJson()
 
         val result = prefillController.addDocumentToParent(api, parentDocumentId)
         val expected = """
@@ -432,7 +387,7 @@ internal class PrefillControllerTest {
 
         JSONAssert.assertEquals(expected, result.result?.toJson(), true)
 
-        verify(exactly = 2) { mockEuxInnhentingService.getBuc(any()) }
+        verify(exactly = 1) { mockEuxInnhentingService.getBuc(any()) }
         verify(exactly = 1) { mockEuxPrefillService.opprettSvarJsonSedOnBuc(any(), any(), any(), any(), any()) }
         verify(exactly = 1) { personService.hentIdent(any(), any<AktoerId>()) }
         verify(exactly = 1) { prefillKlient.hentPreutfyltSed(any()) }
@@ -487,7 +442,8 @@ internal class PrefillControllerTest {
         val mockBucJson = javaClass.getResource("/json/buc/buc_P_BUC_06_4.2_tom.json")!!.readText()
         val mockBucJson2 = javaClass.getResource("/json/buc/P_BUC_06_P10000.json")!!.readText()
 
-        every { mockEuxInnhentingService.getBuc(euxCaseId) } returns mapJsonToAny(mockBucJson) andThen mapJsonToAny<Buc>((mockBucJson2))
+//        every { mockEuxInnhentingService.getBuc(euxCaseId) } returns mapJsonToAny(mockBucJson) //andThen mapJsonToAny<Buc>((mockBucJson2))
+        every { mockEuxKlient.getBucJsonAsNavIdent(euxCaseId) } returns mockBucJson
         val newParticipants = listOf(
             InstitusjonItem(country = "FI", institution = "FI:Finland", name="Finland test")
         )
@@ -499,7 +455,7 @@ internal class PrefillControllerTest {
         val result =  prefillController.addInstutionAndDocument(apiRequest)
 
         verify (exactly = 1) { mockEuxPrefillService.opprettJsonSedOnBuc(any(), any(), eq(euxCaseId), apiRequest.vedtakId) }
-        verify (exactly = 2) { mockEuxInnhentingService.getBuc(eq(euxCaseId)) }
+        verify (exactly = 1) { mockEuxInnhentingService.getBuc(eq(euxCaseId)) }
 
         Assertions.assertNotNull(result.result)
         assertEquals(DocumentsItem::class.java, result.result?.javaClass)
