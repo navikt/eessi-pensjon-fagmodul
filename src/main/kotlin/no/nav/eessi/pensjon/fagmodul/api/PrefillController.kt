@@ -74,23 +74,6 @@ class PrefillController(
         return FrontEndResponse(BucAndSedView.from(buc), HttpStatus.OK.name)
     }
 
-    fun createBuc(
-        buctype: String,
-        gjennySak: GjennySak? = null
-    ): FrontEndResponse<BucAndSedView> {
-        auditlogger.log("createBuc")
-        logger.info("Prøver å opprette en ny BUC $buctype i RINA med GjennySakId: ${gjennySak?.sakId} med saktype: ${gjennySak?.sakType}.")
-
-        val sakId = gjennySak?.sakId
-            ?: return FrontEndResponse(result = null, status = HttpStatus.BAD_REQUEST.name, message = "Mangler sakId i GjennySak")
-
-        return createBuc(buctype).also {
-            val caseId = it.result?.caseId
-                ?: return FrontEndResponse(result = null, status = HttpStatus.INTERNAL_SERVER_ERROR.name, message = "Mangler caseId fra opprettet BUC")
-            gcpStorageService.lagreGjennySak(caseId, GjennySak(sakId, gjennySak.sakType))
-        }
-    }
-
     @PostMapping("/sed/add")
     fun addInstutionAndDocument(@RequestBody request: ApiRequest): FrontEndResponse<DocumentsItem?> {
 

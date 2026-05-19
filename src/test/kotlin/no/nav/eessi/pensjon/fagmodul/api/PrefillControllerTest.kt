@@ -116,20 +116,6 @@ internal class PrefillControllerTest {
     }
 
     @Test
-    fun `createBuc med gjennysak run ok and return id`() {
-        val gyldigBuc = javaClass.getResource("/json/buc/buc-279020big.json")!!.readText()
-        val buc : Buc =  mapJsonToAny(gyldigBuc)
-
-        every { mockEuxPrefillService.createdBucForType(P_BUC_03.name) } returns "1231231"
-        every { mockEuxInnhentingService.getBuc(any()) } returns buc
-
-        val expected = FrontEndResponse(BucAndSedView.from(buc), HttpStatus.OK.name)
-        val actual = prefillController.createBuc(P_BUC_03.name, GjennySak("321321", "BARNEP"))
-
-        assertEquals(expected.toJson(), actual.toJson())
-    }
-
-    @Test
     fun `createBuc run ok and does not run statistics in default namespace`() {
         val gyldigBuc = javaClass.getResource("/json/buc/buc-279020big.json")!!.readText()
         val buc : Buc =  mapJsonToAny(gyldigBuc)

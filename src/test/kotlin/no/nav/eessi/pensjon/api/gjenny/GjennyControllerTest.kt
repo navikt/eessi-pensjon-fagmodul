@@ -9,6 +9,7 @@ import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.klient.Rinasak
 import no.nav.eessi.pensjon.eux.model.BucType
 import no.nav.eessi.pensjon.eux.model.BucType.*
+import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.fagmodul.api.PrefillController
 import no.nav.eessi.pensjon.fagmodul.api.SedController
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
@@ -17,6 +18,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucViewKilde.*
 import no.nav.eessi.pensjon.fagmodul.eux.EuxPrefillService
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
+import no.nav.eessi.pensjon.gcp.GjennySak
 import no.nav.eessi.pensjon.kodeverk.KodeverkClient
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
@@ -33,6 +35,7 @@ import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
 import no.nav.eessi.pensjon.personoppslag.pdl.model.PdlPerson
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Sivilstand
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Statsborgerskap
+import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -44,6 +47,7 @@ import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
+import org.springframework.test.web.servlet.post
 import org.springframework.web.client.RestTemplate
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -84,6 +88,9 @@ class GjennyControllerTest {
 
     @Autowired
     private lateinit var mockMvc: MockMvc
+
+    @Autowired
+    private lateinit var euxPrefillService: EuxPrefillService
 
     @Test
     fun `returnerer bucer for avdød`() {
@@ -299,6 +306,29 @@ class GjennyControllerTest {
         val jsonNode = ObjectMapper().readTree(response)
         assertEquals("OK", jsonNode.get("status").asText())
         assertEquals("[\"P_BUC_02\",\"P_BUC_04\",\"P_BUC_05\",\"P_BUC_06\",\"P_BUC_07\",\"P_BUC_08\",\"P_BUC_09\",\"P_BUC_10\"]", jsonNode.get("result").toString())
+    }
+
+    @Test
+    fun `createBuc med gjennysak run ok and return id`() {
+        val gyldigBuc = javaClass.getResource("/json/buc/buc-279020big.json")!!.readText()
+        val buc: Buc = mapJsonToAny(gyldigBuc)
+        val euxCaseId = "1231231"
+
+        every { euxPrefillService.createdBucForType(P_BUC_03.name) } returns euxCaseId
+        every { euxInnhentingService.getBuc(euxCaseId) } returns buc
+
+        val response = mockMvc.post("/gjenny/buc/P_BUC_03") {
+            contentType = MediaType.APPLICATION_JSON
+            content = GjennySak("321321", "BARNEP").toJson()
+        }
+            .andExpect {
+                status { isOk() }
+            }
+            .andReturn().response.contentAsString
+
+        val jsonNode = ObjectMapper().readTree(response)
+        assertEquals("OK", jsonNode.get("status").asText())
+        assertEquals(buc.id, jsonNode.get("result").get("caseId").asText())
     }
 
     fun lagPerson(
