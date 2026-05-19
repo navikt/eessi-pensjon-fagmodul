@@ -119,10 +119,6 @@ class PrefillController(
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Rina Buctype og request buctype må være samme")
         }
 
-        if (request.gjenny){
-            request.euxCaseId?.let {gcpStorageService.lagreGjennySak(request.euxCaseId, GjennySak(request.sakId!!, request.sakType!!)) }
-        }
-
         logger.debug("bucUtil BucType: ${bucUtil.getBuc().processDefinitionName} apiRequest Buc: ${request.buc}")
 
         //AddInstitution
