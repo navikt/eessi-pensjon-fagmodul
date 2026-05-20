@@ -202,17 +202,7 @@ class GjennyController (
                 "gjenny: true"
         )
 
-        if (request.buc == null) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mangler Buc")
-
-        val norskIdent = innhentingService.hentFnrfraAktoerService(request.aktoerId) ?: throw HttpClientErrorException(HttpStatus.BAD_REQUEST)
-        val avdodaktoerID = innhentingService.getAvdodId(BucType.from(request.buc.name)!!, request.riktigAvdod(), true)
-        val dataModel = ApiRequest.buildPrefillDataModelOnExisting(request, PersonInfo(norskIdent.id, request.aktoerId), avdodaktoerID)
-
-        val bucUtil = euxInnhentingService.kanSedOpprettes(dataModel)
-
-        if (bucUtil.getProcessDefinitionName() != request.buc.name) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Rina Buctype og request buctype må være samme")
-        }
+        val (norskIdent, dataModel, bucUtil) = euxPrefillService.buildDataModelOgValider(request, isGjenny = true)
 
         request.euxCaseId?.let { gcpStorageService.lagreGjennySak(request.euxCaseId, GjennySak(request.sakId!!, request.sakType!!)) }
 
