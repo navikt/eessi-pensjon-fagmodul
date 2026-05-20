@@ -90,16 +90,6 @@ class PrefillController(
         )
         if (request.buc == null) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mangler Buc")
 
-//        val norskIdent = innhentingService.hentFnrfraAktoerService(request.aktoerId) ?: throw HttpClientErrorException(HttpStatus.BAD_REQUEST)
-//        val avdodaktoerID = innhentingService.getAvdodId(BucType.from(request.buc.name)!!, request.riktigAvdod(), request.gjenny)
-//        val dataModel = ApiRequest.buildPrefillDataModelOnExisting(request, PersonInfo(norskIdent.id, request.aktoerId), avdodaktoerID)
-//
-//        //Hente metadata for valgt BUC
-//        val bucUtil = euxInnhentingService.kanSedOpprettes(dataModel)
-//
-//        if (bucUtil.getProcessDefinitionName() != request.buc.name) {
-//            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Rina Buctype og request buctype må være samme")
-//        }
         val (norskIdent, dataModel, bucUtil) = euxPrefillService.buildDataModelOgValider(request, false)
 
         logger.debug("bucUtil BucType: ${bucUtil.getBuc().processDefinitionName} apiRequest Buc: ${request.buc}")
