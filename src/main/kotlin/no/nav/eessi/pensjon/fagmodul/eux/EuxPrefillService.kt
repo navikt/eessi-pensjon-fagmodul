@@ -1,6 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
 import no.nav.eessi.pensjon.eux.klient.*
+import no.nav.eessi.pensjon.eux.model.BucType
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.ActionOperation
 import no.nav.eessi.pensjon.eux.model.buc.Buc
@@ -9,16 +10,20 @@ import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.X005
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
+import no.nav.eessi.pensjon.personoppslag.pdl.model.Ident
 import no.nav.eessi.pensjon.services.statistikk.StatistikkHandler
 import no.nav.eessi.pensjon.shared.api.ApiRequest
 import no.nav.eessi.pensjon.shared.api.InstitusjonItem
+import no.nav.eessi.pensjon.shared.api.PersonInfo
 import no.nav.eessi.pensjon.shared.api.PrefillDataModel
+import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.server.ResponseStatusException
 
 @Service
@@ -144,6 +149,26 @@ class EuxPrefillService (private val euxKlient: EuxKlientLib,
             docresult,
             bucUtil.findDocument(docresult.documentId)
         )
+    }
+
+    /**
+     * Felles oppbygging av datamodel og validering av BUC-type.
+     * Brukes av både PrefillController og GjennyController for /sed/add.
+     * Returnerer norskIdent, dataModel og bucUtil klar for videre bruk.
+     */
+    fun buildDataModelOgValider(request: ApiRequest, isGjenny: Boolean): Triple<Ident, PrefillDataModel, BucUtils> {
+        if (request.buc == null) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mangler Buc")
+
+        val norskIdent = innhentingService.hentFnrfraAktoerService(request.aktoerId) ?: throw HttpClientErrorException(HttpStatus.BAD_REQUEST)
+        val avdodaktoerID = innhentingService.getAvdodId(BucType.from(request.buc.name)!!, request.riktigAvdod(), isGjenny)
+        val dataModel = ApiRequest.buildPrefillDataModelOnExisting(request, PersonInfo(norskIdent.id, request.aktoerId), avdodaktoerID)
+
+        val bucUtil = euxInnhentingService.kanSedOpprettes(dataModel)
+        if (bucUtil.getProcessDefinitionName() != request.buc.name) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Rina Buctype og request buctype må være samme")
+        }
+
+        return Triple(norskIdent, dataModel, bucUtil)
     }
 
     fun createdBucForType(buctype: String): String {

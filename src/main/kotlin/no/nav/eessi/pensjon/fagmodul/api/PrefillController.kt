@@ -74,23 +74,6 @@ class PrefillController(
         return FrontEndResponse(BucAndSedView.from(buc), HttpStatus.OK.name)
     }
 
-    fun createBuc(
-        buctype: String,
-        gjennySak: GjennySak? = null
-    ): FrontEndResponse<BucAndSedView> {
-        auditlogger.log("createBuc")
-        logger.info("Prøver å opprette en ny BUC $buctype i RINA med GjennySakId: ${gjennySak?.sakId} med saktype: ${gjennySak?.sakType}.")
-
-        val sakId = gjennySak?.sakId
-            ?: return FrontEndResponse(result = null, status = HttpStatus.BAD_REQUEST.name, message = "Mangler sakId i GjennySak")
-
-        return createBuc(buctype).also {
-            val caseId = it.result?.caseId
-                ?: return FrontEndResponse(result = null, status = HttpStatus.INTERNAL_SERVER_ERROR.name, message = "Mangler caseId fra opprettet BUC")
-            gcpStorageService.lagreGjennySak(caseId, GjennySak(sakId, gjennySak.sakType))
-        }
-    }
-
     @PostMapping("/sed/add")
     fun addInstutionAndDocument(@RequestBody request: ApiRequest): FrontEndResponse<DocumentsItem?> {
 
@@ -105,23 +88,9 @@ class PrefillController(
                 "institusjoner: ${request.institutions} " +
                 "gjenny: ${request.gjenny}"
         )
-
         if (request.buc == null) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mangler Buc")
 
-        val norskIdent = innhentingService.hentFnrfraAktoerService(request.aktoerId) ?: throw HttpClientErrorException(HttpStatus.BAD_REQUEST)
-        val avdodaktoerID = innhentingService.getAvdodId(BucType.from(request.buc.name)!!, request.riktigAvdod(), request.gjenny)
-        val dataModel = ApiRequest.buildPrefillDataModelOnExisting(request, PersonInfo(norskIdent.id, request.aktoerId), avdodaktoerID)
-
-        //Hente metadata for valgt BUC
-        val bucUtil = euxInnhentingService.kanSedOpprettes(dataModel)
-
-        if (bucUtil.getProcessDefinitionName() != request.buc.name) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Rina Buctype og request buctype må være samme")
-        }
-
-        if (request.gjenny){
-            request.euxCaseId?.let {gcpStorageService.lagreGjennySak(request.euxCaseId, GjennySak(request.sakId!!, request.sakType!!)) }
-        }
+        val (norskIdent, dataModel, bucUtil) = euxPrefillService.buildDataModelOgValider(request, false)
 
         logger.debug("bucUtil BucType: ${bucUtil.getBuc().processDefinitionName} apiRequest Buc: ${request.buc}")
 
