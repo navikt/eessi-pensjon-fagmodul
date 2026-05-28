@@ -12,6 +12,7 @@ import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.services.statistikk.StatistikkHandler
+import no.nav.eessi.pensjon.vedlegg.VedleggService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -34,12 +35,13 @@ class EuxPrefillServiceTest {
     private var mockInnhentingService: EuxInnhentingService = mockk(relaxed = true)
 
     var statistikkHandler: StatistikkHandler = mockk()
+    val vedleggService: VedleggService = mockk(relaxed = true)
 
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
         euxPrefillService = EuxPrefillService(euxKlientForSystemUser, innhentingService, statistikkHandler, mockInnhentingService)
-        euxinnhentingService = EuxInnhentingService("q2", euxKlientForSystemUser, gcpStorageService, mockk())
+        euxinnhentingService = EuxInnhentingService("q2", euxKlientForSystemUser, gcpStorageService, mockk(), vedleggService)
     }
 
     @Test
