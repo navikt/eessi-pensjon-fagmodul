@@ -59,6 +59,7 @@ spec:
         - host: eux-rina-api-q2.intern.dev.nav.no
         - host: eessi-pensjon-prefill-q2.intern.dev.nav.no
         - host: eessi-pensjon-journalforing-q2.intern.dev.nav.no
+        - host: eessi-pensjon-pdl-produsent-q2.intern.dev.nav.no
         - host: eessi-pensjon-saksbehandling-api-q2.intern.dev.nav.no
     inbound:
       rules:
@@ -69,6 +70,8 @@ spec:
           namespace: eessipensjon
           cluster: dev-gcp
         - application: eessi-pensjon-saksbehandling-api-q2
+          namespace: eessipensjon
+        - application: eessi-pensjon-pdl-produsent-q2
           namespace: eessipensjon
           cluster: dev-gcp
         - application: eessi-pensjon-journalforing-q2

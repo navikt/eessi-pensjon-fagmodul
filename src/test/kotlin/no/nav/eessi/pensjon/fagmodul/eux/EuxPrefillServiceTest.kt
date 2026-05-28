@@ -3,11 +3,13 @@ package no.nav.eessi.pensjon.fagmodul.eux
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.impl.annotations.SpyK
 import io.mockk.justRun
 import io.mockk.mockk
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.model.SedType.P2000
 import no.nav.eessi.pensjon.eux.model.sed.SED
+import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.services.statistikk.StatistikkHandler
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -26,13 +28,18 @@ class EuxPrefillServiceTest {
     @MockK
     private lateinit var gcpStorageService: GcpStorageService
 
+    @MockK
+    private lateinit var innhentingService: InnhentingService
+
+    private var mockInnhentingService: EuxInnhentingService = mockk(relaxed = true)
+
     var statistikkHandler: StatistikkHandler = mockk()
 
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
-        euxPrefillService = EuxPrefillService(euxKlientForSystemUser, statistikkHandler)
-        euxinnhentingService = EuxInnhentingService("q2", euxKlientForSystemUser, gcpStorageService, mockk(), mockk(relaxed = true))
+        euxPrefillService = EuxPrefillService(euxKlientForSystemUser, innhentingService, statistikkHandler, mockInnhentingService)
+        euxinnhentingService = EuxInnhentingService("q2", euxKlientForSystemUser, gcpStorageService, mockk())
     }
 
     @Test

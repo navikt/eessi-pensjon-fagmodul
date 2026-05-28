@@ -1,5 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
+import no.nav.eessi.pensjon.eux.klient.BucSedResponse
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.klient.EuxKlientLib.*
 import no.nav.eessi.pensjon.eux.klient.ForbiddenException
@@ -123,6 +124,21 @@ class EuxInnhentingService(
         } catch (ex: Exception) {
             logger.error("Feiler ved mapping av kravSED. Rina: $euxCaseId, documentid: $documentId")
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Feiler ved mapping av kravSED. Rina: $euxCaseId, documentid: $documentId, $ex")
+        }
+    }
+
+    fun getBucForPBuc06AndForEmptySed(
+        bucType: BucType,
+        bucDocuments: List<DocumentsItem>?,
+        bucSedResponse: BucSedResponse,
+        original: DocumentsItem?
+    ): DocumentsItem? {
+        logger.info("Henter BUC på nytt for buctype: $bucType, inkl. ${bucDocuments?.size} SED")
+        Thread.sleep(900)
+        return if (bucType == P_BUC_06 || original == null && bucDocuments.isNullOrEmpty()) {
+            BucUtils(getBuc(bucSedResponse.caseId)).findDocument(bucSedResponse.documentId)
+        } else {
+            original
         }
     }
 

@@ -1,5 +1,6 @@
 package no.nav.eessi.pensjon.integrationtest.sed
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import com.ninjasquad.springmockk.MockkBeans
 import io.mockk.every
@@ -79,7 +80,7 @@ class UpdateSedOnBucIntegrationTest {
             .andReturn()
         val response = result.response.getContentAsString(charset("UTF-8"))
 
-        assertEquals(true, response.toBoolean())
+        assertEquals(true, ObjectMapper().readTree(response).get("result").asBoolean())
 
    }
 
@@ -124,7 +125,7 @@ class UpdateSedOnBucIntegrationTest {
             .andReturn()
         val response = result.response.getContentAsString(charset("UTF-8"))
 
-        assertEquals(true, response.toBoolean())
+        assertEquals(true, ObjectMapper().readTree(response).get("result").asBoolean())
     }
 
     @Test
@@ -145,7 +146,7 @@ class UpdateSedOnBucIntegrationTest {
             .andReturn()
         val response = result.response.getContentAsString(charset("UTF-8"))
 
-        assertEquals(true, response.toBoolean())
+        assertEquals(true, ObjectMapper().readTree(response).get("result").asBoolean())
     }
 
     @Test

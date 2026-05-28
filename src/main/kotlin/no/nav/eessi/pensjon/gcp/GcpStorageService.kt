@@ -123,11 +123,11 @@ class GcpStorageService(
     }
 
     private fun eksisterer(storageKey:String, bucketNavn: String): Boolean {
-        logger.debug("sjekker om $storageKey finnes i bucket: $bucketNavn")
 
         kotlin.runCatching {
             gcpStorage.get(BlobId.of(bucketNavn, storageKey)).exists()
         }.onFailure {
+            logger.warn("$storageKey finnes ikke i bucket: $bucketNavn")
             return false
         }.onSuccess {
             return true

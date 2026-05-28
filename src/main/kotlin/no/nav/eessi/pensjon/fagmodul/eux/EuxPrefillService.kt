@@ -1,24 +1,36 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
 import no.nav.eessi.pensjon.eux.klient.*
+import no.nav.eessi.pensjon.eux.model.BucType
 import no.nav.eessi.pensjon.eux.model.SedType
+import no.nav.eessi.pensjon.eux.model.buc.ActionOperation
 import no.nav.eessi.pensjon.eux.model.buc.Buc
+import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.X005
 import no.nav.eessi.pensjon.metrics.MetricsHelper
+import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
+import no.nav.eessi.pensjon.personoppslag.pdl.model.Ident
 import no.nav.eessi.pensjon.services.statistikk.StatistikkHandler
+import no.nav.eessi.pensjon.shared.api.ApiRequest
 import no.nav.eessi.pensjon.shared.api.InstitusjonItem
+import no.nav.eessi.pensjon.shared.api.PersonInfo
 import no.nav.eessi.pensjon.shared.api.PrefillDataModel
+import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
+import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.server.ResponseStatusException
 
 @Service
 class EuxPrefillService (private val euxKlient: EuxKlientLib,
+                         private val innhentingService: InnhentingService,
                          private val statistikk: StatistikkHandler,
+                         private val euxInnhentingService: EuxInnhentingService,
                          @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()) {
     private val logger = LoggerFactory.getLogger(EuxPrefillService::class.java)
 
@@ -65,6 +77,98 @@ class EuxPrefillService (private val euxKlient: EuxKlientLib,
     fun addInstitution(euxCaseID: String, nyeInstitusjoner: List<String>) {
         logger.info("Legger til Deltakere/Institusjon på vanlig måte, ny Buc")
         putMottaker.measure { euxKlient.putBucMottakere(euxCaseID, nyeInstitusjoner) }
+    }
+
+    fun addInstitution(request: ApiRequest, dataModel: PrefillDataModel, bucUtil: BucUtils) {
+        logger.info("*** Sjekker og legger til Instiusjoner på BUC eller X005 ***")
+        val nyeInstitusjoner = bucUtil.findNewParticipants(dataModel.getInstitutionsList())
+        val x005docs = bucUtil.findX005DocumentByTypeAndStatus()
+
+        if (nyeInstitusjoner.isNotEmpty()) {
+            logger.info(
+                """
+                eksiterendeInstiusjoner: ${bucUtil.getParticipantsAsInstitusjonItem().toJson()}
+                nyeInstitusjoner: ${nyeInstitusjoner.toJson()}
+                """.trimIndent()
+            )
+
+            if (x005docs.isEmpty()) {
+                checkAndAddInstitution(dataModel, bucUtil, emptyList(), nyeInstitusjoner)
+            } else if (x005docs.firstOrNull { it.status == "empty" } != null) {
+                val x005Liste = nyeInstitusjoner.map { nyInstitusjon ->
+                    logger.debug("Prefiller X005, legger til Institusjon på X005 ${nyInstitusjon.institution}")
+                    val x005request = request.copy(avdodfnr = null, sed = SedType.X005, institutions = listOf(nyInstitusjon))
+                    mapJsonToAny<X005>(
+                        innhentingService.hentPreutyltSed(
+                            x005request,
+                            bucUtil.getProcessDefinitionVersion()
+                        )
+                    )
+                }
+                checkAndAddInstitution(dataModel, bucUtil, x005Liste, nyeInstitusjoner)
+            } else if (!bucUtil.isValidSedtypeOperation(SedType.X005, ActionOperation.Create)) {
+                // no-op
+            }
+        }
+    }
+
+    fun opprettSedOgHentDocumentItem(
+        sed: String,
+        request: ApiRequest,
+        dataModel: PrefillDataModel,
+        bucUtil: BucUtils
+    ): DocumentsItem? {
+        logger.info("******* Legge til ny SED - start *******")
+        val sedType = SedType.from(request.sed?.name!!)!!
+        logger.info("Prøver å sende SED: $sedType inn på BUC: ${dataModel.euxCaseID}")
+
+        val bucAndSedResponse = opprettJsonSedOnBuc(sed, sedType, dataModel.euxCaseID, request.vedtakId)
+        logger.info("Opprettet ny SED med dokumentId: ${bucAndSedResponse.documentId}")
+
+        val sedDocument = bucUtil.findDocument(bucAndSedResponse.documentId)
+        sedDocument?.message = dataModel.melding
+        logger.info("Har documentItem ${sedDocument?.id}")
+
+        val documentItem = euxInnhentingService.getBucForPBuc06AndForEmptySed(
+            dataModel.buc, bucUtil.getBuc().documents, bucAndSedResponse, sedDocument
+        )
+        logger.info("******* Legge til ny SED - slutt *******")
+        return documentItem
+    }
+
+    fun opprettSvarSedOgHentDocumentItem(
+        sed: String,
+        dataModel: PrefillDataModel,
+        parentId: String,
+        bucUtil: BucUtils
+    ): DocumentsItem? {
+        val docresult = opprettSvarJsonSedOnBuc(sed, dataModel.euxCaseID, parentId, dataModel.vedtakId, dataModel.sedType)
+        return euxInnhentingService.getBucForPBuc06AndForEmptySed(
+            dataModel.buc,
+            bucUtil.getBuc().documents,
+            docresult,
+            bucUtil.findDocument(docresult.documentId)
+        )
+    }
+
+    /**
+     * Felles oppbygging av datamodel og validering av BUC-type.
+     * Brukes av både PrefillController og GjennyController for /sed/add.
+     * Returnerer norskIdent, dataModel og bucUtil klar for videre bruk.
+     */
+    fun buildDataModelOgValider(request: ApiRequest, isGjenny: Boolean): Triple<Ident, PrefillDataModel, BucUtils> {
+        if (request.buc == null) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mangler Buc")
+
+        val norskIdent = innhentingService.hentFnrfraAktoerService(request.aktoerId) ?: throw HttpClientErrorException(HttpStatus.BAD_REQUEST)
+        val avdodaktoerID = innhentingService.getAvdodId(BucType.from(request.buc.name)!!, request.riktigAvdod(), isGjenny)
+        val dataModel = ApiRequest.buildPrefillDataModelOnExisting(request, PersonInfo(norskIdent.id, request.aktoerId), avdodaktoerID)
+
+        val bucUtil = euxInnhentingService.kanSedOpprettes(dataModel)
+        if (bucUtil.getProcessDefinitionName() != request.buc.name) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Rina Buctype og request buctype må være samme")
+        }
+
+        return Triple(norskIdent, dataModel, bucUtil)
     }
 
     fun createdBucForType(buctype: String): String {
