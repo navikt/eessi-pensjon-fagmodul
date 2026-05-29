@@ -155,31 +155,30 @@ class EuxInnhentingService(
     fun getSingleBucAndSedViewMedMetadata(euxCaseId: String, aktorId: String): BucAndSedView {
         return try {
             val bucAndSedView = BucAndSedView.from(getBuc(euxCaseId))
+            val tittelOgVedlegg = vedleggService.hentTittelOgFilstoerrelseForBucid(aktorId, euxCaseId)
+                .also { logger.info("Hentet tittelOgVedlegg: $it") }
 
-            // Henter alle sed og str fra jorak som matcher på bucID
-            val tittelOgVedlegg = vedleggService.hentTittelOgFilstoerrelseForBucid(aktorId, euxCaseId).also { logger.info("Hentet tittelOgVedlegg: $it") }
-
-            // Henter kun ut størrelse for de SEDene som finnes i BUC, og matcher på SED ID
             bucAndSedView.seds?.forEach { sed ->
-                val size = tittelOgVedlegg.firstOrNull { (sedIdJP, _) -> sedIdJP == sed.id }?.second
-                size?.let {
-                    val docInfos = mapJsonToAny<List<DokumentInfo>>(size)
-                    sed.attachments?.forEach { attachment ->
-                        val matchingDoc = docInfos.firstOrNull { docInfo ->
-                            docInfo.filnavn.equals(attachment.fileName, ignoreCase = true) || docInfo.filnavn.contains(attachment.fileName ?: "", ignoreCase = true) || (attachment.fileName?.contains(docInfo.filnavn, ignoreCase = true) == true)
-                        }
-                        if (matchingDoc != null) {
-                            attachment.filesize = matchingDoc.storrelse
-                        }
-                    }
+                val docInfoJson = tittelOgVedlegg.firstOrNull { it.first == sed.id }?.second ?: return@forEach
+                val docInfos = mapJsonToAny<List<DokumentInfo>>(docInfoJson)
+
+                sed.attachments?.forEach { attachment ->
+                    docInfos.firstOrNull { it.matcherFilnavn(attachment.fileName) }
+                        ?.let { attachment.filesize = it.storrelse }
                 }
             }
             bucAndSedView
-
         } catch (ex: Exception) {
             logger.error("Feiler ved utlevering av enkel bucandsedview ${ex.message}", ex)
             BucAndSedView.fromErr(ex.message)
         }
+    }
+
+    private fun DokumentInfo.matcherFilnavn(fileName: String?): Boolean {
+        if (fileName == null) return false
+        return filnavn.equals(fileName, ignoreCase = true) ||
+               filnavn.contains(fileName, ignoreCase = true) ||
+               fileName.contains(filnavn, ignoreCase = true)
     }
 
     fun getBucAndSedViewWithBuc(bucs: List<Buc>, gjenlevndeFnr: String, avdodFnr: String): List<BucAndSedView> {
