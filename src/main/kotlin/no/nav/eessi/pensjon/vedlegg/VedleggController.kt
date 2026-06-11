@@ -36,6 +36,16 @@ class VedleggController(private val vedleggService: VedleggService,
         }
     }
 
+    @GetMapping("/metadata/filstorrelse/{aktoerId}")
+    fun hentFilInfoFraMeta(@PathVariable("aktoerId", required = true) aktoerId: String): ResponseEntity<String> {
+        auditlogger.log("hentDokumentMetadata", aktoerId)
+        return vedleggControllerMetadata.measure {
+            logger.info("Henter metadata for dokumenter i SAF for aktørid: $aktoerId")
+            ResponseEntity.ok().body(vedleggService.hentDokumentMetadata(aktoerId).toJson())
+        }
+    }
+
+
     @GetMapping("/rinaiderframetadata/{aktoerId}")
     fun hentRinaIderFraMetadata(@PathVariable("aktoerId", required = true) aktoerId: String) =vedleggService.hentRinaSakIderFraMetaData(aktoerId)
 

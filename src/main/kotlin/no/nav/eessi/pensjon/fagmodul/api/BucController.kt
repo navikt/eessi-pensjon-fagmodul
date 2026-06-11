@@ -17,6 +17,7 @@ import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 
@@ -64,12 +65,31 @@ class BucController(
         }
 
     @GetMapping("/enkeldetalj/{euxcaseid}")
-    fun hentSingleBucAndSedView(@PathVariable("euxcaseid") euxcaseid: String): FrontEndResponse<BucAndSedView> =
-        bucDetaljerEnkel.measure {
+    fun hentSingleBucAndSedView(@PathVariable("euxcaseid") euxcaseid: String): FrontEndResponse<BucAndSedView> {
+        val start = System.currentTimeMillis()
+        val response = bucDetaljerEnkel.measure {
             auditlogger.log("hentSingleBucAndSedView")
             logger.debug(" prøver å hente ut en enkel buc med euxCaseId: $euxcaseid")
-            return@measure FrontEndResponse(euxInnhentingService.getSingleBucAndSedView(euxcaseid), HttpStatus.OK.name)
+            FrontEndResponse(euxInnhentingService.getSingleBucAndSedView(euxcaseid), HttpStatus.OK.name)
         }
+        logger.info("hentSingleBucAndSedView brukte ${System.currentTimeMillis() - start} ms")
+        return response
+    }
+
+    @GetMapping("/{bucId}/metadata/{aktoerId}")
+    fun hentBucMedMetadata(
+        @PathVariable(required = true) bucId: String,
+        @PathVariable(required = true) aktoerId: String,
+    ): FrontEndResponse<BucAndSedView> {
+        val start = System.currentTimeMillis()
+        val response = bucDetaljerEnkel.measure {
+            auditlogger.log("hentSingleBucAndSedView")
+            logger.debug(" prøver å hente ut en enkel buc med euxCaseId: $bucId")
+            FrontEndResponse(euxInnhentingService.getSingleBucAndSedViewMedMetadata(bucId, aktoerId), HttpStatus.OK.name)
+        }
+        logger.info("hentSingleBucAndSedViewMedMetadata brukte ${System.currentTimeMillis() - start} ms")
+        return response
+    }
 
     @Deprecated("Utgår til fordel for hentBucerMedJournalforteSeder og getRinasakerFraRina")
     @GetMapping("/rinasaker/{aktoerId}/saknr/{saknr}")

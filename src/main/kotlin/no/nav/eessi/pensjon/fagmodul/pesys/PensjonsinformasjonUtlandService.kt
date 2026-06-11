@@ -105,7 +105,7 @@ class PensjonsinformasjonUtlandService(
                 logger.error(" OBS OBS; Her kommer det inn mer enn 1 innvilget pensjon fra Norge")
                 secureLog.info("Hopper over innvilget pensjon P6000: $p6000")
             } else {
-                logger.info("@Legger til innvilget pensjon fra land: ${p6000.avsender?.land}")
+                logger.info("Legger til innvilget pensjon fra land: ${p6000.avsender?.land}")
                 retList.add(
                     InnvilgetPensjon(
                         institusjon = listOf(eessiInstitusjoner(p6000)),
@@ -252,6 +252,7 @@ class PensjonsinformasjonUtlandService(
         return try {
             foedselsdato?.let { LocalDate.parse(it) }
         } catch (ex: Exception) {
+            logger.warn("Feil ved parsing av dato: $foedselsdato, setter dato til null", ex)
             null
         }
     }

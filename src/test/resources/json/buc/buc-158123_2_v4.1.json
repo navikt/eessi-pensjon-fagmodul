@@ -2392,7 +2392,7 @@
       "ParentType": "P6000"
     },
     {
-      "id": "52c08e4129da4120b9b982142c272a61",
+      "id": "3b82e3d56f304ca0ac05c1ce626d9472",
       "name": null,
       "mimeType": "json",
       "lastUpdate": 1558360875571,
@@ -2507,7 +2507,18 @@
       "DMProcessId": null,
       "tags": null,
       "comments": [],
-      "attachments": null,
+      "attachments": [
+            {
+            "id": "1",
+            "fileName": "Attachment1",
+            "mimeType": "pdf"
+            },
+          {
+            "id": "2",
+            "fileName": "Attachment2",
+            "mimeType": "pdf"
+          }
+      ],
       "conversations": [
         {
           "id": "ab9d244573374560a8ddc3b30d9612e3",
