@@ -43,14 +43,12 @@ class VedleggService(private val safClient: SafClient,
             }.flatMap { journalpost ->
                 journalpost.dokumenter.flatMap { dokument ->
                     dokument.dokumentvarianter.mapNotNull { variant ->
-                        val sedId = journalpost.tilleggsopplysninger.find { it["nokkel"] == "eessi_pensjon_sedid" }
-                            ?.get("verdi") ?: return@mapNotNull null
-                        val tittelOgStr = journalpost.tilleggsopplysninger.find { it["nokkel"] == "eessi_pensjon_dokStr" }
-                            ?.get("verdi")
+                        val sedId = journalpost.tilleggsopplysninger.find { it["nokkel"] == "eessi_pensjon_sedid" }?.get("verdi") ?: return@mapNotNull null
+                        val storrelse = journalpost.tilleggsopplysninger.find { it["nokkel"] == "eessi_pensjon_dokStr" }?.get("verdi")
                         val sedStr = variant.filstoerrelse
 
-                        logger.debug("Filstørrelse fra joark: $sedStr, mot str fra JF")
-                        Pair(sedId, tittelOgStr)
+                        logger.debug("Filstørrelse fra joark: $sedStr, mot str fra JF: $storrelse")
+                        Pair(sedId, storrelse)
                     }
                 }
             }

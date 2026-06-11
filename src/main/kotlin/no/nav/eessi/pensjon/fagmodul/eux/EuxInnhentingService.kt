@@ -44,8 +44,6 @@ import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.server.ResponseStatusException
 import java.io.IOException
-import java.time.Instant
-import java.time.ZoneId
 
 @Service
 class EuxInnhentingService(
@@ -150,22 +148,23 @@ class EuxInnhentingService(
             BucAndSedView.fromErr(ex.message)
         }
     }
-    data class DokumentInfo(val filnavn: String, val storrelse: String)
+    data class DokumentInfo(val sedId: String, val storrelse: String)
 
     fun getSingleBucAndSedViewMedMetadata(euxCaseId: String, aktorId: String): BucAndSedView {
         return try {
             val bucAndSedView = BucAndSedView.from(getBuc(euxCaseId))
-            val tittelOgVedlegg = vedleggService.hentTittelOgFilstoerrelseForBucid(aktorId, euxCaseId)
+            val listSedIdOgStr = vedleggService.hentTittelOgFilstoerrelseForBucid(aktorId, euxCaseId)
                 .also { logger.info("Hentet tittelOgVedlegg: $it") }
 
             bucAndSedView.seds?.forEach { sed ->
-                val docInfoJson = tittelOgVedlegg.firstOrNull { it.first == sed.id }?.second ?: return@forEach
-                val docInfos = mapJsonToAny<List<DokumentInfo>>(docInfoJson)
-
-                sed.attachments?.forEach { attachment ->
-                    docInfos.firstOrNull { it.matcherFilnavn(attachment.fileName) }
-                        ?.let { attachment.filesize = it.storrelse }
-                }
+                val docInfoJson = listSedIdOgStr.firstOrNull { it.first == sed.id }?.second ?: return@forEach
+//                val docInfos = mapJsonToAny<DokumentInfo>(docInfoJson)
+//                println(docInfos)
+//                return null
+//                sed.attachments?.forEach { attachment ->
+//                    docInfos.firstOrNull { it.matcherFilnavn(attachment.fileName) }
+//                        ?.let { attachment.filesize = it.storrelse }
+//                }
             }
             bucAndSedView
         } catch (ex: Exception) {
@@ -174,12 +173,12 @@ class EuxInnhentingService(
         }
     }
 
-    private fun DokumentInfo.matcherFilnavn(fileName: String?): Boolean {
-        if (fileName == null) return false
-        return filnavn.equals(fileName, ignoreCase = true) ||
-               filnavn.contains(fileName, ignoreCase = true) ||
-               fileName.contains(filnavn, ignoreCase = true)
-    }
+//    private fun DokumentInfo.matcherFilnavn(fileName: String?): Boolean {
+//        if (fileName == null) return false
+//        return filnavn.equals(fileName, ignoreCase = true) ||
+//               filnavn.contains(fileName, ignoreCase = true) ||
+//               fileName.contains(filnavn, ignoreCase = true)
+//    }
 
     fun getBucAndSedViewWithBuc(bucs: List<Buc>, gjenlevndeFnr: String, avdodFnr: String): List<BucAndSedView> {
         return bucs

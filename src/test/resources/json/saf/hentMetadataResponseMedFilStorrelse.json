@@ -14,7 +14,7 @@
             },
             {
               "nokkel": "eessi_pensjon_dokStr",
-              "verdi" : "[ {\n  \"filnavn\" : \"Attachment1\",\n  \"storrelse\" : \"0.05\"\n}, {\n  \"filnavn\" : \"Attachment2\",\n  \"storrelse\" : \"0.07\"\n} ]"
+              "verdi" : "0.5"
             }
           ],
           "journalpostId": "454066088",
