@@ -110,7 +110,7 @@ class RestTemplateConfig(
     private fun restTemplate(url: String, tokenIntercetor: ClientHttpRequestInterceptor, defaultErrorHandler: ResponseErrorHandler = DefaultResponseErrorHandler()) : RestTemplate {
         logger.info("init restTemplate: $url")
         return RestTemplateBuilder()
-            .rootUri(url)
+            .baseUri(url)
             .errorHandler(defaultErrorHandler)
             .readTimeout(Duration.ofSeconds(120))
             .connectTimeout(Duration.ofSeconds(120))
