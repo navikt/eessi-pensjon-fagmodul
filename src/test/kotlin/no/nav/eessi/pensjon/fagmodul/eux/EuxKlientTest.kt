@@ -162,7 +162,7 @@ class EuxKlientTest {
 
     @Test
     fun `Calling EuxService feiler med en UNPROCESSABLE ENTITY Exception fra kall til hentbuc`() {
-        server.expect(requestTo(containsString("/buc/P_BUC_99"))).andRespond( withStatus(HttpStatus.UNPROCESSABLE_ENTITY))
+        server.expect(requestTo(containsString("/buc/P_BUC_99"))).andRespond( withStatus(HttpStatus.UNPROCESSABLE_CONTENT))
 
         val exception = assertThrows<GenericUnprocessableEntity> {
             euxKlient.getBucJsonAsNavIdent(P_BUC_99 )
@@ -182,7 +182,7 @@ class EuxKlientTest {
 
     @Test
     fun `Euxservice kaster en IO_EXCEPTION ved kall til getBuc`() {
-        server.expect(requestTo(containsString("/buc/P_BUC_99"))).andRespond(withStatus(HttpStatus.I_AM_A_TEAPOT))
+        server.expect(requestTo(containsString("/buc/P_BUC_99"))).andRespond(withStatus(HttpStatus.CONTENT_TOO_LARGE))
 
         val exception = assertThrows<GenericUnprocessableEntity> {
             euxKlient.getBucJsonAsNavIdent(P_BUC_99 )

@@ -97,7 +97,7 @@ class PesysService(
             annenAvdod == null && avdodFar == null && avdodMor == null -> null
             else -> {
                 logger.error("Ukjent feil ved henting av buc detaljer for gjenlevende")
-                throw ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Ukjent feil ved henting av buc detaljer for gjenlevende")
+                throw ResponseStatusException(HttpStatus.UNPROCESSABLE_CONTENT, "Ukjent feil ved henting av buc detaljer for gjenlevende")
             }
         }
     }
