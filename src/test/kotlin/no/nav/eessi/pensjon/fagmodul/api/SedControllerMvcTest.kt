@@ -9,6 +9,7 @@ import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.logging.AuditLogger
+import no.nav.eessi.pensjon.vedlegg.VedleggService
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -31,8 +32,9 @@ import org.springframework.web.client.RestTemplate
     MockkBean(name = "euxKlient", classes = [EuxKlientAsSystemUser::class], relaxed = true),
     MockkBean(name = "prefillController", classes = [PrefillController::class], relaxed = true),
     MockkBean(name = "euxNavIdentRestTemplateV2", classes = [RestTemplate::class]),
-    MockkBean(name = "gcpStorageService", classes = [GcpStorageService::class], relaxed = true)
-)
+    MockkBean(name = "gcpStorageService", classes = [GcpStorageService::class], relaxed = true),
+    MockkBean(name = "vedleggService", classes = [VedleggService::class], relaxed = true),
+    )
 class SedControllerMvcTest {
 
     @SpykBean

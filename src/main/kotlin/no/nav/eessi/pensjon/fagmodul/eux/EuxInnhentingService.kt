@@ -2,7 +2,6 @@ package no.nav.eessi.pensjon.fagmodul.eux
 
 import no.nav.eessi.pensjon.eux.klient.BucSedResponse
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
-import no.nav.eessi.pensjon.eux.klient.EuxKlientLib
 import no.nav.eessi.pensjon.eux.klient.EuxKlientLib.*
 import no.nav.eessi.pensjon.eux.klient.ForbiddenException
 import no.nav.eessi.pensjon.eux.klient.Rinasak
@@ -18,7 +17,6 @@ import no.nav.eessi.pensjon.eux.model.buc.PreviewPdf
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.X009
-import no.nav.eessi.pensjon.fagmodul.api.FrontEndResponse
 import no.nav.eessi.pensjon.fagmodul.config.INSTITUTION_CACHE
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.metrics.MetricsHelper
@@ -29,6 +27,7 @@ import no.nav.eessi.pensjon.utils.mapAnyToJson
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
+import no.nav.eessi.pensjon.vedlegg.VedleggService
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -52,6 +51,7 @@ class EuxInnhentingService(
     private val euxKlient: EuxKlientAsSystemUser,
     private val gcpService: GcpStorageService,
     private val euxNavIdentRestTemplateV2: RestTemplate,
+    private val vedleggService: VedleggService,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
 
@@ -148,6 +148,37 @@ class EuxInnhentingService(
             BucAndSedView.fromErr(ex.message)
         }
     }
+    data class DokumentInfo(val sedId: String, val storrelse: String)
+
+    fun getSingleBucAndSedViewMedMetadata(euxCaseId: String, aktorId: String): BucAndSedView {
+        return try {
+            val bucAndSedView = BucAndSedView.from(getBuc(euxCaseId))
+            val listSedIdOgStr = vedleggService.hentTittelOgFilstoerrelseForBucid(aktorId, euxCaseId)
+                .also { logger.info("Hentet tittelOgVedlegg: $it") }
+
+            bucAndSedView.seds?.forEach { sed ->
+                val docInfoJson = listSedIdOgStr.firstOrNull { it.first == sed.id }?.second ?: return@forEach
+//                val docInfos = mapJsonToAny<DokumentInfo>(docInfoJson)
+//                println(docInfos)
+//                return null
+//                sed.attachments?.forEach { attachment ->
+//                    docInfos.firstOrNull { it.matcherFilnavn(attachment.fileName) }
+//                        ?.let { attachment.filesize = it.storrelse }
+//                }
+            }
+            bucAndSedView
+        } catch (ex: Exception) {
+            logger.error("Feiler ved utlevering av enkel bucandsedview ${ex.message}", ex)
+            BucAndSedView.fromErr(ex.message)
+        }
+    }
+
+//    private fun DokumentInfo.matcherFilnavn(fileName: String?): Boolean {
+//        if (fileName == null) return false
+//        return filnavn.equals(fileName, ignoreCase = true) ||
+//               filnavn.contains(fileName, ignoreCase = true) ||
+//               fileName.contains(filnavn, ignoreCase = true)
+//    }
 
     fun getBucAndSedViewWithBuc(bucs: List<Buc>, gjenlevndeFnr: String, avdodFnr: String): List<BucAndSedView> {
         return bucs

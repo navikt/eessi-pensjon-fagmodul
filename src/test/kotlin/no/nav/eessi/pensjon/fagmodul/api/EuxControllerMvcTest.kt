@@ -10,6 +10,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.shared.api.InstitusjonItem
 import no.nav.eessi.pensjon.utils.toJson
+import no.nav.eessi.pensjon.vedlegg.VedleggService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -36,7 +37,8 @@ import org.springframework.web.client.RestTemplate
     MockkBean(name = "prefillController", classes = [PrefillController::class], relaxed = true),
     MockkBean(name = "gcpStorageService", classes = [GcpStorageService::class], relaxed = true),
     MockkBean(name = "euxNavIdentRestTemplateV2", classes = [RestTemplate::class]),
-    MockkBean(name = "sedController", classes = [SedController::class], relaxed = true)
+    MockkBean(name = "sedController", classes = [SedController::class], relaxed = true),
+    MockkBean(name = "vedleggService", classes = [VedleggService::class], relaxed = true),
     )
 class EuxControllerMvcTest {
 

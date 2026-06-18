@@ -34,6 +34,26 @@ class VedleggService(private val safClient: SafClient,
         return safClient.hentDokumentMetadata(aktoerId)
     }
 
+    fun hentTittelOgFilstoerrelseForBucid(aktoerId: String, bucid: String): List<Pair<String?, String?>> {
+        val metadata = hentDokumentMetadata(aktoerId)
+        return metadata.data.dokumentoversiktBruker.journalposter.filter { journalpost ->
+                journalpost.tilleggsopplysninger.any {
+                    it["nokkel"] == "eessi_pensjon_bucid" && it["verdi"] == bucid
+                }
+            }.flatMap { journalpost ->
+                journalpost.dokumenter.flatMap { dokument ->
+                    dokument.dokumentvarianter.mapNotNull { variant ->
+                        val sedId = journalpost.tilleggsopplysninger.find { it["nokkel"] == "eessi_pensjon_sedid" }?.get("verdi") ?: return@mapNotNull null
+                        val storrelse = journalpost.tilleggsopplysninger.find { it["nokkel"] == "eessi_pensjon_dokStr" }?.get("verdi")
+                        val sedStr = variant.filstoerrelse
+
+                        logger.debug("Filstørrelse fra joark: $sedStr, mot str fra JF: $storrelse")
+                        Pair(sedId, storrelse)
+                    }
+                }
+            }
+    }
+
     fun hentDokumentMetadata(aktoerId: String,
                              journalpostId : String,
                              dokumentInfoId: String) : Dokument? {
