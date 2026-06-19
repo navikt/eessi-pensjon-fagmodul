@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDate
 
@@ -793,12 +794,13 @@ class BucUtilsTest {
               "message" : null,
               "name" : null,
               "mimeType" : null,
-              "creator" : null
+              "creator" : null,
+              "attachmentsSize" : null      
             }
         """.trimIndent()
 
         assertNull(bucUtils.filterOutReceiveDateOnOut("OUT", 1567178490000))
-        assertEquals(expected, actual)
+        JSONAssert.assertEquals(expected, actual, true)
     }
 
     @Test
@@ -830,7 +832,8 @@ class BucUtilsTest {
               "message" : null,
               "name" : null,
               "mimeType" : null,
-              "creator" : null
+              "creator" : null,
+              "attachmentsSize" : null
             }
         """.trimIndent()
 

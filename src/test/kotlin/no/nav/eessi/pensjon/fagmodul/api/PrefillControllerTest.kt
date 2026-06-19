@@ -360,7 +360,8 @@ internal class PrefillControllerTest {
           "message" : null,
           "name" : null,
           "mimeType" : null,
-          "creator" : null
+          "creator" : null,
+          "attachmentsSize" : null
         }
         """.trimIndent()
 
