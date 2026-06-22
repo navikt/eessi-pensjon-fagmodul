@@ -53,6 +53,9 @@ class InnhentingService(
 
     //Hjelpe funksjon for å validere og hente aktoerid for evt. avdodfnr fra UI (P2100) - PDL
     fun getAvdodId(bucType: BucType, avdodIdent: String?, gjenny: Boolean): String? {
+
+        if(avdodIdent?.isBlank() == true && bucType == BucType.P_BUC_02) return null
+
         if (avdodIdent?.isBlank() == true) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ident har tom input-verdi")
 
         val fnrEllerNpid = Fodselsnummer.fra(avdodIdent)
