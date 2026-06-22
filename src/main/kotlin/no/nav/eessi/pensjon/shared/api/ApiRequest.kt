@@ -119,6 +119,10 @@ data class ApiRequest(
                 if (request.gjenny) {
                     return null
                 }
+                if (request.buc == P_BUC_02 && request.sed == SedType.P2100) {
+                    return null
+                }
+
                 throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mangler fnr for avdød")
             }
             request.riktigAvdod() ?: return null
