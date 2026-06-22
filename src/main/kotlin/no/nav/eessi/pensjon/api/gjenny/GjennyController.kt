@@ -119,7 +119,7 @@ class GjennyController (
         @PathVariable("aktoerId", required = true) aktoerId: String,
         @PathVariable("avdodfnr", required = true) avdodfnr: String,
     ): FrontEndResponse<List<BucView>> {
-        logger.info("henter rinasaker for gjenlevende med aktoerid: $aktoerId")
+        secureLog.info("henter rinasaker for gjenlevende med aktoerid: $aktoerId")
 
         val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerId)
         val avdodAktoerId = personService.hentPerson(NorskIdent(avdodfnr))?.identer?.firstOrNull { it.gruppe == IdentGruppe.AKTORID }?.ident
