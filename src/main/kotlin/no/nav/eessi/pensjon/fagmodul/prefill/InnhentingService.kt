@@ -67,7 +67,8 @@ class InnhentingService(
                         return null
                     }
                     logger.warn("Mangler fnr for avdød")
-                    throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mangler fnr for avdød")
+                    return null
+//                    throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mangler fnr for avdød")
                 }
                 personService.hentIdent(AKTORID, ident!!)?.id
             }

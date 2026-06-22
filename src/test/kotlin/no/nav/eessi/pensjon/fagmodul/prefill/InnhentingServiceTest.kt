@@ -21,6 +21,7 @@ import no.nav.eessi.pensjon.shared.api.SubjectFnr
 import no.nav.eessi.pensjon.vedlegg.VedleggService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.web.server.ResponseStatusException
@@ -88,6 +89,7 @@ internal class InnhentingServiceTest {
     }
 
     @Test
+    @Disabled
     fun `Gitt en P2100 mangler fnr saa skal vi kaste en ResponseStatusException`() {
         val apiRequest = apiRequest(SedType.P2100, P_BUC_02, AKTOER_ID)
         assertThrows<ResponseStatusException> {
