@@ -92,7 +92,7 @@ class EuxPrefillService (private val euxKlient: EuxKlientLib,
                 """.trimIndent()
             )
 
-            if (x005docs.isEmpty()) {
+            if (x005docs.isEmpty() || request.sed == SedType.X009) {
                 checkAndAddInstitution(dataModel, bucUtil, emptyList(), nyeInstitusjoner)
             } else if (x005docs.firstOrNull { it.status == "empty" } != null) {
                 val x005Liste = nyeInstitusjoner.map { nyInstitusjon ->
