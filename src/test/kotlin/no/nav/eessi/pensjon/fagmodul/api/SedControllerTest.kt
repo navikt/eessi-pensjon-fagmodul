@@ -201,10 +201,10 @@ class SedControllerTest {
 
         val actualResponse = sedController.getSeds(buc, rinanr)
 
-        val sedList = listOf(H020, H070, H120, P10000, P3000_NO, P4000, P5000, P6000, P7000, P8000)
+        val sedList = listOf(H020, H070, H120, P10000, P3000_NO, P4000, P5000, P6000, P7000, P8000, X009)
         assertEquals(HttpStatus.OK.name, actualResponse.status)
         assertEquals(sedList, actualResponse.result)
-        assertEquals(10, actualResponse.result?.size)
+        assertEquals(11, actualResponse.result?.size)
     }
 
     @Test
