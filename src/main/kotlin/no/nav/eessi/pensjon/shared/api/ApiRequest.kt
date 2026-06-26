@@ -87,7 +87,7 @@ data class ApiRequest(
                     logger.info("ALL SED on existing Rina SED: ${request.sed} -> euxCaseId: ${request.euxCaseId} -> sakNr: ${request.sakId} ")
                     PrefillDataModel(
                         penSaksnummer = request.sakId,
-                        bruker = personInfo.also { logger.debug("FNR eller NPID: ${it.norskIdent}") },
+                        bruker = personInfo.also { fnr -> logger.debug("FNR eller NPID: ${fnr.norskIdent.let { if (it.length > 6) it.substring(0, 6) + "******" else it }}") },
                         avdod = populerAvdodHvisGjenlevendePensjonSak(request, avdodaktoerID),
                         sedType = sedType,
                         buc = request.buc,
