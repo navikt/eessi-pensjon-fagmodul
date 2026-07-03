@@ -350,6 +350,7 @@ class BucUtils(private val buc: Buc) {
                 .or(type.name.startsWith("H12"))
                 .or(type.name.startsWith("H07"))
                 .or(type.name.startsWith("H02"))
+                .or(type.name.startsWith("X009"))
         }
 
         return list

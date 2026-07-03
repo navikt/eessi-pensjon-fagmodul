@@ -216,7 +216,7 @@ class BucUtilsTest {
     fun `getFiltrerteGyldigSedAksjonListAsString  returns filtered 10 sorted elements`(){
         val actualOutput = bucUtils.getFiltrerteGyldigSedAksjonListAsString()
 
-        assertEquals(10, actualOutput.size)
+        assertEquals(11, actualOutput.size)
         assertEquals(P6000, actualOutput[7])
     }
 
