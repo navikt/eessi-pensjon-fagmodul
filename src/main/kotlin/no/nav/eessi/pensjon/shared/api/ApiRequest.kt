@@ -120,9 +120,9 @@ data class ApiRequest(
                     return null
                 }
                 if (request.buc == P_BUC_02 && request.sed == SedType.P2100) {
+                    logger.warn("Henter ikke avdød for P_BUC_02, P2100")
                     return null
                 }
-
                 throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mangler fnr for avdød")
             }
             request.riktigAvdod() ?: return null
