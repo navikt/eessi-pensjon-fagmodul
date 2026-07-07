@@ -43,7 +43,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-restclient")
     implementation("org.springframework.boot:spring-boot-actuator")
-    implementation("org.springframework.retry:spring-retry:2.0.12")
+    implementation("org.springframework.retry:spring-retry:2.0.13")
 
 
     // Spring Framework BOM-fil overstyrer så vi får siste patch-versjon av Spring Framework
