@@ -200,10 +200,10 @@ class BucController(
             //api
             val avdodeFraPesysVedtak = hentAvdodFraVedtak(vedtakId, sakNr)
 
-            if (avdodeFraPesysVedtak.isEmpty()) {
-                return@measure FrontEndResponse(emptyList(), HttpStatus.OK.name
-                    .also { loggTimeAndViewSize("GjenlevendeRinasakerVedtak", start, 0) })
-            }
+//            if (avdodeFraPesysVedtak.isEmpty()) {
+//                return@measure FrontEndResponse(emptyList(), HttpStatus.OK.name
+//                    .also { loggTimeAndViewSize("GjenlevendeRinasakerVedtak", start, 0) })
+//            }
 
             //api: brukersaker fra Joark/saf
             val brukerRinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)

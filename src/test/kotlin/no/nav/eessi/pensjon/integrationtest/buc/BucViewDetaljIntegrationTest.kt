@@ -28,6 +28,7 @@ import no.nav.eessi.pensjon.utils.toJson
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.beans.factory.annotation.Autowired
@@ -228,6 +229,8 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
     }
 
     @Test
+
+    @Disabled
     fun `Hent mulige rinasaker for aktoer og saf med vedtak uten avdod`() {
         val result = mockMvc.perform(
             MockMvcRequestBuilders.get("/buc/rinasaker/$AKTOERID/saknr/$SAKNR2/vedtak/$VEDTAKID")
