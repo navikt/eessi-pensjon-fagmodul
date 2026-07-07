@@ -78,6 +78,7 @@ class PrefillController(
     fun addInstutionAndDocument(@RequestBody request: ApiRequest): FrontEndResponse<DocumentsItem?> {
 
         logger.info("Avdød fnr finnes i requesten: ${request.subject?.avdod?.fnr != null}, Subject finnes: ${request.subject != null}, gjenlevende finnes: ${request.subject?.gjenlevende != null}")
+        secureLog.info("AvdodFnr: ${request.avdodfnr}, avdodFnrManuelt: ${request.avdodfnrManuelt}")
         logger.info("Legger til institusjoner og SED for " +
                 "rinaId: ${request.euxCaseId} " +
                 "bucType: ${request.buc} " +
