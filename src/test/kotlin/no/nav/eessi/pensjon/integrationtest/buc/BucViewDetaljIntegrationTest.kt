@@ -267,7 +267,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
         //saf (sikker arkiv fasade) (vedlegg meta) gjenlevende
         val httpEntity = dummyHeader(dummySafReqeust(AKTOERID))
-        every { safGraphQlOidcRestTemplate.exchange(eq("/"), eq(HttpMethod.POST), eq(httpEntity), eq(String::class.java)) } returns ResponseEntity.ok().body(  dummySafMetaResponseMedRina( "5010", "344000" ) )
+        every { safGraphQlOidcRestTemplate.exchange(eq(""), eq(HttpMethod.POST), eq(httpEntity), eq(String::class.java)) } returns ResponseEntity.ok().body(  dummySafMetaResponseMedRina( "5010", "344000" ) )
 
         every { euxNavIdentRestTemplate.exchange( "/buc/5010", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "5010", processDefinitionName = "P_BUC_02").toJson() )
         every { euxNavIdentRestTemplate.exchange("/buc/344000", HttpMethod.GET, null, String::class.java) } returns ResponseEntity.ok().body( Buc(id = "344000", processDefinitionName = "P_BUC_03").toJson() )
@@ -284,7 +284,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         val responseBodyResult = mapJsonToBucViewResponse(response)
 
         //data og spurt eux
-        verify (exactly = 1) { safGraphQlOidcRestTemplate.exchange("/", HttpMethod.POST, httpEntity, String::class.java) }
+        verify (exactly = 1) { safGraphQlOidcRestTemplate.exchange("", HttpMethod.POST, httpEntity, String::class.java) }
 
         val expected = """
             [{"euxCaseId":"5010","buctype":"P_BUC_02","aktoerId":"1123123123123123","saknr":"1203201322","avdodFnr":"6789567890000","kilde":"SAF"},
@@ -303,7 +303,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
         //saf (sikker arkiv fasade) (vedlegg meta) gjenlevende
         val httpEntity = dummyHeader(dummySafReqeust(AKTOERID))
-        every { safGraphQlOidcRestTemplate.exchange(eq("/"), eq(HttpMethod.POST), eq(httpEntity), eq(String::class.java)) } returns ResponseEntity.ok().body(  dummySafMetaResponseMedRina( "5195021", "5922554" ) )
+        every { safGraphQlOidcRestTemplate.exchange(eq(""), eq(HttpMethod.POST), eq(httpEntity), eq(String::class.java)) } returns ResponseEntity.ok().body(  dummySafMetaResponseMedRina( "5195021", "5922554" ) )
 
         //gjenlevende rinasak
         every { euxNavIdentRestTemplate.exchange("/rinasaker?fødselsnummer=1234567890000&status=\"open\"", HttpMethod.GET, null, String::class.java) } .answers( FunctionAnswer { Thread.sleep(250);  ResponseEntity.ok().body( listOf(dummyRinasak("5195021", "P_BUC_05") ).toJson() ) } )
@@ -323,7 +323,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         val responseBody = mapJsonToBucViewResponse(response)
 
         verify (exactly = 1) { euxNavIdentRestTemplate.exchange("/rinasaker?fødselsnummer=1234567890000&status=\"open\"", HttpMethod.GET, null, String::class.java) }
-        verify (exactly = 1) { safGraphQlOidcRestTemplate.exchange("/", HttpMethod.POST, httpEntity, String::class.java) }
+        verify (exactly = 1) { safGraphQlOidcRestTemplate.exchange("", HttpMethod.POST, httpEntity, String::class.java) }
 
         val expected = """
                 [{"euxCaseId":"5195021","buctype":"P_BUC_05","aktoerId":"1123123123123123","saknr":"1203201322","avdodFnr":null,"kilde":"BRUKER"},
@@ -340,7 +340,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
         //saf (sikker arkiv fasade) (vedlegg meta) gjenlevende
         val httpEntity = dummyHeader(dummySafReqeust(AKTOERID))
-        every { safGraphQlOidcRestTemplate.exchange(eq("/"), eq(HttpMethod.POST), eq(httpEntity), eq(String::class.java)) } returns ResponseEntity.ok().body(  dummySafMetaResponseMedRina( "5195021", "5922554" ) )
+        every { safGraphQlOidcRestTemplate.exchange(eq(""), eq(HttpMethod.POST), eq(httpEntity), eq(String::class.java)) } returns ResponseEntity.ok().body(  dummySafMetaResponseMedRina( "5195021", "5922554" ) )
 
         //gjenlevende rinasak
         every { euxNavIdentRestTemplate.exchange("/rinasaker?fødselsnummer=1234567890000&status=\"open\"", HttpMethod.GET, null, String::class.java) } .answers( FunctionAnswer { Thread.sleep(250);  ResponseEntity.ok().body( listOf(dummyRinasak("5195021", "P_BUC_05") ).toJson() ) } )
@@ -363,7 +363,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         val responseBody = mapJsonToBucViewResponse(response)
 
         verify (exactly = 1) { euxNavIdentRestTemplate.exchange("/rinasaker?fødselsnummer=1234567890000&status=\"open\"", HttpMethod.GET, null, String::class.java) }
-        verify (exactly = 1) { safGraphQlOidcRestTemplate.exchange("/", HttpMethod.POST, httpEntity, String::class.java) }
+        verify (exactly = 1) { safGraphQlOidcRestTemplate.exchange("", HttpMethod.POST, httpEntity, String::class.java) }
 
         val expected = """
                 [{"euxCaseId":"5195021","buctype":"P_BUC_05","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":null,"kilde":"BRUKER"},
@@ -380,7 +380,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
 
         //saf (sikker arkiv fasade) (vedlegg meta) gjenlevende
         val httpEntity = dummyHeader(dummySafReqeust(AKTOERID))
-        every { safGraphQlOidcRestTemplate.exchange(eq("/"), eq(HttpMethod.POST), eq(httpEntity), eq(String::class.java)) } returns ResponseEntity.ok().body( dummySafMetaResponse() )
+        every { safGraphQlOidcRestTemplate.exchange(eq(""), eq(HttpMethod.POST), eq(httpEntity), eq(String::class.java)) } returns ResponseEntity.ok().body( dummySafMetaResponse() )
 
         //gjenlevende rinasak
         val rinaSakerBuc = listOf(dummyRinasak("3010", "P_BUC_01"), dummyRinasak("75312", "P_BUC_03"))
@@ -402,7 +402,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
         val responseBody = mapJsonToBucViewResponse(response)
 
         verify (exactly = 1) { euxNavIdentRestTemplate.exchange("/rinasaker?fødselsnummer=1234567890000&status=\"open\"", HttpMethod.GET, null, String::class.java) }
-        verify (exactly = 1) { safGraphQlOidcRestTemplate.exchange("/", HttpMethod.POST, httpEntity, String::class.java) }
+        verify (exactly = 1) { safGraphQlOidcRestTemplate.exchange("", HttpMethod.POST, httpEntity, String::class.java) }
 
         val expected = """
             [{"euxCaseId":"3010","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":null},{"euxCaseId":"75312","aktoerId":"1123123123123123","saknr":"100001000","avdodFnr":null}]
@@ -415,7 +415,7 @@ internal class BucViewDetaljIntegrationTest: BucBaseTest() {
     @Test
     fun `Gitt at vi får inn en ikke migrert rinasak i metadata fra saf og fra rina saa skal denne fltreres vekk i begge view`() {
         every { personService.hentIdent(FOLKEREGISTERIDENT, AktoerId(AKTOERID)) } returns NorskIdent(FNR)
-        every { safGraphQlOidcRestTemplate.exchange(eq("/"), eq(HttpMethod.POST), eq(dummyHeader(dummySafReqeust(AKTOERID))), eq(String::class.java)) } returns
+        every { safGraphQlOidcRestTemplate.exchange(eq(""), eq(HttpMethod.POST), eq(dummyHeader(dummySafReqeust(AKTOERID))), eq(String::class.java)) } returns
                 ResponseEntity.ok().body(  dummySafMetaResponseMedRina("9859667") )
 
         val rinaSakerBuc = listOf(dummyRinasak("3010", "P_BUC_01"), dummyRinasak("75312", "P_BUC_03"))

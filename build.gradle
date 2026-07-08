@@ -37,13 +37,13 @@ dependencies {
     // Spring-boot BOM-fil spesifiserer versjoner for Spring Boot-avhengigheter
     implementation(platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}"))
     implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("org.springframework.boot:spring-boot-starter-aop:3.5.15")
+    implementation("org.springframework.boot:spring-boot-starter-aop:3.5.16")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-cache")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-restclient")
     implementation("org.springframework.boot:spring-boot-actuator")
-    implementation("org.springframework.retry:spring-retry:2.0.12")
+    implementation("org.springframework.retry:spring-retry:2.0.13")
 
 
     // Spring Framework BOM-fil overstyrer så vi får siste patch-versjon av Spring Framework
