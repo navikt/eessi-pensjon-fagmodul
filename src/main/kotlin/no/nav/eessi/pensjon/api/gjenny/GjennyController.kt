@@ -216,7 +216,7 @@ class GjennyController (
         ).also { secureLog.info("Prefill av SED: $it") }
 
         return addInstutionAndDocument.measure {
-            FrontEndResponse(euxPrefillService.opprettSedOgHentDocumentItem(sed, request, dataModel, bucUtil))
+            FrontEndResponse(euxPrefillService.opprettSedOgHentDocumentItem(sed, request, dataModel, bucUtil).first)
         }
     }
 
