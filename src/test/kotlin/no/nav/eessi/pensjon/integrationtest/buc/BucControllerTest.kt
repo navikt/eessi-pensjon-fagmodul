@@ -9,10 +9,12 @@ import no.nav.eessi.pensjon.fagmodul.api.BucController
 import no.nav.eessi.pensjon.fagmodul.api.FrontEndResponse
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
+import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.mockito.Mockito.mock
 import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.TestConfiguration
@@ -39,18 +41,24 @@ class BucControllerTest {
     @Autowired
     private lateinit var mockMvc: MockMvc
 
+    @Autowired
+    private lateinit var gcpStorageMock: GcpStorageService
+
     @TestConfiguration
     class Config {
+        @Bean
+        fun gcpStorageService() = mockk<GcpStorageService>(relaxed = true)
         @Bean
         fun euxInnhentingService() : EuxInnhentingService = mockk(relaxed = true)
         @Bean
         fun innhentingService() : InnhentingService = mockk(relaxed = true)
         @Bean
-        fun bucController() = BucController(euxInnhentingService(), mockk( relaxed = true), innhentingService(), mockk())
+        fun bucController() = BucController(euxInnhentingService(), mockk( relaxed = true), innhentingService(), gcpStorageService())
     }
 
     @Test
     fun `hentAvdodFraVedtak skal returerer en tom liste om vedtaksId er noe annet enn tall`(){
+        every { gcpStorageMock.hentSedIdFrPBuc02(any()) } returns null
         val result = mvcPerform("/buc/rinasaker/111/saknr/222/vedtak/undefined")
         assertTrue(result.contains("[]"))
     }

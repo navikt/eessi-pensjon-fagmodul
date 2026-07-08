@@ -117,7 +117,7 @@ class EuxPrefillService (private val euxKlient: EuxKlientLib,
         request: ApiRequest,
         dataModel: PrefillDataModel,
         bucUtil: BucUtils
-    ): DocumentsItem? {
+    ): Pair<DocumentsItem?, String> {
         logger.info("******* Legge til ny SED - start *******")
         val sedType = SedType.from(request.sed?.name!!)!!
         logger.info("Prøver å sende SED: $sedType inn på BUC: ${dataModel.euxCaseID}")
@@ -133,7 +133,7 @@ class EuxPrefillService (private val euxKlient: EuxKlientLib,
             dataModel.buc, bucUtil.getBuc().documents, bucAndSedResponse, sedDocument
         )
         logger.info("******* Legge til ny SED - slutt *******")
-        return documentItem
+        return Pair(documentItem, bucAndSedResponse.documentId)
     }
 
     fun opprettSvarSedOgHentDocumentItem(

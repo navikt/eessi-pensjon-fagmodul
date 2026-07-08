@@ -124,8 +124,14 @@ class PrefillController(
             logger.error(e.message, e)
         }
 
+        val sedOpprettetResultat = euxPrefillService.opprettSedOgHentDocumentItem(sed, request, dataModel, bucUtil)
+
+        if(request.buc == BucType.P_BUC_02 && request.avdodfnrManuelt == true && request.vedtakId != null && request.euxCaseId != null) {
+            gcpStorageService.lagrePBuc02Info(request.vedtakId, sedOpprettetResultat.second, request.euxCaseId)
+        }
+
         return addInstutionAndDocument.measure {
-            FrontEndResponse(euxPrefillService.opprettSedOgHentDocumentItem(sed, request, dataModel, bucUtil), HttpStatus.OK.name)
+            FrontEndResponse(sedOpprettetResultat.first, HttpStatus.OK.name)
         }
     }
 

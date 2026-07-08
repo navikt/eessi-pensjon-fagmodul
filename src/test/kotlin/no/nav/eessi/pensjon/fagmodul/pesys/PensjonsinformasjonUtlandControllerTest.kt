@@ -39,7 +39,8 @@ class PensjonsinformasjonUtlandControllerTest {
         "_",
         "_",
         "pesys",
-        gcpStorage
+        "_",
+        gcpStorage,
     )
 
     private val penInfoUtlandService = PensjonsinformasjonUtlandService(
