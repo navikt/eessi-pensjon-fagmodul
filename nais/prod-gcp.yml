@@ -40,6 +40,8 @@ spec:
         uniformBucketLevelAccess: true
       - name: eessi-pensjon-p6000
         uniformBucketLevelAccess: true
+      - name: eessi-pensjon-pbuc02-avdod
+        uniformBucketLevelAccess: true
   accessPolicy:
     outbound:
       rules:
@@ -91,6 +93,8 @@ spec:
       value: eessi-pensjon-p6000
     - name: GCP_BUCKET_SAKSBEHANDLING_API
       value: eessi-pensjon-saksbehandling-api-prod
+    - name: GCP_BUCKET_P_BUC02_AVDOD
+      value: eessi-pensjon-pbuc02-avdod
 
     - name: PESYS_URL
       value: https://pensjon-pen.prod-fss-pub.nais.io/pen/api/eessi/v2
