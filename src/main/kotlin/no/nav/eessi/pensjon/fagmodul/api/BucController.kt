@@ -199,19 +199,25 @@ class BucController(
             logger.info("henter rinasaker på valgt aktoerid: $aktoerId, saknr: $sakNr, vedtaksId:$vedtakId")
 
             //api
-            var avdodeFraPesysVedtak = hentAvdodFraVedtak(vedtakId, sakNr)
+            val avdodeFraPesysVedtak = hentAvdodFraVedtak(vedtakId, sakNr).ifEmpty {
+                vedtakId
+                    ?.let(gcpStorageService::hentSedIdFrPBuc02)
+                    ?.let { sedInfo ->
+                        logger.info("Vi benytter tidligere lagret")
+                        (euxInnhentingService.getSedOnBucByDocumentId(sedInfo.euxCaseId, sedInfo.sedId) as P2100)
+                            .nav?.bruker?.person?.pin
+                            ?.mapNotNull { it.identifikator }
+                            ?: emptyList()
+                    }
+                    ?: emptyList()
+            }
+            logger.debug("Avdod: $avdodeFraPesysVedtak")
 
             if (avdodeFraPesysVedtak.isEmpty()) {
-//                return@measure getRinasakerFraRina(aktoerId, sakNr)
-                val sedInfoFraPBuc02 = vedtakId?.let { gcpStorageService.hentSedIdFrPBuc02(it) }
-                if(sedInfoFraPBuc02 != null) {
-                    logger.info("Vi benytter tidligere lagret")
-                    val sed = euxInnhentingService.getSedOnBucByDocumentId(sedInfoFraPBuc02.euxCaseId, sedInfoFraPBuc02.sedId) as P2100
-                    avdodeFraPesysVedtak = sed.nav?.bruker?.person?.pin?.map { it.identifikator }?.filterNotNull() ?: emptyList()
-                }
-
-                return@measure FrontEndResponse(emptyList(), HttpStatus.OK.name
-                    .also { loggTimeAndViewSize("GjenlevendeRinasakerVedtak", start, 0) })
+                return@measure FrontEndResponse(
+                    emptyList(),
+                    HttpStatus.OK.name.also { loggTimeAndViewSize("GjenlevendeRinasakerVedtak", start, 0) }
+                )
             }
 
             //api: brukersaker fra Joark/saf
