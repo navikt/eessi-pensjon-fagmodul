@@ -1,6 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
 import no.nav.eessi.pensjon.eux.model.buc.Buc
+import no.nav.eessi.pensjon.eux.model.sed.P2100
 import no.nav.eessi.pensjon.fagmodul.eux.*
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucView
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
@@ -198,12 +199,19 @@ class BucController(
             logger.info("henter rinasaker på valgt aktoerid: $aktoerId, saknr: $sakNr, vedtaksId:$vedtakId")
 
             //api
-            val avdodeFraPesysVedtak = hentAvdodFraVedtak(vedtakId, sakNr)
+            var avdodeFraPesysVedtak = hentAvdodFraVedtak(vedtakId, sakNr)
 
             if (avdodeFraPesysVedtak.isEmpty()) {
-                return@measure getRinasakerFraRina(aktoerId, sakNr)
-//                return@measure FrontEndResponse(emptyList(), HttpStatus.OK.name
-//                    .also { loggTimeAndViewSize("GjenlevendeRinasakerVedtak", start, 0) })
+//                return@measure getRinasakerFraRina(aktoerId, sakNr)
+                val sedInfoFraPBuc02 = vedtakId?.let { gcpStorageService.hentSedIdFrPBuc02(it) }
+                if(sedInfoFraPBuc02 != null) {
+                    logger.info("Vi benytter tidligere lagret")
+                    val sed = euxInnhentingService.getSedOnBucByDocumentId(sedInfoFraPBuc02.euxCaseId, sedInfoFraPBuc02.sedId) as P2100
+                    avdodeFraPesysVedtak = sed.nav?.bruker?.person?.pin?.map { it.identifikator }?.filterNotNull() ?: emptyList()
+                }
+
+                return@measure FrontEndResponse(emptyList(), HttpStatus.OK.name
+                    .also { loggTimeAndViewSize("GjenlevendeRinasakerVedtak", start, 0) })
             }
 
             //api: brukersaker fra Joark/saf

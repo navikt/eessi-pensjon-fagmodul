@@ -3,6 +3,7 @@ package no.nav.eessi.pensjon.gcp
 import com.google.cloud.storage.BlobId
 import com.google.cloud.storage.BlobInfo
 import com.google.cloud.storage.Storage
+import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -15,6 +16,7 @@ class GcpStorageService(
     @param:Value("\${GCP_BUCKET_P8000}") var p8000Bucket: String,
     @param:Value("\${GCP_BUCKET_P6000}") var p6000Bucket: String,
     @param:Value("\${GCP_BUCKET_SAKSBEHANDLING_API}") var saksBehandlApiBucket: String,
+    @param:Value("\${GCP_BUCKET_P_BUC02_AVDOD}") var pBuc02Bucket: String,
 
     private val gcpStorage: Storage) {
 
@@ -52,6 +54,42 @@ class GcpStorageService(
             lagre(euxCaseId, gjennysak.toJson(), gjennyBucket)
         } else {
             logger.error("SakId må være korrekt strukturert med 5 tegn; mottok: ${gjennysak.toJson()}")
+        }
+    }
+    data class PBuc02Info(
+        val euxCaseId: String,
+        val sedId: String
+    )
+
+    fun lagrePBuc02Info(vedtakId: String, sedId: String, euxCaseId: String) {
+        val informasjon = PBuc02Info(euxCaseId, sedId).toJson().toByteArray()
+        val blobInfo = BlobInfo.newBuilder(BlobId.of(pBuc02Bucket, vedtakId))
+            .setContentType("application/json")
+            .build()
+
+        kotlin.runCatching {
+            gcpStorage.writer(blobInfo).use { it.write(ByteBuffer.wrap(informasjon)) }
+        }.onFailure { e ->
+            logger.error("Feilet med å lagre dokument med id: ${blobInfo.blobId.name} for bucket: $pBuc02Bucket", e)
+        }.onSuccess {
+            logger.info("Lagret info på S3 med rinaID: $euxCaseId for $pBuc02Bucket")
+        }
+    }
+
+    fun hentSedIdFrPBuc02(vedtakId: String): PBuc02Info? {
+        return kotlin.runCatching {
+            val blob = gcpStorage.get(BlobId.of(pBuc02Bucket, vedtakId))
+            if (blob != null && blob.exists()) {
+                logger.info("Henter PBuc02Info med vedtakId: $vedtakId fra bucket: $pBuc02Bucket")
+                val jsonContent = blob.getContent().decodeToString()
+                mapJsonToAny<PBuc02Info>(jsonContent)
+            } else {
+                logger.warn("PBuc02Info med vedtakId: $vedtakId finnes ikke i bucket: $pBuc02Bucket")
+                null
+            }
+        }.getOrElse { e ->
+            logger.error("Feil ved henting av PBuc02Info med vedtakId: $vedtakId fra bucket: $pBuc02Bucket. Årsak: ${e.message}", e)
+            null
         }
     }
 
