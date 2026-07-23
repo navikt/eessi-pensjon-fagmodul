@@ -97,17 +97,26 @@ class PensjonsinformasjonUtlandController(
             )
             val listeOverP6000FraGcp = mutableListOf<P6000>()
             val p6000Detaljer = mapJsonToAny<P6000Detaljer>(p6000FraGcp).also { logger.info("P6000Detaljer: ${it.toJson()}") }
-            runCatching {
-                p6000Detaljer.dokumentId.forEach { sedDokumentId ->
-                    val hentetJsonP6000 = euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(p6000Detaljer.rinaSakId, sedDokumentId)
-                    val hentetP6000 = hentetJsonP6000 as P6000
+            p6000Detaljer.dokumentId.forEach { sedDokumentId ->
+                runCatching {
+                    val hentetSed = euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(p6000Detaljer.rinaSakId, sedDokumentId)
+                    if (hentetSed !is P6000) {
+                        logger.warn("Dokument $sedDokumentId for pesysId: $pesysId er ikke P6000 og blir hoppet over")
+                        return@runCatching
+                    }
                     val sedMetaData = euxInnhentingService.hentSedMetadata(p6000Detaljer.rinaSakId, sedDokumentId).also { secureLog.info("SedMetaData: $it") }
-                    hentetP6000.avsender = sedMetaData?.avsender
-                    hentetP6000.let { listeOverP6000FraGcp.add(it) }
+                    hentetSed.avsender = sedMetaData?.avsender
+                    listeOverP6000FraGcp.add(hentetSed)
+                }.getOrElse { e ->
+                    logger.error("Feil ved henting av P6000-detaljer fra Rina for pesysId: $pesysId, dokumentId: $sedDokumentId", e)
+                    throw ResponseStatusException(
+                        HttpStatus.BAD_GATEWAY,
+                        "Feil ved henting av P6000-detaljer fra Rina for pesysId: $pesysId",
+                        e
+                    )
                 }
             }
-                .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
-                .onSuccess { logger.info("Hentet nye dok detaljer fra Rina for $pesysId") }
+            logger.info("Hentet nye dok detaljer fra Rina for $pesysId")
 
             val innvilgedePensjoner = penInfoUtlandService.innvilgedePensjoner(listeOverP6000FraGcp).also { secureLog.info("innvilgedePensjoner: " +it.toJson()) }
             val avslaatteUtenlandskePensjoner = penInfoUtlandService.avslaatteUtenlandskePensjoner(listeOverP6000FraGcp).also { secureLog.info("avslaatteUtenlandskePensjoner: " + it.toJson()) }
@@ -191,6 +200,4 @@ class PensjonsinformasjonUtlandController(
         ).also { secureLog.info("P1Dto fra P7000: " + it.toJson())}
     }
 }
-
-
 
