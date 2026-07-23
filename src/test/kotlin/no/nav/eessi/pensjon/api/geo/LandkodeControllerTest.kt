@@ -6,6 +6,7 @@ import io.mockk.every
 import no.nav.eessi.pensjon.fagmodul.api.FrontEndResponse
 import no.nav.eessi.pensjon.kodeverk.KodeverkClient
 import no.nav.eessi.pensjon.utils.mapJsonToAny
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
@@ -113,6 +114,21 @@ class LandkodeControllerTest {
         return """
             {v4.2={euEftaLand=[{landkode=AUT, landnavn=Østerrike}, {landkode=BEL, landnavn=Belgia}], verdensLand=[{landkode=ABW, landnavn=Aruba}, {landkode=AFG, landnavn=Afghanistan}], statsborgerskap=[{landkode=AFG, landnavn=Afghanistan}, {landkode=ALB, landnavn=Albania}], verdensLandHistorisk=[{landkode=ABW, landnavn=Aruba}, {landkode=AFG, landnavn=Afghanistan}]}, v4.3={euEftaLand=[{landkode=AUT, landnavn=Østerrike}, {landkode=BEL, landnavn=Belgia}], verdensLand=[{landkode=ABW, landnavn=Aruba}, {landkode=AFG, landnavn=Afghanistan}], statsborgerskap=[{landkode=AFG, landnavn=Afghanistan}, {landkode=ALB, landnavn=Albania}], verdensLandHistorisk=[{landkode=ABW, landnavn=Aruba}, {landkode=AFG, landnavn=Afghanistan}]}}
         """.trimIndent()
+    }
+
+    @Test
+    fun `testerLandkoderRina returnerer 500 naar kallet mot rina feiler`() {
+        every {
+            restTemplate.exchange(any<String>(), any<HttpMethod>(), any<HttpEntity<String>>(), eq(String::class.java))
+        } throws RuntimeException("Rina er nede")
+
+        val repsonse = mvc.perform(get("/landkoder/rina")
+            .param("format", "json")
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isInternalServerError())
+            .andReturn().response
+        val response = mapJsonToAny<FrontEndResponse<*>>(repsonse.contentAsString)
+        assertEquals("INTERNAL_SERVER_ERROR", response.status)
     }
 
 }

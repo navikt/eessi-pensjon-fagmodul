@@ -68,4 +68,22 @@ class LandOgValutakodeControllerTest {
             {v4.2={euEftaLand=[{landkode=AUT, landnavn=Østerrike}, {landkode=BEL, landnavn=Belgia}], verdensLand=[{landkode=ABW, landnavn=Aruba}, {landkode=AFG, landnavn=Afghanistan}], statsborgerskap=[{landkode=AFG, landnavn=Afghanistan}, {landkode=ALB, landnavn=Albania}], verdensLandHistorisk=[{landkode=ABW, landnavn=Aruba}, {landkode=AFG, landnavn=Afghanistan}], euEftaValuta=[{valutakode=EUR, valutanavn=Euro}, {valutakode=NOK, valutanavn=Norske kroner}], verdensValuta=[{valutakode=USD, valutanavn=Amerikanske dollar}, {valutakode=GBP, valutanavn=Britiske pund}]}, v4.3={euEftaLand=[{landkode=AUT, landnavn=Østerrike}, {landkode=BEL, landnavn=Belgia}], verdensLand=[{landkode=ABW, landnavn=Aruba}, {landkode=AFG, landnavn=Afghanistan}], statsborgerskap=[{landkode=AFG, landnavn=Afghanistan}, {landkode=ALB, landnavn=Albania}], verdensLandHistorisk=[{landkode=ABW, landnavn=Aruba}, {landkode=AFG, landnavn=Afghanistan}], euEftaValuta=[{valutakode=EUR, valutanavn=Euro}, {valutakode=NOK, valutanavn=Norske kroner}], verdensValuta=[{valutakode=USD, valutanavn=Amerikanske dollar}, {valutakode=GBP, valutanavn=Britiske pund}]}, v4.4=null}
         """.trimIndent()
     }
+
+    @Test
+    fun `testerLandOgValutakoderRina returnerer 500 naar kallet mot rina feiler`() {
+        every {
+            restTemplate.exchange(any<String>(), any<HttpMethod>(), any<HttpEntity<String>>(), eq(String::class.java))
+        } throws RuntimeException("Rina er nede")
+
+        val repsonse = mvc.perform(
+            get("/landogvalutakoder/rina")
+                .param("format", "json")
+                .accept(MediaType.APPLICATION_JSON)
+        )
+            .andExpect(status().isInternalServerError())
+            .andReturn().response
+
+        val response = mapJsonToAny<FrontEndResponse<*>>(repsonse.contentAsString)
+        assertEquals("INTERNAL_SERVER_ERROR", response.status)
+    }
 }

@@ -10,8 +10,14 @@ import no.nav.eessi.pensjon.eux.klient.Rinasak
 import no.nav.eessi.pensjon.eux.model.BucType
 import no.nav.eessi.pensjon.eux.model.BucType.*
 import no.nav.eessi.pensjon.eux.model.buc.Buc
+import no.nav.eessi.pensjon.eux.model.buc.ActionsItem
+import no.nav.eessi.pensjon.eux.model.buc.ActionOperation
+import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
+import no.nav.eessi.pensjon.eux.model.SedType
+import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.fagmodul.api.PrefillController
 import no.nav.eessi.pensjon.fagmodul.api.SedController
+import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.*
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucViewKilde.*
@@ -35,8 +41,15 @@ import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
 import no.nav.eessi.pensjon.personoppslag.pdl.model.PdlPerson
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Sivilstand
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Statsborgerskap
+import no.nav.eessi.pensjon.shared.api.ApiRequest
+import no.nav.eessi.pensjon.shared.api.InstitusjonItem
+import no.nav.eessi.pensjon.shared.api.PersonInfo
+import no.nav.eessi.pensjon.shared.api.PrefillDataModel
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
+import no.nav.eessi.pensjon.vedlegg.client.Data
+import no.nav.eessi.pensjon.vedlegg.client.DokumentoversiktBruker
+import no.nav.eessi.pensjon.vedlegg.client.HentMetadataResponse
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -48,6 +61,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
+import org.springframework.test.web.servlet.put
 import org.springframework.web.client.RestTemplate
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -329,6 +343,151 @@ class GjennyControllerTest {
         val jsonNode = ObjectMapper().readTree(response)
         assertEquals("OK", jsonNode.get("status").asText())
         assertEquals(buc.id, jsonNode.get("result").get("caseId").asText())
+    }
+
+    @Test
+    fun `hentMetadata returnerer dokumentmetadata for aktoerId`() {
+        val aktoerId = "1010753569812"
+        val metadata = HentMetadataResponse(Data(DokumentoversiktBruker(emptyList())))
+
+        every { vedleggService.hentDokumentMetadata(aktoerId) } returns metadata
+
+        val response = mockMvc.get("/gjenny/metadata/$aktoerId")
+            .andExpect { status { isOk() } }
+            .andReturn().response.contentAsString
+
+        assertEquals(metadata.toJson(), response)
+    }
+
+    @Test
+    fun `leggTilInstitusjon oppretter SED og returnerer documentItem`() {
+        val euxCaseId = "1443996"
+        val aktoerId = "2105768869843"
+        val fnr = "12345678900"
+
+        val request = ApiRequest(
+            sakId = "22971111",
+            sakType = "ALDER",
+            aktoerId = aktoerId,
+            buc = P_BUC_06,
+            sed = SedType.P6000,
+            euxCaseId = euxCaseId,
+            institutions = emptyList()
+        )
+
+        val dataModel = PrefillDataModel(
+            bruker = PersonInfo(fnr, aktoerId),
+            avdod = null,
+            sedType = SedType.P6000,
+            buc = P_BUC_06,
+            euxCaseID = euxCaseId,
+            institution = emptyList()
+        )
+        val bucUtil = BucUtils(Buc(id = euxCaseId, processDefinitionName = P_BUC_06.name))
+        val documentItem = DocumentsItem(id = "docId123", type = SedType.P6000)
+
+        every { euxPrefillService.buildDataModelOgValider(any(), eq(true)) } returns Triple(NorskIdent(fnr), dataModel, bucUtil)
+        every { innhentingService.hentPreutyltSed(any(), any()) } returns SED(type = SedType.P6000).toJson()
+        every { euxPrefillService.opprettSedOgHentDocumentItem(any(), any(), any(), any()) } returns Pair(documentItem, "docId123")
+
+        val response = mockMvc.post("/gjenny/sed/add") {
+            contentType = MediaType.APPLICATION_JSON
+            content = request.toJson()
+        }
+            .andExpect { status { isOk() } }
+            .andReturn().response.contentAsString
+
+        val jsonNode = ObjectMapper().readTree(response)
+        assertEquals("docId123", jsonNode.get("result").get("id").asText())
+        assertEquals("P6000", jsonNode.get("result").get("type").asText())
+    }
+
+    @Test
+    fun `prefillSed oppretter svarSED og returnerer documentItem`() {
+        val euxCaseId = "1443996"
+        val aktoerId = "2105768869843"
+        val fnr = "12345678900"
+        val parentId = "parentDocId"
+
+        val request = ApiRequest(
+            sakId = "22971111",
+            sakType = "ALDER",
+            aktoerId = aktoerId,
+            buc = P_BUC_06,
+            sed = SedType.P6000,
+            euxCaseId = euxCaseId,
+            institutions = emptyList()
+        )
+
+        val childDocId = "childDocId"
+        val buc = Buc(
+            id = euxCaseId,
+            processDefinitionName = P_BUC_06.name,
+            documents = listOf(
+                DocumentsItem(id = parentId, type = SedType.P5000, direction = "OUT"),
+                DocumentsItem(id = childDocId, type = SedType.P6000, parentDocumentId = parentId, direction = "OUT")
+            ),
+            actions = listOf(
+                ActionsItem(documentId = childDocId, documentType = SedType.P6000, operation = ActionOperation.Create)
+            )
+        )
+        val documentItem = DocumentsItem(id = "svarDocId", type = SedType.P6000)
+
+        every { innhentingService.hentFnrfraAktoerService(aktoerId) } returns NorskIdent(fnr)
+        every { innhentingService.getAvdodId(any(), any(), any()) } returns null
+        every { euxInnhentingService.getBuc(euxCaseId) } returns buc
+        every { innhentingService.hentPreutyltSed(any(), any()) } returns SED(type = SedType.P6000).toJson()
+        every { euxPrefillService.opprettSvarSedOgHentDocumentItem(any(), any(), any(), any()) } returns documentItem
+
+        val response = mockMvc.post("/gjenny/sed/replysed/$parentId") {
+            contentType = MediaType.APPLICATION_JSON
+            content = request.toJson()
+        }
+            .andExpect { status { isOk() } }
+            .andReturn().response.contentAsString
+
+        val jsonNode = ObjectMapper().readTree(response)
+        assertEquals("OK", jsonNode.get("status").asText())
+        assertEquals("svarDocId", jsonNode.get("result").get("id").asText())
+    }
+
+    @Test
+    fun `prefillSed uten buc gir 400 bad request`() {
+        val request = ApiRequest(
+            sakId = "22971111",
+            sakType = "ALDER",
+            aktoerId = "2105768869843",
+            buc = null,
+            sed = SedType.P6000,
+            euxCaseId = "1443996",
+            institutions = emptyList()
+        )
+
+        mockMvc.post("/gjenny/sed/replysed/parentDocId") {
+            contentType = MediaType.APPLICATION_JSON
+            content = request.toJson()
+        }
+            .andExpect { status { isBadRequest() } }
+    }
+
+    @Test
+    fun `oppdaterSed oppdaterer eksisterende sed og returnerer OK`() {
+        val euxCaseId = "1443996"
+        val documentId = "docId123"
+        val sedPayload = SED(type = SedType.P6000).toJson()
+
+        every { euxInnhentingService.updateSedOnBuc(euxCaseId, documentId, sedPayload) } returns true
+
+        val response = mockMvc.put("/gjenny/sed/document/$euxCaseId/$documentId") {
+            contentType = MediaType.APPLICATION_JSON
+            content = sedPayload
+        }
+            .andExpect { status { isOk() } }
+            .andReturn().response.contentAsString
+
+        val jsonNode = ObjectMapper().readTree(response)
+        assertEquals("OK", jsonNode.get("status").asText())
+        assertTrue(jsonNode.get("result").asBoolean())
     }
 
     fun lagPerson(
