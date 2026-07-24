@@ -1,5 +1,8 @@
 package no.nav.eessi.pensjon.integrationtest.buc
 
+import ch.qos.logback.classic.Logger
+import ch.qos.logback.classic.spi.ILoggingEvent
+import ch.qos.logback.core.read.ListAppender
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
@@ -12,9 +15,12 @@ import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
+import org.slf4j.LoggerFactory
 import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.TestConfiguration
@@ -43,6 +49,20 @@ class BucControllerTest {
 
     @Autowired
     private lateinit var gcpStorageMock: GcpStorageService
+    private val logger: Logger = LoggerFactory.getLogger(BucController::class.java) as Logger
+    private val listAppender = ListAppender<ILoggingEvent>()
+
+    @BeforeEach
+    fun setUp() {
+        listAppender.start()
+        logger.addAppender(listAppender)
+    }
+
+    @AfterEach
+    fun tearDown() {
+        logger.detachAppender(listAppender)
+        listAppender.stop()
+    }
 
     @TestConfiguration
     class Config {
@@ -101,6 +121,18 @@ class BucControllerTest {
     @Test
     fun `getbucs skal gi en liste både med og uten saksId`() {
         mvcPerform("/buc/bucs")
+    }
+
+    @Test
+    fun `skal logge tidsbruk for endpoint-kall`() {
+        mvcPerform("/buc/bucs")
+        assertTrue(inneholderLoggmelding("getBucsUtenSaksId tid: "))
+    }
+
+    private fun inneholderLoggmelding(melding: String): Boolean {
+        return listAppender.list.any { logEvent ->
+            logEvent.message.contains(melding)
+        }
     }
 
     private fun mvcPerform(endpointUrl: String) : String {

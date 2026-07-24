@@ -32,6 +32,14 @@ class BucController(
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
     private val logger = LoggerFactory.getLogger(BucController::class.java)
+    private inline fun <T> timedControllerCall(endpoint: String, block: () -> T): T {
+        val start = System.currentTimeMillis()
+        return try {
+            block()
+        } finally {
+            logger.info("$endpoint tid: ${System.currentTimeMillis() - start} ms")
+        }
+    }
 
     private  var bucDetaljerEnkel: MetricsHelper.Metric
     private  var bucDetaljerEnkelGjenlevende: MetricsHelper.Metric
@@ -54,22 +62,28 @@ class BucController(
 
     @GetMapping("/bucs", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getBucsUtenSaksId(): FrontEndResponse<List<String>> =
-        FrontEndResponse(ValidBucAndSed.pensjonsBucer(), HttpStatus.OK.name)
+        timedControllerCall("getBucsUtenSaksId") {
+            FrontEndResponse(ValidBucAndSed.pensjonsBucer(), HttpStatus.OK.name)
+        }
 
     @GetMapping("/{rinanr}")
     fun getBuc(@PathVariable(value = "rinanr", required = true) rinanr: String): FrontEndResponse<Buc> =
-        getBUC.measure {
-            auditlogger.log("getBuc")
-            logger.debug("Henter ut hele Buc data fra rina via eux-rina-api")
-            return@measure FrontEndResponse(euxInnhentingService.getBuc(rinanr), HttpStatus.OK.name)
+        timedControllerCall("getBuc") {
+            getBUC.measure {
+                auditlogger.log("getBuc")
+                logger.debug("Henter ut hele Buc data fra rina via eux-rina-api")
+                return@measure FrontEndResponse(euxInnhentingService.getBuc(rinanr), HttpStatus.OK.name)
+            }
         }
 
     @GetMapping("/enkeldetalj/{euxcaseid}")
     fun hentSingleBucAndSedView(@PathVariable("euxcaseid") euxcaseid: String): FrontEndResponse<BucAndSedView> =
-        bucDetaljerEnkel.measure {
-            auditlogger.log("hentSingleBucAndSedView")
-            logger.debug(" prøver å hente ut en enkel buc med euxCaseId: $euxcaseid")
-            return@measure FrontEndResponse(euxInnhentingService.getSingleBucAndSedView(euxcaseid), HttpStatus.OK.name)
+        timedControllerCall("hentSingleBucAndSedView") {
+            bucDetaljerEnkel.measure {
+                auditlogger.log("hentSingleBucAndSedView")
+                logger.debug(" prøver å hente ut en enkel buc med euxCaseId: $euxcaseid")
+                return@measure FrontEndResponse(euxInnhentingService.getSingleBucAndSedView(euxcaseid), HttpStatus.OK.name)
+            }
         }
 
     @Deprecated("Utgår til fordel for hentBucerMedJournalforteSeder og getRinasakerFraRina")
@@ -78,42 +92,44 @@ class BucController(
         @PathVariable("aktoerId", required = true) aktoerId: String,
         @PathVariable("saknr", required = false) pensjonSakNummer: String
     ): FrontEndResponse<List<BucView>> {
-        return bucView.measure {
-            val start = System.currentTimeMillis()
-            val timeTracking = mutableListOf<String>()
+        return timedControllerCall("getRinasakerBrukerkontekst") {
+            bucView.measure {
+                val start = System.currentTimeMillis()
+                val timeTracking = mutableListOf<String>()
 
-            logger.info("henter rinasaker på valgt aktoerid: $aktoerId, på saknr: $pensjonSakNummer")
-            val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerId)
-            val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
-                .also { timeTracking.add("rinaSakIderFraJoark tid: ${System.currentTimeMillis()-start} i ms") }
+                logger.info("henter rinasaker på valgt aktoerid: $aktoerId, på saknr: $pensjonSakNummer")
+                val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerId)
+                val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
+                    .also { timeTracking.add("rinaSakIderFraJoark tid: ${System.currentTimeMillis()-start} i ms") }
 
-            //bruker saker fra eux/rina
-            val brukerView = gjenlevendeFnr?.let { euxInnhentingService.hentBucViewBruker(it.id, aktoerId, pensjonSakNummer) }.also {
-                timeTracking.add("hentBucViewBruker, gjenlevendeFnr tid: ${System.currentTimeMillis()-start} i ms")
-            }?: emptyList()
+                //bruker saker fra eux/rina
+                val brukerView = gjenlevendeFnr?.let { euxInnhentingService.hentBucViewBruker(it.id, aktoerId, pensjonSakNummer) }.also {
+                    timeTracking.add("hentBucViewBruker, gjenlevendeFnr tid: ${System.currentTimeMillis()-start} i ms")
+                }?: emptyList()
 
-            //filtert bort brukersaker fra saf
-            val filterBrukerRinaSakIderFraJoark = rinaSakIderFraJoark.filterNot { rinaid -> rinaid in brukerView.map { it.euxCaseId }  }
+                //filtert bort brukersaker fra saf
+                val filterBrukerRinaSakIderFraJoark = rinaSakIderFraJoark.filterNot { rinaid -> rinaid in brukerView.map { it.euxCaseId }  }
 
-            //saker fra saf og eux/rina
-            val safView = euxInnhentingService.lagBucViews(
-                aktoerId,
-                pensjonSakNummer,
-                filterBrukerRinaSakIderFraJoark,
-                EuxInnhentingService.BucViewKilde.SAF
-            ).also {timeTracking.add("hentBucViews tid: ${System.currentTimeMillis()-start} i ms")}
+                //saker fra saf og eux/rina
+                val safView = euxInnhentingService.lagBucViews(
+                    aktoerId,
+                    pensjonSakNummer,
+                    filterBrukerRinaSakIderFraJoark,
+                    EuxInnhentingService.BucViewKilde.SAF
+                ).also {timeTracking.add("hentBucViews tid: ${System.currentTimeMillis()-start} i ms")}
 
-            val view = (brukerView + safView).also { logger.info("Antall for brukerview+safView: ${it.size}") }
-            //rinaIder inneholder bucer som ikke er gjenny bucer
-            val rinaIder = view.map { it.euxCaseId }.filter { gcpStorageService.gjennySakFinnes(it) }.also { logger.info("Det finnes ${it.size} SED som kommer fra GJENNY") }
+                val view = (brukerView + safView).also { logger.info("Antall for brukerview+safView: ${it.size}") }
+                //rinaIder inneholder bucer som ikke er gjenny bucer
+                val rinaIder = view.map { it.euxCaseId }.filter { gcpStorageService.gjennySakFinnes(it) }.also { logger.info("Det finnes ${it.size} SED som kommer fra GJENNY") }
 
-            //return med sort og distict (avdodfnr og caseid)
-            return@measure FrontEndResponse(view.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
-                //Viser ep-bucer som ikke er gjenny-bucer
-                .filterNot { rinaIder.contains(it.euxCaseId) }
-                .also {
-                    logger.info("Tidsbruk for getRinasakerBrukerkontekst: \n"+timeTracking.joinToString("\n").trimIndent())
-                }, HttpStatus.OK.name)
+                //return med sort og distict (avdodfnr og caseid)
+                return@measure FrontEndResponse(view.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
+                    //Viser ep-bucer som ikke er gjenny-bucer
+                    .filterNot { rinaIder.contains(it.euxCaseId) }
+                    .also {
+                        logger.info("Tidsbruk for getRinasakerBrukerkontekst: \n"+timeTracking.joinToString("\n").trimIndent())
+                    }, HttpStatus.OK.name)
+            }
         }
     }
 
@@ -125,30 +141,32 @@ class BucController(
         @PathVariable("aktoerId", required = true) aktoerId: String,
         @PathVariable("saknr", required = false) pensjonSakNummer: String
     ): FrontEndResponse<List<Buc>> {
-        return bucerJoark.measure {
-            val start = System.currentTimeMillis()
+        return timedControllerCall("hentBucerMedJournalforteSeder") {
+            bucerJoark.measure {
+                val start = System.currentTimeMillis()
 
-            logger.info("henter journalførte bucer for valgt aktoerid: $aktoerId, på saknr: $pensjonSakNummer")
+                logger.info("henter journalførte bucer for valgt aktoerid: $aktoerId, på saknr: $pensjonSakNummer")
 
-            val joarkstart = System.currentTimeMillis()
-            val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
-            logger.debug("rinaSakIderFraJoark : ${rinaSakIderFraJoark.toJson()}")
-            logger.info("hentBucerMedJournalforteSeder tid: ${System.currentTimeMillis()-joarkstart} i ms")
+                val joarkstart = System.currentTimeMillis()
+                val rinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
+                logger.debug("rinaSakIderFraJoark : ${rinaSakIderFraJoark.toJson()}")
+                logger.info("hentBucerMedJournalforteSeder tid: ${System.currentTimeMillis()-joarkstart} i ms")
 
-            //saker fra saf og eux/rina
-            val bucer = euxInnhentingService.hentBucer(
-                rinaSakIderFraJoark
-            )
-            logger.debug("bucer : ${bucer.toJson()}")
+                //saker fra saf og eux/rina
+                val bucer = euxInnhentingService.hentBucer(
+                    rinaSakIderFraJoark
+                )
+                logger.debug("bucer : ${bucer.toJson()}")
 
-            //return med sort og distict (avdodfmr og caseid)
-            return@measure FrontEndResponse(bucer
-                .also {
-                    logger.info("""
-                        Buc count: ${it.size}
-                        HentBucerMedJournalforteSeder: buc count: ${it.size} - total tid: ${System.currentTimeMillis()-start} ms
-                        """.trimIndent())
-                }, HttpStatus.OK.name)
+                //return med sort og distict (avdodfmr og caseid)
+                return@measure FrontEndResponse(bucer
+                    .also {
+                        logger.info("""
+                            Buc count: ${it.size}
+                            HentBucerMedJournalforteSeder: buc count: ${it.size} - total tid: ${System.currentTimeMillis()-start} ms
+                            """.trimIndent())
+                    }, HttpStatus.OK.name)
+            }
         }
     }
 
@@ -160,30 +178,32 @@ class BucController(
         @PathVariable("aktoerId", required = true) aktoerId: String,
         @PathVariable("saknr", required = false) pensjonSakNummer: String
     ): FrontEndResponse<List<BucView>> {
-        return bucViewRina.measure {
-            val start = System.currentTimeMillis()
+        return timedControllerCall("getRinasakerFraRina") {
+            bucViewRina.measure {
+                val start = System.currentTimeMillis()
 
-            //Når vi ikke finner noe fnr så feiler denne med 404 NOT_FOUND
-            val fnr = innhentingService.hentFnrEllerNpidfraAktoerService(AktoerId(aktoerId))
-            logger.info("henter rinasaker på valgt aktoerid: $aktoerId, på saknr: $pensjonSakNummer")
+                //Når vi ikke finner noe fnr så feiler denne med 404 NOT_FOUND
+                val fnr = innhentingService.hentFnrEllerNpidfraAktoerService(AktoerId(aktoerId))
+                logger.info("henter rinasaker på valgt aktoerid: $aktoerId, på saknr: $pensjonSakNummer")
 
-            //Her kreves fnr fra kallet over, kan vi sjekke om vi kan bruke npid i stedet?
-            val rinaSaker = euxInnhentingService.hentBucViewBruker(fnr.id, aktoerId, pensjonSakNummer)
-            logger.info("brukerView : ${rinaSaker.toJson()}")
+                //Her kreves fnr fra kallet over, kan vi sjekke om vi kan bruke npid i stedet?
+                val rinaSaker = euxInnhentingService.hentBucViewBruker(fnr.id, aktoerId, pensjonSakNummer)
+                logger.info("brukerView : ${rinaSaker.toJson()}")
 
-            val rinaIder = rinaSaker.map { it.euxCaseId }.filter { gcpStorageService.gjennySakFinnes(it) }
+                val rinaIder = rinaSaker.map { it.euxCaseId }.filter { gcpStorageService.gjennySakFinnes(it) }
 
 
-            //return med sort og distict (avdodfnr og caseid)
-            return@measure FrontEndResponse(rinaSaker.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
-                // Viser ikke Gjenny bucer
-                .filterNot { rinaIder.contains(it.euxCaseId) }
-                .also {
-                    logger.info("""
-                        Total view size: ${it.size}
-                        GetRinasakerFraRina -> BrukerRinasaker total tid: ${System.currentTimeMillis()-start} i ms
-                    """.trimMargin())
-                }, HttpStatus.OK.name)
+                //return med sort og distict (avdodfnr og caseid)
+                return@measure FrontEndResponse(rinaSaker.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
+                    // Viser ikke Gjenny bucer
+                    .filterNot { rinaIder.contains(it.euxCaseId) }
+                    .also {
+                        logger.info("""
+                            Total view size: ${it.size}
+                            GetRinasakerFraRina -> BrukerRinasaker total tid: ${System.currentTimeMillis()-start} i ms
+                        """.trimMargin())
+                    }, HttpStatus.OK.name)
+            }
         }
     }
 
@@ -193,51 +213,53 @@ class BucController(
         @PathVariable("saknr", required = false) sakNr: String,
         @PathVariable("vedtakid", required = false) vedtakId: String? = null
     ): FrontEndResponse<List<BucView>> {
-        return bucViewForVedtak.measure {
-            val start = System.currentTimeMillis()
+        return timedControllerCall("getGjenlevendeRinasakerVedtak") {
+            bucViewForVedtak.measure {
+                val start = System.currentTimeMillis()
 
-            logger.info("henter rinasaker på valgt aktoerid: $aktoerId, saknr: $sakNr, vedtaksId:$vedtakId")
+                logger.info("henter rinasaker på valgt aktoerid: $aktoerId, saknr: $sakNr, vedtaksId:$vedtakId")
 
-            //api
-            val avdodeFraPesysVedtak = hentAvdodFraVedtak(vedtakId, sakNr).ifEmpty {
-                vedtakId
-                    ?.let(gcpStorageService::hentSedIdFrPBuc02)
-                    ?.let { sedInfo ->
-                        logger.info("Vi benytter tidligere lagret")
-                        (euxInnhentingService.getSedOnBucByDocumentId(sedInfo.euxCaseId, sedInfo.sedId) as P2100)
-                            .nav?.bruker?.person?.pin
-                            ?.mapNotNull { it.identifikator }
-                            ?: emptyList()
-                    }
-                    ?: emptyList()
-            }
-            logger.debug("Avdod: $avdodeFraPesysVedtak")
+                //api
+                val avdodeFraPesysVedtak = hentAvdodFraVedtak(vedtakId, sakNr).ifEmpty {
+                    vedtakId
+                        ?.let(gcpStorageService::hentSedIdFrPBuc02)
+                        ?.let { sedInfo ->
+                            logger.info("Vi benytter tidligere lagret")
+                            (euxInnhentingService.getSedOnBucByDocumentId(sedInfo.euxCaseId, sedInfo.sedId) as P2100)
+                                .nav?.bruker?.person?.pin
+                                ?.mapNotNull { it.identifikator }
+                                ?: emptyList()
+                        }
+                        ?: emptyList()
+                }
+                logger.debug("Avdod: $avdodeFraPesysVedtak")
 
-            if (avdodeFraPesysVedtak.isEmpty()) {
-                return@measure FrontEndResponse(
-                    emptyList(),
-                    HttpStatus.OK.name.also { loggTimeAndViewSize("GjenlevendeRinasakerVedtak", start, 0) }
+                if (avdodeFraPesysVedtak.isEmpty()) {
+                    return@measure FrontEndResponse(
+                        emptyList(),
+                        HttpStatus.OK.name.also { loggTimeAndViewSize("GjenlevendeRinasakerVedtak", start, 0) }
+                    )
+                }
+
+                //api: brukersaker fra Joark/saf
+                val brukerRinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
+                    .also { loggTimeAndViewSize("brukerRinaSakIderFraJoark", start, 0) }
+
+                //api: avdødSaf + avdødUtenSaf + avdødsaf + safBruker
+                val view = euxInnhentingService.hentViewsForSafOgRinaForAvdode(
+                    avdodeFraPesysVedtak,
+                    aktoerId,
+                    sakNr,
+                    brukerRinaSakIderFraJoark
                 )
+
+                val rinaIder = view.map { it.euxCaseId }.filter { gcpStorageService.gjennySakFinnes(it) }.also { logger.info("Det finnes ${it.size} SED som kommer fra GJENNY") }
+
+                //return med sort og distinct (avdodfnr og caseid)
+                return@measure FrontEndResponse(view.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
+                    .filterNot { rinaIder.contains(it.euxCaseId) }
+                    .also { logger.info("GjenlevendeRinasakerVedtak: view size: ${it.size}, total tid: ${System.currentTimeMillis()-start} i ms") }, HttpStatus.OK.name)
             }
-
-            //api: brukersaker fra Joark/saf
-            val brukerRinaSakIderFraJoark = innhentingService.hentRinaSakIderFraJoarksMetadata(aktoerId)
-                .also { loggTimeAndViewSize("brukerRinaSakIderFraJoark", start, 0) }
-
-            //api: avdødSaf + avdødUtenSaf + avdødsaf + safBruker
-            val view = euxInnhentingService.hentViewsForSafOgRinaForAvdode(
-                avdodeFraPesysVedtak,
-                aktoerId,
-                sakNr,
-                brukerRinaSakIderFraJoark
-            )
-
-            val rinaIder = view.map { it.euxCaseId }.filter { gcpStorageService.gjennySakFinnes(it) }.also { logger.info("Det finnes ${it.size} SED som kommer fra GJENNY") }
-
-            //return med sort og distinct (avdodfnr og caseid)
-            return@measure FrontEndResponse(view.sortedByDescending { it.avdodFnr }.distinctBy { it.euxCaseId }
-                .filterNot { rinaIder.contains(it.euxCaseId) }
-                .also { logger.info("GjenlevendeRinasakerVedtak: view size: ${it.size}, total tid: ${System.currentTimeMillis()-start} i ms") }, HttpStatus.OK.name)
         }
     }
 
@@ -271,8 +293,10 @@ class BucController(
         @PathVariable("saknr", required = true) sakNr: String,
         @PathVariable("avdodfnr", required = true) avdodfnr : String
     ): FrontEndResponse<List<BucView>> {
-        logger.info("Henter rinasaker på avdod: $aktoerId, saknr: $sakNr")
-        return FrontEndResponse(euxInnhentingService.hentBucViewAvdod(avdodfnr, aktoerId, sakNr), HttpStatus.OK.name)
+        return timedControllerCall("getAvdodRinaSak") {
+            logger.info("Henter rinasaker på avdod: $aktoerId, saknr: $sakNr")
+            FrontEndResponse(euxInnhentingService.hentBucViewAvdod(avdodfnr, aktoerId, sakNr), HttpStatus.OK.name)
+        }
 
     }
 
@@ -284,16 +308,17 @@ class BucController(
         @PathVariable("saknr", required = true) saknr: String,
         @PathVariable("kilde", required = true) kilde: EuxInnhentingService.BucViewKilde
     ): FrontEndResponse<BucAndSedView> {
-        return bucDetaljerEnkel.measure {
-            logger.info("Henter ut en enkel buc med euxCaseId: $euxcaseid, saknr: $saknr, kilde: $kilde")
+        return timedControllerCall("getSingleBucogSedView") {
+            bucDetaljerEnkel.measure {
+                logger.info("Henter ut en enkel buc med euxCaseId: $euxcaseid, saknr: $saknr, kilde: $kilde")
 
-            val enkeltBucAndSedView = euxInnhentingService.getSingleBucAndSedView(euxcaseid)
-            if (enkeltBucAndSedView.error.isNullOrEmpty()) {
-                FrontEndResponse(enkeltBucAndSedView, HttpStatus.OK.name)
-            } else {
-                FrontEndResponse(enkeltBucAndSedView, enkeltBucAndSedView.error)
+                val enkeltBucAndSedView = euxInnhentingService.getSingleBucAndSedView(euxcaseid)
+                if (enkeltBucAndSedView.error.isNullOrEmpty()) {
+                    FrontEndResponse(enkeltBucAndSedView, HttpStatus.OK.name)
+                } else {
+                    FrontEndResponse(enkeltBucAndSedView, enkeltBucAndSedView.error)
+                }
             }
-
         }
     }
 
@@ -305,27 +330,29 @@ class BucController(
         @PathVariable("avdodfnr", required = true) avdodFnr: String,
         @PathVariable("kilde", required = true) kilde: EuxInnhentingService.BucViewKilde
     ): FrontEndResponse<BucAndSedView> {
-        logger.info("Henter ut en enkel buc for gjenlevende")
+        return timedControllerCall("getSingleBucogSedViewMedAvdod") {
+            logger.info("Henter ut en enkel buc for gjenlevende")
 
-        val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerid)
-        return if (kilde == EuxInnhentingService.BucViewKilde.SAF) {
-            bucDetaljerEnkelGjenlevende.measure {
-                logger.info("saf euxCaseId: $euxcaseid, saknr: $saknr")
-                val bucAnsSedView = euxInnhentingService.getSingleBucAndSedView(euxcaseid)
-                    .copy(subject = BucAndSedSubject(SubjectFnr(gjenlevendeFnr?.id), SubjectFnr(avdodFnr)))
-                FrontEndResponse(bucAnsSedView, HttpStatus.OK.name)
-            }
-        } else {
-            bucDetaljerEnkelavdod.measure {
-                logger.info("avdod med euxCaseId: $euxcaseid, saknr: $saknr")
-                val bucOgDocAvdod = euxInnhentingService.hentBucOgDocumentIdAvdod(listOf(euxcaseid))
-                val listeAvSedsPaaAvdod = euxInnhentingService.hentDocumentJsonAvdod(bucOgDocAvdod)
-                val gyldigeBucs = gjenlevendeFnr?.let { euxInnhentingService.filterGyldigBucGjenlevendeAvdod(listeAvSedsPaaAvdod, it.id) }
+            val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerid)
+            if (kilde == EuxInnhentingService.BucViewKilde.SAF) {
+                bucDetaljerEnkelGjenlevende.measure {
+                    logger.info("saf euxCaseId: $euxcaseid, saknr: $saknr")
+                    val bucAnsSedView = euxInnhentingService.getSingleBucAndSedView(euxcaseid)
+                        .copy(subject = BucAndSedSubject(SubjectFnr(gjenlevendeFnr?.id), SubjectFnr(avdodFnr)))
+                    FrontEndResponse(bucAnsSedView, HttpStatus.OK.name)
+                }
+            } else {
+                bucDetaljerEnkelavdod.measure {
+                    logger.info("avdod med euxCaseId: $euxcaseid, saknr: $saknr")
+                    val bucOgDocAvdod = euxInnhentingService.hentBucOgDocumentIdAvdod(listOf(euxcaseid))
+                    val listeAvSedsPaaAvdod = euxInnhentingService.hentDocumentJsonAvdod(bucOgDocAvdod)
+                    val gyldigeBucs = gjenlevendeFnr?.let { euxInnhentingService.filterGyldigBucGjenlevendeAvdod(listeAvSedsPaaAvdod, it.id) }
 
-                val gjenlevendeBucAndSedView = gyldigeBucs?.let { euxInnhentingService.getBucAndSedViewWithBuc(it, gjenlevendeFnr.id, avdodFnr) }
-                if (gjenlevendeBucAndSedView?.firstOrNull() != null)
-                    FrontEndResponse(gjenlevendeBucAndSedView.firstOrNull(), HttpStatus.OK.name) else
-                    FrontEndResponse(BucAndSedView.fromErr("Ingen Buc Funnet!"), HttpStatus.BAD_REQUEST.name)
+                    val gjenlevendeBucAndSedView = gyldigeBucs?.let { euxInnhentingService.getBucAndSedViewWithBuc(it, gjenlevendeFnr.id, avdodFnr) }
+                    if (gjenlevendeBucAndSedView?.firstOrNull() != null)
+                        FrontEndResponse(gjenlevendeBucAndSedView.firstOrNull(), HttpStatus.OK.name) else
+                        FrontEndResponse(BucAndSedView.fromErr("Ingen Buc Funnet!"), HttpStatus.BAD_REQUEST.name)
+                }
             }
         }
 
