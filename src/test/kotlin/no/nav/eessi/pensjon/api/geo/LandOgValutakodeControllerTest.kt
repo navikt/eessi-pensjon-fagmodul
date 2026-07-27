@@ -15,7 +15,9 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
+import org.springframework.cache.CacheManager
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
@@ -41,6 +43,10 @@ class LandOgValutakodeControllerTest {
     @MockkBean
     lateinit var restTemplate: RestTemplate
 
+    @Autowired
+    @Qualifier("geoCacheManager")
+    lateinit var geoCacheManager: CacheManager
+
     lateinit var kodeverkService: KodeverkService
     private val logger: Logger = LoggerFactory.getLogger(LandOgValutakodeController::class.java) as Logger
     private val listAppender = ListAppender<ILoggingEvent>()
@@ -51,6 +57,9 @@ class LandOgValutakodeControllerTest {
         kodeverkService = KodeverkService(restTemplate)
         listAppender.start()
         logger.addAppender(listAppender)
+        // Landkoder caches responses, så vi må nullstille cachen mellom hver test
+        // for at mocket restTemplate-oppførsel skal slå igjennom hver gang.
+        geoCacheManager.cacheNames.forEach { geoCacheManager.getCache(it)?.clear() }
     }
 
     @AfterEach
