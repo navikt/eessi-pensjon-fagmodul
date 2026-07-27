@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import org.slf4j.LoggerFactory
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
@@ -17,6 +18,7 @@ class KodeverkService(private val euxNavIdentRestTemplate: RestTemplate) {
 
     private val logger = LoggerFactory.getLogger(KodeverkService::class.java)
 
+    @Cacheable(cacheNames = [LANDKODE_CACHE], cacheManager = "geoCacheManager")
     fun getLandkoderAkseptertAvRina(format: String? = null): LandkodeMerKorrektFormat? {
         val url = "/landkoder/rina${format?.let { "?format=$it" } ?: ""}"
         logger.debug("KodeverkService getLandkoderAkseptertAvRina: $url")
@@ -43,6 +45,7 @@ class KodeverkService(private val euxNavIdentRestTemplate: RestTemplate) {
         }
     }
 
+    @Cacheable(cacheNames = [LAND_OG_VALUTAKODE_CACHE], cacheManager = "geoCacheManager")
     fun getLandOgValutakoderAkseptertAvRina(format: String? = null): LandOgValutakodeMerKorrektFormat? {
         val url = "/landogvalutakoder/rina${format?.let { "?format=$it" } ?: ""}"
         logger.debug("KodeverkService getLandOgValutakoderAkseptertAvRina: $url")
