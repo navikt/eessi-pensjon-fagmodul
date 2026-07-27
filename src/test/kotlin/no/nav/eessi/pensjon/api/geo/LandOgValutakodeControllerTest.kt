@@ -1,5 +1,8 @@
 package no.nav.eessi.pensjon.api.geo
 
+import ch.qos.logback.classic.Logger
+import ch.qos.logback.classic.spi.ILoggingEvent
+import ch.qos.logback.core.read.ListAppender
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.MockKAnnotations
 import io.mockk.every
@@ -7,6 +10,8 @@ import no.nav.eessi.pensjon.fagmodul.api.FrontEndResponse
 import no.nav.eessi.pensjon.kodeverk.KodeverkClient
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -20,6 +25,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.web.client.RestTemplate
+import org.slf4j.LoggerFactory
 
 @WebMvcTest(LandOgValutakodeController::class)
 @ComponentScan(basePackages = ["no.nav.eessi.pensjon.api.geo"])
@@ -36,11 +42,21 @@ class LandOgValutakodeControllerTest {
     lateinit var restTemplate: RestTemplate
 
     lateinit var kodeverkService: KodeverkService
+    private val logger: Logger = LoggerFactory.getLogger(LandOgValutakodeController::class.java) as Logger
+    private val listAppender = ListAppender<ILoggingEvent>()
 
     @BeforeEach
     fun before() {
         MockKAnnotations.init(this, relaxed = true, relaxUnitFun = true)
         kodeverkService = KodeverkService(restTemplate)
+        listAppender.start()
+        logger.addAppender(listAppender)
+    }
+
+    @AfterEach
+    fun after() {
+        logger.detachAppender(listAppender)
+        listAppender.stop()
     }
 
     @Test
@@ -61,6 +77,7 @@ class LandOgValutakodeControllerTest {
 
         val response = mapJsonToAny<FrontEndResponse<*>>(repsonse.contentAsString)
         assertEquals(resultatFraRina(), response.result.toString())
+        assertTrue(listAppender.list.any { it.message.contains("landOgValutakoderAkseptertAvRina tid: ") })
     }
 
     fun resultatFraRina(): String {

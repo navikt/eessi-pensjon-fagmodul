@@ -13,22 +13,32 @@ import org.springframework.web.bind.annotation.*
 class LandOgValutakodeController(private val kodeverkService: KodeverkService) {
 
     private val logger = LoggerFactory.getLogger(LandOgValutakodeController::class.java)
+    private inline fun <T> timedControllerCall(endpoint: String, block: () -> T): T {
+        val start = System.currentTimeMillis()
+        return try {
+            block()
+        } finally {
+            logger.info("$endpoint tid: ${System.currentTimeMillis() - start} ms")
+        }
+    }
 
     @GetMapping("/rina")
     fun landOgValutakoderAkseptertAvRina(@RequestParam(required = false) format: String?): ResponseEntity<FrontEndResponse<LandOgValutakodeMerKorrektFormat>>? {
-        logger.info("Henter land- og valutakoder for rina, format: $format")
-        return try {
-            val aksepterteLandOgValutakoderFraRina = kodeverkService.getLandOgValutakoderAkseptertAvRina(format)
-            ResponseEntity.ok(
-                FrontEndResponse(
-                    result = aksepterteLandOgValutakoderFraRina,
-                    status = HttpStatus.OK.value().toString()
+        return timedControllerCall("landOgValutakoderAkseptertAvRina") {
+            logger.info("Henter land- og valutakoder for rina, format: $format")
+            try {
+                val aksepterteLandOgValutakoderFraRina = kodeverkService.getLandOgValutakoderAkseptertAvRina(format)
+                ResponseEntity.ok(
+                    FrontEndResponse(
+                        result = aksepterteLandOgValutakoderFraRina,
+                        status = HttpStatus.OK.value().toString()
+                    )
                 )
-            )
-        } catch (ex: Exception) {
-            logger.error("Feil ved henting av aksepterte land- og valutakoder fra Rina: ${ex.message}", ex)
-            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(FrontEndResponse(status = HttpStatus.INTERNAL_SERVER_ERROR.name, message = ex.message))
+            } catch (ex: Exception) {
+                logger.error("Feil ved henting av aksepterte land- og valutakoder fra Rina: ${ex.message}", ex)
+                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(FrontEndResponse(status = HttpStatus.INTERNAL_SERVER_ERROR.name, message = ex.message))
+            }
         }
     }
 }
