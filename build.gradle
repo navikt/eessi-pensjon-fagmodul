@@ -78,7 +78,7 @@ dependencies {
     implementation("no.nav.eessi.pensjon:ep-metrics:3.0.34")
     implementation("no.nav.eessi.pensjon:ep-logging:3.0.46")
     implementation("no.nav.eessi.pensjon:ep-eux:3.0.85")
-    implementation("no.nav.eessi.pensjon:ep-kodeverk:5.0.88") {
+    implementation("no.nav.eessi.pensjon:ep-kodeverk:5.0.89") {
         exclude module: 'ep-eux'
         exclude module: 'ep-logging'
         exclude module: 'ep-metrics'
@@ -109,7 +109,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter:6.0.1")
 
     //mock - test
-    testImplementation("io.mockk:mockk:1.14.7")
+    testImplementation("io.mockk:mockk:1.14.11")
     testImplementation("org.skyscreamer:jsonassert:1.5.3")
 
     testImplementation("com.tngtech.archunit:archunit:1.4.2")
