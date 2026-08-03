@@ -30,6 +30,11 @@ jobs:
           java-version: 21.0.4
           distribution: temurin
 
+      - name: 'Sett deploy metadata'
+        run: |
+          echo "DATE=$(date +%Y%m%d)" >> "$GITHUB_ENV"
+          echo "COMMIT_HASH=$(git rev-parse --short HEAD)" >> "$GITHUB_ENV"
+
       - name: 'Sjekker at bygget kjører'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
