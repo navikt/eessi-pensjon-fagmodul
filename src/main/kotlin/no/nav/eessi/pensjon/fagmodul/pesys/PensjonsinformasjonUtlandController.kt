@@ -91,53 +91,88 @@ class PensjonsinformasjonUtlandController(
     ) : P1Dto {
         logger.info("Henter P6000 detaljer fra bucket for pesysId: $pesysId")
         return p6000Metric.measure {
-            val p6000FraGcp = gcpStorageService.hentGcpDetlajerForP6000(pesysId) ?: throw ResponseStatusException(
-                HttpStatus.NOT_FOUND,
-                "Ingen P6000-detaljer funnet for pesysId: $pesysId"
-            )
-            val listeOverP6000FraGcp = mutableListOf<P6000>()
-            val p6000Detaljer = mapJsonToAny<P6000Detaljer>(p6000FraGcp).also { logger.info("P6000Detaljer: ${it.toJson()}") }
-            p6000Detaljer.dokumentId.forEach { sedDokumentId ->
-                runCatching {
-                    val hentetSed = euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(p6000Detaljer.rinaSakId, sedDokumentId)
-                    if (hentetSed !is P6000) {
-                        logger.warn("Dokument $sedDokumentId for pesysId: $pesysId er ikke P6000 og blir hoppet over")
-                        return@runCatching
-                    }
-                    val sedMetaData = euxInnhentingService.hentSedMetadata(p6000Detaljer.rinaSakId, sedDokumentId).also { secureLog.info("SedMetaData: $it") }
-                    hentetSed.avsender = sedMetaData?.avsender
-                    listeOverP6000FraGcp.add(hentetSed)
-                }.getOrElse { e ->
-                    logger.error("Feil ved henting av P6000-detaljer fra Rina for pesysId: $pesysId, dokumentId: $sedDokumentId", e)
-                    throw ResponseStatusException(
-                        HttpStatus.BAD_GATEWAY,
-                        "Feil ved henting av P6000-detaljer fra Rina for pesysId: $pesysId",
-                        e
-                    )
-                }
-            }
+            val p6000Detaljer = hentP6000DetaljerFraGcp(pesysId)
+            val listeOverP6000FraGcp = hentP6000erFraRina(pesysId, p6000Detaljer)
             logger.info("Hentet nye dok detaljer fra Rina for $pesysId")
+            lagP1DtoFraP6000erEllerP7000(pesysId, p6000Detaljer.rinaSakId, listeOverP6000FraGcp)
+        }
+    }
 
-            val innvilgedePensjoner = penInfoUtlandService.innvilgedePensjoner(listeOverP6000FraGcp).also { secureLog.info("innvilgedePensjoner: " +it.toJson()) }
-            val avslaatteUtenlandskePensjoner = penInfoUtlandService.avslaatteUtenlandskePensjoner(listeOverP6000FraGcp).also { secureLog.info("avslaatteUtenlandskePensjoner: " + it.toJson()) }
+    private fun hentP6000DetaljerFraGcp(pesysId: String): P6000Detaljer {
+        val p6000FraGcp = gcpStorageService.hentGcpDetlajerForP6000(pesysId) ?: throw ResponseStatusException(
+            HttpStatus.NOT_FOUND,
+            "Ingen P6000-detaljer funnet for pesysId: $pesysId"
+        )
+        return mapJsonToAny<P6000Detaljer>(p6000FraGcp).also { logger.info("P6000Detaljer: ${it.toJson()}") }
+    }
 
-            sjekkPaaGyldigeInnvElAvslPensjoner(innvilgedePensjoner, avslaatteUtenlandskePensjoner, listeOverP6000FraGcp, pesysId)
+    private fun hentP6000erFraRina(
+        pesysId: String,
+        p6000Detaljer: P6000Detaljer
+    ): MutableList<P6000> {
+        val listeOverP6000FraGcp = mutableListOf<P6000>()
+        var antallRinaFeil = 0
+        var sisteRinaFeil: Throwable? = null
 
-            val nyesteP6000 = penInfoUtlandService.nyesteP6000(listeOverP6000FraGcp).firstOrNull()
-            if (innvilgedePensjoner.isEmpty() && avslaatteUtenlandskePensjoner.isEmpty()) {
-                hentP7000FraRina(p6000Detaljer.rinaSakId)
-            } else {
-                P1Dto(
-                    innehaver = nyesteP6000?.let { penInfoUtlandService.person(it, GJENLEVENDE) },
-                    forsikrede = nyesteP6000?.let { penInfoUtlandService.person(it, FORSIKRET) },
-                    sakstype = saksType(innvilgedePensjoner, avslaatteUtenlandskePensjoner)?.name,
-                    kravMottattDato = null,
-                    innvilgedePensjoner = innvilgedePensjoner,
-                    avslaattePensjoner = avslaatteUtenlandskePensjoner,
-                    utfyllendeInstitusjon = ""
-                ).also { secureLog.info("P1Dto: " + it.toJson()) }
+        p6000Detaljer.dokumentId.forEach { sedDokumentId ->
+            runCatching {
+                val hentetSed = euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser(p6000Detaljer.rinaSakId, sedDokumentId)
+                if (hentetSed !is P6000) {
+                    logger.warn("Dokument $sedDokumentId for pesysId: $pesysId er ikke P6000 og blir hoppet over")
+                    return@runCatching
+                }
+                val sedMetaData = euxInnhentingService.hentSedMetadata(p6000Detaljer.rinaSakId, sedDokumentId)
+                    .also { secureLog.info("SedMetaData: $it") }
+                hentetSed.avsender = sedMetaData?.avsender
+                listeOverP6000FraGcp.add(hentetSed)
+            }.onFailure { e ->
+                antallRinaFeil++
+                sisteRinaFeil = e
+                logger.error("Feil ved henting av P6000-detaljer fra Rina for pesysId: $pesysId, dokumentId: $sedDokumentId", e)
             }
         }
+
+        if (listeOverP6000FraGcp.isEmpty() && antallRinaFeil > 0) {
+            logger.error("Ingen P6000-detaljer funnet for pesysId: $pesysId, feil på $antallRinaFeil dokumenter", sisteRinaFeil)
+            throw ResponseStatusException(
+                HttpStatus.BAD_GATEWAY,
+                "Feil ved henting av P6000-detaljer fra Rina for pesysId: $pesysId",
+                sisteRinaFeil
+            )
+        }
+        if (antallRinaFeil > 0) {
+            logger.warn("Delvis henting av P6000-detaljer for pesysId: $pesysId, feil på $antallRinaFeil av ${p6000Detaljer.dokumentId.size} dokumenter")
+        }
+
+        return listeOverP6000FraGcp
+    }
+
+    private fun lagP1DtoFraP6000erEllerP7000(
+        pesysId: String,
+        rinaSakId: String,
+        listeOverP6000FraGcp: MutableList<P6000>
+    ): P1Dto {
+        val innvilgedePensjoner = penInfoUtlandService.innvilgedePensjoner(listeOverP6000FraGcp)
+            .also { secureLog.info("innvilgedePensjoner: " + it.toJson()) }
+        val avslaatteUtenlandskePensjoner = penInfoUtlandService.avslaatteUtenlandskePensjoner(listeOverP6000FraGcp)
+            .also { secureLog.info("avslaatteUtenlandskePensjoner: " + it.toJson()) }
+
+        sjekkPaaGyldigeInnvElAvslPensjoner(innvilgedePensjoner, avslaatteUtenlandskePensjoner, listeOverP6000FraGcp, pesysId)
+
+        val nyesteP6000 = penInfoUtlandService.nyesteP6000(listeOverP6000FraGcp).firstOrNull()
+        if (innvilgedePensjoner.isEmpty() && avslaatteUtenlandskePensjoner.isEmpty()) {
+            return hentP7000FraRina(rinaSakId)
+        }
+
+        return P1Dto(
+            innehaver = nyesteP6000?.let { penInfoUtlandService.person(it, GJENLEVENDE) },
+            forsikrede = nyesteP6000?.let { penInfoUtlandService.person(it, FORSIKRET) },
+            sakstype = saksType(innvilgedePensjoner, avslaatteUtenlandskePensjoner)?.name,
+            kravMottattDato = null,
+            innvilgedePensjoner = innvilgedePensjoner,
+            avslaattePensjoner = avslaatteUtenlandskePensjoner,
+            utfyllendeInstitusjon = ""
+        ).also { secureLog.info("P1Dto: " + it.toJson()) }
     }
 
 
@@ -200,4 +235,3 @@ class PensjonsinformasjonUtlandController(
         ).also { secureLog.info("P1Dto fra P7000: " + it.toJson())}
     }
 }
-
