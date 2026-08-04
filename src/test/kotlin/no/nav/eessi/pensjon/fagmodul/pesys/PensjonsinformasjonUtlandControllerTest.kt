@@ -493,6 +493,61 @@ class PensjonsinformasjonUtlandControllerTest {
             assertEquals("404 NOT_FOUND \"Ingen P6000-detaljer funnet for pesysId: 22975052\"", exception.message)
             assertEquals("Ingen P6000-detaljer funnet for pesysId: 22975052", exception.reason!!)
         }
+
+        @Test
+        fun `skal fortsette med andre P6000er når ett dokument feiler`() {
+            every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
+                every { exists() } returns true
+                every { getContent() } returns p6000Detaljer(listOf("1111", "2222")).toByteArray()
+            }
+            every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "1111") } throws RuntimeException("Rina utilgjengelig")
+            every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "2222") } returns hentTestP6000("P6000-InnvilgedePensjoner.json")
+            every { euxInnhentingService.hentSedMetadata("1446704", "2222") } returns sedMetadata()
+
+            val result = controller.hentP6000Detaljer("22975052")
+
+            assertEquals("GJENLEVENDE", result.sakstype)
+            assertEquals(1, result.innvilgedePensjoner?.size)
+        }
+
+        @Test
+        fun `skal kaste 502 når alle dokumentoppslag mot Rina feiler`() {
+            every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
+                every { exists() } returns true
+                every { getContent() } returns p6000Detaljer(listOf("1111", "2222")).toByteArray()
+            }
+            every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", any()) } throws RuntimeException("Rina utilgjengelig")
+
+            val exception = assertThrows<org.springframework.web.server.ResponseStatusException> {
+                controller.hentP6000Detaljer("22975052")
+            }
+
+            assertEquals("502 BAD_GATEWAY \"Feil ved henting av P6000-detaljer fra Rina for pesysId: 22975052\"", exception.message)
+            assertEquals("Feil ved henting av P6000-detaljer fra Rina for pesysId: 22975052", exception.reason!!)
+        }
+
+        @Test
+        fun `skal falle tilbake til P7000 når alle dokumenter hoppes over fordi de ikke er P6000`() {
+            every { gcpStorage.get(any<BlobId>()) } returns mockk<Blob>().apply {
+                every { exists() } returns true
+                every { getContent() } returns p6000Detaljer(listOf("1111", "2222")).toByteArray()
+            }
+
+            val p7000 = mapJsonToAny<P7000>(javaClass.getResource("/json/sed/P7000-RINA.json")!!.readText())
+            every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "1111") } returns p7000
+            every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "2222") } returns p7000
+            every { euxInnhentingService.getBucAsSystemuser("1446704") } returns Buc(
+                documents = listOf(DocumentsItem(type = P7000, id = "p7000doc"))
+            )
+            every { euxInnhentingService.getSedOnBucByDocumentIdAsSystemuser("1446704", "p7000doc") } returns p7000
+
+            val result = controller.hentP6000Detaljer("22975052")
+
+            assertEquals(0, result.innvilgedePensjoner?.size)
+            assertEquals(0, result.avslaattePensjoner?.size)
+            assertEquals("GRØNN", result.innehaver?.fornavn)
+            assertEquals("ORANGE", result.forsikrede?.fornavn)
+        }
     }
 
     private fun mockGcpListeSok(rinaNrList: List<String>) {
@@ -579,4 +634,3 @@ class PensjonsinformasjonUtlandControllerTest {
             land = land)
     )
 }
-
