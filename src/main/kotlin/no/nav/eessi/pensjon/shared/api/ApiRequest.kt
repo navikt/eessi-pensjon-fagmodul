@@ -41,6 +41,7 @@ data class ApiRequest(
     val institutions: List<InstitusjonItem>? = null,
     val subjectArea: String? = null,
     val avdodfnr: String? = null, //kun P2100 på P_BUC_02
+    val avdodfnrManuelt: Boolean? = null, //kun P2100 på P_BUC_02
     val subject: ApiSubject? = null, //P_BUC_02 alle andre seder etter P2100
     //P8000-P_BUC_05
     val referanseTilPerson: ReferanseTilPerson? = null,
