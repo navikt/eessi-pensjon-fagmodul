@@ -1,5 +1,6 @@
 package no.nav.eessi.pensjon.api.pensjon
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.SpyK
@@ -13,14 +14,14 @@ import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.EessiFellesDto
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.EessiPensjonSak
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PesysService
-import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import org.skyscreamer.jsonassert.JSONAssert
 import org.slf4j.MDC
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
@@ -55,12 +56,9 @@ class PensjonControllerTest {
     @Test
     fun `hentPensjonSakType gitt en aktoerId saa slaa opp fnr og hent deretter sakstype`() {
         every { pesysService.hentSaktype(SOME_SAKID) } returns SOME_SAK_TYPE
-        val result = controller.hentPensjonSakType(SOME_SAKID, AKTOERID)
-        JSONAssert.assertEquals(
-            """{
-              "sakId": "10000",
-              "sakType": "ALDER"
-        }""".trimIndent(), result?.body,true)
+        val response = controller.hentPensjonSakType(SOME_SAKID, AKTOERID)
+        assertEquals("OK", response.body?.status)
+        assertEquals(PensjonController.Pensjontype(SOME_SAKID, SOME_SAK_TYPE.name), response.body?.result)
     }
 
     @Test
@@ -68,7 +66,10 @@ class PensjonControllerTest {
 
         every { pesysService.hentSaktype(SOME_SAKID) } returns null
         val response = controller.hentPensjonSakType(SOME_SAKID, AKTOERID)
-        assertEquals("Sakstype ikke funnet for sakId: $SOME_SAKID", response?.body)
+        assertEquals(HttpStatus.NOT_FOUND, response.statusCode)
+        assertNull(response.body?.result)
+        assertEquals("NOT_FOUND", response.body?.status)
+        assertEquals("Sakstype ikke funnet for sakId: $SOME_SAKID", response.body?.message)
     }
 
     private fun getExpectedKunSakType() = """
@@ -84,7 +85,10 @@ class PensjonControllerTest {
         val response = controller.hentPensjonSakType(SOME_SAKID, AKTOERID)
 
         verify { pesysService.hentSaktype(SOME_SAKID) }
-        assertEquals("Sakstype ikke funnet for sakId: $SOME_SAKID", response?.body)
+        assertEquals(HttpStatus.NOT_FOUND, response.statusCode)
+        assertNull(response.body?.result)
+        assertEquals("NOT_FOUND", response.body?.status)
+        assertEquals("Sakstype ikke funnet for sakId: $SOME_SAKID", response.body?.message)
     }
 
     @Test
@@ -94,12 +98,8 @@ class PensjonControllerTest {
                     LocalDate.of(2021, 1, 1),
                     LocalDate.of(2021, 1, 31))
         val response = controller.hentVedtakforForUfor(SOME_SAKID)
-        assertEquals("""
-            {
-              "uforetidspunkt" : "2021-01-01",
-              "virkningstidspunkt" : "2021-01-31"
-            }
-        """.trimIndent(), response)
+        assertEquals("OK", response.status)
+        assertEquals(PensjonController.Uforetidspunkt("2021-01-01", "2021-01-31"), response.result)
     }
 
     @Test
@@ -146,7 +146,9 @@ class PensjonControllerTest {
             .andReturn()
 
         val response = result.response.getContentAsString(charset("UTF-8"))
-        assertEquals("""{ "kravDato": "$kravDato" }""", response)
+        val jsonNode = ObjectMapper().readTree(response)
+        assertEquals("OK", jsonNode.get("status").asText())
+        assertEquals(kravDato, jsonNode.get("result").get("kravDato").asText())
     }
 
     @Test
@@ -177,8 +179,11 @@ class PensjonControllerTest {
             )
             .andReturn()
         val response = result.response.getContentAsString(charset("UTF-8"))
+        val jsonNode = ObjectMapper().readTree(response)
 
-        assertEquals(dto, mapJsonToAny<EessiFellesDto.EessiUfoeretidspunktDto>(response))
+        assertEquals("OK", jsonNode.get("status").asText())
+        assertEquals(ufoereTidspunkt.toString(), jsonNode.get("result").get("uforetidspunkt").asText())
+        assertEquals(virkningsTidspunkts.toString(), jsonNode.get("result").get("virkningstidspunkt").asText())
     }
 
     @Test
@@ -188,10 +193,10 @@ class PensjonControllerTest {
 
         val response = controller.hentKravDatoFraAktor(SOME_SAKID, KRAV_ID, AKTOERID)
 
-        JSONAssert.assertEquals(
-            """{"success": false, "error": "Feiler å hente kravDato", "uuid": "AAA-BBB"}""",
-            response?.body, true
-        )
+        assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
+        assertNull(response.body?.result)
+        assertEquals("BAD_REQUEST", response.body?.status)
+        assertEquals("Feiler å hente kravDato", response.body?.message)
     }
 
     @Test
