@@ -41,7 +41,7 @@ class PensjonsinformasjonUtlandController(
 ) {
     private var pensjonUtland: MetricsHelper.Metric = metricsHelper.init("pensjonUtland")
     private var trygdeTidMetric: MetricsHelper.Metric = metricsHelper.init("trygdeTidMetric")
-    private var p6000Metric: MetricsHelper.Metric = metricsHelper.init("p6000Metric")
+    private var p6000Metric: MetricsHelper.Metric = metricsHelper.init("p6000Metric", ignoreHttpCodes = listOf(HttpStatus.NOT_FOUND))
 
     private val logger = LoggerFactory.getLogger(PensjonsinformasjonUtlandController::class.java)
     private val secureLog = LoggerFactory.getLogger("secureLog")
@@ -99,10 +99,13 @@ class PensjonsinformasjonUtlandController(
     }
 
     private fun hentP6000DetaljerFraGcp(pesysId: String): P6000Detaljer {
-        val p6000FraGcp = gcpStorageService.hentGcpDetlajerForP6000(pesysId) ?: throw ResponseStatusException(
-            HttpStatus.NOT_FOUND,
-            "Ingen P6000-detaljer funnet for pesysId: $pesysId"
-        )
+        val p6000FraGcp = gcpStorageService.hentGcpDetlajerForP6000(pesysId) ?: run {
+            logger.warn("Ingen P6000-detaljer funnet i GCP for pesysId: $pesysId")
+            throw ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Ingen P6000-detaljer funnet for pesysId: $pesysId"
+            )
+        }
         return mapJsonToAny<P6000Detaljer>(p6000FraGcp).also { logger.info("P6000Detaljer: ${it.toJson()}") }
     }
 
