@@ -90,8 +90,8 @@ class PensjonsinformasjonUtlandController(
         @RequestParam("pesysId") pesysId: String
     ) : P1Dto {
         logger.info("Henter P6000 detaljer fra bucket for pesysId: $pesysId")
+        val p6000Detaljer = hentP6000DetaljerFraGcp(pesysId)
         return p6000Metric.measure {
-            val p6000Detaljer = hentP6000DetaljerFraGcp(pesysId)
             val listeOverP6000FraGcp = hentP6000erFraRina(pesysId, p6000Detaljer)
             logger.info("Hentet nye dok detaljer fra Rina for $pesysId")
             lagP1DtoFraP6000erEllerP7000(pesysId, p6000Detaljer.rinaSakId, listeOverP6000FraGcp)
