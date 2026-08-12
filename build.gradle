@@ -113,7 +113,7 @@ dependencies {
     testImplementation("io.mockk:mockk:1.14.11")
     testImplementation("org.skyscreamer:jsonassert:1.5.3")
 
-    testImplementation("com.tngtech.archunit:archunit:1.4.2")
+    testImplementation("com.tngtech.archunit:archunit:1.5.0")
 
     testImplementation("org.springframework.kafka:spring-kafka-test:${springKafkaVersion}")
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
