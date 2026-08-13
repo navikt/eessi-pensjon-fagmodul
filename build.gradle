@@ -92,7 +92,7 @@ dependencies {
     }
 
     // PDF box
-    testImplementation("org.apache.pdfbox:pdfbox-tools:3.0.6")
+    testImplementation("org.apache.pdfbox:pdfbox-tools:3.0.8")
 
     // Override transitive bouncycastle dependency to fix CVE-2026-5588
     constraints {
