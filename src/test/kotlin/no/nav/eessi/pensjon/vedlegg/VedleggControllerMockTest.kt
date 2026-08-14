@@ -72,7 +72,7 @@ class VedleggControllerMockTest {
 
         val resp = vedleggController.getDokumentInnhold("123", "4567", "ARKIV")
         assertEquals(HttpStatus.OK.name, resp.status)
-        assertEquals(HentdokumentInnholdResponse("WVdKag==", "enFil.pdf", "application/pdf"), resp.result)
+        assertEquals(HentdokumentInnholdResponse("WVdKag==", "enFil.pdf", "application/pdf").toJson(), resp.result?.toJson())
     }
 
     @Test
