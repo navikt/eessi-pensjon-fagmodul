@@ -51,11 +51,12 @@ class VedleggControllerMockTest {
                 .replace("\n", "")
                 .replace(" ", "")
 
-        every { vedleggService.hentDokumentMetadata("123") } returns mapJsonToAny<HentMetadataResponse>(responseJson)
+        val metadata = mapJsonToAny<HentMetadataResponse>(responseJson)
+        every { vedleggService.hentDokumentMetadata("123") } returns metadata
 
         val resp = vedleggController.hentDokumentMetadata("123")
-        assertEquals(HttpStatus.valueOf(200), resp.statusCode)
-        assertEquals(resp.body!!.trim().replace("\r", "").replace("\n", "").replace(" ", ""), responseJson)
+        assertEquals(HttpStatus.OK.name, resp.status)
+        assertEquals(metadata, resp.result)
     }
 
     @Test
@@ -70,9 +71,8 @@ class VedleggControllerMockTest {
         every { vedleggService.hentDokumentInnhold("123", "4567", "ARKIV") } returns HentdokumentInnholdResponse("WVdKag==", "enFil.pdf", "application/pdf")
 
         val resp = vedleggController.getDokumentInnhold("123", "4567", "ARKIV")
-        assertEquals(HttpStatus.valueOf(200), resp.statusCode)
-        assertEquals(resp.body?.replace("\r","") , javaClass.getResource("/json/saf/hentDokumentInnholdResponse.json").readText().replace("\r","")
-        )
+        assertEquals(HttpStatus.OK.name, resp.status)
+        assertEquals(HentdokumentInnholdResponse("WVdKag==", "enFil.pdf", "application/pdf"), resp.result)
     }
 
     @Test
