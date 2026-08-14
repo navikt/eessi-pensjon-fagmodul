@@ -123,7 +123,7 @@ dependencies {
         exclude module: 'junit-vintage-engine'
     }
 
-    testImplementation("org.mock-server:mockserver-netty:5.15.0") {
+    testImplementation("org.mock-server:mockserver-netty:7.5.0") {
         exclude module: 'junit'
     }
 }
