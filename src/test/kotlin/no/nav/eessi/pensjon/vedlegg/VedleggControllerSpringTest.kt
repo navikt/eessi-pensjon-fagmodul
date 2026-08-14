@@ -8,12 +8,15 @@ import io.mockk.mockk
 import io.mockk.verify
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
+import no.nav.eessi.pensjon.fagmodul.api.FrontEndResponse
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.VedleggService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PesysService
 import no.nav.eessi.pensjon.utils.mapJsonToAny
-import no.nav.eessi.pensjon.vedlegg.client.Dokument
-import no.nav.eessi.pensjon.vedlegg.client.HentdokumentInnholdResponse
+import no.nav.eessi.pensjon.utils.successBody
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.Dokument
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.HentdokumentInnholdResponse
 import org.hamcrest.Matchers.containsString
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -63,9 +66,14 @@ class VedleggControllerSpringTest {
         every { vedleggService.hentDokumentMetadata(any(), any(), any()) } returns Dokument("4444444","P2000 - Krav om alderspensjon", emptyList())
         every { vedleggService.hentDokumentInnhold(any(), any(), any()) } returns HentdokumentInnholdResponse("WVdKag==","blah.pdf", "application/pdf")
 
-        this.mockMvc!!.perform(put("/saf/vedlegg/1231231231231/111111/2222222/3333333/4444444/ARKIV"))
-                .andExpect(status().isOk)
-                .andExpect(content().string(containsString("{\"success\": true}")))
+        val result = this.mockMvc!!.perform(put("/saf/vedlegg/1231231231231/111111/2222222/3333333/4444444/ARKIV"))
+            .andExpect(status().isOk)
+            .andExpect(content().string(containsString("\"status\":\"OK\"")))
+            .andReturn()
+
+        val response: FrontEndResponse<String> = mapJsonToAny(result.response.contentAsString)
+        assertEquals(HttpStatus.OK.name, response.status)
+        assertEquals(successBody(), response.result)
 
         verify (exactly = 1) { vedleggService.leggTilVedleggPaaDokument(any(), any(), any(), any(), any(), any()) }
         verify (exactly = 1) { vedleggService.hentDokumentInnhold(any(), any(), any()) }
@@ -85,13 +93,21 @@ class VedleggControllerSpringTest {
             .andReturn()
 
         //then: skal ha en feilmelding uten 403
-        val errorBody : ErrorBody  = mapJsonToAny(result.response.contentAsString)
-        assertEquals(errorMelding, errorBody.error)
+        val errorBody: FrontEndResponse<String> = mapJsonToAny(result.response.contentAsString)
+        assertEquals(HttpStatus.FORBIDDEN.name, errorBody.status)
+        assertEquals(errorMelding, errorBody.message)
     }
 
-    class ErrorBody(
-        val success : Boolean,
-        val error : String,
-        val uuid : String
-    )
+    @Test
+    fun `Kall som feiler skal returnere 500 med frontend response`() {
+        every { vedleggService.hentDokumentMetadata(any(), any(), any()) } throws RuntimeException("Noe gikk galt")
+
+        val result = mockMvc!!.perform(put("/saf/vedlegg/11/22/33/44/55/ARKIV"))
+            .andExpect(status().isInternalServerError)
+            .andReturn()
+
+        val errorBody: FrontEndResponse<String> = mapJsonToAny(result.response.contentAsString)
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.name, errorBody.status)
+        assertEquals("Noe gikk galt", errorBody.message)
+    }
 }

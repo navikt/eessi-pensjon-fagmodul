@@ -18,7 +18,7 @@ import no.nav.eessi.pensjon.services.pensjonsinformasjon.PesysService
 import no.nav.eessi.pensjon.shared.api.ApiRequest
 import no.nav.eessi.pensjon.shared.api.ApiSubject
 import no.nav.eessi.pensjon.shared.api.SubjectFnr
-import no.nav.eessi.pensjon.vedlegg.VedleggService
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.VedleggService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled

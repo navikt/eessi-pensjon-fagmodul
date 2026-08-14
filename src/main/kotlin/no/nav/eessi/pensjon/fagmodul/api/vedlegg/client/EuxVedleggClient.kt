@@ -1,4 +1,4 @@
-package no.nav.eessi.pensjon.vedlegg.client
+package no.nav.eessi.pensjon.fagmodul.api.vedlegg.client
 
 import no.nav.eessi.pensjon.eux.klient.*
 import no.nav.eessi.pensjon.metrics.MetricsHelper

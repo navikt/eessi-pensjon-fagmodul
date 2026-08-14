@@ -1,8 +1,12 @@
-package no.nav.eessi.pensjon.vedlegg
+package no.nav.eessi.pensjon.fagmodul.api.vedlegg
 
 import no.nav.eessi.pensjon.eux.model.buc.MissingBuc
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.Dokument
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.EuxVedleggClient
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.HentMetadataResponse
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.HentdokumentInnholdResponse
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.SafClient
 import no.nav.eessi.pensjon.metrics.MetricsHelper
-import no.nav.eessi.pensjon.vedlegg.client.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Profile

@@ -1,16 +1,17 @@
-package no.nav.eessi.pensjon.vedlegg
+package no.nav.eessi.pensjon.fagmodul.api.vedlegg
 
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
-import no.nav.eessi.pensjon.utils.errorBody
+import no.nav.eessi.pensjon.fagmodul.api.FrontEndResponse
 import no.nav.eessi.pensjon.utils.successBody
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.HentMetadataResponse
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.HentdokumentInnholdResponse
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import java.util.*
 
 @Protected
 @RestController
@@ -28,11 +29,11 @@ class VedleggController(private val vedleggService: VedleggService,
     }
 
     @GetMapping("/metadata/{aktoerId}")
-    fun hentDokumentMetadata(@PathVariable("aktoerId", required = true) aktoerId: String): ResponseEntity<String> {
+    fun hentDokumentMetadata(@PathVariable("aktoerId", required = true) aktoerId: String): FrontEndResponse<HentMetadataResponse> {
         auditlogger.log("hentDokumentMetadata", aktoerId)
         return vedleggControllerMetadata.measure {
             logger.info("Henter metadata for dokumenter i SAF for aktørid: $aktoerId")
-            ResponseEntity.ok().body(vedleggService.hentDokumentMetadata(aktoerId).toJson())
+            FrontEndResponse(vedleggService.hentDokumentMetadata(aktoerId), HttpStatus.OK.name)
         }
     }
 
@@ -42,12 +43,12 @@ class VedleggController(private val vedleggService: VedleggService,
     @GetMapping("/hentdokument/{journalpostId}/{dokumentInfoId}/{variantFormat}")
     fun getDokumentInnhold(@PathVariable("journalpostId", required = true) journalpostId: String,
                            @PathVariable("dokumentInfoId", required = true) dokumentInfoId: String,
-                           @PathVariable("variantFormat", required = true) variantFormat: String): ResponseEntity<String> {
+                           @PathVariable("variantFormat", required = true) variantFormat: String): FrontEndResponse<HentdokumentInnholdResponse> {
         auditlogger.log("getDokumentInnhold")
         return vedleggControllerInnhold.measure {
             logger.info("Henter dokumentinnhold fra SAF for journalpostId: $journalpostId, dokumentInfoId: $dokumentInfoId")
             val hentDokumentInnholdResponse = vedleggService.hentDokumentInnhold(journalpostId, dokumentInfoId, variantFormat)
-            ResponseEntity.ok().body(hentDokumentInnholdResponse.toJson())
+            FrontEndResponse(hentDokumentInnholdResponse, HttpStatus.OK.name)
         }
     }
 
@@ -57,7 +58,7 @@ class VedleggController(private val vedleggService: VedleggService,
                               @PathVariable("rinaDokumentId", required = true) rinaDokumentId: String,
                               @PathVariable("joarkJournalpostId", required = true) joarkJournalpostId: String,
                               @PathVariable("joarkDokumentInfoId", required = true) joarkDokumentInfoId : String,
-                              @PathVariable("variantFormat", required = true) variantFormat : String) : ResponseEntity<String> {
+                              @PathVariable("variantFormat", required = true) variantFormat : String) : ResponseEntity<FrontEndResponse<String>> {
         auditlogger.log("putVedleggTilDokument", aktoerId)
         logger.debug("Legger til vedlegg: joarkJournalpostId: $joarkJournalpostId, joarkDokumentInfoId $joarkDokumentInfoId, variantFormat: $variantFormat til " +
                 "rinaSakId: $rinaSakId, rinaDokumentId: $rinaDokumentId")
@@ -75,14 +76,18 @@ class VedleggController(private val vedleggService: VedleggService,
                     "$documentName.pdf",
                     dokument.contentType.split("/")[1])
             logger.info("Vedlegg er lagt til for rinasak. $rinaSakId")
-            return ResponseEntity.ok().body(successBody())
+            return ResponseEntity.ok(FrontEndResponse(result = successBody(), status = HttpStatus.OK.name))
         } catch (ex: Exception) {
             logger.error("PutVedleggTilDokument feiler med ${ex.message}")
             if (ex.message?.contains("403") == true) {
                 val messageWithReplacedNumbers = ex.message!!.replace(Regex("\\d+"), "").trim()
-                ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorBody(messageWithReplacedNumbers, UUID.randomUUID().toString()))
+                ResponseEntity.status(HttpStatus.FORBIDDEN).body(
+                    FrontEndResponse(result = null, status = HttpStatus.FORBIDDEN.name, message = messageWithReplacedNumbers)
+                )
             } else {
-                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorBody(ex.message!!, UUID.randomUUID().toString()))
+                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    FrontEndResponse(result = null, status = HttpStatus.INTERNAL_SERVER_ERROR.name, message = ex.message)
+                )
             }
         }
     }

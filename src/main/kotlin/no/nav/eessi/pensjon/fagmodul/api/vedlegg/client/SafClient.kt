@@ -1,8 +1,7 @@
-package no.nav.eessi.pensjon.vedlegg.client
+package no.nav.eessi.pensjon.fagmodul.api.vedlegg.client
 
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.utils.mapJsonToAny
-import no.nav.eessi.pensjon.utils.toJson
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Profile

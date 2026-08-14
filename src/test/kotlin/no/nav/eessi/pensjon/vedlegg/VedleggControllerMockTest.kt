@@ -5,11 +5,13 @@ import io.mockk.impl.annotations.SpyK
 import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.VedleggController
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.VedleggService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.utils.mapJsonToAny
-import no.nav.eessi.pensjon.vedlegg.client.Dokument
-import no.nav.eessi.pensjon.vedlegg.client.HentMetadataResponse
-import no.nav.eessi.pensjon.vedlegg.client.HentdokumentInnholdResponse
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.Dokument
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.HentMetadataResponse
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.HentdokumentInnholdResponse
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -51,11 +53,12 @@ class VedleggControllerMockTest {
                 .replace("\n", "")
                 .replace(" ", "")
 
-        every { vedleggService.hentDokumentMetadata("123") } returns mapJsonToAny<HentMetadataResponse>(responseJson)
+        val metadata = mapJsonToAny<HentMetadataResponse>(responseJson)
+        every { vedleggService.hentDokumentMetadata("123") } returns metadata
 
         val resp = vedleggController.hentDokumentMetadata("123")
-        assertEquals(HttpStatus.valueOf(200), resp.statusCode)
-        assertEquals(resp.body!!.trim().replace("\r", "").replace("\n", "").replace(" ", ""), responseJson)
+        assertEquals(HttpStatus.OK.name, resp.status)
+        assertEquals(metadata, resp.result)
     }
 
     @Test
@@ -70,9 +73,8 @@ class VedleggControllerMockTest {
         every { vedleggService.hentDokumentInnhold("123", "4567", "ARKIV") } returns HentdokumentInnholdResponse("WVdKag==", "enFil.pdf", "application/pdf")
 
         val resp = vedleggController.getDokumentInnhold("123", "4567", "ARKIV")
-        assertEquals(HttpStatus.valueOf(200), resp.statusCode)
-        assertEquals(resp.body?.replace("\r","") , javaClass.getResource("/json/saf/hentDokumentInnholdResponse.json").readText().replace("\r","")
-        )
+        assertEquals(HttpStatus.OK.name, resp.status)
+        assertEquals(HentdokumentInnholdResponse("WVdKag==", "enFil.pdf", "application/pdf").toJson(), resp.result?.toJson())
     }
 
     @Test

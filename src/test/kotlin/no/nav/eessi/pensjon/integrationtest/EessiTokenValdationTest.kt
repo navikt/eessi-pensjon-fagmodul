@@ -9,7 +9,7 @@ import no.nav.eessi.pensjon.fagmodul.config.RestTemplateConfig
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PesysService
-import no.nav.eessi.pensjon.vedlegg.client.EuxVedleggClient
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.EuxVedleggClient
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
 import org.apache.pdfbox.pdmodel.PDDocument
 import org.apache.pdfbox.pdmodel.PDPage

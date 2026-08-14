@@ -4,6 +4,7 @@ package no.nav.eessi.pensjon.vedlegg.client
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.mockk
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.SafClient
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

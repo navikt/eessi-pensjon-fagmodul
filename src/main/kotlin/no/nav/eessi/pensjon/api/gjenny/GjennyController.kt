@@ -19,7 +19,7 @@ import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
 import no.nav.eessi.pensjon.shared.api.ApiRequest
 import no.nav.eessi.pensjon.shared.api.PersonInfo
 import no.nav.eessi.pensjon.utils.toJson
-import no.nav.eessi.pensjon.vedlegg.VedleggService
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.VedleggService
 import no.nav.security.token.support.core.api.Unprotected
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired

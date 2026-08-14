@@ -4,10 +4,10 @@ import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.klient.Properties
 import no.nav.eessi.pensjon.eux.klient.Rinasak
 import no.nav.eessi.pensjon.eux.klient.Traits
-import no.nav.eessi.pensjon.vedlegg.client.BrukerId
-import no.nav.eessi.pensjon.vedlegg.client.BrukerIdType
-import no.nav.eessi.pensjon.vedlegg.client.SafRequest
-import no.nav.eessi.pensjon.vedlegg.client.Variables
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.BrukerId
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.BrukerIdType
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.SafRequest
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.Variables
 //import no.nav.pensjon.v1.avdod.V1Avdod
 //import no.nav.pensjon.v1.pensjonsinformasjon.Pensjonsinformasjon
 //import no.nav.pensjon.v1.person.V1Person

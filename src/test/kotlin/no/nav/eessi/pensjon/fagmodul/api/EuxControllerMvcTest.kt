@@ -6,6 +6,7 @@ import com.ninjasquad.springmockk.SpykBean
 import io.mockk.every
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.klient.EuxKlientLib
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.VedleggController
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.shared.api.InstitusjonItem
@@ -36,7 +37,9 @@ import org.springframework.web.client.RestTemplate
     MockkBean(name = "prefillController", classes = [PrefillController::class], relaxed = true),
     MockkBean(name = "gcpStorageService", classes = [GcpStorageService::class], relaxed = true),
     MockkBean(name = "euxNavIdentRestTemplateV2", classes = [RestTemplate::class]),
-    MockkBean(name = "sedController", classes = [SedController::class], relaxed = true)
+    MockkBean(name = "sedController", classes = [SedController::class], relaxed = true),
+    MockkBean(name = "vedleggController", classes = [VedleggController::class], relaxed = true)
+
     )
 class EuxControllerMvcTest {
 
