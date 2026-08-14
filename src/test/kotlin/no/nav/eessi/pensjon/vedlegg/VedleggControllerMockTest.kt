@@ -5,11 +5,13 @@ import io.mockk.impl.annotations.SpyK
 import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.VedleggController
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.VedleggService
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.utils.mapJsonToAny
-import no.nav.eessi.pensjon.vedlegg.client.Dokument
-import no.nav.eessi.pensjon.vedlegg.client.HentMetadataResponse
-import no.nav.eessi.pensjon.vedlegg.client.HentdokumentInnholdResponse
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.Dokument
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.HentMetadataResponse
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.HentdokumentInnholdResponse
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

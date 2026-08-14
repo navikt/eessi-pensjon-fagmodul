@@ -1,11 +1,11 @@
-package no.nav.eessi.pensjon.vedlegg
+package no.nav.eessi.pensjon.fagmodul.api.vedlegg
 
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.fagmodul.api.FrontEndResponse
 import no.nav.eessi.pensjon.utils.successBody
-import no.nav.eessi.pensjon.vedlegg.client.HentMetadataResponse
-import no.nav.eessi.pensjon.vedlegg.client.HentdokumentInnholdResponse
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.HentMetadataResponse
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.HentdokumentInnholdResponse
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired

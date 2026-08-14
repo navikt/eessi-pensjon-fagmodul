@@ -1,6 +1,5 @@
-package no.nav.eessi.pensjon.vedlegg.client
+package no.nav.eessi.pensjon.fagmodul.api.vedlegg.client
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import no.nav.eessi.pensjon.utils.mapAnyToJson
 

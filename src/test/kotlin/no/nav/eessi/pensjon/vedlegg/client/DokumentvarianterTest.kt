@@ -1,5 +1,7 @@
 package no.nav.eessi.pensjon.vedlegg.client
 
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.Dokumentvarianter
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.VariantFormat
 import no.nav.eessi.pensjon.utils.mapAnyToJson
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull

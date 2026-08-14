@@ -17,6 +17,7 @@ import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.fagmodul.api.PrefillController
 import no.nav.eessi.pensjon.fagmodul.api.SedController
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.VedleggService
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.*
@@ -42,14 +43,13 @@ import no.nav.eessi.pensjon.personoppslag.pdl.model.PdlPerson
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Sivilstand
 import no.nav.eessi.pensjon.personoppslag.pdl.model.Statsborgerskap
 import no.nav.eessi.pensjon.shared.api.ApiRequest
-import no.nav.eessi.pensjon.shared.api.InstitusjonItem
 import no.nav.eessi.pensjon.shared.api.PersonInfo
 import no.nav.eessi.pensjon.shared.api.PrefillDataModel
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
-import no.nav.eessi.pensjon.vedlegg.client.Data
-import no.nav.eessi.pensjon.vedlegg.client.DokumentoversiktBruker
-import no.nav.eessi.pensjon.vedlegg.client.HentMetadataResponse
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.Data
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.DokumentoversiktBruker
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.HentMetadataResponse
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -98,7 +98,7 @@ class GjennyControllerTest {
     private lateinit var personService: PersonService
 
     @MockkBean
-    private lateinit var vedleggService: no.nav.eessi.pensjon.vedlegg.VedleggService
+    private lateinit var vedleggService: VedleggService
 
     @Autowired
     private lateinit var mockMvc: MockMvc

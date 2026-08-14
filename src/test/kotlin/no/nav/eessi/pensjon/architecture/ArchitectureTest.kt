@@ -74,22 +74,22 @@ class ArchitectureTest {
         val utils             = "utils"
         val vedlegg           = "vedlegg"
         val packages: Map<String, String> = mapOf(
-                "$root.fagmodul.api.." to bucSedApi,
-                "$root.fagmodul.prefill.." to prefill,
-                "$root.fagmodul.eux" to euxService,
-                "$root.fagmodul.eux.bucmodel.." to euxBucModel,
-                "$root.fagmodul.config.." to config,
-                "$root.fagmodul.pesys.." to pesys,
-                "$root.api.geo.." to geoApi,
-                "$root.api.person.." to personApi,
-                "$root.api.pensjon.." to pensjonApi,
-                "$root.config.." to config,
-                "$root.services.statistikk" to statistikk,
-                "$root.services.pensjonsinformasjon" to pensjonService,
-                "$root.metrics.." to utils,
-                "$root.utils.." to utils,
-                "$root.logging.." to utils,
-                "$root.vedlegg.." to vedlegg,
+            "$root.fagmodul.api.." to bucSedApi,
+            "$root.fagmodul.api.vedlegg.." to vedlegg,
+            "$root.fagmodul.prefill.." to prefill,
+            "$root.fagmodul.eux" to euxService,
+            "$root.fagmodul.eux.bucmodel.." to euxBucModel,
+            "$root.fagmodul.config.." to config,
+            "$root.fagmodul.pesys.." to pesys,
+            "$root.api.geo.." to geoApi,
+            "$root.api.person.." to personApi,
+            "$root.api.pensjon.." to pensjonApi,
+            "$root.config.." to config,
+            "$root.services.statistikk" to statistikk,
+            "$root.services.pensjonsinformasjon" to pensjonService,
+            "$root.metrics.." to utils,
+            "$root.utils.." to utils,
+            "$root.logging.." to utils,
             )
 
         // packages in each component - default is the package with the component name
@@ -141,7 +141,7 @@ class ArchitectureTest {
                 .layer(frontendAPI).definedBy(      "$root.api..")
                 .layer(fagmodulCore).definedBy(     "$root.fagmodul..")
                 .layer(services).definedBy(         "$root.services..", "$root.kodeverk..", "$root.pensjonsinformasjon..")
-                .layer(vedlegg).definedBy(          "$root.vedlegg..")
+                .layer(vedlegg).definedBy(          "$root.fagmodul.api.vedlegg..")
                 .layer(support).definedBy(
                         "$root.metrics..",
                         "$root.config..",

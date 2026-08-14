@@ -5,8 +5,14 @@ package no.nav.eessi.pensjon.vedlegg
 import io.mockk.every
 import io.mockk.mockk
 import junit.framework.TestCase.assertEquals
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.VedleggService
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.Data
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.DokumentoversiktBruker
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.EuxVedleggClient
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.HentMetadataResponse
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.Journalpost
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.SafClient
 import no.nav.eessi.pensjon.utils.mapJsonToAny
-import no.nav.eessi.pensjon.vedlegg.client.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.web.client.RestTemplate
@@ -119,7 +125,13 @@ internal class VedleggServiceTest  {
     fun `Skal return en tom liste ved ingen metadata i dokumenter på aktørid`() {
         val aktoerId = "12345"
 
-        every {safClient.hentDokumentMetadata(any())  } returns HentMetadataResponse(Data(DokumentoversiktBruker(emptyList())))
+        every {safClient.hentDokumentMetadata(any())  } returns HentMetadataResponse(
+            Data(
+                DokumentoversiktBruker(
+                    emptyList()
+                )
+            )
+        )
 
         val result = vedleggService.hentRinaSakIderFraMetaData(aktoerId)
         assert(result.isEmpty())
@@ -140,15 +152,15 @@ internal class VedleggServiceTest  {
             data = Data(
                 dokumentoversiktBruker = DokumentoversiktBruker(
                     journalposter = listOf(mockk<Journalpost>().apply {
-                            every { tema } returns "omstilling"
-                            every { tilleggsopplysninger } returns listOf(
-                                mapOf("nokkel" to "eessi_pensjon_bucid", "verdi" to rinaSakId)
-                            )
-                            every { journalpostId } returns "123456"
-                            every { datoOpprettet } returns "2023-11-09"
-                            every { tittel } returns "Test Journalpost"
-                            every { dokumenter } returns emptyList()
-                        }
+                        every { tema } returns "omstilling"
+                        every { tilleggsopplysninger } returns listOf(
+                            mapOf("nokkel" to "eessi_pensjon_bucid", "verdi" to rinaSakId)
+                        )
+                        every { journalpostId } returns "123456"
+                        every { datoOpprettet } returns "2023-11-09"
+                        every { tittel } returns "Test Journalpost"
+                        every { dokumenter } returns emptyList()
+                    }
                     )
                 )
             )
