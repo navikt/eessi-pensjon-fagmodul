@@ -13,6 +13,7 @@ import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PesysService
 import no.nav.eessi.pensjon.utils.mapJsonToAny
+import no.nav.eessi.pensjon.utils.successBody
 import no.nav.eessi.pensjon.vedlegg.client.Dokument
 import no.nav.eessi.pensjon.vedlegg.client.HentdokumentInnholdResponse
 import org.hamcrest.Matchers.containsString
@@ -64,9 +65,14 @@ class VedleggControllerSpringTest {
         every { vedleggService.hentDokumentMetadata(any(), any(), any()) } returns Dokument("4444444","P2000 - Krav om alderspensjon", emptyList())
         every { vedleggService.hentDokumentInnhold(any(), any(), any()) } returns HentdokumentInnholdResponse("WVdKag==","blah.pdf", "application/pdf")
 
-        this.mockMvc!!.perform(put("/saf/vedlegg/1231231231231/111111/2222222/3333333/4444444/ARKIV"))
-                .andExpect(status().isOk)
-                .andExpect(content().string(containsString("\"status\":\"OK\"")))
+        val result = this.mockMvc!!.perform(put("/saf/vedlegg/1231231231231/111111/2222222/3333333/4444444/ARKIV"))
+            .andExpect(status().isOk)
+            .andExpect(content().string(containsString("\"status\":\"OK\"")))
+            .andReturn()
+
+        val response: FrontEndResponse<String> = mapJsonToAny(result.response.contentAsString)
+        assertEquals(HttpStatus.OK.name, response.status)
+        assertEquals(successBody(), response.result)
 
         verify (exactly = 1) { vedleggService.leggTilVedleggPaaDokument(any(), any(), any(), any(), any(), any()) }
         verify (exactly = 1) { vedleggService.hentDokumentInnhold(any(), any(), any()) }
@@ -86,7 +92,7 @@ class VedleggControllerSpringTest {
             .andReturn()
 
         //then: skal ha en feilmelding uten 403
-        val errorBody: FrontEndResponse<Unit> = mapJsonToAny(result.response.contentAsString)
+        val errorBody: FrontEndResponse<String> = mapJsonToAny(result.response.contentAsString)
         assertEquals(HttpStatus.FORBIDDEN.name, errorBody.status)
         assertEquals(errorMelding, errorBody.message)
     }
@@ -99,7 +105,7 @@ class VedleggControllerSpringTest {
             .andExpect(status().isInternalServerError)
             .andReturn()
 
-        val errorBody: FrontEndResponse<Unit> = mapJsonToAny(result.response.contentAsString)
+        val errorBody: FrontEndResponse<String> = mapJsonToAny(result.response.contentAsString)
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.name, errorBody.status)
         assertEquals("Noe gikk galt", errorBody.message)
     }
