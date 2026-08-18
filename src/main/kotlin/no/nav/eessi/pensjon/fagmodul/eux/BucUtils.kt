@@ -183,18 +183,18 @@ class BucUtils(private val buc: Buc) {
                 ?.lastOrNull() ?: "1"
     }
 
-    private fun getLastVersion(list: List<VersionsItem>?): VersionsItemNoUser? {
+    private fun getLastVersion(list: List<VersionsItem>?): VersionsItem? {
         return list?.sortedBy { it.id }
-                ?.map { VersionsItemNoUser(
+                ?.map { VersionsItem(
                         id = it.id,
                         date = it.date
                 )}
                 ?.lastOrNull()
     }
 
-    private fun getFirstVersion(list: List<VersionsItem>?): VersionsItemNoUser? {
+    private fun getFirstVersion(list: List<VersionsItem>?): VersionsItem? {
         return list?.sortedBy { it.id }
-                ?.map { VersionsItemNoUser(
+                ?.map { VersionsItem(
                   id = it.id,
                   date = it.date
                 )}

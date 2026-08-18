@@ -76,6 +76,7 @@ class PensjonController(
      */
     @GetMapping("/kravdato/saker/{saksId}/krav/{kravId}/aktor/{aktoerId}")
     fun hentKravDatoFraAktor(@PathVariable("saksId", required = true) sakId: String, @PathVariable("kravId", required = true) kravId: String, @PathVariable("aktoerId", required = true) aktoerId: String): ResponseEntity<FrontEndResponse<KravDato>> {
+        auditlogger.log("hentKravDatoFraAktor", aktoerId)
         return pensjonControllerKravDato.measure {
             val xid = MDC.get("x_request_id") ?: UUID.randomUUID().toString()
             if (sakId.isEmpty() || kravId.isEmpty() || aktoerId.isEmpty()) {
@@ -133,6 +134,7 @@ class PensjonController(
      */
     @GetMapping("/saklisteFraPesys")
     fun hentsakListeFraPesys(@RequestHeader("fnr") fnr: String): List<EessiPensjonSak> = pensjonControllerHentSakListe.measure {
+        auditlogger.log("hentsakListeFraPesys", fnr)
         secureLog.info("Henter sakliste for fnr: $fnr")
 
         try {

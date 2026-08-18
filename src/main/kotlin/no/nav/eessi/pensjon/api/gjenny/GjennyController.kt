@@ -88,6 +88,7 @@ class GjennyController (
 
     @GetMapping("/metadata/{aktoerId}")
     fun hentMetadata(@PathVariable("aktoerId", required = true) aktoerId: String): ResponseEntity<String> {
+        auditlogger.log("hentMetadata", aktoerId)
         logger.info("Henter metadata for dokumenter i SAF for aktørid: $aktoerId via GjennyController")
         val metadata = vedleggService.hentDokumentMetadata(aktoerId)
         return ResponseEntity.ok().body(metadata.toJson())
@@ -97,6 +98,7 @@ class GjennyController (
     fun getGjenlevendeRinasakerUtenAvdodGjenny(
         @RequestBody(required = true) aktoerId: String
     ): FrontEndResponse<List<BucView>> {
+        auditlogger.log("getGjenlevendeRinasakerUtenAvdodGjenny", aktoerId)
         return bucerForBrukerGjenny.measure {
         logger.info("henter rinasaker for bruker")
         val fnrForAktoerId = innhentingService.hentFnrEllerNpidForAktoerIdfraPDL(aktoerId)
@@ -119,6 +121,7 @@ class GjennyController (
         @PathVariable("aktoerId", required = true) aktoerId: String,
         @PathVariable("avdodfnr", required = true) avdodfnr: String,
     ): FrontEndResponse<List<BucView>> {
+        auditlogger.log("getGjenlevendeRinasakerAvdodGjenny", aktoerId)
         secureLog.info("henter rinasaker for gjenlevende med aktoerid: $aktoerId")
 
         val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerId)
@@ -147,6 +150,7 @@ class GjennyController (
     fun getRinasakerBrukerkontekstGjenny(
         @PathVariable("aktoerId", required = true) aktoerId: String
     ): FrontEndResponse<List<BucView>> {
+        auditlogger.log("getRinasakerBrukerkontekstGjenny", aktoerId)
         return bucViewGjenny.measure {
             val start = System.currentTimeMillis()
             val timeTracking = mutableListOf<String>()

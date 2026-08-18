@@ -180,6 +180,7 @@ class BucController(
     ): FrontEndResponse<List<BucView>> {
         return timedControllerCall("getRinasakerFraRina") {
             bucViewRina.measure {
+                auditlogger.log("getRinasakerFraRina", aktoerId)
                 val start = System.currentTimeMillis()
 
                 //Når vi ikke finner noe fnr så feiler denne med 404 NOT_FOUND
@@ -215,6 +216,7 @@ class BucController(
     ): FrontEndResponse<List<BucView>> {
         return timedControllerCall("getGjenlevendeRinasakerVedtak") {
             bucViewForVedtak.measure {
+                auditlogger.log("getGjenlevendeRinasakerVedtak", aktoerId)
                 val start = System.currentTimeMillis()
 
                 logger.info("henter rinasaker på valgt aktoerid: $aktoerId, saknr: $sakNr, vedtaksId:$vedtakId")
@@ -294,6 +296,7 @@ class BucController(
         @PathVariable("avdodfnr", required = true) avdodfnr : String
     ): FrontEndResponse<List<BucView>> {
         return timedControllerCall("getAvdodRinaSak") {
+            auditlogger.log("getAvdodRinaSak", aktoerId)
             logger.info("Henter rinasaker på avdod: $aktoerId, saknr: $sakNr")
             FrontEndResponse(euxInnhentingService.hentBucViewAvdod(avdodfnr, aktoerId, sakNr), HttpStatus.OK.name)
         }
@@ -310,6 +313,7 @@ class BucController(
     ): FrontEndResponse<BucAndSedView> {
         return timedControllerCall("getSingleBucogSedView") {
             bucDetaljerEnkel.measure {
+                auditlogger.log("getSingleBucogSedView", euxcaseid)
                 logger.info("Henter ut en enkel buc med euxCaseId: $euxcaseid, saknr: $saknr, kilde: $kilde")
 
                 val enkeltBucAndSedView = euxInnhentingService.getSingleBucAndSedView(euxcaseid)
@@ -331,6 +335,7 @@ class BucController(
         @PathVariable("kilde", required = true) kilde: EuxInnhentingService.BucViewKilde
     ): FrontEndResponse<BucAndSedView> {
         return timedControllerCall("getSingleBucogSedViewMedAvdod") {
+            auditlogger.log("getSingleBucogSedViewMedAvdod", aktoerid)
             logger.info("Henter ut en enkel buc for gjenlevende")
 
             val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerid)

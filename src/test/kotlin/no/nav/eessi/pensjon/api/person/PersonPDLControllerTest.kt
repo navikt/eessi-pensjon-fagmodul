@@ -74,6 +74,7 @@ class PersonPDLControllerTest {
     fun before() {
         MockKAnnotations.init(this, relaxed = true, relaxUnitFun = true)
         justRun { auditLogger.log(any(), any()) }
+        justRun { auditLogger.log(any()) }
     }
 
     @Test
@@ -319,6 +320,7 @@ class PersonPDLControllerTest {
         every { pesysService.hentAvdod(any())} returns EessiFellesDto.EessiAvdodDto(avdod = AVDOD_FNR, avdodMor = null, avdodFar = null)
         every { pesysService.hentGyldigAvdod(any()) } returns listOf("18077443335")
         every { pdlService.hentPerson(any()) } returns doedsPerson
+        justRun { auditLogger.log("getAvdodDateFromVedtakOrSed") }
 
         val result = mvc.perform(
             get("/person/vedtak/$VEDTAK_ID/buc/$RINA_NR/avdodsdato")
@@ -393,6 +395,7 @@ class PersonPDLControllerTest {
         every { euxService.getBuc(any()) } returns buc
         every { euxService.getSedOnBucByDocumentId(any(), any()) } returns sedP2100
         every { pdlService.hentPerson(any()) } returns doedsPerson
+        justRun { auditLogger.log("getAvdodDateFromVedtakOrSed") }
 
         val result = mvc.perform(
             get("/person/vedtak/$VEDTAK_ID/buc/$RINA_NR/avdodsdato")
