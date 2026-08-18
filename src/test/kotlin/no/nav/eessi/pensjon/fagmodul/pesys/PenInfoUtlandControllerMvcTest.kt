@@ -2,6 +2,7 @@ package no.nav.eessi.pensjon.fagmodul.pesys
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
+import io.mockk.justRun
 import no.nav.eessi.pensjon.eux.model.Avsender
 import no.nav.eessi.pensjon.eux.model.SedMetadata
 import no.nav.eessi.pensjon.eux.model.sed.P6000
@@ -9,6 +10,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.kodeverk.KodeverkClient
 import no.nav.eessi.pensjon.kodeverk.Postnummer
+import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -37,6 +39,9 @@ class PenInfoUtlandControllerMvcTest {
     @MockkBean
     lateinit var kodeverkClient: KodeverkClient
 
+    @MockkBean
+    lateinit var auditlogger: AuditLogger
+
     @Test
     fun `avdodsdato sjekk for vedtak inneholder to avdod i pbuc06 og P5000 returneres den tidligere valgte avdod ut fra P5000 og returneres`() {
         val avsender = Avsender(
@@ -61,6 +66,7 @@ class PenInfoUtlandControllerMvcTest {
             ?.let { json -> mapJsonToAny<P6000>(json) }!!
         every { kodeverkClient.hentPostSted(any()) } returns Postnummer("123456", "Oslo")
         every { euxInnhentingService.hentSedMetadata(any(), any()) } returns metadata
+        justRun { auditlogger.log(any(), any()) }
 
         val repsonse = mvc.perform(
             MockMvcRequestBuilders.get("/pesys/hentP6000Detaljer")

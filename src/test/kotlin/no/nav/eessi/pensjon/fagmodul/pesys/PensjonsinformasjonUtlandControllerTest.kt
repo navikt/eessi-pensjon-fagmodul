@@ -5,12 +5,11 @@ import com.google.cloud.storage.Blob
 import com.google.cloud.storage.BlobId
 import com.google.cloud.storage.Storage
 import io.mockk.every
+import io.mockk.justRun
 import io.mockk.mockk
 import no.nav.eessi.pensjon.eux.model.Avsender
 import no.nav.eessi.pensjon.eux.model.SedMetadata
-import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.SedType.P7000
-import no.nav.eessi.pensjon.eux.model.buc.Attachment
 import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
 import no.nav.eessi.pensjon.eux.model.sed.P6000
@@ -20,6 +19,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.kodeverk.KodeverkClient
 import no.nav.eessi.pensjon.kodeverk.Postnummer
+import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import org.junit.jupiter.api.*
@@ -34,6 +34,7 @@ class PensjonsinformasjonUtlandControllerTest {
     private val euxInnhentingService = mockk<EuxInnhentingService>(relaxed = true)
     private val trygdeTidService = TrygdeTidService(euxInnhentingService, kodeverkClient)
     private val euxRestTemplateV2 = mockk<RestTemplate>()
+    private val auditLogger = mockk<AuditLogger>()
     private val gcpStorageService = GcpStorageService(
         "_",
         "_",
@@ -54,7 +55,8 @@ class PensjonsinformasjonUtlandControllerTest {
         penInfoUtlandService = penInfoUtlandService,
         gcpStorageService = gcpStorageService,
         euxInnhentingService,
-        trygdeTidService = trygdeTidService
+        trygdeTidService = trygdeTidService,
+        auditLogger
     )
     private val aktoerId1 = "2477958344057"
     private val rinaNr = 1446033
@@ -65,6 +67,7 @@ class PensjonsinformasjonUtlandControllerTest {
         every { kodeverkClient.finnLandkode("CY") } returns "CYR"
         every { kodeverkClient.finnLandkode("BG") } returns "BGD"
         every { kodeverkClient.finnLandkode("HR") } returns "HRD"
+        justRun { auditLogger.log(any(), any()) }
     }
 
     @Test
