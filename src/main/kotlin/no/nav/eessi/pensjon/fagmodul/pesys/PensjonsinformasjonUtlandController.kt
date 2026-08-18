@@ -13,6 +13,7 @@ import no.nav.eessi.pensjon.fagmodul.pesys.krav.AvslaattPensjon
 import no.nav.eessi.pensjon.fagmodul.pesys.krav.InnvilgetPensjon
 import no.nav.eessi.pensjon.fagmodul.pesys.krav.P1Dto
 import no.nav.eessi.pensjon.gcp.GcpStorageService
+import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
@@ -37,6 +38,7 @@ class PensjonsinformasjonUtlandController(
     private val gcpStorageService: GcpStorageService,
     private val euxInnhentingService: EuxInnhentingService,
     private val trygdeTidService: TrygdeTidService,
+    private val auditlogger: AuditLogger,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
     private var pensjonUtland: MetricsHelper.Metric = metricsHelper.init("pensjonUtland")
@@ -50,6 +52,7 @@ class PensjonsinformasjonUtlandController(
     @JsonInclude(JsonInclude.Include.NON_NULL)
     fun hentKravUtland(@PathVariable("bucId", required = true) bucId: Int): KravUtland {
         return pensjonUtland.measure {
+            auditlogger.log("hentKravUtland", bucId.toString())
             penInfoUtlandService.hentKravUtland(bucId)!!
         }
     }
@@ -58,6 +61,7 @@ class PensjonsinformasjonUtlandController(
     fun hentTrygdetid(@RequestBody request: TrygdetidRequest): TrygdetidForPesys{
         logger.info("Henter trygdetid for fnr: ${request.fnr.takeLast(4)}, rinaNr: ${request.rinaNr}")
         return trygdeTidMetric.measure {
+            auditlogger.log("hentTrygdetid", request.fnr)
             gcpStorageService.hentTrygdetidFraGcp(request.fnr)?.let {
                 runCatching { trygdeTidService.parseTrygdetid(it) }
                     .onFailure { e -> logger.error("Feil ved parsing av trygdetid", e) }
@@ -77,6 +81,7 @@ class PensjonsinformasjonUtlandController(
 
     @PostMapping("/hentTrygdetidV2")
     fun hentTrygdetidV2(@RequestBody request: TrygdetidRequest): TrygdetidForPesys {
+        auditlogger.log("hentTrygdetidV2", request.fnr)
         logger.info("Henter trygdetidV2 for fnr: ${request.fnr.takeLast(4)}, rinaNr: ${request.rinaNr}")
         return trygdeTidMetric.measure {
                 runCatching { trygdeTidService.hentBucFraEux(request.rinaNr, request.fnr) }
@@ -89,6 +94,7 @@ class PensjonsinformasjonUtlandController(
     fun hentP6000Detaljer(
         @RequestParam("pesysId") pesysId: String
     ) : P1Dto {
+        auditlogger.log("hentP6000Detaljer", pesysId)
         logger.info("Henter P6000 detaljer fra bucket for pesysId: $pesysId")
         val p6000Detaljer = hentP6000DetaljerFraGcp(pesysId)
         return p6000Metric.measure {

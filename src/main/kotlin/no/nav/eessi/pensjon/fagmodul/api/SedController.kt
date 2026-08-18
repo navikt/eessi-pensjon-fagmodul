@@ -50,6 +50,7 @@ class SedController(
     fun getDocumentP6000list(
         @PathVariable("euxcaseid", required = true) euxcaseid: String
     ): FrontEndResponse<List<P6000Dokument>?> {
+        auditlogger.log("getDocumentP6000list", euxcaseid)
         val bucUtils = BucUtils(euxInnhentingService.getBuc(euxcaseid))
         return FrontEndResponse(bucUtils.getAllP6000AsDocumentItem(euxrinaurl), HttpStatus.OK.name)
     }
@@ -59,6 +60,7 @@ class SedController(
         @PathVariable("euxcaseid", required = true) euxcaseid: String,
         @PathVariable("documentid", required = true) documentid: String
     ): FrontEndResponse<PreviewPdf> {
+        auditlogger.log("getPdfFromRina", euxcaseid)
         return FrontEndResponse(euxInnhentingService.getPdfContents(euxcaseid, documentid), HttpStatus.OK.name)
     }
 
@@ -123,6 +125,7 @@ class SedController(
         @PathVariable(value = "buctype", required = true) bucType: String,
         @PathVariable(value = "rinanr", required = true) euxCaseId: String
     ): FrontEndResponse<List<SedType>> {
+        auditlogger.log("getSeds", euxCaseId)
         val resultListe = BucUtils(euxInnhentingService.getBuc(euxCaseId)).getFiltrerteGyldigSedAksjonListAsString()
         logger.info("Henter liste over SED som kan opprettes på buctype: $bucType seds: $resultListe")
         return FrontEndResponse(resultListe, HttpStatus.OK.name)
