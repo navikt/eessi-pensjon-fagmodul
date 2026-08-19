@@ -11,6 +11,7 @@ import no.nav.eessi.pensjon.eux.model.sed.*
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
+import no.nav.eessi.pensjon.logging.AuditKey
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.utils.mapJsonToAny
@@ -69,7 +70,7 @@ class SedController(
         @PathVariable("euxcaseid", required = true) euxcaseid: String,
         @PathVariable("documentid", required = true) documentid: String
     ): FrontEndResponse<Any> {
-        auditlogger.logBuc("getDocument", " euxCaseId: $euxcaseid documentId: $documentid")
+        auditlogger.logBuc("getDocument", "euxCaseId: $euxcaseid documentId: $documentid")
         logger.info("Hente SED innhold for /${euxcaseid}/${documentid} ")
         val sed = euxInnhentingService.getSedOnBucByDocumentId(euxcaseid, documentid)
 
