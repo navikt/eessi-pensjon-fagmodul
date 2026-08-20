@@ -1,7 +1,6 @@
 
 package no.nav.eessi.pensjon.fagmodul.api
 
-import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.SpyK
@@ -12,13 +11,9 @@ import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_06
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.shared.api.InstitusjonItem
-import no.nav.eessi.pensjon.utils.mapAnyToJson
-import no.nav.eessi.pensjon.utils.mapJsonToAny
-import no.nav.eessi.pensjon.utils.toJson
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertIterableEquals
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpStatus
@@ -43,7 +38,7 @@ class  EuxControllerTest {
             "Q2",
             EuxKlientAsSystemUser(euxRestTemplate, euxSystemRestTemplate),
             gcpStorageService,
-            mockk(relaxed = true),
+            mockk(relaxed = true), mockk(relaxed = true),
         )
 
         MockKAnnotations.init(this, relaxed = true, relaxUnitFun = true)

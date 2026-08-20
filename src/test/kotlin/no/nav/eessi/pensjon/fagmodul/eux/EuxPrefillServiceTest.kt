@@ -3,12 +3,12 @@ package no.nav.eessi.pensjon.fagmodul.eux
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.impl.annotations.SpyK
 import io.mockk.justRun
 import io.mockk.mockk
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.model.SedType.P2000
 import no.nav.eessi.pensjon.eux.model.sed.SED
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.VedleggService
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.services.statistikk.StatistikkHandler
@@ -34,12 +34,13 @@ class EuxPrefillServiceTest {
     private var mockInnhentingService: EuxInnhentingService = mockk(relaxed = true)
 
     var statistikkHandler: StatistikkHandler = mockk()
+    val vedleggService: VedleggService = mockk(relaxed = true)
 
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
         euxPrefillService = EuxPrefillService(euxKlientForSystemUser, innhentingService, statistikkHandler, mockInnhentingService)
-        euxinnhentingService = EuxInnhentingService("q2", euxKlientForSystemUser, gcpStorageService, mockk())
+        euxinnhentingService = EuxInnhentingService("q2", euxKlientForSystemUser, gcpStorageService, mockk(), vedleggService)
     }
 
     @Test
