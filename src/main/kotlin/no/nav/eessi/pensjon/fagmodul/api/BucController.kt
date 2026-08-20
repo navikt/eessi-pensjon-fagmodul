@@ -68,14 +68,14 @@ class BucController(
 
     @GetMapping("/{euxcaseid}/metadata/{aktoerId}")
     fun hentBucMedMetadata(
-        @PathVariable(required = true) euxCaseId: String,
-        @PathVariable(required = true) aktoerId: String,
+        @PathVariable(value = "euxcaseid", required = true) euxcaseid: String,
+        @PathVariable(value = "aktoerId", required = true) aktoerId: String,
     ): FrontEndResponse<BucAndSedView> =
         timedControllerCall("hentBucMedMetadata") {
             bucDetaljerEnkel.measure {
                 auditlogger.log("hentSingleBucAndSedView")
-                logger.debug(" prøver å hente ut en enkel buc med euxCaseId: $euxCaseId")
-                FrontEndResponse(euxInnhentingService.getSingleBucAndSedViewMedMetadata(euxCaseId, aktoerId), HttpStatus.OK.name)
+                logger.debug(" prøver å hente ut en enkel buc med euxCaseId: $euxcaseid")
+                FrontEndResponse(euxInnhentingService.getSingleBucAndSedViewMedMetadata(euxcaseid, aktoerId), HttpStatus.OK.name)
             }
         }
 
