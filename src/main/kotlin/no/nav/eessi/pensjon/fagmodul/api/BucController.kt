@@ -75,7 +75,12 @@ class BucController(
             bucDetaljerEnkel.measure {
                 auditlogger.log("hentSingleBucAndSedView")
                 logger.debug(" prøver å hente ut en enkel buc med euxCaseId: $euxcaseid")
-                FrontEndResponse(euxInnhentingService.getSingleBucAndSedViewMedMetadata(euxcaseid, aktoerId), HttpStatus.OK.name)
+                val enkeltBucAndSedView = euxInnhentingService.getSingleBucAndSedViewMedMetadata(euxcaseid, aktoerId)
+                if (enkeltBucAndSedView.error.isNullOrEmpty()) {
+                    FrontEndResponse(enkeltBucAndSedView, HttpStatus.OK.name)
+                } else {
+                    FrontEndResponse(enkeltBucAndSedView, enkeltBucAndSedView.error)
+                }
             }
         }
 
