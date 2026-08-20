@@ -70,7 +70,7 @@ class SedController(
         @PathVariable("euxcaseid", required = true) euxcaseid: String,
         @PathVariable("documentid", required = true) documentid: String
     ): FrontEndResponse<Any> {
-        auditlogger.logBuc("getDocument", "euxCaseId: $euxcaseid documentId: $documentid")
+        auditlogger.logBuc("getDocument", "euxCaseId: $euxcaseid, documentId: $documentid")
         logger.info("Hente SED innhold for /${euxcaseid}/${documentid} ")
         val sed = euxInnhentingService.getSedOnBucByDocumentId(euxcaseid, documentid)
 

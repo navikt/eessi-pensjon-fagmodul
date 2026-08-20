@@ -70,7 +70,7 @@ class BucController(
     fun getBuc(@PathVariable(value = "rinanr", required = true) rinanr: String): FrontEndResponse<Buc> =
         timedControllerCall("getBuc") {
             getBUC.measure {
-                auditlogger.log("getBuc")
+                auditlogger.logBuc("getBuc", "euxCaseId:$rinanr")
                 logger.debug("Henter ut hele Buc data fra rina via eux-rina-api")
                 return@measure FrontEndResponse(euxInnhentingService.getBuc(rinanr), HttpStatus.OK.name)
             }
@@ -80,7 +80,7 @@ class BucController(
     fun hentSingleBucAndSedView(@PathVariable("euxcaseid") euxcaseid: String): FrontEndResponse<BucAndSedView> =
         timedControllerCall("hentSingleBucAndSedView") {
             bucDetaljerEnkel.measure {
-                auditlogger.log("hentSingleBucAndSedView")
+                auditlogger.logBuc("hentSingleBucAndSedView", "euxCaseId:$euxcaseid")
                 logger.debug(" prøver å hente ut en enkel buc med euxCaseId: $euxcaseid")
                 return@measure FrontEndResponse(euxInnhentingService.getSingleBucAndSedView(euxcaseid), HttpStatus.OK.name)
             }

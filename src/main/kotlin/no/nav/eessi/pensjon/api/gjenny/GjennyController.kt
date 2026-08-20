@@ -72,7 +72,7 @@ class GjennyController (
         @PathVariable("buctype", required = true) buctype: String,
         @RequestBody(required = true) gjennySak: GjennySak
     ): FrontEndResponse<BucAndSedView> {
-        auditlogger.log("createBuc")
+        auditlogger.logBuc("createBuc", "bucType:$buctype")
         logger.info("Prøver å opprette en ny BUC $buctype i RINA med GjennySakId: ${gjennySak.sakId} med saktype: ${gjennySak.sakType}.")
 
         val euxCaseId = euxPrefillService.createdBucForType(buctype)

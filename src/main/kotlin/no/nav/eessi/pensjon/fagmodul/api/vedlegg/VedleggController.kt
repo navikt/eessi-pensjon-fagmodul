@@ -44,7 +44,7 @@ class VedleggController(private val vedleggService: VedleggService,
     fun getDokumentInnhold(@PathVariable("journalpostId", required = true) journalpostId: String,
                            @PathVariable("dokumentInfoId", required = true) dokumentInfoId: String,
                            @PathVariable("variantFormat", required = true) variantFormat: String): FrontEndResponse<HentdokumentInnholdResponse> {
-        auditlogger.log("getDokumentInnhold")
+        auditlogger.logBuc("getDokumentInnhold", "journalpostId:$journalpostId")
         return vedleggControllerInnhold.measure {
             logger.info("Henter dokumentinnhold fra SAF for journalpostId: $journalpostId, dokumentInfoId: $dokumentInfoId")
             val hentDokumentInnholdResponse = vedleggService.hentDokumentInnhold(journalpostId, dokumentInfoId, variantFormat)

@@ -59,7 +59,7 @@ class PrefillController(
     fun createBuc(
         @PathVariable("buctype", required = true) buctype: String
     ): FrontEndResponse<BucAndSedView> {
-        auditlogger.log("createBuc")
+        auditlogger.logBuc("createBuc", "bucType:$buctype")
         logger.info("Prøver å opprette en ny BUC i RINA av type: $buctype")
 
         //rinaid
