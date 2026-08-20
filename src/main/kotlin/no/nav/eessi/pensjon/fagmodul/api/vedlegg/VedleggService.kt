@@ -113,17 +113,11 @@ class VedleggService(private val safClient: SafClient,
             journalpost.tilleggsopplysninger.any {
                 it["nokkel"] == "eessi_pensjon_bucid" && it["verdi"] == bucid
             }
-        }.flatMap { journalpost ->
-            journalpost.dokumenter.flatMap { dokument ->
-                dokument.dokumentvarianter.mapNotNull { variant ->
-                    val sedId = journalpost.tilleggsopplysninger.find { it["nokkel"] == "eessi_pensjon_sedid" }?.get("verdi") ?: return@mapNotNull null
-                    val storrelse = journalpost.tilleggsopplysninger.find { it["nokkel"] == "eessi_pensjon_dokStr" }?.get("verdi")
-                    val sedStr = variant.filstoerrelse
-
-                    logger.debug("Filstørrelse fra joark: $sedStr, mot str fra JF: $storrelse")
-                    Pair(sedId, storrelse)
-                }
-            }
+        }.mapNotNull { journalpost ->
+            val sedId = journalpost.tilleggsopplysninger.find { it["nokkel"] == "eessi_pensjon_sedid" }?.get("verdi") ?: return@mapNotNull null
+            val storrelse = journalpost.tilleggsopplysninger.find { it["nokkel"] == "eessi_pensjon_dokStr" }?.get("verdi")
+            logger.debug("Filstørrelse for sedId $sedId: $storrelse")
+            Pair(sedId, storrelse)
         }
     }
 
