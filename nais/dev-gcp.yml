@@ -42,6 +42,8 @@ spec:
         uniformBucketLevelAccess: true
       - name: eessi-pensjon-pbuc02-avdod-dev
         uniformBucketLevelAccess: true
+      - name: eessi-pensjon-vedlegg-dev
+        uniformBucketLevelAccess: true
   accessPolicy:
     outbound:
       rules:
