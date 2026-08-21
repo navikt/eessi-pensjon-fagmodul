@@ -27,7 +27,7 @@ internal class VedleggServiceTest  {
     @BeforeEach
     fun setup() {
         val euxVedleggClient = EuxVedleggClient(RestTemplate())
-        vedleggService = VedleggService(safClient, euxVedleggClient)
+        vedleggService = VedleggService(safClient, euxVedleggClient, mockk(relaxed = true))
     }
 
     @Test

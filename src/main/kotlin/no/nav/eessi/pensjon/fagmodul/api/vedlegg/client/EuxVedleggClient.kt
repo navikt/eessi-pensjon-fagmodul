@@ -15,7 +15,6 @@ import org.springframework.web.client.UnknownHttpStatusCodeException
 import org.springframework.web.util.UriComponentsBuilder
 import java.io.File
 import java.nio.file.Paths
-import java.util.*
 
 @Component
 class EuxVedleggClient(private val euxNavIdentRestTemplate: RestTemplate,
@@ -31,7 +30,7 @@ class EuxVedleggClient(private val euxNavIdentRestTemplate: RestTemplate,
     fun leggTilVedleggPaaDokument(aktoerId: String,
                                   rinaSakId: String,
                                   rinaDokumentId: String,
-                                  filInnhold: String,
+                                  dokumentInnholdBinary: ByteArray,
                                   fileName: String,
                                   filtype: String) {
         try {
@@ -46,7 +45,6 @@ class EuxVedleggClient(private val euxNavIdentRestTemplate: RestTemplate,
                     .name("file")
                     .build()
 
-            val dokumentInnholdBinary = Base64.getDecoder().decode(filInnhold)
             val attachmentPart =  HttpEntity(dokumentInnholdBinary, HttpHeaders().apply {
                 contentDisposition = disposition
             })

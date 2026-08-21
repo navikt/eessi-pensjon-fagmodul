@@ -15,9 +15,9 @@ class GcpStorageService(
     @param:Value("\${GCP_BUCKET_GJENNY}") var gjennyBucket: String,
     @param:Value("\${GCP_BUCKET_P8000}") var p8000Bucket: String,
     @param:Value("\${GCP_BUCKET_P6000}") var p6000Bucket: String,
+    @param:Value("\${GCP_BUCKET_VEDLEGG}") var vedleggBucket: String,
     @param:Value("\${GCP_BUCKET_SAKSBEHANDLING_API}") var saksBehandlApiBucket: String,
     @param:Value("\${GCP_BUCKET_P_BUC02_AVDOD}") var pBuc02Bucket: String,
-
     private val gcpStorage: Storage) {
 
     private val logger = LoggerFactory.getLogger(GcpStorageService::class.java)
@@ -55,6 +55,10 @@ class GcpStorageService(
         } else {
             logger.error("SakId må være korrekt strukturert med 5 tegn; mottok: ${gjennysak.toJson()}")
         }
+    }
+
+    fun lagreVedtakInfo(rinaSakId:String, euxCaseId: String, filStr: String) {
+            lagre(euxCaseId, "$rinaSakId/$euxCaseId $filStr", gjennyBucket)
     }
     data class PBuc02Info(
         val euxCaseId: String,

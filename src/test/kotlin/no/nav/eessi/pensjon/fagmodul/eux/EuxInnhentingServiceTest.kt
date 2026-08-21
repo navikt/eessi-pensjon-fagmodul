@@ -75,7 +75,8 @@ internal class EuxInnhentingServiceTest {
         MockKAnnotations.init(this)
         vedleggService = VedleggService(
             safClient = safClient,
-            euxVedleggClient = mockk(relaxed = true)
+            euxVedleggClient = mockk(relaxed = true),
+            mockk(relaxed = true),
         )
 
         euxInnhentingService = EuxInnhentingService(
