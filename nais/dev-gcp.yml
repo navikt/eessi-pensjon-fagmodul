@@ -35,15 +35,10 @@ spec:
           createdBefore: 2020-01-01
           numNewerVersions: 2
           withState: ANY
-        uniformBucketLevelAccess: true
       - name: eessi-pensjon-p8000-dev
-        uniformBucketLevelAccess: true
       - name: eessi-pensjon-p6000-dev
-        uniformBucketLevelAccess: true
       - name: eessi-pensjon-pbuc02-avdod-dev
-        uniformBucketLevelAccess: true
       - name: eessi-pensjon-vedlegg-dev
-        uniformBucketLevelAccess: true
   accessPolicy:
     outbound:
       rules:
