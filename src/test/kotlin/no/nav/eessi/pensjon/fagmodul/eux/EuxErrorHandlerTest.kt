@@ -8,6 +8,7 @@ import com.ninjasquad.springmockk.MockkBeans
 import io.mockk.mockk
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.klient.IkkeFunnetException
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.VedleggService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.shared.retry.IOExceptionRetryInterceptor
 import org.hamcrest.core.StringContains
@@ -40,6 +41,7 @@ import org.springframework.web.client.RestTemplate
 )
 @EnableRetry
 @MockkBeans(
+    MockkBean(name = "vedleggService", classes = [VedleggService::class], relaxed = true),
     MockkBean(name = "gcpStorageService", classes = [GcpStorageService::class], relaxed = true)
 )
 class EuxErrorHandlerTest {

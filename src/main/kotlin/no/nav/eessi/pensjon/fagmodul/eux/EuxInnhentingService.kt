@@ -2,7 +2,6 @@ package no.nav.eessi.pensjon.fagmodul.eux
 
 import no.nav.eessi.pensjon.eux.klient.BucSedResponse
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
-import no.nav.eessi.pensjon.eux.klient.EuxKlientLib
 import no.nav.eessi.pensjon.eux.klient.EuxKlientLib.*
 import no.nav.eessi.pensjon.eux.klient.ForbiddenException
 import no.nav.eessi.pensjon.eux.klient.Rinasak
@@ -18,7 +17,7 @@ import no.nav.eessi.pensjon.eux.model.buc.PreviewPdf
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.eux.model.sed.X009
-import no.nav.eessi.pensjon.fagmodul.api.FrontEndResponse
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.VedleggService
 import no.nav.eessi.pensjon.fagmodul.config.INSTITUTION_CACHE
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.metrics.MetricsHelper
@@ -52,6 +51,7 @@ class EuxInnhentingService(
     private val euxKlient: EuxKlientAsSystemUser,
     private val gcpService: GcpStorageService,
     private val euxNavIdentRestTemplateV2: RestTemplate,
+    private val vedleggService: VedleggService,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
 
@@ -148,6 +148,44 @@ class EuxInnhentingService(
             BucAndSedView.fromErr(ex.message)
         }
     }
+    fun getSingleBucAndSedViewMedMetadata(euxCaseId: String, aktorId: String): BucAndSedView {
+        return try {
+            val bucAndSedView = BucAndSedView.from(getBuc(euxCaseId))
+            val filstoerrelsePerSed = vedleggService.hentTittelOgFilstoerrelseForBucid(aktorId, euxCaseId)
+                .also { logger.info("Hentet tittelOgVedlegg: $it") }
+                .associate { (sedId, storrelse) -> sedId to storrelse }
+
+            bucAndSedView.copy(
+                seds = bucAndSedView.seds?.map { sed ->
+                    filstoerrelsePerSed[sed.id]?.let { filstoerrelse ->
+                        DocumentsItem(
+                            id = sed.id,
+                            parentDocumentId = sed.parentDocumentId,
+                            type = sed.type,
+                            displayName = sed.displayName,
+                            status = sed.status,
+                            creationDate = sed.creationDate,
+                            lastUpdate = sed.lastUpdate,
+                            participants = sed.participants,
+                            attachments = sed.attachments,
+                            version = sed.version,
+                            firstVersion = sed.firstVersion,
+                            lastVersion = sed.lastVersion,
+                            allowsAttachments = sed.allowsAttachments,
+                            direction = sed.direction,
+                            receiveDate = sed.receiveDate,
+                            creator = sed.creator,
+                            attachmentsSize = filstoerrelse
+                        )
+                    } ?: sed
+                }
+            )
+        } catch (ex: Exception) {
+            logger.error("Feiler ved utlevering av enkel bucandsedview ${ex.message}", ex)
+            BucAndSedView.fromErr(ex.message)
+        }
+    }
+
 
     fun getBucAndSedViewWithBuc(bucs: List<Buc>, gjenlevndeFnr: String, avdodFnr: String): List<BucAndSedView> {
         return bucs

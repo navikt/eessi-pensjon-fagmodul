@@ -66,6 +66,24 @@ class BucController(
             FrontEndResponse(ValidBucAndSed.pensjonsBucer(), HttpStatus.OK.name)
         }
 
+    @GetMapping("/{euxcaseid}/metadata/{aktoerId}")
+    fun hentBucMedMetadata(
+        @PathVariable(value = "euxcaseid", required = true) euxcaseid: String,
+        @PathVariable(value = "aktoerId", required = true) aktoerId: String,
+    ): FrontEndResponse<BucAndSedView> =
+        timedControllerCall("hentBucMedMetadata") {
+            bucDetaljerEnkel.measure {
+                auditlogger.log("hentSingleBucAndSedView")
+                logger.debug(" prøver å hente ut en enkel buc med euxCaseId: $euxcaseid")
+                val enkeltBucAndSedView = euxInnhentingService.getSingleBucAndSedViewMedMetadata(euxcaseid, aktoerId)
+                if (enkeltBucAndSedView.error.isNullOrEmpty()) {
+                    FrontEndResponse(enkeltBucAndSedView, HttpStatus.OK.name)
+                } else {
+                    FrontEndResponse(enkeltBucAndSedView, enkeltBucAndSedView.error)
+                }
+            }
+        }
+
     @GetMapping("/{rinanr}")
     fun getBuc(@PathVariable(value = "rinanr", required = true) rinanr: String): FrontEndResponse<Buc> =
         timedControllerCall("getBuc") {

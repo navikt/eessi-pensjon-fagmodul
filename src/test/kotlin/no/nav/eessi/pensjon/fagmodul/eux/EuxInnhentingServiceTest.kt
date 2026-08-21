@@ -15,6 +15,9 @@ import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
 import no.nav.eessi.pensjon.eux.model.sed.P6000
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.VedleggService
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.HentMetadataResponse
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.SafClient
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucView
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucViewKilde
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucViewKilde.BRUKER
@@ -47,10 +50,11 @@ private const val AKTOERID = "1234568"
 private const val INTERNATIONAL_ID = "e94e1be2daff414f8a49c3149ec00e66"
 
 @SpringJUnitConfig(classes = [EuxInnhentingService::class ])
-@MockkBeans(
+@MockkBeans(value = [
     MockkBean(name = "gcpStorageService", classes = [GcpStorageService::class], relaxed = true),
     MockkBean(name = "euxNavIdentRestTemplateV2", classes = [RestTemplate::class]),
-
+    MockkBean(name = "vedleggService", classes = [VedleggService::class])
+    ]
     )
 internal class EuxInnhentingServiceTest {
 
@@ -60,12 +64,46 @@ internal class EuxInnhentingServiceTest {
     private lateinit var gcpStorageService: GcpStorageService
     @Autowired
     private lateinit var euxNavIdentRestTemplateV2: RestTemplate
+
+    private lateinit var vedleggService: VedleggService
     private lateinit var euxInnhentingService: EuxInnhentingService
+
+    private var safClient: SafClient = mockk(relaxed = true)
 
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this)
-        euxInnhentingService = EuxInnhentingService("q2", euxKlient, gcpStorageService, euxNavIdentRestTemplateV2)
+        vedleggService = VedleggService(
+            safClient = safClient,
+            euxVedleggClient = mockk(relaxed = true)
+        )
+
+        euxInnhentingService = EuxInnhentingService(
+            environment = "q2",
+            euxKlient = euxKlient,
+            gcpService = gcpStorageService,
+            vedleggService = vedleggService,
+            euxNavIdentRestTemplateV2 = euxNavIdentRestTemplateV2
+        )
+    }
+
+
+    @Test
+    fun `Sjekker at vi henter stoerrelse fra joark for henting av buc`() {
+        val sedIdMedVedlegg = "cac9db2726d54f2c9b51d1562b7b0a79"
+        val metadataJson = javaClass.getResource("/json/saf/hentMetadataResponseMedFilStorrelse.json")!!.readText()
+        val metadata = mapJsonToAny<HentMetadataResponse>(metadataJson)
+
+        every { safClient.hentDokumentMetadata(any()) } returns metadata
+
+        val bucJson = javaClass.getResource("/json/buc/buc-158123_2_v4.1.json")!!.readText()
+        every { euxKlient.getBucJsonAsNavIdent(any()) } returns bucJson
+
+        val result = euxInnhentingService.getSingleBucAndSedViewMedMetadata("1111111", "aktoerId")
+        val sedMedVedlegg = result.seds?.firstOrNull { it.id == sedIdMedVedlegg }
+
+        assertNotNull(sedMedVedlegg)
+        assertEquals("0.5", sedMedVedlegg?.attachmentsSize)
     }
 
     @Test
