@@ -89,8 +89,7 @@ class PersonPDLController(
         @PathVariable("vedtaksId", required = true) vedtaksId: String
     ): ResponseEntity<FrontEndResponse<List<PersoninformasjonAvdode?>>> {
         logger.debug("Henter informasjon om avdøde $gjenlevendeAktoerId fra vedtak $vedtaksId")
-        auditLogger.log("getDeceased", gjenlevendeAktoerId)
-        auditLogger.log("getDeceased", "vedtakId:$vedtaksId")
+        auditLogger.log("getDeceased", gjenlevendeAktoerId, "vedtakId:$vedtaksId")
 
         return personControllerHentPersonAvdod.measure {
 

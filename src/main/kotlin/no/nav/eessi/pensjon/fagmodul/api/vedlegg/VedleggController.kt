@@ -60,8 +60,7 @@ class VedleggController(private val vedleggService: VedleggService,
                               @PathVariable("joarkJournalpostId", required = true) joarkJournalpostId: String,
                               @PathVariable("joarkDokumentInfoId", required = true) joarkDokumentInfoId : String,
                               @PathVariable("variantFormat", required = true) variantFormat : String) : ResponseEntity<FrontEndResponse<String>> {
-        auditlogger.log("putVedleggTilDokument", aktoerId)
-        auditlogger.logBuc("putVedleggTilDokument", "euxCaseId:$rinaSakId, documentId:$rinaDokumentId, journalpostId:$joarkJournalpostId")
+        auditlogger.log("putVedleggTilDokument", aktoerId, "euxCaseId:$rinaSakId, documentId:$rinaDokumentId, journalpostId:$joarkJournalpostId")
         logger.debug("Legger til vedlegg: joarkJournalpostId: $joarkJournalpostId, joarkDokumentInfoId $joarkDokumentInfoId, variantFormat: $variantFormat til " +
                 "rinaSakId: $rinaSakId, rinaDokumentId: $rinaDokumentId")
 
