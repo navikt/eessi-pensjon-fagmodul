@@ -181,6 +181,7 @@ class BucController(
         return timedControllerCall("getRinasakerFraRina") {
             bucViewRina.measure {
                 auditlogger.log("getRinasakerFraRina", aktoerId)
+                auditlogger.logBuc("getRinasakerFraRina", "pesysSaksNr:$pensjonSakNummer")
                 val start = System.currentTimeMillis()
 
                 //Når vi ikke finner noe fnr så feiler denne med 404 NOT_FOUND
@@ -217,6 +218,7 @@ class BucController(
         return timedControllerCall("getGjenlevendeRinasakerVedtak") {
             bucViewForVedtak.measure {
                 auditlogger.log("getGjenlevendeRinasakerVedtak", aktoerId)
+                auditlogger.logBuc("getGjenlevendeRinasakerVedtak", "pesysSaksNr:$sakNr, vedtakId:$vedtakId")
                 val start = System.currentTimeMillis()
 
                 logger.info("henter rinasaker på valgt aktoerid: $aktoerId, saknr: $sakNr, vedtaksId:$vedtakId")
@@ -297,6 +299,7 @@ class BucController(
     ): FrontEndResponse<List<BucView>> {
         return timedControllerCall("getAvdodRinaSak") {
             auditlogger.log("getAvdodRinaSak", aktoerId)
+            auditlogger.logBuc("getAvdodRinaSak", "pesysSakNr:$sakNr, avdodFnr:$avdodfnr")
             logger.info("Henter rinasaker på avdod: $aktoerId, saknr: $sakNr")
             FrontEndResponse(euxInnhentingService.hentBucViewAvdod(avdodfnr, aktoerId, sakNr), HttpStatus.OK.name)
         }
@@ -313,7 +316,7 @@ class BucController(
     ): FrontEndResponse<BucAndSedView> {
         return timedControllerCall("getSingleBucogSedView") {
             bucDetaljerEnkel.measure {
-                auditlogger.log("getSingleBucogSedView", euxcaseid)
+                auditlogger.logBuc("getSingleBucogSedView", "euxCaseId: $euxcaseid, aktoerId:$aktoerid")
                 logger.info("Henter ut en enkel buc med euxCaseId: $euxcaseid, saknr: $saknr, kilde: $kilde")
 
                 val enkeltBucAndSedView = euxInnhentingService.getSingleBucAndSedView(euxcaseid)
@@ -336,6 +339,7 @@ class BucController(
     ): FrontEndResponse<BucAndSedView> {
         return timedControllerCall("getSingleBucogSedViewMedAvdod") {
             auditlogger.log("getSingleBucogSedViewMedAvdod", aktoerid)
+            auditlogger.logBuc("getSingleBucogSedViewMedAvdod", "euxCaseId:$euxcaseid, pesysSakNr:$saknr, avdodFnr:$avdodFnr")
             logger.info("Henter ut en enkel buc for gjenlevende")
 
             val gjenlevendeFnr = innhentingService.hentFnrfraAktoerService(aktoerid)
