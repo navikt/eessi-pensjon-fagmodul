@@ -68,6 +68,7 @@ class PensjonsinformasjonUtlandControllerTest {
         every { kodeverkClient.finnLandkode("BG") } returns "BGD"
         every { kodeverkClient.finnLandkode("HR") } returns "HRD"
         justRun { auditLogger.log(any(), any()) }
+        justRun { auditLogger.logBuc(any(), any()) }
     }
 
     @Test

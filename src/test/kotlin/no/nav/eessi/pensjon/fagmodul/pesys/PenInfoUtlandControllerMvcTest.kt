@@ -66,7 +66,7 @@ class PenInfoUtlandControllerMvcTest {
             ?.let { json -> mapJsonToAny<P6000>(json) }!!
         every { kodeverkClient.hentPostSted(any()) } returns Postnummer("123456", "Oslo")
         every { euxInnhentingService.hentSedMetadata(any(), any()) } returns metadata
-        justRun { auditlogger.log(any(), any()) }
+        justRun { auditlogger.logBuc(any(), any()) }
 
         val repsonse = mvc.perform(
             MockMvcRequestBuilders.get("/pesys/hentP6000Detaljer")
