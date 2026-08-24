@@ -58,7 +58,7 @@ class GcpStorageService(
     }
 
     fun lagreVedtakInfo(rinaSakId:String, euxCaseId: String, filStr: String) {
-            lagre(euxCaseId, "$rinaSakId/$euxCaseId $filStr", gjennyBucket)
+            lagre(euxCaseId, "$rinaSakId/$euxCaseId $filStr", vedleggBucket)
     }
     data class PBuc02Info(
         val euxCaseId: String,
