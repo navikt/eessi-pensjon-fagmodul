@@ -90,6 +90,7 @@ class PersonPDLController(
     ): ResponseEntity<FrontEndResponse<List<PersoninformasjonAvdode?>>> {
         logger.debug("Henter informasjon om avdøde $gjenlevendeAktoerId fra vedtak $vedtaksId")
         auditLogger.log("getDeceased", gjenlevendeAktoerId)
+        auditLogger.log("getDeceased", "vedtakId:$vedtaksId")
 
         return personControllerHentPersonAvdod.measure {
 
@@ -149,7 +150,7 @@ class PersonPDLController(
         @PathVariable(value = "vedtakid", required = true) vedtakid: String,
         @PathVariable(value = "rinanr", required = true) euxCaseId: String
     ): ResponseEntity<FrontEndResponse<List<DodsDatoPdl>>> {
-        auditLogger.log("getAvdodDateFromVedtakOrSed", euxCaseId)
+        auditLogger.logBuc("getAvdodDateFromVedtakOrSed", "euxCaseId:$euxCaseId, vedtakId:$vedtakid")
         logger.info("Henter avdødeinfo for vedtak: $vedtakid")
 
         val vedtak = pesysService.hentAvdod(vedtakid)

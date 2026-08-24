@@ -61,7 +61,7 @@ class SedController(
         @PathVariable("euxcaseid", required = true) euxcaseid: String,
         @PathVariable("documentid", required = true) documentid: String
     ): FrontEndResponse<PreviewPdf> {
-        auditlogger.logBuc("getPdfFromRina", "euxCaseId:$euxcaseid, dokumentId:$documentid")
+        auditlogger.logBuc("getPdfFromRina", "euxCaseId:$euxcaseid, documentId:$documentid")
         return FrontEndResponse(euxInnhentingService.getPdfContents(euxcaseid, documentid), HttpStatus.OK.name)
     }
 

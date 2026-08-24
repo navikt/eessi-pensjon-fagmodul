@@ -94,7 +94,7 @@ class PensjonsinformasjonUtlandController(
     fun hentP6000Detaljer(
         @RequestParam("pesysId") pesysId: String
     ) : P1Dto {
-        auditlogger.logBuc("hentP6000Detaljer", "pesysSaksnummer:$pesysId")
+        auditlogger.logBuc("hentP6000Detaljer", "sakId:$pesysId")
         logger.info("Henter P6000 detaljer fra bucket for pesysId: $pesysId")
         val p6000Detaljer = hentP6000DetaljerFraGcp(pesysId)
         return p6000Metric.measure {
