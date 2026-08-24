@@ -36,11 +36,8 @@ spec:
           createdBefore: 2020-01-01
           numNewerVersions: 2
           withState: ANY
-        uniformBucketLevelAccess: true
       - name: eessi-pensjon-p8000-dev-q1
-        uniformBucketLevelAccess: true
       - name: eessi-pensjon-p6000-dev-q1
-        uniformBucketLevelAccess: true
   accessPolicy:
     outbound:
       rules:
