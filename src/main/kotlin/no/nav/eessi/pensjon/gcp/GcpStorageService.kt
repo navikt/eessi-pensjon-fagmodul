@@ -58,7 +58,17 @@ class GcpStorageService(
     }
 
     fun lagreVedtakInfo(rinaSakId:String, euxCaseId: String, filStr: String) {
-            lagre(euxCaseId, "$rinaSakId/$euxCaseId $filStr", vedleggBucket)
+        val storageKey = "$rinaSakId/$euxCaseId"
+        val blobInfo = BlobInfo.newBuilder(BlobId.of(vedleggBucket, storageKey)).setContentType("application/json").build()
+        kotlin.runCatching {
+            gcpStorage.writer(blobInfo).use {
+                it.write(ByteBuffer.wrap(filStr.toByteArray()))
+            }
+        }.onFailure { e ->
+            logger.error("Feilet med å lagre dokument med id: ${blobInfo.blobId.name} for bucket: $vedleggBucket", e)
+        }.onSuccess {
+            logger.info("Lagret info på S3 med rinaID: $storageKey for $vedleggBucket: og størrelse: $filStr")
+        }
     }
     data class PBuc02Info(
         val euxCaseId: String,
@@ -211,4 +221,3 @@ class GcpStorageService(
         return resultat
     }
 }
-
