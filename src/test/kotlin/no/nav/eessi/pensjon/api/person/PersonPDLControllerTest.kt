@@ -74,6 +74,7 @@ class PersonPDLControllerTest {
     fun before() {
         MockKAnnotations.init(this, relaxed = true, relaxUnitFun = true)
         justRun { auditLogger.log(any(), any()) }
+        justRun { auditLogger.logBuc(any(), any()) }
     }
 
     @Test

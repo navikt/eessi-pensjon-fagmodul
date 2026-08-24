@@ -45,7 +45,7 @@ class VedleggController(private val vedleggService: VedleggService,
     fun getDokumentInnhold(@PathVariable("journalpostId", required = true) journalpostId: String,
                            @PathVariable("dokumentInfoId", required = true) dokumentInfoId: String,
                            @PathVariable("variantFormat", required = true) variantFormat: String): FrontEndResponse<HentdokumentInnholdResponse> {
-        auditlogger.logBuc("getDokumentInnhold", "journalpostId:$journalpostId")
+        auditlogger.logBuc("getDokumentInnhold", "journalpostId:$journalpostId, documentId:$dokumentInfoId")
         return vedleggControllerInnhold.measure {
             logger.info("Henter dokumentinnhold fra SAF for journalpostId: $journalpostId, dokumentInfoId: $dokumentInfoId")
             val hentDokumentInnholdResponse = vedleggService.hentDokumentInnhold(journalpostId, dokumentInfoId, variantFormat)
@@ -61,6 +61,7 @@ class VedleggController(private val vedleggService: VedleggService,
                               @PathVariable("joarkDokumentInfoId", required = true) joarkDokumentInfoId : String,
                               @PathVariable("variantFormat", required = true) variantFormat : String) : ResponseEntity<FrontEndResponse<String>> {
         auditlogger.log("putVedleggTilDokument", aktoerId)
+        auditlogger.logBuc("putVedleggTilDokument", "euxCaseId:$rinaSakId, documentId:$rinaDokumentId, journalpostId:$joarkJournalpostId")
         logger.debug("Legger til vedlegg: joarkJournalpostId: $joarkJournalpostId, joarkDokumentInfoId $joarkDokumentInfoId, variantFormat: $variantFormat til " +
                 "rinaSakId: $rinaSakId, rinaDokumentId: $rinaDokumentId")
 
