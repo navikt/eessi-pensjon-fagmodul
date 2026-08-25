@@ -1,5 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.api.vedlegg
 
+import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.eux.model.buc.MissingBuc
 import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.Dokument
 import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.EuxVedleggClient
@@ -142,6 +143,34 @@ class VedleggService(
             Pair(sedId, storrelse.toString())
         }
     }
+
+    fun hentSedInfoFraS3FraBucInfo(buc: Buc): List<Pair<String?, String?>> {
+        val bucid = buc.id ?: return emptyList()
+        val sedInfoList = mutableListOf<Pair<String?, String?>>()
+        buc.documents?.forEach { document ->
+            val sedId = document.id
+            if(sedId == null) {
+                logger.warn("Fant dokument uten sedId i buc $bucid")
+                return@forEach
+            }
+            val storrelse = gcpStorage.hentSamletVedtakInfoStorrelse(bucid, sedId)
+            logger.debug("Filstørrelse for sedId $sedId: $storrelse")
+            sedInfoList.add(Pair(sedId, storrelse.toString()))
+        }
+        return sedInfoList
+
+//        val metadata = hentDokumentMetadata(aktoerId)
+//        return metadata.data.dokumentoversiktBruker.journalposter.filter { journalpost ->
+//            journalpost.tilleggsopplysninger.any {
+//                it["nokkel"] == "eessi_pensjon_bucid" && it["verdi"] == bucid
+//            }
+//        }.mapNotNull { journalpost ->
+//            val sedId = journalpost.tilleggsopplysninger.find { it["nokkel"] == "eessi_pensjon_sedid" }?.get("verdi") ?: return@mapNotNull null
+//            val storrelse = gcpStorage.hentSamletVedtakInfoStorrelse(bucid, sedId)
+////            val storrelse = journalpost.tilleggsopplysninger.find { it["nokkel"] == "eessi_pensjon_dokStr" }?.get("verdi")
+//            logger.debug("Filstørrelse for sedId $sedId: $storrelse")
+//            Pair(sedId, storrelse.toString())
+        }
 
 }
 

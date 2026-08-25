@@ -16,7 +16,6 @@ import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
 import no.nav.eessi.pensjon.eux.model.sed.P6000
 import no.nav.eessi.pensjon.fagmodul.api.vedlegg.VedleggService
-import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.HentMetadataResponse
 import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.SafClient
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucView
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucViewKilde
@@ -91,12 +90,9 @@ internal class EuxInnhentingServiceTest {
 
     @Test
     fun `Sjekker at vi henter stoerrelse fra GCP for henting av buc`() {
-        val eessiCaseId = "1111111"
+        val eessiCaseId = "158123"
         val sedIdMedVedlegg = "cac9db2726d54f2c9b51d1562b7b0a79"
-        val metadataJson = javaClass.getResource("/json/saf/hentMetadataResponseMedFilStorrelse.json")!!.readText()
-        val metadata = mapJsonToAny<HentMetadataResponse>(metadataJson)
 
-        every { safClient.hentDokumentMetadata(any()) } returns metadata
         every { gcpStorageService.hentSamletVedtakInfoStorrelse(eessiCaseId, sedIdMedVedlegg) } returns 2560L
 
         val bucJson = javaClass.getResource("/json/buc/buc-158123_2_v4.1.json")!!.readText()
