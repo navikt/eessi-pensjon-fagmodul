@@ -69,8 +69,7 @@ class VedleggController(private val vedleggService: VedleggService,
             val dokument = vedleggService.hentDokumentInnhold(joarkJournalpostId, joarkDokumentInfoId, variantFormat)
 
             val documentName = dokumentMetadata?.tittel ?: dokument.fileName
-            val sizeBytes = Base64.getDecoder().decode(dokument.filInnhold).size
-            logger.info("Legger til vedlegg: $documentName for rinasak: $rinaSakId, størrelse: $sizeBytes bytes")
+            logger.info("Legger til vedlegg: $documentName for rinasak: $rinaSakId")
             vedleggService.leggTilVedleggPaaDokument(aktoerId,
                     rinaSakId,
                     rinaDokumentId,

@@ -6,6 +6,7 @@ import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.EuxVedleggClient
 import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.HentMetadataResponse
 import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.HentdokumentInnholdResponse
 import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.SafClient
+import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -19,11 +20,15 @@ import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import java.io.IOException
+import java.util.Base64
 
 @Service
-class VedleggService(private val safClient: SafClient,
-                     private val euxVedleggClient: EuxVedleggClient,
-                     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()) {
+class VedleggService(
+    private val safClient: SafClient,
+    private val euxVedleggClient: EuxVedleggClient,
+    private val gcpStorage: GcpStorageService,
+    @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
+) {
 
     private final val TILLEGGSOPPLYSNING_RINA_SAK_ID_KEY = "eessi_pensjon_bucid"
     private val logger = LoggerFactory.getLogger(VedleggService::class.java)
@@ -61,7 +66,23 @@ class VedleggService(private val safClient: SafClient,
                                   filInnhold: String,
                                   fileName: String,
                                   filtype: String) {
-        euxVedleggClient.leggTilVedleggPaaDokument(aktoerId, rinaSakId, rinaDokumentId, filInnhold, fileName, filtype)
+        val dokumentInnholdBinary = Base64.getDecoder().decode(filInnhold)
+        val vedtakInfoSize = dokumentInnholdBinary.size.toString()
+
+        try {
+            gcpStorage.lagreVedtakInfoForDokument(rinaSakId, rinaDokumentId, fileName, vedtakInfoSize)
+        } catch (e: Exception) {
+            logger.warn("Feil ved lagring av vedleggs-info", e)
+        }
+
+        euxVedleggClient.leggTilVedleggPaaDokument(
+            aktoerId,
+            rinaSakId,
+            rinaDokumentId,
+            dokumentInnholdBinary,
+            fileName,
+            filtype
+        )
     }
 
     /**

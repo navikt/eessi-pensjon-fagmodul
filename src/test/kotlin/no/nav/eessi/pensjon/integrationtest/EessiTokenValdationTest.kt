@@ -97,7 +97,7 @@ class EessiTokenValdationTest {
             aktoerId = "123456789",
             rinaSakId = "rina123",
             rinaDokumentId = "doc123",
-            filInnhold = Base64.getEncoder().encodeToString(createLargePdf(200000)),
+            dokumentInnholdBinary = Base64.getEncoder().encodeToString(createLargePdf(200000)).toByteArray(),
             fileName = "example.pdf",
             filtype = "application/pdf"
         )
