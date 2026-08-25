@@ -168,7 +168,7 @@ internal class VedleggServiceTest  {
 
         val result = vedleggService.hentTittelOgFilstoerrelseForBucid("12345678910", bucid)
 
-        assertEquals(listOf(Pair(sedId, "2560")), result)
+        assertEquals(listOf(Pair(sedId, "0.002")), result)
     }
 
     @Test

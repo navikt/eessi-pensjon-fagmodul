@@ -21,6 +21,8 @@ import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import java.io.IOException
+import java.math.BigDecimal
+import java.math.RoundingMode
 import java.util.Base64
 
 @Service
@@ -137,10 +139,9 @@ class VedleggService(
             }
         }.mapNotNull { journalpost ->
             val sedId = journalpost.tilleggsopplysninger.find { it["nokkel"] == "eessi_pensjon_sedid" }?.get("verdi") ?: return@mapNotNull null
-            val storrelse = gcpStorage.hentSamletVedtakInfoStorrelse(bucid, sedId)
-//            val storrelse = journalpost.tilleggsopplysninger.find { it["nokkel"] == "eessi_pensjon_dokStr" }?.get("verdi")
+            val storrelse = gcpStorage.hentSamletVedtakInfoStorrelse(bucid, sedId) ?: 0L
             logger.debug("Filstørrelse for sedId $sedId: $storrelse")
-            Pair(sedId, storrelse.toString())
+            Pair(sedId, bytesTilMb(storrelse))
         }
     }
 
@@ -153,9 +154,9 @@ class VedleggService(
                 logger.warn("Fant dokument uten sedId i buc $bucid")
                 return@forEach
             }
-            val storrelse = gcpStorage.hentSamletVedtakInfoStorrelse(bucid, sedId)
+            val storrelse = gcpStorage.hentSamletVedtakInfoStorrelse(bucid, sedId) ?: 0L
             logger.debug("Filstørrelse for sedId $sedId: $storrelse")
-            sedInfoList.add(Pair(sedId, storrelse.toString()))
+            sedInfoList.add(Pair(sedId, bytesTilMb(storrelse)))
         }
         return sedInfoList
 
@@ -166,15 +167,17 @@ class VedleggService(
 //            }
 //        }.mapNotNull { journalpost ->
 //            val sedId = journalpost.tilleggsopplysninger.find { it["nokkel"] == "eessi_pensjon_sedid" }?.get("verdi") ?: return@mapNotNull null
-//            val storrelse = gcpStorage.hentSamletVedtakInfoStorrelse(bucid, sedId)
+//            val storrelse = gcpStorage.hentSamletVedtakInfoStorrelse(bucid, sedId) ?: 0L
 ////            val storrelse = journalpost.tilleggsopplysninger.find { it["nokkel"] == "eessi_pensjon_dokStr" }?.get("verdi")
 //            logger.debug("Filstørrelse for sedId $sedId: $storrelse")
 //            Pair(sedId, storrelse.toString())
         }
 
+    private fun bytesTilMb(bytes: Long): String {
+        val mb = BigDecimal.valueOf(bytes).divide(BigDecimal.valueOf(1024L * 1024L), 3, RoundingMode.HALF_UP)
+        return mb.stripTrailingZeros().toPlainString()
+    }
 }
-
-
 //TODO: flytte disse til et felles sted, ev en annen løsning
 @Profile("!retryConfigOverride")
 @Component

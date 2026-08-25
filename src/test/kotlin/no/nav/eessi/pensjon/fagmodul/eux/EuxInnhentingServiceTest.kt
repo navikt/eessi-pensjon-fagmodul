@@ -102,7 +102,7 @@ internal class EuxInnhentingServiceTest {
         val sedMedVedlegg = result.seds?.firstOrNull { it.id == sedIdMedVedlegg }
 
         assertNotNull(sedMedVedlegg)
-        assertEquals("2560", sedMedVedlegg?.attachmentsSize)
+        assertEquals("0.002", sedMedVedlegg?.attachmentsSize)
     }
 
     @Test
