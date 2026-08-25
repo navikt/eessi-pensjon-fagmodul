@@ -57,10 +57,13 @@ class GcpStorageService(
         }
     }
 
-    fun lagreVedtakInfo(rinaSakId:String, euxCaseId: String, filStr: String) {
-        val storageKey = "$rinaSakId/$euxCaseId"
+    fun lagreVedtakInfoForDokument(rinaSakId: String, euxCaseId: String, dokumentId: String, filStr: String) {
+        val storageKey = "$rinaSakId/$euxCaseId/$dokumentId"
         val blobInfo = BlobInfo.newBuilder(BlobId.of(vedleggBucket, storageKey)).setContentType("application/json").build()
         kotlin.runCatching {
+            filStr.trim().toLongOrNull()
+                ?: throw IllegalArgumentException("Ugyldig størrelse, forventet tall: $filStr")
+
             gcpStorage.writer(blobInfo).use {
                 it.write(ByteBuffer.wrap(filStr.toByteArray()))
             }
@@ -70,6 +73,35 @@ class GcpStorageService(
             logger.info("Lagret info på S3 med rinaID: $storageKey for $vedleggBucket: og størrelse: $filStr")
         }
     }
+
+    fun hentSamletVedtakInfoStorrelse(rinaSakId: String, euxCaseId: String): Long? {
+        val prefix = "$rinaSakId/$euxCaseId/"
+        return kotlin.runCatching {
+            val blobNavn = gcpStorage.list(vedleggBucket, Storage.BlobListOption.prefix(prefix))
+                .iterateAll().mapNotNull { it.name }
+
+            if (blobNavn.isEmpty()) {
+                logger.warn("Ingen dokumenter funnet for: $prefix i bucket: $vedleggBucket")
+                return@runCatching null
+            }
+
+            val sum = blobNavn.mapNotNull { navn ->
+                gcpStorage.get(BlobId.of(vedleggBucket, navn))
+                    ?.takeIf { it.exists() }
+                    ?.getContent()
+                    ?.decodeToString()
+                    ?.trim()
+                    ?.toLongOrNull()
+            }.sum()
+
+            logger.info("Hentet samlet størrelse for: $prefix fra bucket: $vedleggBucket")
+            sum
+        }.getOrElse { e ->
+            logger.error("Feil ved henting av samlet størrelse for: $prefix fra bucket: $vedleggBucket. Årsak: ${e.message}", e)
+            null
+        }
+    }
+
     data class PBuc02Info(
         val euxCaseId: String,
         val sedId: String

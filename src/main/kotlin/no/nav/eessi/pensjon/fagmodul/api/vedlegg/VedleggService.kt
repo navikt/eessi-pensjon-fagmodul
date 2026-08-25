@@ -70,7 +70,7 @@ class VedleggService(
         val vedtakInfoSize = dokumentInnholdBinary.size.toString()
 
         try {
-            gcpStorage.lagreVedtakInfo(rinaSakId, rinaDokumentId, vedtakInfoSize)
+            gcpStorage.lagreVedtakInfoForDokument(rinaSakId, rinaDokumentId, fileName, vedtakInfoSize)
         } catch (e: Exception) {
             logger.warn("Feil ved lagring av vedleggs-info", e)
         }
