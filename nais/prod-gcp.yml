@@ -38,6 +38,7 @@ spec:
       - name: eessi-pensjon-p8000
       - name: eessi-pensjon-p6000
       - name: eessi-pensjon-pbuc02-avdod
+      - name: eessi-pensjon-vedlegg
   accessPolicy:
     outbound:
       rules:
@@ -91,6 +92,8 @@ spec:
       value: eessi-pensjon-saksbehandling-api-prod
     - name: GCP_BUCKET_P_BUC02_AVDOD
       value: eessi-pensjon-pbuc02-avdod
+    - name: GCP_BUCKET_VEDLEGG
+      value: eessi-pensjon-vedlegg
 
     - name: PESYS_URL
       value: https://pensjon-pen.prod-fss-pub.nais.io/pen/api/eessi/v2
