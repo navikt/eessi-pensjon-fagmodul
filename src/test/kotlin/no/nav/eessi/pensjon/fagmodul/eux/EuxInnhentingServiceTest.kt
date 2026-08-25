@@ -76,7 +76,7 @@ internal class EuxInnhentingServiceTest {
         vedleggService = VedleggService(
             safClient = safClient,
             euxVedleggClient = mockk(relaxed = true),
-            mockk(relaxed = true),
+            gcpStorage = gcpStorageService,
         )
 
         euxInnhentingService = EuxInnhentingService(
@@ -90,21 +90,23 @@ internal class EuxInnhentingServiceTest {
 
 
     @Test
-    fun `Sjekker at vi henter stoerrelse fra joark for henting av buc`() {
+    fun `Sjekker at vi henter stoerrelse fra GCP for henting av buc`() {
+        val eessiCaseId = "1111111"
         val sedIdMedVedlegg = "cac9db2726d54f2c9b51d1562b7b0a79"
         val metadataJson = javaClass.getResource("/json/saf/hentMetadataResponseMedFilStorrelse.json")!!.readText()
         val metadata = mapJsonToAny<HentMetadataResponse>(metadataJson)
 
         every { safClient.hentDokumentMetadata(any()) } returns metadata
+        every { gcpStorageService.hentSamletVedtakInfoStorrelse(eessiCaseId, sedIdMedVedlegg) } returns 2560L
 
         val bucJson = javaClass.getResource("/json/buc/buc-158123_2_v4.1.json")!!.readText()
         every { euxKlient.getBucJsonAsNavIdent(any()) } returns bucJson
 
-        val result = euxInnhentingService.getSingleBucAndSedViewMedMetadata("1111111", "aktoerId")
+        val result = euxInnhentingService.getSingleBucAndSedViewMedMetadata(eessiCaseId, "aktoerId")
         val sedMedVedlegg = result.seds?.firstOrNull { it.id == sedIdMedVedlegg }
 
         assertNotNull(sedMedVedlegg)
-        assertEquals("0.5", sedMedVedlegg?.attachmentsSize)
+        assertEquals("2560", sedMedVedlegg?.attachmentsSize)
     }
 
     @Test

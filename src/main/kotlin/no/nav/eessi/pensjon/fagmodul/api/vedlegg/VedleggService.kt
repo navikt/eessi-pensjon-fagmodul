@@ -136,9 +136,10 @@ class VedleggService(
             }
         }.mapNotNull { journalpost ->
             val sedId = journalpost.tilleggsopplysninger.find { it["nokkel"] == "eessi_pensjon_sedid" }?.get("verdi") ?: return@mapNotNull null
-            val storrelse = journalpost.tilleggsopplysninger.find { it["nokkel"] == "eessi_pensjon_dokStr" }?.get("verdi")
+            val storrelse = gcpStorage.hentSamletVedtakInfoStorrelse(bucid, sedId)
+//            val storrelse = journalpost.tilleggsopplysninger.find { it["nokkel"] == "eessi_pensjon_dokStr" }?.get("verdi")
             logger.debug("Filstørrelse for sedId $sedId: $storrelse")
-            Pair(sedId, storrelse)
+            Pair(sedId, storrelse.toString())
         }
     }
 
