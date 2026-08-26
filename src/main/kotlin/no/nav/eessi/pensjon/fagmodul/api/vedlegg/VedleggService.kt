@@ -174,7 +174,7 @@ class VedleggService(
         }
 
     private fun bytesTilMb(bytes: Long): String {
-        val mb = BigDecimal.valueOf(bytes).divide(BigDecimal.valueOf(1024L * 1024L), 3, RoundingMode.HALF_UP)
+        val mb = BigDecimal.valueOf(bytes).divide(BigDecimal.valueOf(1024L * 1024L), 1, RoundingMode.HALF_UP)
         return mb.stripTrailingZeros().toPlainString()
     }
 }

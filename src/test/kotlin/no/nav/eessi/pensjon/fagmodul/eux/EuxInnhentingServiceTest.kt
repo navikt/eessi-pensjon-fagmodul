@@ -93,7 +93,7 @@ internal class EuxInnhentingServiceTest {
         val eessiCaseId = "158123"
         val sedIdMedVedlegg = "cac9db2726d54f2c9b51d1562b7b0a79"
 
-        every { gcpStorageService.hentSamletVedtakInfoStorrelse(eessiCaseId, sedIdMedVedlegg) } returns 2560L
+        every { gcpStorageService.hentSamletVedtakInfoStorrelse(eessiCaseId, sedIdMedVedlegg) } returns 256000L
 
         val bucJson = javaClass.getResource("/json/buc/buc-158123_2_v4.1.json")!!.readText()
         every { euxKlient.getBucJsonAsNavIdent(any()) } returns bucJson
@@ -102,7 +102,7 @@ internal class EuxInnhentingServiceTest {
         val sedMedVedlegg = result.seds?.firstOrNull { it.id == sedIdMedVedlegg }
 
         assertNotNull(sedMedVedlegg)
-        assertEquals("0.002", sedMedVedlegg?.attachmentsSize)
+        assertEquals("0.2", sedMedVedlegg?.attachmentsSize)
     }
 
     @Test

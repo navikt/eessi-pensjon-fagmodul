@@ -35,7 +35,7 @@ internal class VedleggServiceTest  {
     @Test
     fun `Gitt en liste av journalposter med tilhørende dokumenter Når man filtrer et konkret dokumentInfoId Så returner et dokument med dokumentInfoId`() {
 
-        val metadataJson = javaClass.getResource("/json/saf/hentMetadataResponse.json").readText()
+        val metadataJson = javaClass.getResource("/json/saf/hentMetadataResponse.json")!!.readText()
         val metadata = mapJsonToAny<HentMetadataResponse>(metadataJson)
 
         every {safClient.hentDokumentMetadata(any())  } returns metadata
@@ -164,11 +164,11 @@ internal class VedleggServiceTest  {
         """.trimIndent()
 
         every { safClient.hentDokumentMetadata(any()) } returns mapJsonToAny<HentMetadataResponse>(metadataJson)
-        every { gcpStorageService.hentSamletVedtakInfoStorrelse(bucid, sedId) } returns 2560L
+        every { gcpStorageService.hentSamletVedtakInfoStorrelse(bucid, sedId) } returns 256000L
 
         val result = vedleggService.hentTittelOgFilstoerrelseForBucid("12345678910", bucid)
 
-        assertEquals(listOf(Pair(sedId, "0.002")), result)
+        assertEquals(listOf(Pair(sedId, "0.2")), result)
     }
 
     @Test
