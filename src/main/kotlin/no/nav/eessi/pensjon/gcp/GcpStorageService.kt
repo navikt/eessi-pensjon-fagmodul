@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import java.nio.ByteBuffer
+import java.security.MessageDigest
+import java.util.UUID
 
 @Component
 class GcpStorageService(
@@ -58,7 +60,8 @@ class GcpStorageService(
     }
 
     fun lagreVedtakInfoForDokument(rinaSakId: String, euxCaseId: String, dokumentId: String, filStr: String) {
-        val storageKey = "$rinaSakId/$euxCaseId/$dokumentId"
+        val uniqueUUD  = UUID.randomUUID().toString().take(4)
+        val storageKey = "$rinaSakId/$euxCaseId/${dokumentId.plus(uniqueUUD)}/"
         val blobInfo = BlobInfo.newBuilder(BlobId.of(vedleggBucket, storageKey)).setContentType("application/json").build()
         kotlin.runCatching {
             filStr.trim().toLongOrNull()
@@ -72,6 +75,17 @@ class GcpStorageService(
         }.onSuccess {
             logger.info("Lagret info på S3 med rinaID: $storageKey for $vedleggBucket: og størrelse: $filStr")
         }
+    }
+
+    private fun lagreVedtakStorageKey(rinaSakId: String, euxCaseId: String, dokumentId: String): String {
+        val normalizedDokumentId = dokumentId
+            .replace("/", "_")
+            .replace("\\", "_")
+        val dokumentHash = MessageDigest.getInstance("SHA-256")
+            .digest(dokumentId.toByteArray())
+            .joinToString("") { "%02x".format(it) }
+            .take(8)
+        return "$rinaSakId/$euxCaseId/${normalizedDokumentId}_$dokumentHash"
     }
 
     fun hentSamletVedtakInfoStorrelse(rinaSakId: String, euxCaseId: String): Long? {
