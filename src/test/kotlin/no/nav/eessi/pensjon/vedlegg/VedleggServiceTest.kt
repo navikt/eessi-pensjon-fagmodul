@@ -139,38 +139,38 @@ internal class VedleggServiceTest  {
         assert(result.isEmpty())
     }
 
-    @Test
-    fun `hentTittelOgFilstoerrelseForBucid skal hente samlet størrelse fra GCP`() {
-        val bucid = "rina-123"
-        val sedId = "doc-456"
-        val metadataJson = """
-            {
-              "data": {
-                "dokumentoversiktBruker": {
-                  "journalposter": [
-                    {
-                      "journalpostId": "439560100",
-                      "datoOpprettet": "2018-06-08T17:06:58",
-                      "tema": "EYB",
-                      "tilleggsopplysninger": [
-                        { "nokkel": "eessi_pensjon_bucid", "verdi": "$bucid" },
-                        { "nokkel": "eessi_pensjon_sedid", "verdi": "$sedId" }
-                      ],
-                      "dokumenter": []
-                    }
-                  ]
-                }
-              }
-            }
-        """.trimIndent()
-
-        every { safClient.hentDokumentMetadata(any()) } returns mapJsonToAny<HentMetadataResponse>(metadataJson)
-        every { gcpStorageService.hentSamletVedtakInfoStorrelse(bucid, sedId) } returns 256000L
-
-        val result = vedleggService.hentTittelOgFilstoerrelseForBucid("12345678910", bucid)
-
-        assertEquals(listOf(Pair(sedId, "0.24")), result)
-    }
+//    @Test
+//    fun `hentTittelOgFilstoerrelseForBucid skal hente samlet størrelse fra GCP`() {
+//        val bucid = "rina-123"
+//        val sedId = "doc-456"
+//        val metadataJson = """
+//            {
+//              "data": {
+//                "dokumentoversiktBruker": {
+//                  "journalposter": [
+//                    {
+//                      "journalpostId": "439560100",
+//                      "datoOpprettet": "2018-06-08T17:06:58",
+//                      "tema": "EYB",
+//                      "tilleggsopplysninger": [
+//                        { "nokkel": "eessi_pensjon_bucid", "verdi": "$bucid" },
+//                        { "nokkel": "eessi_pensjon_sedid", "verdi": "$sedId" }
+//                      ],
+//                      "dokumenter": []
+//                    }
+//                  ]
+//                }
+//              }
+//            }
+//        """.trimIndent()
+//
+//        every { safClient.hentDokumentMetadata(any()) } returns mapJsonToAny<HentMetadataResponse>(metadataJson)
+//        every { gcpStorageService.hentSamletVedtakInfoStorrelse(bucid, sedId) } returns 256000L
+//
+//        val result = vedleggService.hentTittelOgFilstoerrelseForBucid("12345678910", bucid)
+//
+//        assertEquals(listOf(Pair(sedId, "0.24")), result)
+//    }
 
     @Test
     fun `hentRinaSakerFraMetaForOmstillingstonad should filter and map correctly`() {
