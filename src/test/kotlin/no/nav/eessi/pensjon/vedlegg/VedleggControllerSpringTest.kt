@@ -9,6 +9,7 @@ import io.mockk.verify
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.fagmodul.api.FrontEndResponse
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.AttachmentSize
 import no.nav.eessi.pensjon.fagmodul.api.vedlegg.VedleggService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
@@ -70,9 +71,10 @@ class VedleggControllerSpringTest {
             .andExpect(content().string(containsString("\"status\":\"OK\"")))
             .andReturn()
 
-        val response: FrontEndResponse<String> = mapJsonToAny(result.response.contentAsString)
+        val response: FrontEndResponse<AttachmentSize> = mapJsonToAny(result.response.contentAsString)
         assertEquals(HttpStatus.OK.name, response.status)
-        assertEquals("{\"attachmentsSize\": 0.0 MB}", response.result)
+        println(response)
+        assertEquals(AttachmentSize("0.0 MB"), response.result)
 
         verify (exactly = 1) { vedleggService.leggTilVedleggPaaDokument(any(), any(), any(), any(), any(), any()) }
         verify (exactly = 1) { vedleggService.hentDokumentInnhold(any(), any(), any()) }

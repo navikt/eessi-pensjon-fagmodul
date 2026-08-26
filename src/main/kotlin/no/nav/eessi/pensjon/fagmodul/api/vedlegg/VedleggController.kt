@@ -3,7 +3,6 @@ package no.nav.eessi.pensjon.fagmodul.api.vedlegg
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.fagmodul.api.FrontEndResponse
-import no.nav.eessi.pensjon.utils.successBody
 import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.HentMetadataResponse
 import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.HentdokumentInnholdResponse
 import no.nav.security.token.support.core.api.Protected
@@ -59,7 +58,7 @@ class VedleggController(private val vedleggService: VedleggService,
                               @PathVariable("rinaDokumentId", required = true) rinaDokumentId: String,
                               @PathVariable("joarkJournalpostId", required = true) joarkJournalpostId: String,
                               @PathVariable("joarkDokumentInfoId", required = true) joarkDokumentInfoId : String,
-                              @PathVariable("variantFormat", required = true) variantFormat : String) : ResponseEntity<FrontEndResponse<String>> {
+                              @PathVariable("variantFormat", required = true) variantFormat : String) : ResponseEntity<FrontEndResponse<AttachmentSize>> {
         auditlogger.log("putVedleggTilDokument", aktoerId, "euxCaseId:$rinaSakId, documentId:$rinaDokumentId, journalpostId:$joarkJournalpostId")
         logger.debug("Legger til vedlegg: joarkJournalpostId: $joarkJournalpostId, joarkDokumentInfoId $joarkDokumentInfoId, variantFormat: $variantFormat til " +
                 "rinaSakId: $rinaSakId, rinaDokumentId: $rinaDokumentId")
@@ -77,7 +76,7 @@ class VedleggController(private val vedleggService: VedleggService,
                     "$documentName.pdf",
                     dokument.contentType.split("/")[1])
             logger.info("Vedlegg er lagt til for rinasak. $rinaSakId")
-            return ResponseEntity.ok(FrontEndResponse(result = "{\"attachmentsSize\": $storrelseVedlegg}", status = HttpStatus.OK.name))
+            return ResponseEntity.ok(FrontEndResponse(result = AttachmentSize(storrelseVedlegg), status = HttpStatus.OK.name))
         } catch (ex: Exception) {
             logger.error("PutVedleggTilDokument feiler med ${ex.message}")
             if (ex.message?.contains("403") == true) {
@@ -93,3 +92,5 @@ class VedleggController(private val vedleggService: VedleggService,
         }
     }
 }
+
+data class AttachmentSize(val attachmentsSize: String)
