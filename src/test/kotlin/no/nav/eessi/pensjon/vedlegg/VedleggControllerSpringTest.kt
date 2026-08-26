@@ -14,7 +14,6 @@ import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PesysService
 import no.nav.eessi.pensjon.utils.mapJsonToAny
-import no.nav.eessi.pensjon.utils.successBody
 import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.Dokument
 import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.HentdokumentInnholdResponse
 import org.hamcrest.Matchers.containsString
@@ -62,7 +61,7 @@ class VedleggControllerSpringTest {
     @Test
     @Throws(Exception::class)
     fun shouldReturnDefaultMessage() {
-        justRun { vedleggService.leggTilVedleggPaaDokument(any(), any(), any(), any(), any(), any()) }
+        every { vedleggService.leggTilVedleggPaaDokument(any(), any(), any(), any(), any(), any()) } returns "0.0 MB"
         every { vedleggService.hentDokumentMetadata(any(), any(), any()) } returns Dokument("4444444","P2000 - Krav om alderspensjon", emptyList())
         every { vedleggService.hentDokumentInnhold(any(), any(), any()) } returns HentdokumentInnholdResponse("WVdKag==","blah.pdf", "application/pdf")
 
@@ -73,7 +72,7 @@ class VedleggControllerSpringTest {
 
         val response: FrontEndResponse<String> = mapJsonToAny(result.response.contentAsString)
         assertEquals(HttpStatus.OK.name, response.status)
-        assertEquals(successBody(), response.result)
+        assertEquals("{\"attachmentsSize\": 0.0 MB}", response.result)
 
         verify (exactly = 1) { vedleggService.leggTilVedleggPaaDokument(any(), any(), any(), any(), any(), any()) }
         verify (exactly = 1) { vedleggService.hentDokumentInnhold(any(), any(), any()) }

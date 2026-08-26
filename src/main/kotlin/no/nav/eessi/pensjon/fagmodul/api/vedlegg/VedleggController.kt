@@ -70,14 +70,14 @@ class VedleggController(private val vedleggService: VedleggService,
 
             val documentName = dokumentMetadata?.tittel ?: dokument.fileName
             logger.info("Legger til vedlegg: $documentName for rinasak: $rinaSakId")
-            vedleggService.leggTilVedleggPaaDokument(aktoerId,
+            val storrelseVedlegg = vedleggService.leggTilVedleggPaaDokument(aktoerId,
                     rinaSakId,
                     rinaDokumentId,
                     dokument.filInnhold,
                     "$documentName.pdf",
                     dokument.contentType.split("/")[1])
             logger.info("Vedlegg er lagt til for rinasak. $rinaSakId")
-            return ResponseEntity.ok(FrontEndResponse(result = successBody(), status = HttpStatus.OK.name))
+            return ResponseEntity.ok(FrontEndResponse(result = "{\"attachmentsSize\": $storrelseVedlegg}", status = HttpStatus.OK.name))
         } catch (ex: Exception) {
             logger.error("PutVedleggTilDokument feiler med ${ex.message}")
             if (ex.message?.contains("403") == true) {

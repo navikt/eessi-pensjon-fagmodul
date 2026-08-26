@@ -68,7 +68,7 @@ class VedleggService(
                                   rinaDokumentId: String,
                                   filInnhold: String,
                                   fileName: String,
-                                  filtype: String) {
+                                  filtype: String): String {
         val dokumentInnholdBinary = Base64.getDecoder().decode(filInnhold)
         val vedtakInfoSize = dokumentInnholdBinary.size.toString()
 
@@ -86,8 +86,14 @@ class VedleggService(
             fileName,
             filtype
         )
-    }
 
+        return hentSedInfoFraS3FraBucInfo(rinaSakId, rinaDokumentId)
+    }
+    fun hentSedInfoFraS3FraBucInfo(bucId: String, sedId: String): String {
+        val storrelse = gcpStorage.hentSamletVedtakInfoStorrelse(bucId, sedId) ?: 0L
+        logger.debug("Filstørrelse for sedId $sedId: $storrelse")
+        return bytesTilMb(storrelse)
+    }
     /**
      * Returnerer en distinct liste av rinaSakIDer basert på tilleggsinformasjon i journalposter for en aktør
      */
@@ -131,19 +137,19 @@ class VedleggService(
             .distinct()
             .also { logger.info("Fant følgende RINAID for omstilling fra dokument Metadata: ${it.map { str -> str }}") }
 
-    fun hentTittelOgFilstoerrelseForBucid(aktoerId: String, bucid: String): List<Pair<String?, String?>> {
-        val metadata = hentDokumentMetadata(aktoerId)
-        return metadata.data.dokumentoversiktBruker.journalposter.filter { journalpost ->
-            journalpost.tilleggsopplysninger.any {
-                it["nokkel"] == "eessi_pensjon_bucid" && it["verdi"] == bucid
-            }
-        }.mapNotNull { journalpost ->
-            val sedId = journalpost.tilleggsopplysninger.find { it["nokkel"] == "eessi_pensjon_sedid" }?.get("verdi") ?: return@mapNotNull null
-            val storrelse = gcpStorage.hentSamletVedtakInfoStorrelse(bucid, sedId) ?: 0L
-            logger.debug("Filstørrelse for sedId $sedId: $storrelse")
-            Pair(sedId, bytesTilMb(storrelse))
-        }
-    }
+//    fun hentTittelOgFilstoerrelseForBucid(aktoerId: String, bucid: String): List<Pair<String?, String?>> {
+//        val metadata = hentDokumentMetadata(aktoerId)
+//        return metadata.data.dokumentoversiktBruker.journalposter.filter { journalpost ->
+//            journalpost.tilleggsopplysninger.any {
+//                it["nokkel"] == "eessi_pensjon_bucid" && it["verdi"] == bucid
+//            }
+//        }.mapNotNull { journalpost ->
+//            val sedId = journalpost.tilleggsopplysninger.find { it["nokkel"] == "eessi_pensjon_sedid" }?.get("verdi") ?: return@mapNotNull null
+//            val storrelse = gcpStorage.hentSamletVedtakInfoStorrelse(bucid, sedId) ?: 0L
+//            logger.debug("Filstørrelse for sedId $sedId: $storrelse")
+//            Pair(sedId, bytesTilMb(storrelse))
+//        }
+//    }
 
     fun hentSedInfoFraS3FraBucInfo(buc: Buc): List<Pair<String?, String?>> {
         val bucid = buc.id ?: return emptyList()
