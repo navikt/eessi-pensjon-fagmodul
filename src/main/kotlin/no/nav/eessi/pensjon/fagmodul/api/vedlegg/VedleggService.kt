@@ -1,5 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.api.vedlegg
 
+import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.eux.model.buc.MissingBuc
 import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.Dokument
 import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.EuxVedleggClient
@@ -20,6 +21,8 @@ import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import java.io.IOException
+import java.math.BigDecimal
+import java.math.RoundingMode
 import java.util.Base64
 
 @Service
@@ -136,15 +139,33 @@ class VedleggService(
             }
         }.mapNotNull { journalpost ->
             val sedId = journalpost.tilleggsopplysninger.find { it["nokkel"] == "eessi_pensjon_sedid" }?.get("verdi") ?: return@mapNotNull null
-            val storrelse = journalpost.tilleggsopplysninger.find { it["nokkel"] == "eessi_pensjon_dokStr" }?.get("verdi")
+            val storrelse = gcpStorage.hentSamletVedtakInfoStorrelse(bucid, sedId) ?: 0L
             logger.debug("Filstørrelse for sedId $sedId: $storrelse")
-            Pair(sedId, storrelse)
+            Pair(sedId, bytesTilMb(storrelse))
         }
     }
 
+    fun hentSedInfoFraS3FraBucInfo(buc: Buc): List<Pair<String?, String?>> {
+        val bucid = buc.id ?: return emptyList()
+        val sedInfoList = mutableListOf<Pair<String?, String?>>()
+        buc.documents?.forEach { document ->
+            val sedId = document.id
+            if(sedId == null) {
+                logger.warn("Fant dokument uten sedId i buc $bucid")
+                return@forEach
+            }
+            val storrelse = gcpStorage.hentSamletVedtakInfoStorrelse(bucid, sedId) ?: 0L
+            logger.debug("Filstørrelse for sedId $sedId: $storrelse")
+            sedInfoList.add(Pair(sedId, bytesTilMb(storrelse)))
+        }
+        return sedInfoList
+        }
+
+    private fun bytesTilMb(bytes: Long): String {
+        val mb = BigDecimal.valueOf(bytes).divide(BigDecimal.valueOf(1024L * 1024L), 2, RoundingMode.HALF_UP)
+        return mb.stripTrailingZeros().toPlainString()
+    }
 }
-
-
 //TODO: flytte disse til et felles sted, ev en annen løsning
 @Profile("!retryConfigOverride")
 @Component

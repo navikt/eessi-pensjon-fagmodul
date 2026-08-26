@@ -12,6 +12,7 @@ import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.EuxVedleggClient
 import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.HentMetadataResponse
 import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.Journalpost
 import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.SafClient
+import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -23,17 +24,18 @@ internal class VedleggServiceTest  {
     var safClient : SafClient = mockk()
 
     lateinit var vedleggService : VedleggService
+    private val gcpStorageService: GcpStorageService = mockk(relaxed = true)
 
     @BeforeEach
     fun setup() {
         val euxVedleggClient = EuxVedleggClient(RestTemplate())
-        vedleggService = VedleggService(safClient, euxVedleggClient, mockk(relaxed = true))
+        vedleggService = VedleggService(safClient, euxVedleggClient, gcpStorageService)
     }
 
     @Test
     fun `Gitt en liste av journalposter med tilhørende dokumenter Når man filtrer et konkret dokumentInfoId Så returner et dokument med dokumentInfoId`() {
 
-        val metadataJson = javaClass.getResource("/json/saf/hentMetadataResponse.json").readText()
+        val metadataJson = javaClass.getResource("/json/saf/hentMetadataResponse.json")!!.readText()
         val metadata = mapJsonToAny<HentMetadataResponse>(metadataJson)
 
         every {safClient.hentDokumentMetadata(any())  } returns metadata
@@ -136,6 +138,39 @@ internal class VedleggServiceTest  {
         val result = vedleggService.hentRinaSakIderFraMetaData(aktoerId)
         assert(result.isEmpty())
     }
+    @Test
+    fun `hentTittelOgFilstoerrelseForBucid skal hente samlet størrelse fra GCP`() {
+        val bucid = "rina-123"
+        val sedId = "doc-456"
+        val metadataJson = """
+            {
+              "data": {
+                "dokumentoversiktBruker": {
+                  "journalposter": [
+                    {
+                      "journalpostId": "439560100",
+                      "datoOpprettet": "2018-06-08T17:06:58",
+                      "tema": "EYB",
+                      "tilleggsopplysninger": [
+                        { "nokkel": "eessi_pensjon_bucid", "verdi": "$bucid" },
+                        { "nokkel": "eessi_pensjon_sedid", "verdi": "$sedId" }
+                      ],
+                      "dokumenter": []
+                    }
+                  ]
+                }
+              }
+            }
+        """.trimIndent()
+
+        every { safClient.hentDokumentMetadata(any()) } returns mapJsonToAny<HentMetadataResponse>(metadataJson)
+        every { gcpStorageService.hentSamletVedtakInfoStorrelse(bucid, sedId) } returns 256000L
+
+        val result = vedleggService.hentTittelOgFilstoerrelseForBucid("12345678910", bucid)
+
+        assertEquals(listOf(Pair(sedId, "0.24")), result)
+    }
+
     @Test
     fun `hentRinaSakerFraMetaForOmstillingstonad should filter and map correctly`() {
         val rinaSakId = "12345678"
