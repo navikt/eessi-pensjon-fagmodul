@@ -137,20 +137,6 @@ class VedleggService(
             .distinct()
             .also { logger.info("Fant følgende RINAID for omstilling fra dokument Metadata: ${it.map { str -> str }}") }
 
-//    fun hentTittelOgFilstoerrelseForBucid(aktoerId: String, bucid: String): List<Pair<String?, String?>> {
-//        val metadata = hentDokumentMetadata(aktoerId)
-//        return metadata.data.dokumentoversiktBruker.journalposter.filter { journalpost ->
-//            journalpost.tilleggsopplysninger.any {
-//                it["nokkel"] == "eessi_pensjon_bucid" && it["verdi"] == bucid
-//            }
-//        }.mapNotNull { journalpost ->
-//            val sedId = journalpost.tilleggsopplysninger.find { it["nokkel"] == "eessi_pensjon_sedid" }?.get("verdi") ?: return@mapNotNull null
-//            val storrelse = gcpStorage.hentSamletVedtakInfoStorrelse(bucid, sedId) ?: 0L
-//            logger.debug("Filstørrelse for sedId $sedId: $storrelse")
-//            Pair(sedId, bytesTilMb(storrelse))
-//        }
-//    }
-
     fun hentSedInfoFraS3FraBucInfo(buc: Buc): List<Pair<String?, String?>> {
         val bucid = buc.id ?: return emptyList()
         val sedInfoList = mutableListOf<Pair<String?, String?>>()

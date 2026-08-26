@@ -5,7 +5,7 @@ buildscript {
         springBootVersion = '4.1.1'
         springKafkaVersion = '4.1.1'
         springfoxVersion = '3.0.0'
-        tokenSupportVersion = '6.0.11'
+        tokenSupportVersion = '6.0.12'
         jacksonModuleKotlinVersion = '2.22.2'
     }
 }
@@ -48,7 +48,7 @@ dependencies {
 
 
     // Spring Framework BOM-fil overstyrer så vi får siste patch-versjon av Spring Framework
-    implementation(platform("org.springframework:spring-framework-bom:7.0.8"))
+    implementation(platform("org.springframework:spring-framework-bom:7.0.9"))
 
     implementation("org.yaml:snakeyaml:2.6") // Pga https://security.snyk.io/package/maven/org.yaml:snakeyaml
 
@@ -73,22 +73,22 @@ dependencies {
     implementation("no.nav.security:token-validation-jaxrs:${tokenSupportVersion}")
     implementation("no.nav.security:token-validation-spring:${tokenSupportVersion}")
 
-    implementation ("no.nav.common:token-client:4.2026.08.03_09.24-8d55c4f00b2f")
+    implementation ("no.nav.common:token-client:4.2026.08.25_05.34-09cd908e1f27")
     implementation("org.springframework.kafka:spring-kafka:${springKafkaVersion}")
 
     //GCP
-    implementation("com.google.cloud:google-cloud-storage:2.71.0")
+    implementation("com.google.cloud:google-cloud-storage:2.72.0")
 
-    implementation("no.nav.eessi.pensjon:ep-metrics:3.0.34")
-    implementation("no.nav.eessi.pensjon:ep-logging:3.0.56")
-    implementation("no.nav.eessi.pensjon:ep-eux:3.0.89")
-    implementation("no.nav.eessi.pensjon:ep-kodeverk:5.0.97") {
+    implementation("no.nav.eessi.pensjon:ep-metrics:3.0.39")
+    implementation("no.nav.eessi.pensjon:ep-logging:3.0.58")
+    implementation("no.nav.eessi.pensjon:ep-eux:3.0.91")
+    implementation("no.nav.eessi.pensjon:ep-kodeverk:5.0.106") {
         exclude module: 'ep-eux'
         exclude module: 'ep-logging'
         exclude module: 'ep-metrics'
     }
 
-    implementation("no.nav.eessi.pensjon:ep-personoppslag:14.0.81") {
+    implementation("no.nav.eessi.pensjon:ep-personoppslag:14.0.89") {
         exclude module: 'ep-eux'
         exclude module: 'ep-logging'
         exclude module: 'ep-metrics'
