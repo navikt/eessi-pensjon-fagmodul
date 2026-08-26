@@ -159,18 +159,6 @@ class VedleggService(
             sedInfoList.add(Pair(sedId, bytesTilMb(storrelse)))
         }
         return sedInfoList
-
-//        val metadata = hentDokumentMetadata(aktoerId)
-//        return metadata.data.dokumentoversiktBruker.journalposter.filter { journalpost ->
-//            journalpost.tilleggsopplysninger.any {
-//                it["nokkel"] == "eessi_pensjon_bucid" && it["verdi"] == bucid
-//            }
-//        }.mapNotNull { journalpost ->
-//            val sedId = journalpost.tilleggsopplysninger.find { it["nokkel"] == "eessi_pensjon_sedid" }?.get("verdi") ?: return@mapNotNull null
-//            val storrelse = gcpStorage.hentSamletVedtakInfoStorrelse(bucid, sedId) ?: 0L
-////            val storrelse = journalpost.tilleggsopplysninger.find { it["nokkel"] == "eessi_pensjon_dokStr" }?.get("verdi")
-//            logger.debug("Filstørrelse for sedId $sedId: $storrelse")
-//            Pair(sedId, storrelse.toString())
         }
 
     private fun bytesTilMb(bytes: Long): String {
