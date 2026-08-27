@@ -72,10 +72,14 @@ class VedleggService(
         val dokumentInnholdBinary = Base64.getDecoder().decode(filInnhold)
         val vedtakInfoSize = dokumentInnholdBinary.size.toString()
 
-        try {
-            gcpStorage.lagreVedtakInfoForDokument(rinaSakId, rinaDokumentId, fileName, vedtakInfoSize)
-        } catch (e: Exception) {
-            logger.warn("Feil ved lagring av vedleggs-info", e)
+        if (dokumentInnholdBinary.isEmpty()) {
+            logger.warn("Filen $fileName for rinaSakId: $rinaSakId, rinaDokumentId: $rinaDokumentId er tom, lagrer ikke vedleggs-info")
+        } else {
+            try {
+                gcpStorage.lagreVedtakInfoForDokument(rinaSakId, rinaDokumentId, fileName, vedtakInfoSize)
+            } catch (e: Exception) {
+                logger.warn("Feil ved lagring av vedleggs-info", e)
+            }
         }
 
         euxVedleggClient.leggTilVedleggPaaDokument(
