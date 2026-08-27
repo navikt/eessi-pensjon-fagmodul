@@ -61,7 +61,7 @@ class GcpStorageService(
 
     fun lagreVedtakInfoForDokument(rinaSakId: String, euxCaseId: String, dokumentId: String, filStr: String) {
         val uniqueUUD  = UUID.randomUUID().toString().take(4)
-        val storageKey = "$rinaSakId/$euxCaseId/${dokumentId.plus(uniqueUUD)}/"
+        val storageKey = "$rinaSakId/$euxCaseId/${dokumentId}-$uniqueUUD"
         val blobInfo = BlobInfo.newBuilder(BlobId.of(vedleggBucket, storageKey)).setContentType("application/json").build()
         kotlin.runCatching {
             filStr.trim().toLongOrNull()
