@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import java.util.Base64
 
 @Protected
 @RestController
@@ -49,6 +48,18 @@ class VedleggController(private val vedleggService: VedleggService,
             logger.info("Henter dokumentinnhold fra SAF for journalpostId: $journalpostId, dokumentInfoId: $dokumentInfoId")
             val hentDokumentInnholdResponse = vedleggService.hentDokumentInnhold(journalpostId, dokumentInfoId, variantFormat)
             FrontEndResponse(hentDokumentInnholdResponse, HttpStatus.OK.name)
+        }
+    }
+
+    @GetMapping("/buc/{rinaSakId}/sed/{dokumentId}/vedlegg/{vedleggId}")
+    fun hentVedlegg(
+        @PathVariable("rinaSakId") rinaSakId: String,
+        @PathVariable("dokumentId") dokumentId: String,
+        @PathVariable("vedleggId") vedleggId: String): FrontEndResponse<HentdokumentInnholdResponse?> {
+        auditlogger.logBuc("hentVedlegg", "euxCaseId:$rinaSakId, documentId:$dokumentId, vedleggId:$vedleggId")
+        return vedleggControllerInnhold.measure {
+            logger.info("Henter enkelt vedlegg fra EUX for rinaSakId: $rinaSakId, dokumentId: $dokumentId, vedleggId: $vedleggId")
+            FrontEndResponse(vedleggService.hentVedlegg(rinaSakId, dokumentId, vedleggId), HttpStatus.OK.name)
         }
     }
 

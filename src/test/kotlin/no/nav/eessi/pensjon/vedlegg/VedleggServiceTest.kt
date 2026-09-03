@@ -28,7 +28,7 @@ internal class VedleggServiceTest  {
 
     @BeforeEach
     fun setup() {
-        val euxVedleggClient = EuxVedleggClient(RestTemplate())
+        val euxVedleggClient = EuxVedleggClient(RestTemplate(), RestTemplate())
         vedleggService = VedleggService(safClient, euxVedleggClient, gcpStorageService)
     }
 
