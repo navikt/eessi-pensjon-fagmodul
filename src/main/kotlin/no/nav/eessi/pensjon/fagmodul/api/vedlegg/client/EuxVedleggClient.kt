@@ -15,18 +15,62 @@ import org.springframework.web.client.UnknownHttpStatusCodeException
 import org.springframework.web.util.UriComponentsBuilder
 import java.io.File
 import java.nio.file.Paths
+import java.util.Base64
 
 @Component
-class EuxVedleggClient(private val euxNavIdentRestTemplate: RestTemplate,
-                       @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()) {
+class EuxVedleggClient(
+    private val euxNavIdentRestTemplate: RestTemplate,
+    private val euxNavIdentRestTemplateV2: RestTemplate,
+    @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
+) {
 
     private val logger = LoggerFactory.getLogger(EuxVedleggClient::class.java)
 
-    private  var VedleggPaaDokument: MetricsHelper.Metric
+    private var VedleggPaaDokument: MetricsHelper.Metric
+    private var enkeltVedlegg: MetricsHelper.Metric
 
     init {
         VedleggPaaDokument = metricsHelper.init("VedleggPaaDokument")
+        enkeltVedlegg = metricsHelper.init("enkeltVedlegg")
     }
+
+
+    fun hentEnkeltVedlegg(rinaSakId: String, dokumentId: String, vedleggId: String): HentdokumentInnholdResponse {
+        val queryUrl = UriComponentsBuilder
+            .fromPath("/buc/")
+            .path(rinaSakId)
+            .path("/sed/")
+            .path(dokumentId)
+            .path("/vedlegg/")
+            .path(vedleggId)
+            .build().toUriString()
+
+        logger.info("Henter vedlegg fra buc: $rinaSakId, sed: $dokumentId, vedlegg: $vedleggId")
+
+        val responseFraEux: ResponseEntity<ByteArray> = restTemplateErrorhandler(
+            {
+                euxNavIdentRestTemplateV2.exchange(
+                    queryUrl,
+                    HttpMethod.GET,
+                    null,
+                    ByteArray::class.java)
+            }
+            , rinaSakId
+            , VedleggPaaDokument
+            ,"En feil opppstod under henting av vedlegg rinaid: $rinaSakId, sed: $dokumentId, vedlegg: $vedleggId"
+        )
+
+        val filnavn = responseFraEux.headers.contentDisposition.filename
+        val contentType = responseFraEux.headers.contentType!!.toString()
+
+        val dokumentInnholdBase64 = Base64.getEncoder().encodeToString(responseFraEux.body ?: throw RuntimeException("Vedlegg ikke funnet"))
+        val hentdokumentInnholdResponse = HentdokumentInnholdResponse(dokumentInnholdBase64, filnavn!!, contentType)
+        logger.info("Resulat fra vedlegg henting \n " + responseFraEux.toJson())
+        return hentdokumentInnholdResponse
+    }
+
+
+
     fun leggTilVedleggPaaDokument(aktoerId: String,
                                   rinaSakId: String,
                                   rinaDokumentId: String,
@@ -34,7 +78,7 @@ class EuxVedleggClient(private val euxNavIdentRestTemplate: RestTemplate,
                                   fileName: String,
                                   filtype: String) {
         try {
-            logger.info("Legger til vedlegg i buc: $rinaSakId, sed: $rinaDokumentId, filType: $filtype, filnavn: $fileName")
+            logger.info("Legger til vedlegg i buc: $rinaSakId, sed: $rinaDokumentId, aktoerId: $aktoerId, filType: $filtype, filnavn: $fileName")
 
             val headers = HttpHeaders()
             headers.contentType = MediaType.MULTIPART_FORM_DATA

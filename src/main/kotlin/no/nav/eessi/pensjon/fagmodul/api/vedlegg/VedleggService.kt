@@ -20,6 +20,8 @@ import org.springframework.retry.annotation.Backoff
 import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
+import org.springframework.web.client.HttpClientErrorException
+import org.springframework.web.client.HttpStatusCodeException
 import java.io.IOException
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -36,10 +38,12 @@ class VedleggService(
     private final val TILLEGGSOPPLYSNING_RINA_SAK_ID_KEY = "eessi_pensjon_bucid"
     private val logger = LoggerFactory.getLogger(VedleggService::class.java)
 
+    private var hentPdf: MetricsHelper.Metric
     private  var HentRinaSakIderFraDokumentMetadata: MetricsHelper.Metric
 
     init {
         HentRinaSakIderFraDokumentMetadata = metricsHelper.init("HentRinaSakIderFraDokumentMetadata", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
+        hentPdf = metricsHelper.init("vedleggHentPdf", alert = MetricsHelper.Toggle.OFF)
     }
 
     fun hentDokumentMetadata(aktoerId: String): HentMetadataResponse {
@@ -140,6 +144,17 @@ class VedleggService(
             }
             .distinct()
             .also { logger.info("Fant følgende RINAID for omstilling fra dokument Metadata: ${it.map { str -> str }}") }
+
+    @Retryable(
+        include = [HttpStatusCodeException::class],
+        exclude = [HttpClientErrorException.NotFound::class],
+        backoff = Backoff(delay = 30000L, maxDelay = 3600000L, multiplier = 3.0)
+    )
+    fun hentVedlegg(rinaSakId: String, dokumentId: String, vedleggId: String): HentdokumentInnholdResponse? {
+        return hentPdf.measure {
+            euxVedleggClient.hentEnkeltVedlegg(rinaSakId, dokumentId, vedleggId)
+        }
+    }
 
     fun hentSedInfoFraS3FraBucInfo(buc: Buc): List<Pair<String?, String?>> {
         val bucid = buc.id ?: return emptyList()

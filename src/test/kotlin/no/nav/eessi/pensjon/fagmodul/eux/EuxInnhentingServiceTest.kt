@@ -74,8 +74,7 @@ internal class EuxInnhentingServiceTest {
         MockKAnnotations.init(this)
         vedleggService = VedleggService(
             safClient = safClient,
-            euxVedleggClient = mockk(relaxed = true),
-            gcpStorage = gcpStorageService,
+            euxVedleggClient = mockk(relaxed = true), gcpStorage = gcpStorageService,
         )
 
         euxInnhentingService = EuxInnhentingService(
