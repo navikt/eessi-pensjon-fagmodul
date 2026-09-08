@@ -69,7 +69,7 @@ class VedleggController(private val vedleggService: VedleggService,
                               @PathVariable("rinaDokumentId", required = true) rinaDokumentId: String,
                               @PathVariable("joarkJournalpostId", required = true) joarkJournalpostId: String,
                               @PathVariable("joarkDokumentInfoId", required = true) joarkDokumentInfoId : String,
-                              @PathVariable("variantFormat", required = true) variantFormat : String) : ResponseEntity<FrontEndResponse<AttachmentSize>> {
+                              @PathVariable("variantFormat", required = true) variantFormat : String) : ResponseEntity<FrontEndResponse<VedleggResponse>> {
         auditlogger.log("putVedleggTilDokument", aktoerId, "euxCaseId:$rinaSakId, documentId:$rinaDokumentId, journalpostId:$joarkJournalpostId")
         logger.debug("Legger til vedlegg: joarkJournalpostId: $joarkJournalpostId, joarkDokumentInfoId $joarkDokumentInfoId, variantFormat: $variantFormat til " +
                 "rinaSakId: $rinaSakId, rinaDokumentId: $rinaDokumentId")
@@ -80,14 +80,15 @@ class VedleggController(private val vedleggService: VedleggService,
 
             val documentName = dokumentMetadata?.tittel ?: dokument.fileName
             logger.info("Legger til vedlegg: $documentName for rinasak: $rinaSakId")
+            val fileName = "$documentName.pdf"
             val storrelseVedlegg = vedleggService.leggTilVedleggPaaDokument(aktoerId,
                     rinaSakId,
                     rinaDokumentId,
                     dokument.filInnhold,
-                    "$documentName.pdf",
+                fileName,
                     dokument.contentType.split("/")[1])
             logger.info("Vedlegg er lagt til for rinasak. $rinaSakId")
-            return ResponseEntity.ok(FrontEndResponse(result = AttachmentSize(storrelseVedlegg), status = HttpStatus.OK.name))
+            return ResponseEntity.ok(FrontEndResponse(result = VedleggResponse(fileName, storrelseVedlegg, storrelseVedlegg), status = HttpStatus.OK.name))
         } catch (ex: Exception) {
             logger.error("PutVedleggTilDokument feiler med ${ex.message}")
             if (ex.message?.contains("403") == true) {
@@ -104,4 +105,4 @@ class VedleggController(private val vedleggService: VedleggService,
     }
 }
 
-data class AttachmentSize(val attachmentsSize: String)
+data class VedleggResponse(val fileName: String, val id: String,val attachmentsSize: String)
