@@ -80,7 +80,7 @@ dependencies {
     implementation("com.google.cloud:google-cloud-storage:2.73.0")
 
     implementation("no.nav.eessi.pensjon:ep-metrics:3.0.39")
-    implementation("no.nav.eessi.pensjon:ep-logging:3.0.58")
+    implementation("no.nav.eessi.pensjon:ep-logging:3.0.60")
     implementation("no.nav.eessi.pensjon:ep-eux:3.0.92")
     implementation("no.nav.eessi.pensjon:ep-kodeverk:5.0.109") {
         exclude module: 'ep-eux'
