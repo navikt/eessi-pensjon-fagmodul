@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Profile
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.retry.RetryCallback
 import org.springframework.retry.RetryContext
 import org.springframework.retry.RetryListener
@@ -72,7 +73,7 @@ class VedleggService(
                                   rinaDokumentId: String,
                                   filInnhold: String,
                                   fileName: String,
-                                  filtype: String): String {
+                                  filtype: String): Pair<String, ResponseEntity<String>> {
         val dokumentInnholdBinary = Base64.getDecoder().decode(filInnhold)
         val vedtakInfoSize = dokumentInnholdBinary.size.toString()
 
@@ -86,7 +87,7 @@ class VedleggService(
             }
         }
 
-        euxVedleggClient.leggTilVedleggPaaDokument(
+        val response = euxVedleggClient.leggTilVedleggPaaDokument(
             aktoerId,
             rinaSakId,
             rinaDokumentId,
@@ -95,7 +96,7 @@ class VedleggService(
             filtype
         )
 
-        return hentSedInfoFraS3FraBucInfo(rinaSakId, rinaDokumentId)
+        return Pair(hentSedInfoFraS3FraBucInfo(rinaSakId, rinaDokumentId), response)
     }
     fun hentSedInfoFraS3FraBucInfo(bucId: String, sedId: String): String {
         val storrelse = gcpStorage.hentSamletVedtakInfoStorrelse(bucId, sedId) ?: 0L

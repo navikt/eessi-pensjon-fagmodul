@@ -76,7 +76,7 @@ class EuxVedleggClient(
                                   rinaDokumentId: String,
                                   dokumentInnholdBinary: ByteArray,
                                   fileName: String,
-                                  filtype: String) {
+                                  filtype: String): ResponseEntity<String> {
         try {
             logger.info("Legger til vedlegg i buc: $rinaSakId, sed: $rinaDokumentId, aktoerId: $aktoerId, filType: $filtype, filnavn: $fileName")
 
@@ -123,7 +123,7 @@ class EuxVedleggClient(
                     ,"En feil opppstod under tilknytning av vedlegg rinaid: $rinaSakId, sed: $rinaDokumentId"
             )
             logger.info("Resulat fra vedlegg oppdatering \n " + responseFraEux.toJson())
-
+            return responseFraEux
         } catch (ex: Exception) {
             logger.error("En feil opppstod under tilknytning av vedlegg, ${ex.message}", ex)
             throw ex
@@ -132,7 +132,6 @@ class EuxVedleggClient(
             file.delete()
         }
     }
-
     fun <T : Any> restTemplateErrorhandler(restTemplateFunction: () -> ResponseEntity<T>, euxCaseId: String, metric: MetricsHelper.Metric, prefixErrorMessage: String): ResponseEntity<T> {
         return metric.measure {
             return@measure try {
