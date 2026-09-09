@@ -9,14 +9,14 @@ import io.mockk.verify
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.fagmodul.api.FrontEndResponse
-import no.nav.eessi.pensjon.fagmodul.api.vedlegg.AttachmentSize
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.VedleggResponse
 import no.nav.eessi.pensjon.fagmodul.api.vedlegg.VedleggService
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.Dokument
+import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.HentdokumentInnholdResponse
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PesysService
 import no.nav.eessi.pensjon.utils.mapJsonToAny
-import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.Dokument
-import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.HentdokumentInnholdResponse
 import org.hamcrest.Matchers.containsString
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
@@ -62,7 +63,7 @@ class VedleggControllerSpringTest {
     @Test
     @Throws(Exception::class)
     fun shouldReturnDefaultMessage() {
-        every { vedleggService.leggTilVedleggPaaDokument(any(), any(), any(), any(), any(), any()) } returns "0.0 MB"
+        every { vedleggService.leggTilVedleggPaaDokument(any(), any(), any(), any(), any(), any()) } returns Pair("0.0 MB", ResponseEntity.ok().body("123456"))
         every { vedleggService.hentDokumentMetadata(any(), any(), any()) } returns Dokument("4444444","P2000 - Krav om alderspensjon", emptyList())
         every { vedleggService.hentDokumentInnhold(any(), any(), any()) } returns HentdokumentInnholdResponse("WVdKag==","blah.pdf", "application/pdf")
 
@@ -71,10 +72,10 @@ class VedleggControllerSpringTest {
             .andExpect(content().string(containsString("\"status\":\"OK\"")))
             .andReturn()
 
-        val response: FrontEndResponse<AttachmentSize> = mapJsonToAny(result.response.contentAsString)
+        val response: FrontEndResponse<VedleggResponse> = mapJsonToAny(result.response.contentAsString)
         assertEquals(HttpStatus.OK.name, response.status)
         println(response)
-        assertEquals(AttachmentSize("0.0 MB"), response.result)
+        assertEquals(VedleggResponse(fileName="P2000 - Krav om alderspensjon.pdf", id="123456", attachmentsSize="0.0 MB"), response.result)
 
         verify (exactly = 1) { vedleggService.leggTilVedleggPaaDokument(any(), any(), any(), any(), any(), any()) }
         verify (exactly = 1) { vedleggService.hentDokumentInnhold(any(), any(), any()) }
