@@ -3,6 +3,8 @@ package no.nav.eessi.pensjon.integrationtest
 import io.mockk.mockk
 import no.nav.eessi.pensjon.api.geo.KodeverkService
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
+import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService
+import no.nav.security.token.support.client.spring.ClientConfigurationProperties
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.common.serialization.StringDeserializer
@@ -58,13 +60,17 @@ class IntegrasjonsTestConfig(
         }
     }
     @Bean
-    fun euxNavIdentRestTemplate(): RestTemplate = mockk()
-    @Bean
-    fun euxSystemRestTemplate(): RestTemplate = mockk()
-    @Bean
     fun euxKlient(): EuxKlientAsSystemUser = EuxKlientAsSystemUser(euxNavIdentRestTemplate, euxSystemRestTemplate)
 
     @Bean
     fun kodeverkService(): KodeverkService = KodeverkService(euxNavIdentRestTemplate)
+
+    // Moved here from UnsecuredWebMvcTestLauncher since field-level @MockkBean is only processed on
+    // the actual test class hierarchy, not on classes merely referenced via @ContextConfiguration/classes.
+    @Bean
+    fun clientConfigurationProperties(): ClientConfigurationProperties = mockk()
+
+    @Bean
+    fun oAuth2AccessTokenService(): OAuth2AccessTokenService = mockk()
 
 }

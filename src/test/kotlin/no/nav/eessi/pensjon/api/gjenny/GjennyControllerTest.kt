@@ -2,8 +2,7 @@ package no.nav.eessi.pensjon.api.gjenny
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
-import com.ninjasquad.springmockk.MockkBeans
-import com.ninjasquad.springmockk.SpykBean
+import com.ninjasquad.springmockk.MockkSpyBean
 import io.mockk.every
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.klient.Rinasak
@@ -54,7 +53,9 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
+import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
@@ -76,19 +77,35 @@ private const val GJENLEV_FNR = "12345678503"
 @ActiveProfiles(profiles = ["unsecured-webmvctest"])
 @ComponentScan(basePackages = ["no.nav.eessi.pensjon.api.gjenny"])
 @WebMvcTest(GjennyController::class)
-@MockkBeans(value = [
-    MockkBean(name = "euxNavIdentRestTemplateV2", classes = [RestTemplate::class]),
-    MockkBean(name = "auditLogger", classes = [AuditLogger::class], relaxed = true),
-    MockkBean(name = "sedController", classes = [SedController::class], relaxed = true),
-    MockkBean(name = "kodeverkClient", classes = [KodeverkClient::class], relaxed = true),
-    MockkBean(name = "euxKlient", classes = [EuxKlientAsSystemUser::class], relaxed = true),
-    MockkBean(name = "gcpStorageService", classes = [GcpStorageService::class], relaxed = true),
-    MockkBean(name = "euxPrefillService", classes = [EuxPrefillService::class], relaxed = true),
-    MockkBean(name = "prefillController", classes = [PrefillController::class], relaxed = true)]
-)
+@MockkBean(name = "euxNavIdentRestTemplateV2", types = [RestTemplate::class])
+@MockkBean(name = "auditLogger", types = [AuditLogger::class], relaxed = true)
+@MockkBean(name = "sedController", types = [SedController::class], relaxed = true)
+@MockkBean(name = "kodeverkClient", types = [KodeverkClient::class], relaxed = true)
+@MockkBean(name = "euxKlient", types = [EuxKlientAsSystemUser::class], relaxed = true)
+@MockkBean(name = "gcpStorageService", types = [GcpStorageService::class], relaxed = true)
+@MockkBean(name = "euxPrefillService", types = [EuxPrefillService::class], relaxed = true)
+@MockkBean(name = "prefillController", types = [PrefillController::class], relaxed = true)
 class GjennyControllerTest {
 
-    @SpykBean
+    // Real bean so @MockkSpyBean below has an instance to wrap; deps are mocked elsewhere in this test class.
+    @TestConfiguration
+    class EuxInnhentingServiceTestConfig {
+        @Bean
+        fun euxInnhentingService(
+            euxKlient: EuxKlientAsSystemUser,
+            gcpStorageService: GcpStorageService,
+            euxNavIdentRestTemplateV2: RestTemplate,
+            vedleggService: VedleggService
+        ): EuxInnhentingService = EuxInnhentingService(
+            environment = "q2",
+            euxKlient = euxKlient,
+            gcpService = gcpStorageService,
+            euxNavIdentRestTemplateV2 = euxNavIdentRestTemplateV2,
+            vedleggService = vedleggService
+        )
+    }
+
+    @MockkSpyBean
     private lateinit var euxInnhentingService: EuxInnhentingService
 
     @MockkBean

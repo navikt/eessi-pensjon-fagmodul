@@ -1,7 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.eux
 
 import com.ninjasquad.springmockk.MockkBean
-import com.ninjasquad.springmockk.MockkBeans
 import io.mockk.mockk
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
 import no.nav.eessi.pensjon.eux.klient.IkkeFunnetException
@@ -44,10 +43,8 @@ import java.io.IOException
 /**
  * Ser til at retry for metoder i EuxInnhentingService slår inn, og at EuxErrorHandler behandler typen
  */
-@MockkBeans(
-    MockkBean(name = "gcpStorageService", classes = [GcpStorageService::class], relaxed = true),
-    MockkBean(name = "vedleggService", classes = [VedleggService::class], relaxed = true),
-)
+@MockkBean(name = "gcpStorageService", types = [GcpStorageService::class], relaxed = true)
+@MockkBean(name = "vedleggService", types = [VedleggService::class], relaxed = true)
 internal class EuxInnhentingServiceRetryTest {
 
     @Autowired

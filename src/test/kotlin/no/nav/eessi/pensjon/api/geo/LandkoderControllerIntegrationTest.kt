@@ -1,7 +1,6 @@
 package no.nav.eessi.pensjon.api.geo
 
 import com.ninjasquad.springmockk.MockkBean
-import com.ninjasquad.springmockk.MockkBeans
 import no.nav.eessi.pensjon.UnsecuredWebMvcTestLauncher
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.integrationtest.IntegrasjonsTestConfig
@@ -33,22 +32,18 @@ import org.springframework.web.client.RestTemplate
 @AutoConfigureRestTestClient
 @EmbeddedKafka
 @DirtiesContext
-@MockkBeans(
-    value = [
-        MockkBean(name = "pesysService", classes = [PesysService::class]),
-        MockkBean(name = "personService", classes = [PersonService::class]),
-        MockkBean(name = "pdlRestTemplate", classes = [RestTemplate::class]),
-        MockkBean(name = "restEuxTemplate", classes = [RestTemplate::class]),
-        MockkBean(name = "kodeverkRestTemplate", classes = [RestTemplate::class]),
-        MockkBean(name = "prefillOAuthTemplate", classes = [RestTemplate::class]),
-        MockkBean(name = "euxSystemRestTemplate", classes = [RestTemplate::class]),
-        MockkBean(name = "gcpStorageService", classes = [GcpStorageService::class]),
-        MockkBean(name = "euxNavIdentRestTemplate", classes = [RestTemplate::class]),
-        MockkBean(name = "euxNavIdentRestTemplateV2", classes = [RestTemplate::class]),
-        MockkBean(name = "safRestOidcRestTemplate", classes = [RestTemplate::class]),
-        MockkBean(name = "safGraphQlOidcRestTemplate", classes = [RestTemplate::class]),
-    ]
-)
+@MockkBean(name = "pesysService", types = [PesysService::class])
+@MockkBean(name = "personService", types = [PersonService::class])
+@MockkBean(name = "pdlRestTemplate", types = [RestTemplate::class])
+@MockkBean(name = "restEuxTemplate", types = [RestTemplate::class])
+@MockkBean(name = "kodeverkRestTemplate", types = [RestTemplate::class])
+@MockkBean(name = "prefillOAuthTemplate", types = [RestTemplate::class])
+@MockkBean(name = "euxSystemRestTemplate", types = [RestTemplate::class])
+@MockkBean(name = "gcpStorageService", types = [GcpStorageService::class])
+@MockkBean(name = "euxNavIdentRestTemplate", types = [RestTemplate::class])
+@MockkBean(name = "euxNavIdentRestTemplateV2", types = [RestTemplate::class])
+@MockkBean(name = "safRestOidcRestTemplate", types = [RestTemplate::class])
+@MockkBean(name = "safGraphQlOidcRestTemplate", types = [RestTemplate::class])
 class LandkoderControllerIntegrationTest {
 
     @Autowired

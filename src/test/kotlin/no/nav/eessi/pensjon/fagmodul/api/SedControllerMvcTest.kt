@@ -1,8 +1,7 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
 import com.ninjasquad.springmockk.MockkBean
-import com.ninjasquad.springmockk.MockkBeans
-import com.ninjasquad.springmockk.SpykBean
+import com.ninjasquad.springmockk.MockkSpyBean
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.eessi.pensjon.eux.klient.EuxKlientAsSystemUser
@@ -14,6 +13,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
 import org.springframework.context.annotation.ComponentScan
+import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
@@ -23,19 +23,18 @@ import org.springframework.web.client.RestTemplate
 
 @ActiveProfiles(profiles = ["unsecured-webmvctest"])
 @ComponentScan(basePackages = ["no.nav.eessi.pensjon.fagmodul.api"])
+@Import(EuxInnhentingServiceTestConfig::class)
 @WebMvcTest(SedController::class)
-@MockkBeans(
-    MockkBean(name = "auditLogger", classes = [AuditLogger::class], relaxed = true),
-    MockkBean(name = "bucController", classes = [BucController::class], relaxed = true),
-    MockkBean(name = "euxController", classes = [EuxController::class], relaxed = true),
-    MockkBean(name = "euxKlient", classes = [EuxKlientAsSystemUser::class], relaxed = true),
-    MockkBean(name = "prefillController", classes = [PrefillController::class], relaxed = true),
-    MockkBean(name = "euxNavIdentRestTemplateV2", classes = [RestTemplate::class]),
-    MockkBean(name = "gcpStorageService", classes = [GcpStorageService::class], relaxed = true)
-)
+@MockkBean(name = "auditLogger", types = [AuditLogger::class], relaxed = true)
+@MockkBean(name = "bucController", types = [BucController::class], relaxed = true)
+@MockkBean(name = "euxController", types = [EuxController::class], relaxed = true)
+@MockkBean(name = "euxKlient", types = [EuxKlientAsSystemUser::class], relaxed = true)
+@MockkBean(name = "prefillController", types = [PrefillController::class], relaxed = true)
+@MockkBean(name = "euxNavIdentRestTemplateV2", types = [RestTemplate::class])
+@MockkBean(name = "gcpStorageService", types = [GcpStorageService::class], relaxed = true)
 class SedControllerMvcTest {
 
-    @SpykBean
+    @MockkSpyBean
     private lateinit var euxInnhentingService: EuxInnhentingService
 
     @Autowired
