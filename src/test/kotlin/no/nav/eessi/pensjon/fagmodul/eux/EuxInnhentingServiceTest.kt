@@ -93,7 +93,7 @@ internal class EuxInnhentingServiceTest {
         val bucJson = javaClass.getResource("/json/buc/buc-158123_2_v4.1.json")!!.readText()
         every { euxKlient.getBucJsonAsNavIdent(any()) } returns bucJson
 
-        val result = euxInnhentingService.getSingleBucAndSedViewMedMetadata(eessiCaseId, "aktoerId")
+        val result = euxInnhentingService.getSingleBucAndSedViewMedMetadata(eessiCaseId)
         val sedMedVedlegg = result.seds?.firstOrNull { it.id == sedIdMedVedlegg }
 
         assertNotNull(sedMedVedlegg)

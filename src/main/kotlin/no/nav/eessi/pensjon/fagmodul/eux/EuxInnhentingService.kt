@@ -148,7 +148,7 @@ class EuxInnhentingService(
             BucAndSedView.fromErr(ex.message)
         }
     }
-    fun getSingleBucAndSedViewMedMetadata(euxCaseId: String, aktorId: String): BucAndSedView {
+    fun getSingleBucAndSedViewMedMetadata(euxCaseId: String): BucAndSedView {
         return try {
             val buc = getBuc(euxCaseId)
             val bucAndSedView = BucAndSedView.from(buc)
