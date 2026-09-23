@@ -66,10 +66,9 @@ class BucController(
             FrontEndResponse(ValidBucAndSed.pensjonsBucer(), HttpStatus.OK.name)
         }
 
-    @GetMapping("/{euxcaseid}/metadata/{aktoerId}")
+    @GetMapping("/{euxcaseid}/metadata/")
     fun hentBucMedMetadata(
-        @PathVariable(value = "euxcaseid", required = true) euxcaseid: String,
-        @PathVariable(value = "aktoerId", required = false) aktoerId: String,
+        @PathVariable(value = "euxcaseid", required = true) euxcaseid: String
     ): FrontEndResponse<BucAndSedView> =
         timedControllerCall("hentBucMedMetadata") {
             bucDetaljerEnkel.measure {
