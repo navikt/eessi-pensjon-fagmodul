@@ -66,7 +66,7 @@ class BucController(
             FrontEndResponse(ValidBucAndSed.pensjonsBucer(), HttpStatus.OK.name)
         }
 
-    @GetMapping("/{euxcaseid}/metadata/")
+    @GetMapping("/{euxcaseid}/metadata")
     fun hentBucMedMetadata(
         @PathVariable(value = "euxcaseid", required = true) euxcaseid: String
     ): FrontEndResponse<BucAndSedView> =
