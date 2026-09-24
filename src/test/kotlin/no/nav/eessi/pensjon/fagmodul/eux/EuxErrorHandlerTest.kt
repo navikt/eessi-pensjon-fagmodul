@@ -80,6 +80,8 @@ class EuxErrorHandlerTest {
         @Bean
         fun euxNavIdentRestTemplateV2(): RestTemplate = mockk()
         @Bean
+        fun euxRetryPolicy(): EuxRetryPolicy = EuxRetryPolicy()
+        @Bean
         fun euxKlient(): EuxKlientAsSystemUser = EuxKlientAsSystemUser(euxNavIdentRestTemplate(), euxSystemRestTemplate())
     }
 

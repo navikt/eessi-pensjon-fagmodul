@@ -43,6 +43,7 @@ import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.server.ResponseStatusException
+import org.springframework.web.client.HttpStatusCodeException
 import java.io.IOException
 
 @Service
@@ -83,7 +84,8 @@ class EuxInnhentingService(
     @Retryable(
         exclude = [IOException::class],
         backoff = Backoff(delayExpression = "@euxKlientRetryConfig.initialRetryMillis", maxDelay = 200000L, multiplier = 3.0),
-        listeners  = ["euxKlientRetryLogger"]
+        listeners  = ["euxKlientRetryLogger"],
+        exceptionExpression = "@euxRetryPolicy.shouldRetry(#root)"
     )
     fun getBuc(euxCaseId: String) = mapJsonToAny<Buc>(euxKlient.getBucJsonAsNavIdent(euxCaseId)!!)
 
@@ -609,6 +611,14 @@ class EuxInnhentingService(
 @Profile("!retryConfigOverride")
 @Component
 data class EuxKlientRetryConfig(val initialRetryMillis: Long = 20000L)
+
+@Component
+class EuxRetryPolicy {
+    fun shouldRetry(throwable: Throwable): Boolean {
+        val httpStatusCode = (throwable as? HttpStatusCodeException)?.statusCode
+        return httpStatusCode != HttpStatus.LOCKED && httpStatusCode?.value() != 423
+    }
+}
 
 @Component
 class EuxKlientRetryLogger : RetryListener {
