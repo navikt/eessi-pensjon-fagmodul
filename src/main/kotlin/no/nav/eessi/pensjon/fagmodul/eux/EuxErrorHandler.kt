@@ -6,6 +6,7 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus.*
 import org.springframework.http.client.ClientHttpResponse
 import org.springframework.util.StreamUtils
+import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.ResponseErrorHandler
 import java.io.IOException
 import java.net.URI
@@ -41,6 +42,7 @@ open class EuxErrorHandler : ResponseErrorHandler {
             NOT_FOUND -> throw IkkeFunnetException("Ikke funnet")
             FORBIDDEN -> throw ForbiddenException("Forbidden, Ikke tilgang")
             CONFLICT -> throw EuxConflictException("En konflikt oppstod under oppdatering av data")
+            LOCKED -> throw HttpClientErrorException(LOCKED, "Resource is locked")
             UNAUTHORIZED -> throw RinaIkkeAutorisertBrukerException("Authorization token mangler eller er ugyldig")
             GATEWAY_TIMEOUT -> throw GatewayTimeoutException("Gateway timeout")
             INTERNAL_SERVER_ERROR -> throw EuxRinaServerException("Rina serverfeil, kan også skyldes ugyldig input")

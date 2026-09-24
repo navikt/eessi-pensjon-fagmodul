@@ -77,6 +77,8 @@ internal class EuxInnhentingServiceRetryTest {
         @Bean
         fun euxNavIdentRestTemplateV2(): RestTemplate = mockk()
         @Bean
+        fun euxRetryPolicy(): EuxRetryPolicy = EuxRetryPolicy()
+        @Bean
         fun euxKlient(): EuxKlientAsSystemUser = EuxKlientAsSystemUser(euxNavIdentRestTemplate(), euxSystemRestTemplate())
     }
 
@@ -146,6 +148,20 @@ internal class EuxInnhentingServiceRetryTest {
             server.verify()
         }
     }
+
+    @Test
+    fun `getBuc skal ikke retry når EUX svarer med 423 Locked`() {
+        val euxCaseId = "123456"
+        server.expect(ExpectedCount.once(), MockRestRequestMatchers.requestTo(StringContains.containsString("/buc/$euxCaseId"))).andRespond(
+            MockRestResponseCreators.withStatus(HttpStatus.LOCKED)
+        )
+
+        assertThrows<HttpClientErrorException> {
+            euxInnhentingService.getBuc(euxCaseId)
+        }
+        server.verify()
+    }
+
 
 }
 @Profile("retryConfigOverride")
