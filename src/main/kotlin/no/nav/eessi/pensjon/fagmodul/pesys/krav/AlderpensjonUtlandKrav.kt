@@ -38,7 +38,7 @@ class AlderpensjonUtlandKrav(
         logger.debug("CaseOwnerName   : ${caseOwner.name}")
 
         val mottattDato = mottattDocumentDato(doc, bucUtils)
-        val kravdato = LocalDate.parse(kravSed.nav?.krav?.dato)
+        val kravdato = LocalDate.parse(kravDato(kravSed))
 
         return KravUtland(
             mottattDato = mottattDato,                     // når SED ble mottatt i NAV-RINA
@@ -56,7 +56,7 @@ class AlderpensjonUtlandKrav(
     }
 
     fun finnStatsborgerskapAlderLandkode3(kravSed: SED): String? {
-        val statsborgerskap = kravSed.nav?.bruker?.person?.statsborgerskap?.firstOrNull { it.land != null }
+        val statsborgerskap = brukerPerson(kravSed)?.statsborgerskap?.firstOrNull { it.land != null }
         return statsborgerskap?.let { kodeverkClient.finnLandkode(it.land!!) }
     }
 

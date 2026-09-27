@@ -1,6 +1,8 @@
 package no.nav.eessi.pensjon.fagmodul.pesys.krav
 
 import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
+import no.nav.eessi.pensjon.eux.model.sed.P2200
+import no.nav.eessi.pensjon.eux.model.sed.Person
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.pesys.Sivilstatus
@@ -26,7 +28,7 @@ open class UtlandKrav {
      *  17.04.2021  01.02.2021
      */
     fun iverksettDatoUfore(kravSed: SED): LocalDate? {
-        val kravdato = LocalDate.parse(kravSed.nav?.krav?.dato) ?: return null
+        val kravdato = kravDato(kravSed)?.let(LocalDate::parse) ?: return null
         return kravdato.withDayOfMonth(1).minusMonths(3)
     }
 
@@ -65,13 +67,13 @@ open class UtlandKrav {
 
 
     fun finnStatsborgerskapsLandkode3(kodeverkClient: KodeverkClient, kravSed: SED): String {
-        val statsborgerskap = kravSed.nav?.bruker?.person?.statsborgerskap?.firstOrNull { it.land != null }
+        val statsborgerskap = brukerPerson(kravSed)?.statsborgerskap?.firstOrNull { it.land != null }
         return statsborgerskap?.let { kodeverkClient.finnLandkode(it.land!!) } ?: ""
     }
 
     fun sivilstand(kravSed: SED): SkjemaFamilieforhold? {
 
-        val sivilstand = kravSed.nav?.bruker?.person?.sivilstand?.maxByOrNull { LocalDate.parse(it.fradato) }
+        val sivilstand = brukerPerson(kravSed)?.sivilstand?.maxByOrNull { LocalDate.parse(it.fradato) }
         val sivilstatus = sivilstand?.status?.let { Sivilstatus.getSivilStatusByStatus(it.toString()) }
 
         logger.debug("Sivilstatus: $sivilstatus")
@@ -81,6 +83,18 @@ open class UtlandKrav {
             sivilstatusDatoFom = sivilstand.fradato.let { LocalDate.parse(it) }
         )
     }
+
+    protected fun kravDato(kravSed: SED): String? =
+        when (kravSed) {
+            is P2200 -> kravSed.navP2200?.krav?.dato
+            else -> kravSed.nav?.krav?.dato
+        }
+
+    protected fun brukerPerson(kravSed: SED): Person? =
+        when (kravSed) {
+            is P2200 -> kravSed.navP2200?.bruker?.person
+            else -> kravSed.nav?.bruker?.person
+        }
 
     /**
      * PESYS støtter kun GB
