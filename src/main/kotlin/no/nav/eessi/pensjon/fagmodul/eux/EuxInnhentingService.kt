@@ -614,8 +614,14 @@ data class EuxKlientRetryConfig(val initialRetryMillis: Long = 20000L)
 
 @Component
 class EuxRetryPolicy {
+    private val logger = LoggerFactory.getLogger(EuxRetryPolicy::class.java)
+
     fun shouldRetry(throwable: Throwable): Boolean {
         val httpStatusCode = (throwable as? HttpStatusCodeException)?.statusCode
+        if (httpStatusCode == HttpStatus.LOCKED) {
+            logger.warn("EUX returned 423 Locked; skipping retry", throwable)
+            return false
+        }
         return httpStatusCode != HttpStatus.LOCKED && httpStatusCode?.value() != 423
     }
 }
