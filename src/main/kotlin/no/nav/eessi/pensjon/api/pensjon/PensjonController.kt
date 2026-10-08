@@ -4,6 +4,7 @@ import no.nav.eessi.pensjon.fagmodul.api.FrontEndResponse
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.EessiPensjonSak
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.P6000MeldingOmVedtakDto
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PesysService
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import no.nav.security.token.support.core.api.Protected
@@ -35,11 +36,34 @@ class PensjonController(
     private  var pensjonControllerHentSakListe: MetricsHelper.Metric
     private  var pensjonControllerValidateSak: MetricsHelper.Metric
     private  var pensjonControllerKravDato: MetricsHelper.Metric
+    private val pensjonControllerHentP12000: MetricsHelper.Metric
     init {
         pensjonControllerHentSakType = metricsHelper.init("PensjonControllerHentSakType")
         pensjonControllerHentSakListe = metricsHelper.init("PensjonControllerHentSakListe")
         pensjonControllerValidateSak = metricsHelper.init("PensjonControllerValidateSak")
         pensjonControllerKravDato = metricsHelper.init("PensjonControllerKravDato")
+        pensjonControllerHentP12000 = metricsHelper.init("PensjonControllerHentP12000")
+    }
+
+    @GetMapping("/p12000/{sakId}")
+    fun hentP12000data(
+        @PathVariable("sakId") sakId: String
+    ): ResponseEntity<FrontEndResponse<P6000MeldingOmVedtakDto>> {
+
+        return pensjonControllerHentP12000.measure {
+            if (sakId.isBlank()) {
+                logger.warn("SakId mangler ved henting av P12000-data")
+                return@measure ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    FrontEndResponse(result = null, status = HttpStatus.BAD_REQUEST.name, message = "SakId må oppgis")
+                )
+            }
+
+            pesysService.hentP12000data(sakId)?.let {
+                ResponseEntity.ok(FrontEndResponse(it, HttpStatus.OK.name))
+            } ?: ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                FrontEndResponse(result = null, status = HttpStatus.NOT_FOUND.name, message = "P12000-data ikke funnet for sakId: $sakId")
+            )
+        }
     }
 
     /**

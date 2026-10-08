@@ -10,6 +10,7 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.client.exchange
 import org.springframework.web.server.ResponseStatusException
 import tools.jackson.databind.ObjectMapper
 import java.time.LocalDate
@@ -58,6 +59,12 @@ class PesysService(
     fun hentUfoeretidspunktOnVedtak(sakId: String?): EessiUfoeretidspunktDto? =
         getWithHeaders("/vedtak/$sakId/ufoeretidspunkt")
 
+    fun hentP12000data(sakId: String): P6000MeldingOmVedtakDto? =
+        getWithHeaders<List<P6000MeldingOmVedtakDto>>(
+            "/sed/p6000",
+            "sakId" to sakId
+        )?.sortedByDescending { it.vedtak.datoFattetVedtak }?.firstOrNull()
+
 
     fun List<EessiUfoeretidspunktDto>.sortUfore(): List<EessiUfoeretidspunktDto> =
         sortedWith(
@@ -80,8 +87,8 @@ class PesysService(
 
         val entity = HttpEntity<Void>(httpHeaders)
         return pesysClientRestTemplate
-            .exchange(path, HttpMethod.GET, entity, T::class.java).body
-            .also { logger.debug("Pesys response: $it") }
+            .exchange<T>(path, HttpMethod.GET, entity).body
+            .also { logger.debug("Pesys response received for: $path") }
     }
 
     fun hentGyldigAvdod(avdod: EessiAvdodDto?) : List<String>? {
@@ -102,4 +109,3 @@ class PesysService(
         }
     }
 }
-
