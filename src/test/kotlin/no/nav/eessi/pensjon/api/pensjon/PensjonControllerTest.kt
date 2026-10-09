@@ -62,7 +62,7 @@ class PensjonControllerTest {
     fun `hentP12000data eksponerer GET med forventet responsformat`() {
         every { pesysService.hentP12000data(SOME_SAKID) } returns p6000Data().ytelsePerMaaned
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/pensjon/ytelserPrMnd/$SOME_SAKID"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/pensjon/ytelserpermaaned/$SOME_SAKID"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.status").value("OK"))
             .andExpect(jsonPath("$.result").isArray())
@@ -87,7 +87,7 @@ class PensjonControllerTest {
         val fraDato = from?.let(LocalDate::parse)
         val tilDato = to?.let(LocalDate::parse)
         every { pesysService.hentP12000data(SOME_SAKID, fraDato, tilDato) } returns p6000Data().ytelsePerMaaned
-        val request = MockMvcRequestBuilders.get("/pensjon/ytelserPrMnd/$SOME_SAKID")
+        val request = MockMvcRequestBuilders.get("/pensjon/ytelserpermaaned/$SOME_SAKID")
         from?.let { request.param("fom", it) }
         to?.let { request.param("tom", it) }
 
@@ -103,7 +103,7 @@ class PensjonControllerTest {
         val dato = LocalDate.of(2026, 1, 1)
         every { pesysService.hentP12000data(SOME_SAKID, dato, null) } returns null
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/pensjon/ytelserPrMnd/$SOME_SAKID").param("fom", dato.toString()))
+        mockMvc.perform(MockMvcRequestBuilders.get("/pensjon/ytelserpermaaned/$SOME_SAKID").param("fom", dato.toString()))
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.status").value("NOT_FOUND"))
             .andExpect(jsonPath("$.message").value("P12000-data ikke funnet for sakId: $SOME_SAKID"))
@@ -112,7 +112,7 @@ class PensjonControllerTest {
     @Test
     fun `hentP12000data avviser reversert intervall uten aa kalle Pesys`() {
         mockMvc.perform(
-            MockMvcRequestBuilders.get("/pensjon/ytelserPrMnd/$SOME_SAKID")
+            MockMvcRequestBuilders.get("/pensjon/ytelserpermaaned/$SOME_SAKID")
                 .param("fom", "2025-12-31").param("tom", "2025-01-01")
         )
             .andExpect(status().isBadRequest())
@@ -126,7 +126,7 @@ class PensjonControllerTest {
     @ValueSource(strings = ["fom", "tom"])
     fun `hentP12000data avviser ugyldige datoer uten aa kalle Pesys`(parameter: String) {
         mockMvc.perform(
-            MockMvcRequestBuilders.get("/pensjon/ytelserPrMnd/$SOME_SAKID").param(parameter, "2025-13-32")
+            MockMvcRequestBuilders.get("/pensjon/ytelserpermaaned/$SOME_SAKID").param(parameter, "2025-13-32")
         ).andExpect(status().isBadRequest())
 
         verify(exactly = 0) { pesysService.hentP12000data(any(), any(), any()) }

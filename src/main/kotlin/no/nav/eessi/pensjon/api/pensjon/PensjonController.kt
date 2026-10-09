@@ -48,7 +48,7 @@ class PensjonController(
         pensjonControllerHentP12000 = metricsHelper.init("PensjonControllerHentP12000")
     }
 
-    @GetMapping("/ytelserPrMnd/{sakId}")
+    @GetMapping("/ytelserpermaaned/{sakId}")
     fun hentP12000data(
         @PathVariable("sakId") sakId: String,
         @RequestParam("fom", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) from: LocalDate? = null,
