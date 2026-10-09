@@ -59,11 +59,18 @@ class PesysService(
     fun hentUfoeretidspunktOnVedtak(sakId: String?): EessiUfoeretidspunktDto? =
         getWithHeaders("/vedtak/$sakId/ufoeretidspunkt")
 
-    fun hentP12000data(sakId: String): P6000MeldingOmVedtakDto? =
+    fun hentP12000data(
+        sakId: String,
+        from: LocalDate? = null,
+        to: LocalDate? = null
+    ): List<P6000MeldingOmVedtakDto.YtelsePerMaaned>? =
         getWithHeaders<List<P6000MeldingOmVedtakDto>>(
             "/sed/p6000",
             "sakId" to sakId
-        )?.sortedByDescending { it.vedtak.datoFattetVedtak }?.firstOrNull()
+        )?.flatMap { it.ytelsePerMaaned }?.filter {
+            (to == null || !it.fom.isAfter(to)) &&
+                (from == null || it.tom == null || !it.tom.isBefore(from))
+        }?.takeIf { it.isNotEmpty() }
 
 
     fun List<EessiUfoeretidspunktDto>.sortUfore(): List<EessiUfoeretidspunktDto> =
