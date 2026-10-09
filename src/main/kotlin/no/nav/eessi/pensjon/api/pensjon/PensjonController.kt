@@ -4,19 +4,23 @@ import no.nav.eessi.pensjon.fagmodul.api.FrontEndResponse
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.EessiPensjonSak
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.P6000MeldingOmVedtakDto
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PesysService
 import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
 
@@ -35,11 +39,43 @@ class PensjonController(
     private  var pensjonControllerHentSakListe: MetricsHelper.Metric
     private  var pensjonControllerValidateSak: MetricsHelper.Metric
     private  var pensjonControllerKravDato: MetricsHelper.Metric
+    private val pensjonControllerHentP12000: MetricsHelper.Metric
     init {
         pensjonControllerHentSakType = metricsHelper.init("PensjonControllerHentSakType")
         pensjonControllerHentSakListe = metricsHelper.init("PensjonControllerHentSakListe")
         pensjonControllerValidateSak = metricsHelper.init("PensjonControllerValidateSak")
         pensjonControllerKravDato = metricsHelper.init("PensjonControllerKravDato")
+        pensjonControllerHentP12000 = metricsHelper.init("PensjonControllerHentP12000")
+    }
+
+    @GetMapping("/ytelserpermaaned/{sakId}")
+    fun hentP12000data(
+        @PathVariable("sakId") sakId: String,
+        @RequestParam("fom", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) from: LocalDate? = null,
+        @RequestParam("tom", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) to: LocalDate? = null
+    ): ResponseEntity<FrontEndResponse<List<P6000MeldingOmVedtakDto.YtelsePerMaaned>>> {
+        logger.info("Henter sak ($sakId)")
+        return pensjonControllerHentP12000.measure {
+            if (sakId.isBlank()) {
+                logger.warn("SakId mangler ved henting av P12000-data")
+                return@measure ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    FrontEndResponse(result = null, status = HttpStatus.BAD_REQUEST.name, message = "SakId må oppgis")
+                )
+            }
+
+            if (from != null && to != null && from.isAfter(to)) {
+                logger.warn("Fra-dato er etter til-dato ved henting av P12000-data")
+                return@measure ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    FrontEndResponse(result = null, status = HttpStatus.BAD_REQUEST.name, message = "Fra-dato må være før eller lik til-dato")
+                )
+            }
+
+            pesysService.hentP12000data(sakId, from, to)?.let {
+                ResponseEntity.ok(FrontEndResponse(it, HttpStatus.OK.name))
+            } ?: ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                FrontEndResponse(result = null, status = HttpStatus.NOT_FOUND.name, message = "P12000-data ikke funnet for sakId: $sakId")
+            )
+        }
     }
 
     /**
