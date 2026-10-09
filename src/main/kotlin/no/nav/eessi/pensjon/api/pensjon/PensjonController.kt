@@ -49,7 +49,7 @@ class PensjonController(
     fun hentP12000data(
         @PathVariable("sakId") sakId: String
     ): ResponseEntity<FrontEndResponse<P6000MeldingOmVedtakDto>> {
-
+        logger.info("Henter sak ($sakId)")
         return pensjonControllerHentP12000.measure {
             if (sakId.isBlank()) {
                 logger.warn("SakId mangler ved henting av P12000-data")
