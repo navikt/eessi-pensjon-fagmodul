@@ -13,6 +13,7 @@ import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.personoppslag.pdl.model.NorskIdent
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.EessiFellesDto
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.EessiPensjonSak
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.P6000MeldingOmVedtakDto
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PesysService
 import no.nav.eessi.pensjon.utils.toJson
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -20,11 +21,15 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
+import org.junit.jupiter.params.provider.ValueSource
 import org.slf4j.MDC
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import java.time.LocalDate
@@ -52,6 +57,97 @@ class PensjonControllerTest {
     @BeforeEach
     fun setup(){
     }
+
+    @Test
+    fun `hentP12000data eksponerer GET med forventet responsformat`() {
+        every { pesysService.hentP12000data(SOME_SAKID) } returns p6000Data().ytelsePerMaaned
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/pensjon/ytelserpermaaned/$SOME_SAKID"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value("OK"))
+            .andExpect(jsonPath("$.result").isArray())
+            .andExpect(jsonPath("$.result.length()").value(1))
+            .andExpect(jsonPath("$.result[0].fom").value("2025-01-01"))
+            .andExpect(jsonPath("$.result[0].belop").value(5057))
+            .andExpect(jsonPath("$.result[0].ytelseskomponenter[0].ytelsesKomponentType").value("IP"))
+            .andExpect(jsonPath("$.result[0].ytelseskomponent").doesNotExist())
+
+        verify(exactly = 1) { pesysService.hentP12000data(SOME_SAKID) }
+    }
+
+    @ParameterizedTest
+    @CsvSource(
+        "2025-01-01, 2025-12-31",
+        "2025-10-10, 2025-10-10",
+        "2025-01-01, NULL",
+        "NULL, 2025-12-31",
+        nullValues = ["NULL"]
+    )
+    fun `hentP12000data binder valgfrie ISO-datoer og sender dem til PesysService`(from: String?, to: String?) {
+        val fraDato = from?.let(LocalDate::parse)
+        val tilDato = to?.let(LocalDate::parse)
+        every { pesysService.hentP12000data(SOME_SAKID, fraDato, tilDato) } returns p6000Data().ytelsePerMaaned
+        val request = MockMvcRequestBuilders.get("/pensjon/ytelserpermaaned/$SOME_SAKID")
+        from?.let { request.param("fom", it) }
+        to?.let { request.param("tom", it) }
+
+        mockMvc.perform(request)
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.result[0].fom").value("2025-01-01"))
+
+        verify(exactly = 1) { pesysService.hentP12000data(SOME_SAKID, fraDato, tilDato) }
+    }
+
+    @Test
+    fun `hentP12000data gir 404 naar ingen ytelsesperioder overlapper intervallet`() {
+        val dato = LocalDate.of(2026, 1, 1)
+        every { pesysService.hentP12000data(SOME_SAKID, dato, null) } returns null
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/pensjon/ytelserpermaaned/$SOME_SAKID").param("fom", dato.toString()))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.status").value("NOT_FOUND"))
+            .andExpect(jsonPath("$.message").value("P12000-data ikke funnet for sakId: $SOME_SAKID"))
+    }
+
+    @Test
+    fun `hentP12000data avviser reversert intervall uten aa kalle Pesys`() {
+        mockMvc.perform(
+            MockMvcRequestBuilders.get("/pensjon/ytelserpermaaned/$SOME_SAKID")
+                .param("fom", "2025-12-31").param("tom", "2025-01-01")
+        )
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+            .andExpect(jsonPath("$.message").value("Fra-dato må være før eller lik til-dato"))
+
+        verify(exactly = 0) { pesysService.hentP12000data(any(), any(), any()) }
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["fom", "tom"])
+    fun `hentP12000data avviser ugyldige datoer uten aa kalle Pesys`(parameter: String) {
+        mockMvc.perform(
+            MockMvcRequestBuilders.get("/pensjon/ytelserpermaaned/$SOME_SAKID").param(parameter, "2025-13-32")
+        ).andExpect(status().isBadRequest())
+
+        verify(exactly = 0) { pesysService.hentP12000data(any(), any(), any()) }
+    }
+
+    private fun p6000Data() = P6000MeldingOmVedtakDto(
+        avdod = null,
+        sakType = EessiFellesDto.EessiSakType.ALDER,
+        trygdeavtale = null,
+        trygdetid = emptyList(),
+        vedtak = P6000MeldingOmVedtakDto.Vedtak(
+            LocalDate.of(2025, 1, 1), "REVURD", false, true, LocalDate.of(2025, 10, 10)
+        ),
+        vilkarsvurdering = emptyList(),
+        ytelsePerMaaned = listOf(
+            P6000MeldingOmVedtakDto.YtelsePerMaaned(
+                LocalDate.of(2025, 1, 1), null, false, null, 5057,
+                listOf(P6000MeldingOmVedtakDto.Ytelseskomponent("IP", 5057))
+            )
+        )
+    )
 
     @Test
     fun `hentPensjonSakType gitt en aktoerId saa slaa opp fnr og hent deretter sakstype`() {
@@ -406,4 +502,3 @@ class PensjonControllerTest {
         assertEquals(expected, response)
     }
 }
-
