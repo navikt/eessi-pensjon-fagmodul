@@ -54,19 +54,16 @@ class PesysServiceTest {
 
     @ParameterizedTest
     @CsvSource(
-        "2025-02-01, 2025-02-28, 0",
-        "2025-03-01, 2025-03-01, 0;1",
-        "2025-05-31, 2025-05-31, 1;2",
-        "2025-04-01, 2025-04-30, 1",
-        "2024-01-01, 2026-12-31, 0;1;2",
-        "NULL, 2025-02-28, 0",
-        "2025-06-01, NULL, 2",
-        "2026-01-01, 2026-12-31, 2",
-        "NULL, 2024-12-31, NULL",
+        "2025-01-01, 2025-03-01, 0",
+        "2025-03-01, 2025-05-31, 1",
+        "2025-05-31, 2025-12-31, NULL",
+        "2024-01-01, 2026-12-31, 0;1",
+        "NULL, 2025-03-01, 0",
+        "2025-05-31, NULL, 2",
         "NULL, NULL, 0;1;2",
         nullValues = ["NULL"]
     )
-    fun `hentP12000data filtrerer overlappende fom tom med inklusive valgfrie grenser`(
+    fun `hentP12000data returnerer perioder innenfor datointervallet`(
         from: String?, to: String?, expected: String?
     ) {
         val base = p6000Data(null).ytelsePerMaaned.single()
