@@ -7,6 +7,7 @@ import no.nav.eessi.pensjon.eux.model.BucType.P_BUC_06
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.SedType.*
 import no.nav.eessi.pensjon.eux.model.buc.Buc
+import no.nav.eessi.pensjon.eux.model.sed.P12000
 import no.nav.eessi.pensjon.eux.model.sed.P5000
 import no.nav.eessi.pensjon.eux.model.sed.P8000
 import no.nav.eessi.pensjon.eux.model.sed.SED
@@ -21,12 +22,15 @@ import no.nav.eessi.pensjon.shared.api.ApiRequest
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
 import no.nav.eessi.pensjon.fagmodul.api.vedlegg.VedleggService
+import no.nav.eessi.pensjon.services.pensjonsinformasjon.P6000MeldingOmVedtakDto
+import org.junit.Assert
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
 import org.springframework.web.util.UriComponentsBuilder
+import java.net.URLDecoder
 
 class SedControllerTest {
 
@@ -129,6 +133,20 @@ class SedControllerTest {
         assertTrue(options.get("ofteEtterspurtInformasjon").has("inntektFoerUfoerhetIUtlandet"))
         assertEquals("NO", options.get("ofteEtterspurtInformasjon").get("inntektFoerUfoerhetIUtlandet").get("landkode").asText())
     }
+
+//    @Test
+//    fun `getDocument skal hente p12000 med options`() {
+//        val p12000sed = mapJsonToAny<P12000>(javaClass.getResource("/json/nav/P12000-NAV.json")!!.readText())
+//        every { mockEuxInnhentingService.getSedOnBucByDocumentId(any(), any()) } returns p12000sed
+//        every { gcpStorageService.hentGcpDetlajerPaaId(any()) } returns p12000Lagret()
+//
+//        val response = sedController.getDocument("123456", "222222")
+//        assertEquals(HttpStatus.OK.name, response.status)
+//
+//        //assertEquals("GAP", mapJsonToAny<P6000MeldingOmVedtakDto.YtelsePerMaaned>((response.result as P12000FrontendResponse).options.toString()).ytelseskomponent.firstOrNull()?.ytelsesKomponentType?.firstOrNull())
+////        assertTrue(options.get("ofteEtterspurtInformasjon").has("inntektFoerUfoerhetIUtlandet"))
+////        assertEquals("NO", options.get("ofteEtterspurtInformasjon").get("inntektFoerUfoerhetIUtlandet").get("landkode").asText())
+//    }
 
 
     @Test
@@ -259,6 +277,12 @@ class SedControllerTest {
 
     fun p8000Lagret() :String {
         return """{"type":{"bosettingsstatus":"UTL","spraak":"nb","ytelse":"UT"},"ofteEtterspurtInformasjon":{"tiltak":{"value":true},"inntektFoerUfoerhetIUtlandet":{"value":true,"landkode":"NO","periodeFra":"1980","periodeTil":"2025"}}}""".trimIndent()
+    }
+
+    fun p12000Lagret() :String {
+        val streng = """%7B%22ytelserPerMaaned%22:%7B%22perioder%22:%5B%7B%22fom%22:%222025-08-01%22,%22ytelser%22:%5B%7B%22fom%22:%222025-08-01%22,%22tom%22:null,%22mottarMinstePensjonsniva%22:false,%22vinnendeBeregningsmetode%22:null,%22belop%22:13406,%22ytelseskomponenter%22:%5B%7B%22ytelsesKomponentType%22:%22GAP%22,%22belopTilUtbetaling%22:6294%7D,%7B%22ytelsesKomponentType%22:%22GP%22,%22belopTilUtbetaling%22:3061%7D,%7B%22ytelsesKomponentType%22:%22PT%22,%22belopTilUtbetaling%22:4051%7D%5D%7D,%7B%22fom%22:%222026-02-01%22,%22tom%22:null,%22mottarMinstePensjonsniva%22:false,%22vinnendeBeregningsmetode%22:null,%22belop%22:16867,%22ytelseskomponenter%22:%5B%7B%22ytelsesKomponentType%22:%22GAP%22,%22belopTilUtbetaling%22:6294%7D,%7B%22ytelsesKomponentType%22:%22GP%22,%22belopTilUtbetaling%22:3954%7D,%7B%22ytelsesKomponentType%22:%22PT%22,%22belopTilUtbetaling%22:5232%7D,%7B%22ytelsesKomponentType%22:%22MIN_NIVA_TILL_INDV%22,%22belopTilUtbetaling%22:1387%7D%5D%7D,%7B%22fom%22:%222026-05-01%22,%22tom%22:null,%22mottarMinstePensjonsniva%22:false,%22vinnendeBeregningsmetode%22:null,%22belop%22:17659,%22ytelseskomponenter%22:%5B%7B%22ytelsesKomponentType%22:%22PT%22,%22belopTilUtbetaling%22:5481%7D,%7B%22ytelsesKomponentType%22:%22MIN_NIVA_TILL_INDV%22,%22belopTilUtbetaling%22:1444%7D,%7B%22ytelsesKomponentType%22:%22GP%22,%22belopTilUtbetaling%22:4142%7D,%7B%22ytelsesKomponentType%22:%22GAP%22,%22belopTilUtbetaling%22:6592%7D%5D%7D%5D,%22selected%22:%5B0,1,2%5D%7D%5D%7D%7D""".trimIndent()
+        val jsonDecoded = URLDecoder.decode(streng, "UTF-8")
+        return jsonDecoded
     }
 
 }
