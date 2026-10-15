@@ -67,12 +67,19 @@ class PesysService(
         getWithHeaders<List<P6000MeldingOmVedtakDto>>(
             "/sed/p6000",
             "sakId" to sakId
-        )?.flatMap { it.ytelsePerMaaned }?.filter {
-            val startsWithinRange = from == null || !from.isAfter(it.fom)
-            val endsWithinRange = to == null || !it.fom.isAfter(to)
-            startsWithinRange && endsWithinRange
-        }?.takeIf { it.isNotEmpty() }
+        )?.flatMap { it.ytelsePerMaaned }
+            ?.filter { item ->
+                val fom = item.fom
+                val tom = item.tom // null = løpende
 
+                if (tom != null && tom.isBefore(fom)) return@filter false
+
+                val startPeriode = to == null || !fom.isAfter(to)
+                val sluttPeriode = from == null || tom == null || !tom.isBefore(from)
+
+                startPeriode && sluttPeriode
+            }
+            ?.takeIf { it.isNotEmpty() }
 
     fun List<EessiUfoeretidspunktDto>.sortUfore(): List<EessiUfoeretidspunktDto> =
         sortedWith(
