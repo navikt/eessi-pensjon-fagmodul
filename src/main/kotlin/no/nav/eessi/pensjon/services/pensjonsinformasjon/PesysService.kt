@@ -68,7 +68,7 @@ class PesysService(
             "/sed/p6000",
             "sakId" to sakId
         )?.flatMap { it.ytelsePerMaaned }?.filter {
-            val startsWithinRange = from == null || !it.fom.isBefore(from)
+            val startsWithinRange = from == null || !it.fom.isAfter(from)
             val endsWithinRange = to == null || it.tom == null || !it.tom.isAfter(to)
             startsWithinRange && endsWithinRange
         }?.takeIf { it.isNotEmpty() }
