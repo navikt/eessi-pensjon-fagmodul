@@ -36,6 +36,7 @@ spec:
           numNewerVersions: 2
           withState: ANY
       - name: eessi-pensjon-p8000-dev
+      - name: eessi-pensjon-p12000-dev
       - name: eessi-pensjon-p6000-dev
       - name: eessi-pensjon-pbuc02-avdod-dev
       - name: eessi-pensjon-vedlegg-dev
@@ -101,6 +102,8 @@ spec:
       value: eessi-pensjon-gjenny-dev
     - name: GCP_BUCKET_P8000
       value: eessi-pensjon-p8000-dev
+    - name: GCP_BUCKET_P12000
+      value: eessi-pensjon-p12000-dev
     - name: GCP_BUCKET_P6000
       value: eessi-pensjon-p6000-dev
     - name: GCP_BUCKET_SAKSBEHANDLING_API
