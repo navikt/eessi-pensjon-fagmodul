@@ -27,6 +27,8 @@ import org.junit.Assert
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
 import org.springframework.web.util.UriComponentsBuilder
@@ -102,51 +104,59 @@ class SedControllerTest {
         assertEquals("/sed/get/123456789/DOC1223213234234", builder.path)
     }
 
-    @Test
-    fun `updateSed skal lagre p8000 med options`() {
-        val slot = slot<String>()
-        every { gcpStorageService.lagreP8000Options(any(), capture(slot)) } just Runs
+    @Nested
+    @DisplayName("Uthenting og lagring av options i P8000 og P12000")
+    inner class OptionsTests {
+        @Test
+        fun `updateSed skal lagre p8000 med options`() {
+            val slot = slot<String>()
+            every { gcpStorageService.lagreP8000Options(any(), capture(slot)) } just Runs
 
-        val p8000sed = mapJsonToAny<P8000Frontend>(javaClass.getResource("/json/sed/P8000-NAV.json")!!.readText())
-        sedController.updateSed("123456", "222222", p8000sed.toJson())
+            val p8000sed = mapJsonToAny<P8000Frontend>(javaClass.getResource("/json/sed/P8000-NAV.json")!!.readText())
+            sedController.updateSed("123456", "222222", p8000sed.toJson())
 
-        assertEquals(p8000Lagret(), slot.captured)
+            assertEquals(p8000Lagret(), slot.captured)
+        }
+
+        @Test
+        fun `getDocument skal hente p8000 med options`() {
+            val p8000sed = mapJsonToAny<P8000>(javaClass.getResource("/json/nav/P8000_NO-NAV.json")!!.readText())
+            every { mockEuxInnhentingService.getSedOnBucByDocumentId(any(), any()) } returns p8000sed
+            every { gcpStorageService.hentGcpDetlajerPaaId(any()) } returns p8000Lagret()
+
+            val response = sedController.getDocument("123456", "222222")
+            assertEquals(HttpStatus.OK.name, response.status)
+
+            val mapper = ObjectMapper()
+            val serialized = mapper.writeValueAsString(response.result)
+            val tree = mapper.readTree(serialized)
+            val options = tree.get("options")
+
+            assertTrue(options.isObject, "options should be a JSON object, got: $options (serialized: $serialized)")
+            assertEquals("UTL", options.get("type").get("bosettingsstatus").asText())
+            assertEquals("nb", options.get("type").get("spraak").asText())
+            assertTrue(options.get("ofteEtterspurtInformasjon").has("inntektFoerUfoerhetIUtlandet"))
+            assertEquals("NO", options.get("ofteEtterspurtInformasjon").get("inntektFoerUfoerhetIUtlandet").get("landkode").asText())
+        }
+
+        @Test
+        fun `getDocument skal hente p12000 med options`() {
+            val p12000sed = mapJsonToAny<P12000>(javaClass.getResource("/json/nav/P12000-NAV.json")!!.readText())
+            every { mockEuxInnhentingService.getSedOnBucByDocumentId(any(), any()) } returns p12000sed
+            every { gcpStorageService.hentGcpDetlajerPaaId(any()) } returns p12000Lagret()
+
+            val response = sedController.getDocument("123456", "222222")
+            assertEquals(HttpStatus.OK.name, response.status)
+
+            val mapper = ObjectMapper()
+            val serialized = mapper.writeValueAsString(response.result)
+            val tree = mapper.readTree(serialized)
+            val options = tree.get("options")
+            val ytelseskomponenter = options.get("ytelserPerMaaned").get("perioder").get(0).get("ytelser").get(0).get("ytelseskomponenter").get(0)
+
+            assertEquals("GAP", ytelseskomponenter.get("ytelsesKomponentType").asText())
+        }
     }
-
-    @Test
-    fun `getDocument skal hente p8000 med options`() {
-        val p8000sed = mapJsonToAny<P8000>(javaClass.getResource("/json/nav/P8000_NO-NAV.json")!!.readText())
-        every { mockEuxInnhentingService.getSedOnBucByDocumentId(any(), any()) } returns p8000sed
-        every { gcpStorageService.hentGcpDetlajerPaaId(any()) } returns p8000Lagret()
-
-        val response = sedController.getDocument("123456", "222222")
-        assertEquals(HttpStatus.OK.name, response.status)
-
-        val mapper = ObjectMapper()
-        val serialized = mapper.writeValueAsString(response.result)
-        val tree = mapper.readTree(serialized)
-        val options = tree.get("options")
-
-        assertTrue(options.isObject, "options should be a JSON object, got: $options (serialized: $serialized)")
-        assertEquals("UTL", options.get("type").get("bosettingsstatus").asText())
-        assertEquals("nb", options.get("type").get("spraak").asText())
-        assertTrue(options.get("ofteEtterspurtInformasjon").has("inntektFoerUfoerhetIUtlandet"))
-        assertEquals("NO", options.get("ofteEtterspurtInformasjon").get("inntektFoerUfoerhetIUtlandet").get("landkode").asText())
-    }
-
-//    @Test
-//    fun `getDocument skal hente p12000 med options`() {
-//        val p12000sed = mapJsonToAny<P12000>(javaClass.getResource("/json/nav/P12000-NAV.json")!!.readText())
-//        every { mockEuxInnhentingService.getSedOnBucByDocumentId(any(), any()) } returns p12000sed
-//        every { gcpStorageService.hentGcpDetlajerPaaId(any()) } returns p12000Lagret()
-//
-//        val response = sedController.getDocument("123456", "222222")
-//        assertEquals(HttpStatus.OK.name, response.status)
-//
-//        //assertEquals("GAP", mapJsonToAny<P6000MeldingOmVedtakDto.YtelsePerMaaned>((response.result as P12000FrontendResponse).options.toString()).ytelseskomponent.firstOrNull()?.ytelsesKomponentType?.firstOrNull())
-////        assertTrue(options.get("ofteEtterspurtInformasjon").has("inntektFoerUfoerhetIUtlandet"))
-////        assertEquals("NO", options.get("ofteEtterspurtInformasjon").get("inntektFoerUfoerhetIUtlandet").get("landkode").asText())
-//    }
 
 
     @Test
