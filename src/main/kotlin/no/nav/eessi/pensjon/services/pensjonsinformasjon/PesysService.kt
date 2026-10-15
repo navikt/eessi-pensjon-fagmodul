@@ -69,7 +69,7 @@ class PesysService(
             "sakId" to sakId
         )?.flatMap { it.ytelsePerMaaned }?.filter {
             val startsWithinRange = from == null || !from.isAfter(it.fom)
-            val endsWithinRange = to == null || it.tom == null || !it.tom.isAfter(to)
+            val endsWithinRange = to == null || !it.fom.isAfter(to)
             startsWithinRange && endsWithinRange
         }?.takeIf { it.isNotEmpty() }
 

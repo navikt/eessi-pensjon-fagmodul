@@ -5,7 +5,6 @@ import no.nav.eessi.pensjon.services.pensjonsinformasjon.EessiFellesDto.EessiSak
 import no.nav.eessi.pensjon.utils.toJson
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
-import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
@@ -15,10 +14,8 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.test.web.client.match.MockRestRequestMatchers.*
-import org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess
 import org.springframework.test.web.client.response.MockRestResponseCreators.withNoContent
-import org.springframework.test.web.client.response.MockRestResponseCreators.withServerError
-import org.springframework.web.client.HttpServerErrorException
+import org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess
 import org.springframework.web.client.RestTemplate
 import java.time.LocalDate
 
@@ -54,13 +51,13 @@ class PesysServiceTest {
 
     @ParameterizedTest
     @CsvSource(
-        "2025-01-01, 2025-03-01, 0;2",
+        "2025-01-01, 2025-03-01, 0;1",
         "2025-03-01, 2025-05-31, 1;2",
         "2025-05-31, 2025-12-31, 2",
         "2024-01-01, 2026-12-31, 0;1;2",
-        "NULL, 2025-03-01, 0;2",
-        "NULL, 2025-02-28, 2",
-        "2025-04-01, 2025-04-30, 2",
+        "NULL, 2025-03-01, 0;1",
+        "NULL, 2025-03-02, 0;1",
+        "2025-04-01, 2025-04-30, NULL",
         "2025-06-01, 2025-12-31, NULL",
         "2025-05-31, NULL, 2",
         "NULL, NULL, 0;1;2",
