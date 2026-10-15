@@ -84,6 +84,17 @@ class SedController(
             val response = P8000FrontendResponse(sed.type, sed.nav, sed.p8000Pensjon, lagretOptions)
             return FrontEndResponse(response, HttpStatus.OK.name)
         }
+        if (sed is P12000) {
+            val lagretOptions = gcpStorageService.hentGcpDetlajerPaaId(documentid)
+            if (lagretOptions != null) {
+                logger.info("Henter options for: ${sed.type}, rinaid: $euxcaseid")
+            } else {
+                logger.warn("Henter P12000 uten options")
+            }
+            val response = P12000FrontendResponse(sed.type, sed.nav, sed.pensjonP12000, lagretOptions)
+            return FrontEndResponse(response, HttpStatus.OK.name)
+        }
+
         return FrontEndResponse(sed, HttpStatus.OK.name)
     }
 
@@ -109,6 +120,16 @@ class SedController(
                     }
                     sed
                 }
+                is P12000 -> {
+                    val sedP12000Frontend = mapJsonToAny<P12000FrontendResponse>(sedPayload)
+                    sedP12000Frontend.options?.let {
+                        val jsonDecoded = URLDecoder.decode(it, "UTF-8")
+                        logger.info("Lagrer options for: ${sed.type}, rinaid: $euxcaseid, options: $jsonDecoded")
+                        gcpStorageService.lagreP8000Options(documentid, jsonDecoded)
+                    }
+                    sed
+                }
+
                 is P5000 -> sed.updateFromUI() //må alltid kjøres. sjekk og oppdatert trydetid. punkt 5.2.1.3.1
                 else -> sed
             }
@@ -191,3 +212,15 @@ class P8000FrontendResponse(
     @JsonRawValue
     var options: String? = null,
 ) : P8000(type, nav, p8000Pensjon)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+class P12000FrontendResponse(
+    @JsonProperty("sed")
+    type: SedType = SedType.P12000,
+    nav: Nav? = null,
+    @JsonProperty("pensjon")
+    p12000Pensjon: P12000Pensjon?,
+    @JsonInclude(JsonInclude.Include.ALWAYS)
+    @JsonRawValue
+    var options: String? = null,
+) : P12000(type, nav, p12000Pensjon)
