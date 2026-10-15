@@ -1,5 +1,6 @@
 package no.nav.eessi.pensjon.fagmodul.api
 
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
@@ -37,22 +38,10 @@ import java.net.URLDecoder
 class SedControllerTest {
 
     @MockK
-    lateinit var mockEuxPrefillService: EuxPrefillService
-
-    @MockK
     lateinit var mockEuxInnhentingService: EuxInnhentingService
 
     @MockK
-    lateinit var vedleggService: VedleggService
-
-    @MockK
-    lateinit var personService: PersonService
-
-    @MockK
     lateinit var prefillKlient: PrefillKlient
-
-    @MockK
-    lateinit var pesysService: PesysService
 
     @MockK
     lateinit var gcpStorageService: GcpStorageService
@@ -62,7 +51,7 @@ class SedControllerTest {
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this, relaxed = true)
-        InnhentingService(personService, vedleggService, prefillKlient, pesysService)
+        InnhentingService(mockk(), mockk(), prefillKlient, mockk())
 
         this.sedController = SedController(
             mockEuxInnhentingService,
@@ -127,10 +116,7 @@ class SedControllerTest {
             val response = sedController.getDocument("123456", "222222")
             assertEquals(HttpStatus.OK.name, response.status)
 
-            val mapper = ObjectMapper()
-            val serialized = mapper.writeValueAsString(response.result)
-            val tree = mapper.readTree(serialized)
-            val options = tree.get("options")
+            val (serialized, options) = optionsFraGcp(response)
 
             assertTrue(options.isObject, "options should be a JSON object, got: $options (serialized: $serialized)")
             assertEquals("UTL", options.get("type").get("bosettingsstatus").asText())
@@ -148,16 +134,20 @@ class SedControllerTest {
             val response = sedController.getDocument("123456", "222222")
             assertEquals(HttpStatus.OK.name, response.status)
 
-            val mapper = ObjectMapper()
-            val serialized = mapper.writeValueAsString(response.result)
-            val tree = mapper.readTree(serialized)
-            val options = tree.get("options")
+            val (serialized, options) = optionsFraGcp(response)
             val ytelseskomponenter = options.get("ytelserPerMaaned").get("perioder").get(0).get("ytelser").get(0).get("ytelseskomponenter").get(0)
 
             assertEquals("GAP", ytelseskomponenter.get("ytelsesKomponentType").asText())
         }
-    }
 
+        private fun optionsFraGcp(response: FrontEndResponse<Any>): Pair<String, JsonNode> {
+            val mapper = ObjectMapper()
+            val serialized = mapper.writeValueAsString(response.result)
+            val tree = mapper.readTree(serialized)
+            val options = tree.get("options")
+            return Pair(serialized, options)
+        }
+    }
 
     @Test
     fun `getFiltrerteGyldigSedAksjonListAsString   buc_01 returns 1 sed`() {
