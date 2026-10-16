@@ -68,16 +68,21 @@ class PesysService(
             "/sed/p6000",
             "sakId" to sakId
         )?.flatMap { it.ytelsePerMaaned }
-            ?.filter { item ->
-                val fom = item.fom
-                val tom = item.tom // null = løpende
+            ?.sortedBy { it.fom }
+            ?.let { items ->
+                items.filterIndexed { i, item ->
+                    val fom = item.fom
+                    val nextFom = items.getOrNull(i + 1)?.fom
 
-                if (tom != null && tom.isBefore(fom)) return@filter false
+                    val effectiveTom = listOfNotNull(item.tom, nextFom?.minusDays(1)).minOrNull()
 
-                val startPeriode = to == null || !fom.isAfter(to)
-                val sluttPeriode = from == null || tom == null || !tom.isBefore(from)
+                    if (effectiveTom != null && effectiveTom.isBefore(fom)) return@filterIndexed false
 
-                startPeriode && sluttPeriode
+                    val startsBeforeRangeEnds = to == null || !fom.isAfter(to)
+                    val endsAfterRangeStarts = from == null || effectiveTom == null || !effectiveTom.isBefore(from)
+
+                    startsBeforeRangeEnds && endsAfterRangeStarts
+                }
             }
             ?.takeIf { it.isNotEmpty() }
 
