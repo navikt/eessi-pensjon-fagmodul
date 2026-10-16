@@ -34,17 +34,18 @@ class PesysServiceTest {
     @ParameterizedTest
     @CsvSource(
         value = [
-            "2025-02-01, 2025-05-31,    0;1;2",
-            "2025-01-01, 2025-03-01,    0;1",
-            "2025-03-01, 2025-05-31,    1;2",
-            "2025-05-31, 2025-12-31,    2",
-            "2024-01-01, 2026-12-31,    0;1;2",
-            "NULL, 2025-03-01,          0;1",
-            "NULL, 2025-03-02,          0;1",
-            "2025-04-01, 2025-04-30,    1",
-            "2025-06-01, 2025-12-31,    2",
-            "2025-05-31, NULL,          2",
-            "NULL, NULL,                0;1;2"
+            "2023-12-31, 2024-03-01,    0;1",
+            "2024-01-01, 2024-08-31,    1",
+            "2024-09-01, 2025-03-31,    2",
+            "2025-04-01, 2025-07-31,    NULL",
+            "2025-03-31, 2025-08-01,    2;3",
+            "2026-01-31, 2026-02-01,    3;4",
+            "2026-01-01, 2026-12-31,    3;4;5;6",
+            "2026-09-01, 2026-12-31,    6",
+            "2027-01-01, 2027-12-31,    7",
+            "NULL, 2024-03-01,          0;1",
+            "2026-01-01, NULL,          3;4;5;6;7",
+            "NULL, NULL,                0;1;2;3;4;5;6;7"
         ], nullValues = ["NULL"]
     )
     fun `hentP12000data filtrerer med inklusive datogrenser`(
@@ -52,21 +53,25 @@ class PesysServiceTest {
     ) {
         val base = p6000Data(null).ytelsePerMaaned.single()
         val perioder = listOf(
-            base.copy(fom = LocalDate.of(2025, 1, 1), tom = LocalDate.of(2025, 3, 1)),
-            base.copy(fom = LocalDate.of(2025, 3, 1), tom = LocalDate.of(2025, 5, 31)),
-            base.copy(fom = LocalDate.of(2025, 5, 31), tom = null)
+            base.copy(fom = LocalDate.parse("2023-01-01"), tom = LocalDate.parse("2023-12-31")),
+            base.copy(fom = LocalDate.parse("2024-03-01"), tom = null),
+            base.copy(fom = LocalDate.parse("2024-09-01"), tom = LocalDate.parse("2025-03-31")),
+            base.copy(fom = LocalDate.parse("2025-08-01"), tom = null),
+            base.copy(fom = LocalDate.parse("2026-02-01"), tom = null),
+            base.copy(fom = LocalDate.parse("2026-05-01"), tom = null),
+            base.copy(fom = LocalDate.parse("2026-09-01"), tom = LocalDate.parse("2026-12-31")),
+            base.copy(fom = LocalDate.parse("2027-01-01"), tom = null)
         )
-        val vedtak = listOf(
-            p6000Data(null).copy(ytelsePerMaaned = perioder.take(2)),
-            p6000Data(LocalDate.of(2020, 1, 1)).copy(ytelsePerMaaned = perioder.drop(2))
-        )
+        val vedtak = listOf(p6000Data(null).copy(ytelsePerMaaned = perioder))
         server.expect(requestTo("/sed/p6000"))
             .andExpect(header("sakId", "789"))
             .andRespond(withSuccess(vedtak.toJson(), MediaType.APPLICATION_JSON))
 
         val result = pesysService.hentP12000data("789", from?.let(LocalDate::parse), to?.let(LocalDate::parse))
 
-        assertEquals(expected?.split(";")?.map { perioder[it.toInt()] }, result)
+        val expectedDates = expected?.split(";")?.map { perioder[it.toInt()].let { item -> item.fom to item.tom } }
+        val resultDates = result?.map { it.fom to it.tom }
+        assertEquals(expectedDates, resultDates)
         server.verify()
     }
 
