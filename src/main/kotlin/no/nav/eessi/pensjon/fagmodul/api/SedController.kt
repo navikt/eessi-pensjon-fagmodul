@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonRawValue
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.node.ObjectNode
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.PreviewPdf
 import no.nav.eessi.pensjon.eux.model.document.P6000Dokument
@@ -30,6 +32,7 @@ import java.net.URLDecoder
 @RestController
 @RequestMapping("/sed")
 class SedController(
+    @Value("\${ENV}") private val environment: String,
     private val euxInnhentingService: EuxInnhentingService,
     private val auditlogger: AuditLogger,
     @Value("\${eessipen-eux-rina.url}")
@@ -39,6 +42,7 @@ class SedController(
 ) {
     private val secureLog = LoggerFactory.getLogger("secureLog")
     private val logger = LoggerFactory.getLogger(SedController::class.java)
+    private val objectMapper = ObjectMapper()
 
     private lateinit var sedsendt: MetricsHelper.Metric
     private var pdfGenerert: MetricsHelper.Metric
@@ -174,7 +178,20 @@ class SedController(
     @PostMapping("/pdf")
     fun lagPdf(@RequestBody pdfJson: String): FrontEndResponse<PreviewPdf?> {
         logger.info("Lager PDF")
-        val pdf = euxInnhentingService.lagPdf(pdfJson).also { logger.info("SED for generering av PDF: $it") }
+        val jsonForPdf = if (environment == "q2") {
+            val sedJson = objectMapper.readTree(pdfJson)
+            if (sedJson is ObjectNode && sedJson.has("sedVer")) {
+                if (sedJson["sedVer"].asText() != "4") {
+                    sedJson.put("sedVer", "4")
+                }
+                sedJson.toString()
+            } else {
+                pdfJson
+            }
+        } else {
+            pdfJson
+        }
+        val pdf = euxInnhentingService.lagPdf(jsonForPdf).also { logger.info("SED for generering av PDF: $it") }
         return FrontEndResponse(pdf, HttpStatus.OK.name)
     }
 }

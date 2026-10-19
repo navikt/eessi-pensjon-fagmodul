@@ -54,6 +54,7 @@ class SedControllerTest {
         InnhentingService(mockk(), mockk(), prefillKlient, mockk())
 
         this.sedController = SedController(
+            "q2",
             mockEuxInnhentingService,
             mockk(relaxed = true),
             "http://rinaurl/cpi",
@@ -83,6 +84,44 @@ class SedControllerTest {
         val result = sedController.getDocument("2313", "23123123123")
         assertEquals(HttpStatus.OK.name, result.status)
         assertEquals(sed.toJson(), result.result?.toJson())
+    }
+
+    @Test
+    fun `lagPdf setter sedVer til 4 hvis versjonen er en annen`() {
+        val json = """{"sedVer":"3"}"""
+        every { mockEuxInnhentingService.lagPdf(any()) } returns null
+
+        sedController.lagPdf(json)
+
+        verify { mockEuxInnhentingService.lagPdf("""{"sedVer":"4"}""") }
+    }
+
+    @Test
+    fun `lagPdf lar sedVer 4 vaere uendret`() {
+        val json = """{"sedVer":"4"}"""
+        every { mockEuxInnhentingService.lagPdf(any()) } returns null
+
+        sedController.lagPdf(json)
+
+        verify { mockEuxInnhentingService.lagPdf(json) }
+    }
+
+
+    @Test
+    fun `lagPdf endrer ikke sedVer utenfor q2`() {
+        val json = """{"sedVer":"3"}"""
+        val controller = SedController(
+            environment = "test",
+            euxInnhentingService = mockEuxInnhentingService,
+            auditlogger = mockk(relaxed = true),
+            euxrinaurl = "http://rinaurl/cpi",
+            gcpStorageService = gcpStorageService
+        )
+        every { mockEuxInnhentingService.lagPdf(any()) } returns null
+
+        controller.lagPdf(json)
+
+        verify { mockEuxInnhentingService.lagPdf(json) }
     }
 
     @Test

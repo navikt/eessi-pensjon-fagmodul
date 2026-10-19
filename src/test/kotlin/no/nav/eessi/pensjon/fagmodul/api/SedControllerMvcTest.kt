@@ -51,7 +51,7 @@ class SedControllerMvcTest {
 
         mockMvc.perform(
             post(endpointUrl)
-                .content("Sed er sendt til Rina")
+                .content("""{"sedVer":"4"}""")
         )
             .andExpect(status().isOk())
             .andExpect(content().string("{\"result\":{\"filInnhold\":\"\",\"fileName\":\"\",\"contentType\":\"\"},\"status\":\"OK\",\"message\":null,\"stackTrace\":null}"))
@@ -80,13 +80,12 @@ class SedControllerMvcTest {
 
         mockMvc.perform(
             post(endpointUrl)
-                .content("Sed er sendt til Rina")
+                .content("""{"sedVer":"4"}""")
         )
             .andExpect(status().is5xxServerError())
             .andExpect(content().string(""))
             .andReturn()
     }
 }
-
 
 
