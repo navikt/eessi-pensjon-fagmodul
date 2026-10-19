@@ -10,6 +10,7 @@ import no.nav.security.token.support.core.api.Protected
 import no.nav.security.token.support.core.api.Unprotected
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -20,6 +21,7 @@ import org.springframework.web.client.HttpStatusCodeException
 @RequestMapping("/eux")
 class EuxController(
     private val euxInnhentingService: EuxInnhentingService,
+    @Value("\${ENV}") private val environment: String? = null,
     @Autowired(required = false) private val metricsHelper: MetricsHelper = MetricsHelper.ForTest()
 ) {
     private val logger = LoggerFactory.getLogger(EuxController::class.java)
@@ -44,7 +46,7 @@ class EuxController(
             euxInstitusjoner  = metricsHelper.init("euxInstitusjoner", ignoreHttpCodes = listOf(HttpStatus.FORBIDDEN))
     }
 
-    val backupList = listOf("AT", "BE", "BG", "CH", "CZ", "DE", "DK", "EE", "ES", "FI", "FR", "HR", "HU", "IE", "IS", "IT", "LI", "LT", "LU", "LV", "MT", "NL", "NO", "PL", "PT", "RO", "SE", "SI", "SK", "UK")
+    val backupList = listOf("AT", "BE", "BG", "CH", "CY", "CZ", "DE", "DK", "EE", "ES", "FI", "FR", "GB", "GR", "HR", "HU", "IE", "IS", "IT", "LI", "LT", "LU", "LV", "MT", "NL", "NO", "PL", "PT", "RO", "SE", "SI", "SK")
 
     @Unprotected
     @GetMapping("/rinaurl")
@@ -58,6 +60,9 @@ class EuxController(
         return paakobledeland.measure {
             logger.info("Henter ut liste over land knyttet til buc: $bucType")
             return@measure try {
+                if (environment == "q2") {
+                    return@measure ResponseEntity.ok(FrontEndResponse(backupList, HttpStatus.OK.name))
+                }
                 val paakobledeLand = euxInnhentingService.getInstitutions(bucType.name)
                     .map { it.country }
                     .distinct()

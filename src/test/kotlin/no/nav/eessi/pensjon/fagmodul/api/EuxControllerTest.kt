@@ -27,7 +27,7 @@ class  EuxControllerTest {
     private var gcpStorageService: GcpStorageService = mockk()
     private lateinit var euxController: EuxController
 
-    private val backupList = listOf("AT", "BE", "BG", "CH", "CZ", "DE", "DK", "EE", "ES", "FI", "FR", "HR", "HU", "IE", "IS", "IT", "LI", "LT", "LU", "LV", "MT", "NL", "NO", "PL", "PT", "RO", "SE", "SI", "SK", "UK")
+    private val backupList = listOf("AT", "BE", "BG", "CH", "CY", "CZ", "DE", "DK", "EE", "ES", "FI", "FR", "GB", "GR", "HR", "HU", "IE", "IS", "IT", "LI", "LT", "LU", "LV", "MT", "NL", "NO", "PL", "PT", "RO", "SE", "SI", "SK")
     private val euxRestTemplate = mockk<RestTemplate>()
     private val euxSystemRestTemplate = mockk<RestTemplate>()
 
@@ -35,7 +35,7 @@ class  EuxControllerTest {
     fun before() {
 
         mockEuxInnhentingService = EuxInnhentingService(
-            "Q2",
+            "test",
             EuxKlientAsSystemUser(euxRestTemplate, euxSystemRestTemplate),
             gcpStorageService,
             mockk(relaxed = true), mockk(relaxed = true),
@@ -44,7 +44,8 @@ class  EuxControllerTest {
         MockKAnnotations.init(this, relaxed = true, relaxUnitFun = true)
 
         euxController = EuxController(
-            euxInnhentingService = mockEuxInnhentingService
+            euxInnhentingService = mockEuxInnhentingService,
+            environment = "test"
         )
     }
 
