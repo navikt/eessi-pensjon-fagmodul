@@ -140,6 +140,19 @@ class SedControllerTest {
             assertEquals("GAP", ytelseskomponenter.get("ytelsesKomponentType").asText())
         }
 
+        @Test
+        fun `getDocument skal beholde sedVer fra RINA for p8000 og p12000`() {
+            val p8000sed = mapJsonToAny<P8000>(javaClass.getResource("/json/nav/P8000_NO-NAV.json")!!.readText()).apply { sedVer = "5" }
+            val p12000sed = mapJsonToAny<P12000>(javaClass.getResource("/json/nav/P12000-NAV.json")!!.readText()).apply { sedVer = "5" }
+            every { gcpStorageService.hentGcpDetlajerPaaId(any()) } returns null
+
+            for (sed in listOf(p8000sed, p12000sed)) {
+                every { mockEuxInnhentingService.getSedOnBucByDocumentId(any(), any()) } returns sed
+                val response = sedController.getDocument("123456", "222222")
+                assertEquals("5", (response.result as SED).sedVer, "${sed.type}")
+            }
+        }
+
         private fun optionsFraGcp(response: FrontEndResponse<Any>): Pair<String, JsonNode> {
             val mapper = ObjectMapper()
             val serialized = mapper.writeValueAsString(response.result)

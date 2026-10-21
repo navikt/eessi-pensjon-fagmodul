@@ -82,6 +82,7 @@ class SedController(
                 logger.warn("Henter P8000 uten options")
             }
             val response = P8000FrontendResponse(sed.type, sed.nav, sed.p8000Pensjon, lagretOptions)
+                .apply { sedVer = sed.sedVer }
             return FrontEndResponse(response, HttpStatus.OK.name)
         }
         if (sed is P12000) {
@@ -92,6 +93,7 @@ class SedController(
                 logger.warn("Henter P12000 uten options")
             }
             val response = P12000FrontendResponse(sed.type, sed.nav, sed.pensjonP12000, lagretOptions)
+                .apply { sedVer = sed.sedVer }
             return FrontEndResponse(response, HttpStatus.OK.name)
         }
 
