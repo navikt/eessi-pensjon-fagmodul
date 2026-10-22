@@ -14,6 +14,7 @@ import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.eux.model.buc.Buc
 import no.nav.eessi.pensjon.eux.model.buc.DocumentsItem
 import no.nav.eessi.pensjon.eux.model.sed.P6000
+import no.nav.eessi.pensjon.eux.model.sed.X010
 import no.nav.eessi.pensjon.fagmodul.api.vedlegg.VedleggService
 import no.nav.eessi.pensjon.fagmodul.api.vedlegg.client.SafClient
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService.BucView
@@ -408,96 +409,84 @@ internal class EuxInnhentingServiceTest {
     fun `check apiRequest for prefill X010 contains X009 payload`() {
         val x009Json = javaClass.getResource("/json/nav/X009-NAV.json")!!.readText()
         val apiRequest = EuxTestUtils.apiRequestWith("1000000", emptyList(), buc = P_BUC_01, sed = SedType.X010)
-
         every { euxKlient.getSedOnBucByDocumentIdNotAsSystemUser(any(), any(), any()) } returns x009Json
 
         val json = euxInnhentingService.checkForX010AndAddX009(apiRequest, "20000000")
+        val jsonFromApi = mapJsonToAny<X010>(json.payload!!, true).toJson()
+
         assert(json.toJson().contains("X009"))
-        JSONAssert.assertEquals(json.payload, payload(), JSONCompareMode.LENIENT)
+        JSONAssert.assertEquals(payload(), jsonFromApi, JSONCompareMode.LENIENT)
     }
 
     private fun payload(): String {
         val payload = """
-                {
-                  "sed" : "X009",
-                  "nav" : {
-                    "sak" : {
-                      "kontekst" : {
-                        "bruker" : {
-                          "mor" : null,
-                          "far" : null,
-                          "person" : {
-                            "pin" : null,
-                            "pinland" : null,
-                            "statsborgerskap" : null,
-                            "etternavn" : "æøå",
-                            "etternavnvedfoedsel" : null,
-                            "fornavn" : "æøå",
-                            "fornavnvedfoedsel" : null,
-                            "tidligerefornavn" : null,
-                            "tidligereetternavn" : null,
-                            "kjoenn" : "M",
-                            "foedested" : null,
-                            "foedselsdato" : "æøå",
-                            "sivilstand" : null,
-                            "relasjontilavdod" : null,
-                            "rolle" : null,
-                            "kontakt" : null,
-                            "doedsdato" : null
-                          },
-                          "adresse" : null,
-                          "arbeidsforhold" : null,
-                          "bank" : null
-                        },
-                        "refusjonskrav" : {
-                          "antallkrav" : "æøå",
-                          "id" : "æøå"
-                        },
-                        "arbeidsgiver" : {
-                          "identifikator" : [ {
-                            "id" : "æøå",
-                            "type" : "registrering"
-                          } ],
-                          "adresse" : {
-                            "gate" : "æøå",
-                            "bygning" : "æøå",
-                            "by" : "æøå",
-                            "postnummer" : "æøå",
-                            "postkode" : null,
-                            "region" : "æøå",
-                            "land" : "NO",
-                            "kontaktpersonadresse" : null,
-                            "datoforadresseendring" : null,
-                            "postadresse" : null,
-                            "startdato" : null,
-                            "type" : null,
-                            "annen" : null
-                          },
-                          "navn" : "æøå"
-                        }
-                      },
-                      "leggtilinstitusjon" : null,
-                      "paaminnelse" : {
-                        "svar" : null,
-                        "sende" : [ {
-                          "type" : "dokument",
-                          "detaljer" : "æøå"
-                        } ]
-                      }
-                    }
+        {
+          "sed" : "X009",
+          "nav" : {
+            "sak" : {
+              "kontekst" : {
+                "bruker" : {
+                  "mor" : null,
+                  "far" : null,
+                  "person" : {
+                    "etternavn" : "æøå",
+                    "kjoenn" : "M",
+                    "foedselsdato" : "æøå",
+                    "bormednypartner" : null,
+                    "doedsdato" : null
                   },
-                  "sedGVer" : "4",
-                  "sedVer" : "2",
-                  "pensjon" : null
+                  "adresse" : null,
+                  "arbeidsforhold" : null,
+                  "bank" : null
+                },
+                "refusjonskrav" : {
+                  "antallkrav" : "æøå",
+                  "id" : "æøå"
+                },
+                "arbeidsgiver" : {
+                  "identifikator" : [ {
+                    "id" : "æøå",
+                    "type" : "registrering"
+                  } ],
+                  "adresse" : {
+                    "gate" : "æøå",
+                    "bygning" : "æøå",
+                    "by" : "æøå",
+                    "postnummer" : "æøå",
+                    "postkode" : null,
+                    "region" : "æøå",
+                    "land" : "NO",
+                    "kontaktpersonadresse" : null,
+                    "datoforadresseendring" : null,
+                    "postadresse" : null,
+                    "startdato" : null,
+                    "type" : null,
+                    "annen" : null
+                  },
+                  "navn" : "æøå"
                 }
+              },
+              "leggtilinstitusjon" : null,
+              "paaminnelse" : {
+                "svar" : null,
+                "sende" : [ {
+                  "type" : "dokument",
+                  "detaljer" : "æøå"
+                } ]
+              }
+            }
+          },
+          "sedGVer" : "4",
+          "sedVer" : "2",
+          "pensjon" : null
+        }
             """.trimIndent()
         return payload
     }
 
     @Test
     fun `Sjekk om Pin node finnes i Sed returnerer BUC`() {
-        val sedfilepath = "src/test/resources/json/nav/P2100-PinNO-NAV.json"
-        val sedjson = String(Files.readAllBytes(Paths.get(sedfilepath)))
+        val sedjson = javaClass.getResource("/json/nav/P2100-PinNO-NAV.json")!!.readText()
 
         val data = listOf(BucOgDocumentAvdod("23123", Buc(id = "2131", processDefinitionName = "P_BUC_02"), sedjson))
         val result = euxInnhentingService.filterGyldigBucGjenlevendeAvdod(data, "1234567890000")
