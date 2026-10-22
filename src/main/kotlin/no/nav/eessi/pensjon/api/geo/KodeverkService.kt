@@ -1,5 +1,8 @@
 package no.nav.eessi.pensjon.api.geo
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
@@ -34,7 +37,7 @@ class KodeverkService(private val euxNavIdentRestTemplate: RestTemplate) {
             )
             logger.debug("Hent landkode API: response: ${response.toJson()}".trimMargin())
             response.body?.let {
-                mapJsonToAny<LandkodeMerKorrektFormat>(it)
+                mapJsonToAny<LandkodeMerKorrektFormat>(it).copy(v45 = null)
             } ?: throw RuntimeException("Response body er null")
         } catch (e: HttpStatusCodeException) {
             logger.error("HttpStatusCodeException oppstod under henting av landkoder: ${e.message}")
@@ -73,6 +76,7 @@ class KodeverkService(private val euxNavIdentRestTemplate: RestTemplate) {
     }
 }
 
+//@JsonInclude(JsonInclude.Include.NON_NULL)
 data class LandkodeMerKorrektFormat(
     @JsonProperty("v4.2")
     val v42 : LandkodeRinaFormat? = null,
@@ -95,6 +99,7 @@ data class LandkodeFraRina(
     val landnavn: String? = null,
 )
 
+//@JsonInclude(JsonInclude.Include.NON_NULL)
 data class LandOgValutakodeMerKorrektFormat(
     @JsonProperty("v4.2")
     val v42 : LandOgValutakodeRinaFormat? = null,
