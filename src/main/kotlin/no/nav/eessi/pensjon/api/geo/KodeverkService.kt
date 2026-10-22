@@ -1,5 +1,6 @@
 package no.nav.eessi.pensjon.api.geo
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
@@ -73,6 +74,7 @@ class KodeverkService(private val euxNavIdentRestTemplate: RestTemplate) {
     }
 }
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 data class LandkodeMerKorrektFormat(
     @JsonProperty("v4.2")
     val v42 : LandkodeRinaFormat? = null,
@@ -95,6 +97,7 @@ data class LandkodeFraRina(
     val landnavn: String? = null,
 )
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 data class LandOgValutakodeMerKorrektFormat(
     @JsonProperty("v4.2")
     val v42 : LandOgValutakodeRinaFormat? = null,
