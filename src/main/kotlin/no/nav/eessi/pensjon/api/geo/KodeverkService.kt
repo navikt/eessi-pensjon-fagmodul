@@ -79,7 +79,9 @@ data class LandkodeMerKorrektFormat(
     @JsonProperty("v4.3")
     val v43 : LandkodeRinaFormat? = null,
     @JsonProperty("v4.4")
-    val v44 : LandkodeRinaFormat? = null
+    val v44 : LandkodeRinaFormat? = null,
+    @JsonProperty("v4.5")
+    val v45 : LandkodeRinaFormat? = null
 )
 
 data class LandkodeRinaFormat(
@@ -99,7 +101,9 @@ data class LandOgValutakodeMerKorrektFormat(
     @JsonProperty("v4.3")
     val v43 : LandOgValutakodeRinaFormat? = null,
     @JsonProperty("v4.4")
-    val v44 : LandOgValutakodeRinaFormat? = null
+    val v44 : LandOgValutakodeRinaFormat? = null,
+    @JsonProperty("v4.5")
+    val v45 : LandOgValutakodeRinaFormat? = null
 )
 
 data class LandOgValutakodeRinaFormat(
