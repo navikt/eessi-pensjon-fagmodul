@@ -64,7 +64,7 @@ class KodeverkService(private val euxNavIdentRestTemplate: RestTemplate) {
             )
             logger.debug("Hent land- og valutakode API: response: ${response.toJson()}".trimMargin())
             response.body?.let {
-                mapJsonToAny<LandOgValutakodeMerKorrektFormat>(it)
+                mapJsonToAny<LandOgValutakodeMerKorrektFormat>(it).copy(v45 = null)
             } ?: throw RuntimeException("Response body er null")
         } catch (e: HttpStatusCodeException) {
             logger.error("HttpStatusCodeException oppstod under henting av land- og valutakoder: ${e.message}")
