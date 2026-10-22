@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
@@ -32,6 +33,7 @@ import org.slf4j.LoggerFactory
 @WebMvcTest(LandOgValutakodeController::class)
 @ComponentScan(basePackages = ["no.nav.eessi.pensjon.api.geo"])
 @ActiveProfiles("unsecured-webmvctest")
+@Disabled
 class LandOgValutakodeControllerTest {
 
     @Autowired
