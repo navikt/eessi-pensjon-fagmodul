@@ -73,7 +73,7 @@ dependencies {
     implementation("no.nav.security:token-validation-jaxrs:${tokenSupportVersion}")
     implementation("no.nav.security:token-validation-spring:${tokenSupportVersion}")
 
-    implementation ("no.nav.common:token-client:4.2026.10.01_11.30-68a5418edc3c")
+    implementation("no.nav.common:token-client:4.2026.10.01_11.30-68a5418edc3c")
     implementation("org.springframework.kafka:spring-kafka:${springKafkaVersion}")
 
     //GCP
@@ -81,7 +81,7 @@ dependencies {
 
     implementation("no.nav.eessi.pensjon:ep-metrics:3.0.44")
     implementation("no.nav.eessi.pensjon:ep-logging:3.0.66")
-    implementation("no.nav.eessi.pensjon:ep-eux:3.1.20")
+    implementation("no.nav.eessi.pensjon:ep-eux:3.1.24")
     implementation("no.nav.eessi.pensjon:ep-kodeverk:5.0.126") {
         exclude module: 'ep-eux'
         exclude module: 'ep-logging'
