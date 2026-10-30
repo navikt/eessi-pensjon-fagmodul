@@ -40,39 +40,49 @@ class SedController(
     private val secureLog = LoggerFactory.getLogger("secureLog")
     private val logger = LoggerFactory.getLogger(SedController::class.java)
 
-    private lateinit var sedsendt: MetricsHelper.Metric
-    private var pdfGenerert: MetricsHelper.Metric
+    private val sedControllerGetDocumentP6000list: MetricsHelper.Metric
+    private val sedControllerGetPdfFromRina: MetricsHelper.Metric
+    private val sedControllerGetDocument: MetricsHelper.Metric
+    private val sedControllerUpdateSed: MetricsHelper.Metric
+    private val sedControllerGetSeds: MetricsHelper.Metric
+    private val pdfGenerert: MetricsHelper.Metric
 
     init {
+        sedControllerGetDocumentP6000list = metricsHelper.init("SedControllerGetDocumentP6000list")
+        sedControllerGetPdfFromRina = metricsHelper.init("SedControllerGetPdfFromRina")
+        sedControllerGetDocument = metricsHelper.init("SedControllerGetDocument")
+        sedControllerUpdateSed = metricsHelper.init("SedControllerUpdateSed")
+        sedControllerGetSeds = metricsHelper.init("SedControllerGetSeds")
         pdfGenerert = metricsHelper.init("PdfGenerert")
     }
 
     @GetMapping("/getP6000/{euxcaseid}")
     fun getDocumentP6000list(
         @PathVariable("euxcaseid", required = true) euxcaseid: String
-    ): FrontEndResponse<List<P6000Dokument>?> {
+    ): FrontEndResponse<List<P6000Dokument>?> = sedControllerGetDocumentP6000list.measure {
         auditlogger.logBuc("getDocumentP6000list", "euxCaseId:$euxcaseid")
         val bucUtils = BucUtils(euxInnhentingService.getBuc(euxcaseid))
-        return FrontEndResponse(bucUtils.getAllP6000AsDocumentItem(euxrinaurl), HttpStatus.OK.name)
+        FrontEndResponse(bucUtils.getAllP6000AsDocumentItem(euxrinaurl), HttpStatus.OK.name)
     }
 
     @GetMapping("/get/{euxcaseid}/{documentid}/pdf")
     fun getPdfFromRina(
         @PathVariable("euxcaseid", required = true) euxcaseid: String,
         @PathVariable("documentid", required = true) documentid: String
-    ): FrontEndResponse<PreviewPdf> {
+    ): FrontEndResponse<PreviewPdf> = sedControllerGetPdfFromRina.measure {
         auditlogger.logBuc("getPdfFromRina", "euxCaseId:$euxcaseid, documentId:$documentid")
-        return FrontEndResponse(euxInnhentingService.getPdfContents(euxcaseid, documentid), HttpStatus.OK.name)
+        FrontEndResponse(euxInnhentingService.getPdfContents(euxcaseid, documentid), HttpStatus.OK.name)
     }
 
     @GetMapping("/get/{euxcaseid}/{documentid}")
     fun getDocument(
         @PathVariable("euxcaseid", required = true) euxcaseid: String,
         @PathVariable("documentid", required = true) documentid: String
-    ): FrontEndResponse<Any> {
+    ): FrontEndResponse<Any> = sedControllerGetDocument.measure {
         auditlogger.logBuc("getDocument", "euxCaseId: $euxcaseid, documentId: $documentid")
         logger.info("Hente SED innhold for /${euxcaseid}/${documentid} ")
         val sed = euxInnhentingService.getSedOnBucByDocumentId(euxcaseid, documentid)
+        metricsHelper.registry.counter("sed.document.retrieved", "sed_type", sed.type.name).increment()
 
         if (sed is P8000) {
             val lagretOptions = gcpStorageService.hentGcpDetlajerPaaId(documentid)
@@ -82,7 +92,7 @@ class SedController(
                 logger.warn("Henter P8000 uten options")
             }
             val response = P8000FrontendResponse(sed.type, sed.nav, sed.p8000Pensjon, lagretOptions)
-            return FrontEndResponse(response, HttpStatus.OK.name)
+            return@measure FrontEndResponse(response, HttpStatus.OK.name)
         }
         if (sed is P12000) {
             val lagretOptions = gcpStorageService.hentGcpDetlajerPaaId(documentid)
@@ -92,10 +102,10 @@ class SedController(
                 logger.warn("Henter P12000 uten options")
             }
             val response = P12000FrontendResponse(sed.type, sed.nav, sed.pensjonP12000, lagretOptions)
-            return FrontEndResponse(response, HttpStatus.OK.name)
+            return@measure FrontEndResponse(response, HttpStatus.OK.name)
         }
 
-        return FrontEndResponse(sed, HttpStatus.OK.name)
+        FrontEndResponse(sed, HttpStatus.OK.name)
     }
 
     @PutMapping("/put/{euxcaseid}/{documentid}")
@@ -103,7 +113,7 @@ class SedController(
         @PathVariable("euxcaseid", required = true) euxcaseid: String,
         @PathVariable("documentid", required = true) documentid: String,
         @RequestBody sedPayload: String
-    ): FrontEndResponse<Boolean> {
+    ): FrontEndResponse<Boolean> = sedControllerUpdateSed.measure {
         val validsed = try {
             secureLog.info("Følgende SED payload: $sedPayload")
 
@@ -139,18 +149,18 @@ class SedController(
         }
         val jsonToRina = validsed.toJsonSkipEmpty().also { logger.debug("Følgende SED prøves å oppdateres til RINA: rinaID: $euxcaseid, documentid: $documentid, validsed: $it") }
         val updated = euxInnhentingService.updateSedOnBuc(euxcaseid, documentid, jsonToRina).also { logger.info("Oppdatering av SED: $it") }
-        return FrontEndResponse(updated, HttpStatus.OK.name)
+        FrontEndResponse(updated, HttpStatus.OK.name)
     }
 
     @GetMapping("/seds/{buctype}/{rinanr}")
     fun getSeds(
         @PathVariable(value = "buctype", required = true) bucType: String,
         @PathVariable(value = "rinanr", required = true) euxCaseId: String
-    ): FrontEndResponse<List<SedType>> {
+    ): FrontEndResponse<List<SedType>> = sedControllerGetSeds.measure {
         auditlogger.logBuc("getSeds", "euxCaseId:$euxCaseId, bucType:$bucType")
         val resultListe = BucUtils(euxInnhentingService.getBuc(euxCaseId)).getFiltrerteGyldigSedAksjonListAsString()
         logger.info("Henter liste over SED som kan opprettes på buctype: $bucType seds: $resultListe")
-        return FrontEndResponse(resultListe, HttpStatus.OK.name)
+        FrontEndResponse(resultListe, HttpStatus.OK.name)
     }
 
     //Ektend P5000 updateFromUI før den sendes og oppdateres i Rina.
@@ -172,10 +182,10 @@ class SedController(
     }
 
     @PostMapping("/pdf")
-    fun lagPdf(@RequestBody pdfJson: String): FrontEndResponse<PreviewPdf?> {
+    fun lagPdf(@RequestBody pdfJson: String): FrontEndResponse<PreviewPdf?> = pdfGenerert.measure {
         logger.info("Lager PDF")
         val pdf = euxInnhentingService.lagPdf(pdfJson).also { logger.info("SED for generering av PDF: $it") }
-        return FrontEndResponse(pdf, HttpStatus.OK.name)
+        FrontEndResponse(pdf, HttpStatus.OK.name)
     }
 }
 
