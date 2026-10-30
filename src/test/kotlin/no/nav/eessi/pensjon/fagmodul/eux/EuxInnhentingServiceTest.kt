@@ -443,6 +443,9 @@ internal class EuxInnhentingServiceTest {
                             "relasjontilavdod" : null,
                             "rolle" : null,
                             "kontakt" : null,
+                            "nyttEkteskapPartnerskapEtterForsikredeDod" : null,
+                            "bormednypartner" : null,
+                            "dodsdetalj" : null,
                             "doedsdato" : null
                           },
                           "adresse" : null,
