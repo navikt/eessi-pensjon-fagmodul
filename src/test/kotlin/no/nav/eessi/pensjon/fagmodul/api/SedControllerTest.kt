@@ -17,6 +17,7 @@ import no.nav.eessi.pensjon.fagmodul.eux.EuxPrefillService
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.fagmodul.prefill.klient.PrefillKlient
 import no.nav.eessi.pensjon.gcp.GcpStorageService
+import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.PesysService
 import no.nav.eessi.pensjon.shared.api.ApiRequest
@@ -26,12 +27,18 @@ import no.nav.eessi.pensjon.fagmodul.api.vedlegg.VedleggService
 import no.nav.eessi.pensjon.services.pensjonsinformasjon.P6000MeldingOmVedtakDto
 import org.junit.Assert
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertSame
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.http.HttpStatus
+import org.springframework.web.server.ResponseStatusException
 import org.springframework.web.util.UriComponentsBuilder
 import java.net.URLDecoder
 
@@ -47,18 +54,67 @@ class SedControllerTest {
     lateinit var gcpStorageService: GcpStorageService
 
     private lateinit var sedController: SedController
+    private lateinit var metricsHelper: MetricsHelper
 
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this, relaxed = true)
         InnhentingService(mockk(), mockk(), prefillKlient, mockk())
+        metricsHelper = MetricsHelper.ForTest()
 
         this.sedController = SedController(
             mockEuxInnhentingService,
             mockk(relaxed = true),
             "http://rinaurl/cpi",
-            gcpStorageService
+            gcpStorageService,
+            metricsHelper
         )
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = [
+        "SedControllerGetDocumentP6000list",
+        "SedControllerGetPdfFromRina",
+        "SedControllerGetDocument",
+        "SedControllerUpdateSed",
+        "SedControllerGetSeds",
+        "PdfGenerert"
+    ])
+    fun `metrics skal maale riktig for hvert endpoint`(metric: String) {
+        val buc = mapJsonToAny<Buc>(javaClass.getResource("/json/buc/P_BUC_01_4.2_tom.json")!!.readText())
+        every { mockEuxInnhentingService.getBuc("123456") } returns buc
+        every { mockEuxInnhentingService.getSedOnBucByDocumentId("123456", "222222") } returns SED(P2000)
+        every { mockEuxInnhentingService.getPdfContents("123456", "222222") } returns mockk(relaxed = true)
+        every { mockEuxInnhentingService.lagPdf("pdfJson") } returns mockk(relaxed = true)
+        every { mockEuxInnhentingService.updateSedOnBuc(any(), any(), any()) } returns true
+
+        val response = when (metric) {
+            "SedControllerGetDocumentP6000list" -> sedController.getDocumentP6000list("123456")
+            "SedControllerGetPdfFromRina" -> sedController.getPdfFromRina("123456", "222222")
+            "SedControllerGetDocument" -> sedController.getDocument("123456", "222222")
+            "SedControllerUpdateSed" -> sedController.updateSed("123456", "222222", """{"sed":"P2000"}""")
+            "SedControllerGetSeds" -> sedController.getSeds("P_BUC_01", "123456")
+            "PdfGenerert" -> sedController.lagPdf("pdfJson")
+            else -> error("Unknown metric: $metric")
+        }
+
+        assertEquals(HttpStatus.OK.name, response.status)
+        assertEquals(1.0, metricsHelper.registry.get("method").tags("method", metric, "type", "successful", "alert", "on").counter().count())
+        assertEquals(1L, metricsHelper.registry.get("method.timer").tag("method", metric).timer().count())
+    }
+
+    @Test
+    fun `metrics skal maale riktig for mislykkede forespørsler uten aa endre unntaket`() {
+        val exception = ResponseStatusException(HttpStatus.FORBIDDEN)
+        every { mockEuxInnhentingService.getSedOnBucByDocumentId(any(), any()) } throws exception
+
+        val thrown = assertThrows(ResponseStatusException::class.java) {
+            sedController.getDocument("123456", "222222")
+        }
+
+        assertSame(exception, thrown)
+        assertEquals(1.0, metricsHelper.registry.get("method").tags("method", "SedControllerGetDocument", "type", "failed", "alert", "on").counter().count())
+        assertNull(metricsHelper.registry.find("sed.document.retrieved").counter())
     }
 
     @Test
@@ -83,6 +139,7 @@ class SedControllerTest {
         val result = sedController.getDocument("2313", "23123123123")
         assertEquals(HttpStatus.OK.name, result.status)
         assertEquals(sed.toJson(), result.result?.toJson())
+        assertEquals(1.0, metricsHelper.registry.get("sed.document.retrieved").tag("sed_type", "P2000").counter().count())
     }
 
     @Test
@@ -115,6 +172,7 @@ class SedControllerTest {
 
             val response = sedController.getDocument("123456", "222222")
             assertEquals(HttpStatus.OK.name, response.status)
+            assertEquals(1.0, metricsHelper.registry.get("sed.document.retrieved").tag("sed_type", "P8000").counter().count())
 
             val (serialized, options) = optionsFraGcp(response)
 
@@ -133,6 +191,7 @@ class SedControllerTest {
 
             val response = sedController.getDocument("123456", "222222")
             assertEquals(HttpStatus.OK.name, response.status)
+            assertEquals(1.0, metricsHelper.registry.get("sed.document.retrieved").tag("sed_type", "P12000").counter().count())
 
             val (serialized, options) = optionsFraGcp(response)
             val ytelseskomponenter = options.get("ytelserPerMaaned").get("perioder").get(0).get("ytelser").get(0).get("ytelseskomponenter").get(0)
