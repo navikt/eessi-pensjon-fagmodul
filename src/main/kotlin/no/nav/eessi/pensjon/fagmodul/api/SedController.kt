@@ -11,7 +11,6 @@ import no.nav.eessi.pensjon.eux.model.sed.*
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
-import no.nav.eessi.pensjon.logging.AuditKey
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.utils.mapJsonToAny
@@ -84,6 +83,17 @@ class SedController(
         val sed = euxInnhentingService.getSedOnBucByDocumentId(euxcaseid, documentid)
         metricsHelper.registry.counter("sed.document.retrieved", "sed_type", sed.type.name).increment()
 
+        if (sed is P2200) {
+            val lagretOptions = gcpStorageService.hentGcpDetlajerPaaId(documentid)
+            if (lagretOptions != null) {
+                logger.info("Henter options for: ${sed.type}, rinaid: $euxcaseid, options: $lagretOptions")
+            } else {
+                logger.warn("Henter P8000 uten options")
+            }
+            val response = P2200FrontendResponse(sed.type, sed.navP2200, sed.pensjon, lagretOptions)
+            return@measure FrontEndResponse(response, HttpStatus.OK.name)
+        }
+
         if (sed is P8000) {
             val lagretOptions = gcpStorageService.hentGcpDetlajerPaaId(documentid)
             if (lagretOptions != null) {
@@ -121,6 +131,15 @@ class SedController(
             logger.info("Følgende SED prøves å oppdateres: ${sed.type}, rinaid: $euxcaseid")
 
             when (sed) {
+                is P2200 -> {
+                    val sedP2200Frontend = mapJsonToAny<P2200FrontendResponse>(sedPayload)
+                    sedP2200Frontend.options?.let {
+                        val jsonDecoded = URLDecoder.decode(it, "UTF-8")
+                        logger.info("Lagrer options for: ${sed.type}, rinaid: $euxcaseid, options: $jsonDecoded")
+                        gcpStorageService.lagreP8000Options(documentid, jsonDecoded)
+                    }
+                    sed
+                }
                 is P8000 -> {
                     val sedP8000Frontend = mapJsonToAny<P8000Frontend>(sedPayload)
                     sedP8000Frontend.options?.let {
@@ -234,3 +253,15 @@ class P12000FrontendResponse(
     @JsonRawValue
     var options: String? = null,
 ) : P12000(type, nav, p12000Pensjon)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+class P2200FrontendResponse(
+    @JsonProperty("sed")
+    type: SedType = SedType.P2200,
+    nav: NavP2200? = null,
+    @JsonProperty("pensjon")
+    p2200Pensjon: P2200Pensjon?,
+    @JsonInclude(JsonInclude.Include.ALWAYS)
+    @JsonRawValue
+    var options: String? = null,
+) : P2200(type, nav, p2200Pensjon)
