@@ -13,19 +13,14 @@ import no.nav.eessi.pensjon.eux.model.sed.P5000
 import no.nav.eessi.pensjon.eux.model.sed.P8000
 import no.nav.eessi.pensjon.eux.model.sed.SED
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
-import no.nav.eessi.pensjon.fagmodul.eux.EuxPrefillService
 import no.nav.eessi.pensjon.fagmodul.prefill.InnhentingService
 import no.nav.eessi.pensjon.fagmodul.prefill.klient.PrefillKlient
 import no.nav.eessi.pensjon.gcp.GcpStorageService
 import no.nav.eessi.pensjon.metrics.MetricsHelper
-import no.nav.eessi.pensjon.personoppslag.pdl.PersonService
-import no.nav.eessi.pensjon.services.pensjonsinformasjon.PesysService
 import no.nav.eessi.pensjon.shared.api.ApiRequest
 import no.nav.eessi.pensjon.utils.mapJsonToAny
 import no.nav.eessi.pensjon.utils.toJson
-import no.nav.eessi.pensjon.fagmodul.api.vedlegg.VedleggService
-import no.nav.eessi.pensjon.services.pensjonsinformasjon.P6000MeldingOmVedtakDto
-import org.junit.Assert
+import no.nav.eessi.pensjon.utils.toJsonSkipEmpty
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertSame
@@ -37,6 +32,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
+import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
 import org.springframework.web.util.UriComponentsBuilder
@@ -148,6 +144,45 @@ class SedControllerTest {
         val uriParams = mapOf("rinanr" to "123456789", "documentid" to "DOC1223213234234")
         val builder = UriComponentsBuilder.fromUriString(path).buildAndExpand(uriParams)
         assertEquals("/sed/get/123456789/DOC1223213234234", builder.path)
+    }
+
+    @Nested
+    @DisplayName("P2200 uten options")
+    inner class P2200Tests {
+        private fun samplePayload(): String =
+            mapJsonToAny<List<Map<String, Any?>>>(
+                javaClass.getResource("/json/sed/P2200-med-pensjon.json")!!.readText()
+            ).single().toJson()
+
+        @Test
+        fun `getDocument skal hente hele P2200`() {
+            val payload = samplePayload()
+            val sed = SED.fromJsonToConcrete(payload)
+            every { mockEuxInnhentingService.getSedOnBucByDocumentId("123456", "222222") } returns sed
+
+            val response = sedController.getDocument("123456", "222222")
+
+            assertEquals(HttpStatus.OK.name, response.status)
+            assertTrue(response.result is P2200FrontendResponse)
+            JSONAssert.assertEquals(payload, response.result?.toJsonSkipEmpty(), true)
+            assertEquals(1.0, metricsHelper.registry.get("sed.document.retrieved").tag("sed_type", "P2200").counter().count())
+            verify { gcpStorageService wasNot Called }
+        }
+
+        @Test
+        fun `updateSed skal bevare innholdet for P2200`() {
+            val payload = samplePayload()
+            val request = mapJsonToAny<MutableMap<String, Any?>>(payload).toJson()
+            val updatedPayload = slot<String>()
+            every { mockEuxInnhentingService.updateSedOnBuc("123456", "222222", capture(updatedPayload)) } returns true
+
+            val response = sedController.updateSed("123456", "222222", request)
+
+            assertEquals(HttpStatus.OK.name, response.status)
+            assertEquals(true, response.result)
+            JSONAssert.assertEquals(payload, updatedPayload.captured, true)
+            verify { gcpStorageService wasNot Called }
+        }
     }
 
     @Nested
