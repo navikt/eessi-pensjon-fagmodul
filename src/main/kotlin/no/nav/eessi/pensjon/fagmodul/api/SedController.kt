@@ -83,7 +83,14 @@ class SedController(
         val sed = euxInnhentingService.getSedOnBucByDocumentId(euxcaseid, documentid)
         metricsHelper.registry.counter("sed.document.retrieved", "sed_type", sed.type.name).increment()
 
-        if (sed is P2200 || sed is P8000 || sed is P12000) {
+        if (sed is P2200) {
+            return@measure FrontEndResponse(
+                P2200FrontendResponse(sed.type, sed.navP2200, sed.pensjon),
+                HttpStatus.OK.name
+            )
+        }
+
+        if (sed is P8000 || sed is P12000) {
             val lagretOptions = gcpStorageService.hentGcpDetlajerPaaId(documentid)
             if (lagretOptions != null) {
                 logger.info("Henter options for: ${sed.type}, rinaid: $euxcaseid, options: $lagretOptions")
@@ -92,7 +99,6 @@ class SedController(
             }
 
             val response = when (sed) {
-                is P2200 -> P2200FrontendResponse(sed.type, sed.navP2200, sed.pensjon, lagretOptions)
                 is P8000 -> P8000FrontendResponse(sed.type, sed.nav, sed.p8000Pensjon, lagretOptions)
                 is P12000 -> P12000FrontendResponse(sed.type, sed.nav, sed.pensjonP12000, lagretOptions)
                 else -> sed
@@ -119,7 +125,6 @@ class SedController(
             logger.info("Følgende SED prøves å oppdateres: ${sed.type}, rinaid: $euxcaseid")
 
             val options = when (sed) {
-                is P2200 -> mapJsonToAny<P2200FrontendResponse>(sedPayload).options
                 is P8000 -> mapJsonToAny<P8000Frontend>(sedPayload).options
                 is P12000 -> mapJsonToAny<P12000FrontendResponse>(sedPayload).options
                 else -> null
@@ -237,8 +242,5 @@ class P2200FrontendResponse(
     type: SedType = SedType.P2200,
     nav: NavP2200? = null,
     @JsonProperty("pensjon")
-    p2200Pensjon: P2200Pensjon?,
-    @JsonInclude(JsonInclude.Include.ALWAYS)
-    @JsonRawValue
-    var options: String? = null,
+    p2200Pensjon: P2200Pensjon?
 ) : P2200(type, nav, p2200Pensjon)
