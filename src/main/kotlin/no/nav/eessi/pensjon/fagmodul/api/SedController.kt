@@ -11,7 +11,6 @@ import no.nav.eessi.pensjon.eux.model.sed.*
 import no.nav.eessi.pensjon.fagmodul.eux.BucUtils
 import no.nav.eessi.pensjon.fagmodul.eux.EuxInnhentingService
 import no.nav.eessi.pensjon.gcp.GcpStorageService
-import no.nav.eessi.pensjon.logging.AuditKey
 import no.nav.eessi.pensjon.logging.AuditLogger
 import no.nav.eessi.pensjon.metrics.MetricsHelper
 import no.nav.eessi.pensjon.utils.mapJsonToAny
@@ -84,24 +83,27 @@ class SedController(
         val sed = euxInnhentingService.getSedOnBucByDocumentId(euxcaseid, documentid)
         metricsHelper.registry.counter("sed.document.retrieved", "sed_type", sed.type.name).increment()
 
-        if (sed is P8000) {
+        if (sed is P2200) {
+            return@measure FrontEndResponse(
+                P2200FrontendResponse(sed.type, sed.navP2200, sed.pensjon),
+                HttpStatus.OK.name
+            )
+        }
+
+        if (sed is P8000 || sed is P12000) {
             val lagretOptions = gcpStorageService.hentGcpDetlajerPaaId(documentid)
             if (lagretOptions != null) {
                 logger.info("Henter options for: ${sed.type}, rinaid: $euxcaseid, options: $lagretOptions")
             } else {
-                logger.warn("Henter P8000 uten options")
+                logger.warn("Henter ${sed.type} uten options")
             }
-            val response = P8000FrontendResponse(sed.type, sed.nav, sed.p8000Pensjon, lagretOptions)
-            return@measure FrontEndResponse(response, HttpStatus.OK.name)
-        }
-        if (sed is P12000) {
-            val lagretOptions = gcpStorageService.hentGcpDetlajerPaaId(documentid)
-            if (lagretOptions != null) {
-                logger.info("Henter options for: ${sed.type}, rinaid: $euxcaseid")
-            } else {
-                logger.warn("Henter P12000 uten options")
+
+            val response = when (sed) {
+                is P8000 -> P8000FrontendResponse(sed.type, sed.nav, sed.p8000Pensjon, lagretOptions)
+                is P12000 -> P12000FrontendResponse(sed.type, sed.nav, sed.pensjonP12000, lagretOptions)
+                else -> sed
             }
-            val response = P12000FrontendResponse(sed.type, sed.nav, sed.pensjonP12000, lagretOptions)
+
             return@measure FrontEndResponse(response, HttpStatus.OK.name)
         }
 
@@ -117,35 +119,34 @@ class SedController(
         val validsed = try {
             secureLog.info("Følgende SED payload: $sedPayload")
 
-            val sed = SED.fromJsonToConcrete(sedPayload).also { secureLog.info("Følgende SED: ${it.toJson()}") }
+            val sed = SED.fromJsonToConcrete(sedPayload).also {
+                secureLog.info("Følgende SED: ${it.toJson()}")
+            }
             logger.info("Følgende SED prøves å oppdateres: ${sed.type}, rinaid: $euxcaseid")
 
-            when (sed) {
-                is P8000 -> {
-                    val sedP8000Frontend = mapJsonToAny<P8000Frontend>(sedPayload)
-                    sedP8000Frontend.options?.let {
-                        val jsonDecoded = URLDecoder.decode(it, "UTF-8")
-                        logger.info("Lagrer options for: ${sed.type}, rinaid: $euxcaseid, options: $jsonDecoded")
-                        gcpStorageService.lagreP8000Options(documentid, jsonDecoded)
-                    }
-                    sed
-                }
-                is P12000 -> {
-                    val sedP12000Frontend = mapJsonToAny<P12000FrontendResponse>(sedPayload)
-                    sedP12000Frontend.options?.let {
-                        val jsonDecoded = URLDecoder.decode(it, "UTF-8")
-                        logger.info("Lagrer options for: ${sed.type}, rinaid: $euxcaseid, options: $jsonDecoded")
-                        gcpStorageService.lagreP8000Options(documentid, jsonDecoded)
-                    }
-                    sed
-                }
+            val options = when (sed) {
+                is P8000 -> mapJsonToAny<P8000Frontend>(sedPayload).options
+                is P12000 -> mapJsonToAny<P12000FrontendResponse>(sedPayload).options
+                else -> null
+            }
 
-                is P5000 -> sed.updateFromUI() //må alltid kjøres. sjekk og oppdatert trydetid. punkt 5.2.1.3.1
+            options?.let {
+                val jsonDecoded = URLDecoder.decode(it, "UTF-8")
+                logger.info("Lagrer options for: ${sed.type}, rinaid: $euxcaseid, options: $jsonDecoded")
+                gcpStorageService.lagreP8000Options(documentid, jsonDecoded)
+            }
+
+            when (sed) {
+                is P5000 -> sed.updateFromUI()
                 else -> sed
             }
         } catch (ex: Exception) {
             logger.error("Feil ved oppdatering av SED", ex)
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Lagring av P8000 feilet, ugyldig SED: ${ex.message}", ex)
+            throw ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Lagring av P8000 feilet, ugyldig SED: ${ex.message}",
+                ex
+            )
         }
         val jsonToRina = validsed.toJsonSkipEmpty().also { logger.debug("Følgende SED prøves å oppdateres til RINA: rinaID: $euxcaseid, documentid: $documentid, validsed: $it") }
         val updated = euxInnhentingService.updateSedOnBuc(euxcaseid, documentid, jsonToRina).also { logger.info("Oppdatering av SED: $it") }
@@ -189,6 +190,9 @@ class SedController(
     }
 }
 
+/**
+ * Denne er kun for frontend, og brukes for å sende options som en JSON string til backend. Dette er fordi Spring Boot ikke støtter å sende JSON objekter i PUT request body.
+ */
 @JsonIgnoreProperties(ignoreUnknown = true)
 class P8000Frontend(
     @JsonProperty("sed")
@@ -234,3 +238,12 @@ class P12000FrontendResponse(
     @JsonRawValue
     var options: String? = null,
 ) : P12000(type, nav, p12000Pensjon)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+class P2200FrontendResponse(
+    @JsonProperty("sed")
+    type: SedType = SedType.P2200,
+    nav: NavP2200? = null,
+    @JsonProperty("pensjon")
+    p2200Pensjon: P2200Pensjon?
+) : P2200(type, nav, p2200Pensjon)

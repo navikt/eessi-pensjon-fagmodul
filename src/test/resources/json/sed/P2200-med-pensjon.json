@@ -1,0 +1,85 @@
+[
+  {
+    "sed": "P2200",
+    "nav": {
+      "eessisak": [
+        {
+          "institusjonsid": "NO:NAVAT07",
+          "institusjonsnavn": "NAV ACCEPTANCE TEST 07",
+          "saksnummer": "TEST-SAK-001",
+          "land": "NO"
+        }
+      ],
+      "bruker": {
+        "person": {
+          "pin": [
+            {
+              "institusjonsnavn": "NAV ACCEPTANCE TEST 07",
+              "institusjonsid": "NO:NAVAT07",
+              "identifikator": "TEST-NO-001",
+              "land": "NO"
+            },
+            {
+              "identifikator": "TEST-BE-001",
+              "land": "BE"
+            }
+          ],
+          "statsborgerskap": [
+            { "land": "NO" },
+            { "land": "BE" },
+            { "land": "DK" },
+            { "land": "SE" }
+          ],
+          "etternavn": "TESTPERSON",
+          "fornavn": "EKSEMPEL",
+          "kjoenn": "M",
+          "foedested": {
+            "by": "Unknown",
+            "land": "NO"
+          },
+          "foedselsdato": "1962-04-16",
+          "sivilstand": [
+            {
+              "fradato": "1962-04-16",
+              "status": "enslig"
+            }
+          ]
+        },
+        "adresse": {
+          "gate": "TESTGATE 1",
+          "by": "TESTBY",
+          "postnummer": "3000",
+          "land": "FR"
+        }
+      },
+      "krav": {
+        "dato": "2026-06-04"
+      }
+    },
+    "pensjon": {
+      "ytelser": [
+        {
+          "mottasbasertpaa": "botid",
+          "ytelse": "08",
+          "startdatoretttilytelse": "2023-05-01",
+          "beloep": [
+            {
+              "betalingshyppighetytelse": "03",
+              "valuta": "NOK",
+              "beloep": "0",
+              "gjeldendesiden": "2023-06-01"
+            }
+          ],
+          "status": "02"
+        }
+      ],
+      "kravDato": {
+        "dato": "2026-06-04"
+      },
+      "forespurtstartdato": "2023-05-01",
+      "etterspurtedokumenter": "P5000 and P6000"
+    },
+    "sedGVer": "4",
+    "sedVer": "4"
+  }
+]
