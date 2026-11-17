@@ -190,6 +190,9 @@ class SedController(
     }
 }
 
+/**
+ * Denne er kun for frontend, og brukes for å sende options som en JSON string til backend. Dette er fordi Spring Boot ikke støtter å sende JSON objekter i PUT request body.
+ */
 @JsonIgnoreProperties(ignoreUnknown = true)
 class P8000Frontend(
     @JsonProperty("sed")
