@@ -1,5 +1,6 @@
 package no.nav.eessi.pensjon.services.statistikk
 
+import no.nav.eessi.pensjon.eux.model.BucType
 import no.nav.eessi.pensjon.eux.model.SedType
 import no.nav.eessi.pensjon.utils.toJson
 import org.slf4j.LoggerFactory
@@ -31,14 +32,23 @@ class StatistikkHandler(private val kafkaTemplate: KafkaTemplate<String, String>
 
     }
 
-    fun produserSedOpprettetHendelse(rinaid: String, documentId: String?, vedtaksId: String?, sedtype: SedType? = null) {
+    fun produserSedOpprettetHendelse(
+        rinaid: String,
+        documentId: String?,
+        vedtaksId: String?,
+        sedtype: SedType? = null,
+        buctype: BucType? = null,
+        sakId: String? = null
+    ) {
         try {
             val melding = StatistikkMelding(
                 opprettelseType = HendelseType.SED,
                 rinaId = rinaid,
                 dokumentId = documentId,
                 vedtaksId = vedtaksId,
-                sedtype =  sedtype
+                sedtype = sedtype,
+                buctype = buctype,
+                sakId = sakId
             )
             produserKafkaMelding(melding)
 
@@ -54,7 +64,7 @@ class StatistikkHandler(private val kafkaTemplate: KafkaTemplate<String, String>
 
             val payload = melding.toJson()
 
-            logger.info("Oppretter statistikk melding på kafka: ${kafkaTemplate.defaultTopic}  melding: $melding")
+            logger.info("Oppretter statistikk melding på kafka: ${kafkaTemplate.defaultTopic}, type: ${melding.opprettelseType}")
             try {
                 kafkaTemplate.sendDefault(key, payload).get()
             } catch (exception: Exception) {
@@ -72,7 +82,9 @@ data class StatistikkMelding(
     val rinaId: String,
     val dokumentId: String?,
     val vedtaksId: String?,
-    val sedtype: SedType?
+    val sedtype: SedType?,
+    val buctype: BucType? = null,
+    val sakId: String? = null
 )
 
 enum class HendelseType {

@@ -46,7 +46,15 @@ class EuxPrefillService (private val euxKlient: EuxKlientLib,
     }
 
     @Throws(EuxGenericServerException::class, SedDokumentIkkeOpprettetException::class)
-    fun opprettSvarJsonSedOnBuc(jsonSed: String, euxCaseId: String, parentDocumentId: String, vedtakId: String?, sedType: SedType): BucSedResponse {
+    fun opprettSvarJsonSedOnBuc(
+        jsonSed: String,
+        euxCaseId: String,
+        parentDocumentId: String,
+        vedtakId: String?,
+        sedType: SedType,
+        bucType: BucType,
+        sakId: String?
+    ): BucSedResponse {
         logger.info("Forsøker å opprette (svarsed) en $sedType på rinasakId: $euxCaseId")
 
         val bucSedResponse = opprettSvarSED.measure {
@@ -56,7 +64,7 @@ class EuxPrefillService (private val euxKlient: EuxKlientLib,
                 parentDocumentId)
         }
 
-        statistikk.produserSedOpprettetHendelse(euxCaseId, bucSedResponse.documentId, vedtakId, sedType)
+        statistikk.produserSedOpprettetHendelse(euxCaseId, bucSedResponse.documentId, vedtakId, sedType, bucType, sakId)
 
         return bucSedResponse
     }
@@ -65,12 +73,19 @@ class EuxPrefillService (private val euxKlient: EuxKlientLib,
      * Ny SED på ekisterende type
      */
     @Throws(EuxGenericServerException::class, SedDokumentIkkeOpprettetException::class)
-    fun opprettJsonSedOnBuc(jsonNavSED: String, sedType: SedType, euxCaseId: String, vedtakId: String?): BucSedResponse {
+    fun opprettJsonSedOnBuc(
+        jsonNavSED: String,
+        sedType: SedType,
+        euxCaseId: String,
+        vedtakId: String?,
+        bucType: BucType,
+        sakId: String?
+    ): BucSedResponse {
         logger.info("Forsøker å opprette en $sedType på rinasakId: $euxCaseId")
 
         val bucSedResponse = opprettSED.measure { euxKlient.opprettSed(jsonNavSED, euxCaseId) }
 
-        statistikk.produserSedOpprettetHendelse(euxCaseId, bucSedResponse.documentId, vedtakId, sedType)
+        statistikk.produserSedOpprettetHendelse(euxCaseId, bucSedResponse.documentId, vedtakId, sedType, bucType, sakId)
         return bucSedResponse
     }
 
@@ -122,7 +137,9 @@ class EuxPrefillService (private val euxKlient: EuxKlientLib,
         val sedType = SedType.from(request.sed?.name!!)!!
         logger.info("Prøver å sende SED: $sedType inn på BUC: ${dataModel.euxCaseID}")
 
-        val bucAndSedResponse = opprettJsonSedOnBuc(sed, sedType, dataModel.euxCaseID, request.vedtakId)
+        val bucAndSedResponse = opprettJsonSedOnBuc(
+            sed, sedType, dataModel.euxCaseID, request.vedtakId, dataModel.buc, dataModel.penSaksnummer
+        )
         logger.info("Opprettet ny SED med dokumentId: ${bucAndSedResponse.documentId}")
 
         val sedDocument = bucUtil.findDocument(bucAndSedResponse.documentId)
@@ -142,7 +159,9 @@ class EuxPrefillService (private val euxKlient: EuxKlientLib,
         parentId: String,
         bucUtil: BucUtils
     ): DocumentsItem? {
-        val docresult = opprettSvarJsonSedOnBuc(sed, dataModel.euxCaseID, parentId, dataModel.vedtakId, dataModel.sedType)
+        val docresult = opprettSvarJsonSedOnBuc(
+            sed, dataModel.euxCaseID, parentId, dataModel.vedtakId, dataModel.sedType, dataModel.buc, dataModel.penSaksnummer
+        )
         return euxInnhentingService.getBucForPBuc06AndForEmptySed(
             dataModel.buc,
             bucUtil.getBuc().documents,
@@ -224,7 +243,9 @@ class EuxPrefillService (private val euxKlient: EuxKlientLib,
         x005Liste.forEach { x005 ->
             try {
                 updateSEDVersion(x005, bucVersion)
-                opprettJsonSedOnBuc(x005.toJson(), x005.type, dataModel.euxCaseID, dataModel.vedtakId)
+                opprettJsonSedOnBuc(
+                    x005.toJson(), x005.type, dataModel.euxCaseID, dataModel.vedtakId, dataModel.buc, dataModel.penSaksnummer
+                )
             } catch (eux: EuxRinaServerException) {
                 execptionError = eux
             } catch (exx: EuxConflictException) {
